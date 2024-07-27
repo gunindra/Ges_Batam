@@ -12,7 +12,6 @@ class CreateTblMatauangTable extends Migration
             $table->id();
             $table->string('nama_matauang', 100);
             $table->string('singkatan_matauang', 10);
-            $table->decimal('perbandingan_angka', 10, 2);
             $table->timestamps();
         });
     }

@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_pembayaran', function (Blueprint $table) {
+        Schema::create('tbl_pengantaran', function (Blueprint $table) {
             $table->id();
-            $table->string('tipe_pembayaran', 100);
-            $table->date('tanggal_pembayaran');
             $table->foreignId('pemesanan_id')->constrained('tbl_pemesanan')->unique();
-            $table->foreignId('matauang_id')->constrained('tbl_matauang');
-            $table->foreignId('rekening_id')->constrained('tbl_rekening');
-            $table->decimal('jumlah', 15, 2);
-            $table->decimal('jumlah_idr', 15, 2);
+            $table->date('tanggal_pengantaran');
+            $table->foreignId('supir_id')->constrained('tbl_supir');
+            $table->text('alamat');
+            $table->string('kota', 100);
+            $table->string('provinsi', 100);
+            $table->text('bukti_pengantaran')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_pembayaran');
+        Schema::dropIfExists('tbl_pengantaran');
     }
 };

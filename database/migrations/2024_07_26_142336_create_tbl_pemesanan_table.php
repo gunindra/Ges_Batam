@@ -13,14 +13,7 @@ class CreateTblPemesananTable extends Migration
             $table->string('kode_pemesanan', 50);
             $table->dateTime('tanggal_pemesanan');
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
-            $table->string('nama_barang', 100);
-            $table->decimal('harga_barang', 10, 2);
-            $table->foreignId('pembayaran_id')->constrained('tbl_pembayaran');
-            $table->foreignId('matauang_id')->constrained('tbl_matauang');
-            $table->foreignId('rekening_id')->constrained('tbl_rekening');
-            $table->foreignId('supir_id')->constrained('tbl_supir');
-            $table->foreignId('alamat_id')->constrained('tbl_tujuan');
-            $table->text('bukti_pengantaran')->nullable();
+            $table->decimal('total_harga', 10, 2);
             $table->foreignId('status_id')->constrained('tbl_status');
             $table->timestamps();
         });

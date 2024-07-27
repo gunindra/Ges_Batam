@@ -11,7 +11,7 @@ class CreateTblPoinTable extends Migration
         Schema::create('tbl_poin', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
-            $table->date('tanggal_transaksi');
+            $table->date('tanggal_pembelianpoin');
             $table->integer('poin');
             $table->timestamps();
         });
