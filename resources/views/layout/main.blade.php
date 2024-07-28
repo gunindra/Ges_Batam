@@ -24,7 +24,7 @@
             <div id="collapseBootstrap" class="collapse" aria-labelledby="headingBootstrap" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     {{-- <h6 class="collapse-header">Master Data</h6> --}}
-                    <a class="collapse-item" href="alerts.html">Costumers</a>
+                    <a class="collapse-item" href="{{ route('costumer') }}">Costumers</a>
                     <a class="collapse-item" href="buttons.html">Driver</a>
                     <a class="collapse-item" href="dropdowns.html">Rekening</a>
                 </div>
