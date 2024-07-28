@@ -31,9 +31,9 @@
             </div>
         </li>
         <hr class="sidebar-divider">
-        <div class="sidebar-heading">
+        {{-- <div class="sidebar-heading">
             Features
-        </div>
+        </div> --}}
         {{-- <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                 aria-expanded="true" aria-controls="collapseBootstrap">
@@ -52,7 +52,7 @@
                 </div>
             </div>
         </li> --}}
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseForm"
                 aria-expanded="true" aria-controls="collapseForm">
                 <i class="fab fa-fw fa-wpforms"></i>
@@ -112,8 +112,8 @@
                 <span>Charts</span>
             </a>
         </li>
-        <hr class="sidebar-divider">
-        <div class="version" id="version-ruangadmin"></div>
+        <hr class="sidebar-divider"> --}}
+        {{-- <div class="version" id="version-ruangadmin"></div> --}}
     </ul>
     <!-- Sidebar -->
 
@@ -349,6 +349,7 @@
                             document.write(new Date().getFullYear());
                         </script> - developed by
                         {{-- <b><a href="https://indrijunanda.gitlab.io/" target="_blank">indrijunanda</a></b> --}}
+                        <b>SmartAppCare</b>
                     </span>
                 </div>
             </div>

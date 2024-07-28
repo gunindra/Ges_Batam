@@ -35,8 +35,9 @@
   <script src="{{ asset('RuangAdmin/js/ruang-admin.min.js') }}"></script>
   <script src="{{ asset('RuangAdmin/vendor/chart.js/Chart.min.js') }}"></script>
   <script src="{{ asset('RuangAdmin/js/demo/chart-area-demo.js') }}"></script>
-  <script src="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
   <script src="{{ asset('RuangAdmin/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+
   @yield('script')
 </body>
 
