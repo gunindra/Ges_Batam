@@ -5,7 +5,7 @@
     <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
             <div class="sidebar-brand-icon">
-                <img src="img/logo/logo2.png">
+                <img src="{{ asset('RuangAdmin/img/logo/logo2.png') }}">
             </div>
             <div class="sidebar-brand-text mx-3">GES</div>
         </a>
@@ -25,8 +25,8 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     {{-- <h6 class="collapse-header">Master Data</h6> --}}
                     <a class="collapse-item" href="{{ route('costumer') }}">Costumers</a>
-                    <a class="collapse-item" href="buttons.html">Driver</a>
-                    <a class="collapse-item" href="dropdowns.html">Rekening</a>
+                    <a class="collapse-item" href="{{ route('driver') }}">Driver</a>
+                    <a class="collapse-item" href="{{ route('rekening') }}">Rekening</a>
                 </div>
             </div>
         </li>
@@ -206,7 +206,7 @@
                             </h6>
                             <a class="dropdown-item d-flex align-items-center" href="#">
                                 <div class="dropdown-list-image mr-3">
-                                    <img class="rounded-circle" src="img/man.png" style="max-width: 60px"
+                                    <img class="rounded-circle" src="{{ asset('RuangAdmin/img/man.png') }}" style="max-width: 60px"
                                         alt="">
                                     <div class="status-indicator bg-success"></div>
                                 </div>
@@ -219,7 +219,7 @@
                             </a>
                             <a class="dropdown-item d-flex align-items-center" href="#">
                                 <div class="dropdown-list-image mr-3">
-                                    <img class="rounded-circle" src="img/girl.png" style="max-width: 60px"
+                                    <img class="rounded-circle" src="{{ asset('RuangAdmin/img/girl.png') }}" style="max-width: 60px"
                                         alt="">
                                     <div class="status-indicator bg-default"></div>
                                 </div>
@@ -284,7 +284,7 @@
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="img-profile rounded-circle" src="img/boy.png" style="max-width: 60px">
+                            <img class="img-profile rounded-circle" src="{{ asset('RuangAdmin/img/boy.png') }}" style="max-width: 60px">
                             <span class="ml-2 d-none d-lg-inline text-white small">User</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"

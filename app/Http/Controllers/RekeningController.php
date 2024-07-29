@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class MasterController extends Controller
+class RekeningController extends Controller
 {
     public function index() {
 
 
-        return view('masterdata.costumer.indexmaster');
+        return view('masterdata.rekening.indexmasterrekening');
     }
 }

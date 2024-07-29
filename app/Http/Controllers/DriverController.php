@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class CostumerController extends Controller
+class DriverController extends Controller
 {
     public function index() {
 
 
-        return view('masterdata.costumer.indexmastercostumer');
+        return view('masterdata.driver.indexmasterdriver');
     }
 }
