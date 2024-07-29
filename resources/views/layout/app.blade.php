@@ -17,11 +17,8 @@
 </head>
 
 <body id="page-top">
-  <div id="wrapper">
 
     @yield('content')
-
-  </div>
 
   <!-- Scroll to top -->
   <a class="scroll-to-top rounded" href="#page-top">
