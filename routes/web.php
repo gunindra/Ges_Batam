@@ -28,6 +28,10 @@ Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
+Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
+Route::post('/masterdata/costumer/tambah', [CostumerController::class, 'addCostumer'])->name('addCostumer');
+Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
+Route::get('/masterdata/destroy', [CostumerController::class, 'destroyCostumer'])->name('destroyCostumer');
 
 // Driver
 Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');

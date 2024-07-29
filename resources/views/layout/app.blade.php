@@ -7,12 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   {{-- <link href="img/logo/logo.png" rel="icon"> --}}
   <title>@yield('title')</title>
   <link href="{{ asset('RuangAdmin/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
   <link href="{{ asset('RuangAdmin/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
   <link href="{{ asset('RuangAdmin/css/ruang-admin.min.css') }}" rel="stylesheet">
   <link href="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 
 </head>
 
@@ -34,6 +36,23 @@
   <script src="{{ asset('RuangAdmin/js/demo/chart-area-demo.js') }}"></script>
   <script src="{{ asset('RuangAdmin/vendor/datatables/jquery.dataTables.min.js') }}"></script>
   <script src="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/sweetalert2.js') }}"></script>
+  <script>
+      function showMessage(type, message) {
+
+          if (!type || type === '' || !message || message === '') {
+              return;
+          }
+
+          return Swal.fire({
+              icon: type,
+              title: message,
+              showConfirmButton: false,
+              timer: 2000
+          })
+
+      }
+  </script>
 
   @yield('script')
 </body>
