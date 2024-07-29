@@ -89,7 +89,7 @@ class CostumerController extends Controller
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
                 'category' => $categorycostumer,
-
+                'created_at' => now(),
             ]);
 
             // Mengembalikan respons JSON jika berhasil
@@ -118,6 +118,7 @@ class CostumerController extends Controller
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
                 'category' => $categorycostumer,
+                'updated_at' => now(),
             ]);
 
             // Mengembalikan respons JSON jika berhasil
