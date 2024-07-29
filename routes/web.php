@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\CostumerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RekeningController;
@@ -11,9 +14,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Login
+Route::get('/login', [LoginController::class, 'index'])->name('login');
 
 // Dashboard
 Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
+
+// Booking Confirmation
+Route::get('/booking', [BookingController::class, 'index'])->name('booking');
+
+// Delivery
+Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
