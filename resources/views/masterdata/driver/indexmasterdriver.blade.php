@@ -14,7 +14,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTambahDriverTitle">Modal Tambah Driver</h5>
+                        <h5 class="modal-title" id="modalTambahDriverTitle">Tambah Driver</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -23,19 +23,59 @@
                         <div class="mt-3">
                             <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
                             <input type="text" class="form-control" id="namaDriver" value="">
-                        </div>
-                        <div class="mt-3">
-                            <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control numericInput" id="noTelpon" value="">
+                            <div id="err-namaDriver" class="text-danger mt-1">Silahkan isi nama driver</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" id="alamatDriver" rows="3"></textarea>
+                            <div id="err-alamatDriver" class="text-danger mt-1">Silahkan isi alamat driver</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
+                            <input type="text" class="form-control" id="noTelponDriver" value="">
+                            <div id="err-noTelponDriver" class="text-danger mt-1">Silahkan isi no. telp driver</div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveDriver" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Center -->
+        <div class="modal fade" id="modalEditDriver" tabindex="-1" role="dialog" aria-labelledby="modalEditDriverTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditDriverTitle">Edit Driver</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="driverIdEdit">
+                        <div class="mt-3">
+                            <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
+                            <input type="text" class="form-control" id="namaDriverEdit" value="">
+                            <div id="err-namaDriver" class="text-danger mt-1">Silahkan isi nama driver</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="alamat" class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" id="alamatDriverEdit" rows="3"></textarea>
+                            <div id="err-alamatDriver" class="text-danger mt-1">Silahkan isi alamat driver</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
+                            <input type="text" class="form-control" id="noTelponDriverEdit" value="">
+                            <div id="err-noTelponDriver" class="text-danger mt-1">Silahkan isi no. telp driver</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveDriverEdit" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -60,8 +100,8 @@
                                 data-target="#modalTambahDriver" id="#modalCenter"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Driver</button>
                         </div>
-                        <div class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tableDriver">
+                        <div id="containerDriver" class="table-responsive px-3">
+                            {{-- <table class="table align-items-center table-flush table-hover" id="tableDriver">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Nama</th>
@@ -91,36 +131,8 @@
                                             <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
-                                    {{-- <tr>
-                                        <td><a href="#">RA5324</a></td>
-                                        <td>Jaenab Bajigur</td>
-                                        <td>Gundam 90' Edition</td>
-                                        <td><span class="badge badge-warning">Shipping</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA8568</a></td>
-                                        <td>Rivat Mahesa</td>
-                                        <td>Oblong T-Shirt</td>
-                                        <td><span class="badge badge-danger">Pending</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA1453</a></td>
-                                        <td>Indri Junanda</td>
-                                        <td>Hat Rounded</td>
-                                        <td><span class="badge badge-info">Processing</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA1998</a></td>
-                                        <td>Udin Cilok</td>
-                                        <td>Baby Powder</td>
-                                        <td><span class="badge badge-success">Delivered</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr> --}}
                                 </tbody>
-                            </table>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -144,18 +156,246 @@
 @section('script')
 
     <script>
-        $('#tableDriver').DataTable({
-            searching: false,
-            lengthChange: false,
-            "bSort": true,
-            "aaSorting": [],
-            pageLength: 5,
-            "lengthChange": false,
-            responsive: true,
-            language: {
-                search: ""
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getListDriver = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                    url: "{{ route('getlistDriver') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch
+                    },
+                    beforeSend: () => {
+                        $('#containerDriver').html(loadSpin)
+                    }
+                })
+                .done(res => {
+                    $('#containerDriver').html(res)
+                    $('#tableDriver').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getListDriver();
+
+        $('#noTelponDriver, #noTelponDriverEdit').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Fungsi untuk validasi input
+        function validateDriverInput(modal) {
+            let isValid = true;
+
+            // Nama Driver
+            if ($(`#${modal} #namaDriver, #${modal} #namaDriverEdit`).val().trim() === '') {
+                $(`#${modal} #err-namaDriver`).show();
+                isValid = false;
+            } else {
+                $(`#${modal} #err-namaDriver`).hide();
+            }
+
+            // Alamat Driver
+            if ($(`#${modal} #alamatDriver, #${modal} #alamatDriverEdit`).val().trim() === '') {
+                $(`#${modal} #err-alamatDriver`).show();
+                isValid = false;
+            } else {
+                $(`#${modal} #err-alamatDriver`).hide();
+            }
+
+            // No. Telpon Driver
+            if ($(`#${modal} #noTelponDriver, #${modal} #noTelponDriverEdit`).val().trim() === '') {
+                $(`#${modal} #err-noTelponDriver`).show();
+                isValid = false;
+            } else {
+                $(`#${modal} #err-noTelponDriver`).hide();
+            }
+
+            return isValid;
+        }
+
+        validateDriverInput('modalTambahDriver');
+        validateDriverInput('modalEditDriver');
+
+        $('#namaDriver, #alamatDriver, #noTelponDriver').on('input change', function() {
+            validateDriverInput('modalTambahDriver');
+        });
+
+        $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit').on('input change', function() {
+            validateDriverInput('modalEditDriver');
+        });
+
+        $('#saveDriver').click(function() {
+            $('#namaDriver, #alamatDriver, #noTelponDriver').data('touched', true);
+
+            let namaDriver = $('#namaDriver').val();
+            let alamatDriver = $('#alamatDriver').val();
+            let noTelponDriver = $('#noTelponDriver').val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            if (validateDriverInput('modalTambahDriver')) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addDriver') }}",
+                            data: {
+                                namaDriver: namaDriver,
+                                alamatDriver: alamatDriver,
+                                noTelponDriver: noTelponDriver,
+                                _token: csrfToken
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getListDriver();
+                                    $('#modalTambahDriver').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Driver",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+
+        $('#saveDriverEdit').click(function() {
+            $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit').data('touched', true);
+
+            let id = $('#driverIdEdit').val();
+            let namaDriver = $('#namaDriverEdit').val();
+            let alamatDriver = $('#alamatDriverEdit').val();
+            let noTelponDriver = $('#noTelponDriverEdit').val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            if (validateDriverInput('modalEditDriver')) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('updateDriver') }}",
+                            data: {
+                                id: id,
+                                namaDriver: namaDriver,
+                                alamatDriver: alamatDriver,
+                                noTelponDriver: noTelponDriver,
+                                _token: csrfToken
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Di Update");
+                                    getListDriver();
+                                    $('#modalEditDriver').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Mengubah Driver",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+
+        $('#modalTambahDriver').on('hidden.bs.modal', function() {
+            $('#namaDriver, #alamatDriver, #noTelponDriver').val('');
+            validateDriverInput('modalTambahDriver');
+        });
+
+        $(document).on('click', '.btnUpdateDriver', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let nama_supir = $(this).data('nama_supir');
+                let alamat_supir = $(this).data('alamat_supir');
+                let no_wa = $(this).data('no_wa');
+
+                $('#namaDriverEdit').val(nama_supir);
+                $('#alamatDriverEdit').val(alamat_supir);
+                $('#noTelponDriverEdit').val(no_wa);
+                $('#driverIdEdit').val(id);
+
+                validateDriverInput('modalEditDriver');
+                $('#modalEditDriver').modal('show');
+            });
+
+            $(document).on('click', '.btnDestroyDriver', function(e) {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin Ingin Hapus Driver Ini?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "GET",
+                            url: "{{ route('destroyDriver') }}",
+                            data: {
+                                id: id,
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success",
+                                        "Berhasil menghapus Driver");
+                                    getListDriver();
+                                } else {
+                                    showMessage("error", "Gagal menghapus Driver");
+                                }
+                            }
+                        });
+                    }
+                })
+            });
+
+
+
     </script>
+
 
 @endsection
