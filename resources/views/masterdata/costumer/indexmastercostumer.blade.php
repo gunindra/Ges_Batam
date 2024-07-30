@@ -101,14 +101,40 @@
                 </div>
             </div>
         </div>
-        <!--End Modal Tambah -->
+        <!--End Modal Edit -->
+
+         <!-- Modal Point -->
+         <div class="modal fade" id="modalPointCostumer" tabindex="-1" role="dialog"
+         aria-labelledby="modalPointCostumerTitle" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered" role="document">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h5 class="modal-title" id="modalPointCostumerTitle">Point Customer</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+                 <div class="modal-body">
+                    <div class="d-flex justify-content-center text-center">
+                        <H1 id="pointValue">?</H1>
+                    </div>
+                 </div>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                 </div>
+             </div>
+         </div>
+     </div>
+     <!--End Modal Point -->
+
+
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Customer</h1>
-            {{-- <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="./">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-      </ol> --}}
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Master Data</li>
+                <li class="breadcrumb-item active" aria-current="page">Customer</li>
+            </ol>
         </div>
 
         <div class="row">
@@ -406,6 +432,13 @@
             $('#modalEditCustomer').modal('show');
         });
 
+
+
+        $(document).on('click', '.btnPointCostumer', function(e) {
+            let point = $(this).data('poin');
+            $('#pointValue').text(point !== null ? point : '-');
+            $('#modalPointCostumer').modal('show');
+        })
 
         $(document).on('click', '.btnDestroyCustomer', function(e) {
             let id = $(this).data('id');

@@ -40,10 +40,6 @@
             </div>
         </div>
 
-
-
-
-
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Rekening</h1>
             <ol class="breadcrumb">
@@ -62,8 +58,8 @@
                                 data-target="#modalTambahRekening" id="#modalCenter"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Rekening</button>
                         </div>
-                        <div class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tableRekening">
+                        <div id="containerRekening" class="table-responsive px-3 ">
+                            {{-- <table class="table align-items-center table-flush table-hover" id="tableRekening">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Pemilik</th>
@@ -93,46 +89,13 @@
                                             <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
-                                    {{-- <tr>
-                                        <td><a href="#">RA5324</a></td>
-                                        <td>Jaenab Bajigur</td>
-                                        <td>Gundam 90' Edition</td>
-                                        <td><span class="badge badge-warning">Shipping</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA8568</a></td>
-                                        <td>Rivat Mahesa</td>
-                                        <td>Oblong T-Shirt</td>
-                                        <td><span class="badge badge-danger">Pending</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA1453</a></td>
-                                        <td>Indri Junanda</td>
-                                        <td>Hat Rounded</td>
-                                        <td><span class="badge badge-info">Processing</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">RA1998</a></td>
-                                        <td>Udin Cilok</td>
-                                        <td>Baby Powder</td>
-                                        <td><span class="badge badge-success">Delivered</span></td>
-                                        <td><a href="#" class="btn btn-sm btn-primary">Detail</a></td>
-                                    </tr> --}}
                                 </tbody>
-                            </table>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
-
     </div>
     <!---Container Fluid-->
 
@@ -146,18 +109,41 @@
 @section('script')
 
     <script>
-        $('#tableRekening').DataTable({
-            searching: false,
-            lengthChange: false,
-            "bSort": true,
-            "aaSorting": [],
-            pageLength: 5,
-            "lengthChange": false,
-            responsive: true,
-            language: {
-                search: ""
-            }
-        });
+         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getListRekening = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                    url: "{{ route('getlistRekening') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch
+                    },
+                    beforeSend: () => {
+                        $('#containerRekening').html(loadSpin)
+                    }
+                })
+                .done(res => {
+                    $('#containerRekening').html(res)
+                    $('#tableRekening').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getListRekening();
     </script>
 
 @endsection

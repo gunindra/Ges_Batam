@@ -48,7 +48,7 @@ class CostumerController extends Controller
             : '<td class="">' . ($item->category ?? '-') . '</td>';
 
             $showPointButton = ($item->category == 'VIP')
-            ? '<a class="btn btn-sm btn-primary text-white" data-poin="' .$item->sisa_poin .'">Show point</a>'
+            ? '<a class="btn btnPointCostumer btn-sm btn-primary text-white" data-poin="' .$item->sisa_poin .'">Show point</a>'
             : '';
 
             $output .=
