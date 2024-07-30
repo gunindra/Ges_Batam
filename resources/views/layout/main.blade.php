@@ -31,6 +31,11 @@
                     <i class="fas fa-file-invoice"></i>
                     <span>Invoice</span></a>
             </li>
+            <li class="nav-item {{ request()->routeIs('information') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('information') }}">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Information Content</span></a>
+            </li>
             <li
                 class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
