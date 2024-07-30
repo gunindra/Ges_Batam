@@ -46,8 +46,8 @@ class RekeningController extends Controller
                     <td class="">' . ($item->nomer_rekening ?? '-') .'</td>
                     <td class="">' . ($item->nama_bank ?? '-') .'</td>
                    <td>
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-pemilik="' .$item->pemilik .'" data-nomer_rekening="' .$item->nomer_rekening .'" data-nama_bank="' .$item->nama_bank .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyCustomer btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
+                        <a  class="btn btnUpdateRekening btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-pemilik="' .$item->pemilik .'" data-nomer_rekening="' .$item->nomer_rekening .'" data-nama_bank="' .$item->nama_bank .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyRekening btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -60,37 +60,59 @@ class RekeningController extends Controller
     public function addRekening(Request $request)
     {
 
-        $namacostumer = $request->input('namaCostmer');
-        $alamatcostumer = $request->input('alamatCustomer');
-        $notlponcostumer = $request->input('noTelpon');
-        $categorycostumer = $request->input('CategoryCustomer');
-
-
-        // dd($namacostumer, $alamatcostumer, $notlponcostumer, $categorycostumer);
+        $namaRekening = $request->input('namaRekening');
+        $noRekening = $request->input('noRekening');
+        $bankRekening = $request->input('bankRekening');
 
         try {
-            DB::table('tbl_pembeli')->insert([
-                'nama_pembeli' => $namacostumer,
-                'no_wa' => $notlponcostumer,
-                'alamat' => $alamatcostumer,
-                'category' => $categorycostumer,
+            DB::table('tbl_rekening')->insert([
+                'pemilik' => $namaRekening,
+                'nomer_rekening' => $noRekening,
+                'nama_bank' => $bankRekening,
                 'created_at' => now(),
             ]);
 
-            // Mengembalikan respons JSON jika berhasil
-            return response()->json(['status' => 'success', 'message' => 'Pelanggan berhasil ditambahkan'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Rekening berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan pelanggan: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Rekening: ' . $e->getMessage()], 500);
         }
     }
 
     public function updateRekening(Request $request)
     {
+        $id = $request->input('id');
+        $namaRekening = $request->input('namaRekening');
+        $noRekening = $request->input('noRekening');
+        $bankRekening = $request->input('bankRekening');
 
+        try {
+            DB::table('tbl_rekening')
+            ->where('id', $id)
+            ->update([
+                'pemilik' => $namaRekening,
+                'nomer_rekening' => $noRekening,
+                'nama_bank' => $bankRekening,
+                'updated_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Data Rekening berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Rekening: ' . $e->getMessage()], 500);
+        }
     }
 
     public function destroyRekening(Request $request)
     {
+        $id = $request->input('id');
 
+        try {
+            DB::table('tbl_rekening')
+                ->where('id', $id)
+                ->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data Rekening berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }
