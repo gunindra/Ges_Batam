@@ -32,6 +32,26 @@
             font-weight: bold;
             color: #555555;
         }
+
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.25rem;
+            padding: 6px 12px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 25px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
     </style>
 
 
@@ -66,12 +86,11 @@
                                     <input type="date" class="form-control col-8" id="tanggal" value="">
                                     <div id="tanggalError" class="text-danger mt-1">Tanggal tidak boleh kosong</div>
                                 </div>
-
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
-                                    <label for="customer" class="form-label fw-bold">Customer</label>
-                                    <select class="form-control col-8" id="customer">
+                                    <label for="customer" class="form-label fw-bold col-12">Customer</label>
+                                    <select class="select2-single form-control" id="select2Single" style="width: 65%">
                                         <option value="" selected disabled>Pilih Customer</option>
                                         <option value="Tandrio">Tandrio - 082199328292</option>
                                         <option value="Ricard">Ricard - 082199328292</option>
@@ -100,7 +119,7 @@
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
-                                    <input type="number" class="form-control col-8" id="beratBarang" value="">
+                                    <input type="" class="form-control col-8" id="beratBarang" value="">
                                 </div>
                                 <div class="mt-4">
                                     <label for="volumeBarang" class="form-label fw-bold">Volume</label>
@@ -122,16 +141,17 @@
                             <span>Pengiriman</span>
                         </div>
                         <div class="d-flex flex-row">
-                            <div class="col-6">
+                            <div class="col-2">
                                 <div class="mt-3">
                                     <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
-                                    <select class="form-control col-8" id="metodePengiriman">
-                                        <option value="" selected disabled>Pilih Pengiriman</option>
-                                        <option value="pickup">Pick Up</option>
-                                        <option value="delivery">Delivery</option>
-                                    </select>
-                                    <div id="metodePengirimanError" class="text-danger mt-1">Silahkan pilih metode
-                                        pengiriman</div>
+                                    <div>
+                                        <input type="checkbox" id="pickup" checked>
+                                        <label for="pickup" class="form-label fw-bold">Pick Up</label>
+                                    </div>
+                                    <div>
+                                        <input type="checkbox" id="delivery">
+                                        <label for="delivery" class="form-label fw-bold">Delivery</label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -155,10 +175,10 @@
                             <span>Metode Pembayaran</span>
                         </div>
                         <div class="d-flex flex-row">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <div class="mt-3">
                                     <label for="metodePembayaran" class="form-label fw-bold">Metode Pembayaran</label>
-                                    <select class="form-control col-8" id="metodePembayaran">
+                                    <select class="form-control" id="metodePembayaran">
                                         <option value="" selected disabled>Pilih Pembayaran</option>
                                         <option value="cash">Cash</option>
                                         <option value="transfer">Transfer</option>
@@ -180,7 +200,7 @@
                                 </div>
                             </div>
                         </div>
-
+                        <button class="btn btn-primary float-right mt-3">Buat Invoice</button>
                     </div>
                 </div>
             </div>
@@ -192,15 +212,57 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $('#metodePengiriman').change(function() {
-                if ($(this).val() === 'delivery') {
+
+            $('.select2-single').select2({
+                width: 'resolve'
+            });
+            var today = new Date().toISOString().split('T')[0];
+            $('#tanggal').val(today);
+            $('#tanggal').attr('min', today);
+
+            $('#hargaBarang').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            $('#beratBarang').on('input', function() {
+                this.value = this.value.replace(/[^0-9,\.]/g, '');
+                this.value = this.value.replace('.', ',');
+                if (this.value) {
+                    $('#panjang, #lebar, #tinggi').val('');
+                }
+            });
+
+            $('#panjang, #lebar, #tinggi').on('input', function() {
+                if ($(this).val()) {
+                    $('#beratBarang').val('');
+                }
+            });
+
+            function updateSections() {
+                if ($('#delivery').is(':checked')) {
                     $('#driverSection').show();
                     $('#alamatSection').show();
                 } else {
                     $('#driverSection').hide();
                     $('#alamatSection').hide();
                 }
+            }
+
+            $('#pickup').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#delivery').prop('checked', false);
+                    updateSections();
+                }
             });
+
+            $('#delivery').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#pickup').prop('checked', false);
+                    updateSections();
+                }
+            });
+
+            updateSections();
 
             $('#metodePembayaran').change(function() {
                 if ($(this).val() === 'transfer') {
@@ -209,6 +271,9 @@
                     $('#rekeningSection').hide();
                 }
             });
+
+
+
         });
     </script>
 @endsection
