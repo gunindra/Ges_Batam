@@ -18,6 +18,7 @@ class CostumerController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
+                    marking,
                     nama_pembeli,
                     alamat,
                     no_wa,
@@ -33,6 +34,7 @@ class CostumerController extends Controller
         $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
                         <thead class="thead-light">
                         <tr>
+                            <th>Marking</th>
                             <th>Nama</th>
                             <th>Alamat</th>
                             <th>No. Telp</th>
@@ -54,6 +56,7 @@ class CostumerController extends Controller
             $output .=
                 '
                 <tr>
+                    <td class="">' . ($item->marking ?? '-') .'</td>
                     <td class="">' . ($item->nama_pembeli ?? '-') .'</td>
                     <td class="">' . ($item->alamat ?? '-') .'</td>
                     <td class="">' . ($item->no_wa ?? '-') .'</td>
@@ -75,16 +78,14 @@ class CostumerController extends Controller
     public function addCostumer(Request $request)
     {
 
+        $markingCostmer = $request->input('markingCostmer');
         $namacostumer = $request->input('namaCostmer');
         $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categorycostumer = $request->input('CategoryCustomer');
-
-
-        // dd($namacostumer, $alamatcostumer, $notlponcostumer, $categorycostumer);
-
         try {
             DB::table('tbl_pembeli')->insert([
+                'marking' => $markingCostmer,
                 'nama_pembeli' => $namacostumer,
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
@@ -143,4 +144,19 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function generateMarking(Request $request)
+    {
+        $q = "SELECT marking FROM tbl_pembeli ORDER BY created_at DESC limit 1;";
+        $data = DB::select($q);
+        if (!empty($data)) {
+            $lastMarking = $data[0]->marking;
+            $newMarking = str_pad((int)$lastMarking + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newMarking = '0001';
+        }
+
+        return response()->json(['new_marking' => $newMarking]);
+    }
+
 }

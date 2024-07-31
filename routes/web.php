@@ -40,6 +40,7 @@ Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCost
 Route::post('/masterdata/costumer/tambah', [CostumerController::class, 'addCostumer'])->name('addCostumer');
 Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
 Route::get('/masterdata/costumer/destroy', [CostumerController::class, 'destroyCostumer'])->name('destroyCostumer');
+Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
 
 // Driver
 Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');

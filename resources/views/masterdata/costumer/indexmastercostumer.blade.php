@@ -20,6 +20,10 @@
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
+                            <label for="namaCustomer" class="form-label fw-bold">Marking</label>
+                            <input type="text" class="form-control" id="markingCustomer" value="" disabled>
+                        </div>
+                        <div class="mt-3">
                             <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
                             <input type="text" class="form-control" id="namaCustomer" value="">
                             <div id="errNamaCostumer" class="text-danger mt-1">Silahkan isi nama costumer</div>
@@ -103,29 +107,29 @@
         </div>
         <!--End Modal Edit -->
 
-         <!-- Modal Point -->
-         <div class="modal fade" id="modalPointCostumer" tabindex="-1" role="dialog"
-         aria-labelledby="modalPointCostumerTitle" aria-hidden="true">
-         <div class="modal-dialog modal-dialog-centered" role="document">
-             <div class="modal-content">
-                 <div class="modal-header">
-                     <h5 class="modal-title" id="modalPointCostumerTitle">Point Customer</h5>
-                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                         <span aria-hidden="true">&times;</span>
-                     </button>
-                 </div>
-                 <div class="modal-body">
-                    <div class="d-flex justify-content-center text-center">
-                        <H1 id="pointValue">?</H1>
+        <!-- Modal Point -->
+        <div class="modal fade" id="modalPointCostumer" tabindex="-1" role="dialog"
+            aria-labelledby="modalPointCostumerTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalPointCostumerTitle">Point Customer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                 </div>
-                 <div class="modal-footer">
-                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                 </div>
-             </div>
-         </div>
-     </div>
-     <!--End Modal Point -->
+                    <div class="modal-body">
+                        <div class="d-flex justify-content-center text-center">
+                            <H1 id="pointValue">?</H1>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Modal Point -->
 
 
 
@@ -144,7 +148,7 @@
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target="#modalTambahCustomer" id="#modalCenter"><span class="pr-2"><i
+                                data-target="#modalTambahCustomer" id="modalTambahCost"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Customer</button>
                         </div>
                         <div id="containerCustomer" class="table-responsive px-3">
@@ -244,6 +248,20 @@
 
         getListCustomer();
 
+        $(document).on('click', '#modalTambahCost', function(e) {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('generateMarking') }}",
+                success: function(response) {
+                    let valuemarking = response.new_marking
+                    $('#markingCustomer').val(valuemarking);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
         // Validasi input untuk nomor telepon
         $('#noTelpon, #noTelponEdit').on('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
@@ -302,6 +320,7 @@
         $('#saveCostumer').click(function() {
             $('#namaCustomer, #alamatCustomer, #noTelpon, #CategoryCustomer').data('touched', true);
 
+            let markingCostmer = $('#markingCustomer').val();
             let namaCostmer = $('#namaCustomer').val();
             let alamatCustomer = $('#alamatCustomer').val();
             let noTelpon = $('#noTelpon').val();
@@ -324,6 +343,7 @@
                             type: "POST",
                             url: "{{ route('addCostumer') }}",
                             data: {
+                                markingCostmer: markingCostmer,
                                 namaCostmer: namaCostmer,
                                 alamatCustomer: alamatCustomer,
                                 noTelpon: noTelpon,
