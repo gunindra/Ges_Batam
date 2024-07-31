@@ -6,7 +6,9 @@
         <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
-                    <img src="{{ asset('RuangAdmin/img/logo/logo3.jpeg') }}">
+                    <div class="bukuslogo py-2 px-3"  style="background-color: white; border-radius: 10px;">
+                        <img src="{{ asset('RuangAdmin/img/logo/logo4.png') }}">
+                    </div>
                 </div>
                 {{-- <div class="sidebar-brand-text mx-3">GES</div> --}}
             </a>

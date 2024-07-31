@@ -12,4 +12,9 @@ class InvoiceController extends Controller
 
         return view('invoice.indexinvoice');
     }
+
+    public function addinvoice()
+    {
+        return view('invoice.buatinvoice');
+    }
 }

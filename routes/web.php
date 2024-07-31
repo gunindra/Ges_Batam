@@ -24,12 +24,15 @@ Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashbo
 
 // Booking Confirmation
 Route::get('/booking', [BookingController::class, 'index'])->name('booking');
+Route::get('/booking/list', [BookingController::class, 'getlistBooking'])->name('getlistBooking');
+Route::get('/booking/dataBookingForm', [BookingController::class, 'dataBookingForm'])->name('dataBookingForm');
 
 // Delivery
 Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
 
 // Invoice
 Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice');
+Route::get('/invoice/addinvoice', [InvoiceController::class, 'addinvoice'])->name('addinvoice');
 
 // Information Content
 Route::get('/information', [InformationController::class, 'index'])->name('information');
