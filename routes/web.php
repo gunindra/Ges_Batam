@@ -10,6 +10,7 @@ use App\Http\Controllers\InformationController;
 use App\Http\Controllers\CostumerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RekeningController;
+use App\Http\Controllers\BeratvolumeController;
 
 
 Route::get('/', function () {
@@ -33,6 +34,7 @@ Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
 // Invoice
 Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice');
 Route::get('/invoice/addinvoice', [InvoiceController::class, 'addinvoice'])->name('addinvoice');
+Route::post('/invoice/addinvoice/tambainvoice', [InvoiceController::class, 'tambainvoice'])->name('tambainvoice');
 
 // Information Content
 Route::get('/information', [InformationController::class, 'index'])->name('information');
@@ -58,3 +60,6 @@ Route::get('/masterdata/rekening/list', [RekeningController::class, 'getlistReke
 Route::post('/masterdata/rekening/tambah', [RekeningController::class, 'addRekening'])->name('addRekening');
 Route::post('/masterdata/rekening/update', [RekeningController::class, 'updateRekening'])->name('updateRekening');
 Route::get('/masterdata/rekening/destroy', [RekeningController::class, 'destroyRekening'])->name('destroyRekening');
+
+// Berat Dan Volume
+Route::get('/masterdata/beratvolume', [BeratvolumeController::class, 'index'])->name('beratvolume');

@@ -34,23 +34,77 @@
         }
 
         .select2-container--default .select2-selection--single {
-            height: 38px;
+            height: 40px;
             border: 1px solid #d1d3e2;
             border-radius: 0.25rem;
             padding: 6px 12px;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 25px;
+            line-height: 27px;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 36px;
+            height: 38px;
         }
 
         .select2-dropdown {
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
+        }
+
+        /* Styling for the switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            /* Reduced width */
+            height: 20px;
+            /* Reduced height */
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+            /* Match height */
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            /* Reduced height */
+            width: 16px;
+            /* Reduced width */
+            left: 2px;
+            /* Adjusted positioning */
+            bottom: 2px;
+            /* Adjusted positioning */
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+            /* Adjusted translation */
         }
     </style>
 
@@ -79,23 +133,24 @@
                                 <div class="mt-3">
                                     <label for="noResi" class="form-label fw-bold">No Resi</label>
                                     <input type="text" class="form-control col-8" id="noResi" value="">
-                                    <div id="noResiError" class="text-danger mt-1">Silahkan scan terlebih dahulu</div>
+                                    <div id="noResiError" class="text-danger mt-1">Silahkan Scan No Resi terlebih dahulu
+                                    </div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
-                                    <input type="date" class="form-control col-8" id="tanggal" value="">
+                                    <input type="text" class="form-control col-8" id="tanggal" value="">
                                     <div id="tanggalError" class="text-danger mt-1">Tanggal tidak boleh kosong</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="customer" class="form-label fw-bold col-12">Customer</label>
-                                    <select class="select2-single form-control" id="select2Single" style="width: 65%">
+                                    <select class="form-control select2singgle" id="selectCostumer" style="width: 65%">
                                         <option value="" selected disabled>Pilih Customer</option>
-                                        <option value="Tandrio">Tandrio - 082199328292</option>
-                                        <option value="Ricard">Ricard - 082199328292</option>
-                                        <option value="Naruto">Naruto - 082199328292</option>
-                                        <option value="Sasuke">Sasuke - 082199328292</option>
+                                        @foreach ($listPembeli as $pembeli)
+                                            <option value="{{ $pembeli->id }}">
+                                                {{ $pembeli->nama_pembeli }} - {{ $pembeli->no_wa }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="customerError" class="text-danger mt-1">Silahkan Pilih Customer</div>
                                 </div>
@@ -105,34 +160,51 @@
                             <span>Detail Barang</span>
                         </div>
                         <div class="d-flex flex-row">
-                            <div class="col-6">
-                                <div class="mt-3">
-                                    <label for="namaBarang" class="form-label fw-bold">Nama Barang</label>
-                                    <input type="text" class="form-control col-8" id="namaBarang" value="">
-                                    <div id="namaBarangError" class="text-danger mt-1">Nama Barang tidak boleh kosong</div>
-                                </div>
-                                <div class="mt-3">
-                                    <label for="hargaBarang" class="form-label fw-bold">Harga Barang</label>
-                                    <input type="number" class="form-control col-8" id="hargaBarang" value="">
-                                </div>
-                            </div>
-                            <div class="col-6">
+                            <label class="switch">
+                                <input type="checkbox" id="toggleSwitch">
+                                <span class="slider"></span>
+                            </label>
+                            <label class="fw-bold pl-2" id="idlabel">Berat</label>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <div class="col-6" id="weightDiv">
                                 <div class="mt-3">
                                     <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
-                                    <input type="" class="form-control col-8" id="beratBarang" value="">
+                                    <input type="number" class="form-control col-8" id="beratBarang" value="">
                                 </div>
-                                <div class="mt-4">
-                                    <label for="volumeBarang" class="form-label fw-bold">Volume</label>
-                                    <div class="d-flex">
-                                        <input type="number" class="form-control col-2" id="panjang" placeholder="P"
-                                            value="">
-                                        <p class="m-2">X</p>
-                                        <input type="number" class="form-control col-2" id="lebar" placeholder="L"
-                                            value="">
-                                        <p class="m-2">X</p>
-                                        <input type="number" class="form-control col-2" id="tinggi" placeholder="T"
-                                            value="">
-                                        <h5 class="mt-2 mx-3">cm</h5>
+                            </div>
+                            <div class="col-12 d-none" id="volumeDiv">
+                                <div class="d-flex flex-row mt-3">
+                                    <!-- Volume Section -->
+                                    <div class="flex-grow-1 me-3">
+                                        <label for="volume" class="form-label fw-bold">Volume</label>
+                                        <div class="d-flex align-items-center">
+                                            <input type="number" class="form-control col-2 me-1" id="panjang" placeholder="P"
+                                                value="">
+                                            <span class="mx-1">X</span>
+                                            <input type="number" class="form-control col-2 mx-1" id="lebar" placeholder="L"
+                                                value="">
+                                            <span class="mx-1">X</span>
+                                            <input type="number" class="form-control col-2 ms-1" id="tinggi" placeholder="T"
+                                                value="">
+                                            <span class="ml-2 ">cm</span>
+                                        </div>
+                                    </div>
+                                    <!-- Pembagi Section -->
+                                    <div class="flex-grow-1">
+                                        <label for="pembagi" class="form-label fw-bold">Pembagi</label>
+                                        <select class="form-control" id="pembagi">
+                                            <option value="1000000">1.000.000</option>
+                                            <option value="6000">6.000</option>
+                                        </select>
+                                    </div>
+                                    <!-- Rate Section -->
+                                    <div class="flex-grow-1 ml-3">
+                                        <label for="rate" class="form-label fw-bold">Rate</label>
+                                        <select class="form-control" id="rate">
+                                            <option value="100">100</option>
+                                            <option value="200">200</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +213,7 @@
                             <span>Pengiriman</span>
                         </div>
                         <div class="d-flex flex-row">
-                            <div class="col-2">
+                            <div class="col-4">
                                 <div class="mt-3">
                                     <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
                                     <div>
@@ -156,11 +228,13 @@
                             </div>
                             <div class="col-6">
                                 <div class="mt-3" id="driverSection" style="display: none;">
-                                    <label for="driver" class="form-label fw-bold">Driver</label>
-                                    <select class="form-control col-8" id="driver">
+                                    <label for="driver" class="form-label fw-bold col-12">Driver</label>
+                                    <select class="form-control select2singgle col-8" id="driver" style="width: 65%">
                                         <option value="" selected disabled>Pilih Driver</option>
-                                        <option value="Driver1">Driver1</option>
-                                        <option value="Driver2">Driver2</option>
+                                        @foreach ($listSupir as $supir)
+                                            <option value="{{ $supir->id }}">
+                                                {{ $supir->nama_supir }} - {{ $supir->no_wa }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="driverError" class="text-danger mt-1">Silahkan pilih driver</div>
                                 </div>
@@ -190,18 +264,37 @@
                             </div>
                             <div class="col-6">
                                 <div class="mt-3" id="rekeningSection" style="display: none;">
-                                    <label for="rekening" class="form-label fw-bold">Pilih Rekening</label>
-                                    <select class="form-control col-8" id="rekening">
+                                    <label for="rekening" class="form-label fw-bold col-12">Pilih Rekening</label>
+                                    <select class="form-control select2singgle col-8" id="rekening" style="width: 65%">
                                         <option value="" selected disabled>Pilih Rekening</option>
-                                        <option value="Rekening1">Rekening1</option>
-                                        <option value="Rekening2">Rekening2</option>
+                                        @foreach ($listRekening as $rekening)
+                                            <option value="{{ $rekening->id }}">
+                                                {{ $rekening->pemilik }} - {{ $rekening->nomer_rekening }} |
+                                                {{ $rekening->nama_bank }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="rekeningError" class="text-danger mt-1">Silahkan pilih rekening</div>
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-primary float-right mt-3">Buat Invoice</button>
+                        <div class="col-12 mt-4">
+                            <div class="col-4 float-right">
+                                <p class="mb-0">Total Harga</p>
+                                <div class="box bg-light text-dark p-3 mt-2"
+                                    style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
+                                    <span id="total-harga" style="font-weight: bold; color: #555;">Rp 0</span>
+
+                                </div>
+                                <input type="hidden" name="" id="totalHargaValue">
+                                <button class="btn btn-primary float-right mt-3" style="width: 100%;">Buat
+                                    Invoice</button>
+                            </div>
+                        </div>
+
+
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -212,31 +305,67 @@
 @section('script')
     <script>
         $(document).ready(function() {
-
-            $('.select2-single').select2({
+            $('.select2singgle').select2({
                 width: 'resolve'
             });
-            var today = new Date().toISOString().split('T')[0];
-            $('#tanggal').val(today);
-            $('#tanggal').attr('min', today);
 
-            $('#hargaBarang').on('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
+            var today = new Date().toISOString().split('T')[0];
+            // $('#tanggal').val(today);
+            // $('#tanggal').attr('min', today);
+            $('#tanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                todayBtn: 'linked',
+                todayHighlight: true,
+                autoclose: true,
+            });
+
+
+            $('#toggleSwitch').change(function() {
+                if ($(this).is(':checked')) {
+                    // Show volume, hide weight
+                    $('#idlabel').text('Volume');
+                    $('#volumeDiv').removeClass('d-none');
+                    $('#weightDiv').addClass('d-none');
+                } else {
+                    // Show weight, hide volume
+                    $('#idlabel').text('Berat');
+                    $('#volumeDiv').addClass('d-none');
+                    $('#weightDiv').removeClass('d-none');
+                }
             });
 
             $('#beratBarang').on('input', function() {
-                this.value = this.value.replace(/[^0-9,\.]/g, '');
+                this.value = this.value.replace(/[^0-9,.]/g, '');
                 this.value = this.value.replace('.', ',');
+
                 if (this.value) {
                     $('#panjang, #lebar, #tinggi').val('');
                 }
+                updateTotalHarga();
             });
 
             $('#panjang, #lebar, #tinggi').on('input', function() {
-                if ($(this).val()) {
-                    $('#beratBarang').val('');
-                }
+                $('#beratBarang').val('');
+                updateTotalHarga();
             });
+
+            function updateTotalHarga() {
+                let beratRaw = $('#beratBarang').val().replace(',', '.');
+                let berat = parseFloat(beratRaw);
+
+                if (beratRaw.trim() === '' || isNaN(berat)) {
+                    $('#total-harga').text('Rp 0');
+                    $('#totalHargaValue').val(0);
+                } else {
+                    berat = Math.max(2, berat);
+                    let hargaPerKg = 15000;
+                    let totalHarga = berat * hargaPerKg;
+                    $('#totalHargaValue').val(totalHarga)
+                    $('#total-harga').text('Rp ' + totalHarga.toLocaleString());
+                }
+            }
+
+
 
             function updateSections() {
                 if ($('#delivery').is(':checked')) {
@@ -272,8 +401,133 @@
                 }
             });
 
+            function validateInvoiceInput() {
+                let isValid = true;
+
+                if ($('#noResi').val().trim() === '') {
+                    $('#noResiError').show();
+                    isValid = false;
+                } else {
+                    $('#noResiError').hide();
+                }
+
+                if ($('#tanggal').val().trim() === '') {
+                    $('#tanggalError').show();
+                    isValid = false;
+                } else {
+                    $('#tanggalError').hide();
+                }
+
+                if ($('#selectCostumer').val() === null) {
+                    $('#customerError').show();
+                    isValid = false;
+                } else {
+                    $('#customerError').hide();
+                }
+
+                // if ($('#namaBarang').val().trim() === '') {
+                //     $('#namaBarangError').show();
+                //     isValid = false;
+                // } else {
+                //     $('#namaBarangError').hide();
+                // }
+
+                if ($('#delivery').is(':checked')) {
+                    if ($('#driver').val() === null) {
+                        $('#driverError').show();
+                        isValid = false;
+                    } else {
+                        $('#driverError').hide();
+                    }
+
+                    if ($('#alamat').val().trim() === '') {
+                        $('#alamatError').show();
+                        isValid = false;
+                    } else {
+                        $('#alamatError').hide();
+                    }
+                }
+
+                if ($('#metodePembayaran').val() === 'transfer' && $('#rekening').val() === null) {
+                    $('#metodePembayaranError').show();
+                    $('#rekeningError').show();
+                    isValid = false;
+                } else {
+                    $('#metodePembayaranError').hide();
+                    $('#rekeningError').hide();
+                }
+
+                return isValid;
+            }
+
+            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #metodePembayaran, #rekening').on(
+                'input change',
+                function() {
+                    validateInvoiceInput();
+                });
 
 
+
+
+            $('button').click(function() {
+                if (validateInvoiceInput()) {
+                    // Collect all form data
+                    let noResi = $('#noResi').val();
+                    let tanggal = $('#tanggal').val();
+                    let customer = $('#selectCostumer').val();
+                    // let namaBarang = $('#namaBarang').val();
+                    // let hargaBarang = $('#hargaBarang').val();
+                    let beratBarang = $('#beratBarang').val();
+                    let panjang = $('#panjang').val();
+                    let lebar = $('#lebar').val();
+                    let tinggi = $('#tinggi').val();
+                    let metodePengiriman = $('#delivery').is(':checked') ? 'delivery' : 'pickup';
+                    let metodePembayaran = $('#metodePembayaran').val();
+                    let driver = metodePengiriman === 'delivery' ? $('#driver').val() : null;
+                    let alamat = metodePengiriman === 'delivery' ? $('#alamat').val() : null;
+                    let rekening = metodePembayaran === 'transfer' ? $('#rekening').val() : null;
+                    let totalharga = $('#totalHargaValue').val();
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    // Send data to the controller
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('tambainvoice') }}", // Ganti dengan route yang sesuai
+                        data: {
+                            noResi: noResi,
+                            tanggal: tanggal,
+                            customer: customer,
+                            // namaBarang: namaBarang,
+                            // hargaBarang: hargaBarang,
+                            beratBarang: beratBarang,
+                            panjang: panjang,
+                            lebar: lebar,
+                            tinggi: tinggi,
+                            metodePengiriman: metodePengiriman,
+                            driver: driver,
+                            alamat: alamat,
+                            metodePembayaran: metodePembayaran,
+                            rekening: rekening,
+                            totalharga: totalharga,
+                            _token: csrfToken
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                showMessage("success", "Invoice berhasil dibuat");
+                                // Reset form atau tindakan lain yang diperlukan
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal membuat invoice",
+                                    icon: "error"
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    alert('Mohon periksa input yang kosong.');
+                }
+            });
         });
     </script>
+
 @endsection

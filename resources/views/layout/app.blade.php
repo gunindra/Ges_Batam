@@ -15,6 +15,7 @@
   <link href="{{ asset('RuangAdmin/css/ruang-admin.min.css') }}" rel="stylesheet">
   <link href="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
   <link href="{{ asset('RuangAdmin/vendor/select2/dist/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+  <link href="{{ asset('RuangAdmin/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet" >
   <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 
 </head>
@@ -38,6 +39,7 @@
   <script src="{{ asset('RuangAdmin/vendor/datatables/jquery.dataTables.min.js') }}"></script>
   <script src="{{ asset('RuangAdmin/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
   <script src=" {{ asset('RuangAdmin/vendor/select2/dist/js/select2.min.js') }}"></script>
+  <script src=" {{ asset('RuangAdmin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/sweetalert2.js') }}"></script>
   <script>
       function showMessage(type, message) {
