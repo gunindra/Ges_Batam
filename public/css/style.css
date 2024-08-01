@@ -1,0 +1,654 @@
+
+body {
+  margin: 0;
+  padding:0;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+}
+/* popup */
+
+dialog{
+  box-sizing:border-box;
+  width:calc(100% - 16px);
+  max-width:400px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  text-align:center;
+  padding:13px 24px 16px;
+}
+dialog h2{
+  margin-bottom:8px;
+  color:#555;
+  padding:0 8px;
+  font-size:15px;
+}
+dialog .controls{
+  display:grid;
+  grid-tempalte-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:8px;
+}
+dialog .controls button{
+  padding:12px;
+  cursor:pointer;
+  background:#00acee;
+  outline:none;
+  border: 1px solid #00acee;
+  border-radius:5px;
+  color:#ddd;
+  font-size:1em;
+}
+dialog .controls button.close-btn{
+  background:transparent;
+  color:#00acee;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100; 
+}
+
+.nav-item{
+  margin-left:80px;
+}
+nav ul li a {
+  text-decoration: none;
+  font-family: "Segoe UI", sans-serif;
+  color: #96C9F4 ;
+  font-weight: 600;
+  padding: 100px 0;
+  transition: all;
+  transition-duration: 400ms;
+  border-bottom: 1px solid #3FA2F6 ;
+  left: 50%;
+}
+
+nav ul li a:hover {
+  color: #3FA2F6;
+  border-bottom: 1px solid #3FA2F6 ;
+}
+/* carousel */
+.section-padding{
+  padding:100px 0;
+}
+.carousel-item{
+  height:100vh;
+  min-height:300px;
+}
+.carousel-caption h5{
+  font-size:45px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-top:25px;
+  
+}
+.carousel-caption p{
+  width:60%;
+  margin:auto;
+  font-size:18px;
+  line-height:1.9;
+}
+.carousel-inner::before{
+  content:'';
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  background:rgba(0,0,0,0.7);
+  z-index:1;
+}
+.hero{
+  height: 105vh;
+}
+/* main */
+.main{
+  padding-top: 20px;
+  width:100%;
+  height:auto;
+}
+/* bagian about */
+.AboutSection{
+  background-color:#E2DAD6;
+  height:auto;
+}
+.headingAbout h2{
+  color:#0F67B1;
+  font-size:55px;
+  text-align:center;
+  margin-top:55px;
+}
+.About{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:90%;
+  margin:65px auto;
+}
+.About-content{
+  flex:1;
+  width:600px;
+  margin:0px 25px;
+}
+.About-content h2{
+  font-size:38px;
+  margin-bottom:20px;
+  color:#4B70F5;
+}
+.About-content p{
+  font-size:24px;
+  line-height:1.5;
+  margin-bottom:40px;
+  color:#666;
+}
+.About-content a {
+  display: inline-block;
+  background-color: #0F67B1;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+  text-decoration:none;
+}
+
+.About-content a:hover {
+  background-color: #3FA2F6;
+  transform: scale(1.1);
+}
+.About-image{
+  flex:1;
+  width:600px;
+  margin:auto;
+}
+.About-image img{
+  width:100%;
+  height:auto;
+  border-radius:10px;
+}
+/* bagian Services */
+.ServicesSection{
+  background-color:#E2DAD6;
+  height:auto;
+}
+.headingServices h2{
+  color:#0F67B1;
+  font-size:55px;
+  text-align:center;
+  margin-top:205px;
+}
+.card-container{
+  display:flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top:100px;
+}
+.card{
+  width:325px;
+  background-color:#f0f0f0;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0px 2px 4px rgba(0,0,0,0.2);
+  margin:20px;
+}
+.card img{
+  width:100%;
+  height:auto;
+
+}
+.card-content{
+  padding:16px;
+}
+.card-content h3{
+  font-size:28px;
+  margin-bottom:8px;
+  color:#4B70F5;
+}
+.card-content p{
+  color:#666;
+  font-size:15px;
+  line-height:1.3;
+}
+.card-content .btn{
+  display: inline-block;
+  padding:8px 16px;
+  background-color: #0F67B1;
+  text-decoration:none;
+  border-radius:4px;
+  margin-top:16px;
+  color:#fff;
+}
+/* WhyUs */
+.SectionWhy {
+  background-color: #E2DAD6;
+  height: auto;
+}
+
+.headingWhy h2 {
+  color: #0F67B1;
+  font-size: 55px;
+  text-align: center;
+  margin-top: 205px;
+}
+
+.Why {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  margin: 65px auto;
+  flex-direction: row-reverse; 
+}
+
+.Why-content {
+  flex: 1;
+  width: 600px;
+  margin: 0px 25px;
+}
+
+.Why-content h2 {
+  font-size: 38px;
+  margin-bottom: 20px;
+  color: #4B70F5;
+}
+
+.Why-content p {
+  font-size: 24px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+  color: #666;
+}
+
+.Why-content a{
+  display: inline-block;
+  background-color: #0F67B1;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 5px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+  text-decoration:none;
+}
+
+.Why-content a:hover {
+  background-color: #3FA2F6;
+  transform: scale(1.1);
+}
+
+.Why-image {
+  flex: 1;
+  width: 600px;
+  margin: auto;
+}
+
+.Why-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+/* Iklan */
+.Iklansection{
+  height:500px;
+}
+.iklan1{
+  margin-top:50px;
+  margin-left:100px;
+  float:left;
+}
+/* Maps */
+.Maps{
+  margin-top:50px;
+	
+}
+/* footer */
+.custom-footer {
+	background-color: #0F67B1;
+	padding: 70px 0;
+  
+}
+
+.container-custom-footer {
+	max-width: 1180px;
+	margin: auto;
+}
+
+.row-custom-footer {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.col-custom-footer {
+	width: 25%;
+	padding: 0 15px;
+}
+
+.col-custom-footer h4 {
+	font-size: 18px;
+	color: #ffffff;
+	text-transform: capitalize;
+	margin-bottom: 35px;
+	margin-left: 23px;
+	font-weight: 500;
+	position: relative;
+}
+
+.col-custom-footer h4::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -10px;
+	background-color: #ffffff;
+	height: 2px;
+	box-sizing: border-box;
+	width: 50px;
+}
+
+.col-custom-footer ul {
+	list-style: none;
+}
+
+.col-custom-footer ul li:not(:last-child) {
+	margin-bottom: 10px;
+}
+
+.col-custom-footer ul li a {
+	font-size: 16px;
+	text-transform: capitalize;
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: 300;
+	color: #bbbbbb;
+	display: block;
+	transition: all 0.3s ease;
+}
+
+.col-custom-footer ul li a:hover {
+	color: #ffffff;
+	padding-left: 8px;
+}
+
+.social-links-custom a {
+	display: inline-block;
+	height: 40px;
+	width: 40px;
+	background-color: rgba(255, 255, 255, 0.2);
+	margin: 0 8px 8px 0;
+	text-align: center;
+	line-height: 40px;
+	border-radius: 50%;
+	color: #ffffff;
+	transition: all 0.5s ease;
+}
+
+.social-links-custom a:hover {
+	color: #24262b;
+	background-color: #ffffff;
+}
+/* Responsive */
+@media only screen and (max-width: 1095px) {
+  /* navbar */
+  .nav-item{
+    margin-left:0px;
+  }
+  /* Main */
+  .main{
+    height:auto;
+  }
+  /* About */
+  .headingAbout h2{
+    font-size:54px;
+    margin-top:10px;
+  }
+  .AboutSection{
+    margin:0px;
+  }
+  .About{
+    width:100%;
+    flex-direction:column;
+    margin:0px;
+    padding:0px 40px;
+  }
+  .About-content{
+    width:100%;
+    margin:25px 0px;
+  }
+  .About-content h2{
+    font-size: 30px;
+  }
+  .About content p{
+    font-size:18px;
+    margin-bottom:20px;
+  }
+  .About-content button{
+    font-size:20px;
+    padding:10px 20px;
+  }
+  .About-image{
+    width:100%;
+  }
+  /* Why */
+  .headingWhy h2{
+    font-size:54px;
+    margin-top:80px;
+  }
+  .WhySection{
+    margin:0px;
+  }
+  .Why{
+    width:100%;
+    flex-direction:column;
+    margin:0px;
+    padding:0px 40px;
+  }
+  .Why-content{
+    width:100%;
+    margin:25px 0px;
+  }
+  .Why-content h2{
+    font-size: 30px;
+  }
+  .Why content p{
+    font-size:18px;
+    margin-bottom:20px;
+  }
+  .Why-content button{
+    font-size:20px;
+    padding:10px 20px;
+  }
+  .Why-image{
+    width:100%;
+  }
+  /* iklan */
+  .Iklansection{
+    height:auto;
+  }
+  .Iklan1{
+    margin:auto;
+  }
+  /* maps */
+  .Maps{
+   
+    margin-top:50px;
+  }
+  /* footer */
+  .col-custom-footer {
+		width: 50%;
+		margin-bottom: 30px;
+		margin-top: 10px;
+	}
+}
+@media only screen and(max-width:767px){
+  /* carousel */
+  .navbar-nav{
+    text-align:center;
+  }
+  .carousel-caption{
+      bottom:15px;
+  }
+  .carousel-caption h5{
+      font-size:17px;
+  } 
+  .carousel-caption a{
+      padding:10px 15px;
+  }
+  .carousel-caption p{
+      width:100%;
+      line-height:1.6;
+      font-size:12px;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width:991px){
+  /* caraousel */
+  .carousel-caption{
+      bottom:200px;
+  }
+  .carousel-caption p{
+      width:100%;
+  }
+}
+
+@media (max-width: 576px) {
+  /* footer */
+	.col-custom-footer {
+		width: 100%;
+	}
+  .nav-item{
+    margin-left:0px;
+  }
+}
+/* animasi about us */
+/* @keyframes FadeInUp{
+  0%{
+    opacity:0;
+    transform:translateY(50px);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0px);
+  }
+
+}
+@keyframes FadeInRight{
+  0%{
+    opacity:0;
+    transform:translateX(-50px);
+  }
+  100%{
+    opacity:1;
+    transform:translateX(0px);
+  }
+
+} */
+
+
+/* <div class="header" style="background-color: #FCF8F3;">
+  <nav class="navbar navbar-expand-lg ">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">PTGes</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav position-absolute top-50 start-50 translate-middle">
+        <li class="nav-item">
+          <a class="nav-link text-dark"  aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="#">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="#">Pricing</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown link
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item text-dark" href="#">Action</a></li>
+            <li><a class="dropdown-item text-dark" href="#">Another action</a></li>
+            <li><a class="dropdown-item text-dark" href="#">Something else here</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  </nav>
+</div>
+  <div class="parallax-image parallax-image-01">
+  </div>
+*,
+html {
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+body {
+  margin:0;
+  padding:0;
+  font-family: 'Poppins', sans-serif;
+}
+/* header */
+/*.header{
+  position: sticky;
+  position: -webkit-sticky; 
+  top: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 32px;
+  
+}
+
+.List{
+  margin-left:100px;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+  padding-left:400px;
+}
+
+nav div img {
+  width: 50px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  font-family: "Segoe UI", sans-serif;
+  color: #96C9F4 ;
+  font-weight: 600;
+  padding: 100px 0;
+  transition: all;
+  transition-duration: 400ms;
+  border-bottom: 1px solid #3FA2F6 ;
+}
+
+nav ul li a:hover {
+  color: #3FA2F6;
+  border-bottom: 1px solid #3FA2F6 ;
+}
+.parallax-image-01 {
+  height: 75vh;
+  display:grid;
+  place-items:center;
+  position:relative;
+  background-color:gray;
+}
+.parallax-image-01::before {
+  background-image: url("/img/Truck.jpg");
+  background-size:cover;
+  position:absolute;
+  content:'';
+  inset:0;
+  opacity:0.5;
+} */

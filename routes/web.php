@@ -13,9 +13,6 @@ use App\Http\Controllers\RekeningController;
 use App\Http\Controllers\BeratvolumeController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // Login
 Route::get('/login', [LoginController::class, 'index'])->name('login');
@@ -63,3 +60,16 @@ Route::get('/masterdata/rekening/destroy', [RekeningController::class, 'destroyR
 
 // Berat Dan Volume
 Route::get('/masterdata/beratvolume', [BeratvolumeController::class, 'index'])->name('beratvolume');
+
+
+Route::get('/', function () {
+    return view('PTGes');
+});
+
+Route::get('/About', function () {
+    return view('About');
+});
+
+Route::get('/Why', function () {
+    return view('Why');
+});
