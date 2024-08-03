@@ -300,11 +300,7 @@
                                     Invoice</button>
                             </div>
                         </div>
-
-
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -351,15 +347,22 @@
                 if (this.value) {
                     $('#panjang, #lebar, #tinggi').val('');
                 }
-                updateTotalHarga();
+                updateTotalHargaBerat();
             });
 
             $('#panjang, #lebar, #tinggi').on('input', function() {
+                this.value = this.value.replace(/[^0-9,.]/g, '');
+                this.value = this.value.replace('.', ',');
+
                 $('#beratBarang').val('');
-                updateTotalHarga();
+                updateTotalHargaVolume();
             });
 
-            function updateTotalHarga() {
+            $('#pembagi, #rate').change(function() {
+                updateTotalHargaVolume();
+            });
+
+            function updateTotalHargaBerat() {
                 let beratRaw = $('#beratBarang').val().replace(',', '.');
                 let berat = parseFloat(beratRaw);
 
@@ -375,6 +378,20 @@
                 }
             }
 
+            function updateTotalHargaVolume() {
+                var panjang = parseFloat($('#panjang').val().replace(',', '.')) || 0;
+                var lebar = parseFloat($('#lebar').val().replace(',', '.')) || 0;
+                var tinggi = parseFloat($('#tinggi').val().replace(',', '.')) || 0;
+
+                var volume = panjang * lebar * tinggi;
+
+                var pembagi = parseFloat($('#pembagi').val()) || 1;
+                var rate = parseFloat($('#rate').val()) || 1;
+                var totalHargaVolume = (volume / pembagi) * rate;
+
+                $('#total-harga').text(totalHargaVolume.toFixed(2) + ' USD');
+                $('#totalHargaValue').val(totalHargaVolume)
+            }
 
 
             function updateSections() {
@@ -414,6 +431,7 @@
             function validateInvoiceInput() {
                 let isValid = true;
 
+                // Validate 'noResi'
                 if ($('#noResi').val().trim() === '') {
                     $('#noResiError').show();
                     isValid = false;
@@ -421,6 +439,7 @@
                     $('#noResiError').hide();
                 }
 
+                // Validate 'tanggal'
                 if ($('#tanggal').val().trim() === '') {
                     $('#tanggalError').show();
                     isValid = false;
@@ -428,6 +447,7 @@
                     $('#tanggalError').hide();
                 }
 
+                // Validate 'customer'
                 if ($('#selectCostumer').val() === null) {
                     $('#customerError').show();
                     isValid = false;
@@ -435,13 +455,7 @@
                     $('#customerError').hide();
                 }
 
-                // if ($('#namaBarang').val().trim() === '') {
-                //     $('#namaBarangError').show();
-                //     isValid = false;
-                // } else {
-                //     $('#namaBarangError').hide();
-                // }
-
+                // Validate delivery details if delivery is checked
                 if ($('#delivery').is(':checked')) {
                     if ($('#driver').val() === null) {
                         $('#driverError').show();
@@ -458,7 +472,8 @@
                     }
                 }
 
-                if ($('#metodePembayaran').val() === 'transfer' && $('#rekening').val() === null) {
+                // Validate payment method
+                if ($('#metodePembayaran').val() === '2' && $('#rekening').val() === null) {
                     $('#metodePembayaranError').show();
                     $('#rekeningError').show();
                     isValid = false;
@@ -466,6 +481,22 @@
                     $('#metodePembayaranError').hide();
                     $('#rekeningError').hide();
                 }
+
+                // // Validate 'pembagi'
+                // if ($('#pembagi').val().trim() === '') {
+                //     $('#pembagiError').show();
+                //     isValid = false;
+                // } else {
+                //     $('#pembagiError').hide();
+                // }
+
+                // Validate 'rate'
+                // if ($('#rateInvoice').val().trim() === '') {
+                //     $('#raterError').show();
+                //     isValid = false;
+                // } else {
+                //     $('#raterError').hide();
+                // }
 
                 return isValid;
             }
