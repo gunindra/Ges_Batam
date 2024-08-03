@@ -11,6 +11,7 @@ class CreateTblSupirTable extends Migration
         Schema::create('tbl_supir', function (Blueprint $table) {
             $table->id();
             $table->string('nama_supir', 100);
+            $table->text('alamat_supir');
             $table->string('no_wa', 15);
             $table->timestamps();
         });

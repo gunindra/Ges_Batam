@@ -13,8 +13,8 @@ class CreateTblCustomerTable extends Migration
             $table->string('marking', 100);
             $table->string('nama_pembeli', 100);
             $table->text('alamat');
-            $table->string('no_wa', 15);
-            $table->string('sisa_poin', 50);
+            $table->string('no_wa', 50);
+            $table->string('sisa_poin', 50)->nullable();
             $table->string('category', 50);
             $table->timestamps();
         });

@@ -22,18 +22,18 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
-                            <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span class="pr-2"><i
-                                        class="fas fa-plus"></i></span>Buat Invoice</a>
+                            <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
+                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a>
                         </div>
-                        <div id="containerBooking" class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tableInvoice">
+                        <div id="containerInvoice" class="table-responsive px-3">
+                            {{-- <table class="table align-items-center table-flush table-hover" id="tableInvoice">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No Resi</th>
                                         <th>Tanggal</th>
                                         <th>Costumer</th>
-                                        <th>Berat Barang</th>
-                                        <th>Harga Barang</th>
+                                        <th>Pengiriman</th>
+                                        <th>Harga</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -43,9 +43,9 @@
                                         <td>B0230123</td>
                                         <td>24 Juli 2024</td>
                                         <td>Tandrio</td>
-                                        <td>2kg</td>
-                                        <td>50.000</td>
-                                        <td><span class="badge badge-warning">Booking</span></td>
+                                        <td>Delivery</td>
+                                        <td>Rp. 10.000</td>
+                                        <td><span class="badge badge-warning">Paid</span></td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
                                             <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
@@ -55,9 +55,9 @@
                                         <td>B0234043</td>
                                         <td>28 Juli 2024</td>
                                         <td>Tandrio</td>
-                                        <td>5kg</td>
-                                        <td>50.000</td>
-                                        <td><span class="badge badge-warning">Booking</span></td>
+                                        <td>PickUp</td>
+                                        <td>Rp. 12.000</td>
+                                        <td><span class="badge badge-warning">Paid</span></td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
                                             <a href="#" class="btn btn-sm btn-danger"><i
@@ -65,7 +65,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -76,4 +76,46 @@
     </div>
     <!---Container Fluid-->
 
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function() {
+            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+            const getlistInvoice = () => {
+                const txtSearch = $('#txSearch').val();
+
+                $.ajax({
+                        url: "{{ route('getlistInvoice') }}",
+                        method: "GET",
+                        data: {
+                            txSearch: txtSearch
+                        },
+                        beforeSend: () => {
+                            $('#containerInvoice').html(loadSpin)
+                        }
+                    })
+                    .done(res => {
+                        $('#containerInvoice').html(res)
+                        $('#tableInvoice').DataTable({
+                            searching: false,
+                            lengthChange: false,
+                            "bSort": true,
+                            "aaSorting": [],
+                            pageLength: 7,
+                            "lengthChange": false,
+                            responsive: true,
+                            language: {
+                                search: ""
+                            }
+                        });
+                    })
+            }
+
+            getlistInvoice();
+        });
+    </script>
 @endsection

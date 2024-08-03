@@ -13,13 +13,21 @@ return new class extends Migration
     {
         Schema::create('tbl_pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->string('tipe_pembayaran', 100);
+            $table->string('no_resi', 100);
             $table->date('tanggal_pembayaran');
-            $table->foreignId('pemesanan_id')->constrained('tbl_pemesanan')->unique();
-            $table->foreignId('matauang_id')->constrained('tbl_matauang');
-            $table->foreignId('rekening_id')->constrained('tbl_rekening');
-            $table->decimal('jumlah', 15, 2);
-            $table->decimal('jumlah_idr', 15, 2);
+            $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
+            $table->decimal('berat', 8)->nullable();
+            $table->decimal('panjang', 8)->nullable();
+            $table->decimal('lebar', 8)->nullable();
+            $table->decimal('tinggi', 8)->nullable();
+            $table->decimal('pembagi', 8)->nullable();
+            $table->decimal('rate', 8)->nullable();
+            $table->enum('pengiriman', ['pickup', 'delivery']);
+            $table->decimal('harga', 15);
+            $table->foreignId('pembayaran_id')->constrained('tbl_tipe_pembayaran');
+            $table->foreignId('rekening_id')->constrained('tbl_rekening')->nullable();
+            $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
+            $table->foreignId('status_id')->constrained('tbl_status');
             $table->timestamps();
         });
 

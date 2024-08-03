@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_rekening', function (Blueprint $table) {
+        Schema::create('tbl_rate_volume', function (Blueprint $table) {
             $table->id();
-            $table->string('pemilik');
-            $table->string('nomer_rekening');
-            $table->string('nama_bank');
+            $table->string('rate_volume', 50);
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_rekening');
+        Schema::dropIfExists('tbl_rate');
     }
 };

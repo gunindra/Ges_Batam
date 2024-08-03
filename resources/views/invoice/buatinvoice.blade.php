@@ -132,13 +132,15 @@
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="noResi" class="form-label fw-bold">No Resi</label>
-                                    <input type="text" class="form-control col-8" id="noResi" value="">
+                                    <input type="text" class="form-control col-8" id="noResi" value=""
+                                        placeholder="Scan Resi">
                                     <div id="noResiError" class="text-danger mt-1">Silahkan Scan No Resi terlebih dahulu
                                     </div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
-                                    <input type="text" class="form-control col-8" id="tanggal" value="">
+                                    <input type="text" class="form-control col-8" id="tanggal" value=""
+                                        placeholder="Pilih tanggal">
                                     <div id="tanggalError" class="text-danger mt-1">Tanggal tidak boleh kosong</div>
                                 </div>
                             </div>
@@ -170,7 +172,7 @@
                             <div class="col-6" id="weightDiv">
                                 <div class="mt-3">
                                     <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
-                                    <input type="number" class="form-control col-8" id="beratBarang" value="">
+                                    <input type="text" class="form-control col-8" id="beratBarang" value="">
                                 </div>
                             </div>
                             <div class="col-12 d-none" id="volumeDiv">
@@ -179,14 +181,14 @@
                                     <div class="flex-grow-1 me-3">
                                         <label for="volume" class="form-label fw-bold">Volume</label>
                                         <div class="d-flex align-items-center">
-                                            <input type="number" class="form-control col-2 me-1" id="panjang" placeholder="P"
-                                                value="">
+                                            <input type="text" class="form-control col-2 me-1" id="panjang"
+                                                placeholder="P" value="">
                                             <span class="mx-1">X</span>
-                                            <input type="number" class="form-control col-2 mx-1" id="lebar" placeholder="L"
-                                                value="">
+                                            <input type="text" class="form-control col-2 mx-1" id="lebar"
+                                                placeholder="L" value="">
                                             <span class="mx-1">X</span>
-                                            <input type="number" class="form-control col-2 ms-1" id="tinggi" placeholder="T"
-                                                value="">
+                                            <input type="text" class="form-control col-2 ms-1" id="tinggi"
+                                                placeholder="T" value="">
                                             <span class="ml-2 ">cm</span>
                                         </div>
                                     </div>
@@ -194,17 +196,23 @@
                                     <div class="flex-grow-1">
                                         <label for="pembagi" class="form-label fw-bold">Pembagi</label>
                                         <select class="form-control" id="pembagi">
+                                            <option value="" selected disabled>Pilih Pembagi</option>
                                             <option value="1000000">1.000.000</option>
                                             <option value="6000">6.000</option>
                                         </select>
+                                        <div id="pembagiError" class="text-danger mt-1">Silahkan Pilih Pembagi</div>
                                     </div>
                                     <!-- Rate Section -->
                                     <div class="flex-grow-1 ml-3">
                                         <label for="rate" class="form-label fw-bold">Rate</label>
                                         <select class="form-control" id="rate">
-                                            <option value="100">100</option>
-                                            <option value="200">200</option>
+                                            <option value="" selected disabled>Pilih Rate</option>
+                                            @foreach ($listRateVolume as $ratevolume)
+                                                <option value="{{ $ratevolume->rate_volume }}">
+                                                    {{ $ratevolume->rate_volume }}</option>
+                                            @endforeach
                                         </select>
+                                        <div id="raterError" class="text-danger mt-1">Silahkan Pilih Rate</div>
                                     </div>
                                 </div>
                             </div>
@@ -254,9 +262,10 @@
                                     <label for="metodePembayaran" class="form-label fw-bold">Metode Pembayaran</label>
                                     <select class="form-control" id="metodePembayaran">
                                         <option value="" selected disabled>Pilih Pembayaran</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="transfer">Transfer</option>
-                                        <option value="poin">Poin</option>
+                                        @foreach ($listTipePembayaran as $tipepembayaran)
+                                            <option value="{{ $tipepembayaran->id }}">
+                                                {{ $tipepembayaran->tipe_pembayaran }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="metodePembayaranError" class="text-danger mt-1">Silahkan pilih metode
                                         pembayaran</div>
@@ -282,11 +291,12 @@
                                 <p class="mb-0">Total Harga</p>
                                 <div class="box bg-light text-dark p-3 mt-2"
                                     style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                    <span id="total-harga" style="font-weight: bold; color: #555;">Rp 0</span>
+                                    <span id="total-harga" style="font-weight: bold; color: #555;">0</span>
 
                                 </div>
                                 <input type="hidden" name="" id="totalHargaValue">
-                                <button class="btn btn-primary float-right mt-3" style="width: 100%;">Buat
+                                <button id="buatInvoice" class="btn btn-primary float-right mt-3"
+                                    style="width: 100%;">Buat
                                     Invoice</button>
                             </div>
                         </div>
@@ -313,7 +323,7 @@
             // $('#tanggal').val(today);
             // $('#tanggal').attr('min', today);
             $('#tanggal').datepicker({
-                format: 'dd/mm/yyyy',
+                format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,
                 autoclose: true,
@@ -394,7 +404,7 @@
             updateSections();
 
             $('#metodePembayaran').change(function() {
-                if ($(this).val() === 'transfer') {
+                if ($(this).val() === '2') {
                     $('#rekeningSection').show();
                 } else {
                     $('#rekeningSection').hide();
@@ -469,14 +479,12 @@
 
 
 
-            $('button').click(function() {
+            $('#buatInvoice').click(function() {
                 if (validateInvoiceInput()) {
                     // Collect all form data
                     let noResi = $('#noResi').val();
                     let tanggal = $('#tanggal').val();
                     let customer = $('#selectCostumer').val();
-                    // let namaBarang = $('#namaBarang').val();
-                    // let hargaBarang = $('#hargaBarang').val();
                     let beratBarang = $('#beratBarang').val();
                     let panjang = $('#panjang').val();
                     let lebar = $('#lebar').val();
@@ -485,20 +493,18 @@
                     let metodePembayaran = $('#metodePembayaran').val();
                     let driver = metodePengiriman === 'delivery' ? $('#driver').val() : null;
                     let alamat = metodePengiriman === 'delivery' ? $('#alamat').val() : null;
-                    let rekening = metodePembayaran === 'transfer' ? $('#rekening').val() : null;
+                    let rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
                     let totalharga = $('#totalHargaValue').val();
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                     // Send data to the controller
                     $.ajax({
                         type: "POST",
-                        url: "{{ route('tambainvoice') }}", // Ganti dengan route yang sesuai
+                        url: "{{ route('tambainvoice') }}",
                         data: {
                             noResi: noResi,
                             tanggal: tanggal,
                             customer: customer,
-                            // namaBarang: namaBarang,
-                            // hargaBarang: hargaBarang,
                             beratBarang: beratBarang,
                             panjang: panjang,
                             lebar: lebar,
@@ -514,7 +520,7 @@
                         success: function(response) {
                             if (response.status === 'success') {
                                 showMessage("success", "Invoice berhasil dibuat");
-                                // Reset form atau tindakan lain yang diperlukan
+                                location.reload();
                             } else {
                                 Swal.fire({
                                     title: "Gagal membuat invoice",
@@ -524,7 +530,7 @@
                         }
                     });
                 } else {
-                    alert('Mohon periksa input yang kosong.');
+                    showMessage("error", "Mohon periksa input yang kosong.");
                 }
             });
         });

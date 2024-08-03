@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_pengantaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pemesanan_id')->constrained('tbl_pemesanan')->unique();
+            $table->foreignId('pembayaran_id')->constrained('tbl_pembayaran')->unique();
             $table->date('tanggal_pengantaran');
             $table->foreignId('supir_id')->constrained('tbl_supir');
             $table->text('alamat');
