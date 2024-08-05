@@ -116,6 +116,38 @@
             }
 
             getlistInvoice();
+
+
+
+            $(document).on('click', '.btnExportInvoice', function(e) {
+                let id = $(this).data('id');
+
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('exportPdf') }}",
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.url) {
+                            showMessage("success", "Berhasil Export Invoice");
+                            window.open(response.url, '_blank');
+                        } else if (response.error) {
+                            showMessage("error", response.error);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Gagal Export Invoice';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+                        showMessage("error", errorMessage);
+                    }
+                });
+            });
+
+
+
         });
     </script>
 @endsection

@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -42,22 +46,26 @@ class InvoiceController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT a.id,
-                        a.no_resi,
-                        DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
-                        b.nama_pembeli AS pembeli,
-                        a.berat,
-                        a.panjang,
-                        a.lebar,
-                        a.tinggi,
-                        a.pengiriman,
-                        a.harga,
-                        d.status_name
-                FROM tbl_pembayaran a
-                JOIN tbl_pembeli b ON a.pembeli_id = b.id
-                JOIN tbl_status d ON a.status_id = d.id
+            a.no_resi,
+            DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
+            b.nama_pembeli AS pembeli,
+            a.berat,
+            a.panjang,
+            a.lebar,
+            a.tinggi,
+            a.pengiriman,
+            a.harga,
+            d.status_name
+        FROM tbl_pembayaran AS a
+        JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+        JOIN tbl_status AS d ON a.status_id = d.id
+        ORDER BY a.tanggal_pembayaran desc;
         ";
 
         $data = DB::select($q);
+
+        // Dapatkan nilai tukar dari USD ke IDR
+        $exchangeRate = $this->getExchangeRate('USD', 'IDR');
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                                 <thead class="thead-light">
@@ -66,48 +74,52 @@ class InvoiceController extends Controller
                                         <th>Tanggal</th>
                                         <th>Costumer</th>
                                         <th>Pengiriman</th>
-                                        <th>Harga</th>
+                                        <th>Harga (USD)</th>
+                                        <th>Harga (IDR)</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>';
-        foreach ($data as $item) {
 
+        foreach ($data as $item) {
+            // Konversi harga ke IDR
+            $hargaIDR = isset($item->harga) ? $item->harga * $exchangeRate : 0;
 
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->no_resi ?? '-') .'</td>
-                    <td class="">' . ($item->tanggal_bayar ?? '-') .'</td>
-                    <td class="">' . ($item->pembeli ?? '-') .'</td>
-                    <td class="">' . ($item->pengiriman ?? '-') .'</td>
-                  <td class="">' . (isset($item->harga) ? 'Rp ' . number_format($item->harga, 0, ',', '.') : '-') . '</td>
-                    <td><span class="badge badge-warning">' . ($item->status_name ?? '-') .'</span></td>
-                   <td>
-                        <a  class="btn btnUpdateBooking btn-sm btn-secondary text-white" data-id="' .$item->id .'"><i class="fas fa-print"></i></a>
-                        <a  class="btn btnDestroyBooking btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
+                    <td class="">' . ($item->no_resi ?? '-') . '</td>
+                    <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
+                    <td class="">' . ($item->pembeli ?? '-') . '</td>
+                    <td class="">' . ($item->pengiriman ?? '-') . '</td>
+                    <td class="">' . (isset($item->harga) ? '$ ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
+                    <td class="">' . (isset($hargaIDR) ? 'Rp ' . number_format($hargaIDR, 0, ',', '.') : '-') . '</td>
+                    <td><span class="badge badge-warning">' . ($item->status_name ?? '-') . '</span></td>
+                    <td>
+                        <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
+                        <a class="btn btnDestroyBooking btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
         }
 
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
 
 
     public function tambainvoice(Request $request)
     {
+
+        // dd($request->all());
         $noResi = $request->input('noResi');
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
-        $beratBarang = $request->input('beratBarang');
-        $panjang = $request->input('panjang');
-        $lebar = $request->input('lebar');
-        $tinggi = $request->input('tinggi');
-        $rate = $request->input('namaBarang');
-        $pembagi = $request->input('hargaBarang');
+        $beratBarang = floatval(str_replace(',', '.', $request->input('beratBarang')));
+        $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
+        $lebar = floatval(str_replace(',', '.', $request->input('lebar')));
+        $tinggi = floatval(str_replace(',', '.', $request->input('tinggi')));
         $metodePengiriman = $request->input('metodePengiriman');
         $driver = $request->input('driver');
         $alamatTujuan = $request->input('alamat');
@@ -115,11 +127,10 @@ class InvoiceController extends Controller
         $rekening = $request->input('rekening');
         $totalharga = $request->input('totalharga');
 
-
         $date = DateTime::createFromFormat('j F Y', $tanggal);
-
-        // Format the date to Y-m-d for MySQL
         $formattedDate = $date ? $date->format('Y-m-d') : null;
+
+        // dd($beratBarang);
 
 
         try {
@@ -139,10 +150,66 @@ class InvoiceController extends Controller
                 'created_at' => now(),
             ]);
 
-            // Mengembalikan respons JSON jika berhasil
-            return response()->json(['status' => 'success', 'message' => 'Pelanggan berhasil ditambahkan'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan pelanggan: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Membuat Invoice: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+    public function exportPdf(Request $request)
+    {
+        $id = $request->input('id');
+        $id = intval($id);
+
+        $q = "SELECT a.id, a.no_resi, DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar, b.nama_pembeli AS pembeli, a.berat, a.panjang, a.lebar, a.tinggi, a.pengiriman, a.harga, d.status_name
+              FROM tbl_pembayaran AS a
+              JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+              JOIN tbl_status AS d ON a.status_id = d.id
+              WHERE a.id = :id";
+        $invoice = DB::select($q, ['id' => $id]);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        $additionalDetails = [];
+        if ($invoice[0]->pengiriman === 'delivery') {
+            $additionalDetails = ['driverName' => 'Example Driver', 'destinationAddress' => 'Example Address'];
+        }
+
+        $exchangeRate = $this->getExchangeRate('USD', 'IDR');
+        $hargaIDR = $invoice[0]->harga * $exchangeRate;
+
+        // Generate PDF
+        $pdf = Pdf::loadView('exportPDF.invoice', [
+            'invoice' => $invoice,
+            'hargaIDR' => $hargaIDR,
+            'additionalDetails' => $additionalDetails
+        ]);
+
+        // Simpan PDF ke dalam storage
+        $fileName = 'invoice_' . $invoice[0]->no_resi . '.pdf';
+        $filePath = storage_path('app/public/' . $fileName);
+        $pdf->save($filePath);
+
+        // Kirim URL PDF
+        $url = asset('storage/' . $fileName);
+        return response()->json(['url' => $url]);
+    }
+
+
+    private function getExchangeRate($fromCurrency, $toCurrency)
+    {
+        $client = new Client();
+        try {
+            $response = $client->request('GET', 'https://api.exchangerate-api.com/v4/latest/' . $fromCurrency);
+            $data = json_decode($response->getBody(), true);
+
+            return $data['rates'][$toCurrency];
+        } catch (RequestException $e) {
+            // Log error atau lakukan penanganan error sesuai kebutuhan
+            return 1; // Default nilai tukar jika terjadi error
         }
     }
 }

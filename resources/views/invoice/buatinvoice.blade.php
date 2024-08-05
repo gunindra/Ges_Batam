@@ -173,6 +173,7 @@
                                 <div class="mt-3">
                                     <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
                                     <input type="text" class="form-control col-8" id="beratBarang" value="">
+                                    <div id="beratError" class="text-danger mt-1">Masukkan Berat</div>
                                 </div>
                             </div>
                             <div class="col-12 d-none" id="volumeDiv">
@@ -194,25 +195,25 @@
                                     </div>
                                     <!-- Pembagi Section -->
                                     <div class="flex-grow-1">
-                                        <label for="pembagi" class="form-label fw-bold">Pembagi</label>
-                                        <select class="form-control" id="pembagi">
+                                        <label for="pembagiVolume" class="form-label fw-bold">Pembagi</label>
+                                        <select class="form-control" id="pembagiVolume">
                                             <option value="" selected disabled>Pilih Pembagi</option>
                                             <option value="1000000">1.000.000</option>
                                             <option value="6000">6.000</option>
                                         </select>
-                                        <div id="pembagiError" class="text-danger mt-1">Silahkan Pilih Pembagi</div>
+                                        <div id="pembagiErrorVolume" class="text-danger mt-1">Silahkan Pilih Pembagi</div>
                                     </div>
                                     <!-- Rate Section -->
                                     <div class="flex-grow-1 ml-3">
                                         <label for="rate" class="form-label fw-bold">Rate</label>
-                                        <select class="form-control" id="rate">
+                                        <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $ratevolume)
                                                 <option value="{{ $ratevolume->rate_volume }}">
                                                     {{ $ratevolume->rate_volume }}</option>
                                             @endforeach
                                         </select>
-                                        <div id="raterError" class="text-danger mt-1">Silahkan Pilih Rate</div>
+                                        <div id="raterErrorVolume" class="text-danger mt-1">Silahkan Pilih Rate</div>
                                     </div>
                                 </div>
                             </div>
@@ -291,7 +292,7 @@
                                 <p class="mb-0">Total Harga</p>
                                 <div class="box bg-light text-dark p-3 mt-2"
                                     style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                    <span id="total-harga" style="font-weight: bold; color: #555;">0</span>
+                                    <span id="total-harga" style="font-weight: bold; color: #555;">0 USD</span>
 
                                 </div>
                                 <input type="hidden" name="" id="totalHargaValue">
@@ -338,6 +339,8 @@
                     $('#volumeDiv').addClass('d-none');
                     $('#weightDiv').removeClass('d-none');
                 }
+
+                validateInvoiceInput();
             });
 
             $('#beratBarang').on('input', function() {
@@ -358,7 +361,7 @@
                 updateTotalHargaVolume();
             });
 
-            $('#pembagi, #rate').change(function() {
+            $('#pembagiVolume, #rateVolume').change(function() {
                 updateTotalHargaVolume();
             });
 
@@ -367,14 +370,14 @@
                 let berat = parseFloat(beratRaw);
 
                 if (beratRaw.trim() === '' || isNaN(berat)) {
-                    $('#total-harga').text('Rp 0');
+                    $('#total-harga').text('0 USD');
                     $('#totalHargaValue').val(0);
                 } else {
                     berat = Math.max(2, berat);
-                    let hargaPerKg = 15000;
+                    let hargaPerKg = 1;
                     let totalHarga = berat * hargaPerKg;
                     $('#totalHargaValue').val(totalHarga)
-                    $('#total-harga').text('Rp ' + totalHarga.toLocaleString());
+                    $('#total-harga').text(totalHarga.toLocaleString() + ' USD');
                 }
             }
 
@@ -385,8 +388,8 @@
 
                 var volume = panjang * lebar * tinggi;
 
-                var pembagi = parseFloat($('#pembagi').val()) || 1;
-                var rate = parseFloat($('#rate').val()) || 1;
+                var pembagi = parseFloat($('#pembagiVolume').val()) || 1;
+                var rate = parseFloat($('#rateVolume').val()) || 1;
                 var totalHargaVolume = (volume / pembagi) * rate;
 
                 $('#total-harga').text(totalHargaVolume.toFixed(2) + ' USD');
@@ -482,30 +485,53 @@
                     $('#rekeningError').hide();
                 }
 
-                // // Validate 'pembagi'
-                // if ($('#pembagi').val().trim() === '') {
-                //     $('#pembagiError').show();
-                //     isValid = false;
-                // } else {
-                //     $('#pembagiError').hide();
-                // }
-
-                // Validate 'rate'
-                // if ($('#rateInvoice').val().trim() === '') {
-                //     $('#raterError').show();
-                //     isValid = false;
-                // } else {
-                //     $('#raterError').hide();
-                // }
+                // Toggle between berat and volume validation
+                if ($('#toggleSwitch').is(':checked')) {
+                    // Validate 'volume' fields
+                    if ($('#panjang').val().trim() === '' || $('#lebar').val().trim() === '' || $('#tinggi').val()
+                        .trim() === '') {
+                        $('#beratError').hide();
+                        $('#volumeError').show();
+                        isValid = false;
+                    } else {
+                        $('#volumeError').hide();
+                    }
+                    if ($('#pembagiVolume').val() === null) {
+                        $('#pembagiErrorVolume').show();
+                        isValid = false;
+                    } else {
+                        $('#pembagiErrorVolume').hide();
+                    }
+                    if ($('#rateVolume').val() === null) {
+                        $('#raterErrorVolume').show();
+                        isValid = false;
+                    } else {
+                        $('#raterErrorVolume').hide();
+                    }
+                } else {
+                    // Validate 'berat' field
+                    if ($('#beratBarang').val().trim() === '') {
+                        $('#beratError').show();
+                        isValid = false;
+                    } else {
+                        $('#beratError').hide();
+                    }
+                    $('#pembagiErrorVolume').hide();
+                    $('#raterErrorVolume').hide();
+                    $('#volumeError').hide();
+                }
 
                 return isValid;
             }
 
-            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #metodePembayaran, #rekening').on(
-                'input change',
-                function() {
-                    validateInvoiceInput();
-                });
+            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
+                .on(
+                    'input change',
+                    function() {
+                        validateInvoiceInput();
+                    }
+                );
+
 
 
 
