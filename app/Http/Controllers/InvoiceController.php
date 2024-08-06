@@ -98,7 +98,7 @@ class InvoiceController extends Controller
                     <td><span class="badge badge-warning">' . ($item->status_name ?? '-') . '</span></td>
                     <td>
                         <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                        <a class="btn btnDestroyBooking btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
+                        <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -279,6 +279,28 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
+
+    public function deleteInvoice(Request $request)
+    {
+        $id = $request->input('id');
+
+        try {
+
+            $relatedRecords = DB::table('tbl_pengantaran')->where('pembayaran_id', $id)->get();
+
+            if ($relatedRecords->count() > 0) {
+
+                DB::table('tbl_pengantaran')->where('pembayaran_id', $id)->delete();
+            }
+
+            DB::table('tbl_pembayaran')->where('id', $id)->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data Invoice berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 
 
     private function getExchangeRate($fromCurrency, $toCurrency)

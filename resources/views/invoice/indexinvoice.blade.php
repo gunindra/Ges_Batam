@@ -117,10 +117,17 @@
 
             getlistInvoice();
 
-
-
             $(document).on('click', '.btnExportInvoice', function(e) {
                 let id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Please wait while we process your request.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
                 $.ajax({
                     type: "GET",
@@ -129,25 +136,69 @@
                         id: id
                     },
                     success: function(response) {
+                        Swal.close();
+
                         if (response.url) {
-                            showMessage("success", "Berhasil Export Invoice");
                             window.open(response.url, '_blank');
                         } else if (response.error) {
-                            showMessage("error", response.error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error
+                            });
                         }
                     },
                     error: function(xhr) {
+                        Swal.close();
+
                         let errorMessage = 'Gagal Export Invoice';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             errorMessage = xhr.responseJSON.error;
                         }
-                        showMessage("error", errorMessage);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage
+                        });
                     }
                 });
             });
 
 
 
+            $(document).on('click', '.btnDeleteInvoice', function(e) {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin Ingin Hapus Invoice Ini?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "GET",
+                            url: "{{ route('deleteInvoice') }}",
+                            data: {
+                                id: id,
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success",
+                                        "Berhasil menghapus Invoice");
+                                    getlistInvoice();
+                                } else {
+                                    showMessage("error", "Gagal menghapus Invoice");
+                                }
+                            }
+                        });
+                    }
+                })
+            });
         });
     </script>
 @endsection
