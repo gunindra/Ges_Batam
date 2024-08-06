@@ -222,6 +222,7 @@
                             <span>Pengiriman</span>
                         </div>
                         <div class="d-flex flex-row">
+                            <!-- Left Column: Delivery Method -->
                             <div class="col-4">
                                 <div class="mt-3">
                                     <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
@@ -235,22 +236,62 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+
+                            <!-- Middle Column: Driver and Address -->
+                            <div class="col-4">
                                 <div class="mt-3" id="driverSection" style="display: none;">
                                     <label for="driver" class="form-label fw-bold col-12">Driver</label>
-                                    <select class="form-control select2singgle col-8" id="driver" style="width: 65%">
+                                    <select class="form-control select2singgle col-8" id="driver" style="width: 100%">
                                         <option value="" selected disabled>Pilih Driver</option>
                                         @foreach ($listSupir as $supir)
                                             <option value="{{ $supir->id }}">
-                                                {{ $supir->nama_supir }} - {{ $supir->no_wa }}</option>
+                                                {{ $supir->nama_supir }} - {{ $supir->no_wa }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     <div id="driverError" class="text-danger mt-1">Silahkan pilih driver</div>
                                 </div>
                                 <div class="mt-3" id="alamatSection" style="display: none;">
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
-                                    <input type="text" class="form-control col-8" id="alamat" value="">
+                                    <input type="text" class="form-control" id="alamat" style="width: 100%"
+                                        value="">
                                     <div id="alamatError" class="text-danger mt-1">Alamat tidak boleh kosong</div>
+
+                                    <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
+                                    <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
+                                        <option value="" selected disabled>Pilih Provinsi</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                    <div id="provinsiError" class="text-danger mt-1">Provinsi tidak boleh kosong</div>
+                                </div>
+
+
+                            </div>
+
+                            <!-- Right Column: Location Details -->
+                            <div class="col-4">
+                                <div class="mt-3" id="lokasiSection" style="display: none;">
+                                    <label for="kota" class="form-label fw-bold mt-2">Kota / Provinsi</label>
+                                    <select class="form-control select2singgle col-8" id="kabupatenKota"
+                                        style="width: 100%">
+                                        <option value="" selected disabled>Pilih Kabupaten/Kota</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                    <div id="kotaError" class="text-danger mt-1">Kota/Kab tidak boleh kosong</div>
+
+                                    <label for="kecamatan" class="form-label fw-bold mt-2">Kecamatan</label>
+                                    <select class="form-control select2singgle col-8" id="kecamatan" style="width: 100%">
+                                        <option value="" selected disabled>Pilih Kecamatan</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                    <div id="kecamatanError" class="text-danger mt-1">Kecamatan tidak boleh kosong</div>
+
+                                    <label for="kelurahan" class="form-label fw-bold">Kelurahan</label>
+                                    <select class="form-control select2singgle col-8" id="kelurahan" style="width: 100%">
+                                        <option value="" selected disabled>Pilih Kelurahan</option>
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                    <div id="kelurahanError" class="text-danger mt-1">Kelurahan tidak boleh kosong</div>
                                 </div>
                             </div>
                         </div>
@@ -312,6 +353,105 @@
 @section('script')
     <script>
         $(document).ready(function() {
+
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Store names of selected options
+            var selectedProvinsiName = '';
+            var selectedKabupatenKotaName = '';
+            var selectedKecamatanName = '';
+            var selectedKelurahanName = '';
+
+            // Tarik data untuk Provinsi
+            $.ajax({
+                url: 'https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json',
+                method: 'GET',
+                success: function(data) {
+                    var $provinsi = $('#provinsi');
+                    $provinsi.empty().append(
+                        '<option value="" selected disabled>Pilih Provinsi</option>');
+                    $.each(data, function(index, provinsi) {
+                        $provinsi.append('<option value="' + provinsi.id + '">' + provinsi
+                            .name + '</option>');
+                    });
+                }
+            });
+
+            // Tarik data untuk Kabupaten/Kota berdasarkan Provinsi
+            $('#provinsi').change(function() {
+                var provinsiId = $(this).val();
+                selectedProvinsiName = $('#provinsi option:selected').text(); // Store the name
+                if (provinsiId) {
+                    $.ajax({
+                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/regencies/' +
+                            provinsiId + '.json',
+                        method: 'GET',
+                        success: function(data) {
+                            var $kabupatenKota = $('#kabupatenKota');
+                            $kabupatenKota.empty().append(
+                                '<option value="" selected disabled>Pilih Kabupaten/Kota</option>'
+                            );
+                            $.each(data, function(index, regency) {
+                                $kabupatenKota.append('<option value="' + regency.id +
+                                    '">' + regency.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Tarik data untuk Kecamatan berdasarkan Kabupaten/Kota
+            $('#kabupatenKota').change(function() {
+                var regencyId = $(this).val();
+                selectedKabupatenKotaName = $('#kabupatenKota option:selected').text(); // Store the name
+                if (regencyId) {
+                    $.ajax({
+                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/districts/' +
+                            regencyId + '.json',
+                        method: 'GET',
+                        success: function(data) {
+                            var $kecamatan = $('#kecamatan');
+                            $kecamatan.empty().append(
+                                '<option value="" selected disabled>Pilih Kecamatan</option>'
+                            );
+                            $.each(data, function(index, district) {
+                                $kecamatan.append('<option value="' + district.id +
+                                    '">' + district.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Tarik data untuk Kelurahan berdasarkan Kecamatan
+            $('#kecamatan').change(function() {
+                var districtId = $(this).val();
+                selectedKecamatanName = $('#kecamatan option:selected').text(); // Store the name
+                if (districtId) {
+                    $.ajax({
+                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/villages/' +
+                            districtId + '.json',
+                        method: 'GET',
+                        success: function(data) {
+                            var $kelurahan = $('#kelurahan');
+                            $kelurahan.empty().append(
+                                '<option value="" selected disabled>Pilih Kelurahan</option>'
+                            );
+                            $.each(data, function(index, village) {
+                                $kelurahan.append('<option value="' + village.id +
+                                    '">' + village.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#kelurahan').change(function() {
+                selectedKelurahanName = $('#kelurahan option:selected').text(); // Store the name
+            });
+
             $('.select2singgle').select2({
                 width: 'resolve'
             });
@@ -400,10 +540,10 @@
             function updateSections() {
                 if ($('#delivery').is(':checked')) {
                     $('#driverSection').show();
-                    $('#alamatSection').show();
+                    $('#alamatSection, #lokasiSection').show();
                 } else {
                     $('#driverSection').hide();
-                    $('#alamatSection').hide();
+                    $('#alamatSection, #lokasiSection').hide();
                 }
             }
 
@@ -460,6 +600,7 @@
 
                 // Validate delivery details if delivery is checked
                 if ($('#delivery').is(':checked')) {
+                    // Validate Driver
                     if ($('#driver').val() === null) {
                         $('#driverError').show();
                         isValid = false;
@@ -467,13 +608,47 @@
                         $('#driverError').hide();
                     }
 
+                    // Validate Alamat
                     if ($('#alamat').val().trim() === '') {
                         $('#alamatError').show();
                         isValid = false;
                     } else {
                         $('#alamatError').hide();
                     }
+
+                    // Validate Provinsi
+                    if ($('#provinsi').val() === null) {
+                        $('#provinsiError').show();
+                        isValid = false;
+                    } else {
+                        $('#provinsiError').hide();
+                    }
+
+                    // Validate Kota/Kabupaten
+                    if ($('#kabupatenKota').val() === null) {
+                        $('#kotaError').show();
+                        isValid = false;
+                    } else {
+                        $('#kotaError').hide();
+                    }
+
+                    // Validate Kecamatan
+                    if ($('#kecamatan').val() === null) {
+                        $('#kecamatanError').show();
+                        isValid = false;
+                    } else {
+                        $('#kecamatanError').hide();
+                    }
+
+                    // Validate Kelurahan
+                    if ($('#kelurahan').val() === null) {
+                        $('#kelurahanError').show();
+                        isValid = false;
+                    } else {
+                        $('#kelurahanError').hide();
+                    }
                 }
+
 
                 // Validate payment method
                 if ($('#metodePembayaran').val() === '2' && $('#rekening').val() === null) {
@@ -524,17 +699,13 @@
                 return isValid;
             }
 
-            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
+            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #provinsi, #kabupatenKota, #kecamatan, #kelurahan, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
                 .on(
                     'input change',
                     function() {
                         validateInvoiceInput();
                     }
                 );
-
-
-
-
 
             $('#buatInvoice').click(function() {
                 if (validateInvoiceInput()) {
@@ -550,6 +721,10 @@
                     let metodePembayaran = $('#metodePembayaran').val();
                     let driver = metodePengiriman === 'delivery' ? $('#driver').val() : null;
                     let alamat = metodePengiriman === 'delivery' ? $('#alamat').val() : null;
+                    let provinsi = metodePengiriman === 'delivery' ? selectedProvinsiName : null;
+                    let kabupatenKota = metodePengiriman === 'delivery' ? selectedKabupatenKotaName : null;
+                    let kecamatan = metodePengiriman === 'delivery' ? selectedKecamatanName : null;
+                    let kelurahan = metodePengiriman === 'delivery' ? selectedKelurahanName : null;
                     let rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
                     let totalharga = $('#totalHargaValue').val();
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -569,6 +744,10 @@
                             metodePengiriman: metodePengiriman,
                             driver: driver,
                             alamat: alamat,
+                            provinsi: provinsi,
+                            kabupatenKota: kabupatenKota,
+                            kecamatan: kecamatan,
+                            kelurahan: kelurahan,
                             metodePembayaran: metodePembayaran,
                             rekening: rekening,
                             totalharga: totalharga,

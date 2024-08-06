@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Invoice PDF</title>
     <style>
@@ -7,60 +8,27 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         .container {
-            width: 800px;
-            margin: 20px auto;
+            width: 85%;
+            margin: 0 auto;
             border: 2px solid #000;
             padding: 20px;
         }
 
         .row {
-            display: flex;
-            flex-wrap: wrap;
             margin-bottom: 10px;
-            padding-bottom: 10px;
         }
 
         .row-divider {
             border-bottom: 3px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
         }
 
-        .col-2 {
-            flex: 0 0 16.6667%;
-            max-width: 16.6667%;
-            box-sizing: border-box;
-            padding: 5px;
-        }
-
-        .col-3 {
-            flex: 0 0 25%;
-            max-width: 25%;
-            box-sizing: border-box;
-            padding: 5px;
-        }
-
-        .col-5 {
-            flex: 0 0 41.6667%;
-            max-width: 41.6667%;
-            box-sizing: border-box;
-            padding: 5px;
-        }
-
-        .col-6 {
-            flex: 0 0 50%;
-            max-width: 50%;
-            box-sizing: border-box;
-            padding: 5px;
-        }
-
-        .col-7 {
-            flex: 0 0 58.3333%;
-            max-width: 58.3333%;
-            box-sizing: border-box;
-            padding: 5px;
+        .col-full {
+            width: 100%;
         }
 
         .text-right {
@@ -85,62 +53,106 @@
             font-weight: bold;
         }
 
-        .p-2 {
+        .border-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .border-section div {
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
             padding: 10px;
         }
 
-        .py-2 {
-            padding-top: 10px;
-            padding-bottom: 10px;
+        .left {
+            text-align: left;
         }
 
-        .px-1 {
-            padding-left: 5px;
-            padding-right: 5px;
+        .right {
+            text-align: right;
         }
-
     </style>
 </head>
-<body>
-    <div class="container border p-4 my-4">
-        <div class="row row-divider">
-            <div class="col-7">
-                <h4 class="font-weight-bold">PT. GES</h4>
-            </div>
-            <div class="col-5 text-right">
-                <h4 class="font-weight-bold"> {{ $invoice[0]->no_resi }}</h4>
-            </div>
-        </div>
-        <div class="row row-divider py-2">
-            <div class="col-6">
-                <p><strong>Driver :</strong> PIJE, 628******21<br>BATAM</p>
-            </div>
-            <div class="col-6">
-                <p><strong>Customer :</strong> {{ $invoice[0]->pembeli }}, 6285714340762<br>JL. BANGKA IX NO. 43B RT. 6 RW. 12 RAYA KEC. MAMPANG PRAPATAN JAKARTA SELATAN</p>
-            </div>
-        </div>
-        <div class="row row-divider py-2">
-            <div class="col-2 text-center">
-                <div class="border p-2 font-weight-bold">DELIVERY</div>
-            </div>
-            <div class="col-3">
-                <div class="border p-2">
-                    <div>GW: 0.8 kg / 0.8 kg</div>
-                    <div>VW: 10/10/10 Cm / 0.1 kg</div>
-                </div>
-            </div>
-            <div class="col-2 text-center">
-                <div class="border py-2 px-1 font-weight-bold">TRANSFER</div>
-            </div>
-            <div class="col-5">
 
-                <div class="border p-2 text-center total-bayar">
-                    <h6>Total Bayar</h6>
-                    {{ number_format($hargaIDR, 2) }}
+<body>
+    <div class="container">
+        <div class="row row-divider">
+            <table>
+                <tr>
+                    <td class="left">
+                        <h4 class="font-weight-bold">PT. GES</h4>
+                    </td>
+                    <td class="right">
+                        <h4 class="font-weight-bold">{{ $invoice->no_resi }}</h4>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="row row-divider">
+            <div class="col-full">
+                <p><strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>JL. BANGKA IX NO. 43B RT. 6
+                    RW. 12 RAYA KEC. MAMPANG PRAPATAN JAKARTA SELATAN</p>
+            </div>
+        </div>
+        <div class="row row-divider">
+            <div class="col-full">
+                <div class="border-section">
+                    <div class="border font-weight-bold text-center">{{ $invoice->pengiriman }}</div>
+                    @if($invoice->pengiriman === 'delivery')
+                        <div class="border text-center">
+                            <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] }}, {{ $additionalDetails['driverPhone'] }}<br>{{ $additionalDetails['destinationAddress'] }}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
+        </div>
+        <div class="row row-divider">
+            <table>
+                <tr>
+                    <td class="center" style="width: 50%;">
+                        <div class="border-section">
+                            <div class="border font-weight-bold text-center">{{ $invoice->tipe_pembayaran }}</div>
+                            @if($invoice->tipe_pembayaran === 'Transfer')
+                                <div class="border text-center">
+                                    <p><strong>Berat:</strong> {{ $berat }} kg<br>
+                                    <strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x {{ $tinggi }} cm<br>
+                                    <strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] }}<br>
+                                    <strong>Pemilik:</strong> {{ $paymentDetails['accountHolder'] }}<br>
+                                    <strong>Bank:</strong> {{ $paymentDetails['bankName'] }}</p>
+                                </div>
+                            @else
+                                <div class="border text-center">
+                                    <p><strong>Berat:</strong> {{ $berat }} kg<br>
+                                    <strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x {{ $tinggi }} cm</p>
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+                    <td class="center" style="width: 50%;">
+                        <div class="border total-bayar text-center">
+                            <h6>Total Bayar</h6>
+                            {{ number_format($hargaIDR, 2) }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
+</body>
+
 </html>
-
-
