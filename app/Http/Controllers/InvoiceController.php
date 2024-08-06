@@ -53,10 +53,11 @@ class InvoiceController extends Controller
             a.panjang,
             a.lebar,
             a.tinggi,
-            a.pengiriman,
+            f.tipe_pembayaran,
             a.harga,
             d.status_name
         FROM tbl_pembayaran AS a
+        JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
         JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
         JOIN tbl_status AS d ON a.status_id = d.id
         ORDER BY a.tanggal_pembayaran desc;
@@ -73,7 +74,7 @@ class InvoiceController extends Controller
                                         <th>No Resi</th>
                                         <th>Tanggal</th>
                                         <th>Costumer</th>
-                                        <th>Pengiriman</th>
+                                        <th>Jenis Pembayaran</th>
                                         <th>Harga (USD)</th>
                                         <th>Harga (IDR)</th>
                                         <th>Status</th>
@@ -92,7 +93,7 @@ class InvoiceController extends Controller
                     <td class="">' . ($item->no_resi ?? '-') . '</td>
                     <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
                     <td class="">' . ($item->pembeli ?? '-') . '</td>
-                    <td class="">' . ($item->pengiriman ?? '-') . '</td>
+                    <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
                     <td class="">' . (isset($item->harga) ? '$ ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
                     <td class="">' . (isset($hargaIDR) ? 'Rp ' . number_format($hargaIDR, 0, ',', '.') : '-') . '</td>
                     <td><span class="badge badge-warning">' . ($item->status_name ?? '-') . '</span></td>
@@ -158,7 +159,7 @@ class InvoiceController extends Controller
             }
 
             // Check if metodePengiriman is 'delivery'
-            if ($metodePengiriman === 'delivery') {
+            if ($metodePengiriman === 'Delivery') {
                 DB::table('tbl_pengantaran')->insert([
                     'pembayaran_id' => $pembayaranId, // Use the new id from tbl_pembayaran
                     'tanggal_pengantaran' => $formattedDate,
@@ -227,11 +228,11 @@ class InvoiceController extends Controller
 
             // Handle delivery or pickup
             $additionalDetails = [];
-            if ($invoice->pengiriman === 'delivery') {
+            if ($invoice->pengiriman === 'Delivery') {
                 $additionalDetails = [
-                    'driverName' => $invoice->nama_supir,
-                    'driverPhone' => $invoice->supir_no_wa,
-                    'destinationAddress' => $invoice->alamat
+                    'driverName' => $invoice->nama_supir ?? 'N/A', // Default to 'N/A' if null
+                    'driverPhone' => $invoice->supir_no_wa ?? 'N/A',
+                    'destinationAddress' => $invoice->alamat ?? 'N/A'
                 ];
             }
 
@@ -242,39 +243,54 @@ class InvoiceController extends Controller
             $paymentDetails = [];
             if ($invoice->tipe_pembayaran === 'Transfer') {
                 $paymentDetails = [
-                    'rekeningNumber' => $invoice->nomer_rekening,
-                    'accountHolder' => $invoice->pemilik,
-                    'bankName' => $invoice->nama_bank
+                    'rekeningNumber' => $invoice->nomer_rekening ?? 'N/A',
+                    'accountHolder' => $invoice->pemilik ?? 'N/A',
+                    'bankName' => $invoice->nama_bank ?? 'N/A'
                 ];
             }
 
             // Calculate harga in IDR
-            $exchangeRate = $this->getExchangeRate('USD', 'IDR');
-            $hargaIDR = $invoice->harga * $exchangeRate;
+            try {
+                $exchangeRate = $this->getExchangeRate('USD', 'IDR');
+                $hargaIDR = $invoice->harga * $exchangeRate;
+            } catch (\Exception $e) {
+                \Log::error('Error calculating exchange rate: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to calculate exchange rate'], 500);
+            }
 
             // Generate PDF
-            $pdf = Pdf::loadView('exportPDF.invoice', [
-                'invoice' => $invoice,
-                'hargaIDR' => $hargaIDR,
-                'additionalDetails' => $additionalDetails,
-                'paymentDetails' => $paymentDetails,
-                'berat' => $berat,
-                'panjang' => $invoice->panjang,
-                'lebar' => $invoice->lebar,
-                'tinggi' => $invoice->tinggi
-            ]);
+            try {
+                $pdf = Pdf::loadView('exportPDF.invoice', [
+                    'invoice' => $invoice,
+                    'hargaIDR' => $hargaIDR,
+                    'additionalDetails' => $additionalDetails,
+                    'paymentDetails' => $paymentDetails,
+                    'berat' => $berat,
+                    'panjang' => $invoice->panjang,
+                    'lebar' => $invoice->lebar,
+                    'tinggi' => $invoice->tinggi
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Error generating PDF: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
 
             // Save PDF to storage
-            $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
-            $filePath = storage_path('app/public/' . $fileName);
-            $pdf->save($filePath);
+            try {
+                $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
+                $filePath = storage_path('app/public/' . $fileName);
+                $pdf->save($filePath);
+            } catch (\Exception $e) {
+                \Log::error('Error saving PDF: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to save PDF'], 500);
+            }
 
             // Send PDF URL
             $url = asset('storage/' . $fileName);
             return response()->json(['url' => $url]);
 
         } catch (\Exception $e) {
-            // Log error
+            // Log general error
             \Log::error('Error generating invoice PDF: ' . $e->getMessage());
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }

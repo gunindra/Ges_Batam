@@ -88,7 +88,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="row row-divider">
@@ -105,17 +104,19 @@
         </div>
         <div class="row row-divider">
             <div class="col-full">
-                <p><strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>JL. BANGKA IX NO. 43B RT. 6
-                    RW. 12 RAYA KEC. MAMPANG PRAPATAN JAKARTA SELATAN</p>
+                <p><strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
+                    <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] ?? 'N/A' }}
+                </p>
             </div>
         </div>
         <div class="row row-divider">
             <div class="col-full">
                 <div class="border-section">
                     <div class="border font-weight-bold text-center">{{ $invoice->pengiriman }}</div>
-                    @if($invoice->pengiriman === 'delivery')
+                    @if ($invoice->pengiriman === 'Delivery')
                         <div class="border text-center">
-                            <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] }}, {{ $additionalDetails['driverPhone'] }}<br>{{ $additionalDetails['destinationAddress'] }}</p>
+                            <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] ?? 'N/A' }},
+                                {{ $additionalDetails['driverPhone'] ?? 'N/A' }}</p>
                         </div>
                     @endif
                 </div>
@@ -123,27 +124,31 @@
         </div>
         <div class="row row-divider">
             <table>
+                <!-- Payment Information Row -->
                 <tr>
-                    <td class="center" style="width: 50%;">
+                    <td class="center" style="width: 33.33%;">
                         <div class="border-section">
                             <div class="border font-weight-bold text-center">{{ $invoice->tipe_pembayaran }}</div>
-                            @if($invoice->tipe_pembayaran === 'Transfer')
+                            @if ($invoice->tipe_pembayaran === 'Transfer')
                                 <div class="border text-center">
-                                    <p><strong>Berat:</strong> {{ $berat }} kg<br>
-                                    <strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x {{ $tinggi }} cm<br>
-                                    <strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] }}<br>
-                                    <strong>Pemilik:</strong> {{ $paymentDetails['accountHolder'] }}<br>
-                                    <strong>Bank:</strong> {{ $paymentDetails['bankName'] }}</p>
-                                </div>
-                            @else
-                                <div class="border text-center">
-                                    <p><strong>Berat:</strong> {{ $berat }} kg<br>
-                                    <strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x {{ $tinggi }} cm</p>
+                                    <p><strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}<br>
+                                        <strong>Pemilik:</strong> {{ $paymentDetails['accountHolder'] ?? 'N/A' }}<br>
+                                        <strong>Bank:</strong> {{ $paymentDetails['bankName'] ?? 'N/A' }}
+                                    </p>
                                 </div>
                             @endif
                         </div>
                     </td>
-                    <td class="center" style="width: 50%;">
+                    <!-- Weight or Dimensions Row -->
+                    <td class="center" style="width: 33.33%;">
+                        <div class="border text-center">
+                            <p><strong>Berat:</strong> {{ $berat }} kg</p>
+                            <p><strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x
+                                {{ $tinggi }} cm</p>
+                        </div>
+                    </td>
+                    <!-- Total Payment Row -->
+                    <td class="center" style="width: 33.33%;">
                         <div class="border total-bayar text-center">
                             <h6>Total Bayar</h6>
                             {{ number_format($hargaIDR, 2) }}
@@ -154,5 +159,4 @@
         </div>
     </div>
 </body>
-
 </html>
