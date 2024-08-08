@@ -46,6 +46,16 @@
         .border {
             border: 2px solid #000;
             padding: 10px;
+            box-sizing: border-box;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .border-label {
+            border: 2px solid #000;
+            padding: 10px;
         }
 
         .total-bayar {
@@ -76,7 +86,8 @@
         }
 
         td {
-            padding: 10px;
+            padding: 5px; /* Reduced padding */
+            vertical-align: top;
         }
 
         .left {
@@ -86,15 +97,34 @@
         .right {
             text-align: right;
         }
+
+        .table-head img {
+            max-height: 50px; /* Set maximum height for the logo */
+        }
+
+        .table-head h4,
+        .table-head h6 {
+            margin: 0; /* Remove margins */
+            line-height: 1.2; /* Adjust line height */
+        }
     </style>
+
 </head>
 <body>
     <div class="container">
         <div class="row row-divider">
-            <table>
+            <table class="table-head">
                 <tr>
                     <td class="left">
                         <h4 class="font-weight-bold">PT. GES</h4>
+                    </td>
+                    <td class="right">
+                        <h4 class="font-weight-bold">INVOICE</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="left">
+                        <h4 class="font-weight-bold">{{ $tanggal }}</h4>
                     </td>
                     <td class="right">
                         <h4 class="font-weight-bold">{{ $invoice->no_resi }}</h4>
@@ -105,30 +135,32 @@
         <div class="row row-divider">
             <div class="col-full">
                 <p><strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
-                    <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] ?? 'N/A' }}
+                    <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] ?? 'Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau' }}
                 </p>
             </div>
         </div>
         <div class="row row-divider">
             <div class="col-full">
                 <div class="border-section">
-                    <div class="border font-weight-bold text-center">{{ $invoice->pengiriman }}</div>
+                    <div class="border-label font-weight-bold text-center">{{ $invoice->pengiriman }}</div>
                     @if ($invoice->pengiriman === 'Delivery')
-                        <div class="border text-center">
-                            <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] ?? 'N/A' }},
-                                {{ $additionalDetails['driverPhone'] ?? 'N/A' }}</p>
-                        </div>
+                    <div class="text-center">
+                        <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] ?? 'N/A' }},
+                            {{ $additionalDetails['driverPhone'] ?? 'N/A' }}</p>
+                    </div>
                     @endif
+
                 </div>
             </div>
         </div>
         <div class="row row-divider">
+            <div class="border-label font-weight-bold text-center">{{ $invoice->tipe_pembayaran }}</div>
             <table>
                 <!-- Payment Information Row -->
                 <tr>
-                    <td class="center" style="width: 33.33%;">
+                    <td class="center">
                         <div class="border-section">
-                            <div class="border font-weight-bold text-center">{{ $invoice->tipe_pembayaran }}</div>
+
                             @if ($invoice->tipe_pembayaran === 'Transfer')
                                 <div class="border text-center">
                                     <p><strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}<br>
@@ -140,15 +172,15 @@
                         </div>
                     </td>
                     <!-- Weight or Dimensions Row -->
-                    <td class="center" style="width: 33.33%;">
+                    <td class="center">
                         <div class="border text-center">
-                            <p><strong>Berat:</strong> {{ $berat }} kg</p>
-                            <p><strong>Dimensions:</strong> {{ $panjang }} cm x {{ $lebar }} cm x
+                            <p><strong>Berat: <br> </strong> {{ $berat }} kg</p>
+                            <p><strong>Dimensions: <br> </strong> {{ $panjang }} cm x {{ $lebar }} cm x
                                 {{ $tinggi }} cm</p>
                         </div>
                     </td>
                     <!-- Total Payment Row -->
-                    <td class="center" style="width: 33.33%;">
+                    <td class="center" style="min-width: 33.33%;">
                         <div class="border total-bayar text-center">
                             <h6>Total Bayar</h6>
                             {{ number_format($hargaIDR, 2) }}

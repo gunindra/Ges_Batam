@@ -23,6 +23,8 @@ class InvoiceController extends Controller
     {
         $listPembeli = DB::select("SELECT id, nama_pembeli, no_wa FROM tbl_pembeli");
 
+        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+
         $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
 
         $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
@@ -31,12 +33,14 @@ class InvoiceController extends Controller
 
         $listRateVolume = DB::select("SELECT id, rate_volume FROM tbl_rate_volume");
 
+
         return view('invoice.buatinvoice', [
             'listPembeli' => $listPembeli,
             'listSupir' => $listSopir,
             'listRekening' => $listRekening,
             'listTipePembayaran' => $listTipePembayaran,
-            'listRateVolume' => $listRateVolume
+            'listRateVolume' => $listRateVolume,
+            'listCurrency' => $listCurrency
         ]);
     }
 
@@ -115,6 +119,7 @@ class InvoiceController extends Controller
         $noResi = $request->input('noResi');
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
+        $currencyInvoice = $request->input('currencyInvoice');
         $beratBarang = floatval(str_replace(',', '.', $request->input('beratBarang')));
         $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
         $lebar = floatval(str_replace(',', '.', $request->input('lebar')));
@@ -136,7 +141,6 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-            // Insert into tbl_pembayaran and get the new id
             $pembayaranId = DB::table('tbl_pembayaran')->insertGetId([
                 'no_resi' => $noResi,
                 'tanggal_pembayaran' => $formattedDate,
@@ -149,19 +153,18 @@ class InvoiceController extends Controller
                 'harga' => $totalharga,
                 'pembayaran_id' => $metodePembayaran,
                 'rekening_id' => $rekening,
+                'matauang_id' => $currencyInvoice,
                 'status_id' => 3,
                 'created_at' => now(),
             ]);
 
-            // Debug: Check if pembayaranId is valid
             if (!$pembayaranId) {
                 throw new \Exception("Failed to get the new ID from tbl_pembayaran");
             }
 
-            // Check if metodePengiriman is 'delivery'
             if ($metodePengiriman === 'Delivery') {
                 DB::table('tbl_pengantaran')->insert([
-                    'pembayaran_id' => $pembayaranId, // Use the new id from tbl_pembayaran
+                    'pembayaran_id' => $pembayaranId,
                     'tanggal_pengantaran' => $formattedDate,
                     'supir_id' => $driver,
                     'alamat' => $alamatTujuan,
@@ -251,10 +254,9 @@ class InvoiceController extends Controller
 
             // Calculate harga in IDR
             try {
-                $exchangeRate = $this->getExchangeRate('USD', 'IDR');
-                $hargaIDR = $invoice->harga * $exchangeRate;
+                $hargaIDR = $invoice->harga;
             } catch (\Exception $e) {
-                \Log::error('Error calculating exchange rate: ' . $e->getMessage());
+                \Log::error('Error calculating exchange rate: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to calculate exchange rate'], 500);
             }
 
@@ -268,10 +270,11 @@ class InvoiceController extends Controller
                     'berat' => $berat,
                     'panjang' => $invoice->panjang,
                     'lebar' => $invoice->lebar,
-                    'tinggi' => $invoice->tinggi
+                    'tinggi' => $invoice->tinggi,
+                    'tanggal' => $invoice->tanggal_bayar,
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Error generating PDF: ' . $e->getMessage());
+                \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
 
@@ -281,7 +284,7 @@ class InvoiceController extends Controller
                 $filePath = storage_path('app/public/' . $fileName);
                 $pdf->save($filePath);
             } catch (\Exception $e) {
-                \Log::error('Error saving PDF: ' . $e->getMessage());
+                \Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
@@ -291,7 +294,7 @@ class InvoiceController extends Controller
 
         } catch (\Exception $e) {
             // Log general error
-            \Log::error('Error generating invoice PDF: ' . $e->getMessage());
+            \Log::error('Error generating invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }

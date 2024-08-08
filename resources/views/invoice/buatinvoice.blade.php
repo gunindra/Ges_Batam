@@ -156,6 +156,20 @@
                                     </select>
                                     <div id="customerError" class="text-danger mt-1">Silahkan Pilih Customer</div>
                                 </div>
+                                <div class="mt-3">
+                                    <label for="currencyInvoice" class="form-label fw-bold">Currency</label>
+                                    <select class="form-control col-8" name="" id="currencyInvoice">
+                                        <option value="" selected disabled>Pilih Currency</option>
+                                        @foreach ($listCurrency as $currency)
+                                            <option value="{{ $currency->id }}">
+                                                {{ $currency->nama_matauang }} ({{ $currency->singkatan_matauang }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div id="currencyInvoiceError" class="text-danger mt-1">Silahkan Pilih Currency terlebih
+                                        dahulu
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="divider mt-4">
@@ -254,7 +268,7 @@
                                 <div class="mt-3" id="alamatSection" style="display: none;">
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
                                     <input type="text" class="form-control" id="alamat" style="width: 100%"
-                                        value="">
+                                        value="" placeholder="Masukkan Alamat Tujuan">
                                     <div id="alamatError" class="text-danger mt-1">Alamat tidak boleh kosong</div>
 
                                     <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
@@ -328,16 +342,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-12 mt-4 d-none" id="rowDimensi">
+                                <div class="col-2 offset-8 me-1">
+                                    <p class="mb-0">Dimensi</p>
+                                    <div class="box bg-light text-dark p-3 mt-2"
+                                        style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
+                                        <span id="dimensiValue" style="font-weight: bold; color: #555;">0</span><img
+                                            class="pb-1" style="width: 35px; height: 35px;" src="/img/m3-icon.png"
+                                            alt="m3">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-12 mt-4">
                             <div class="col-4 float-right">
                                 <p class="mb-0">Total Harga</p>
                                 <div class="box bg-light text-dark p-3 mt-2"
                                     style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                    <span id="total-harga" style="font-weight: bold; color: #555;">0 USD</span>
-
+                                    <span id="total-harga" style="font-weight: bold; color: #555;">Rp. 0</span>
                                 </div>
                                 <input type="hidden" name="" id="totalHargaValue">
-                                <button id="buatInvoice" class="btn btn-primary float-right mt-3"
+                                <button id="buatInvoice" class="btn btn-primary p-3 float-right mt-3"
                                     style="width: 100%;">Buat
                                     Invoice</button>
                             </div>
@@ -472,11 +498,13 @@
                     // Show volume, hide weight
                     $('#idlabel').text('Volume');
                     $('#volumeDiv').removeClass('d-none');
+                    $('#rowDimensi').removeClass('d-none');
                     $('#weightDiv').addClass('d-none');
                 } else {
                     // Show weight, hide volume
                     $('#idlabel').text('Berat');
                     $('#volumeDiv').addClass('d-none');
+                    $('#rowDimensi').addClass('d-none');
                     $('#weightDiv').removeClass('d-none');
                 }
 
@@ -491,6 +519,9 @@
                     $('#panjang, #lebar, #tinggi').val('');
                 }
                 updateTotalHargaBerat();
+
+                var berat = parseFloat(this.value.replace(',', '.')) || 0;
+
             });
 
             $('#panjang, #lebar, #tinggi').on('input', function() {
@@ -510,31 +541,46 @@
                 let berat = parseFloat(beratRaw);
 
                 if (beratRaw.trim() === '' || isNaN(berat)) {
-                    $('#total-harga').text('0 USD');
+                    $('#total-harga').text('Rp. 0');
                     $('#totalHargaValue').val(0);
                 } else {
                     berat = Math.max(2, berat);
-                    let hargaPerKg = 1;
+                    let hargaPerKg = 15000;
                     let totalHarga = berat * hargaPerKg;
-                    $('#totalHargaValue').val(totalHarga)
-                    $('#total-harga').text(totalHarga.toLocaleString() + ' USD');
+                    if (totalHarga > 250000) {
+                        showMessage("error", "Barang Diatas 250.000 pakai Volume")
+                        $('#beratBarang').val('');
+                        $('#total-harga').text('Rp. 0');
+                         $('#toggleSwitch').click();
+                    }else{
+                        $('#totalHargaValue').val(totalHarga)
+                        $('#total-harga').text('Rp.' + totalHarga.toLocaleString());
+                    }
+
                 }
             }
 
             function updateTotalHargaVolume() {
+                // Ambil nilai dari input dan konversi ke angka
                 var panjang = parseFloat($('#panjang').val().replace(',', '.')) || 0;
                 var lebar = parseFloat($('#lebar').val().replace(',', '.')) || 0;
                 var tinggi = parseFloat($('#tinggi').val().replace(',', '.')) || 0;
 
+                // Hitung volume
                 var volume = panjang * lebar * tinggi;
 
-                var pembagi = parseFloat($('#pembagiVolume').val()) || 1;
-                var rate = parseFloat($('#rateVolume').val()) || 1;
+                // Ambil nilai pembagi dan rate, dan konversi ke angka
+                var pembagi = parseFloat($('#pembagiVolume').val()) || 1; // Pastikan ini dikonversi ke float
+                var rate = parseFloat($('#rateVolume').val()) || 1; // Pastikan ini dikonversi ke float
+
+                // Hitung total harga volume
                 var totalHargaVolume = (volume / pembagi) * rate;
 
-                $('#total-harga').text(totalHargaVolume.toFixed(2) + ' USD');
-                $('#totalHargaValue').val(totalHargaVolume)
+                $('#dimensiValue').text(volume);
+                $('#total-harga').text('Rp. ' + totalHargaVolume.toLocaleString());
+                $('#totalHargaValue').val(totalHargaVolume);
             }
+
 
 
             function updateSections() {
@@ -598,6 +644,14 @@
                     $('#customerError').hide();
                 }
 
+                // Validate 'Currency'
+                if ($('#currencyInvoice').val() === null) {
+                    $('#currencyInvoiceError').show();
+                    isValid = false;
+                } else {
+                    $('#currencyInvoiceError').hide();
+                }
+
                 // Validate delivery details if delivery is checked
                 if ($('#delivery').is(':checked')) {
                     // Validate Driver
@@ -649,14 +703,19 @@
                     }
                 }
 
-
-                // Validate payment method
-                if ($('#metodePembayaran').val() === '2' && $('#rekening').val() === null) {
+                // Validate tipe pembayaran
+                if ($('#metodePembayaran').val() === null) {
                     $('#metodePembayaranError').show();
-                    $('#rekeningError').show();
                     isValid = false;
                 } else {
                     $('#metodePembayaranError').hide();
+                }
+
+                // Validate payment method
+                if ($('#metodePembayaran').val() === '2' && $('#rekening').val() === null) {
+                    $('#rekeningError').show();
+                    isValid = false;
+                } else {
                     $('#rekeningError').hide();
                 }
 
@@ -699,7 +758,7 @@
                 return isValid;
             }
 
-            $('#noResi, #tanggal, #selectCostumer, #driver, #alamat, #provinsi, #kabupatenKota, #kecamatan, #kelurahan, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
+            $('#noResi, #tanggal, #selectCostumer, #currencyInvoice, #driver, #alamat, #provinsi, #kabupatenKota, #kecamatan, #kelurahan, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
                 .on(
                     'input change',
                     function() {
@@ -713,6 +772,7 @@
                     let noResi = $('#noResi').val();
                     let tanggal = $('#tanggal').val();
                     let customer = $('#selectCostumer').val();
+                    let currencyInvoice = $('#currencyInvoice').val();
                     let beratBarang = $('#beratBarang').val();
                     let panjang = $('#panjang').val();
                     let lebar = $('#lebar').val();
@@ -737,6 +797,7 @@
                             noResi: noResi,
                             tanggal: tanggal,
                             customer: customer,
+                            currencyInvoice: currencyInvoice,
                             beratBarang: beratBarang,
                             panjang: panjang,
                             lebar: lebar,
