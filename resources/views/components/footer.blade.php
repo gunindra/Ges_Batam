@@ -1,42 +1,34 @@
-<div id="Contact" class="custom-footer">
-    <div class="container-custom-footer">
-  	 	<div class="row-custom-footer">
-  	 		<div class="col-custom-footer">
-  	 			<h4>Company</h4>
-  	 			<ul>
-  	 				<li><a href="#">about us</a></li>
-  	 				<li><a href="#">our services</a></li>
-  	 				<li><a href="#">privacy policy</a></li>
-  	 				<li><a href="#">affiliate program</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="col-custom-footer">
-  	 			<h4>get help</h4>
-  	 			<ul>
-  	 				<li><a href="#">FAQ</a></li>
-  	 				<li><a href="#">shipping</a></li>
-  	 				<li><a href="#">returns</a></li>
-  	 				<li><a href="#">order status</a></li>
-  	 				<li><a href="#">payment options</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="col-custom-footer">
-  	 			<h4> us</h4>
-  	 			<ul>
-  	 				<li><a href="#">watch</a></li>
-  	 				<li><a href="#">bag</a></li>
-  	 				<li><a href="#">shoes</a></li>
-  	 				<li><a href="#">dress</a></li>
-  	 			</ul>
-  	 		</div>
-  	 		<div class="col-custom-footer">
-  	 			<h4>Contact us</h4>
-  	 			<div class="social-links-custom">
-  	 				<a href="#"><i class="fa-brands fa-facebook"></i></a>
-  	 				<a href="#"><i class="fa-brands fa-whatsapp"></i></a>
-  	 				<a href="#"><i class="fa-brands fa-instagram"></i></a>
-  	 			</div>
-  	 		</div>
-  	 	</div>
-  	 </div>
-  </div>
+
+<footer>
+<a href="https://web.whatsapp.com/" class="whatsapp-float" target="_blank" aria-label="Chat with us on WhatsApp">
+  <i class="fa-brands fa-whatsapp fa-2xl"></i>
+</a>
+        <div class="containers" id="Contact" >
+            <div class="footer-content">
+                <h3>Contact Us</h3>
+                <p>Email:Tandrio@example.com</p>
+                <p>Phone:+0896 3678 9898</p>
+                <p>Address:Bengkong laut</p>
+            </div>
+            <div class="footer-content">
+                <h3>Quick Links</h3>
+                 <ul class="list">
+                    <li><a href="#Home" style=" text-decoration: none;" >Home</a></li>
+                    <li><a href="#About" style=" text-decoration: none;" >About Us</a></li>
+                    <li><a href="#Why" style=" text-decoration: none;" >Why Us</a></li>
+                    <li><a href="#Services" style=" text-decoration: none;" >Services</a></li>
+                 </ul>
+            </div>
+            <div class="footer-content">
+                <h3>Follow Us</h3>
+                <ul class="social-icons">
+                 <li><a href=""><i class="fab fa-facebook"></i></a></li>
+                 <li><a href=""><i class="fab fa-instagram"></i></a></li>
+                 <li><a href=""><i class="fab fa-linkedin"></i></a></li>
+                </ul>
+                </div>
+        </div>
+        <div class="bottom-bar">
+            <p>&copy; 2024 PT Ges . All rights reserved</p>
+        </div>
+</footer>

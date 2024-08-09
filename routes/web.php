@@ -67,12 +67,36 @@ Route::get('/masterdata/beratvolume', [BeratvolumeController::class, 'index'])->
 
 Route::get('/', function () {
     return view('PTGes');
-});
+})->name('PTGes');
 
 Route::get('/About', function () {
     return view('About');
-});
+})->name('About');
 
 Route::get('/Why', function () {
     return view('Why');
+})->name('Why');
+
+Route::get('/Services', function () {
+    return view('Services');
+});
+
+Route::get('/Services1', function () {
+    return view('Services1');
+});
+
+Route::get('/Services2', function () {
+    return view('Services2');
+});
+
+Route::get('/Slide', function () {
+    return view('Slide');
+});
+
+Route::get('/Slide1', function () {
+    return view('Slide1');
+});
+
+Route::get('/Slide2', function () {
+    return view('Slide2');
 });
