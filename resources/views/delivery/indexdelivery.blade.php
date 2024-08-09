@@ -25,7 +25,7 @@
                             {{-- <a class="btn btn-primary" href="" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a> --}}
                         </div>
-                        <div id="containerInvoice" class="table-responsive px-3">
+                        <div id="containerDelivery" class="table-responsive px-3">
                             <table class="table align-items-center table-flush table-hover" id="tableDelivery">
                                 <thead class="thead-light">
                                     <tr>
@@ -48,10 +48,10 @@
                                         <td><span class="badge badge-success">Done</span></td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    {{-- <tr>
                                         <td>B0234043</td>
                                         <td>28 Juli 2024</td>
                                         <td>Tandrio</td>
@@ -63,7 +63,7 @@
                                             <a href="#" class="btn btn-sm btn-danger"><i
                                                     class="fas fa-trash"></i></a>
                                         </td>
-                                    </tr>
+                                    </tr> --}}
                                 </tbody>
                             </table>
                         </div>

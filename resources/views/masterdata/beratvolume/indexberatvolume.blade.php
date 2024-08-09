@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Berat Dan Volume')
+@section('title', 'Pembagi Dan Rate')
 
 @section('main')
 
@@ -8,7 +8,7 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Berat Dan Volume</h1>
+            <h1 class="h3 mb-0 text-gray-800">Pembagi Dan Rate</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Master Data</li>
                 <li class="breadcrumb-item active" aria-current="page">Berat dan Volume</li>
@@ -18,7 +18,7 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="m-0 font-weight-bold text-primary">Berat</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Pembagi</h6>
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -30,14 +30,23 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
-                                        <th>Rate Berat</th>
+                                        <th>Nilai</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>1.</td>
-                                        <td>15.000</td>
+                                        <td>1.000.000</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i
+                                                    class="fas fa-edit"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2.</td>
+                                        <td>6.000</td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i
                                                     class="fas fa-edit"></i></a>
@@ -54,7 +63,7 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="m-0 font-weight-bold text-primary">Volume</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Rate Harga</h6>
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -66,14 +75,14 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
-                                        <th>Rate Volume</th>
+                                        <th>Rate Harga</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>1.</td>
-                                        <td>200.000</td>
+                                        <td>Rp. 200.000</td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i
                                                     class="fas fa-edit"></i></a>
@@ -82,7 +91,7 @@
                                     </tr>
                                     <tr>
                                         <td>2.</td>
-                                        <td>300.000</td>
+                                        <td>Rp. 300.000</td>
                                         <td>
                                             <a href="#" class="btn btn-sm btn-secondary"><i
                                                     class="fas fa-edit"></i></a>

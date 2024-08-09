@@ -5,6 +5,32 @@
 @section('main')
 
 
+    <div class="modal fade" id="modalConfirmasiPembayaran" tabindex="-1" role="dialog"
+        aria-labelledby="modalConfirmasiPembayaranTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalConfirmasiPembayaranTitle">Confirmasi Pembayaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="namaDriver" class="form-label fw-bold">Masukkan Bukti Transfer</label>
+                        <input type="file" class="form-control" id="" value="">
+                        <div id="err-namaDriver" class="text-danger mt-1">Silakan masukkan file</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveDriver" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -165,6 +191,44 @@
             });
 
 
+
+            $(document).on('click', '.btnPembayaran', function(e) {
+                let id = $(this).data('id');
+                let tipePembayaran = $(this).data('tipe');
+                if (tipePembayaran === 'Transfer') {
+                    $('#modalConfirmasiPembayaran').modal('show');
+                } else {
+                    Swal.fire({
+                        title: "Apakah Pembayaran Invoice ini Sudah di Selesaikan?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: "GET",
+                                url: "{{ route('completePayment') }}",
+                                data: {
+                                    id: id,
+                                },
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Berhasil");
+                                        getlistInvoice();
+                                    } else {
+                                        showMessage("error", "Gagal");
+                                    }
+                                }
+                            });
+                        }
+                    })
+                }
+            });
 
             $(document).on('click', '.btnDeleteInvoice', function(e) {
                 let id = $(this).data('id');

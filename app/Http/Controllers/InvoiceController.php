@@ -50,21 +50,27 @@ class InvoiceController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT a.id,
-            a.no_resi,
-            DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
-            b.nama_pembeli AS pembeli,
-            a.berat,
-            a.panjang,
-            a.lebar,
-            a.tinggi,
-            f.tipe_pembayaran,
-            a.harga,
-            d.status_name
-        FROM tbl_pembayaran AS a
-        JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
-        JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-        JOIN tbl_status AS d ON a.status_id = d.id
-        ORDER BY a.tanggal_pembayaran desc;
+                    a.no_resi,
+                    DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
+                    b.nama_pembeli AS pembeli,
+                    a.berat,
+                    a.panjang,
+                    a.lebar,
+                    a.tinggi,
+                    f.tipe_pembayaran,
+                    a.harga,
+                    d.status_name
+                FROM tbl_pembayaran AS a
+                JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
+                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+                JOIN tbl_status AS d ON a.status_id = d.id
+                ORDER BY
+                    CASE d.status_name
+                        WHEN 'Pending Payment' THEN 1
+                        WHEN 'Out For Delivery' THEN 2
+                        WHEN 'Ready For Pickup' THEN 3
+                        ELSE 4
+                    END
         ";
 
         $data = DB::select($q);
@@ -86,29 +92,56 @@ class InvoiceController extends Controller
                                     </tr>
                                 </thead>
                                 <tbody>';
+                                foreach ($data as $item) {
+                                    // Konversi harga ke IDR
+                                    $hargaIDR = isset($item->harga) ? $item->harga * $exchangeRate : 0;
 
-        foreach ($data as $item) {
-            // Konversi harga ke IDR
-            $hargaIDR = isset($item->harga) ? $item->harga * $exchangeRate : 0;
+                                    $statusBadgeClass = '';
+                                    $btnPembayaran = ''; // Inisialisasi variabel untuk tombol pembayaran
 
-            $output .=
-                '
-                <tr>
-                    <td class="">' . ($item->no_resi ?? '-') . '</td>
-                    <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
-                    <td class="">' . ($item->pembeli ?? '-') . '</td>
-                    <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
-                    <td class="">' . (isset($item->harga) ? '$ ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
-                    <td class="">' . (isset($hargaIDR) ? 'Rp ' . number_format($hargaIDR, 0, ',', '.') : '-') . '</td>
-                    <td><span class="badge badge-warning">' . ($item->status_name ?? '-') . '</span></td>
-                    <td>
-                        <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                        <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
-                    </td>
-                </tr>
-            ';
-        }
+                                    switch ($item->status_name) {
+                                        case 'Pending Payment':
+                                            $statusBadgeClass = 'badge-warning'; // Kuning
+                                            $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
+                                            break;
+                                        case 'Ready For Pickup':
+                                            $statusBadgeClass = 'badge-success'; // Hijau
+                                            break;
+                                        case 'Out For Delivery':
+                                            $statusBadgeClass = 'badge-primary'; // Biru
+                                            break;
+                                        case 'Delivering':
+                                            $statusBadgeClass = 'badge-orange'; // Oranye
+                                            break;
+                                        case 'Debt':
+                                            $statusBadgeClass = 'badge-danger'; // Merah
+                                            break;
+                                        case 'Done':
+                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                                            break;
+                                        default:
+                                            $statusBadgeClass = 'badge-secondary'; // Default
+                                            break;
+                                    }
 
+                                    $output .=
+                                        '
+                                        <tr>
+                                            <td class="">' . ($item->no_resi ?? '-') . '</td>
+                                            <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
+                                            <td class="">' . ($item->pembeli ?? '-') . '</td>
+                                            <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
+                                            <td class="">' . (isset($item->harga) ? '$ ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
+                                            <td class="">' . (isset($hargaIDR) ? 'Rp ' . number_format($hargaIDR, 0, ',', '.') : '-') . '</td>
+                                            <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
+                                            <td>
+                                                ' . $btnPembayaran . '
+                                                <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
+                                                <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    ';
+                                }
         $output .= '</tbody></table>';
         return $output;
     }
@@ -154,7 +187,7 @@ class InvoiceController extends Controller
                 'pembayaran_id' => $metodePembayaran,
                 'rekening_id' => $rekening,
                 'matauang_id' => $currencyInvoice,
-                'status_id' => 3,
+                'status_id' => 1,
                 'created_at' => now(),
             ]);
 
@@ -184,6 +217,23 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice: ' . $e->getMessage()], 500);
         }
     }
+
+
+    public function completePayment(Request $request)
+    {
+        $id = $request->input('id');
+        $payment = DB::table('tbl_pembayaran')->where('id', $id)->first(['pengiriman', 'status_id']);
+        if ($payment) {
+            if ($payment->pengiriman === 'Delivery') {
+                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 3]);
+            } elseif ($payment->pengiriman === 'Pickup') {
+                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 2]);
+            }
+            return response()->json(['success' => true, 'message' => 'Status updated successfully.'], 200);
+        }
+        return response()->json(['error' => false, 'message' => 'Payment not found.']);
+    }
+
 
 
 
