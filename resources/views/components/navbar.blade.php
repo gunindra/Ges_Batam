@@ -21,6 +21,12 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('#Contact') ? 'active' : '' }}" href="#Contact">Contact Us</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('#Tracking') ? 'active' : '' }}" href="#Tracking">Tracking</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/login/indexlogin" style="text-decoration:none; color:white;"><button type="button" class="btn btn-outline-primary">Login</a></button>
+                </li>
                 @endif
             </ul>
             </div>

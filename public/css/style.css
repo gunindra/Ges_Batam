@@ -45,6 +45,9 @@ dialog .controls button.close-btn{
 }
 
 /* nav */
+.nav-item{
+  margin-right:20px;
+}
 .navbar-nav .nav-item .nav-link.active {
   font-weight: bold !important;
   color: #9EDDFF !important; 
@@ -502,6 +505,7 @@ line-height: 1.5;
   background-color:#0766AD;
   transition:0.4s ease;
 }
+
 /* WhyUs */
 .whyus{
   margin:140px 0px;
@@ -549,8 +553,8 @@ article .buttonwhy {
   margin-top: 35px;
 }
 article a {
-  color: #fff;
-  padding: 10px 25px;
+  color: #008DDA;
+  padding: 15px 23px;
   font-size: 19px;
   font-weight: 300;
   text-decoration: none;
@@ -560,7 +564,7 @@ article a {
 }
 article a:hover {
   background-color: #008DDA;
-  color: #1a192c;
+  color: #fff;
 }
 /* Masuk bagian Why us */
 .nav-page {
@@ -793,6 +797,9 @@ a:hover {
 /* Responsive */
 @media only screen and (max-width: 991px) {
   /* nav */
+  .nav-item{
+    margin-right:0px;
+  }
   .navbar-nav {
 		text-align: center;
 	}
