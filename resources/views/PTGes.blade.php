@@ -19,8 +19,8 @@
 		<div class="carousel-inner">
 			<div class="carousel-item active bg-1">
 				<div class="carousel-caption"  style="bottom:240px;">
-					<h5>Logistic</h5>
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus, culpa.</p>
+					<h5 id="judulCarousel">Logistic</h5>
+					<p id="parafCarousel">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus, culpa.</p>
           <a class="bg-primary bg-gradient text-white" href="/Slide">Learn More</a>
 				</div>
 			</div>
@@ -118,10 +118,10 @@
                 <h1 style="font-size:32px;">About Us</h1>
               </div>
                 <h2>What they say about us</h2>
-                <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati pariatur accusamus similique ad minima vel eaque laboriosam, enim mollitia? Porro eius magni eaque deserunt perferendis voluptatum necessitatibus iure, maxime totam?</p>
+                <p id="parafAbout">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati pariatur accusamus similique ad minima vel eaque laboriosam, enim mollitia? Porro eius magni eaque deserunt perferendis voluptatum necessitatibus iure, maxime totam?</p>
                 <a href="/About" class="btn">Learn More</a>
             </div>
-            <div class="image">
+            <div class="image" id="imageAbout">
                 <img src="/img/Whyus.jpg" style="border-radius:30px;">
             </div>
         </div>
@@ -133,11 +133,11 @@
       <div class="wrapperwhy" id="Why">
         <div class="why">
             <div class="image-sectionwhy">
-                <img src="/img/Werehouse.jpg" alt="Company Image">
+                <img src="/img/Werehouse.jpg" id="imageWhy">
             </div>
             <article>
-                <h3>Why Choose Us</h3>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Expedita, quod doloremque tempora dolores temporibus sed inventore tempore saepe non repellat amet quaerat, dolore, incidunt provident facilis distinctio nobis ut dicta.
+                <h3 id="judulWhy">Why Choose Us</h3>
+                <p id="parafWhy">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Expedita, quod doloremque tempora dolores temporibus sed inventore tempore saepe non repellat amet quaerat, dolore, incidunt provident facilis distinctio nobis ut dicta.
                 Lorem ipsum dolor sit, amet consectetur adipisicing elit. Expedita, quod doloremque tempora dolores temporibus sed inventore tempore saepe non repellat amet quaerat, dolore, incidunt provident facilis distinctio nobis ut dicta.
                 </p>
                 <div class="buttonwhy">

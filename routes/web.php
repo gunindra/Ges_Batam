@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\InformationsController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\WhyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
@@ -37,8 +41,28 @@ Route::get('/invoice/completePayment', [InvoiceController::class, 'completePayme
 Route::get('/invoice/deleteInvoice', [InvoiceController::class, 'deleteInvoice'])->name('deleteInvoice');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
 
-// Information Content
-Route::get('/information', [InformationController::class, 'index'])->name('information');
+// About
+Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');
+Route::get('/information/about/getlistAbout', [AboutController::class, 'getlistAbout'])->name('getlistAbout');
+Route::get('/information/about/destroy', [AboutController::class, 'destroyAboutUs'])->name('destroyAboutUs');
+Route::get('/information/about/update', [AboutController::class, 'updateAboutUs'])->name('updateAboutUs');
+Route::post('/information/about/insert', [AboutController::class, 'insertAboutUs'])->name('insertAboutUs');
+
+//Why
+Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
+
+//Services
+Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
+
+//carousels
+Route::get('/information/carousels', [AboutController::class, 'index'])->name('carousels');
+
+//informations
+Route::get('/information/informations', [InformationsController::class, 'index'])->name('informations');
+Route::get('/information/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
+Route::get('/information/informations/destroy', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
+//iklan
+Route::get('/information/iklans', [AboutController::class, 'index'])->name('iklans');
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
@@ -91,7 +115,7 @@ Route::get('/Services2', function () {
 });
 
 Route::get('/Slide', function () {
-    return view('Slide');
+    return view('/Slide');
 });
 
 Route::get('/Slide1', function () {

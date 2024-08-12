@@ -78,3 +78,23 @@ document.addEventListener('DOMContentLoaded', function() {
 // Home.addEventListener("click", function (){
 //   window.location.href= "PTGes.blade.php";
 // });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const thumbnailImage = document.querySelector('#thumbnailImage');
+    const modalImage = document.querySelector('#modalImage');
+    const imageModal = $('#imageModal');
+  
+    // Show modal when thumbnail image is clicked
+    thumbnailImage.addEventListener('click', function() {
+      modalImage.src = thumbnailImage.src;
+      imageModal.modal('show');
+    });
+  
+    // Close modal when clicking outside the modal content
+    imageModal.on('click', function(e) {
+      if ($(e.target).hasClass('modal')) {
+        imageModal.modal('hide');
+      }
+    });
+  });
