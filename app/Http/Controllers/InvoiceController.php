@@ -49,6 +49,13 @@ class InvoiceController extends Controller
     public function getlistInvoice(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $filter = $request->filter;
+
+        if (!$filter) {
+            $formattedFilter = date('Y-m');
+        } else {
+            $formattedFilter = date_create_from_format("M Y", $filter)->format("Y-m");
+        }
 
         $q = "SELECT a.id,
                     a.no_resi,
@@ -66,6 +73,12 @@ class InvoiceController extends Controller
                 JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
                 JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
                 JOIN tbl_status AS d ON a.status_id = d.id
+                WHERE (
+                    UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
+                    OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
+                    OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
+                )
+                AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-31'
                 ORDER BY
                     CASE d.status_name
                         WHEN 'Pending Payment' THEN 1
@@ -73,6 +86,7 @@ class InvoiceController extends Controller
                         WHEN 'Ready For Pickup' THEN 3
                         ELSE 4
                     END
+                 LIMIT 100;
         ";
 
         $data = DB::select($q);
@@ -102,11 +116,15 @@ class InvoiceController extends Controller
                                             break;
                                         case 'Ready For Pickup':
                                             $statusBadgeClass = 'badge-success'; // Hijau
-                                            $btnPembayaran = '<a class="btn btn-sm btn-primary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
+                                            if($item->tipe_pembayaran === 'Transfer'){
+                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                                            }
                                             break;
                                         case 'Out For Delivery':
                                             $statusBadgeClass = 'badge-primary'; // Biru
-                                            $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"i><i class="fas fa-eye"></i></a>';
+                                            if($item->tipe_pembayaran === 'Transfer'){
+                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                                            }
                                             break;
                                         case 'Delivering':
                                             $statusBadgeClass = 'badge-orange'; // Oranye

@@ -86,7 +86,7 @@
         }
 
         td {
-            padding: 5px; /* Reduced padding */
+            padding: 5px;
             vertical-align: top;
         }
 
@@ -99,13 +99,23 @@
         }
 
         .table-head img {
-            max-height: 50px; /* Set maximum height for the logo */
+            max-height: 50px;
         }
 
         .table-head h4,
         .table-head h6 {
-            margin: 0; /* Remove margins */
-            line-height: 1.2; /* Adjust line height */
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        footer p {
+            margin: 0;
         }
     </style>
 
@@ -116,7 +126,11 @@
             <table class="table-head">
                 <tr>
                     <td class="left">
+                        <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
+                        </svg>
                         <h4 class="font-weight-bold">PT. GES</h4>
+                        <p>Jl. Example No. 123, Jakarta, Indonesia</p> <!-- Informasi kontak perusahaan -->
                     </td>
                     <td class="right">
                         <h4 class="font-weight-bold">INVOICE</h4>
@@ -149,18 +163,15 @@
                             {{ $additionalDetails['driverPhone'] ?? 'N/A' }}</p>
                     </div>
                     @endif
-
                 </div>
             </div>
         </div>
         <div class="row row-divider">
             <div class="border-label font-weight-bold text-center">{{ $invoice->tipe_pembayaran }}</div>
             <table>
-                <!-- Payment Information Row -->
                 <tr>
                     <td class="center">
                         <div class="border-section">
-
                             @if ($invoice->tipe_pembayaran === 'Transfer')
                                 <div class="border text-center">
                                     <p><strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}<br>
@@ -171,7 +182,6 @@
                             @endif
                         </div>
                     </td>
-                    <!-- Weight or Dimensions Row -->
                     <td class="center">
                         <div class="border text-center">
                             <p><strong>Berat: <br> </strong> {{ $berat }} kg</p>
@@ -179,7 +189,6 @@
                                 {{ $tinggi }} cm</p>
                         </div>
                     </td>
-                    <!-- Total Payment Row -->
                     <td class="center" style="min-width: 33.33%;">
                         <div class="border total-bayar text-center">
                             <h6>Total Bayar</h6>
@@ -189,6 +198,11 @@
                 </tr>
             </table>
         </div>
+        <!-- Footer -->
+        <footer>
+            <p>PT. GES, Jl. Example No. 123, Jakarta, Indonesia</p>
+            <p>Telp: 021-12345678 | Email: info@ptges.com | Website: www.ptges.com</p>
+        </footer>
     </div>
 </body>
 </html>
