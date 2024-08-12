@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
 class InvoiceController extends Controller
@@ -59,6 +60,7 @@ class InvoiceController extends Controller
                     a.tinggi,
                     f.tipe_pembayaran,
                     a.harga,
+                    a.bukti_pembayaran,
                     d.status_name
                 FROM tbl_pembayaran AS a
                 JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
@@ -75,9 +77,6 @@ class InvoiceController extends Controller
 
         $data = DB::select($q);
 
-        // Dapatkan nilai tukar dari USD ke IDR
-        $exchangeRate = $this->getExchangeRate('USD', 'IDR');
-
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                                 <thead class="thead-light">
                                     <tr>
@@ -85,7 +84,6 @@ class InvoiceController extends Controller
                                         <th>Tanggal</th>
                                         <th>Costumer</th>
                                         <th>Jenis Pembayaran</th>
-                                        <th>Harga (USD)</th>
                                         <th>Harga (IDR)</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -93,8 +91,6 @@ class InvoiceController extends Controller
                                 </thead>
                                 <tbody>';
                                 foreach ($data as $item) {
-                                    // Konversi harga ke IDR
-                                    $hargaIDR = isset($item->harga) ? $item->harga * $exchangeRate : 0;
 
                                     $statusBadgeClass = '';
                                     $btnPembayaran = ''; // Inisialisasi variabel untuk tombol pembayaran
@@ -106,9 +102,11 @@ class InvoiceController extends Controller
                                             break;
                                         case 'Ready For Pickup':
                                             $statusBadgeClass = 'badge-success'; // Hijau
+                                            $btnPembayaran = '<a class="btn btn-sm btn-primary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
                                             break;
                                         case 'Out For Delivery':
                                             $statusBadgeClass = 'badge-primary'; // Biru
+                                            $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"i><i class="fas fa-eye"></i></a>';
                                             break;
                                         case 'Delivering':
                                             $statusBadgeClass = 'badge-orange'; // Oranye
@@ -131,8 +129,7 @@ class InvoiceController extends Controller
                                             <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
                                             <td class="">' . ($item->pembeli ?? '-') . '</td>
                                             <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
-                                            <td class="">' . (isset($item->harga) ? '$ ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
-                                            <td class="">' . (isset($hargaIDR) ? 'Rp ' . number_format($hargaIDR, 0, ',', '.') : '-') . '</td>
+                                            <td class="">' . (isset($item->harga) ? 'Rp ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
                                             <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                             <td>
                                                 ' . $btnPembayaran . '
@@ -218,25 +215,53 @@ class InvoiceController extends Controller
         }
     }
 
-
     public function completePayment(Request $request)
     {
-        $id = $request->input('id');
-        $payment = DB::table('tbl_pembayaran')->where('id', $id)->first(['pengiriman', 'status_id']);
-        if ($payment) {
-            if ($payment->pengiriman === 'Delivery') {
-                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 3]);
-            } elseif ($payment->pengiriman === 'Pickup') {
-                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 2]);
+        try {
+            $id = $request->input('id');
+            $file = $request->file('file');
+
+            try {
+                $payment = DB::table('tbl_pembayaran')->where('id', $id)->first(['pengiriman', 'status_id', 'pembayaran_id']);
+            } catch (\Exception $e) {
+                return response()->json(['error' => true, 'message' => 'Failed to retrieve payment record.'], 500);
             }
-            return response()->json(['success' => true, 'message' => 'Status updated successfully.'], 200);
+
+            if ($payment) {
+                if ($payment->pembayaran_id === 2) {
+                    if ($file) {
+                        try {
+                            $fileName = $file->getClientOriginalName();
+                            $filePath = $file->storeAs('public/bukti_pembayaran', $fileName);
+
+                            DB::table('tbl_pembayaran')->where('id', $id)->update(['bukti_pembayaran' => $fileName]);
+                        } catch (\Exception $e) {
+                            return response()->json(['error' => true, 'message' => 'File upload or database update failed.'], 500);
+                        }
+                    } else {
+                        return response()->json(['error' => true, 'message' => 'File not uploaded.'], 400);
+                    }
+                }
+
+                // Update status based on pengiriman
+                try {
+                    if ($payment->pengiriman === 'Delivery') {
+                        DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 3]);
+                    } elseif ($payment->pengiriman === 'Pickup') {
+                        DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 2]);
+                    }
+                } catch (\Exception $e) {
+                    return response()->json(['error' => true, 'message' => 'Failed to update payment status.'], 500);
+                }
+
+                return response()->json(['success' => true, 'message' => 'Status updated successfully.'], 200);
+            }
+
+            return response()->json(['error' => true, 'message' => 'Payment not found.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => true, 'message' => 'An unexpected error occurred.'], 500);
         }
-        return response()->json(['error' => false, 'message' => 'Payment not found.']);
     }
-
-
-
-
 
     public function exportPdf(Request $request)
     {
@@ -370,20 +395,23 @@ class InvoiceController extends Controller
         }
     }
 
-
-
-    private function getExchangeRate($fromCurrency, $toCurrency)
+    public function detailBuktiPembayaran(Request $request)
     {
-        $client = new Client();
-        try {
-            $response = $client->request('GET', 'https://api.exchangerate-api.com/v4/latest/' . $fromCurrency);
-            $data = json_decode($response->getBody(), true);
+        $tester = $request->input('namafoto');
 
-            return $data['rates'][$toCurrency];
-        } catch (RequestException $e) {
-            // Log error
-            \Log::error('Error fetching exchange rate: ' . $e->getMessage());
-            return 1; // Default exchange rate if an error occurs
+        try {
+            // Gunakan Storage untuk mendapatkan URL file
+            $filePath = 'public/bukti_pembayaran/' . $tester;
+
+            if (!Storage::exists($filePath)) {
+                return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan'], 404);
+            }
+            // Mendapatkan URL dari file
+            $url = Storage::url($filePath);
+            return response()->json(['status' => 'success', 'url' => $url], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 

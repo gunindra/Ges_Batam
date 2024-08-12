@@ -349,7 +349,7 @@
                                     <div class="box bg-light text-dark p-3 mt-2"
                                         style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
                                         <span id="dimensiValue" style="font-weight: bold; color: #555;">0</span><img
-                                            class="pb-1" style="width: 35px; height: 35px;" src="/img/m3-icon.png"
+                                            class="pb-1" style="width: 35px; height: 35px;" src="/img/m3_icon.png"
                                             alt="m3">
                                     </div>
                                 </div>
@@ -377,11 +377,6 @@
 
 @endsection
 @section('script')
-    <script>
-        $(document).ready(function() {
-
-        });
-    </script>
     <script>
         $(document).ready(function() {
             // Store names of selected options

@@ -37,8 +37,9 @@ Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice');
 Route::get('/invoice/getlistInvoice', [InvoiceController::class, 'getlistInvoice'])->name('getlistInvoice');
 Route::get('/invoice/addinvoice', [InvoiceController::class, 'addinvoice'])->name('addinvoice');
 Route::post('/invoice/addinvoice/tambainvoice', [InvoiceController::class, 'tambainvoice'])->name('tambainvoice');
-Route::get('/invoice/completePayment', [InvoiceController::class, 'completePayment'])->name('completePayment');
+Route::post('/invoice/completePayment', [InvoiceController::class, 'completePayment'])->name('completePayment');
 Route::get('/invoice/deleteInvoice', [InvoiceController::class, 'deleteInvoice'])->name('deleteInvoice');
+Route::get('/invoice/detailBuktiPembayaran', [InvoiceController::class, 'detailBuktiPembayaran'])->name('detailBuktiPembayaran');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
 
 // About
@@ -63,6 +64,7 @@ Route::get('/information/informations/getlistInformations', [InformationsControl
 Route::get('/information/informations/destroy', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
 //iklan
 Route::get('/information/iklans', [AboutController::class, 'index'])->name('iklans');
+
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');

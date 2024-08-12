@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('pembayaran_id')->constrained('tbl_tipe_pembayaran');
             $table->foreignId('rekening_id')->constrained('tbl_rekening')->nullable();
             $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
+            $table->string('bukti_pembayaran', 100);
             $table->foreignId('status_id')->constrained('tbl_status');
             $table->timestamps();
         });
