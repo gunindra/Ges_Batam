@@ -17,18 +17,46 @@
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="namaDriver" class="form-label fw-bold">Masukkan Bukti Transfer</label>
-                        <input type="file" class="form-control" id="" value="">
-                        <div id="err-namaDriver" class="text-danger mt-1">Silakan masukkan file</div>
+                        <label for="pembayaranStatus" class="form-label fw-bold">Masukkan Bukti Transfer</label>
+                        <input type="file" class="form-control" id="pembayaranStatus" value="">
+                        <div id="err-pembayaranStatus" class="text-danger mt-1">Silakan masukkan file</div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    <button type="button" id="saveDriver" class="btn btn-primary">Save changes</button>
+                    <button type="button" id="saveFileTransfer" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalBuktiPembayaran" tabindex="-1" role="dialog"
+        aria-labelledby="modalBuktiPembayaranTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalBuktiPembayaranTitle">Bukti Pembayaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="pembayaranStatus" class="form-label fw-bold">Bukti Pembayaran :</label>
+                        <div class="containerFoto">
+                            <img src="storage/app/bukti_pembayaran/1.jpg" alt="">
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveFileTransfer" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     <!---Container Fluid-->
@@ -103,6 +131,8 @@
     <!---Container Fluid-->
 
 @endsection
+
+
 
 @section('script')
     <script>
@@ -190,12 +220,112 @@
                 });
             });
 
+            $(document).on('click', '.btnDetailPembayaran', function(e) {
+                e.preventDefault();
+                let namafoto = $(this).data('bukti');
+                $.ajax({
+                    url: "{{ route('detailBuktiPembayaran') }}",
+                    method: 'GET',
+                    data: {
+                        namafoto: namafoto,
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            let imageUrl = response.url;
+
+                            console.log(imageUrl);
+
+                            $('#modalBuktiPembayaran').find('.containerFoto').html(
+                                '<img src="' + imageUrl + '" class="img-fluid">');
+                        } else {
+                            showMessage("error", "Gagal memuat bukti pembayaran");
+                        }
+                        $('#modalBuktiPembayaran').modal('show');
+                    },
+                    error: function(xhr) {
+                        showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
+                        $('#modalBuktiPembayaran').modal('show');
+                    }
+                });
+            });
 
 
             $(document).on('click', '.btnPembayaran', function(e) {
                 let id = $(this).data('id');
                 let tipePembayaran = $(this).data('tipe');
+
                 if (tipePembayaran === 'Transfer') {
+                    function validatePembayaran() {
+                        let isValid = true;
+                        const fileInput = $('#pembayaranStatus');
+                        const file = fileInput[0].files[0];
+
+                        if (!file) {
+                            $('#err-pembayaranStatus').show();
+                            isValid = false;
+                        } else {
+                            $('#err-pembayaranStatus').hide();
+                        }
+
+                        return isValid;
+                    }
+
+                    $('#pembayaranStatus').on('input change', function() {
+                        validatePembayaran();
+                    });
+
+                    $(document).on('click', '#saveFileTransfer', function(e) {
+                        if (validatePembayaran()) {
+                            Swal.fire({
+                                title: "Apakah Pembayaran Invoice ini Sudah di Selesaikan?",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#5D87FF',
+                                cancelButtonColor: '#49BEFF',
+                                confirmButtonText: 'Ya',
+                                cancelButtonText: 'Tidak',
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+
+                                    const fileInput = $('#pembayaranStatus')[0].files[0];
+                                    const formData = new FormData();
+                                    formData.append('id', id);
+                                    formData.append('file', fileInput);
+                                    formData.append('_token', $('meta[name="csrf-token"]')
+                                        .attr('content'));
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{{ route('completePayment') }}",
+                                        data: formData,
+                                        contentType: false,
+                                        processData: false,
+                                        success: function(response) {
+                                            if (response.error) {
+                                                showMessage("error", response
+                                                    .message);
+                                            } else {
+                                                showMessage("success",
+                                                    "Berhasil");
+                                                getlistInvoice();
+                                                $('#modalConfirmasiPembayaran')
+                                                    .modal('hide');
+                                            }
+                                        },
+                                        error: function() {
+                                            showMessage("error",
+                                                "Terjadi kesalahan pada server."
+                                            );
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            showMessage("error", "Mohon periksa input yang kosong.");
+                        }
+                    });
+
                     $('#modalConfirmasiPembayaran').modal('show');
                 } else {
                     Swal.fire({
@@ -210,25 +340,33 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             $.ajax({
-                                type: "GET",
+                                type: "POST",
                                 url: "{{ route('completePayment') }}",
                                 data: {
                                     id: id,
                                 },
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                        'content')
+                                },
                                 success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Berhasil");
-                                        getlistInvoice();
+                                    if (response.error) {
+                                        showMessage("error", response.message);
                                     } else {
-                                        showMessage("error", "Gagal");
+                                        showMessage("success", "Berhasil");
+                                        getlistInvoice();
                                     }
+                                },
+                                error: function() {
+                                    showMessage("error",
+                                        "Terjadi kesalahan pada server.");
                                 }
                             });
                         }
-                    })
+                    });
                 }
             });
+
 
             $(document).on('click', '.btnDeleteInvoice', function(e) {
                 let id = $(this).data('id');
