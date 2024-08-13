@@ -62,19 +62,19 @@ class DeliveryController extends Controller
 
                                     switch ($item->status_name) {
                                         case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-primary'; // Biru
-                                            $btnAcceptPengantaran = '<a class="btn   btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
+                                            $statusBadgeClass = 'badge-out-for-delivery';
+                                            $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
                                             break;
                                         case 'Delivering':
-                                            $statusBadgeClass = 'badge-orange'; // Oranye
-                                            $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-sm btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
+                                            $statusBadgeClass = 'badge-delivering';
+                                            $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
                                             break;
                                         case 'Debt':
                                             $statusBadgeClass = 'badge-danger'; // Merah
                                             break;
                                         case 'Done':
-                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
-                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
+                                            $statusBadgeClass = 'badge-done'; // Abu-abu
+                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
                                             break;
                                         default:
                                             $statusBadgeClass = 'badge-secondary'; // Default
@@ -103,5 +103,39 @@ class DeliveryController extends Controller
                                 $output .= '</tbody></table>';
                                 return $output;
 
+    }
+
+    public function acceptPengantaran(Request $request)
+    {
+        $idpengantaran = $request->input('id');
+
+        try {
+            $result = DB::table('tbl_pengantaran')
+                        ->select('pembayaran_id')
+                        ->where('id', $idpengantaran)
+                        ->first();
+
+            if (!$result) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pengantaran tidak ditemukan.'
+                ], 404);
+            }
+            $pembayaranId = $result->pembayaran_id;
+
+            DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 4]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status pengantaran berhasil diperbarui.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat memperbarui status pengantaran.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

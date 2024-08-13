@@ -134,14 +134,14 @@
                                     <label for="noResi" class="form-label fw-bold">No Resi</label>
                                     <input type="text" class="form-control col-8" id="noResi" value=""
                                         placeholder="Scan Resi">
-                                    <div id="noResiError" class="text-danger mt-1">Silahkan Scan No Resi terlebih dahulu
-                                    </div>
+                                    <div id="noResiError" class="text-danger mt-1 d-none">Silahkan Scan No Resi terlebih
+                                        dahulu</div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
                                     <input type="text" class="form-control col-8" id="tanggal" value=""
                                         placeholder="Pilih tanggal">
-                                    <div id="tanggalError" class="text-danger mt-1">Tanggal tidak boleh kosong</div>
+                                    <div id="tanggalError" class="text-danger mt-1 d-none">Tanggal tidak boleh kosong</div>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -154,7 +154,7 @@
                                                 {{ $pembeli->nama_pembeli }} - {{ $pembeli->no_wa }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="customerError" class="text-danger mt-1">Silahkan Pilih Customer</div>
+                                    <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Customer</div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="currencyInvoice" class="form-label fw-bold">Currency</label>
@@ -166,7 +166,8 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <div id="currencyInvoiceError" class="text-danger mt-1">Silahkan Pilih Currency terlebih
+                                    <div id="currencyInvoiceError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
+                                        terlebih
                                         dahulu
                                     </div>
                                 </div>
@@ -187,7 +188,7 @@
                                 <div class="mt-3">
                                     <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
                                     <input type="text" class="form-control col-8" id="beratBarang" value="">
-                                    <div id="beratError" class="text-danger mt-1">Masukkan Berat</div>
+                                    <div id="beratError" class="text-danger mt-1 d-none">Masukkan Berat</div>
                                 </div>
                             </div>
                             <div class="col-12 d-none" id="volumeDiv">
@@ -215,7 +216,8 @@
                                             <option value="1000000">1.000.000</option>
                                             <option value="6000">6.000</option>
                                         </select>
-                                        <div id="pembagiErrorVolume" class="text-danger mt-1">Silahkan Pilih Pembagi</div>
+                                        <div id="pembagiErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih
+                                            Pembagi</div>
                                     </div>
                                     <!-- Rate Section -->
                                     <div class="flex-grow-1 ml-3">
@@ -223,11 +225,12 @@
                                         <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $ratevolume)
-                                                <option value="{{ $ratevolume->rate_volume }}">
-                                                    {{ $ratevolume->rate_volume }}</option>
+                                                <option value="{{ $ratevolume->rate }}">
+                                                    {{ $ratevolume->rate }}</option>
                                             @endforeach
                                         </select>
-                                        <div id="raterErrorVolume" class="text-danger mt-1">Silahkan Pilih Rate</div>
+                                        <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -263,20 +266,21 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <div id="driverError" class="text-danger mt-1">Silahkan pilih driver</div>
+                                    <div id="driverError" class="text-danger mt-1 d-none">Silahkan pilih driver</div>
                                 </div>
                                 <div class="mt-3" id="alamatSection" style="display: none;">
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
                                     <input type="text" class="form-control" id="alamat" style="width: 100%"
                                         value="" placeholder="Masukkan Alamat Tujuan">
-                                    <div id="alamatError" class="text-danger mt-1">Alamat tidak boleh kosong</div>
+                                    <div id="alamatError" class="text-danger mt-1 d-none">Alamat tidak boleh kosong</div>
 
                                     <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
                                     <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
                                         <option value="" selected disabled>Pilih Provinsi</option>
                                         <!-- Options will be populated dynamically -->
                                     </select>
-                                    <div id="provinsiError" class="text-danger mt-1">Provinsi tidak boleh kosong</div>
+                                    <div id="provinsiError" class="text-danger mt-1 d-none">Provinsi tidak boleh kosong
+                                    </div>
                                 </div>
 
 
@@ -291,21 +295,23 @@
                                         <option value="" selected disabled>Pilih Kabupaten/Kota</option>
                                         <!-- Options will be populated dynamically -->
                                     </select>
-                                    <div id="kotaError" class="text-danger mt-1">Kota/Kab tidak boleh kosong</div>
+                                    <div id="kotaError" class="text-danger mt-1 d-none">Kota/Kab tidak boleh kosong</div>
 
                                     <label for="kecamatan" class="form-label fw-bold mt-2">Kecamatan</label>
                                     <select class="form-control select2singgle col-8" id="kecamatan" style="width: 100%">
                                         <option value="" selected disabled>Pilih Kecamatan</option>
                                         <!-- Options will be populated dynamically -->
                                     </select>
-                                    <div id="kecamatanError" class="text-danger mt-1">Kecamatan tidak boleh kosong</div>
+                                    <div id="kecamatanError" class="text-danger mt-1 d-none">Kecamatan tidak boleh kosong
+                                    </div>
 
                                     <label for="kelurahan" class="form-label fw-bold">Kelurahan</label>
                                     <select class="form-control select2singgle col-8" id="kelurahan" style="width: 100%">
                                         <option value="" selected disabled>Pilih Kelurahan</option>
                                         <!-- Options will be populated dynamically -->
                                     </select>
-                                    <div id="kelurahanError" class="text-danger mt-1">Kelurahan tidak boleh kosong</div>
+                                    <div id="kelurahanError" class="text-danger mt-1 d-none">Kelurahan tidak boleh kosong
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -323,7 +329,7 @@
                                                 {{ $tipepembayaran->tipe_pembayaran }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="metodePembayaranError" class="text-danger mt-1">Silahkan pilih metode
+                                    <div id="metodePembayaranError" class="text-danger mt-1 d-none">Silahkan pilih metode
                                         pembayaran</div>
                                 </div>
                             </div>
@@ -338,7 +344,7 @@
                                                 {{ $rekening->nama_bank }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="rekeningError" class="text-danger mt-1">Silahkan pilih rekening</div>
+                                    <div id="rekeningError" class="text-danger mt-1 d-none">Silahkan pilih rekening</div>
                                 </div>
                             </div>
                         </div>
@@ -502,8 +508,6 @@
                     $('#rowDimensi').addClass('d-none');
                     $('#weightDiv').removeClass('d-none');
                 }
-
-                validateInvoiceInput();
             });
 
             $('#beratBarang').on('input', function() {
@@ -612,226 +616,201 @@
                 }
             });
 
-            function validateInvoiceInput() {
+            $('#buatInvoice').click(function() {
+
+                // Collect all form data
+                const noResi = $('#noResi').val().trim();
+                const tanggal = $('#tanggal').val().trim();
+                const customer = $('#selectCostumer').val();
+                const currencyInvoice = $('#currencyInvoice').val();
+                const beratBarang = $('#beratBarang').val().trim();
+                const panjang = $('#panjang').val().trim();
+                const lebar = $('#lebar').val().trim();
+                const tinggi = $('#tinggi').val().trim();
+                const metodePengiriman = $('#delivery').is(':checked') ? 'Delivery' : 'Pickup';
+                const metodePembayaran = $('#metodePembayaran').val();
+                const driver = metodePengiriman === 'Delivery' ? $('#driver').val() : null;
+                const alamat = metodePengiriman === 'Delivery' ? $('#alamat').val().trim() : null;
+                const provinsi = metodePengiriman === 'Delivery' ? $('#provinsi').val() : null;
+                const kabupatenKota = metodePengiriman === 'Delivery' ? $('#kabupatenKota').val() : null;
+                const kecamatan = metodePengiriman === 'Delivery' ? $('#kecamatan').val() : null;
+                const kelurahan = metodePengiriman === 'Delivery' ? $('#kelurahan').val() : null;
+                const rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
+                const pembagiVolume = $('#toggleSwitch').is(':checked') ? $('#pembagiVolume').val() : null;
+                const rateVolume = $('#toggleSwitch').is(':checked') ? $('#rateVolume').val() : null;
+                let totalharga = $('#totalHargaValue').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
                 let isValid = true;
 
-                // Validate 'noResi'
-                if ($('#noResi').val().trim() === '') {
-                    $('#noResiError').show();
+                if (noResi === '') {
+                    $('#noResiError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#noResiError').hide();
+                    $('#noResiError').addClass('d-none');
                 }
 
-                // Validate 'tanggal'
-                if ($('#tanggal').val().trim() === '') {
-                    $('#tanggalError').show();
+                if (tanggal === '') {
+                    $('#tanggalError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#tanggalError').hide();
+                    $('#tanggalError').addClass('d-none');
                 }
 
-                // Validate 'customer'
-                if ($('#selectCostumer').val() === null) {
-                    $('#customerError').show();
+                if (customer === null) {
+                    $('#customerError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#customerError').hide();
+                    $('#customerError').addClass('d-none');
                 }
 
-                // Validate 'Currency'
-                if ($('#currencyInvoice').val() === null) {
-                    $('#currencyInvoiceError').show();
+                if (currencyInvoice === null) {
+                    $('#currencyInvoiceError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#currencyInvoiceError').hide();
+                    $('#currencyInvoiceError').addClass('d-none');
                 }
 
-                // Validate delivery details if delivery is checked
-                if ($('#delivery').is(':checked')) {
-                    // Validate Driver
-                    if ($('#driver').val() === null) {
-                        $('#driverError').show();
+                if (metodePengiriman === 'Delivery') {
+                    if (driver === null) {
+                        $('#driverError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#driverError').hide();
+                        $('#driverError').addClass('d-none');
                     }
 
-                    // Validate Alamat
-                    if ($('#alamat').val().trim() === '') {
-                        $('#alamatError').show();
+                    if (alamat === '') {
+                        $('#alamatError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#alamatError').hide();
+                        $('#alamatError').addClass('d-none');
                     }
 
-                    // Validate Provinsi
-                    if ($('#provinsi').val() === null) {
-                        $('#provinsiError').show();
+                    if (provinsi === null) {
+                        $('#provinsiError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#provinsiError').hide();
+                        $('#provinsiError').addClass('d-none');
                     }
 
-                    // Validate Kota/Kabupaten
-                    if ($('#kabupatenKota').val() === null) {
-                        $('#kotaError').show();
+                    if (kabupatenKota === null) {
+                        $('#kotaError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#kotaError').hide();
+                        $('#kotaError').addClass('d-none');
                     }
 
-                    // Validate Kecamatan
-                    if ($('#kecamatan').val() === null) {
-                        $('#kecamatanError').show();
+                    if (kecamatan === null) {
+                        $('#kecamatanError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#kecamatanError').hide();
+                        $('#kecamatanError').addClass('d-none');
                     }
 
-                    // Validate Kelurahan
-                    if ($('#kelurahan').val() === null) {
-                        $('#kelurahanError').show();
+                    if (kelurahan === null) {
+                        $('#kelurahanError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#kelurahanError').hide();
+                        $('#kelurahanError').addClass('d-none');
                     }
                 }
 
-                // Validate tipe pembayaran
-                if ($('#metodePembayaran').val() === null) {
-                    $('#metodePembayaranError').show();
+                if (metodePembayaran === null) {
+                    $('#metodePembayaranError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#metodePembayaranError').hide();
+                    $('#metodePembayaranError').addClass('d-none');
                 }
 
-                // Validate payment method
-                if ($('#metodePembayaran').val() === '2' && $('#rekening').val() === null) {
-                    $('#rekeningError').show();
+                if (metodePembayaran === '2' && rekening === null) {
+                    $('#rekeningError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#rekeningError').hide();
+                    $('#rekeningError').addClass('d-none');
                 }
 
-                // Toggle between berat and volume validation
                 if ($('#toggleSwitch').is(':checked')) {
-                    // Validate 'volume' fields
-                    if ($('#panjang').val().trim() === '' || $('#lebar').val().trim() === '' || $('#tinggi').val()
-                        .trim() === '') {
-                        $('#beratError').hide();
-                        $('#volumeError').show();
+                    if (panjang === '' || lebar === '' || tinggi === '') {
+                        $('#volumeError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#volumeError').hide();
+                        $('#volumeError').addClass('d-none');
                     }
-                    if ($('#pembagiVolume').val() === null) {
-                        $('#pembagiErrorVolume').show();
+
+                    if (pembagiVolume === null) {
+                        $('#pembagiErrorVolume').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#pembagiErrorVolume').hide();
+                        $('#pembagiErrorVolume').addClass('d-none');
                     }
-                    if ($('#rateVolume').val() === null) {
-                        $('#raterErrorVolume').show();
+
+                    if (rateVolume === null) {
+                        $('#raterErrorVolume').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#raterErrorVolume').hide();
+                        $('#raterErrorVolume').addClass('d-none');
                     }
                 } else {
-                    // Validate 'berat' field
-                    if ($('#beratBarang').val().trim() === '') {
-                        $('#beratError').show();
+                    if (beratBarang === '') {
+                        $('#beratError').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#beratError').hide();
+                        $('#beratError').addClass('d-none');
                     }
-                    $('#pembagiErrorVolume').hide();
-                    $('#raterErrorVolume').hide();
-                    $('#volumeError').hide();
                 }
 
-                return isValid;
-            }
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
 
-            $('#noResi, #tanggal, #selectCostumer, #currencyInvoice, #driver, #alamat, #provinsi, #kabupatenKota, #kecamatan, #kelurahan, #pembagiVolume, #rateVolume, #beratBarang, #metodePembayaran, #rekening')
-                .on(
-                    'input change',
-                    function() {
-                        validateInvoiceInput();
-                    }
-                );
-
-            $('#buatInvoice').click(function() {
-                if (validateInvoiceInput()) {
-                    // Collect all form data
-                    let noResi = $('#noResi').val();
-                    let tanggal = $('#tanggal').val();
-                    let customer = $('#selectCostumer').val();
-                    let currencyInvoice = $('#currencyInvoice').val();
-                    let beratBarang = $('#beratBarang').val();
-                    let panjang = $('#panjang').val();
-                    let lebar = $('#lebar').val();
-                    let tinggi = $('#tinggi').val();
-                    let metodePengiriman = $('#delivery').is(':checked') ? 'Delivery' : 'Pickup';
-                    let metodePembayaran = $('#metodePembayaran').val();
-                    let driver = metodePengiriman === 'Delivery' ? $('#driver').val() : null;
-                    let alamat = metodePengiriman === 'Delivery' ? $('#alamat').val() : null;
-                    let provinsi = metodePengiriman === 'Delivery' ? selectedProvinsiName : null;
-                    let kabupatenKota = metodePengiriman === 'Delivery' ? selectedKabupatenKotaName : null;
-                    let kecamatan = metodePengiriman === 'Delivery' ? selectedKecamatanName : null;
-                    let kelurahan = metodePengiriman === 'Delivery' ? selectedKelurahanName : null;
-                    let rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
-                    let totalharga = $('#totalHargaValue').val();
-                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                    // Send data to the controller
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('tambainvoice') }}",
-                        data: {
-                            noResi: noResi,
-                            tanggal: tanggal,
-                            customer: customer,
-                            currencyInvoice: currencyInvoice,
-                            beratBarang: beratBarang,
-                            panjang: panjang,
-                            lebar: lebar,
-                            tinggi: tinggi,
-                            metodePengiriman: metodePengiriman,
-                            driver: driver,
-                            alamat: alamat,
-                            provinsi: provinsi,
-                            kabupatenKota: kabupatenKota,
-                            kecamatan: kecamatan,
-                            kelurahan: kelurahan,
-                            metodePembayaran: metodePembayaran,
-                            rekening: rekening,
-                            totalharga: totalharga,
-                            _token: csrfToken
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                showMessage("success", "Invoice berhasil dibuat").then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "Gagal membuat invoice",
-                                    icon: "error"
-                                });
-                            }
-                        },
-                        error: function(xhr, status, error) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('tambainvoice') }}",
+                    data: {
+                        noResi: noResi,
+                        tanggal: tanggal,
+                        customer: customer,
+                        currencyInvoice: currencyInvoice,
+                        beratBarang: beratBarang,
+                        panjang: panjang,
+                        lebar: lebar,
+                        tinggi: tinggi,
+                        metodePengiriman: metodePengiriman,
+                        driver: driver,
+                        alamat: alamat,
+                        provinsi: selectedProvinsiName,
+                        kabupatenKota: selectedKabupatenKotaName,
+                        kecamatan: selectedKecamatanName,
+                        kelurahan: selectedKelurahanName,
+                        metodePembayaran: metodePembayaran,
+                        rekening: rekening,
+                        totalharga: totalharga,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Invoice berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
                             Swal.fire({
                                 title: "Gagal membuat invoice",
-                                text: "Terjadi kesalahan. Mohon coba lagi.",
                                 icon: "error"
                             });
                         }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong.");
-                }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat invoice",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
             });
         });
     </script>

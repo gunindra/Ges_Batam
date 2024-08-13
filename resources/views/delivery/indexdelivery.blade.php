@@ -123,7 +123,42 @@
 
 
         $(document).on('click', '.btnAcceptPengantaran', function(e) {
+            let id = $(this).data('id');
 
-        })
+            Swal.fire({
+                title: "Apakah Barang Dengan Resi Ini Siap Diatarkan?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('acceptPengantaran') }}",
+                        data: {
+                            id: id,
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if (response.status === 'error') {
+                                showMessage("error", response.message);
+                            } else {
+                                showMessage("success", response.message);
+                                getlistDelivery();
+                            }
+                        },
+                        error: function() {
+                            showMessage("error", "Terjadi kesalahan pada server.");
+                        }
+                    });
+                }
+            });
+        });
     </script>
 @endsection

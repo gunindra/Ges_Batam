@@ -107,23 +107,23 @@ class InvoiceController extends Controller
 
                                     switch ($item->status_name) {
                                         case 'Pending Payment':
-                                            $statusBadgeClass = 'badge-warning'; // Kuning
+                                            $statusBadgeClass = 'badge-pending-payment';
                                             $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
                                             break;
                                         case 'Ready For Pickup':
-                                            $statusBadgeClass = 'badge-success'; // Hijau
+                                            $statusBadgeClass = 'badge-ready-for-pickup';
                                             if($item->tipe_pembayaran === 'Transfer'){
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
                                         case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-primary'; // Biru
+                                            $statusBadgeClass = 'badge-out-for-delivery';
                                             if($item->tipe_pembayaran === 'Transfer'){
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
                                         case 'Delivering':
-                                            $statusBadgeClass = 'badge-orange'; // Oranye
+                                            $statusBadgeClass = 'badge-delivering';
                                             break;
                                         case 'Debt':
                                             $statusBadgeClass = 'badge-danger'; // Merah
