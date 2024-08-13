@@ -44,7 +44,7 @@
                     <div class="mt-3">
                         <label for="pembayaranStatus" class="form-label fw-bold">Bukti Pembayaran :</label>
                         <div class="containerFoto">
-                            <img src="storage/app/bukti_pembayaran/1.jpg" alt="">
+                            {{-- <img src="storage/app/bukti_pembayaran/1.jpg" alt=""> --}}
                         </div>
 
                     </div>
@@ -427,6 +427,12 @@
                     });
                 }
             });
+
+            $('#modalConfirmasiPembayaran').on('hidden.bs.modal', function() {
+                $('#pembayaranStatus').val('');
+                validatePembayaran('modalConfirmasiPembayaran');
+            });
+
 
 
             $(document).on('click', '.btnDeleteInvoice', function(e) {

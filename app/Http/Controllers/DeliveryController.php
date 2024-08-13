@@ -53,25 +53,55 @@ class DeliveryController extends Controller
                                 </thead>
                                 <tbody>';
 
-        foreach ($data as $item) {
-            $output .=
-                '
-                <tr>
-                    <td class="">' . ($item->no_resi ?? '-') . '</td>
-                    <td class="">' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                    <td class="">' . ($item->nama_supir ?? '-') . '</td>
-                    <td class="">' . ($item->alamat ?? '-') . '</td>
-                    <td class="">' . ($item->full_address ?? '-') . '</td>
-                    <td><span class="badge badge-warning">' . ($item->status_name ?? '-') . '</span></td>
-                    <td>
-                        <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>
-                        <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-file-upload"></i></a>
-                    </td>
-                </tr>
-            ';
-        }
+                                foreach ($data as $item) {
 
-        $output .= '</tbody></table>';
-        return $output;
+                                    $statusBadgeClass = '';
+                                    $btnAcceptPengantaran = '';
+                                    $btnBuktiPengantaran = '';
+                                    $btnDetailPengantaran = '';
+
+                                    switch ($item->status_name) {
+                                        case 'Out For Delivery':
+                                            $statusBadgeClass = 'badge-primary'; // Biru
+                                            $btnAcceptPengantaran = '<a class="btn   btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
+                                            break;
+                                        case 'Delivering':
+                                            $statusBadgeClass = 'badge-orange'; // Oranye
+                                            $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-sm btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
+                                            break;
+                                        case 'Debt':
+                                            $statusBadgeClass = 'badge-danger'; // Merah
+                                            break;
+                                        case 'Done':
+                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
+                                            break;
+                                        default:
+                                            $statusBadgeClass = 'badge-secondary'; // Default
+                                            break;
+                                    }
+
+
+                                    $output .=
+                                        '
+                                        <tr>
+                                            <td class="">' . ($item->no_resi ?? '-') . '</td>
+                                            <td class="">' . ($item->tanggal_pengantaran ?? '-') . '</td>
+                                            <td class="">' . ($item->nama_supir ?? '-') . '</td>
+                                            <td class="">' . ($item->alamat ?? '-') . '</td>
+                                            <td class="">' . ($item->full_address ?? '-') . '</td>
+                                            <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
+                                            <td>
+                                                ' . $btnAcceptPengantaran . '
+                                                ' . $btnDetailPengantaran . '
+                                                ' . $btnBuktiPengantaran . '
+                                            </td>
+                                        </tr>
+                                    ';
+                                }
+
+                                $output .= '</tbody></table>';
+                                return $output;
+
     }
 }

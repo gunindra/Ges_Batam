@@ -546,8 +546,8 @@
                         showMessage("error", "Barang Diatas 250.000 pakai Volume")
                         $('#beratBarang').val('');
                         $('#total-harga').text('Rp. 0');
-                         $('#toggleSwitch').click();
-                    }else{
+                        $('#toggleSwitch').click();
+                    } else {
                         $('#totalHargaValue').val(totalHarga)
                         $('#total-harga').text('Rp.' + totalHarga.toLocaleString());
                     }
@@ -811,14 +811,22 @@
                         },
                         success: function(response) {
                             if (response.status === 'success') {
-                                showMessage("success", "Invoice berhasil dibuat");
-                                location.reload();
+                                showMessage("success", "Invoice berhasil dibuat").then(() => {
+                                    location.reload();
+                                });
                             } else {
                                 Swal.fire({
                                     title: "Gagal membuat invoice",
                                     icon: "error"
                                 });
                             }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                title: "Gagal membuat invoice",
+                                text: "Terjadi kesalahan. Mohon coba lagi.",
+                                icon: "error"
+                            });
                         }
                     });
                 } else {

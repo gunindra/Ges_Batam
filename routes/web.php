@@ -31,6 +31,7 @@ Route::get('/booking/dataBookingForm', [BookingController::class, 'dataBookingFo
 
 // Delivery
 Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
+Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
 
 // Invoice
 Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice');

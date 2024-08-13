@@ -32,7 +32,7 @@ class InvoiceController extends Controller
 
         $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
 
-        $listRateVolume = DB::select("SELECT id, rate_volume FROM tbl_rate_volume");
+        $listRateVolume = DB::select("SELECT id, rate FROM tbl_rate");
 
 
         return view('invoice.buatinvoice', [
@@ -80,13 +80,9 @@ class InvoiceController extends Controller
                 )
                 AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-31'
                 ORDER BY
-                    CASE d.status_name
-                        WHEN 'Pending Payment' THEN 1
-                        WHEN 'Out For Delivery' THEN 2
-                        WHEN 'Ready For Pickup' THEN 3
-                        ELSE 4
-                    END
-                 LIMIT 100;
+                    d.status_name = 'Pending Payment' DESC,
+    				a.tanggal_pembayaran DESC
+                LIMIT 100;
         ";
 
         $data = DB::select($q);

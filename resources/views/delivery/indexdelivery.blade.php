@@ -26,7 +26,7 @@
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a> --}}
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tableDelivery">
+                            {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No Resi</th>
@@ -47,11 +47,13 @@
                                         <td>Rp. 10.000</td>
                                         <td><span class="badge badge-success">Done</span></td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i
+                                                    class="fas fa-eye"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i
+                                                    class="fas fa-file-upload"></i></a>
                                         </td>
                                     </tr>
-                                    {{-- <tr>
+                                    <tr>
                                         <td>B0234043</td>
                                         <td>28 Juli 2024</td>
                                         <td>Tandrio</td>
@@ -63,9 +65,9 @@
                                             <a href="#" class="btn btn-sm btn-danger"><i
                                                     class="fas fa-trash"></i></a>
                                         </td>
-                                    </tr> --}}
+                                    </tr>
                                 </tbody>
-                            </table>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -76,4 +78,52 @@
     </div>
     <!---Container Fluid-->
 
+@endsection
+
+@section('script')
+    <script>
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        // let selectedMonth = getCurrentMonth();
+
+        const getlistDelivery = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                    url: "{{ route('getlistDelivery') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch,
+                        // filter: selectedMonth
+                    },
+                    beforeSend: () => {
+                        $('#containerDelivery').html(loadSpin)
+                    }
+                })
+                .done(res => {
+                    $('#containerDelivery').html(res)
+                    $('#tableDelivery').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getlistDelivery();
+
+
+        $(document).on('click', '.btnAcceptPengantaran', function(e) {
+
+        })
+    </script>
 @endsection

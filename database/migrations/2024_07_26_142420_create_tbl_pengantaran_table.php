@@ -17,8 +17,10 @@ return new class extends Migration
             $table->date('tanggal_pengantaran');
             $table->foreignId('supir_id')->constrained('tbl_supir');
             $table->text('alamat');
-            $table->string('kota', 100);
             $table->string('provinsi', 100);
+            $table->string('kotakab', 100);
+            $table->string('kecamatan', 100);
+            $table->string('kelurahan', 100);
             $table->text('bukti_pengantaran')->nullable();
             $table->timestamps();
         });

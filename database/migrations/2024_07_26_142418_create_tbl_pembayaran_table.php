@@ -20,12 +20,12 @@ return new class extends Migration
             $table->decimal('panjang', 8,2)->nullable();
             $table->decimal('lebar', 8,2)->nullable();
             $table->decimal('tinggi', 8,2)->nullable();
-            $table->enum('pengiriman', ['pickup', 'delivery']);
+            $table->enum('pengiriman', ['Pickup', 'Delivery']);
             $table->decimal('harga', 15,2);
             $table->foreignId('pembayaran_id')->constrained('tbl_tipe_pembayaran');
-            $table->foreignId('rekening_id')->constrained('tbl_rekening')->nullable();
+            $table->foreignId('rekening_id')->nullable()->constrained('tbl_rekening');
             $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
-            $table->string('bukti_pembayaran', 100);
+            $table->string('bukti_pembayaran', 100)->nullable();
             $table->foreignId('status_id')->constrained('tbl_status');
             $table->timestamps();
         });

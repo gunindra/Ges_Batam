@@ -10,10 +10,11 @@ class StatusTableSeeder extends Seeder
     public function run()
     {
         $statuses = [
-            ['status_name' => 'Booking'],
-            ['status_name' => 'Arrived'],
-            ['status_name' => 'Paid'],
+            ['status_name' => 'Pending Payment'],
+            ['status_name' => 'Ready For Pickup'],
+            ['status_name' => 'Out For Delivery'],
             ['status_name' => 'Delivering'],
+            ['status_name' => 'Debt'],
             ['status_name' => 'Done'],
         ];
 
