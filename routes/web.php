@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\InformationsController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\WhyController;
@@ -10,7 +11,6 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\InformationController;
 use App\Http\Controllers\CostumerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RekeningController;
@@ -45,25 +45,26 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 
 // About
 Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');
-Route::get('/information/about/getlistAbout', [AboutController::class, 'getlistAbout'])->name('getlistAbout');
-Route::get('/information/about/destroy', [AboutController::class, 'destroyAboutUs'])->name('destroyAboutUs');
-Route::get('/information/about/update', [AboutController::class, 'updateAboutUs'])->name('updateAboutUs');
-Route::post('/information/about/insert', [AboutController::class, 'insertAboutUs'])->name('insertAboutUs');
+Route::get('/information/abouts/getlistAbout', [AboutController::class, 'getlistAbout'])->name('getlistAbout');
+Route::get('/information/abouts/destroy', [AboutController::class, 'destroyAboutUs'])->name('destroyAboutUs');
+Route::get('/information/abouts/update', [AboutController::class, 'updateAboutUs'])->name('updateAboutUs');
+Route::post('/information/abouts/insert', [AboutController::class, 'insertAboutUs'])->name('insertAboutUs');
 
-//Why
+// Why
 Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
 
-//Services
+// Services
 Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
 
-//carousels
-Route::get('/information/carousels', [AboutController::class, 'index'])->name('carousels');
+// Carousel
+Route::get('/information/carousel', [CarouselController::class, 'index'])->name('carousel');
+Route::get('/information/carousel/getlistCarousel', [CarouselController::class, 'getlistCarousel'])->name('getlistCarousel');
 
-//informations
+// Informations
 Route::get('/information/informations', [InformationsController::class, 'index'])->name('informations');
 Route::get('/information/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
 Route::get('/information/informations/destroy', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
-//iklan
+//Iklan
 Route::get('/information/iklans', [AboutController::class, 'index'])->name('iklans');
 
 

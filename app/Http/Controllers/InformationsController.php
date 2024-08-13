@@ -16,9 +16,9 @@ class InformationsController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        image_informations,
                         judul_informations,
-                        isi_informations
+                        isi_informations,
+                        image_informations
                 FROM tbl_informations
         ";
 
@@ -29,22 +29,27 @@ class InformationsController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableInformations">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>image</th>
                                         <th>judul</th>
                                         <th>isi</th>
+                                        <th>gambar</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>';
         foreach ($data as $item) {
+
+            $image = $item->image_informations;
+            $imagepath ='public/image/' . $image;
+        
+
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->image_informations ?? '-') .'</td>
                     <td class="">' . ($item->judul_informations ?? '-') .'</td>
                     <td class="">' . ($item->isi_informations ?? '-') .'</td>
-                   <td>
-                        <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-image_informations="' .$item->image_informations .'" data-judul_informations="' .$item->judul_informations .'" data-isi_informations="' .$item->isi_informations .'"><i class="fas fa-edit"></i></a>
+                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar"></td>
+                    <td>
+                        <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-judul_informations="' .$item->judul_informations .'" data-isi_informations="' .$item->isi_informations .'" data-image_informations="' .$item->image_informations .'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -53,6 +58,26 @@ class InformationsController extends Controller
 
         $output .= '</tbody></table>';
          return $output;
+    }
+    public function addInformations(Request $request)
+    {
+
+        $judulInformations = $request->input('judulInformations');
+        $isiInformations = $request->input('isiInformations');
+        $imageInformations = $request->file('imageInformations');
+
+        try {
+            DB::table('tbl_informations')->insert([
+                'judul_informations' => $judulInformations,
+                'isi_informations' => $isiInformations,
+                'image_informations' => $imageInformations,
+                'created_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+        }
     }
     public function destroyInformations(Request $request)
     {

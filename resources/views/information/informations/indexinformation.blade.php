@@ -20,30 +20,65 @@
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
-                            <label for="imageInformations" class="form-label fw-bold">Image</label>
-                            <input type="file" class="form-control" id="imageInformations" value="">
-                            <div id="errImageInformations" class="text-danger mt-1">Silahkan isi Image</div>
-                        </div>
-                        <div class="mt-3">
                             <label for="judulInformations" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulInformations" value="">
-                            <div id="errjudulInformations" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <div id="errJudulInformations" class="text-danger mt-1">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiInformations" class="form-label fw-bold">Isi</label>
                             <textarea class="form-control" id="isiInformations" rows="3"></textarea>
-                            <div id="errisiInformations" class="text-danger mt-1">Silahkan isi</div>
-                        
-                    </div>
+                            <div id="errIsiInformations" class="text-danger mt-1">Silahkan isi</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="imageInformations" class="form-label fw-bold">Gambar</label>
+                            <input type="file" class="form-control" id="imageInformations" value="">
+                            <div id="errImageInformations" class="text-danger mt-1">Silahkan isi Gambar</div>
+                        </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveCostumer" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveInformations" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
         </div>
-
+        <!-- Modal Edit -->
+        <div class="modal fade" id="modalEditInformations" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditInformationsTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditCustomerTitle">Edit Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="informationsIdEdit">
+                        <div class="mt-3">
+                            <label for="judulInformations" class="form-label fw-bold">Judul</label>
+                            <input type="text" class="form-control" id="judulInformationsEdit" value="">
+                            <div id="errJudulInformations" class="text-danger mt-1">Silahkan isi Judul</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="isiInformations" class="form-label fw-bold">Isi</label>
+                            <textarea class="form-control" id="isiInformationsEdit" rows="3"></textarea>
+                            <div id="errIsiInformations" class="text-danger mt-1">Silahkan isi </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="imageInformations" class="form-label fw-bold">Gambar</label>
+                            <input type="file" class="form-control" id="imageInformationsEdit" value="">
+                            <div id="errImageInformations" class="text-danger mt-1">Silahkan isi Gambar
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveEditInformations" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -127,6 +162,55 @@
         }
 
         getlistInformations();
+
+        $('#saveInformations').click(function() {
+            $('#judulInformations, #isiInformations, #imageInformations').data('touched', true);
+
+            let judulInformations = $('#judulInformations').val();
+            let isiInformations = $('#isiInformations').val();
+            let imageInformations = $('#imageInformations').val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            if (('modalTambahInformations')) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addInformations') }}",
+                            data: {
+                                judulInformations: judulInformations,
+                                isiInformations: isiInformations,
+                                imageInformations: imageInformations,
+                                _token: csrfToken
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistInformations();
+                                    $('#modalTambahInformations').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
 
         $(document).on('click', '.btnDestroyInformations', function(e) {
             let id = $(this).data('id');

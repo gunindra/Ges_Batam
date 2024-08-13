@@ -73,6 +73,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// wa
+    document.getElementById('whatsappButton').onclick = function() {
+        var phoneNumber = '6289636090157';
+        var message = 'Halo Admin, saya ingin bertanya tentang logistic ';
+        var whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
+        window.open(whatsappUrl, '_blank');
+    };
+
 // const Home = document.getElementById("Home");
 
 // Home.addEventListener("click", function (){
