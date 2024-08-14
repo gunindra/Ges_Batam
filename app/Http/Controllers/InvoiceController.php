@@ -129,7 +129,10 @@ class InvoiceController extends Controller
                                             $statusBadgeClass = 'badge-danger'; // Merah
                                             break;
                                         case 'Done':
-                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                                            $statusBadgeClass = 'badge-secondary';
+                                            if($item->tipe_pembayaran === 'Transfer'){
+                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                                            }
                                             break;
                                         default:
                                             $statusBadgeClass = 'badge-secondary'; // Default
@@ -341,40 +344,35 @@ class InvoiceController extends Controller
                 ];
             }
 
-            // Calculate harga in IDR
-            try {
+            // Generate PDF filename
+            $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
+            $filePath = storage_path('app/public/' . $fileName);
+
+            // Check if file already exists
+            if (!file_exists($filePath)) {
+                // Calculate harga in IDR
                 $hargaIDR = $invoice->harga;
-            } catch (\Exception $e) {
-                \Log::error('Error calculating exchange rate: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to calculate exchange rate'], 500);
-            }
 
-            // Generate PDF
-            try {
-                $pdf = Pdf::loadView('exportPDF.invoice', [
-                    'invoice' => $invoice,
-                    'hargaIDR' => $hargaIDR,
-                    'additionalDetails' => $additionalDetails,
-                    'paymentDetails' => $paymentDetails,
-                    'berat' => $berat,
-                    'panjang' => $invoice->panjang,
-                    'lebar' => $invoice->lebar,
-                    'tinggi' => $invoice->tinggi,
-                    'tanggal' => $invoice->tanggal_bayar,
-                ]);
-            } catch (\Exception $e) {
-                \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to generate PDF'], 500);
-            }
+                // Generate PDF
+                try {
+                    $pdf = Pdf::loadView('exportPDF.invoice', [
+                        'invoice' => $invoice,
+                        'hargaIDR' => $hargaIDR,
+                        'additionalDetails' => $additionalDetails,
+                        'paymentDetails' => $paymentDetails,
+                        'berat' => $berat,
+                        'panjang' => $invoice->panjang,
+                        'lebar' => $invoice->lebar,
+                        'tinggi' => $invoice->tinggi,
+                        'tanggal' => $invoice->tanggal_bayar,
+                    ]);
 
-            // Save PDF to storage
-            try {
-                $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
-                $filePath = storage_path('app/public/' . $fileName);
-                $pdf->save($filePath);
-            } catch (\Exception $e) {
-                \Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to save PDF'], 500);
+                    // Save PDF to storage
+                    $pdf->save($filePath);
+                } catch (\Exception $e) {
+                    \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
+                    return response()->json(['error' => 'Failed to generate PDF'], 500);
+                }
             }
 
             // Send PDF URL
@@ -387,6 +385,7 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
+
 
     public function deleteInvoice(Request $request)
     {

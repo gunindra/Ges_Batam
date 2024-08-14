@@ -207,7 +207,7 @@
                 let id = $(this).data('id');
                 let no_pembagi = $(this).data('no_pembagi');
                 let nilai_pembagi = $(this).data('nilai_pembagi');
-    
+
                 $('#noPembagiEdit').val(no_pembagi);
                 $('#nilaiPembagiEdit').val(nilai_pembagi);
                 $('#PembagiIdEdit').val(id);
