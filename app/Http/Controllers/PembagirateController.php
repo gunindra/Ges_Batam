@@ -10,8 +10,6 @@ class PembagirateController extends Controller
 
     public function index()
     {
-
-
         return view('masterdata.pembagirate.indexpembagirate');
     }
     public function getlistPembagi(Request $request)
@@ -28,7 +26,7 @@ class PembagirateController extends Controller
 
         $data = DB::select($q);
 
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableIklan">
+        $output = '  <table class="table align-items-center table-flush table-hover" id="tablePembagi">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No</th>

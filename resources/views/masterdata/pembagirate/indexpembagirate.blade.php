@@ -54,7 +54,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -105,8 +105,7 @@
                 </div>
             </div>
         </div>
-
-
+</div>
 
     </div>
     <!---Container Fluid-->
