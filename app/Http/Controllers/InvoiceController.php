@@ -32,7 +32,7 @@ class InvoiceController extends Controller
 
         $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
 
-        $listRateVolume = DB::select("SELECT id, rate_volume FROM tbl_rate_volume");
+        $listRateVolume = DB::select("SELECT id, rate FROM tbl_rate");
 
 
         return view('invoice.buatinvoice', [

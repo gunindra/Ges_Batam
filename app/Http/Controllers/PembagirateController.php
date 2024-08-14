@@ -91,7 +91,7 @@ class PembagirateController extends Controller
         $nilaiPembagi = $request->input('nilaiPembagi');
 
         try {
-            DB::table('tbl_iklan')
+            DB::table('tbl_pembagi')
             ->where('id', $id)
             ->update([
                'no_pembagi' => $noPembagi,
