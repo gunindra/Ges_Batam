@@ -4,6 +4,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\IklanController;
 use App\Http\Controllers\InformationsController;
+use App\Http\Controllers\PembagirateController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\WhyController;
 use Illuminate\Support\Facades\Route;
@@ -15,7 +16,6 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CostumerController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\RekeningController;
-use App\Http\Controllers\BeratvolumeController;
 
 
 
@@ -105,8 +105,8 @@ Route::post('/masterdata/rekening/tambah', [RekeningController::class, 'addReken
 Route::post('/masterdata/rekening/update', [RekeningController::class, 'updateRekening'])->name('updateRekening');
 Route::get('/masterdata/rekening/destroy', [RekeningController::class, 'destroyRekening'])->name('destroyRekening');
 
-// Berat Dan Volume
-Route::get('/masterdata/beratvolume', [BeratvolumeController::class, 'index'])->name('beratvolume');
+// Pembagi dan Rate
+Route::get('/masterdata/pembagirate', [PembagirateController::class, 'index'])->name('pembagirate');
 
 
 Route::get('/', function () {

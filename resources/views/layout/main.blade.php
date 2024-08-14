@@ -76,8 +76,8 @@
                             href="{{ route('driver') }}">Driver</a>
                         <a class="collapse-item {{ request()->routeIs('rekening') ? 'active' : '' }}"
                             href="{{ route('rekening') }}">Rekening</a>
-                        <a class="collapse-item {{ request()->routeIs('beratvolume') ? 'active' : '' }}"
-                            href="{{ route('beratvolume') }}">Berat dan Volume</a>
+                        <a class="collapse-item {{ request()->routeIs('pembagirate') ? 'active' : '' }}"
+                            href="{{ route('pembagirate') }}">Pembagi dan Rate</a>
                     </div>
                 </div>
             </li>
