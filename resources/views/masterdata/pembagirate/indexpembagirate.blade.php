@@ -6,27 +6,90 @@
 
 
     <!---Container Fluid-->
-    <div class="container-fluid" id="container-wrapper">
+<div class="container-fluid" id="container-wrapper">
+         <!-- Modal tambah -->
+         <div class="modal fade" id="modalTambahPembagi" tabindex="-1" role="dialog" aria-labelledby="modalTambahPembagiTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTambahPembagi">Tambah Pembagi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mt-3">
+                            <label for="noPembagi" class="form-label fw-bold">No</label>
+                            <input type="text" class="form-control" id="noPembagi" value="">
+                            <div id="errNoPembagi" class="text-danger mt-1">Silahkan isi no</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
+                            <input type="text" class="form-control" id="nilaiPembagi" value="">
+                            <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
+                        </div>
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="savePembagi" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Edit -->
+        <div class="modal fade" id="modalEditPembagi" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditPembagiTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditPembagiTitle">Edit Pembagi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="PembagiIdEdit">
+                        <div class="mt-3">
+                            <label for="noPembagi" class="form-label fw-bold">Judul</label>
+                            <input type="text" class="form-control" id="noPembagiEdit" value="">
+                            <div id="errNoPembagi" class="text-danger mt-1">Silahkan isi no</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="nilaiPembagi" class="form-label fw-bold">Isi</label>
+                            <input type="text" class="form-control" id="nilaiPembagiEdit" value="">
+                            <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveEditPembagi" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Pembagi Dan Rate</h1>
+            <h1 class="h3 mb-0 text-gray-800 px-2">Pembagi Dan Rate</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Master Data</li>
                 <li class="breadcrumb-item active" aria-current="page">Pembagi dan Rate</li>
             </ol>
         </div>
-        <div class="row mb-3">
-            <div class="col-xl-6">
-                <div class="card">
-                    <div class="card-body">
+        <div class="row mb-3 px-3">
+            <div class="col-xl-6 px-2">
+                <div class="card ">
+                    <div class="card-body ">
                         <h6 class="m-0 font-weight-bold text-primary">Pembagi</h6>
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <button type="button" class="btn btn-primary" data-toggle="modal"
                                 data-target="#modalTambahPembagi" id="modalTambahPembagi"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah</button>
-                        </div>
-                        <div id="containerPembagiRate" class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tablePembagi">
+                                        </div>
+                        <div id="containerPembagi" class="table-responsive px-3">
+                            <!-- <table class="table align-items-center table-flush table-hover" id="tablePembagi">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
@@ -60,8 +123,8 @@
                 </div>
             </div>
 
-            <div class="col-xl-6">
-                <div class="card">
+            <div class="col-xl-6 px-2">
+                <div class="card ">
                     <div class="card-body">
                         <h6 class="m-0 font-weight-bold text-primary">Rate Harga</h6>
                         <div class="d-flex mb-2 mr-3 float-right">
@@ -71,7 +134,7 @@
                                         class="fas fa-plus"></i></span>Tambah</button>
                         </div>
                         <div id="containerRate" class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tableRate">
+                            <!-- <table class="table align-items-center table-flush table-hover" id="tableRate">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
@@ -99,7 +162,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -114,6 +177,7 @@
 @section('script')
 
     <script>
+        $(document).ready(function() {
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
@@ -180,7 +244,7 @@
                             success: function(response) {
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
-                                    getlistPembagi();
+                                    getListPembagi();
                                     $('#modalTambahPembagi').modal('hide');
                                 } else {
                                     Swal.fire({
@@ -198,7 +262,7 @@
         });
         $('#modalTambahPembagi').on('hidden.bs.modal', function() {
             $('#noPembagi, #nilaiPembagi').val('');
-            validatePembagiInput('modalTambahPembagi');
+            // validatePembagiInput('modalTambahPembagi');
         });
 
         $(document).on('click', '.btnUpdatePembagi', function(e) {
@@ -206,7 +270,7 @@
                 let id = $(this).data('id');
                 let no_pembagi = $(this).data('no_pembagi');
                 let nilai_pembagi = $(this).data('nilai_pembagi');
-
+    
                 $('#noPembagiEdit').val(no_pembagi);
                 $('#nilaiPembagiEdit').val(nilai_pembagi);
                 $('#PembagiIdEdit').val(id);
@@ -248,8 +312,8 @@
                     }
                 })
             });
+        });
     </script>
 
 
 @endsection
-

@@ -109,7 +109,10 @@ Route::get('/masterdata/rekening/destroy', [RekeningController::class, 'destroyR
 
 // Pembagi dan Rate
 Route::get('/masterdata/pembagirate', [PembagirateController::class, 'index'])->name('pembagirate');
-
+Route::get('/masterdata/pembagirate/list', [PembagirateController::class, 'getlistPembagi'])->name('getlistPembagi');
+Route::post('/masterdata/pembagirate/tambah', [PembagirateController::class, 'addPembagi'])->name('addPembagi');
+Route::post('/masterdata/pembagirate/update', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
+Route::get('/masterdata/pembagirate/destroy', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
 
 Route::get('/', function () {
     return view('PTGes');

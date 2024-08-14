@@ -32,7 +32,7 @@ class InvoiceController extends Controller
 
         $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
 
-        $listRateVolume = DB::select("SELECT id, rate FROM tbl_rate");
+        $listRateVolume = DB::select("SELECT id, rate_volume FROM tbl_rate_volume");
 
 
         return view('invoice.buatinvoice', [
@@ -80,9 +80,13 @@ class InvoiceController extends Controller
                 )
                 AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-31'
                 ORDER BY
-                    d.status_name = 'Pending Payment' DESC,
-    				a.tanggal_pembayaran DESC
-                LIMIT 100;
+                    CASE d.status_name
+                        WHEN 'Pending Payment' THEN 1
+                        WHEN 'Out For Delivery' THEN 2
+                        WHEN 'Ready For Pickup' THEN 3
+                        ELSE 4
+                    END
+                 LIMIT 100;
         ";
 
         $data = DB::select($q);
@@ -107,32 +111,29 @@ class InvoiceController extends Controller
 
                                     switch ($item->status_name) {
                                         case 'Pending Payment':
-                                            $statusBadgeClass = 'badge-pending-payment';
+                                            $statusBadgeClass = 'badge-warning'; // Kuning
                                             $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
                                             break;
                                         case 'Ready For Pickup':
-                                            $statusBadgeClass = 'badge-ready-for-pickup';
+                                            $statusBadgeClass = 'badge-success'; // Hijau
                                             if($item->tipe_pembayaran === 'Transfer'){
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
                                         case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-out-for-delivery';
+                                            $statusBadgeClass = 'badge-primary'; // Biru
                                             if($item->tipe_pembayaran === 'Transfer'){
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
                                         case 'Delivering':
-                                            $statusBadgeClass = 'badge-delivering';
+                                            $statusBadgeClass = 'badge-orange'; // Oranye
                                             break;
                                         case 'Debt':
                                             $statusBadgeClass = 'badge-danger'; // Merah
                                             break;
                                         case 'Done':
-                                            $statusBadgeClass = 'badge-secondary';
-                                            if($item->tipe_pembayaran === 'Transfer'){
-                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                                            }
+                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
                                             break;
                                         default:
                                             $statusBadgeClass = 'badge-secondary'; // Default
@@ -344,35 +345,40 @@ class InvoiceController extends Controller
                 ];
             }
 
-            // Generate PDF filename
-            $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
-            $filePath = storage_path('app/public/' . $fileName);
-
-            // Check if file already exists
-            if (!file_exists($filePath)) {
-                // Calculate harga in IDR
+            // Calculate harga in IDR
+            try {
                 $hargaIDR = $invoice->harga;
+            } catch (\Exception $e) {
+                \Log::error('Error calculating exchange rate: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to calculate exchange rate'], 500);
+            }
 
-                // Generate PDF
-                try {
-                    $pdf = Pdf::loadView('exportPDF.invoice', [
-                        'invoice' => $invoice,
-                        'hargaIDR' => $hargaIDR,
-                        'additionalDetails' => $additionalDetails,
-                        'paymentDetails' => $paymentDetails,
-                        'berat' => $berat,
-                        'panjang' => $invoice->panjang,
-                        'lebar' => $invoice->lebar,
-                        'tinggi' => $invoice->tinggi,
-                        'tanggal' => $invoice->tanggal_bayar,
-                    ]);
+            // Generate PDF
+            try {
+                $pdf = Pdf::loadView('exportPDF.invoice', [
+                    'invoice' => $invoice,
+                    'hargaIDR' => $hargaIDR,
+                    'additionalDetails' => $additionalDetails,
+                    'paymentDetails' => $paymentDetails,
+                    'berat' => $berat,
+                    'panjang' => $invoice->panjang,
+                    'lebar' => $invoice->lebar,
+                    'tinggi' => $invoice->tinggi,
+                    'tanggal' => $invoice->tanggal_bayar,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
 
-                    // Save PDF to storage
-                    $pdf->save($filePath);
-                } catch (\Exception $e) {
-                    \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
-                    return response()->json(['error' => 'Failed to generate PDF'], 500);
-                }
+            // Save PDF to storage
+            try {
+                $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
+                $filePath = storage_path('app/public/' . $fileName);
+                $pdf->save($filePath);
+            } catch (\Exception $e) {
+                \Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
             // Send PDF URL
@@ -385,7 +391,6 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
-
 
     public function deleteInvoice(Request $request)
     {
