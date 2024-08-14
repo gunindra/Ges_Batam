@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InformationsController extends Controller
 {
@@ -29,9 +30,9 @@ class InformationsController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableInformations">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>judul</th>
-                                        <th>isi</th>
-                                        <th>gambar</th>
+                                        <th>Judul</th>
+                                        <th>Contet</th>
+                                        <th>Gambar</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -39,15 +40,14 @@ class InformationsController extends Controller
         foreach ($data as $item) {
 
             $image = $item->image_informations;
-            $imagepath ='public/image/' . $image;
-        
+            $imagepath = Storage::url('images/' . $image);
 
             $output .=
                 '
                 <tr>
                     <td class="">' . ($item->judul_informations ?? '-') .'</td>
                     <td class="">' . ($item->isi_informations ?? '-') .'</td>
-                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar"></td>
+                    <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                     <td>
                         <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-judul_informations="' .$item->judul_informations .'" data-isi_informations="' .$item->isi_informations .'" data-image_informations="' .$item->image_informations .'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
@@ -64,22 +64,20 @@ class InformationsController extends Controller
 
         $judulInformations = $request->input('judulInformations');
         $isiInformations = $request->input('isiInformations');
-        $imageInformations = $request->file('imageInformations');
+        $file = $request->file('imageInformations');
 
         try {
-             // Check if an image was uploaded
-        if ($imageInformations) {
-            // Store the image in storage/app/public/img directory
-            $imagePath = $imageInformations->store('img', 'public');
-            $imageName = basename($imagePath); // Extract the file name from the path
-        } else {
-            $imageName = null; // No image was uploaded
-        }
+            if ($file) {
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->storeAs('public/images', $fileName);
+            } else {
+                $file = null; // No image was uploaded
+            }
 
             DB::table('tbl_informations')->insert([
                 'judul_informations' => $judulInformations,
                 'isi_informations' => $isiInformations,
-                'image_informations' => $imageName,
+                'image_informations' => $fileName,
                 'created_at' => now(),
             ]);
 
@@ -102,28 +100,40 @@ class InformationsController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
     public function updateInformations(Request $request)
     {
         $id = $request->input('id');
         $judulInformations = $request->input('judulInformations');
         $isiInformations = $request->input('isiInformations');
-        $imageInformations = $request->input('imageInformations');
+        $imageInformations = $request->file('imageInformations');
 
         try {
+            $oldInformation = DB::table('tbl_informations')->where('id', $id)->first();
+
+            if ($imageInformations) {
+                $fileName = $imageInformations->getClientOriginalName();
+                $filePath = $imageInformations->storeAs('public/images', $fileName);
+
+                if ($oldInformation->image_informations) {
+                    Storage::delete('public/images/' . $oldInformation->image_informations);
+                }
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
+            }
+
             DB::table('tbl_informations')
-            ->where('id', $id)
-            ->update([
-               'judul_informations' => $judulInformations,
-                'isi_informations' => $isiInformations,
-                'image_informations' => $imageInformations,
-                'updated_at' => now(),
-            ]);
+                ->where('id', $id)
+                ->update([
+                    'judul_informations' => $judulInformations,
+                    'isi_informations' => $isiInformations,
+                    'image_informations' => $fileName,
+                    'updated_at' => now(),
+                ]);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }
     }
-
-
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DeliveryController extends Controller
 {
@@ -24,6 +25,7 @@ class DeliveryController extends Controller
                     DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran,
                     c.nama_supir,
                     a.alamat,
+                    a.bukti_pengantaran,
                     d.status_name,
                     CONCAT_WS(', ', a.kelurahan, a.kecamatan, a.kotakab, a.provinsi) AS full_address
                 FROM
@@ -73,8 +75,8 @@ class DeliveryController extends Controller
                                             $statusBadgeClass = 'badge-danger'; // Merah
                                             break;
                                         case 'Done':
-                                            $statusBadgeClass = 'badge-done'; // Abu-abu
-                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-eye"></i></a>';
+                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
                                             break;
                                         default:
                                             $statusBadgeClass = 'badge-secondary'; // Default
@@ -136,6 +138,76 @@ class DeliveryController extends Controller
                 'message' => 'Terjadi kesalahan saat memperbarui status pengantaran.',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function confirmasiPengantaran(Request $request)
+    {
+        $idpengantaran = $request->input('id');
+        $file = $request->file('file');
+
+        try {
+            $result = DB::table('tbl_pengantaran')
+                        ->select('pembayaran_id')
+                        ->where('id', $idpengantaran)
+                        ->first();
+
+            if (!$result) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pengantaran tidak ditemukan.'
+                ], 404);
+            }
+
+            $pembayaranId = $result->pembayaran_id;
+
+            if ($file) {
+                try {
+                    $fileName = $file->getClientOriginalName();
+                    $filePath = $file->storeAs('public/bukti_pengantaran', $fileName);
+
+                    DB::table('tbl_pengantaran')->where('id', $idpengantaran)->update(['bukti_pengantaran' => $fileName]);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => true, 'message' => 'File upload or database update failed.'], 500);
+                }
+            } else {
+                return response()->json(['error' => true, 'message' => 'File not uploaded.'], 400);
+            }
+
+            DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 6]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status pengantaran berhasil diperbarui.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat memperbarui status pengantaran.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function detailBuktiPengantaran(Request $request)
+    {
+        $tester = $request->input('namafoto');
+
+        try {
+            // Gunakan Storage untuk mendapatkan URL file
+            $filePath = 'public/bukti_pengantaran/' . $tester;
+
+            if (!Storage::exists($filePath)) {
+                return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan'], 404);
+            }
+            // Mendapatkan URL dari file
+            $url = Storage::url($filePath);
+            return response()->json(['status' => 'success', 'url' => $url], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

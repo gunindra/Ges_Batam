@@ -5,6 +5,59 @@
 @section('main')
 
 
+    <div class="modal fade" id="modalConfirmasiPengantaran" tabindex="-1" role="dialog"
+        aria-labelledby="modalConfirmasiPengantaranTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalConfirmasiPengantaranTitle">Confirmasi Pengantaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Bukti Pengantaran</label>
+                        <input type="file" class="form-control" id="pengantaranStatus" value="">
+                        <div id="err-pengantaranStatus" class="text-danger mt-1">Silakan masukkan file</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveFilePengantaran" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalBuktiPengantaran" tabindex="-1" role="dialog"
+        aria-labelledby="modalBuktiPengantaranTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalBuktiPengantaranTitle">Bukti Pengantaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="pembayaranStatus" class="form-label fw-bold">Bukti Pengantaran :</label>
+                        <div class="containerFoto">
+                            {{-- <img src="storage/app/bukti_pembayaran/1.jpg" alt=""> --}}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" id="saveFilePengantaran" class="btn btn-primary">Save</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -160,5 +213,108 @@
                 }
             });
         });
+
+        $(document).on('click', '.btnBuktiPengantaran', function(e) {
+            let id = $(this).data('id');
+
+            function validatePengantaran() {
+                let isValid = true;
+                const fileInput = $('#pengantaranStatus');
+                const file = fileInput[0].files[0];
+
+                if (!file) {
+                    $('#err-pengantaranStatus').show();
+                    isValid = false;
+                } else {
+                    $('#err-pengantaranStatus').hide();
+                }
+
+                return isValid;
+            }
+
+            $('#pengantaranStatus').on('input change', function() {
+                validatePengantaran();
+            });
+
+            $(document).on('click', '#saveFilePengantaran', function(e) {
+                e.preventDefault();
+
+                if (validatePengantaran()) {
+                    Swal.fire({
+                        title: "Apakah Pengantaran ini Sudah di Selesaikan?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const fileInput = $('#pengantaranStatus')[0].files[0];
+                            const formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('file', fileInput);
+                            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('confirmasiPengantaran') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function(response) {
+                                    if (response.error) {
+                                        showMessage("error", response.message);
+                                    } else {
+                                        showMessage("success", "Berhasil");
+                                        getlistDelivery();
+                                        $('#modalConfirmasiPengantaran').modal('hide');
+                                    }
+                                },
+                                error: function() {
+                                    showMessage("error",
+                                        "Terjadi kesalahan pada server.");
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong.");
+                }
+            });
+
+            $('#modalConfirmasiPengantaran').modal('show');
+        });
+
+        $(document).on('click', '.btnDetailPengantaran', function(e) {
+                e.preventDefault();
+                let namafoto = $(this).data('bukti');
+                $.ajax({
+                    url: "{{ route('detailBuktiPengantaran') }}",
+                    method: 'GET',
+                    data: {
+                        namafoto: namafoto,
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            let imageUrl = response.url;
+
+                            console.log(imageUrl);
+
+                            $('#modalBuktiPengantaran').find('.containerFoto').html(
+                                '<img src="' + imageUrl + '" class="img-fluid">');
+                        } else {
+                            showMessage("error", "Gagal memuat bukti pembayaran");
+                        }
+                        $('#modalBuktiPengantaran').modal('show');
+                    },
+                    error: function(xhr) {
+                        showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
+                        $('#modalBuktiPengantaran').modal('show');
+                    }
+                });
+            });
+
     </script>
 @endsection
