@@ -14,16 +14,20 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('Why') ? 'active' : '' }}" href="/Why">Why Us</a>
                 </li>
-                @if (!Route::is('About') && !Route::is('Why'))
+                @if (!Route::is('About') && !Route::is('Why') && !Route::is('Slide') &&  !Route::is('Tracking'))
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('Services') ? 'active' : '' }}" href="#Services">Service</a>
                 </li>
+                @if (!Route::is('Services'))
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('#Contact') ? 'active' : '' }}" href="#Contact">Contact Us</a>
                 </li>
+                @endif
+                @endif
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('#Tracking') ? 'active' : '' }}" href="#Tracking">Tracking</a>
+                    <a class="nav-link {{ request()->is('#Tracking') ? 'active' : '' }}" href="/Tracking">Tracking</a>
                 </li>
+                @if (!Route::is('About') && !Route::is('Why') && !Route::is('Slide') &&  !Route::is('Tracking'))
                 <li class="nav-item">
                     <a href="/login/indexlogin" style="text-decoration:none; color:white;"><button type="button" class="btn btn-outline-primary">Login</a></button>
                 </li>

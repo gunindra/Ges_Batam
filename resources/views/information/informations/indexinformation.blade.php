@@ -19,6 +19,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                    <form id="informationForm" enctype="multipart/form-data">
                         <div class="mt-3">
                             <label for="judulInformations" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulInformations" value="">
@@ -38,6 +39,7 @@
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                         <button type="button" id="saveInformations" class="btn btn-primary">Save changes</button>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -48,7 +50,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditCustomerTitle">Edit Information</h5>
+                        <h5 class="modal-title" id="modalEditInformationsTitle">Edit Information</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -162,55 +164,120 @@
         }
 
         getlistInformations();
+        $('#judulInformations, #isiInformations','imageInformations').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // // Fungsi untuk validasi input
+        // function validateInformationsInput(modal) {
+        //     let isValid = true;
+
+        //     // Nama Driver
+        //     if ($(`#${modal} #judulInformations, #${modal} #judulInformationsEdit`).val().trim() === '') {
+        //         $(`#${modal} #err-judulInformations`).show();
+        //         isValid = false;
+        //     } else {
+        //         $(`#${modal} #err-judulInformations`).hide();
+        //     }
+
+        //     // Alamat Driver
+        //     if ($(`#${modal} #isiInformations, #${modal} #isiInformationsEdit`).val().trim() === '') {
+        //         $(`#${modal} #err-isiInformations`).show();
+        //         isValid = false;
+        //     } else {
+        //         $(`#${modal} #err-isiInformations`).hide();
+        //     }
+
+        //     // No. Telpon Driver
+        //     if ($(`#${modal} #imageInformations, #${modal} #imageInformationsEdit`).val().trim() === '') {
+        //         $(`#${modal} #err-imageInformations`).show();
+        //         isValid = false;
+        //     } else {
+        //         $(`#${modal} #err-imageInformations`).hide();
+        //     }
+
+        //     return isValid;
+        // }
+
+        // validateInformationsInput('modalTambahInformations');
+        // validateInformationsInput('modalEditInformations');
+
+        // $('#judulInformations, #isiInformations, #imageInformations').on('input change', function() {
+        //     validateInformationsInput('modalTambahInformations');
+        // });
+
+        // $('#judulInformationsEdit, #isiInformationsEdit, #imageInformationsEdit').on('input change', function() {
+        //     validateInformationsInput('modalEditInformations');
+        // });
+
 
         $('#saveInformations').click(function() {
             $('#judulInformations, #isiInformations, #imageInformations').data('touched', true);
 
             let judulInformations = $('#judulInformations').val();
             let isiInformations = $('#isiInformations').val();
-            let imageInformations = $('#imageInformations').val();
+            let imageInformations = $('#imageInformations')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (('modalTambahInformations')) {
-                Swal.fire({
-                    title: "Apakah Kamu Yakin?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addInformations') }}",
-                            data: {
-                                judulInformations: judulInformations,
-                                isiInformations: isiInformations,
-                                imageInformations: imageInformations,
-                                _token: csrfToken
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistInformations();
-                                    $('#modalTambahInformations').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan",
-                                        icon: "error"
-                                    });
-                                }
-                            }
-                        });
+            if (judulInformations && isiInformations && imageInformations) {
+        Swal.fire({
+            title: "Apakah Kamu Yakin?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#5D87FF',
+            cancelButtonColor: '#49BEFF',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData();
+                formData.append('judulInformations', judulInformations);
+                formData.append('isiInformations', isiInformations);
+                formData.append('imageInformations', imageInformations);
+                formData.append('_token', csrfToken);
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addInformations') }}",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Data Berhasil Disimpan");
+                            getlistInformations();
+                            $('#modalTambahInformations').modal('hide');
+                        } else {
+                            Swal.fire({
+                                title: "Gagal Menambahkan",
+                                icon: "error"
+                            });
+                        }
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+    } else {
+        showMessage("error", "Mohon periksa input yang kosong");
+    }
+});
+        $(document).on('click', '.btnUpdateInformations', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let judul_informations = $(this).data('judul_informations');
+                let isi_informations = $(this).data('isi_informations');
+                let image_informations = $(this).data('image_informations');
+
+                $('#judulInformationsEdit').val(judul_informations);
+                $('#isiInformationsEdit').val(isi_informations);
+                $('#imageInformationsEdit').val(image_informations);
+                $('#informationsIdEdit').val(id);
+
+                // validateInformationsInput('modalEditInformations');
+                $('#modalEditInformations').modal('show');
+            });
+
 
         $(document).on('click', '.btnDestroyInformations', function(e) {
             let id = $(this).data('id');

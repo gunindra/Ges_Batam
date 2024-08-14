@@ -34,11 +34,11 @@
                     <span>Invoice</span></a>
             </li>
             <li
-                class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklans') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
                     aria-expanded="true" aria-controls="collapseBootstraps">
-                    <i class="far fa-fw fa-window-maximize"></i>
-                    <span>Information</span>
+                    <i class="fas fa-tasks"></i>
+                    <span>Cms</span>
                 </a>
                 <div id="collapseBootstraps" class="collapse" aria-labelledby="headingBootstrap"
                     data-parent="#accordionSidebar">
@@ -54,8 +54,8 @@
                             href="{{ route('informations') }}">Informations</a>
                         <a class="collapse-item {{ request()->routeIs('carousel') ? 'active' : '' }}"
                             href="{{ route('carousel') }}">Carousel</a>
-                        <a class="collapse-item {{ request()->routeIs('iklans') ? 'active' : '' }}"
-                            href="{{ route('iklans') }}">Iklan</a>
+                        <a class="collapse-item {{ request()->routeIs('iklan') ? 'active' : '' }}"
+                            href="{{ route('iklan') }}">Iklan</a>
                     </div>
                 </div>
             </li>

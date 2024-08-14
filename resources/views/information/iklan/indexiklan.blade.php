@@ -1,101 +1,93 @@
 @extends('layout.main')
 
-@section('title', 'Carousel')
+@section('title', 'Iklan')
 
 @section('main')
+
 <div class="container-fluid" id="container-wrapper">
 
-<!-- Modal tambah -->
-<div class="modal fade" id="modalTambahCarousel" tabindex="-1" role="dialog" aria-labelledby="modalTambahCarouselTitle"
+
+ <!-- Modal tambah -->
+ <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog" aria-labelledby="modalTambahIklanTitle"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalTambahCarousel">Tambah Carousel</h5>
+                        <h5 class="modal-title" id="modalTambahIklan">Tambah Iklan</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
-                            <label for="judulCarousel" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulCarousel" value="">
-                            <div id="errJudulCarousel" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                            <input type="text" class="form-control" id="judulIklan" value="">
+                            <div id="errJudulIklan" class="text-danger mt-1">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiCarousel" class="form-label fw-bold">Isi</label>
-                            <textarea class="form-control" id="isiCarouselEdit" rows="3"></textarea>
-                            <div id="errIsiCarousel" class="text-danger mt-1">Silahkan isi </div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
-                            <input type="file" class="form-control" id="imageCarousel" value="">
-                            <div id="errimageCarousel" class="text-danger mt-1">Silahkan isi Gambar</div>
+                            <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                            <input type="file" class="form-control" id="imageIklan" value="">
+                            <div id="errimageIklan" class="text-danger mt-1">Silahkan isi Gambar</div>
                         </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveCarousel" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveIklan" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
         </div>
 
-       <!-- Modal Edit -->
-        <div class="modal fade" id="modalEditCarousel" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditCarouselTitle" aria-hidden="true">
+     <!-- Modal Edit -->
+     <div class="modal fade" id="modalEditIklan" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditIklanTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditCarouselTitle">Edit Carousel</h5>
+                        <h5 class="modal-title" id="modalEditIklanTitle">Edit Iklan</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="carouselIdEdit">
+                        <input type="hidden" id="iklanIdEdit">
                         <div class="mt-3">
-                            <label for="judulCarousel" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulCarouselEdit" value="">
-                            <div id="errJudulCarousel" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                            <input type="text" class="form-control" id="judulIklanEdit" value="">
+                            <div id="errJudulIklan" class="text-danger mt-1">Silahkan isi Judul</div>
+                        </div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiCarousel" class="form-label fw-bold">Isi</label>
-                            <textarea class="form-control" id="isiCarouselEdit" rows="3"></textarea>
-                            <div id="errIsiCarousel" class="text-danger mt-1">Silahkan isi </div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
-                            <input type="file" class="form-control" id="imageCarouselEdit" value="">
-                            <div id="errImageCarousel" class="text-danger mt-1">Silahkan isi Gambar
+                            <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                            <input type="file" class="form-control" id="imageIklanEdit" value="">
+                            <div id="errImageIklan" class="text-danger mt-1">Silahkan isi Gambar
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveEditCarousel" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveEditIklan" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800 px-4">Carousel</h1>
+            <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
         </div>
         <div class="row mb-3">
         <div class="col-xl-12">
             <div class="card mx-4">
                 <div class="card-body">
                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#modalTambahCarousel" id="#modalCenter"><span class="pr-3"><i
-                    class="fas fa-plus"></i></span>Tambah Carousel</button>
-                    <div id="containerCarousel" class="table-responsive px-2">
-                            <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
+                    data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
+                    class="fas fa-plus"></i></span>Tambah Iklan</button>
+                    <div id="containerIklan" class="table-responsive px-2">
+                            <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
                                         <th>Judul</th>
-                                        <th>Isi Carousel</th>
+                                        <th>Isi Iklan</th>
                                         <th>Image</th>
                                         <th>Action</th>
                                     </tr>
@@ -122,7 +114,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 @section('script')
 <script>
@@ -131,22 +122,22 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-            const getlistCarousel = () => {
+            const getlistIklan = () => {
             const txtSearch = $('#txSearch').val();
 
             $.ajax({
-                    url: "{{ route('getlistCarousel') }}",
+                    url: "{{ route('getlistIklan') }}",
                     method: "GET",
                     data: {
                         txSearch: txtSearch
                     },
                     beforeSend: () => {
-                        $('#containerCarousel').html(loadSpin)
+                        $('#containerIklan').html(loadSpin)
                     }
                 })
                 .done(res => {
-                    $('#containerCarousel').html(res)
-                    $('#tableCarousel').DataTable({
+                    $('#containerIklan').html(res)
+                    $('#tableIklan').DataTable({
                         searching: false,
                         lengthChange: false,
                         "bSort": true,
@@ -161,17 +152,16 @@
                 })
         }
 
-        getlistCarousel();
+        getlistIklan();
 
-        $('#saveCarousel').click(function() {
-            $('#judulCarousel,#isiCarousel,#imageCarousel').data('touched', true);
+        $('#saveIklan').click(function() {
+            $('#judulIklan,#imageInformations').data('touched', true);
 
-            let judulCarousel = $('#judulCarousel').val();
-            let isiCarousel = $('#judulCarousel').val();
-            let imageCarousel = $('#imageCarousel').val();
+            let judulIklan = $('#judulIklan').val();
+            let imageIklan = $('#imageIklan').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (('modalTambahCarousel')) {
+            if (('modalTambahIklan')) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -185,18 +175,17 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ route('addCarousel') }}",
+                            url: "{{ route('addIklan') }}",
                             data: {
-                                judulCarousel: judulCarousel,
-                                isiCarousel: isiCarousel,
-                                imageCarousel: imageCarousel,
+                                judulIklan: judulIklan,
+                                imageIklan: imageIklan,
                                 _token: csrfToken
                             },
                             success: function(response) {
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
-                                    getlistCarousel();
-                                    $('#modalTambahCarousel').modal('hide');
+                                    getlistIklan();
+                                    $('#modalTambahIklan').modal('hide');
                                 } else {
                                     Swal.fire({
                                         title: "Gagal Menambahkan",
@@ -212,24 +201,23 @@
             }
         });
 
-        $(document).on('click', '.btnUpdateCarousel', function(e) {
+
+        $(document).on('click', '.btnUpdateIklan', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
-                let judul_carousel = $(this).data('judul_carousel');
-                let isi_carousel = $(this).data('isi_carousel');
-                let image_carousel = $(this).data('image_carousel');
+                let judul_iklan = $(this).data('judul_iklan');
+                let image_iklan = $(this).data('image_iklan');
 
-                $('#judulCarouselEdit').val(judul_carousel);
-                $('#isiCarouselEdit').val(isi_carousel);
-                $('#imageCarouselEdit').val(image_carousel);
-                $('#carouselIdEdit').val(id);
+                $('#judulIklanEdit').val(judul_iklan);
+                $('#imageIklanEdit').val(image_iklan);
+                $('#iklanIdEdit').val(id);
 
-                // validateCarouselInput('modalCarouselIklan');
-                $('#modalEditCarousel').modal('show');
+                // validateIklanInput('modalEditIklan');
+                $('#modalEditIklan').modal('show');
             });
 
         
-        $(document).on('click', '.btnDestroyCarousel', function(e) {
+        $(document).on('click', '.btnDestroyIklan', function(e) {
             let id = $(this).data('id');
 
             Swal.fire({
@@ -245,14 +233,14 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyCarousel') }}",
+                        url: "{{ route('destroyIklan') }}",
                         data: {
                             id: id,
                         },
                         success: function(response) {
                             if (response.status === 'success') {
                                 showMessage("success", "Berhasil menghapus");
-                                getlistInformations();
+                                getlistIklan();
                             } else {
                                 showMessage("error", "Gagal menghapus");
                             }

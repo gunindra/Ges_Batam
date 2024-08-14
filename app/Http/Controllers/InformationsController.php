@@ -67,10 +67,19 @@ class InformationsController extends Controller
         $imageInformations = $request->file('imageInformations');
 
         try {
+             // Check if an image was uploaded
+        if ($imageInformations) {
+            // Store the image in storage/app/public/img directory
+            $imagePath = $imageInformations->store('img', 'public');
+            $imageName = basename($imagePath); // Extract the file name from the path
+        } else {
+            $imageName = null; // No image was uploaded
+        }
+
             DB::table('tbl_informations')->insert([
                 'judul_informations' => $judulInformations,
                 'isi_informations' => $isiInformations,
-                'image_informations' => $imageInformations,
+                'image_informations' => $imageName,
                 'created_at' => now(),
             ]);
 
@@ -93,5 +102,28 @@ class InformationsController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+    public function updateInformations(Request $request)
+    {
+        $id = $request->input('id');
+        $judulInformations = $request->input('judulInformations');
+        $isiInformations = $request->input('isiInformations');
+        $imageInformations = $request->input('imageInformations');
+
+        try {
+            DB::table('tbl_informations')
+            ->where('id', $id)
+            ->update([
+               'judul_informations' => $judulInformations,
+                'isi_informations' => $isiInformations,
+                'image_informations' => $imageInformations,
+                'updated_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+        }
+    }
+
 
 }

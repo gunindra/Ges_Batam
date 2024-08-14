@@ -55,4 +55,39 @@ class CarouselController extends Controller
         $output .= '</tbody></table>';
          return $output;
     }
+    public function addCarousel(Request $request)
+    {
+
+        $judulCarousel = $request->input('judulCarousel');
+        $isiCarousel = $request->input('isiCarousel');
+        $imageCarousel = $request->input('imageCarousel');
+
+        try {
+            DB::table('tbl_carousel')->insert([
+                'judul_carousel' => $judulCarousel,
+                'isi_carousel' => $isiCarousel,
+                'image_carousel' => $imageCarousel,
+                'created_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function destroyCarousel(Request $request)
+    {
+        $id = $request->input('id');
+
+        try {
+            DB::table('tbl_carousel')
+                ->where('id', $id)
+                ->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
