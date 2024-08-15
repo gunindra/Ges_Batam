@@ -7,6 +7,7 @@ use App\Http\Controllers\InformationsController;
 use App\Http\Controllers\PembagirateController;
 use App\Http\Controllers\RateController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\WhyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -157,6 +158,5 @@ Route::get('/Slide2', function () {
     return view('Slide2');
 });
 
-Route::get('/Tracking', function () {
-    return view('Tracking');
-})->name('Tracking');
+Route::get('/Tracking',[TrackingController::class , 'index'])->name('Tracking');
+Route::get('/Tracking/lacakResi',[TrackingController::class , 'lacakResi'])->name('lacakResi');
