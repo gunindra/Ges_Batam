@@ -60,6 +60,8 @@ class InvoiceController extends Controller
             $formattedFilter = date_create_from_format("M Y", $filter)->format("Y-m");
         }
 
+        $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
+
         $q = "SELECT a.id,
                     a.no_resi,
                     DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
@@ -81,7 +83,7 @@ class InvoiceController extends Controller
                     OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
                     OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
                 )
-                AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-31'
+                AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-" . $lastDayOfMonth . "'
                 ORDER BY
                     CASE d.status_name
                         WHEN 'Pending Payment' THEN 1
@@ -89,8 +91,7 @@ class InvoiceController extends Controller
                         WHEN 'Ready For Pickup' THEN 3
                         ELSE 4
                     END
-                 LIMIT 100;
-        ";
+                 LIMIT 100;";
 
         $data = DB::select($q);
 

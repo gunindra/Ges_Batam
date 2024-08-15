@@ -21,13 +21,15 @@
                     <div class="modal-body">
                         <div class="mt-3">
                             <label for="namaRekening" class="form-label fw-bold">Pemilik</label>
-                            <input type="text" class="form-control" id="namaRekening" value="">
-                            <div id="err-NamaRekening" class="text-danger mt-1">Silahkan isi nama pemilik</div>
+                            <input type="text" class="form-control" id="namaRekening" value=""
+                                placeholder="Masukkan Nama Pemilik">
+                            <div id="err-NamaRekening" class="text-danger mt-1 d-none">Silahkan isi nama pemilik</div>
                         </div>
                         <div class="mt-3">
                             <label for="noRek" class="form-label fw-bold">No. Rekening</label>
-                            <input type="text" class="form-control" id="noRekening" value="">
-                            <div id="err-noRekening" class="text-danger mt-1">Silahkan isi no. Rekening</div>
+                            <input type="text" class="form-control" id="noRekening" value=""
+                                placeholder="Masukkan No. Rekening">
+                            <div id="err-noRekening" class="text-danger mt-1 d-none">Silahkan isi no. Rekening</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Bank</label>
@@ -38,7 +40,7 @@
                                 <option value="BRI">BRI</option>
                                 <option value="BNI">BNI</option>
                             </select>
-                            <div id="err-bankRekening" class="text-danger mt-1">Silahkan pilih Bank</div>
+                            <div id="err-bankRekening" class="text-danger mt-1 d-none">Silahkan pilih Bank</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -203,56 +205,86 @@
             });
 
             // Fungsi untuk validasi input
-            function validateInput(modal) {
-                let isValid = true;
+            // function validateInput(modal) {
+            //     let isValid = true;
 
-                // Nama Rekening
-                if ($(`#${modal} #namaRekening, #${modal} #namaRekeningEdit`).val().trim() === '') {
-                    $(`#${modal} #err-NamaRekening`).show();
-                    isValid = false;
-                } else {
-                    $(`#${modal} #err-NamaRekening`).hide();
-                }
+            //     // Nama Rekening
+            //     if ($(`#${modal} #namaRekening, #${modal} #namaRekeningEdit`).val().trim() === '') {
+            //         $(`#${modal} #err-NamaRekening`).show();
+            //         isValid = false;
+            //     } else {
+            //         $(`#${modal} #err-NamaRekening`).hide();
+            //     }
 
-                // No. Rekening
-                if ($(`#${modal} #noRekening, #${modal} #noRekeningEdit`).val().trim() === '') {
-                    $(`#${modal} #err-noRekening`).show();
-                    isValid = false;
-                } else {
-                    $(`#${modal} #err-noRekening`).hide();
-                }
+            //     // No. Rekening
+            //     if ($(`#${modal} #noRekening, #${modal} #noRekeningEdit`).val().trim() === '') {
+            //         $(`#${modal} #err-noRekening`).show();
+            //         isValid = false;
+            //     } else {
+            //         $(`#${modal} #err-noRekening`).hide();
+            //     }
 
-                // Bank
-                if ($(`#${modal} #bankRekening, #${modal} #bankRekeningEdit`).val() === null) {
-                    $(`#${modal} #err-bankRekening`).show();
-                    isValid = false;
-                } else {
-                    $(`#${modal} #err-bankRekening`).hide();
-                }
+            //     // Bank
+            //     if ($(`#${modal} #bankRekening, #${modal} #bankRekeningEdit`).val() === null) {
+            //         $(`#${modal} #err-bankRekening`).show();
+            //         isValid = false;
+            //     } else {
+            //         $(`#${modal} #err-bankRekening`).hide();
+            //     }
 
-                return isValid;
-            }
+            //     return isValid;
+            // }
 
-            validateInput('modalTambahRekening');
-            validateInput('modalEditRekening');
+            // validateInput('modalTambahRekening');
+            // validateInput('modalEditRekening');
 
-            $('#namaRekening, #noRekening, #bankRekening').on('input change', function() {
-                validateInput('modalTambahRekening');
-            });
+            // $('#namaRekening, #noRekening, #bankRekening').on('input change', function() {
+            //     validateInput('modalTambahRekening');
+            // });
 
-            $('#namaRekeningEdit, #noRekeningEdit, #bankRekeningEdit').on('input change', function() {
-                validateInput('modalEditRekening');
-            });
+            // $('#namaRekeningEdit, #noRekeningEdit, #bankRekeningEdit').on('input change', function() {
+            //     validateInput('modalEditRekening');
+            // });
+
 
             $('#saveRekening').click(function() {
-                $('#namaRekening, #noRekening, #bankRekening').data('touched', true);
-
-                let namaRekening = $('#namaRekening').val();
-                let noRekening = $('#noRekening').val();
-                let bankRekening = $('#bankRekening').val();
+                // Ambil nilai input
+                var namaRekening = $('#namaRekening').val().trim();
+                var noRekening = $('#noRekening').val().trim();
+                var bankRekening = $('#bankRekening').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                if (validateInput('modalTambahRekening')) {
+
+                var isValid = true;
+
+                // Validasi Nama Pemilik
+                if (namaRekening === '') {
+                    $('#err-NamaRekening').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#err-NamaRekening').addClass('d-none');
+                }
+
+                // Validasi No. Rekening
+                if (noRekening === '') {
+                    $('#err-noRekening').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#err-noRekening').addClass('d-none');
+                }
+
+
+                // Validasi Bank
+                if ($('#bankRekening').val() === '' || $('#bankRekening').val() === null) {
+                    $('#err-bankRekening').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#err-bankRekening').addClass('d-none');
+                }
+
+
+                // Jika semua input valid, lanjutkan aksi simpan
+                if (isValid) {
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
                         icon: 'question',
