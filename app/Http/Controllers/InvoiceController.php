@@ -34,6 +34,8 @@ class InvoiceController extends Controller
 
         $listRateVolume = DB::select("SELECT id, nilai_rate FROM tbl_rate");
 
+        $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
+
 
         return view('invoice.buatinvoice', [
             'listPembeli' => $listPembeli,
@@ -41,7 +43,8 @@ class InvoiceController extends Controller
             'listRekening' => $listRekening,
             'listTipePembayaran' => $listTipePembayaran,
             'listRateVolume' => $listRateVolume,
-            'listCurrency' => $listCurrency
+            'listCurrency' => $listCurrency,
+            'lisPembagi' => $lisPembagi
         ]);
     }
 

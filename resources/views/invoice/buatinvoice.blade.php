@@ -213,8 +213,9 @@
                                         <label for="pembagiVolume" class="form-label fw-bold">Pembagi</label>
                                         <select class="form-control" id="pembagiVolume">
                                             <option value="" selected disabled>Pilih Pembagi</option>
-                                            <option value="1000000">1.000.000</option>
-                                            <option value="6000">6.000</option>
+                                            @foreach ($lisPembagi as $pembagi)
+                                            <option value="{{ $pembagi->nilai_pembagi }}">{{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
+                                        @endforeach
                                         </select>
                                         <div id="pembagiErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih
                                             Pembagi</div>
@@ -225,8 +226,7 @@
                                         <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $ratevolume)
-                                                <option value="{{ $ratevolume->rate }}">
-                                                    {{ $ratevolume->rate }}</option>
+                                                <option value="{{ $ratevolume->nilai_rate }}">{{ number_format($ratevolume->nilai_rate, 0, ',', '.') }}</option>
                                             @endforeach
                                         </select>
                                         <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
