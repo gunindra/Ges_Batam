@@ -36,12 +36,11 @@
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">About</h6>
-                    <label for="namaAboutUs" class="form-label fw-bold">Preview</label>
-                    <div id="containerAboutUs" class="table-responsive px-3">
-                        <div style="border:2px solid; min-height:150px; border-radius:20px;">
+                    <div id="containerAbout" class="table-responsive px-3">
+                        <!-- <div style="border:2px solid; min-height:150px; border-radius:20px;">
                             <p id="textPreview" class="p-3"></p>
                         </div>
-                        
+                         -->
                         
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableAboutUs">
                                 <thead class="thead-light">
@@ -69,10 +68,19 @@
                             </table> -->
                             
                        </div>
-                    <div class="input-group pt-3">
-                        <textarea id="aboutUsText" class="form-control" aria-label="With textarea"></textarea>
+                    <div class="mt-3">
+                            <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
+                            <input type="file" class="form-control" id="imageAbout" value="">
+                            <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                     </div>
-                    <button id="saveChanges" class="btn btn-primary mt-2">Save</button>
+                    <div class="input-group pt-2 mt-3">
+                        <label for="contentAbout" class="form-label fw-bold p-3">Content</label>
+                        <textarea id="aboutText" class="form-control" aria-label="With textarea"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" data-toggle="modal"
+                    data-target="#modalTambahAbout" id="#modalCenter"><span class="pr-3"><i class="fas fa-save"></i></span>Save</button>
+                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal"
+                    data-target="#modalPreview" id="#modalCenter"><span class=""><i class="fas fa-eye"></i></span></button>
                 </div>
             </div>
         </div>
@@ -89,111 +97,10 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
             
-    $('#saveChanges').click(function() {
-        const paraf = $('#aboutUsText').val();
-        console.log('ini isi paraf', paraf);
-        
-        $.ajax({
-            url: "{{ route('insertAboutUs') }}", 
-            method: "POST",
-            data: {
-                paraf: paraf,
-                _token: "{{ csrf_token() }}" 
-            },
-            beforeSend: () => {
-                $('#containerAboutUs').html(loadSpin);
-            }
-        })
-        .done(response => {
-            if (response.success) {
-                getlistAbout(); 
-            }
-        })
-        .fail((jqXHR, textStatus, errorThrown) => {
-            console.error('Error:', textStatus, errorThrown);
-        });
-    });
-
-
-                const getlistAbout = () => {
-
-                $.ajax({
-                        url: "{{route('getlistAbout') }}", 
-                        method: "GET",
-                        beforeSend: () => {
-                            $('#containerAboutUs').html(loadSpin)
-                        }
-                    })
-                    .done(res => {
-                        $('#containerAboutUs').html(res)
-                        
-                    })
-                    
-            }
-
-            getlistAbout();
+    
         });
 
-//             $(document).on('click', '.btnDestroyAboutUs', function(e) {
-//                 let id = $(this).data('id');
-
-//                 Swal.fire({
-//                     title: "Apakah Kamu Yakin Ingin Hapus Ini?",
-//                     icon: 'question',
-//                     showCancelButton: true,
-//                     confirmButtonColor: '#5D87FF',
-//                     cancelButtonColor: '#49BEFF',
-//                     confirmButtonText: 'Ya',
-//                     cancelButtonText: 'Tidak',
-//                     reverseButtons: true
-//                 }).then((result) => {
-//                     if (result.isConfirmed) {
-//                         $.ajax({
-//                             type: "GET",
-//                             url: "{{ route('destroyAboutUs') }}",
-//                             data: {
-//                                 id: id,
-//                             },
-//                             success: function(response) {
-//                                 if (response.status === 'success') {
-//                                     showMessage("success",
-//                                         "Berhasil menghapus");
-//                                     getListDriver();
-//                                 } else {
-//                                     showMessage("error", "Gagal menghapus");
-//                                 }
-//                             }
-//                         });
-//                     }
-//                 })
-//             });
-//         });
-
-//  $(document).on('click', '.btnGambar', function(e) {
-//     $('#modalGambar').modal('show');
-//  })
 
 </script>
 @endsection
 
-
-<!-- // $.ajax({
-        //     url: "{{ route('getlistAbout') }}", 
-        //     method: "POST",
-        //     data: {
-        //         _token: "{{ csrf_token() }}",
-        //         paraf: paraf
-        //     },
-        //     success: function(response) {
-        //         if (response.success) {
-        //             $('#textPreview').text(paraf);
-        //             alert('Data updated successfully!');
-        //         } else {
-        //             alert('Failed to update data.');
-        //         }
-        //     },
-        //     error: function(xhr) {
-        //         // alert('An error occurred: ' + xhr.statusText);
-        //         showMessage("error","Ini error bosku")
-        //     }
-        // }); -->

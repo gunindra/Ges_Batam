@@ -10,6 +10,6 @@ class WhyController extends Controller
     public function index()
     {
       
-        return view('information.whys');
+        return view('information.whys.indexwhy');
     }
 }

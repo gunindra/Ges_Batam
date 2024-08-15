@@ -25,7 +25,7 @@
                 @endif
                 @endif
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('#Tracking') ? 'active' : '' }}" href="/Tracking">Tracking</a>
+                    <a class="nav-link {{ request()->is('Tracking') ? 'active' : '' }}" href="/Tracking">Tracking</a>
                 </li>
                 @if (!Route::is('About') && !Route::is('Why') && !Route::is('Slide') &&  !Route::is('Tracking'))
                 <li class="nav-item">

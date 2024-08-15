@@ -24,7 +24,7 @@
                     <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiPembagi" value="">
-                        <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
+                        <div id="nilaiPembagiError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -49,9 +49,9 @@
                 <div class="modal-body">
                     <input type="hidden" id="pembagiIdEdit">
                     <div class="mt-3">
-                        <label for="nilaiPembagi" class="form-label fw-bold">Isi</label>
+                        <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiPembagiEdit" value="">
-                        <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
+                        <div id="nilaiPembagiErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
 
                 </div>
@@ -79,7 +79,7 @@
                     <div class="mt-3">
                         <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiRate" value="">
-                        <div id="errNilaiRate" class="text-danger mt-1">Silahkan isi nilai</div>
+                        <div id="nilaiRateError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -96,7 +96,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditRateTitle">Edit Pembagi</h5>
+                    <h5 class="modal-title" id="modalEditRateTitle">Edit Rate</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -104,9 +104,9 @@
                 <div class="modal-body">
                     <input type="hidden" id="rateIdEdit">
                     <div class="mt-3">
-                        <label for="nilaiRate" class="form-label fw-bold">Isi</label>
+                        <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiRateEdit" value="">
-                        <div id="errNilaiRate" class="text-danger mt-1">Silahkan isi nilai</div>
+                        <div id="nilaiRateErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
 
                 </div>
@@ -329,6 +329,7 @@
                 let nilaiPembagi = $('#nilaiPembagiEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+               
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -352,18 +353,21 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                               
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Data Berhasil Diubah");
                                     getlistPembagi();
                                     $('#modalEditPembagi').modal(
                                         'hide');
+                                        
                                 } else {
                                     Swal.fire({
                                         title: "Gagal Menambahkan",
                                         icon: "error"
                                     });
                                 }
+                                
                             }
                         });
                     }
@@ -407,6 +411,107 @@
                 }
             })
         });
+        $('#savePembagi').click(function() {
+            const nilaiPembagi = $('#nilaiPembagi').val().trim();
+
+            let isValid = true;
+
+                if (nilaiPembagi === '') {
+                    $('#nilaiPembagiError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#nilaiPembagiError').addClass('d-none');
+                }
+
+       
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addPembagi') }}",
+                    data: {
+                        nilaiPembagi: nilaiPembagi,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Pembagi berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat Pembagi",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Pembagi",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditPembagi').click(function() {
+                const nilaiPembagiEdit = $('#nilaiPembagiEdit').val().trim();
+
+                let isValid = true;
+
+                if (nilaiPembagiEdit === '') {
+                    $('#nilaiPembagiErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#nilaiPembagiErrorEdit').addClass('d-none');
+                }
+
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updatePembagi') }}",
+                    data: {
+                        nilaiPembagiEdit: nilaiPembagiEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: "Berhasil mengubah pembagi",
+                                icon: "success"
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal mengubah pembagi",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal mengubah pembagi",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
     });
 
  </script>
@@ -556,6 +661,7 @@
                 });
             });
 
+
             // validateRateInput('modalEditRate');
             $('#modalEditRate').modal('show');
         });
@@ -593,7 +699,110 @@
                 }
             })
         });
-});
+        $('#saveRate').click(function() {
+            const nilaiRate = $('#nilaiRate').val().trim();
+
+            let isValid = true;
+
+                if (nilaiRate === '') {
+                    $('#nilaiRateError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#nilaiRateError').addClass('d-none');
+                }
+
+       
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addRate') }}",
+                    data: {
+                        nilaiRate: nilaiRate,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Rate berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat Rate",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Rate",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditRate').click(function() {
+                const nilaiRateEdit = $('#nilaiRateEdit').val().trim();
+
+                let isValid = true;
+
+                if (nilaiRateEdit === '') {
+                    $('#nilaiRateErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#nilaiRateErrorEdit').addClass('d-none');
+                }
+
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateRate') }}",
+                    data: {
+                        nilaiRateEdit: nilaiRateEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: "Berhasil mengubah Rate",
+                                icon: "success"
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal mengubah Rate",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal mengubah Rate",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+    });
+        
+
     </script>
 
 @endsection

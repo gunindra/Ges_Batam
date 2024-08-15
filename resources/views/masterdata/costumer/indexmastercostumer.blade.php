@@ -94,7 +94,7 @@
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
-                            <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category costumer
+                            <div id="CategoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category costumer
                             </div>
                         </div>
                     </div>
@@ -273,7 +273,7 @@
 
             // Nama Customer
             if ($(`#${modal} #namaCustomer, #${modal} #namaCustomerEdit`).val().trim() === '') {
-                $(`#${modal} #errNamaCostumer`).show();
+                $(`#${modal} #namaCustomerError`).show();
                 isValid = false;
             } else {
                 $(`#${modal} #errNamaCostumer`).hide();
@@ -491,12 +491,12 @@
                     });
                 }
             })
-            $('#saveCustomer').click(function() {
+            $('#saveCostumer').click(function() {
             const namaCustomer = $('#namaCustomer').val().trim();
             const alamatCustomer = $('#alamatCustomer').val().trim();
             const noTelpon = $('#noTelpon').val().trim();
             const CategoryCustomer = $('#CategoryCustomer').val().trim();
- 
+
             let isValid = true;
 
                 if (namaCustomer === '') {
@@ -514,19 +514,18 @@
                 }
 
                 if (noTelpon === '') {
-                    $('#notelponCustomerError').removeClass('d-none');
+                    $('#noTelponError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#notelponCustomerError').addClass('d-none');
+                    $('#noTelponError').addClass('d-none');
                 }
 
                 if (CategoryCustomer === '') {
-                    $('#imageInformationsError').removeClass('d-none');
+                    $('#CategoryCustomerError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#imageInformationsError').addClass('d-none');
+                    $('#CategoryCustomerError').addClass('d-none');
                 }
-
 
                 
                 if (!isValid) {
@@ -539,28 +538,29 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "{{ route('addInformations') }}",
+                    url: "{{ route('addCostumer') }}",
                     data: {
-                        judulInformations: judulInformations,
-                        isiInformations: isiInformations,
-                        imageInformations: imageInformations,
+                        namaCustomer: namaCustomer,
+                        alamatCustomer: alamatCustomer,
+                        noTelpon: noTelpon,
+                        CategoryCustomer: CategoryCustomer,
                         _token: csrfToken
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            showMessage("success", "Information berhasil dibuat").then(() => {
+                            showMessage("success", "Customer berhasil dibuat").then(() => {
                                 location.reload();
                             });
                         } else {
                             Swal.fire({
-                                title: "Gagal membuat information",
+                                title: "Gagal membuat Customer",
                                 icon: "error"
                             });
                         }
                     },
                     error: function(xhr, status, error) {
                         Swal.fire({
-                            title: "Gagal membuat information",
+                            title: "Gagal membuat Customer",
                             text: "Terjadi kesalahan. Mohon coba lagi.",
                             icon: "error"
                         });
@@ -568,35 +568,42 @@
                 });
             });
 
-            $('#saveEditInformations').click(function() {
-            const judulInformationsEdit = $('#judulInformationsEdit').val().trim();
-            const isiInformationsEdit = $('#isiInformationsEdit').val().trim();
-            const imageInformationsEdit = $('#imageInformationsEdit').val().trim();
- 
-            let isValid = true;
+            $('#saveEditCustomer').click(function() {
+                const namaCustomerEdit = $('#namaCustomerEdit').val().trim();
+                const alamatCustomerEdit = $('#alamatCustomerEdit').val().trim();
+                const noTelponEdit = $('#noTelponEdit').val().trim();
+                const CategoryCustomerEdit = $('#CategoryCustomerEdit').val().trim();
 
-                if (judulInformationsEdit === '') {
-                    $('#judulInformationsErrorEdit').removeClass('d-none');
+                let isValid = true;
+
+                if (namaCustomerEdit === '') {
+                    $('#namaCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#judulInformationsErrorEdit').addClass('d-none');
+                    $('#namaCustomerErrorEdit').addClass('d-none');
                 }
 
-                if (isiInformationsEdit === '') {
-                    $('#isiInformationsErrorEdit').removeClass('d-none');
+                if (alamatCustomerEdit === '') {
+                    $('#alamatCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#isiInformationsErrorEdit').addClass('d-none');
+                    $('#alamatCustomerErrorEdit').addClass('d-none');
                 }
 
-                if (imageInformationsEdit === '') {
-                    $('#imageInformationsErrorEdit').removeClass('d-none');
+                if (noTelponEdit === '') {
+                    $('#notelponCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#imageInformationsErrorEdit').addClass('d-none');
+                    $('#notelponCustomerErrorEdit').addClass('d-none');
                 }
 
-                
+                if (CategoryCustomerEdit === '') {
+                    $('#CategoryCustomerErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#CategoryCustomerErrorEdit').addClass('d-none');
+                }
+
                 if (!isValid) {
                     Swal.fire({
                         title: "Periksa input yang masih kosong.",
@@ -607,28 +614,32 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "{{ route('updateInformations') }}",
+                    url: "{{ route('updateCostumer') }}",
                     data: {
-                        judulInformationsEdit: judulInformationsEdit,
-                        isiInformationsEdit: isiInformationsEdit,
-                        imageInformationsEdit: imageInformationsEdit,
+                        namaCustomerEdit: namaCustomerEdit,
+                        alamatCustomerEdit: alamatCustomerEdit,
+                        noTelponEdit: noTelponEdit,
+                        CategoryCustomerEdit: CategoryCustomerEdit,
                         _token: csrfToken
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            showMessage("success", "Informatiom berhasil mengubah").then(() => {
+                            Swal.fire({
+                                title: "Berhasil mengubah customer",
+                                icon: "success"
+                            }).then(() => {
                                 location.reload();
                             });
                         } else {
                             Swal.fire({
-                                title: "Gagal memngubah information",
+                                title: "Gagal mengubah customer",
                                 icon: "error"
                             });
                         }
                     },
                     error: function(xhr, status, error) {
                         Swal.fire({
-                            title: "Gagal membuat information",
+                            title: "Gagal mengubah customer",
                             text: "Terjadi kesalahan. Mohon coba lagi.",
                             icon: "error"
                         });

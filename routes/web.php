@@ -54,8 +54,8 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');
 Route::get('/information/abouts/getlistAbout', [AboutController::class, 'getlistAbout'])->name('getlistAbout');
 Route::get('/information/abouts/destroy', [AboutController::class, 'destroyAboutUs'])->name('destroyAboutUs');
-Route::get('/information/abouts/update', [AboutController::class, 'updateAboutUs'])->name('updateAboutUs');
-Route::post('/information/abouts/insert', [AboutController::class, 'insertAboutUs'])->name('insertAboutUs');
+Route::post('/information/abouts/update', [AboutController::class, 'updateAboutUs'])->name('updateAboutUs');
+Route::post('/information/abouts/tambah', [AboutController::class, 'addAboutUs'])->name('addAboutUs');
 
 // Why
 Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
