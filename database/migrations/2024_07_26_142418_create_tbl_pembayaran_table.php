@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->string('no_resi', 100);
+            $table->string('no_resi', 100)->unique();
             $table->date('tanggal_pembayaran');
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
             $table->decimal('berat', 8,2)->nullable();
