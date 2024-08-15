@@ -60,7 +60,7 @@
                 </div>
             </li>
             <li
-                class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                     aria-expanded="true" aria-controls="collapseBootstrap">
                     <i class="far fa-fw fa-window-maximize"></i>

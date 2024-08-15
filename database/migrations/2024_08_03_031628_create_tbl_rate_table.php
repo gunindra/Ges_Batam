@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_rate', function (Blueprint $table) {
             $table->id();
-            $table->string('rate', 50);
+            $table->string('nilai_rate',50);
             $table->timestamps();
         });
     }

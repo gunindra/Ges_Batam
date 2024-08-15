@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('tbl_pembagi', function (Blueprint $table) {
             $table->id();
-            $table->string('no_pembagi',50);
             $table->string('nilai_pembagi',50);
             $table->timestamps();
         });

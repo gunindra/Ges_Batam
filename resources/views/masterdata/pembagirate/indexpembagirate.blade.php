@@ -22,11 +22,6 @@
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="noPembagi" class="form-label fw-bold">No</label>
-                        <input type="text" class="form-control" id="noPembagi" value="">
-                        <div id="errNoPembagi" class="text-danger mt-1">Silahkan isi no</div>
-                    </div>
-                    <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiPembagi" value="">
                         <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
@@ -54,11 +49,6 @@
                 <div class="modal-body">
                     <input type="hidden" id="pembagiIdEdit">
                     <div class="mt-3">
-                        <label for="noPembagi" class="form-label fw-bold">Judul</label>
-                        <input type="text" class="form-control" id="noPembagiEdit" value="">
-                        <div id="errNoPembagi" class="text-danger mt-1">Silahkan isi no</div>
-                    </div>
-                    <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Isi</label>
                         <input type="text" class="form-control" id="nilaiPembagiEdit" value="">
                         <div id="errNilaiPembagi" class="text-danger mt-1">Silahkan isi nilai</div>
@@ -68,6 +58,61 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                     <button type="button" id="saveEditPembagi" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+      <!-- Modal tambah -->
+      <div class="modal fade" id="modalTambahRate" tabindex="-1" role="dialog"
+        aria-labelledby="modalTambahRateTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahRate">Tambah Pembagi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
+                        <input type="text" class="form-control" id="nilaiRate" value="">
+                        <div id="errNilaiRate" class="text-danger mt-1">Silahkan isi nilai</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveRate" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div class="modal fade" id="modalEditRate" tabindex="-1" role="dialog" aria-labelledby="modalEditRateTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditRateTitle">Edit Pembagi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="rateIdEdit">
+                    <div class="mt-3">
+                        <label for="nilaiRate" class="form-label fw-bold">Isi</label>
+                        <input type="text" class="form-control" id="nilaiRateEdit" value="">
+                        <div id="errNilaiRate" class="text-danger mt-1">Silahkan isi nilai</div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditRate" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -216,10 +261,14 @@
 
         getlistPembagi();
 
-        $('#savePembagi').click(function () {
-            $('#noPembagi,#nilaiPembagi').data('touched', true);
+        $('#nilaiPembagi,#nilaiPembagiEdit').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
 
-            let noPembagi = $('#noPembagi').val();
+
+        $('#savePembagi').click(function () {
+            $('#nilaiPembagi').data('touched', true);
+
             let nilaiPembagi = $('#nilaiPembagi').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -239,7 +288,6 @@
                             type: "POST",
                             url: "{{ route('addPembagi') }}",
                             data: {
-                                noPembagi: noPembagi,
                                 nilaiPembagi: nilaiPembagi,
                                 _token: csrfToken
                             },
@@ -263,24 +311,21 @@
             }
         });
         $('#modalTambahPembagi').on('hidden.bs.modal', function () {
-            $('#noPembagi, #nilaiPembagi').val('');
+            $('#nilaiPembagi').val('');
             // validatePembagiInput('modalTambahPembagi');
         });
 
         $(document).on('click', '.btnUpdatePembagi', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let no_pembagi = $(this).data('no_pembagi');
             let nilai_pembagi = $(this).data('nilai_pembagi');
 
-            $('#noPembagiEdit').val(no_pembagi);
             $('#nilaiPembagiEdit').val(nilai_pembagi);
             $('#pembagiIdEdit').val(id);
 
             $(document).on('click', '#saveEditPembagi', function (e) {
 
                 let id = $('#pembagiIdEdit').val();
-                let noPembagi = $('#noPembagiEdit').val();
                 let nilaiPembagi = $('#nilaiPembagiEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -297,7 +342,6 @@
                     if (result.isConfirmed) {
                         let formData = new FormData();
                         formData.append('id', id);
-                        formData.append('noPembagi', noPembagi);
                         formData.append('nilaiPembagi', nilaiPembagi);
                         formData.append('_token', csrfToken);
 
@@ -364,7 +408,192 @@
             })
         });
     });
-</script>
 
+ </script>
+  <script>
+         $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getlistRate = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                url: "{{ route('getlistRate') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerRate').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerRate').html(res)
+                    $('#tableRate').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getlistRate();
+
+        $('#nilaiRate,#nilaiRateEdit').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+        $('#saveRate').click(function () {
+            $('#nilaiRate').data('touched', true);
+
+            let nilaiRate = $('#nilaiRate').val();
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            if (('modalTambahRate')) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addRate') }}",
+                            data: {
+                                nilaiRate: nilaiRate,
+                                _token: csrfToken
+                            },
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistRate();
+                                    $('#modalTambahRate').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+        $('#modalTambahRate').on('hidden.bs.modal', function () {
+            $('#nilaiRate').val('');
+            // validateRateInput('modalTambahRate');
+        });
+
+        $(document).on('click', '.btnUpdateRate', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let nilai_rate = $(this).data('nilai_rate');
+
+            $('#nilaiRateEdit').val(nilai_rate);
+            $('#RateIdEdit').val(id);
+
+            $(document).on('click', '#saveEditRate', function (e) {
+
+                let id = $('#rateIdEdit').val();
+                let nilaiRate = $('#nilaiRateEdit').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let formData = new FormData();
+                        formData.append('id', id);
+                        formData.append('nilaiRate', nilaiRate);
+                        formData.append('_token', csrfToken);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('updateRate') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success",
+                                        "Data Berhasil Diubah");
+                                    getlistRate();
+                                    $('#modalEditRate').modal(
+                                        'hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // validateRateInput('modalEditRate');
+            $('#modalEditRate').modal('show');
+        });
+
+        $(document).on('click', '.btnDestroyRate', function (e) {
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Hapus Driver Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('destroyRate') }}",
+                        data: {
+                            id: id,
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                showMessage("success",
+                                    "Berhasil menghapus");
+                                getlistRate();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
+                            }
+                        }
+                    });
+                }
+            })
+        });
+});
+    </script>
 
 @endsection

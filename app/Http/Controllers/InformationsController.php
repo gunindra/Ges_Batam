@@ -31,7 +31,7 @@ class InformationsController extends Controller
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Judul</th>
-                                        <th>Contet</th>
+                                        <th>Content</th>
                                         <th>Gambar</th>
                                         <th>Action</th>
                                     </tr>

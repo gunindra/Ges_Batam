@@ -5,6 +5,7 @@ use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\IklanController;
 use App\Http\Controllers\InformationsController;
 use App\Http\Controllers\PembagirateController;
+use App\Http\Controllers\RateController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\WhyController;
 use Illuminate\Support\Facades\Route;
@@ -113,6 +114,12 @@ Route::get('/masterdata/pembagirate/list', [PembagirateController::class, 'getli
 Route::post('/masterdata/pembagirate/tambah', [PembagirateController::class, 'addPembagi'])->name('addPembagi');
 Route::post('/masterdata/pembagirate/update', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
 Route::get('/masterdata/pembagirate/destroy', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
+
+Route::get('/masterdata/rate/list', [PembagirateController::class, 'getlistRate'])->name('getlistRate');
+Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate'])->name('addRate');
+Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
+Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
+
 
 Route::get('/', function () {
     return view('PTGes');

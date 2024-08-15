@@ -360,10 +360,10 @@
                             success: function(response) {
                                 if (response.status === 'success') {
                                     showMessage("success",
-                                        "Berhasil menghapus Customer");
+                                        "Berhasil menghapus");
                                     getlistInformations();
                                 } else {
-                                    showMessage("error", "Gagal menghapus Customer");
+                                    showMessage("error", "Gagal menghapus");
                                 }
                             }
                         });
@@ -371,6 +371,8 @@
                 });
 
             });
+            
         });
     </script>
+   
 @endsection

@@ -36,11 +36,16 @@ class IklanController extends Controller
                                 </thead>
                                 <tbody>';
         foreach ($data as $item) {
+
+            $image = $item->image_informations;
+            $imagepath = Storage::url('images/' . $image);
+
+
             $output .=
                 '
                 <tr>
                     <td class="">' . ($item->judul_iklan ?? '-') .'</td>
-                    <td class="">' . ($item->image_iklan ?? '-') .'</td>
+                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                    <td>
                         <a  class="btn btnUpdateIklan btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_iklan="' .$item->judul_iklan.'" data-image_iklan="' .$item->image_iklan.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyIklan btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
@@ -56,12 +61,20 @@ class IklanController extends Controller
     {
 
         $judulIklan = $request->input('judulIklan');
-        $imageIklan = $request->input('imageIklan');
+        $file = $request->file('imageIklan');
+
 
         try {
+            if ($file) {
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->storeAs('public/images', $fileName);
+            } else {
+                $file = null; // No image was uploaded
+            }
+
             DB::table('tbl_iklan')->insert([
                 'judul_iklan' => $judulIklan,
-                'image_iklan' => $imageIklan,
+                'image_iklan' => $fileName,
                 'created_at' => now(),
             ]);
 
@@ -88,14 +101,26 @@ class IklanController extends Controller
     {
         $id = $request->input('id');
         $judulIklan = $request->input('judulIklan');
-        $imageIklan = $request->input('imageIklan');
+        $imageIklan = $request->file('imageIklan');
 
         try {
+            $oldIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+
+            if ($imageIklan) {
+                $fileName = $imageIklan->getClientOriginalName();
+                $filePath = $imageIklan->storeAs('public/images', $fileName);
+
+                if ($oldIklan->image_iklan) {
+                    Storage::delete('public/images/' . $oldIklan->image_iklan);
+                }
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
+            }
             DB::table('tbl_iklan')
             ->where('id', $id)
             ->update([
                'judul_iklan' => $judulIklan,
-                'image_iklan' => $imageIklan,
+                'image_iklan' => $fileName,
                 'updated_at' => now(),
             ]);
 
