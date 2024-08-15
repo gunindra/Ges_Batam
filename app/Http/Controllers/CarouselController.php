@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Storage;
 
 class CarouselController extends Controller
 {
@@ -38,12 +39,15 @@ class CarouselController extends Controller
                                 </thead>
                                 <tbody>';
         foreach ($data as $item) {
+
+            $image = $item->image_carousel;
+            $imagepath = Storage::url('images/' . $image);
             $output .=
                 '
                 <tr>
                     <td class="">' . ($item->judul_carousel ?? '-') .'</td>
                     <td class="">' . ($item->isi_carousel ?? '-') .'</td>
-                    <td class="">' . ($item->image_carousel ?? '-') .'</td>
+                    <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                    <td>
                         <a  class="btn btnUpdateCarousel btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_carousel="' .$item->judul_carousel.'" data-isi_carousel="' .$item->isi_carousel.'" data-image_carousel="' .$item->image_carousel.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyCarousel btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
@@ -60,13 +64,20 @@ class CarouselController extends Controller
 
         $judulCarousel = $request->input('judulCarousel');
         $isiCarousel = $request->input('isiCarousel');
-        $imageCarousel = $request->input('imageCarousel');
+        $file = $request->file('imageCarousel');
 
         try {
+            if ($file) {
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->storeAs('public/images', $fileName);
+            } else {
+                $file = null; // No image was uploaded
+            }
+
             DB::table('tbl_carousel')->insert([
                 'judul_carousel' => $judulCarousel,
                 'isi_carousel' => $isiCarousel,
-                'image_carousel' => $imageCarousel,
+                'image_carousel' => $fileName,
                 'created_at' => now(),
             ]);
 

@@ -23,17 +23,17 @@
                             <div class="mt-3">
                                 <label for="judulInformations" class="form-label fw-bold">Judul</label>
                                 <input type="text" class="form-control" id="judulInformations" value="">
-                                <div id="errJudulInformations" class="text-danger mt-1">Silahkan isi Judul</div>
+                                <div id="judulInformationsError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                             </div>
                             <div class="mt-3">
-                                <label for="isiInformations" class="form-label fw-bold">Isi</label>
+                                <label for="isiInformations" class="form-label fw-bold">Content</label>
                                 <textarea class="form-control" id="isiInformations" rows="3"></textarea>
-                                <div id="errIsiInformations" class="text-danger mt-1">Silahkan isi</div>
+                                <div id="isiInformationsError" class="text-danger mt-1 d-none">Silahkan isi</div>
                             </div>
                             <div class="mt-3">
                                 <label for="imageInformations" class="form-label fw-bold">Gambar</label>
                                 <input type="file" class="form-control" id="imageInformations" value="">
-                                <div id="errImageInformations" class="text-danger mt-1">Silahkan isi Gambar</div>
+                                <div id="imageInformationsError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -61,18 +61,18 @@
                         <div class="mt-3">
                             <label for="judulInformations" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulInformationsEdit" value="">
-                            <div id="errJudulInformations" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <div id="judulInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiInformations" class="form-label fw-bold">Isi</label>
+                            <label for="isiInformations" class="form-label fw-bold">Content</label>
                             <textarea class="form-control" id="isiInformationsEdit" rows="3"></textarea>
-                            <div id="errIsiInformations" class="text-danger mt-1">Silahkan isi </div>
+                            <div id="isiInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
                             <label for="imageInformations" class="form-label fw-bold">Gambar</label>
                             <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
                             <input type="file" class="form-control" id="imageInformationsEdit" value="">
-                            <div id="errImageInformations" class="text-danger mt-1">Silahkan isi Gambar
+                            <div id="imageInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
                             </div>
                         </div>
                     </div>
@@ -169,48 +169,6 @@
             $('#judulInformations, #isiInformations', 'imageInformations').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
-
-            // // Fungsi untuk validasi input
-            // function validateInformationsInput(modal) {
-            //     let isValid = true;
-
-            //     // Nama Driver
-            //     if ($(`#${modal} #judulInformations, #${modal} #judulInformationsEdit`).val().trim() === '') {
-            //         $(`#${modal} #err-judulInformations`).show();
-            //         isValid = false;
-            //     } else {
-            //         $(`#${modal} #err-judulInformations`).hide();
-            //     }
-
-            //     // Alamat Driver
-            //     if ($(`#${modal} #isiInformations, #${modal} #isiInformationsEdit`).val().trim() === '') {
-            //         $(`#${modal} #err-isiInformations`).show();
-            //         isValid = false;
-            //     } else {
-            //         $(`#${modal} #err-isiInformations`).hide();
-            //     }
-
-            //     // No. Telpon Driver
-            //     if ($(`#${modal} #imageInformations, #${modal} #imageInformationsEdit`).val().trim() === '') {
-            //         $(`#${modal} #err-imageInformations`).show();
-            //         isValid = false;
-            //     } else {
-            //         $(`#${modal} #err-imageInformations`).hide();
-            //     }
-
-            //     return isValid;
-            // }
-
-            // validateInformationsInput('modalTambahInformations');
-            // validateInformationsInput('modalEditInformations');
-
-            // $('#judulInformations, #isiInformations, #imageInformations').on('input change', function() {
-            //     validateInformationsInput('modalTambahInformations');
-            // });
-
-            // $('#judulInformationsEdit, #isiInformationsEdit, #imageInformationsEdit').on('input change', function() {
-            //     validateInformationsInput('modalEditInformations');
-            // });
 
 
             $('#saveInformations').click(function() {
@@ -371,6 +329,142 @@
                 });
 
             });
+            $('#saveInformations').click(function() {
+            const judulInformations = $('#judulInformations').val().trim();
+            const isiInformations = $('#isiInformations').val().trim();
+            const imageInformations = $('#imageInformations').val().trim();
+ 
+            let isValid = true;
+
+                if (judulInformations === '') {
+                    $('#judulInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulInformationsError').addClass('d-none');
+                }
+
+                if (isiInformations === '') {
+                    $('#isiInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiInformationsError').addClass('d-none');
+                }
+
+                if (imageInformations === '') {
+                    $('#imageInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageInformationsError').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addInformations') }}",
+                    data: {
+                        judulInformations: judulInformations,
+                        isiInformations: isiInformations,
+                        imageInformations: imageInformations,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Information berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat information",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat information",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditInformations').click(function() {
+            const judulInformationsEdit = $('#judulInformationsEdit').val().trim();
+            const isiInformationsEdit = $('#isiInformationsEdit').val().trim();
+            const imageInformationsEdit = $('#imageInformationsEdit').val().trim();
+ 
+            let isValid = true;
+
+                if (judulInformationsEdit === '') {
+                    $('#judulInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulInformationsErrorEdit').addClass('d-none');
+                }
+
+                if (isiInformationsEdit === '') {
+                    $('#isiInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiInformationsErrorEdit').addClass('d-none');
+                }
+
+                if (imageInformationsEdit === '') {
+                    $('#imageInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageInformationsErrorEdit').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateInformations') }}",
+                    data: {
+                        judulInformationsEdit: judulInformationsEdit,
+                        isiInformationsEdit: isiInformationsEdit,
+                        imageInformationsEdit: imageInformationsEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Informatiom berhasil mengubah").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal memngubah information",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat information",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
             
         });
     </script>

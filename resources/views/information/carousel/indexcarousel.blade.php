@@ -20,17 +20,17 @@
                         <div class="mt-3">
                             <label for="judulCarousel" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulCarousel" value="">
-                            <div id="errJudulCarousel" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <div id="judulCarouselError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiCarousel" class="form-label fw-bold">Isi</label>
-                            <textarea class="form-control" id="isiCarouselEdit" rows="3"></textarea>
-                            <div id="errIsiCarousel" class="text-danger mt-1">Silahkan isi </div>
+                            <label for="isiCarousel" class="form-label fw-bold">Content</label>
+                            <textarea class="form-control" id="isiCarousel" rows="3"></textarea>
+                            <div id="isiCarouselError" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
                             <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
                             <input type="file" class="form-control" id="imageCarousel" value="">
-                            <div id="errimageCarousel" class="text-danger mt-1">Silahkan isi Gambar</div>
+                            <div id="imageCarouselError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                         </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -39,7 +39,7 @@
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 
        <!-- Modal Edit -->
         <div class="modal fade" id="modalEditCarousel" tabindex="-1" role="dialog"
@@ -57,17 +57,18 @@
                         <div class="mt-3">
                             <label for="judulCarousel" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulCarouselEdit" value="">
-                            <div id="errJudulCarousel" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <div id="judulCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiCarousel" class="form-label fw-bold">Isi</label>
                             <textarea class="form-control" id="isiCarouselEdit" rows="3"></textarea>
-                            <div id="errIsiCarousel" class="text-danger mt-1">Silahkan isi </div>
+                            <div id="isiCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
                             <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
+                            <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
                             <input type="file" class="form-control" id="imageCarouselEdit" value="">
-                            <div id="errImageCarousel" class="text-danger mt-1">Silahkan isi Gambar
+                            <div id="imageCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
                             </div>
                         </div>
                     </div>
@@ -78,7 +79,6 @@
                 </div>
             </div>
         </div>
-    </div>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-4">Carousel</h1>
         </div>
@@ -121,7 +121,6 @@
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 @section('script')
@@ -167,11 +166,11 @@
             $('#judulCarousel,#isiCarousel,#imageCarousel').data('touched', true);
 
             let judulCarousel = $('#judulCarousel').val();
-            let isiCarousel = $('#judulCarousel').val();
-            let imageCarousel = $('#imageCarousel').val();
+            let isiCarousel = $('#isiCarousel').val();
+            let imageCarousel = $('#imageCarousel')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (('modalTambahCarousel')) {
+            if (judulCarousel && isiCarousel && imageCarousel) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -183,36 +182,39 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        let formData = new FormData();
+                            formData.append('judulCarousel', judulCarousel);
+                            formData.append('isiCarousel', isiCarousel);
+                            formData.append('imageCarousel', imageCarousel);
+                            formData.append('_token', csrfToken);
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCarousel') }}",
-                            data: {
-                                judulCarousel: judulCarousel,
-                                isiCarousel: isiCarousel,
-                                imageCarousel: imageCarousel,
-                                _token: csrfToken
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistCarousel();
-                                    $('#modalTambahCarousel').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan",
-                                        icon: "error"
-                                    });
+                            data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Disimpan");
+                                        getlistCarousel();
+                                        $('#modalTambahCarousel').modal('hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
-            }
-        });
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
+            });
 
-        $(document).on('click', '.btnUpdateCarousel', function(e) {
+            $(document).on('click', '.btnUpdateCarousel', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
                 let judul_carousel = $(this).data('judul_carousel');
@@ -221,10 +223,61 @@
 
                 $('#judulCarouselEdit').val(judul_carousel);
                 $('#isiCarouselEdit').val(isi_carousel);
-                $('#imageCarouselEdit').val(image_carousel);
+                $('#textNamaEdit').text(image_carousel);
                 $('#carouselIdEdit').val(id);
 
-                // validateCarouselInput('modalCarouselIklan');
+                $(document).on('click', '#saveEditCarousel', function(e) {
+
+                    let id =$('#carouselIdEdit').val();
+                    let judulCarousel = $('#judulCarouselEdit').val();
+                    let isiCarousel = $('#isiCarouselEdit').val();
+                    let imageCarousel = $('#imageCarouselEdit')[0].files[0];
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('judulCarousel', judulCarousel);
+                            formData.append('isiCarousel', isiCarousel);
+                            formData.append('imageCarousel', imageCarousel);
+                            formData.append('_token', csrfToken);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateCarousel') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Diubah");
+                                        getlistCarousel();
+                                        $('#modalEditCarousel').modal(
+                                            'hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                })
+
+                // validateInformationsInput('modalEditInformations');
                 $('#modalEditCarousel').modal('show');
             });
 
@@ -252,7 +305,7 @@
                         success: function(response) {
                             if (response.status === 'success') {
                                 showMessage("success", "Berhasil menghapus");
-                                getlistInformations();
+                                getlistCarousel();
                             } else {
                                 showMessage("error", "Gagal menghapus");
                             }
@@ -262,6 +315,141 @@
         });
             
      });
+     $('#saveCarousel').click(function() {
+            const judulCarousel = $('#judulCarousel').val().trim();
+            const isiCarousel = $('#isiCarousel').val().trim();
+            const imageCarousel = $('#imageCarousel').val().trim();
+ 
+            let isValid = true;
+
+                if (judulCarousel === '') {
+                    $('#judulCarouselError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulCarouselError').addClass('d-none');
+                }
+
+                if (isiCarousel === '') {
+                    $('#isiCarouselError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiCarouselError').addClass('d-none');
+                }
+
+                if (imageCarousel === '') {
+                    $('#imageCarouselError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageCarouselError').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addCarousel') }}",
+                    data: {
+                        judulCarousel: judulCarousel,
+                        isiCarousel: isiCarousel,
+                        imageCarousel: imageCarousel,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Carousel berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat Carousel",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Carousel",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditCarousel').click(function() {
+            const judulCarouselEdit = $('#judulCarouselEdit').val().trim();
+            const isiCarouselEdit = $('#isiCarouselEdit').val().trim();
+            const imageCarouselEdit = $('#imageCarouselEdit').val().trim();
+ 
+            let isValid = true;
+
+                if (judulCarouselEdit === '') {
+                    $('#judulCarouselErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulCarouselErrorEdit').addClass('d-none');
+                }
+
+                if (isiCarouselEdit === '') {
+                    $('#isiCarouselErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiCarouselErrorEdit').addClass('d-none');
+                }
+
+                if (imageCarouselEdit === '') {
+                    $('#imageCarouselErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageCarouselErrorEdit').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateCarousel') }}",
+                    data: {
+                        judulCarouselEdit: judulCarouselEdit,
+                        isiCarouselEdit: isiCarouselEdit,
+                        imageCarouselEdit: imageCarouselEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Carousel berhasil mengubah").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal memngubah Carousel",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Carousel",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
     });
 </script>
 @endsection

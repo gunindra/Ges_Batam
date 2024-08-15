@@ -22,12 +22,12 @@
                         <div class="mt-3">
                             <label for="judulIklan" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulIklan" value="">
-                            <div id="errJudulIklan" class="text-danger mt-1">Silahkan isi Judul</div>
+                            <div id="judulIklanError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="imageIklan" class="form-label fw-bold">Gambar</label>
                             <input type="file" class="form-control" id="imageIklan" value="">
-                            <div id="errimageIklan" class="text-danger mt-1">Silahkan isi Gambar</div>
+                            <div id="imageIklanError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                         </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -37,7 +37,6 @@
             </div>
         </div>
         </div>
-
      <!-- Modal Edit -->
      <div class="modal fade" id="modalEditIklan" tabindex="-1" role="dialog"
             aria-labelledby="modalEditIklanTitle" aria-hidden="true">
@@ -54,14 +53,14 @@
                         <div class="mt-3">
                             <label for="judulIklan" class="form-label fw-bold">Judul</label>
                             <input type="text" class="form-control" id="judulIklanEdit" value="">
-                            <div id="errJudulIklan" class="text-danger mt-1">Silahkan isi Judul</div>
-                        </div>
+                            <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                            <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
                             <input type="file" class="form-control" id="imageIklanEdit" value="">
-                            <div id="errImageIklan" class="text-danger mt-1">Silahkan isi Gambar
-                            </div>
+                            <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                        </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -71,6 +70,7 @@
                 </div>
             </div>
         </div>
+    
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
         </div>
@@ -113,7 +113,6 @@
             </div>
         </div>
     </div>
-</div>
 @endsection
 @section('script')
 <script>
@@ -155,13 +154,13 @@
         getlistIklan();
 
         $('#saveIklan').click(function() {
-            $('#judulIklan,#imageInformations').data('touched', true);
+            $('#judulIklan,#imageIklan').data('touched', true);
 
             let judulIklan = $('#judulIklan').val();
-            let imageIklan = $('#imageIklan').val();
+            let imageIklan = $('#imageIklan')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (('modalTambahIklan')) {
+            if (judulIklan && imageIklan) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -172,49 +171,102 @@
                     cancelButtonText: 'Tidak',
                     reverseButtons: true
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addIklan') }}",
-                            data: {
-                                judulIklan: judulIklan,
-                                imageIklan: imageIklan,
-                                _token: csrfToken
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistIklan();
-                                    $('#modalTambahIklan').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan",
-                                        icon: "error"
-                                    });
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('judulIklan', judulIklan);
+                            formData.append('imageIklan', imageIklan);
+                            formData.append('_token', csrfToken);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('addIklan') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Disimpan");
+                                        getlistIklan();
+                                        $('#modalTambahIklan').modal('hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
-            }
-        });
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
+            });
 
-
-        $(document).on('click', '.btnUpdateIklan', function(e) {
+            $(document).on('click', '.btnUpdateIklan', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
                 let judul_iklan = $(this).data('judul_iklan');
                 let image_iklan = $(this).data('image_iklan');
 
                 $('#judulIklanEdit').val(judul_iklan);
-                $('#imageIklanEdit').val(image_iklan);
+                $('#textNamaEdit').text(image_iklan);
                 $('#iklanIdEdit').val(id);
 
-                // validateIklanInput('modalEditIklan');
+                $(document).on('click', '#saveEditIklan', function(e) {
+
+                    let id =$('#iklanIdEdit').val();
+                    let judulIklan = $('#judulIklanEdit').val();
+                    let imageIklan = $('#imageIklanEdit')[0].files[0];
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('judulIklan', judulIklan);
+                            formData.append('imageIklan', imageIklan);
+                            formData.append('_token', csrfToken);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateIklan') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Diubah");
+                                        getlistIklan();
+                                        $('#modalEditIklan').modal(
+                                            'hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                })
+
+                // validateInformationsInput('modalEditInformations');
                 $('#modalEditIklan').modal('show');
             });
+
 
         
         $(document).on('click', '.btnDestroyIklan', function(e) {
@@ -250,6 +302,125 @@
         });
             
      });
+
+     $('#saveIklan').click(function() {
+            const judulIklan = $('#judulIklan').val().trim();
+            const imageIklan = $('#imageIklan').val().trim();
+ 
+            let isValid = true;
+
+                if (judulIklan === '') {
+                    $('#judulIklanError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulIklanError').addClass('d-none');
+                }
+
+                if (imageIklan === '') {
+                    $('#imageIklanError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageIklanError').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addIklan') }}",
+                    data: {
+                        judulIklan: judulIklan,
+                        imageIklan: imageIklan,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Iklan berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat Iklan",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Iklan",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditIklan').click(function() {
+            const judulIklanEdit = $('#judulIklanEdit').val().trim();
+            const imageIklanEdit = $('#imageIklanEdit').val().trim();
+ 
+            let isValid = true;
+
+                if (judulIklanEdit === '') {
+                    $('#judulIklanErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulIklanErrorEdit').addClass('d-none');
+                }
+
+
+                if (imageIklanEdit === '') {
+                    $('#imageIklanErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageIklanErrorEdit').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateIklan') }}",
+                    data: {
+                        judulIklanEdit: judulIklanEdit,
+                        imageIklanEdit: imageIklanEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Iklan berhasil mengubah").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal memngubah Iklan",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat Iklan",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
     });
 </script>
 @endsection

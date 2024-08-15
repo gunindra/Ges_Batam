@@ -40,7 +40,7 @@ class PembagirateController extends Controller
                 '
                 <tr>
                     <td class="">' . $no++ .'</td>
-                    <td class="">' . ($item->nilai_pembagi ?? '-') .'</td>
+                     <td class="">' . (isset($item->nilai_pembagi) ? ' ' . number_format($item->nilai_pembagi,0, '.', ',') : '-') . '</td>
                    <td>
                         <a  class="btn btnUpdatePembagi btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_pembagi="' .$item->nilai_pembagi.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyPembagi btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
@@ -130,7 +130,7 @@ class PembagirateController extends Controller
                 '
                 <tr>
                     <td class="">' . $no .'</td>
-                    <td class="">' . ($item->nilai_rate ?? '-') .'</td>
+                    <td class="">' . (isset($item->nilai_rate) ? '' . number_format($item->nilai_rate,0, '.', ',') : '-') . '</td>
                    <td>
                         <a  class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_rate="' .$item->nilai_rate.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyRate btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>

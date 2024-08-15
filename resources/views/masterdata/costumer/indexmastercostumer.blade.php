@@ -26,17 +26,17 @@
                         <div class="mt-3">
                             <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
                             <input type="text" class="form-control" id="namaCustomer" value="">
-                            <div id="errNamaCostumer" class="text-danger mt-1">Silahkan isi nama costumer</div>
+                            <div id="namaCustomerError" class="text-danger mt-1 d-none">Silahkan isi nama costumer</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" id="alamatCustomer" rows="3"></textarea>
-                            <div id="errAlamatCostumer" class="text-danger mt-1">Silahkan isi alamat costumer</div>
+                            <div id="alamatCustomerError" class="text-danger mt-1 d-none">Silahkan isi alamat costumer</div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                             <input type="text" class="form-control" id="noTelpon" value="">
-                            <div id="errNoTelpCostumer" class="text-danger mt-1">Silahkan isi no. telepon costumer</div>
+                            <div id="notelponCustomerError" class="text-danger mt-1 d-none">Silahkan isi no. telepon costumer</div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">Category</label>
@@ -45,7 +45,7 @@
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
-                            <div id="errCategoryCostumer" class="text-danger mt-1">Silahkan pilih category costumer</div>
+                            <div id="categoryCustomerError" class="text-danger mt-1 d-none">Silahkan pilih category costumer</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -74,17 +74,17 @@
                         <div class="mt-3">
                             <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
                             <input type="text" class="form-control" id="namaCustomerEdit" value="">
-                            <div id="errNamaCostumer" class="text-danger mt-1">Silahkan isi nama costumer</div>
+                            <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama costumer</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" id="alamatCustomerEdit" rows="3"></textarea>
-                            <div id="errAlamatCostumer" class="text-danger mt-1">Silahkan isi alamat costumer</div>
+                            <div id="alamatCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi alamat costumer</div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                             <input type="text" class="form-control" id="noTelponEdit" value="">
-                            <div id="errNoTelpCostumer" class="text-danger mt-1">Silahkan isi no. telepon costumer
+                            <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon costumer
                             </div>
                         </div>
                         <div class="mt-3">
@@ -94,7 +94,7 @@
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>
-                            <div id="errCategoryCostumer" class="text-danger mt-1">Silahkan pilih category costumer
+                            <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category costumer
                             </div>
                         </div>
                     </div>
@@ -491,6 +491,150 @@
                     });
                 }
             })
+            $('#saveCustomer').click(function() {
+            const namaCustomer = $('#namaCustomer').val().trim();
+            const alamatCustomer = $('#alamatCustomer').val().trim();
+            const noTelpon = $('#noTelpon').val().trim();
+            const CategoryCustomer = $('#CategoryCustomer').val().trim();
+ 
+            let isValid = true;
+
+                if (namaCustomer === '') {
+                    $('#namaCustomerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#namaCustomerError').addClass('d-none');
+                }
+
+                if (alamatCustomer === '') {
+                    $('#alamatCustomerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#alamatCustomerError').addClass('d-none');
+                }
+
+                if (noTelpon === '') {
+                    $('#notelponCustomerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#notelponCustomerError').addClass('d-none');
+                }
+
+                if (CategoryCustomer === '') {
+                    $('#imageInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageInformationsError').addClass('d-none');
+                }
+
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('addInformations') }}",
+                    data: {
+                        judulInformations: judulInformations,
+                        isiInformations: isiInformations,
+                        imageInformations: imageInformations,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Information berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat information",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat information",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $('#saveEditInformations').click(function() {
+            const judulInformationsEdit = $('#judulInformationsEdit').val().trim();
+            const isiInformationsEdit = $('#isiInformationsEdit').val().trim();
+            const imageInformationsEdit = $('#imageInformationsEdit').val().trim();
+ 
+            let isValid = true;
+
+                if (judulInformationsEdit === '') {
+                    $('#judulInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulInformationsErrorEdit').addClass('d-none');
+                }
+
+                if (isiInformationsEdit === '') {
+                    $('#isiInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiInformationsErrorEdit').addClass('d-none');
+                }
+
+                if (imageInformationsEdit === '') {
+                    $('#imageInformationsErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageInformationsErrorEdit').addClass('d-none');
+                }
+
+                
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateInformations') }}",
+                    data: {
+                        judulInformationsEdit: judulInformationsEdit,
+                        isiInformationsEdit: isiInformationsEdit,
+                        imageInformationsEdit: imageInformationsEdit,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Informatiom berhasil mengubah").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal memngubah information",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: "Gagal membuat information",
+                            text: "Terjadi kesalahan. Mohon coba lagi.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
         });
     </script>
 @endsection

@@ -61,7 +61,7 @@
                     </div>
                 </div>
             </div>
-            <div class="box">
+             <div class="box">
                 <img src="" alt="">
                 <div class="img-text">
                     <div class="contentGallery">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
             </div>
-            <div class="box">
+             <div class="box">
                 <img src="" alt="">
                 <div class="img-text">
                     <div class="contentGallery">

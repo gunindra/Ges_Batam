@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Storage;
 
 class IklanController extends Controller
 {
@@ -37,7 +38,7 @@ class IklanController extends Controller
                                 <tbody>';
         foreach ($data as $item) {
 
-            $image = $item->image_informations;
+            $image = $item->image_iklan;
             $imagepath = Storage::url('images/' . $image);
 
 
