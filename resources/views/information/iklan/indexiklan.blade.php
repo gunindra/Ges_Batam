@@ -220,6 +220,8 @@
             }
         });
 
+        
+
         $('#saveEditIklan').click(function() {
                     // Ambil nilai input
                     let id = $('#iklanIdEdit').val();

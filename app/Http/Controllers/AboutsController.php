@@ -12,4 +12,5 @@ class AboutsController extends Controller
       
         return view('landingpage.About');
     }
+
 }

@@ -323,7 +323,7 @@
                 // validateInformationsInput('modalEditInformations');
                 $('#modalEditInformations').modal('show');
             });
-
+            
 
 
 

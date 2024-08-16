@@ -75,10 +75,10 @@
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="contentAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="aboutText" class="form-control" aria-label="With textarea"></textarea>
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"></textarea>
+                        <div id="isiAboutError" class="text-danger mt-1 d-none">Silahkan isi </div>
                     </div>
-                    <button type="button" class="btn btn-primary mt-3" data-toggle="modal"
-                    data-target="#modalTambahAbout" id="#modalCenter"><span class="pr-3"><i class="fas fa-save"></i></span>Save</button>
+                    <button type="button" class="btn btn-primary mt-3" id="saveAbout"><span class="pr-3"><i class="fas fa-save"></i></span>Save</button>
                     <button type="button" class="btn btn-secondary mt-3" data-toggle="modal"
                     data-target="#modalPreview" id="#modalCenter"><span class=""><i class="fas fa-eye"></i></span></button>
                 </div>
@@ -96,11 +96,75 @@
             const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
+
             
+            $(document).on('click', '#saveAbout', function(e) {
+            // Ambil nilai input
+            var parafAbout = $('#parafAbout').val().trim();
+            var imageAbout = $('#imageAbout')[0].files[0];
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var isValid = true;
+
+            if (parafAbout === '') {
+                $('#parafAboutError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#parafAboutError').addClass('d-none');
+            }
+            if (!imageAbout) {
+                $('#imageAboutError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageAboutError').addClass('d-none');
+            }
+
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('parafAbout', parafAbout);
+                        formData.append('imageAbout', imageAbout);
+                        formData.append('_token', csrfToken);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addAbout') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+
     
         });
 
 
 </script>
 @endsection
-
