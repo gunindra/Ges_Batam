@@ -4,85 +4,85 @@
 
 @section('main')
 
-<div class="container-fluid" id="container-wrapper">
+    <div class="container-fluid" id="container-wrapper">
 
 
-    <!-- Modal tambah -->
-    <div class="modal fade" id="modalTambahInformations" tabindex="-1" role="dialog"
-        aria-labelledby="modalTambahInformationsTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahInformations">Tambah Information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        <!-- Modal tambah -->
+        <div class="modal fade" id="modalTambahInformations" tabindex="-1" role="dialog"
+            aria-labelledby="modalTambahInformationsTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTambahInformations">Tambah Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="informationForm" enctype="multipart/form-data">
+                            <div class="mt-3">
+                                <label for="judulInformations" class="form-label fw-bold">Judul</label>
+                                <input type="text" class="form-control" id="judulInformations" value="">
+                                <div id="judulInformationsError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="isiInformations" class="form-label fw-bold">Content</label>
+                                <textarea class="form-control" id="isiInformations" rows="3"></textarea>
+                                <div id="isiInformationsError" class="text-danger mt-1 d-none">Silahkan isi</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="imageInformations" class="form-label fw-bold">Gambar</label>
+                                <input type="file" class="form-control" id="imageInformations" value="">
+                                <div id="imageInformationsError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                                <button type="button" id="saveInformations" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="informationForm" enctype="multipart/form-data">
+            </div>
+        </div>
+
+        <!-- Modal Edit -->
+        <div class="modal fade" id="modalEditInformations" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditInformationsTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditInformationsTitle">Edit Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="informationsIdEdit">
                         <div class="mt-3">
                             <label for="judulInformations" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulInformations" value="">
-                            <div id="judulInformationsError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                            <input type="text" class="form-control" id="judulInformationsEdit" value="">
+                            <div id="judulInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiInformations" class="form-label fw-bold">Content</label>
-                            <textarea class="form-control" id="isiInformations" rows="3"></textarea>
-                            <div id="isiInformationsError" class="text-danger mt-1 d-none">Silahkan isi</div>
+                            <textarea class="form-control" id="isiInformationsEdit" rows="3"></textarea>
+                            <div id="isiInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
                             <label for="imageInformations" class="form-label fw-bold">Gambar</label>
-                            <input type="file" class="form-control" id="imageInformations" value="">
-                            <div id="imageInformationsError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                            <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                            <input type="file" class="form-control" id="imageInformationsEdit" value="">
+                            <div id="imageInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                            <button type="button" id="saveInformations" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveEditInformations" class="btn btn-primary">Save changes</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Modal Edit -->
-    <div class="modal fade" id="modalEditInformations" tabindex="-1" role="dialog"
-        aria-labelledby="modalEditInformationsTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditInformationsTitle">Edit Information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="informationsIdEdit">
-                    <div class="mt-3">
-                        <label for="judulInformations" class="form-label fw-bold">Judul</label>
-                        <input type="text" class="form-control" id="judulInformationsEdit" value="">
-                        <div id="judulInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="isiInformations" class="form-label fw-bold">Content</label>
-                        <textarea class="form-control" id="isiInformationsEdit" rows="3"></textarea>
-                        <div id="isiInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="imageInformations" class="form-label fw-bold">Gambar</label>
-                        <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
-                        <input type="file" class="form-control" id="imageInformationsEdit" value="">
-                        <div id="imageInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    <button type="button" id="saveEditInformations" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -97,29 +97,29 @@
                                     class="fas fa-plus"></i></span>Tambah Information</button>
                         <div id="containerInformations" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableinformations">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th>No.</th>
-                                                        <th>Judul</th>
-                                                        <th>Image</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>1.</td>
-                                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                        <td>
-                                                        <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                    class="fas fa-edit"></i></a>
-                                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>No.</th>
+                                                            <th>Judul</th>
+                                                            <th>Image</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>1.</td>
+                                                            <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                            <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                            <td>
+                                                            <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                        class="fas fa-edit"></i></a>
+                                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                            <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                            </td>
+                                                        </tr>
 
-                                                </tbody>
-                                            </table> -->
+                                                    </tbody>
+                                                </table> -->
                         </div>
                     </div>
                 </div>
@@ -129,46 +129,46 @@
 
 @endsection
 @section('script')
-<script>
-    $(document).ready(function () {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+    <script>
+        $(document).ready(function() {
+            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        const getlistInformations = () => {
-            const txtSearch = $('#txSearch').val();
+            const getlistInformations = () => {
+                const txtSearch = $('#txSearch').val();
 
-            $.ajax({
-                url: "{{ route('getlistInformations') }}",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch
-                },
-                beforeSend: () => {
-                    $('#containerInformations').html(loadSpin)
-                }
-            })
-                .done(res => {
-                    $('#containerInformations').html(res)
-                    $('#tableInformations').DataTable({
-                        searching: false,
-                        lengthChange: false,
-                        "bSort": true,
-                        "aaSorting": [],
-                        pageLength: 7,
-                        "lengthChange": false,
-                        responsive: true,
-                        language: {
-                            search: ""
+                $.ajax({
+                        url: "{{ route('getlistInformations') }}",
+                        method: "GET",
+                        data: {
+                            txSearch: txtSearch
+                        },
+                        beforeSend: () => {
+                            $('#containerInformations').html(loadSpin)
                         }
-                    });
-                })
-        }
+                    })
+                    .done(res => {
+                        $('#containerInformations').html(res)
+                        $('#tableInformations').DataTable({
+                            searching: false,
+                            lengthChange: false,
+                            "bSort": true,
+                            "aaSorting": [],
+                            pageLength: 7,
+                            "lengthChange": false,
+                            responsive: true,
+                            language: {
+                                search: ""
+                            }
+                        });
+                    })
+            }
 
-        getlistInformations();
-        $('#judulInformations, #isiInformations', 'imageInformations').on('input', function () {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
+            getlistInformations();
+            $('#judulInformations, #isiInformations', 'imageInformations').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
 
 
             $('#saveInformations').click(function() {
@@ -235,9 +235,19 @@
                                     } else {
                                         Swal.fire({
                                             title: "Gagal Menambahkan Data",
-                                            icon: "error"
+                                            text: response
+                                            .message,
+                                            icon: "error",
                                         });
                                     }
+                                },
+                                error: function(xhr) {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        text: xhr.responseJSON
+                                        .message,
+                                        icon: "error",
+                                    });
                                 }
                             });
                         }
@@ -259,7 +269,7 @@
                 $('#textNamaEdit').text(image_informations);
                 $('#informationsIdEdit').val(id);
 
-                $(document).on('click', '#saveEditInformations', function (e) {
+                $(document).on('click', '#saveEditInformations', function(e) {
 
                     let id = $('#informationsIdEdit').val();
                     let judulInformations = $('#judulInformationsEdit').val();
@@ -291,7 +301,7 @@
                                 data: formData,
                                 contentType: false,
                                 processData: false,
-                                success: function (response) {
+                                success: function(response) {
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
@@ -319,7 +329,7 @@
 
 
 
-            $(document).on('click', '.btnDestroyInformations', function (e) {
+            $(document).on('click', '.btnDestroyInformations', function(e) {
                 let id = $(this).data('id');
 
                 Swal.fire({
@@ -339,7 +349,7 @@
                             data: {
                                 id: id,
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Berhasil menghapus");
