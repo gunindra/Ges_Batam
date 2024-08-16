@@ -3,168 +3,156 @@
 @section('title', 'About')
 
 @section('main')
-
 <div class="modal fade" id="modalGambar" tabindex="-1" role="dialog"
-        aria-labelledby="modalGambarTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalGambarTitle">Gambar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+     aria-labelledby="modalGambarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalGambarTitle">Gambar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    @if($aboutData && $aboutData->Image_AboutUs)
+                        <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="400px">
+                    @else
+                        <p>No image available</p>
+                    @endif
                 </div>
-                <div class="modal-body">
-                    <div class="mt-3">
-                        <img src="/img/Aboutus.jpg" width="400px">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!---Container Fluid-->
-    <div class="container-fluid" id="container-wrapper">
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">About</h1>
-        </div>
-        <div class="row mb-3">
+<!---Container Fluid-->
+<div class="container-fluid" id="container-wrapper">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">About</h1>
+    </div>
+    <div class="row mb-3">
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">About</h6>
                     <div id="containerAbout" class="table-responsive px-3">
-                        <!-- <div style="border:2px solid; min-height:150px; border-radius:20px;">
-                            <p id="textPreview" class="p-3"></p>
-                        </div>
-                         -->
-                        
-                            <!-- <table class="table align-items-center table-flush table-hover" id="tableAboutUs">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No.</th>
-                                        <th>Paraf About</th>
-                                        <th>Image About</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1.</td>
-                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                        <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i
-                                                    class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                        </td>
-                                    </tr>
-                                    
-                                </tbody>
-                            </table> -->
-                            
-                       </div>
+                    </div>
                     <div class="mt-3">
-                            <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
-                            <input type="file" class="form-control" id="imageAbout" value="">
-                            <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
+                        <input type="file" class="form-control" id="imageAbout" value="">
+                        <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="contentAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"></textarea>
-                        <div id="isiAboutError" class="text-danger mt-1 d-none">Silahkan isi </div>
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                        <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi </div>
                     </div>
-                    <button type="button" class="btn btn-primary mt-3" id="saveAbout"><span class="pr-3"><i class="fas fa-save"></i></span>Save</button>
-                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal"
-                    data-target="#modalPreview" id="#modalCenter"><span class=""><i class="fas fa-eye"></i></span></button>
+                    <button type="button" class="btn btn-primary mt-3" id="saveAbout">
+                        <span class="pr-3"><i class="fas fa-save"></i></span> Save
+                    </button>
+                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#modalPreview" id="#modalCenter">
+                        <span class=""><i class="fas fa-eye"></i></span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-    </div>
-    <!---Container Fluid-->
+<!---Container Fluid-->
 @endsection
+
 @section('script')
 <script>
-     $(document).ready(function() {
-            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-            </div> `;
+$(document).ready(function() {
+    $(document).on('click', '#saveAbout', function(e) {
+        e.preventDefault(); // Prevent default button behavior
 
-            
-            $(document).on('click', '#saveAbout', function(e) {
-            // Ambil nilai input
-            var parafAbout = $('#parafAbout').val().trim();
-            var imageAbout = $('#imageAbout')[0].files[0];
+        // Ambil nilai input
+        var parafAbout = $('#parafAbout').val().trim();
+        var imageAbout = $('#imageAbout')[0].files[0];
 
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            var isValid = true;
+        var isValid = true;
 
-            if (parafAbout === '') {
-                $('#parafAboutError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#parafAboutError').addClass('d-none');
-            }
-            if (!imageAbout) {
-                $('#imageAboutError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#imageAboutError').addClass('d-none');
-            }
+        // Validasi input
+        if (parafAbout === '') {
+            $('#parafAboutError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#parafAboutError').addClass('d-none');
+        }
+        if (!imageAbout) {
+            $('#imageAboutError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#imageAboutError').addClass('d-none');
+        }
 
-            // Jika semua input valid, lanjutkan aksi simpan
-            if (isValid) {
-                Swal.fire({
-                    title: "Apakah Kamu Yakin?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('parafAbout', parafAbout);
-                        formData.append('imageAbout', imageAbout);
-                        formData.append('_token', csrfToken);
+        // Jika semua input valid, lanjutkan aksi simpan
+        if (isValid) {
+            Swal.fire({
+                title: "Apakah Kamu Yakin?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('parafAbout', parafAbout);
+                    formData.append('imageAbout', imageAbout);
+                    formData.append('_token', csrfToken);
 
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addAbout') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        icon: "error"
-                                    });
-                                }
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('addAbout') }}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: "Berhasil!",
+                                    text: response.message,
+                                    icon: "success"
+                                }).then(() => {
+                                    // Refresh the page or update content
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan Data",
+                                    text: response.message,
+                                    icon: "error"
+                                });
                             }
-                        });
-                    }
-                });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
-            }
-        });
-
-    
-        });
-
-
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Terjadi kesalahan: " + error,
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "Periksa Input",
+                text: "Tolong periksa input yang kosong",
+                icon: "warning"
+            });
+        }
+    });
+});
 </script>
 @endsection

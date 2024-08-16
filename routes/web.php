@@ -63,6 +63,8 @@ Route::post('/information/abouts/tambah', [AboutController::class, 'addAbout'])-
 
 // Why
 Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
+Route::post('/information/whys/tambah', [WhyController::class, 'addWhy'])->name('addWhy');
+
 
 // Services
 Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
