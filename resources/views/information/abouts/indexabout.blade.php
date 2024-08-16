@@ -34,8 +34,8 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">About</h1>
     </div>
-    <div class="row mb-3">
-        <div class="col-xl-12">
+    <div class="row mb-3 d-flex">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">About</h6>
@@ -48,7 +48,32 @@
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>                       
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                    </div>
+                    <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi</div>
+                    <button type="button" class="btn btn-primary mt-3" id="saveAbout">
+                        <span class="pr-3"><i class="fas fa-save"></i></span> Save
+                    </button>
+                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#modalPreview" id="#modalCenter">
+                        <span class=""><i class="fas fa-eye"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="m-0 font-weight-bold text-primary">About</h6>
+                    <div id="containerAbout" class="table-responsive px-3">
+                    </div>
+                    <div class="mt-3">
+                        <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
+                        <input type="file" class="form-control" id="imageAbout" value="">
+                        <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                    </div>
+                    <div class="input-group pt-2 mt-3">
+                        <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
                     </div>
                     <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">

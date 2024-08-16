@@ -78,16 +78,16 @@
                                 {{-- Search --}}
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
-                                <button id="monthEvent" class="btn btn-light form-control ml-2"
-                                    style="border: 1px solid #e9ecef;">
-                                    <span id="calendarTitle" class="fs-4"></span>
-                                </button>
-                                <select class="form-control ml-2" id="filterStatus" style="width: 300px;">
+                                <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Filter</option>
                                     <option value="Out For Delivery">Out For Delivery</option>
                                     <option value="Delivering">Delivering</option>
                                     <option value="Done">Done</option>
                                 </select>
+                                <button id="monthEvent" class="btn btn-light form-control ml-2"
+                                    style="border: 1px solid #e9ecef; width: 100px;">
+                                    <span id="calendarTitle" class="fs-4"></span>
+                                </button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                     onclick="window.location.reload()">
                                     Reset
