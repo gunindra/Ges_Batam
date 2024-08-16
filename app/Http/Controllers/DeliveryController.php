@@ -18,6 +18,16 @@ class DeliveryController extends Controller
     public function getlistDelivery(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $filter = $request->filter;
+        $status = $request->status; // Terima filter status dari request
+
+        if (!$filter) {
+            $formattedFilter = date('Y-m');
+        } else {
+            $formattedFilter = date_create_from_format("M Y", $filter)->format("Y-m");
+        }
+
+        $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
 
         $q = "SELECT
                     a.id,
@@ -36,8 +46,19 @@ class DeliveryController extends Controller
                     tbl_supir AS c ON a.supir_id = c.id
                 JOIN
                     tbl_status AS d ON b.status_id = d.id
-;
-        ";
+                WHERE (
+                    UPPER(c.nama_supir) LIKE UPPER('$txSearch')
+                    OR UPPER(b.no_resi) LIKE UPPER('$txSearch')
+                    OR UPPER(a.alamat) LIKE UPPER('$txSearch')
+                    OR UPPER(d.status_name) LIKE UPPER('$txSearch')
+                )
+                AND a.tanggal_pengantaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-" . $lastDayOfMonth . "'";
+
+            if (!empty($status)) {
+            $q .= " AND d.status_name = '" . strtoupper($status) . "'";
+            }
+
+            $q .= " LIMIT 100";
 
         $data = DB::select($q);
 
@@ -55,57 +76,54 @@ class DeliveryController extends Controller
                                 </thead>
                                 <tbody>';
 
-                                foreach ($data as $item) {
+        foreach ($data as $item) {
 
-                                    $statusBadgeClass = '';
-                                    $btnAcceptPengantaran = '';
-                                    $btnBuktiPengantaran = '';
-                                    $btnDetailPengantaran = '';
+            $statusBadgeClass = '';
+            $btnAcceptPengantaran = '';
+            $btnBuktiPengantaran = '';
+            $btnDetailPengantaran = '';
 
-                                    switch ($item->status_name) {
-                                        case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-out-for-delivery';
-                                            $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
-                                            break;
-                                        case 'Delivering':
-                                            $statusBadgeClass = 'badge-delivering';
-                                            $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
-                                            break;
-                                        case 'Debt':
-                                            $statusBadgeClass = 'badge-danger'; // Merah
-                                            break;
-                                        case 'Done':
-                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
-                                            $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
-                                            break;
-                                        default:
-                                            $statusBadgeClass = 'badge-secondary'; // Default
-                                            break;
-                                    }
+            switch ($item->status_name) {
+                case 'Out For Delivery':
+                    $statusBadgeClass = 'badge-out-for-delivery';
+                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
+                    break;
+                case 'Delivering':
+                    $statusBadgeClass = 'badge-delivering';
+                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
+                    break;
+                case 'Debt':
+                    $statusBadgeClass = 'badge-danger'; // Merah
+                    break;
+                case 'Done':
+                    $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    break;
+                default:
+                    $statusBadgeClass = 'badge-secondary'; // Default
+                    break;
+            }
 
+            $output .= '
+                <tr>
+                    <td class="">' . ($item->no_resi ?? '-') . '</td>
+                    <td class="">' . ($item->tanggal_pengantaran ?? '-') . '</td>
+                    <td class="">' . ($item->nama_supir ?? '-') . '</td>
+                    <td class="">' . ($item->alamat ?? '-') . '</td>
+                    <td class="">' . ($item->full_address ?? '-') . '</td>
+                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
+                    <td>
+                        ' . $btnAcceptPengantaran . '
+                        ' . $btnDetailPengantaran . '
+                        ' . $btnBuktiPengantaran . '
+                    </td>
+                </tr>';
+        }
 
-                                    $output .=
-                                        '
-                                        <tr>
-                                            <td class="">' . ($item->no_resi ?? '-') . '</td>
-                                            <td class="">' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                                            <td class="">' . ($item->nama_supir ?? '-') . '</td>
-                                            <td class="">' . ($item->alamat ?? '-') . '</td>
-                                            <td class="">' . ($item->full_address ?? '-') . '</td>
-                                            <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
-                                            <td>
-                                                ' . $btnAcceptPengantaran . '
-                                                ' . $btnDetailPengantaran . '
-                                                ' . $btnBuktiPengantaran . '
-                                            </td>
-                                        </tr>
-                                    ';
-                                }
-
-                                $output .= '</tbody></table>';
-                                return $output;
-
+        $output .= '</tbody></table>';
+        return $output;
     }
+
 
     public function acceptPengantaran(Request $request)
     {

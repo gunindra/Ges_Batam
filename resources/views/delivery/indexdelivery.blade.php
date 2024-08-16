@@ -73,9 +73,27 @@
             <div class="col-lg-12">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="d-flex mb-2 mr-3 float-right">
-                            {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
-                            {{-- <a class="btn btn-primary" href="" id=""><span
+                        <div class="d-flex mb-2 justify-content-between align-items-center">
+                            <div class="d-flex">
+                                {{-- Search --}}
+                                <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                                    class="form-control rounded-3" placeholder="Search">
+                                <button id="monthEvent" class="btn btn-light form-control ml-2"
+                                    style="border: 1px solid #e9ecef;">
+                                    <span id="calendarTitle" class="fs-4"></span>
+                                </button>
+                                <select class="form-control ml-2" id="filterStatus" style="width: 300px;">
+                                    <option value="" selected disabled>Pilih Filter</option>
+                                    <option value="Out For Delivery">Out For Delivery</option>
+                                    <option value="Delivering">Delivering</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                                    onclick="window.location.reload()">
+                                    Reset
+                                </button>
+                            </div>
+                            {{-- <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a> --}}
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
@@ -139,17 +157,19 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        // let selectedMonth = getCurrentMonth();
+        let selectedMonth = getCurrentMonth();
 
         const getlistDelivery = () => {
             const txtSearch = $('#txSearch').val();
+            const filterStatus = $('#filterStatus').val();
 
             $.ajax({
                     url: "{{ route('getlistDelivery') }}",
                     method: "GET",
                     data: {
                         txSearch: txtSearch,
-                        // filter: selectedMonth
+                        filter: selectedMonth,
+                        status: filterStatus
                     },
                     beforeSend: () => {
                         $('#containerDelivery').html(loadSpin)
@@ -174,10 +194,53 @@
 
         getlistDelivery();
 
+        $('#txSearch').keyup(function(e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistDelivery();
+            }
+        })
 
+        function getCurrentMonth() {
+            const months = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
 
+            const currentDate = new Date();
+            const currentMonth = months[currentDate.getMonth()];
+            const currentYear = currentDate.getFullYear();
 
+            return `${currentMonth} ${currentYear}`;
+        }
 
+        $(document).ready(function() {
+            $('#calendarTitle').text(selectedMonth);
+        });
+
+        const monthFilterInput = document.getElementById('monthEvent');
+
+        const flatpickrInstance = flatpickr(monthFilterInput, {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "M Y",
+                    altFormat: "M Y",
+                    theme: "light"
+                })
+            ],
+            onChange: function(selectedDates, dateStr, instance) {
+                const selectedDate = selectedDates[0];
+                selectedMonth = instance.formatDate(selectedDate, "M Y");
+                $('#calendarTitle').text(selectedMonth);
+                console.log("ini hasil dari filter bulan", selectedMonth);
+                getlistDelivery();
+            }
+        });
+
+        $('#filterStatus').change(function() {
+            getlistDelivery();
+        });
 
         $(document).on('click', '.btnAcceptPengantaran', function(e) {
             let id = $(this).data('id');
@@ -292,33 +355,32 @@
         });
 
         $(document).on('click', '.btnDetailPengantaran', function(e) {
-                e.preventDefault();
-                let namafoto = $(this).data('bukti');
-                $.ajax({
-                    url: "{{ route('detailBuktiPengantaran') }}",
-                    method: 'GET',
-                    data: {
-                        namafoto: namafoto,
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            let imageUrl = response.url;
+            e.preventDefault();
+            let namafoto = $(this).data('bukti');
+            $.ajax({
+                url: "{{ route('detailBuktiPengantaran') }}",
+                method: 'GET',
+                data: {
+                    namafoto: namafoto,
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let imageUrl = response.url;
 
-                            console.log(imageUrl);
+                        console.log(imageUrl);
 
-                            $('#modalBuktiPengantaran').find('.containerFoto').html(
-                                '<img src="' + imageUrl + '" class="img-fluid">');
-                        } else {
-                            showMessage("error", "Gagal memuat bukti pembayaran");
-                        }
-                        $('#modalBuktiPengantaran').modal('show');
-                    },
-                    error: function(xhr) {
-                        showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
-                        $('#modalBuktiPengantaran').modal('show');
+                        $('#modalBuktiPengantaran').find('.containerFoto').html(
+                            '<img src="' + imageUrl + '" class="img-fluid">');
+                    } else {
+                        showMessage("error", "Gagal memuat bukti pembayaran");
                     }
-                });
+                    $('#modalBuktiPengantaran').modal('show');
+                },
+                error: function(xhr) {
+                    showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
+                    $('#modalBuktiPengantaran').modal('show');
+                }
             });
-
+        });
     </script>
 @endsection
