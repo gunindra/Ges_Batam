@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
   <link rel="stylesheet" href="{{ asset('css/flatpickr.css') }}">
   <link rel="stylesheet" href="{{ asset('css/monthSelect.css') }}">
+  @stack('styles')
 
 </head>
 

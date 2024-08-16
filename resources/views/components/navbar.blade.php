@@ -29,7 +29,7 @@
                 </li>
                 @if (!Route::is('About') && !Route::is('Why') && !Route::is('Slide') &&  !Route::is('Tracking'))
                 <li class="nav-item">
-                    <a href="/login/indexlogin" style="text-decoration:none; color:white;"><button type="button" class="btn btn-outline-primary">Login</a></button>
+                    <a href="{{ route('login') }}" style="text-decoration:none; color:white;"><button type="button" class="btn btn-outline-primary">Login</a></button>
                 </li>
                 @endif
             </ul>

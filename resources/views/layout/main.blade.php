@@ -18,20 +18,20 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
-            <li class="nav-item {{ request()->routeIs('booking') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('booking') }}">
-                    <i class="fas fa-book"></i>
-                    <span>Booking Confirmation</span></a>
-            </li>
-            <li class="nav-item {{ request()->routeIs('delivery') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('delivery') }}">
-                    <i class="fas fa-truck"></i>
-                    <span>Delivery</span></a>
-            </li>
             <li class="nav-item {{ request()->routeIs('invoice') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('invoice') }}">
                     <i class="fas fa-file-invoice"></i>
                     <span>Invoice</span></a>
+            </li>
+            {{-- <li class="nav-item {{ request()->routeIs('booking') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('booking') }}">
+                    <i class="fas fa-book"></i>
+                    <span>Booking Confirmation</span></a>
+            </li> --}}
+            <li class="nav-item {{ request()->routeIs('delivery') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('delivery') }}">
+                    <i class="fas fa-truck"></i>
+                    <span>Delivery</span></a>
             </li>
             <li
                 class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') ? 'active' : '' }}">
