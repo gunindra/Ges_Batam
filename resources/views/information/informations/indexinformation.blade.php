@@ -92,34 +92,40 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-body">
-                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                        <div class="d-flex mb-2 mr-3 float-right">
+                            {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahInformations" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Tambah Information</button>
+                                        class="fas fa-plus"></i></span>Tambah Information</button>
+                        </div>
+                        {{-- <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalTambahInformations" id="#modalCenter"><span class="pr-2"><i
+                                    class="fas fa-plus"></i></span>Tambah Information</button> --}}
                         <div id="containerInformations" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableinformations">
-                                                    <thead class="thead-light">
-                                                        <tr>
-                                                            <th>No.</th>
-                                                            <th>Judul</th>
-                                                            <th>Image</th>
-                                                            <th>Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>1.</td>
-                                                            <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                            <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                            <td>
-                                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                        class="fas fa-edit"></i></a>
-                                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                            <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                            </td>
-                                                        </tr>
+                                                                <thead class="thead-light">
+                                                                    <tr>
+                                                                        <th>No.</th>
+                                                                        <th>Judul</th>
+                                                                        <th>Image</th>
+                                                                        <th>Action</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>1.</td>
+                                                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                                        <td>
+                                                                        <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                                    class="fas fa-edit"></i></a>
+                                                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                                        </td>
+                                                                    </tr>
 
-                                            </tbody>
-                                        </table> -->
+                                                        </tbody>
+                                                    </table> -->
                         </div>
                     </div>
                 </div>
@@ -229,14 +235,14 @@
                                 success: function(response) {
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                        "Data Berhasil Disimpan");
+                                            "Data Berhasil Disimpan");
                                         getlistInformations();
                                         $('#modalTambahInformations').modal('hide');
                                     } else {
                                         Swal.fire({
                                             title: "Gagal Menambahkan Data",
                                             text: response
-                                            .message,
+                                                .message,
                                             icon: "error",
                                         });
                                     }
@@ -245,7 +251,7 @@
                                     Swal.fire({
                                         title: "Gagal Menambahkan Data",
                                         text: xhr.responseJSON
-                                        .message,
+                                            .message,
                                         icon: "error",
                                     });
                                 }
@@ -277,56 +283,81 @@
                     let imageInformations = $('#imageInformationsEdit')[0].files[0];
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('judulInformations', judulInformations);
-                            formData.append('isiInformations', isiInformations);
-                            formData.append('imageInformations', imageInformations);
-                            formData.append('_token', csrfToken);
+                    let isValid = true;
 
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateInformations') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getlistInformations();
-                                        $('#modalEditInformations').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
+                    if (judulInformations === '') {
+                        $('#judulInformationsErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#judulInformationsErrorEdit').addClass('d-none');
+                    }
+
+                    // Validasi Content
+                    if (isiInformations === '') {
+                        $('#isiInformationsErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#isiInformationsErrorEdit').addClass('d-none');
+                    }
+
+                    // Validasi Gambar (hanya jika file gambar diubah)
+                    if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
+                        $('#imageInformationsErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageInformationsErrorEdit').addClass('d-none');
+                    }
+
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('judulInformations', judulInformations);
+                                formData.append('isiInformations', isiInformations);
+                                formData.append('imageInformations', imageInformations);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateInformations') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getlistInformations();
+                                            $('#modalEditInformations').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    });
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
                 })
 
                 // validateInformationsInput('modalEditInformations');
                 $('#modalEditInformations').modal('show');
             });
-            
-
-
-
 
 
             $(document).on('click', '.btnDestroyInformations', function(e) {

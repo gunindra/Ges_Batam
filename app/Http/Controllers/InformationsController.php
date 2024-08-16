@@ -117,31 +117,27 @@ class InformationsController extends Controller
         $imageInformations = $request->file('imageInformations');
 
         try {
-            // $oldInformation = DB::table('tbl_informations')->where('id', $id)->first();
+            $dataUpdate = [
+                'judul_informations' => $judulInformations,
+                'isi_informations' => $isiInformations,
+                'updated_at' => now(),
+            ];
 
-            // if ($imageInformations) {
+            // Hanya tambahkan file image jika tidak null
+            if ($imageInformations) {
                 $fileName = $imageInformations->getClientOriginalName();
-                $filePath = $imageInformations->storeAs('public/images', $fileName);
-
-                // if ($oldInformation->image_informations) {
-                //     Storage::delete('public/images/' . $oldInformation->image_informations);
-                // }
-            // } else {
-            //     return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
-            // }
+                $imageInformations->storeAs('public/images', $fileName);
+                $dataUpdate['image_informations'] = $fileName;
+            }
 
             DB::table('tbl_informations')
                 ->where('id', $id)
-                ->update([
-                    'judul_informations' => $judulInformations,
-                    'isi_informations' => $isiInformations,
-                    'image_informations' => $fileName,
-                    'updated_at' => now(),
-                ]);
+                ->update($dataUpdate);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }
     }
+
 }
