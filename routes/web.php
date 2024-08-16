@@ -133,7 +133,6 @@ Route::get('/PTGes',[PtgesController::class , 'index'])->name('PTGes');
 Route::get('/About',[AboutsController::class , 'index'])->name('About');
 Route::get('/Why',[WhysController::class , 'index'])->name('Why');
 Route::get('/Services',[ServicesController::class , 'index'])->name('Services');
-
 Route::get('/Services1',[Services1Controller::class , 'index'])->name('Services1');
 Route::get('/Services2',[Services2Controller::class , 'index'])->name('Services2');
 Route::get('/Slide',[SlideController::class , 'index'])->name('Slide');

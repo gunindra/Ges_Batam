@@ -67,11 +67,18 @@ class InformationsController extends Controller
         $file = $request->file('imageInformations');
 
         try {
+            // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
+            $chekdata = DB::table('tbl_informations')->count();
+
+            if ($chekdata >= 6) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
+            }
+
             if ($file) {
                 $fileName = $file->getClientOriginalName();
                 $filePath = $file->storeAs('public/images', $fileName);
             } else {
-                $file = null; // No image was uploaded
+                $fileName = null; // No image was uploaded
             }
 
             DB::table('tbl_informations')->insert([
@@ -81,11 +88,12 @@ class InformationsController extends Controller
                 'created_at' => now(),
             ]);
 
-            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
         }
     }
+
     public function destroyInformations(Request $request)
     {
         $id = $request->input('id');
@@ -109,18 +117,18 @@ class InformationsController extends Controller
         $imageInformations = $request->file('imageInformations');
 
         try {
-            $oldInformation = DB::table('tbl_informations')->where('id', $id)->first();
+            // $oldInformation = DB::table('tbl_informations')->where('id', $id)->first();
 
-            if ($imageInformations) {
+            // if ($imageInformations) {
                 $fileName = $imageInformations->getClientOriginalName();
                 $filePath = $imageInformations->storeAs('public/images', $fileName);
 
-                if ($oldInformation->image_informations) {
-                    Storage::delete('public/images/' . $oldInformation->image_informations);
-                }
-            } else {
-                return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
-            }
+                // if ($oldInformation->image_informations) {
+                //     Storage::delete('public/images/' . $oldInformation->image_informations);
+                // }
+            // } else {
+            //     return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
+            // }
 
             DB::table('tbl_informations')
                 ->where('id', $id)
