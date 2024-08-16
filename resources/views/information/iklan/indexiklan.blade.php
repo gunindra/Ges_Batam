@@ -8,8 +8,8 @@
 
 
  <!-- Modal tambah -->
- <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog" aria-labelledby="modalTambahIklanTitle"
-            aria-hidden="true">
+ <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog"
+            aria-labelledby="modalTambahIklanTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -75,12 +75,14 @@
             <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
         </div>
         <div class="row mb-3">
-        <div class="col-xl-12">
-            <div class="card mx-4">
-                <div class="card-body">
-                <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
-                    class="fas fa-plus"></i></span>Tambah Iklan</button>
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex mb-2 mr-3 float-right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
+                                        class="fas fa-plus"></i></span>Tambah Iklan</button>
+                        </div>
                     <div id="containerIklan" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
                                 <thead class="thead-light">

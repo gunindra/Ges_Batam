@@ -22,10 +22,10 @@
                         <div id="imageWhyError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                     </div>
                     <div class="input-group pt-2 mt-3">
-                        <label for="contentWhy" class="form-label fw-bold p-3">Content</label>
+                        <label for="parafWhy" class="form-label fw-bold p-3">Content</label>
                         <textarea id="parafWhy" class="form-control" aria-label="With textarea">{{ $whyData->Paraf_WhyUs ?? '' }}</textarea>
-                        <div id="parafWhyError" class="text-danger mt-1 d-none">Silahkan isi </div>
                     </div>
+                    <div id="parafWhyError" class="text-danger mt-1 d-none">Silahkan isi</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>

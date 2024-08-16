@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Storage;
 
 class ServiceController extends Controller
 {
@@ -12,4 +13,91 @@ class ServiceController extends Controller
       
         return view('information.services.indexservice');
     }
+
+    public function getlistService(Request $request)
+    {
+        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+
+        $q = "SELECT id,
+                        judul_service,
+                        isi_service,
+                        image_service
+                FROM tbl_service
+        ";
+
+        // dd($q);
+
+        $data = DB::select($q);
+
+        $output = '  <table class="table align-items-center table-flush table-hover" id="tableService">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Judul</th>
+                                        <th>Content</th>
+                                        <th>Image</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>';
+        foreach ($data as $item) {
+
+            $image = $item->image_service;
+            $imagepath = Storage::url('images/' . $image);
+            
+
+
+
+            $output .=
+                '
+                <tr>
+                    <td class="">' . ($item->judul_service ?? '-') .'</td>
+                    <td class="">' . ($item->isi_service ?? '-') .'</td>
+                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
+                   <td>
+                        <a  class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_service="' .$item->judul_service.'"data-isi_service="' .$item->isi_service.'" data-image_service="' .$item->image_service.'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyService btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+            ';
+        }
+
+        $output .= '</tbody></table>';
+         return $output;
+    }
+
+    public function addService(Request $request)
+    {
+
+        $judulService = $request->input('judulService');
+        $isiService = $request->input('isiService');
+        $file = $request->file('imageService');
+
+        try {
+            // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
+            $chekdata = DB::table('tbl_service')->count();
+
+            if ($chekdata >= 6) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
+            }
+
+            if ($file) {
+                $fileName = $file->getClientOriginalName();
+                $filePath = $file->storeAs('public/images', $fileName);
+            } else {
+                $fileName = null; // No image was uploaded
+            }
+
+            DB::table('tbl_service')->insert([
+                'judul_service' => $judulService,
+                'isi_service' => $isiService,
+                'image_service' => $fileName,
+                'created_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+        }
+    }
+
 }

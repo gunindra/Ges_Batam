@@ -83,12 +83,14 @@
             <h1 class="h3 mb-0 text-gray-800 px-4">Carousel</h1>
         </div>
         <div class="row mb-3">
-        <div class="col-xl-12">
-            <div class="card mx-4">
-                <div class="card-body">
-                <button type="button" class="btn btn-primary" data-toggle="modal"
-                    data-target="#modalTambahCarousel" id="#modalCenter"><span class="pr-3"><i
-                    class="fas fa-plus"></i></span>Tambah Carousel</button>
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex mb-2 mr-3 float-right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalTambahCarousel" id="#modalCenter"><span class="pr-2"><i
+                                        class="fas fa-plus"></i></span>Tambah Carousel</button>
+                        </div>
                     <div id="containerCarousel" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
                                 <thead class="thead-light">
