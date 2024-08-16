@@ -153,14 +153,31 @@
 
         getlistIklan();
 
-        $('#saveIklan').click(function() {
-            $('#judulIklan,#imageIklan').data('touched', true);
+        $('#saveIklan').click(function () {
+            // Ambil nilai input
+            var judulIklan = $('#judulIklan').val().trim();
+            var imageIklan = $('#imageIklan')[0].files[0];
 
-            let judulIklan = $('#judulIklan').val();
-            let imageIklan = $('#imageIklan')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (judulIklan && imageIklan) {
+            var isValid = true;
+
+            if (judulIklan === '') {
+                $('#judulIklanError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#judulIklanError').addClass('d-none');
+            }
+
+            if (!imageIklan) {
+                $('#imageIklanError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageIklanError').addClass('d-none');
+            }
+
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -171,101 +188,121 @@
                     cancelButtonText: 'Tidak',
                     reverseButtons: true
                 }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('judulIklan', judulIklan);
-                            formData.append('imageIklan', imageIklan);
-                            formData.append('_token', csrfToken);
+                    if (result.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('judulIklan', judulIklan);
+                        formData.append('imageIklan', imageIklan);
+                        formData.append('_token', csrfToken);
 
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('addIklan') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Disimpan");
-                                        getlistIklan();
-                                        $('#modalTambahIklan').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addIklan') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistIklan();
+                                    $('#modalTambahIklan').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        icon: "error"
+                                    });
                                 }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            });
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
 
-            $(document).on('click', '.btnUpdateIklan', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                let judul_iklan = $(this).data('judul_iklan');
-                let image_iklan = $(this).data('image_iklan');
-
-                $('#judulIklanEdit').val(judul_iklan);
-                $('#textNamaEdit').text(image_iklan);
-                $('#iklanIdEdit').val(id);
-
-                $(document).on('click', '#saveEditIklan', function(e) {
-
-                    let id =$('#iklanIdEdit').val();
-                    let judulIklan = $('#judulIklanEdit').val();
+        $('#saveEditIklan').click(function() {
+                    // Ambil nilai input
+                    let id = $('#iklanIdEdit').val();
+                    let judulIklan = $('#judulIklanEdit').val().trim();
                     let imageIklan = $('#imageIklanEdit')[0].files[0];
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('judulIklan', judulIklan);
-                            formData.append('imageIklan', imageIklan);
-                            formData.append('_token', csrfToken);
+                    // Validasi input
+                    var isValid = true;
 
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateIklan') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getlistIklan();
-                                        $('#modalEditIklan').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
+                    if (judulIklan === '') {
+                        $('#judulIklanEditError').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#judulIklanEditError').addClass('d-none');
+                    }
+
+                    if (!imageIklan) {
+                        $('#imageIklanEditError').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageIklanEditError').addClass('d-none');
+                    }
+
+                    if (isValid) {
+                        // Konfirmasi dengan SweetAlert2
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('judulIklan', judulIklan);
+                                formData.append('imageIklan', imageIklan);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateIklan') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            Swal.fire({
+                                                title: "Berhasil!",
+                                                text: "Data Berhasil Diperbarui",
+                                                icon: "success"
+                                            }).then(() => {
+                                                getlistIklan();  // Update the list
+                                                $('#modalEditIklan').modal('hide');  // Close the modal
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Mengubah Data",
+                                                icon: "error"
+                                            });
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    });
-                })
+                                });
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Periksa Input",
+                            text: "Tolong periksa input yang kosong",
+                            icon: "warning"
+                        });
+                    }
+                });
 
-                // validateInformationsInput('modalEditInformations');
-                $('#modalEditIklan').modal('show');
+            $('#modalTambahIklan').on('hidden.bs.modal', function() {
+                $('#judulIklan,#imageIklan').val('');
+                validateInput('modalTambahIklan');
             });
+
 
 
         
@@ -303,124 +340,6 @@
             
      });
 
-     $('#saveIklan').click(function() {
-            const judulIklan = $('#judulIklan').val().trim();
-            const imageIklan = $('#imageIklan').val().trim();
- 
-            let isValid = true;
-
-                if (judulIklan === '') {
-                    $('#judulIklanError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#judulIklanError').addClass('d-none');
-                }
-
-                if (imageIklan === '') {
-                    $('#imageIklanError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageIklanError').addClass('d-none');
-                }
-
-                
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('addIklan') }}",
-                    data: {
-                        judulIklan: judulIklan,
-                        imageIklan: imageIklan,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showMessage("success", "Iklan berhasil dibuat").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal membuat Iklan",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal membuat Iklan",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
-                    }
-                });
-            });
-
-            $('#saveEditIklan').click(function() {
-            const judulIklanEdit = $('#judulIklanEdit').val().trim();
-            const imageIklanEdit = $('#imageIklanEdit').val().trim();
- 
-            let isValid = true;
-
-                if (judulIklanEdit === '') {
-                    $('#judulIklanErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#judulIklanErrorEdit').addClass('d-none');
-                }
-
-
-                if (imageIklanEdit === '') {
-                    $('#imageIklanErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageIklanErrorEdit').addClass('d-none');
-                }
-
-                
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('updateIklan') }}",
-                    data: {
-                        judulIklanEdit: judulIklanEdit,
-                        imageIklanEdit: imageIklanEdit,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showMessage("success", "Iklan berhasil mengubah").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal memngubah Iklan",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal membuat Iklan",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
-                    }
-                });
-            });
     });
 </script>
 @endsection

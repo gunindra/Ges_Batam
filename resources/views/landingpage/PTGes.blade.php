@@ -24,25 +24,25 @@
           <a class="bg-primary bg-gradient text-white" href="/Slide">Learn More</a>
 				</div>
 			</div>
-			<div class="carousel-item bg-2">
+			<!-- <div class="carousel-item bg-2">
 				<div class="carousel-caption"  style="bottom:240px;">
 					<h5>Truck</h5>
 					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus, culpa.</p>
           <a class="bg-primary bg-gradient text-white" href="/Slide">Learn More</a>
 				</div>
-			</div>
-			<div class="carousel-item bg-3">
+			</div> -->
+			<!-- <div class="carousel-item bg-3">
 				<div class="carousel-caption"  style="bottom:240px;">
 					<h5>Plane</h5>
 					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Temporibus, culpa.</p>
           <a class="bg-primary bg-gradient text-white" href="/Slide">Learn More</a>
 				</div>
-			</div>
-		</div><button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-prev-icon"></span> <span class="visually-hidden">Previous</span></button> <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-next-icon"></span> <span class="visually-hidden">Next</span></button> <!--thumbnails-->
+			</div> -->
+		<!-- </div><button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-prev-icon"></span> <span class="visually-hidden">Previous</span></button> <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-next-icon"></span> <span class="visually-hidden">Next</span></button> thumbnails -->
 		<div class="carousel-indicators">
 			      <button aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carouselExampleCaptions" type="button"></button> 
-            <button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carouselExampleCaptions" type="button"></button>
-            <button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carouselExampleCaptions" type="button"></button>
+            <!-- <button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carouselExampleCaptions" type="button"></button>
+            <button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carouselExampleCaptions" type="button"></button> -->
 		</div>
 	</div>
 </div>
@@ -194,14 +194,14 @@
       <!-- iklan slide -->
     <div class="logos">
       <div class="logos-slide">
-        <img src="/img/3m.svg" />
-        <img src="/img/barstool-store.svg" />
+        <img src="/img/iklan.png" />
+        <!-- <img src="/img/barstool-store.svg" />
         <img src="/img/budweiser.svg" />
         <img src="/img/buzzfeed.svg" />
         <img src="/img/forbes.svg" />
         <img src="/img/macys.svg" />
         <img src="/img/menshealth.svg" />
-        <img src="/img/mrbeast.svg" />
+        <img src="/img/mrbeast.svg" /> -->
       </div>
     </div>
 

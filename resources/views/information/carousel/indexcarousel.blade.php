@@ -162,15 +162,39 @@
 
         getlistCarousel();
 
-        $('#saveCarousel').click(function() {
-            $('#judulCarousel,#isiCarousel,#imageCarousel').data('touched', true);
+        
+        $('#saveCarousel').click(function () {
+            // Ambil nilai input
+            var judulCarousel = $('#judulCarousel').val().trim();
+            var isiCarousel = $('#isiCarousel').val().trim();
+            var imageCarousel = $('#imageCarousel')[0].files[0];
 
-            let judulCarousel = $('#judulCarousel').val();
-            let isiCarousel = $('#isiCarousel').val();
-            let imageCarousel = $('#imageCarousel')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (judulCarousel && isiCarousel && imageCarousel) {
+            var isValid = true;
+
+            if (judulCarousel === '') {
+                $('#judulCarouselError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#judulCarouselError').addClass('d-none');
+            }
+            if (isiCarousel === '') {
+                $('#isiCarouselError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#isiCarouselError').addClass('d-none');
+            }
+
+            if (!imageCarousel) {
+                $('#imageCarouselError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageCarouselError').addClass('d-none');
+            }
+
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -182,37 +206,38 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        let formData = new FormData();
-                            formData.append('judulCarousel', judulCarousel);
-                            formData.append('isiCarousel', isiCarousel);
-                            formData.append('imageCarousel', imageCarousel);
-                            formData.append('_token', csrfToken);
+                        var formData = new FormData();
+                        formData.append('judulCarousel', judulCarousel);
+                        formData.append('isiCarousel', isiCarousel);
+                        formData.append('imageCarousel', imageCarousel);
+                        formData.append('_token', csrfToken);
+
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCarousel') }}",
                             data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Disimpan");
-                                        getlistCarousel();
-                                        $('#modalTambahCarousel').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistCarousel();
+                                    $('#modalTambahCarousel').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        icon: "error"
+                                    });
                                 }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            });
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+
 
             $(document).on('click', '.btnUpdateCarousel', function(e) {
                 e.preventDefault();
