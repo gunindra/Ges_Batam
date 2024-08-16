@@ -821,9 +821,11 @@ a:hover {
 		width: 100%;
 	}
   /* Main */
+
   .main{
     height:auto;
   }
+  
   /* Gallery */
   .wrapperGallery{
     width: 80%;

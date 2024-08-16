@@ -1,14 +1,21 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\AboutsController;
 use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\IklanController;
 use App\Http\Controllers\InformationsController;
 use App\Http\Controllers\PembagirateController;
+use App\Http\Controllers\PtgesController;
 use App\Http\Controllers\RateController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\Services1Controller;
+use App\Http\Controllers\Services2Controller;
+use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\SlideController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\WhyController;
+use App\Http\Controllers\WhysController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
@@ -121,42 +128,14 @@ Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate']
 Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
 Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
+// landing page
+Route::get('/PTGes',[PtgesController::class , 'index'])->name('PTGes');
+Route::get('/About',[AboutsController::class , 'index'])->name('About');
+Route::get('/Why',[WhysController::class , 'index'])->name('Why');
+Route::get('/Services',[ServicesController::class , 'index'])->name('Services');
 
-Route::get('/', function () {
-    return view('PTGes');
-})->name('PTGes');
-
-Route::get('/About', function () {
-    return view('About');
-})->name('About');
-
-Route::get('/Why', function () {
-    return view('Why');
-})->name('Why');
-
-Route::get('/Services', function () {
-    return view('Services');
-})->name('Services');
-
-Route::get('/Services1', function () {
-    return view('Services1');
-});
-
-Route::get('/Services2', function () {
-    return view('Services2');
-});
-
-Route::get('/Slide', function () {
-    return view('/Slide');
-})->name('Slide');
-
-Route::get('/Slide1', function () {
-    return view('Slide1');
-});
-
-Route::get('/Slide2', function () {
-    return view('Slide2');
-});
-
+Route::get('/Services1',[Services1Controller::class , 'index'])->name('Services1');
+Route::get('/Services2',[Services2Controller::class , 'index'])->name('Services2');
+Route::get('/Slide',[SlideController::class , 'index'])->name('Slide');
 Route::get('/Tracking',[TrackingController::class , 'index'])->name('Tracking');
 Route::get('/Tracking/lacakResi',[TrackingController::class , 'lacakResi'])->name('lacakResi');

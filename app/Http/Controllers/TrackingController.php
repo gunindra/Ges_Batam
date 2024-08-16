@@ -10,7 +10,7 @@ class TrackingController extends Controller
     public function index(){
 
 
-        return view('Tracking');
+        return view('landingpage.Tracking');
     }
 
     public function lacakResi(Request $request)
