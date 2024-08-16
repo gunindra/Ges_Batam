@@ -97,29 +97,29 @@
                                     class="fas fa-plus"></i></span>Tambah Information</button>
                         <div id="containerInformations" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableinformations">
-                                            <thead class="thead-light">
-                                                <tr>
-                                                    <th>No.</th>
-                                                    <th>Judul</th>
-                                                    <th>Image</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1.</td>
-                                                    <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                    <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                    <td>
-                                                    <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                class="fas fa-edit"></i></a>
-                                                    <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                    <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                    </td>
-                                                </tr>
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>No.</th>
+                                                        <th>Judul</th>
+                                                        <th>Image</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>1.</td>
+                                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                        <td>
+                                                        <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                    class="fas fa-edit"></i></a>
+                                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                        </td>
+                                                    </tr>
 
-                                            </tbody>
-                                        </table> -->
+                                                </tbody>
+                                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -172,14 +172,37 @@
 
 
             $('#saveInformations').click(function() {
-                $('#judulInformations, #isiInformations, #imageInformations').data('touched', true);
+                // Ambil nilai input
+                var judulInformations = $('#judulInformations').val().trim();
+                var isiInformations = $('#isiInformations').val().trim();
+                var imageInformations = $('#imageInformations')[0].files[0]; // Mendapatkan file
 
-                let judulInformations = $('#judulInformations').val();
-                let isiInformations = $('#isiInformations').val();
-                let imageInformations = $('#imageInformations')[0].files[0];
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                if (judulInformations && isiInformations && imageInformations) {
+                var isValid = true;
+
+                if (judulInformations === '') {
+                    $('#judulInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulInformationsError').addClass('d-none');
+                }
+                if (isiInformations === '') {
+                    $('#isiInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#isiInformationsError').addClass('d-none');
+                }
+
+                if (!imageInformations) {
+                    $('#imageInformationsError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageInformationsError').addClass('d-none');
+                }
+
+                // Jika semua input valid, lanjutkan aksi simpan
+                if (isValid) {
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
                         icon: 'question',
@@ -191,7 +214,7 @@
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            let formData = new FormData();
+                            var formData = new FormData();
                             formData.append('judulInformations', judulInformations);
                             formData.append('isiInformations', isiInformations);
                             formData.append('imageInformations', imageInformations);
@@ -206,12 +229,12 @@
                                 success: function(response) {
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data Berhasil Disimpan");
+                                        "Data Berhasil Disimpan");
                                         getlistInformations();
                                         $('#modalTambahInformations').modal('hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Gagal Menambahkan",
+                                            title: "Gagal Menambahkan Data",
                                             icon: "error"
                                         });
                                     }
@@ -223,6 +246,7 @@
                     showMessage("error", "Mohon periksa input yang kosong");
                 }
             });
+
             $(document).on('click', '.btnUpdateInformations', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
@@ -237,7 +261,7 @@
 
                 $(document).on('click', '#saveEditInformations', function(e) {
 
-                    let id =$('#informationsIdEdit').val();
+                    let id = $('#informationsIdEdit').val();
                     let judulInformations = $('#judulInformationsEdit').val();
                     let isiInformations = $('#isiInformationsEdit').val();
                     let imageInformations = $('#imageInformationsEdit')[0].files[0];
@@ -329,144 +353,9 @@
                 });
 
             });
-            $('#saveInformations').click(function() {
-            const judulInformations = $('#judulInformations').val().trim();
-            const isiInformations = $('#isiInformations').val().trim();
-            const imageInformations = $('#imageInformations').val().trim();
- 
-            let isValid = true;
 
-                if (judulInformations === '') {
-                    $('#judulInformationsError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#judulInformationsError').addClass('d-none');
-                }
 
-                if (isiInformations === '') {
-                    $('#isiInformationsError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#isiInformationsError').addClass('d-none');
-                }
-
-                if (imageInformations === '') {
-                    $('#imageInformationsError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageInformationsError').addClass('d-none');
-                }
-
-                
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('addInformations') }}",
-                    data: {
-                        judulInformations: judulInformations,
-                        isiInformations: isiInformations,
-                        imageInformations: imageInformations,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showMessage("success", "Information berhasil dibuat").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal membuat information",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal membuat information",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
-                    }
-                });
-            });
-
-            $('#saveEditInformations').click(function() {
-            const judulInformationsEdit = $('#judulInformationsEdit').val().trim();
-            const isiInformationsEdit = $('#isiInformationsEdit').val().trim();
-            const imageInformationsEdit = $('#imageInformationsEdit').val().trim();
- 
-            let isValid = true;
-
-                if (judulInformationsEdit === '') {
-                    $('#judulInformationsErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#judulInformationsErrorEdit').addClass('d-none');
-                }
-
-                if (isiInformationsEdit === '') {
-                    $('#isiInformationsErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#isiInformationsErrorEdit').addClass('d-none');
-                }
-
-                if (imageInformationsEdit === '') {
-                    $('#imageInformationsErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageInformationsErrorEdit').addClass('d-none');
-                }
-
-                
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('updateInformations') }}",
-                    data: {
-                        judulInformationsEdit: judulInformationsEdit,
-                        isiInformationsEdit: isiInformationsEdit,
-                        imageInformationsEdit: imageInformationsEdit,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showMessage("success", "Informatiom berhasil mengubah").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal memngubah information",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal membuat information",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
-                    }
-                });
-            });
-
-            
         });
     </script>
-   
+
 @endsection

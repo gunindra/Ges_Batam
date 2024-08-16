@@ -10,6 +10,11 @@ class PtgesController extends Controller
 
     public function index()
     {
-        return view('landingpage.PTGes');
+
+        $listinformation =  DB::select("SELECT * FROM tbl_informations");
+
+        return view('landingpage.PTGes', [
+            'listinformation' => $listinformation,
+        ]);
     }
 }

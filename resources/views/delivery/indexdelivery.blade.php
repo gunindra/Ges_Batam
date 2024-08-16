@@ -175,6 +175,10 @@
         getlistDelivery();
 
 
+
+
+
+
         $(document).on('click', '.btnAcceptPengantaran', function(e) {
             let id = $(this).data('id');
 
