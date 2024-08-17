@@ -568,83 +568,118 @@
                 });
             });
 
-            $('#saveEditCustomer').click(function() {
-                const namaCustomerEdit = $('#namaCustomerEdit').val().trim();
-                const alamatCustomerEdit = $('#alamatCustomerEdit').val().trim();
-                const noTelponEdit = $('#noTelponEdit').val().trim();
-                const CategoryCustomerEdit = $('#CategoryCustomerEdit').val().trim();
+            $(document).on('click', '.btnUpdateCustomer', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let nama_pembeli = $(this).data('nama_pembeli');
+                let alamat = $(this).data('alamat');
+                let no_wa = $(this).data('no_wa');
+                let category = $(this).data('category');
 
-                let isValid = true;
+                $('#namaCustomerErrorEdit').val(namaCustomerErrorEdit);
+                $('#alamatCustomerErrorEdit').val(alamatCustomerErrorEdit);
+                $('#notelponCustomerErrorEdit').val(notelponCustomerErrorEdit);
+                $('#CategoryCustomerErrorEdit').val(CategoryCustomerErrorEdit);
 
-                if (namaCustomerEdit === '') {
-                    $('#namaCustomerErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#namaCustomerErrorEdit').addClass('d-none');
-                }
+                $('#customerIdEdit').val(id);
 
-                if (alamatCustomerEdit === '') {
-                    $('#alamatCustomerErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#alamatCustomerErrorEdit').addClass('d-none');
-                }
+                $(document).on('click', '#saveEditCostumer', function(e) {
 
-                if (noTelponEdit === '') {
-                    $('#notelponCustomerErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#notelponCustomerErrorEdit').addClass('d-none');
-                }
+                    let id = $('#customerIdEdit').val();
+                    let namaCustomer = $('#namaCustomerErrorEdit').val();
+                    let alamatCustomer= $('#alamatCustomerErrorEdit').val();
+                    let notelponCustomer= $('#notelponCustomerErrorEdit').val();
+                    let categoryCustomer= $('#CategoryCustomerErrorEdit').val();
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                if (CategoryCustomerEdit === '') {
-                    $('#CategoryCustomerErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#CategoryCustomerErrorEdit').addClass('d-none');
-                }
+                    let isValid = true;
 
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('updateCostumer') }}",
-                    data: {
-                        namaCustomerEdit: namaCustomerEdit,
-                        alamatCustomerEdit: alamatCustomerEdit,
-                        noTelponEdit: noTelponEdit,
-                        CategoryCustomerEdit: CategoryCustomerEdit,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            Swal.fire({
-                                title: "Berhasil mengubah customer",
-                                icon: "success"
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal mengubah customer",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal mengubah customer",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
+                    if (namaCustomer=== '') {
+                        $('#namaCustomerErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#namaCustomerErrorEdit').addClass('d-none');
                     }
-                });
+
+                    // Validasi Content
+                    if (alamatCustomer === '') {
+                        $('#alamatCustomerErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#alamatCustomerErrorEdit').addClass('d-none');
+                    }
+
+                    if (notelponCustomer === '') {
+                        $('#notelponCustomerErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#notelponCustomerErrorEdit').addClass('d-none');
+                    }
+
+                    if (categoryCustomer === '') {
+                        $('#CategoryCustomerErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#CategoryCustomerErrorEdit').addClass('d-none');
+                    }
+
+
+                    
+
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('namaCustomer', namaCustomer);
+                                formData.append('alamatCustomer', alamatCustomer);
+                                formData.append('notelponCustomer', notelponCustomer);
+                                formData.append('categoryCustomer', categoryCustomer);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateCostumer') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getlistCustomer();
+                                            $('#modalEditCustomer').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
+                })
+
+                // validateInformationsInput('modalEditInformations');
+                $('#modalEditCustomer').modal('show');
+            });
+            $('#modalTambahCustomer').on('hidden.bs.modal', function() {
+                $('#namaCustomer,#alamatCustomer,#notelponCustomer,#categoryCustomer').val('');
+                validateInput('modalTambahCustomer');
             });
         });
     </script>

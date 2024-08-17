@@ -70,6 +70,8 @@ Route::post('/information/whys/tambah', [WhyController::class, 'addWhy'])->name(
 Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
 Route::get('/information/services/getlistService', [ServiceController::class, 'getlistService'])->name('getlistService');
 Route::post('/information/services/tambah', [ServiceController::class, 'addService'])->name('addService');
+Route::post('/information/services/update', [ServiceController::class, 'updateService'])->name('updateService');
+Route::get('/information/services/destroy', [ServiceController::class, 'destroyService'])->name('destroyService');
 
 // Carousel
 Route::get('/information/carousel', [CarouselController::class, 'index'])->name('carousel');

@@ -358,6 +358,11 @@
                 // validateInformationsInput('modalEditInformations');
                 $('#modalEditInformations').modal('show');
             });
+            $('#modalTambahInformations').on('hidden.bs.modal', function() {
+                $('#judulInformations,#imageInformations').val('');
+                validateInput('modalTambahInformations');
+            });
+
 
 
             $(document).on('click', '.btnDestroyInformations', function(e) {

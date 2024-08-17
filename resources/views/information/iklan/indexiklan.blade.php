@@ -224,32 +224,41 @@
 
         
 
-        $('#saveEditIklan').click(function() {
-                    // Ambil nilai input
-                    let id = $('#iklanIdEdit').val();
-                    let judulIklan = $('#judulIklanEdit').val().trim();
+        $(document).on('click', '.btnUpdateIklan', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let judul_iklan = $(this).data('judul_iklan');
+                let image_iklan = $(this).data('image_iklan');
+
+                $('#judulIklanEdit').val(judul_iklan);
+                $('#textNamaEdit').text(image_iklan);
+                $('#IklanIdEdit').val(id);
+
+                $(document).on('click', '#saveEditIklan', function(e) {
+
+                    let id = $('#IklanIdEdit').val();
+                    let judulIklan = $('#judulIklanEdit').val();
                     let imageIklan = $('#imageIklanEdit')[0].files[0];
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                    // Validasi input
-                    var isValid = true;
+                    let isValid = true;
 
                     if (judulIklan === '') {
-                        $('#judulIklanEditError').removeClass('d-none');
+                        $('#judulIklanErrorEdit').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#judulIklanEditError').addClass('d-none');
+                        $('#judulIklanErrorEdit').addClass('d-none');
                     }
 
-                    if (!imageIklan) {
-                        $('#imageIklanEditError').removeClass('d-none');
+                    // Validasi Gambar (hanya jika file gambar diubah)
+                    if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
+                        $('#imageIklanErrorEdit').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#imageIklanEditError').addClass('d-none');
+                        $('#imageIklanErrorEdit').addClass('d-none');
                     }
 
                     if (isValid) {
-                        // Konfirmasi dengan SweetAlert2
                         Swal.fire({
                             title: "Apakah Kamu Yakin?",
                             icon: 'question',
@@ -261,7 +270,7 @@
                             reverseButtons: true
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                var formData = new FormData();
+                                let formData = new FormData();
                                 formData.append('id', id);
                                 formData.append('judulIklan', judulIklan);
                                 formData.append('imageIklan', imageIklan);
@@ -275,17 +284,14 @@
                                     processData: false,
                                     success: function(response) {
                                         if (response.status === 'success') {
-                                            Swal.fire({
-                                                title: "Berhasil!",
-                                                text: "Data Berhasil Diperbarui",
-                                                icon: "success"
-                                            }).then(() => {
-                                                getlistIklan();  // Update the list
-                                                $('#modalEditIklan').modal('hide');  // Close the modal
-                                            });
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getlistIklan();
+                                            $('#modalEditIklan').modal(
+                                                'hide');
                                         } else {
                                             Swal.fire({
-                                                title: "Gagal Mengubah Data",
+                                                title: "Gagal Menambahkan",
                                                 icon: "error"
                                             });
                                         }
@@ -294,13 +300,13 @@
                             }
                         });
                     } else {
-                        Swal.fire({
-                            title: "Periksa Input",
-                            text: "Tolong periksa input yang kosong",
-                            icon: "warning"
-                        });
+                        showMessage("error", "Mohon periksa input yang kosong");
                     }
-                });
+                })
+
+                // validateInformationsInput('modalEditInformations');
+                $('#modalEditIklan').modal('show');
+            });
 
             $('#modalTambahIklan').on('hidden.bs.modal', function() {
                 $('#judulIklan,#imageIklan').val('');

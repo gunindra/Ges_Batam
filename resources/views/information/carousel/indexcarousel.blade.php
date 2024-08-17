@@ -410,72 +410,104 @@
                 });
             });
 
-            $('#saveEditCarousel').click(function() {
-            const judulCarouselEdit = $('#judulCarouselEdit').val().trim();
-            const isiCarouselEdit = $('#isiCarouselEdit').val().trim();
-            const imageCarouselEdit = $('#imageCarouselEdit').val().trim();
- 
-            let isValid = true;
+            $(document).on('click', '.btnUpdateCarousel', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let judul_carousel = $(this).data('judul_carousel');
+                let isi_carousel = $(this).data('isi_carousel');
+                let image_carousel = $(this).data('image_carousel');
 
-                if (judulCarouselEdit === '') {
-                    $('#judulCarouselErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#judulCarouselErrorEdit').addClass('d-none');
-                }
+                $('#judulCarouselEdit').val(judul_carousel);
+                $('#isiCarouselEdit').val(isi_carousel);
+                $('#textNamaEdit').text(image_carousel);
+                $('#carouselIdEdit').val(id);
 
-                if (isiCarouselEdit === '') {
-                    $('#isiCarouselErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#isiCarouselErrorEdit').addClass('d-none');
-                }
+                $(document).on('click', '#saveEditCarousel', function(e) {
 
-                if (imageCarouselEdit === '') {
-                    $('#imageCarouselErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageCarouselErrorEdit').addClass('d-none');
-                }
+                    let id = $('#CarouselIdEdit').val();
+                    let judulCarousel = $('#judulCarouselEdit').val();
+                    let isiCarousel= $('#isiCarouselEdit').val();
+                    let imageCarousel = $('#imageCarouselEdit')[0].files[0];
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                
-                if (!isValid) {
-                    Swal.fire({
-                        title: "Periksa input yang masih kosong.",
-                        icon: "error"
-                    });
-                    return;
-                }
+                    let isValid = true;
 
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('updateCarousel') }}",
-                    data: {
-                        judulCarouselEdit: judulCarouselEdit,
-                        isiCarouselEdit: isiCarouselEdit,
-                        imageCarouselEdit: imageCarouselEdit,
-                        _token: csrfToken
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            showMessage("success", "Carousel berhasil mengubah").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                title: "Gagal memngubah Carousel",
-                                icon: "error"
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            title: "Gagal membuat Carousel",
-                            text: "Terjadi kesalahan. Mohon coba lagi.",
-                            icon: "error"
-                        });
+                    if (judulCarousel=== '') {
+                        $('#judulCarouselErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#judulCarouselErrorEdit').addClass('d-none');
                     }
-                });
+
+                    // Validasi Content
+                    if (isiCarousel === '') {
+                        $('#isiCarouselErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#isiCarouselErrorEdit').addClass('d-none');
+                    }
+
+                    // Validasi Gambar (hanya jika file gambar diubah)
+                    if (imageCarousel === 0 && $('#textNamaEdit').text() === '') {
+                        $('#imageCarouselErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageCarouselErrorEdit').addClass('d-none');
+                    }
+
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('judulCarousel', judulCarousel);
+                                formData.append('isiCarousel', isiCarousel);
+                                formData.append('imageCarousel', imageCarousel);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateCarousel') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getlistCarousel();
+                                            $('#modalEditCarousel').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
+                })
+
+                // validateInformationsInput('modalEditInformations');
+                $('#modalEditICarousel').modal('show');
+            });
+            $('#modalTambahCarousel').on('hidden.bs.modal', function() {
+                $('#judulCarousel,#isiCarousel,#imageCarousel').val('');
+                validateInput('modalTambahCarousel');
             });
     });
 </script>

@@ -41,7 +41,46 @@
                     </div>
                 </div>
             </div>
+              </div>
+         <!-- Modal Edit -->
+         <div class="modal fade" id="modalEditService" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditServiceTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditServiceTitle">Edit Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="serviceIdEdit">
+                        <div class="mt-3">
+                            <label for="judulService" class="form-label fw-bold">Judul</label>
+                            <input type="text" class="form-control" id="judulServiceEdit" value="">
+                            <div id="judulServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="isiService" class="form-label fw-bold">Content</label>
+                            <textarea class="form-control" id="isiServiceEdit" rows="3"></textarea>
+                            <div id="isiServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="imageService" class="form-label fw-bold">Gambar</label>
+                            <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                            <input type="file" class="form-control" id="imageServiceEdit" value="">
+                            <div id="imageServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveEditService" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Service</h1>
         </div>
@@ -201,6 +240,143 @@
                 showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+
+        $(document).on('click', '.btnUpdateService', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let judul_service = $(this).data('judul_service');
+                let isi_service = $(this).data('isi_service');
+                let image_service = $(this).data('image_service');
+
+                $('#judulServiceEdit').val(judul_service);
+                $('#isiServiceEdit').val(isi_service);
+                $('#textNamaEdit').text(image_service);
+                $('#serviceIdEdit').val(id);
+
+                $(document).on('click', '#saveEditService', function(e) {
+
+                    let id = $('#serviceIdEdit').val();
+                    let judulService = $('#judulServiceEdit').val();
+                    let isiService = $('#isiServiceEdit').val();
+                    let imageService = $('#imageServiceEdit')[0].files[0];
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    let isValid = true;
+
+                    if (judulService === '') {
+                        $('#judulServiceErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#judulServiceErrorEdit').addClass('d-none');
+                    }
+
+                    // Validasi Content
+                    if (isiService === '') {
+                        $('#isiServiceErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#isiServiceErrorEdit').addClass('d-none');
+                    }
+
+                    // Validasi Gambar (hanya jika file gambar diubah)
+                    if (imageService === 0 && $('#textNamaEdit').text() === '') {
+                        $('#imageServiceErrorEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageServiceErrorEdit').addClass('d-none');
+                    }
+
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('judulService', judulService);
+                                formData.append('isiService', isiService);
+                                formData.append('imageService', imageService);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateService') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getlistService();
+                                            $('#modalEditService').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
+                })
+
+                // validateInformationsInput('modalEditInformations');
+                $('#modalEditService').modal('show');
+            });
+            $('#modalTambahService').on('hidden.bs.modal', function() {
+                $('#judulService,#imageService').val('');
+                validateInput('modalTambahService');
+            });
+
+
+
+            $(document).on('click', '.btnDestroyService', function(e) {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin Ingin Hapus Customer Ini?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "GET",
+                            url: "{{ route('destroyService') }}",
+                            data: {
+                                id: id,
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    showMessage("success",
+                                        "Berhasil menghapus");
+                                    getlistService();
+                                } else {
+                                    showMessage("error", "Gagal menghapus");
+                                }
+                            }
+                        });
+                    }
+                });
+
+            });
 
     });
 </script>

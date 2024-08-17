@@ -45,8 +45,6 @@ class ServiceController extends Controller
             $imagepath = Storage::url('images/' . $image);
             
 
-
-
             $output .=
                 '
                 <tr>
@@ -97,6 +95,51 @@ class ServiceController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+        }
+    }
+    public function destroyService(Request $request)
+    {
+        $id = $request->input('id');
+
+        try {
+            DB::table('tbl_service')
+                ->where('id', $id)
+                ->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateService(Request $request)
+    {
+        $id = $request->input('id');
+        $judulService= $request->input('judulService');
+        $isiService = $request->input('isiService');
+        $imageService = $request->file('imageService');
+
+        try {
+            $dataUpdate = [
+                'judul_service' => $judulService,
+                'isi_service' => $isiService,
+                'updated_at' => now(),
+            ];
+
+            // Hanya tambahkan file image jika tidak null
+            if ($imageService) {
+                $fileName = $imageService->getClientOriginalName();
+                $imageService->storeAs('public/images', $fileName);
+                $dataUpdate['image_service'] = $fileName;
+            }
+
+            DB::table('tbl_service')
+                ->where('id', $id)
+                ->update($dataUpdate);
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }
     }
 
