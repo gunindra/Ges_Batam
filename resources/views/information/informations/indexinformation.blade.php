@@ -359,7 +359,7 @@
                 $('#modalEditInformations').modal('show');
             });
             $('#modalTambahInformations').on('hidden.bs.modal', function() {
-                $('#judulInformations,#imageInformations').val('');
+                $('#judulInformations,#isiInformations,#imageInformations').val('');
                 validateInput('modalTambahInformations');
             });
 

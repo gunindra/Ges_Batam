@@ -49,29 +49,22 @@
     <!-- Main -->
     <div class="main">
     <!-- Gallery -->
-    <div class="wrapperGallery">
-        <h1 class="section-header">Information</h1>
-        <div class="main-content">
-            {{-- <div class="box">
-                <img src="" alt="">
-                <div class="img-text">
-                    <div class="contentGallery">
-                        <h2>Truck</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam assumenda nulla aspernatur enim ut, minima.</p>
-                    </div>
-                </div>
-            </div> --}}
-            @foreach($listinformation as $info)
-            <div class="box">
-                <img src="{{ asset('storage/images/' . $info->image_informations) }}" alt="{{ $info->judul_informations }}">
-                <div class="img-text">
-                    <div class="contentGallery">
-                        <h2>{{ $info->judul_informations }}</h2>
-                        <p>{{ $info->isi_informations }}</p>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+    <div class="wrapperGallery @if(count($listinformation) == 1) single-gallery @endif">
+  <h1 class="section-header">Information</h1>
+  <div class="main-content">
+    @foreach($listinformation as $info)
+      <div class="box">
+        <img src="{{ asset('storage/images/' . $info->image_informations) }}" alt="{{ $info->judul_informations }}">
+        <div class="img-text">
+          <div class="contentGallery">
+            <h2>{{ $info->judul_informations }}</h2>
+            <p>{{ $info->isi_informations }}</p>
+          </div>
+        </div>
+      </div>
+    @endforeach
+  </div>
+</div>
              {{-- <div class="box">
                 <img src="" alt="">
                 <div class="img-text">

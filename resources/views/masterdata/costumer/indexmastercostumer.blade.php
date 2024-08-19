@@ -267,58 +267,9 @@
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
-        // Fungsi untuk validasi input
-        function validateInput(modal) {
-            let isValid = true;
-
-            // Nama Customer
-            if ($(`#${modal} #namaCustomer, #${modal} #namaCustomerEdit`).val().trim() === '') {
-                $(`#${modal} #namaCustomerError`).show();
-                isValid = false;
-            } else {
-                $(`#${modal} #errNamaCostumer`).hide();
-            }
-
-            // Alamat Customer
-            if ($(`#${modal} #alamatCustomer, #${modal} #alamatCustomerEdit`).val().trim() === '') {
-                $(`#${modal} #errAlamatCostumer`).show();
-                isValid = false;
-            } else {
-                $(`#${modal} #errAlamatCostumer`).hide();
-            }
-
-            // No. Telpon
-            if ($(`#${modal} #noTelpon, #${modal} #noTelponEdit`).val().trim() === '') {
-                $(`#${modal} #errNoTelpCostumer`).show();
-                isValid = false;
-            } else {
-                $(`#${modal} #errNoTelpCostumer`).hide();
-            }
-
-            // Category Customer
-            if ($(`#${modal} #CategoryCustomer, #${modal} #CategoryCustomerEdit`).val() === null) {
-                $(`#${modal} #errCategoryCostumer`).show();
-                isValid = false;
-            } else {
-                $(`#${modal} #errCategoryCostumer`).hide();
-            }
-
-            return isValid;
-        }
-
-        validateInput('modalTambahCustomer');
-        validateInput('modalEditCustomer');
-
-        $('#namaCustomer, #alamatCustomer, #noTelpon, #CategoryCustomer').on('input change', function() {
-            validateInput('modalTambahCustomer');
-        });
-
-        $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #CategoryCustomerEdit').on('input change', function() {
-            validateInput('modalEditCustomer');
-        });
-
+        
         $('#saveCostumer').click(function() {
-            $('#namaCustomer, #alamatCustomer, #noTelpon, #CategoryCustomer').data('touched', true);
+            // $('#namaCustomer, #alamatCustomer, #noTelpon, #CategoryCustomer').data('touched', true);
 
             let markingCostmer = $('#markingCustomer').val();
             let namaCostmer = $('#namaCustomer').val();
@@ -327,7 +278,7 @@
             let CategoryCustomer = $('#CategoryCustomer').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (validateInput('modalTambahCustomer')) {
+            // if (validateInput('modalTambahCustomer')) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -365,13 +316,13 @@
                         });
                     }
                 })
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
-            }
+            // } else {
+            //     showMessage("error", "Mohon periksa input yang kosong");
+            // }
         });
 
         $('#saveEditCostumer').click(function() {
-            $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #CategoryCustomerEdit').data('touched', true);
+            // $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #CategoryCustomerEdit').data('touched', true);
 
             let id = $('#customerIdEdit').val();
             let namaCostmer = $('#namaCustomerEdit').val();
@@ -380,7 +331,7 @@
             let CategoryCustomer = $('#CategoryCustomerEdit').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (validateInput('modalEditCustomer')) {
+            // if (validateInput('modalEditCustomer')) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -418,19 +369,19 @@
                         });
                     }
                 })
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
-            }
+            // } else {
+            //     showMessage("error", "Mohon periksa input yang kosong");
+            // }
         });
 
         $('#modalTambahCustomer').on('hidden.bs.modal', function() {
             $('#namaCustomer, #alamatCustomer, #noTelpon, #CategoryCustomer').val('');
-            validateInput('modalTambahCustomer');
+            // validateInput('modalTambahCustomer');
         });
 
         $('#modalEditCustomer').on('hidden.bs.modal', function() {
             $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #CategoryCustomerEdit').val('');
-            validateInput('modalEditCustomer');
+            // validateInput('modalEditCustomer');
         });
 
         $(document).on('click', '.btnUpdateCustomer', function(e) {
@@ -448,7 +399,7 @@
             $('#customerIdEdit').val(id);
 
 
-            validateInput('modalEditCustomer');
+            // validateInput('modalEditCustomer');
             $('#modalEditCustomer').modal('show');
         });
 

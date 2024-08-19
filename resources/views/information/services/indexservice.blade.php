@@ -337,7 +337,7 @@
                 $('#modalEditService').modal('show');
             });
             $('#modalTambahService').on('hidden.bs.modal', function() {
-                $('#judulService,#imageService').val('');
+                $('#judulService,#isiService,#imageService').val('');
                 validateInput('modalTambahService');
             });
 
