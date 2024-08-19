@@ -214,8 +214,9 @@
                                         <select class="form-control" id="pembagiVolume">
                                             <option value="" selected disabled>Pilih Pembagi</option>
                                             @foreach ($lisPembagi as $pembagi)
-                                            <option value="{{ $pembagi->nilai_pembagi }}">{{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
-                                        @endforeach
+                                                <option value="{{ $pembagi->nilai_pembagi }}">
+                                                    {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
+                                            @endforeach
                                         </select>
                                         <div id="pembagiErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih
                                             Pembagi</div>
@@ -226,7 +227,8 @@
                                         <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $ratevolume)
-                                                <option value="{{ $ratevolume->nilai_rate }}">{{ number_format($ratevolume->nilai_rate, 0, ',', '.') }}</option>
+                                                <option value="{{ $ratevolume->nilai_rate }}">
+                                                    {{ number_format($ratevolume->nilai_rate, 0, ',', '.') }}</option>
                                             @endforeach
                                         </select>
                                         <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
@@ -493,16 +495,55 @@
                 autoclose: true,
             });
 
+            const exchangeRates = {
+                1: 1,
+                2: 11400,
+                3: 2200
+            };
+
+
+            function updateDisplayedTotalHarga() {
+                const currencyValue = $('#currencyInvoice').val();
+                const totalHargaIDR = $('#totalHargaValue').val();
+                let convertedTotal = 0;
+
+                if (!currencyValue) {
+                    $('#total-harga').text('-');
+                } else if (currencyValue in exchangeRates) {
+                    convertedTotal = totalHargaIDR / exchangeRates[currencyValue];
+                    let currencySymbol = "";
+
+                    if (currencyValue == 1) {
+                        currencySymbol = "Rp. ";
+                    } else if (currencyValue == 2) {
+                        currencySymbol = "$ ";
+                    } else if (currencyValue == 3) {
+                        currencySymbol = "¥ ";
+                    }
+
+                    $('#total-harga').text(currencySymbol + convertedTotal.toLocaleString('id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+                } else {
+                    $('#total-harga').text('-');
+                }
+            }
+
+            $('#currencyInvoice').change(function() {
+                updateDisplayedTotalHarga();
+            });
+
+            updateDisplayedTotalHarga();
+
 
             $('#toggleSwitch').change(function() {
                 if ($(this).is(':checked')) {
-                    // Show volume, hide weight
                     $('#idlabel').text('Volume');
                     $('#volumeDiv').removeClass('d-none');
                     $('#rowDimensi').removeClass('d-none');
                     $('#weightDiv').addClass('d-none');
                 } else {
-                    // Show weight, hide volume
                     $('#idlabel').text('Berat');
                     $('#volumeDiv').addClass('d-none');
                     $('#rowDimensi').addClass('d-none');
@@ -518,6 +559,7 @@
                     $('#panjang, #lebar, #tinggi').val('');
                 }
                 updateTotalHargaBerat();
+                updateDisplayedTotalHarga();
 
                 var berat = parseFloat(this.value.replace(',', '.')) || 0;
 
@@ -529,10 +571,12 @@
 
                 $('#beratBarang').val('');
                 updateTotalHargaVolume();
+                updateDisplayedTotalHarga();
             });
 
             $('#pembagiVolume, #rateVolume').change(function() {
                 updateTotalHargaVolume();
+                updateDisplayedTotalHarga();
             });
 
             function updateTotalHargaBerat() {
@@ -553,7 +597,7 @@
                         $('#toggleSwitch').click();
                     } else {
                         $('#totalHargaValue').val(totalHarga)
-                        $('#total-harga').text('Rp.' + totalHarga.toLocaleString());
+                        updateDisplayedTotalHarga();
                     }
 
                 }
@@ -568,15 +612,14 @@
                 // Hitung volume
                 var volume = panjang * lebar * tinggi;
 
-                // Ambil nilai pembagi dan rate, dan konversi ke angka
-                var pembagi = parseFloat($('#pembagiVolume').val()) || 1; // Pastikan ini dikonversi ke float
-                var rate = parseFloat($('#rateVolume').val()) || 1; // Pastikan ini dikonversi ke float
+                var pembagi = parseFloat($('#pembagiVolume').val()) || 1;
+                var rate = parseFloat($('#rateVolume').val()) || 1;
 
                 // Hitung total harga volume
                 var totalHargaVolume = (volume / pembagi) * rate;
 
                 $('#dimensiValue').text(volume);
-                $('#total-harga').text('Rp. ' + totalHargaVolume.toLocaleString());
+                updateDisplayedTotalHarga();
                 $('#totalHargaValue').val(totalHargaVolume);
             }
 

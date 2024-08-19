@@ -72,6 +72,7 @@ class InvoiceController extends Controller
                     a.tinggi,
                     f.tipe_pembayaran,
                     a.harga,
+                    a.matauang_id,
                     a.bukti_pembayaran,
                     d.status_name
                 FROM tbl_pembayaran AS a
@@ -95,6 +96,19 @@ class InvoiceController extends Controller
 
         $data = DB::select($q);
 
+        // Nilai tukar mata uang
+        $exchangeRates = [
+            1 => 1,      // Rupiah
+            2 => 11400,  // SGD
+            3 => 2200    // Yuan
+        ];
+
+        $currencySymbols = [
+            1 => 'Rp ',
+            2 => '$ ',
+            3 => '¥ '
+        ];
+
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                                 <thead class="thead-light">
                                     <tr>
@@ -102,7 +116,7 @@ class InvoiceController extends Controller
                                         <th>Tanggal</th>
                                         <th>Costumer</th>
                                         <th>Jenis Pembayaran</th>
-                                        <th>Harga (IDR)</th>
+                                        <th>Harga</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -111,22 +125,21 @@ class InvoiceController extends Controller
                                 foreach ($data as $item) {
 
                                     $statusBadgeClass = '';
-                                    $btnPembayaran = ''; // Inisialisasi variabel untuk tombol pembayaran
-
+                                    $btnPembayaran = '';
                                     switch ($item->status_name) {
                                         case 'Pending Payment':
-                                            $statusBadgeClass = 'badge-warning'; // Kuning
+                                            $statusBadgeClass = 'badge-warning';
                                             $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
                                             break;
                                         case 'Ready For Pickup':
-                                            $statusBadgeClass = 'badge-success'; // Hijau
-                                            if($item->tipe_pembayaran === 'Transfer'){
+                                            $statusBadgeClass = 'badge-success';
+                                            if ($item->tipe_pembayaran === 'Transfer') {
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
                                         case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-primary'; // Biru
-                                            if($item->tipe_pembayaran === 'Transfer'){
+                                            $statusBadgeClass = 'badge-primary';
+                                            if ($item->tipe_pembayaran === 'Transfer') {
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
                                             break;
@@ -134,14 +147,20 @@ class InvoiceController extends Controller
                                             $statusBadgeClass = 'badge-delivering';
                                             break;
                                         case 'Debt':
-                                            $statusBadgeClass = 'badge-danger'; // Merah
+                                            $statusBadgeClass = 'badge-danger';
                                             break;
                                         case 'Done':
-                                            $statusBadgeClass = 'badge-secondary'; // Abu-abu
+                                            $statusBadgeClass = 'badge-secondary';
                                             break;
                                         default:
-                                            $statusBadgeClass = 'badge-secondary'; // Default
+                                            $statusBadgeClass = 'badge-secondary';
                                             break;
+                                    }
+
+
+                                    $convertedHarga = $item->harga;
+                                    if ($item->matauang_id != 1) {
+                                        $convertedHarga = $item->harga / $exchangeRates[$item->matauang_id];
                                     }
 
                                     $output .=
@@ -151,7 +170,7 @@ class InvoiceController extends Controller
                                             <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
                                             <td class="">' . ($item->pembeli ?? '-') . '</td>
                                             <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
-                                            <td class="">' . (isset($item->harga) ? 'Rp ' . number_format($item->harga, 2, '.', ',') : '-') . '</td>
+                                            <td class="">' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                                             <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                             <td>
                                                 ' . $btnPembayaran . '
