@@ -1,5 +1,7 @@
 <x-layout>
-<body class="navigasi-page"> 
+
+    @section('title', 'PT. GES | About Us')
+<body class="navigasi-page">
   <div class="JudulAbout">
     <h2>About Us</h2>
   </div>

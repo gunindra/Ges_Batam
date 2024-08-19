@@ -1,5 +1,6 @@
 <x-layout>
-<body class="navigasi-page"> 
+    @section('title', 'PT. GES | Why Us')
+<body class="navigasi-page">
   <div class="Judulwhy">
     <h2>Why Us</h2>
   </div>
@@ -21,4 +22,3 @@
 </body>
 
 </x-layout>
-    

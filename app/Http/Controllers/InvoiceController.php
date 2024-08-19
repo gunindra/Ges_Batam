@@ -131,7 +131,7 @@ class InvoiceController extends Controller
                                             }
                                             break;
                                         case 'Delivering':
-                                            $statusBadgeClass = 'badge-orange'; // Oranye
+                                            $statusBadgeClass = 'badge-delivering';
                                             break;
                                         case 'Debt':
                                             $statusBadgeClass = 'badge-danger'; // Merah
@@ -369,7 +369,10 @@ class InvoiceController extends Controller
                     'lebar' => $invoice->lebar,
                     'tinggi' => $invoice->tinggi,
                     'tanggal' => $invoice->tanggal_bayar,
-                ]);
+                ])
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
             } catch (\Exception $e) {
                 \Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to generate PDF'], 500);

@@ -132,9 +132,9 @@
             <table class="table-head">
                 <tr>
                     <td style="width: 60%;">
-                        <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">
+                        {{-- <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">
                             <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
-                        </svg>
+                        </svg> --}}
                         <h4 class="font-weight-bold">PT. GES</h4>
                         {{-- <p>Jl. Example No. 123, Jakarta, Indonesia</p> --}}
                     </td>

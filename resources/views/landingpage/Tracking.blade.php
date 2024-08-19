@@ -1,4 +1,5 @@
 <x-layout>
+    @section('title', 'PT. GES | Tracking')
 
     <body class="navigasi-page">
         <div class="Judul">

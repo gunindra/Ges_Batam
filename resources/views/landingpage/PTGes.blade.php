@@ -1,4 +1,6 @@
 <x-layout>
+
+    @section('title', 'PT. GES')
     <!-- popup -->
     <dialog id="welcome-dialog">
     <h2>Selamat Datang</h2>

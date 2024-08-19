@@ -1,5 +1,6 @@
 <x-layout>
-<body class="navigasi-page"> 
+    @section('title', 'PT. GES | Slide')
+<body class="navigasi-page">
 <div class="JudulSlide text-primary" style="margin-top:100px; text-align:center;  font-family: 'Moon Dance', cursive;  ">
     <h2 style="font-size:70px;">Logistic</h2>
 </div>
