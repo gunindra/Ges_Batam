@@ -14,16 +14,23 @@
                                         <div class="d-flex align-items-center">
                                             <h1 style="font-size: 2rem; font-weight: bold;">Tracking Resi</h1>
                                         </div>
-                                        <div class="d-flex mt-3 gap-3 align-items-center"> <!-- Ubah align-items-start menjadi align-items-center -->
+                                        <div class="d-flex mt-3 gap-3 align-items-center">
+                                            <!-- Ubah align-items-start menjadi align-items-center -->
                                             <div class="flex-grow-1">
                                                 <div class="mt-1">
-                                                    <label for="trackingResi" class="form-label" style="font-weight: bold;">Masukkan No Resi</label>
-                                                    <input type="text" class="form-control" id="trackingResi" placeholder="Masukkan nomor resi" style="padding: 10px; border-radius: 5px;">
-                                                    <div id="err-trackingResi" class="text-danger d-none" style="color: red;">Silahkan Masukkan Nomor Resi</div>
+                                                    <label for="trackingResi" class="form-label"
+                                                        style="font-weight: bold;">Masukkan No Resi</label>
+                                                    <input type="text" class="form-control" id="trackingResi"
+                                                        placeholder="Masukkan nomor resi"
+                                                        style="padding: 10px; border-radius: 5px;">
+                                                    <div id="err-trackingResi" class="text-danger d-none"
+                                                        style="color: red;">Silahkan Masukkan Nomor Resi</div>
                                                 </div>
                                             </div>
-                                            <div class="ml-2 mt-4"> <!-- Beri margin agar ada jarak antara input dan tombol -->
-                                                <button id="btnLacak" class="btn btn-primary mt-2" style="padding: 10px 20px; font-weight: bold;">Lacak</button>
+                                            <div class="ml-2 mt-4">
+                                                <!-- Beri margin agar ada jarak antara input dan tombol -->
+                                                <button id="btnLacak" class="btn btn-primary mt-2"
+                                                    style="padding: 10px 20px; font-weight: bold;">Lacak</button>
                                             </div>
                                         </div>
                                     </div>
@@ -78,44 +85,44 @@
                                     contentHTML = `
                         <div style="display: flex; justify-content: space-between;">
                             ${data.no_resi ? `
-                                        <div style="flex: 1;">
-                                            <label class="form-label" style="font-weight: bold;">No Resi :</label>
-                                            <p style="font-weight: bold;">${data.no_resi}</p>
-                                        </div>
-                                        ` : ''}
+                                            <div style="flex: 1;">
+                                                <label class="form-label" style="font-weight: bold;">No Resi :</label>
+                                                <p style="font-weight: bold;">${data.no_resi}</p>
+                                            </div>
+                                            ` : ''}
                             ${data.nama_pembeli ? `
-                                        <div style="flex: 1;">
-                                            <label class="form-label" style="font-weight: bold;">Customer :</label>
-                                            <p style="font-weight: bold;">${data.nama_pembeli}</p>
-                                        </div>
-                                        ` : ''}
+                                            <div style="flex: 1;">
+                                                <label class="form-label" style="font-weight: bold;">Customer :</label>
+                                                <p style="font-weight: bold;">${data.nama_pembeli}</p>
+                                            </div>
+                                            ` : ''}
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
                             ${data.status_name ? `
-                                        <div style="flex: 1;">
-                                            <label class="form-label" style="font-weight: bold;">Status :</label>
-                                            <span style="display: inline-block; background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 5px;">${data.status_name}</span>
-                                        </div>
-                                        ` : ''}
+                                            <div style="flex: 1;">
+                                                <label class="form-label" style="font-weight: bold;">Status :</label>
+                                                <span style="display: inline-block; background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 5px;">${data.status_name}</span>
+                                            </div>
+                                            ` : ''}
                             ${data.nama_supir ? `
-                                        <div style="flex: 1;">
-                                            <label class="form-label" style="font-weight: bold;">Nama Driver :</label>
-                                            <p style="font-weight: bold;">${data.nama_supir}</p>
+                                            <div style="flex: 1;">
+                                                <label class="form-label" style="font-weight: bold;">Nama Driver :</label>
+                                                <p style="font-weight: bold;">${data.nama_supir}</p>
+                                            </div>
+                                            ` : ''}
+                        </div>
+                        ${data.full_address || data.alamat ? `
+                                        <div style="margin-top: 20px;">
+                                            <label class="form-label" style="font-weight: bold;">Alamat :</label>
+                                            <p style="font-weight: bold;">${data.alamat ? data.alamat : ''}${data.full_address ? `, ${data.full_address}` : ''}</p>
                                         </div>
                                         ` : ''}
-                        </div>
-                        ${data.full_address ? `
-                                    <div style="margin-top: 20px;">
-                                        <label class="form-label" style="font-weight: bold;">Alamat :</label>
-                                        <p style="font-weight: bold;">${data.full_address}</p>
-                                    </div>
-                                    ` : ''}
                         ${data.no_wa ? `
-                                    <div style="margin-top: 10px;">
-                                        <label class="form-label" style="font-weight: bold;">No. Telepon :</label>
-                                        <p style="font-weight: bold;">${data.no_wa}</p>
-                                    </div>
-                                    ` : ''}
+                                        <div style="margin-top: 10px;">
+                                            <label class="form-label" style="font-weight: bold;">No. Telepon :</label>
+                                            <p style="font-weight: bold;">${data.no_wa}</p>
+                                        </div>
+                                        ` : ''}
                     `;
                                 } else {
                                     contentHTML = `
