@@ -1,4 +1,5 @@
 <x-layout>
+    @section('title', 'PT. GES | Services')
 <body class="navigasi-page">
         <div class="container d-flex justify-content-center mb-5">
             <div class="card col-8 mb-4" style="margin-top:100px;">
@@ -15,6 +16,6 @@
                 </div>
             </div>
         </div>
-    </dicardServicev> 
+    </dicardServicev>
 </body>
 </x-layout>
