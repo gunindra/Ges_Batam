@@ -3,31 +3,6 @@
 @section('title', 'About')
 
 @section('main')
-<div class="modal fade" id="modalGambar" tabindex="-1" role="dialog"
-     aria-labelledby="modalGambarTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalGambarTitle">Gambar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-3">
-                    @if($aboutData && $aboutData->Image_AboutUs)
-                        <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="400px">
-                    @else
-                        <p>No image available</p>
-                    @endif
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">

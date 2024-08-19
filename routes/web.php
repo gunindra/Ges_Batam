@@ -3,11 +3,28 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    AboutController, AboutsController, CarouselController, IklanController, InformationsController,
-    PembagirateController, PtgesController, RateController, ServiceController, Services1Controller,
-    Services2Controller, ServicesController, SlideController, TrackingController, WhyController,
-    WhysController, DashboardController, LoginController, BookingController, DeliveryController,
-    InvoiceController, CostumerController, DriverController, RekeningController, ProfileController,
+    AboutController, 
+    AboutsController, 
+    CarouselController, 
+    IklanController, 
+    InformationsController,
+    PembagirateController, 
+    PtgesController,
+    ServiceController,
+    ServicesController, 
+    SlideController, 
+    TrackingController, 
+    WhyController,
+    WhysController, 
+    DashboardController, 
+    LoginController, 
+    BookingController, 
+    DeliveryController,
+    InvoiceController, 
+    CostumerController, 
+    DriverController, 
+    RekeningController, 
+    ProfileController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -33,13 +50,10 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'ajaxLogin'])->name('login.ajax');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
+//Password
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('guest')->name('password.email');
-Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
-    ->middleware('guest')
-    ->name('password.reset');
-
+Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->middleware('guest')->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest')->name('password.update');
 
 

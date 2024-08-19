@@ -19,59 +19,42 @@ class AboutController extends Controller
     {
         $parafAbout = $request->input('parafAbout');
         $file = $request->file('imageAbout');
-
+    
         try {
             $fileName = null;
-            if ($file) {
-                // Generate unique file name to prevent conflicts
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/images', $fileName);
-            }
-
             $existingData = DB::table('tbl_aboutus')->first();
-
+    
+            if ($file) {
+                // Jika ada gambar baru yang diunggah, simpan gambar tersebut
+                $fileName = $file->getClientOriginalName();
+                $file->storeAs('public/images', $fileName);
+            } elseif ($existingData) {
+                // Jika tidak ada gambar baru yang diunggah, gunakan gambar lama
+                $fileName = $existingData->Image_AboutUs;
+            }
+    
             if ($existingData) {
-                // Update existing record
-                $dataToUpdate = [
+                // Update data yang sudah ada
+                DB::table('tbl_aboutus')->update([
                     'Paraf_AboutUs' => $parafAbout,
+                    'Image_AboutUs' => $fileName,
                     'updated_at' => now(),
-                ];
-
-                // Only update Image_AboutUs if a new file was uploaded
-                if ($fileName) {
-                    $dataToUpdate['Image_AboutUs'] = $fileName;
-                    // Optionally delete the old file if a new one is uploaded
-                    if ($existingData->Image_AboutUs) {
-                        Storage::delete('public/images/' . $existingData->Image_AboutUs);
-                    }
-                }
-
-                DB::table('tbl_aboutus')->update($dataToUpdate);
+                ]);
             } else {
-                // Insert new record
+                // Insert data baru
                 DB::table('tbl_aboutus')->insert([
                     'Paraf_AboutUs' => $parafAbout,
                     'Image_AboutUs' => $fileName,
                     'created_at' => now(),
                 ]);
             }
-
-            // Return updated data for preview
-            $updatedData = DB::table('tbl_aboutus')->first();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => [
-                    'parafAbout' => $updatedData->Paraf_AboutUs,
-                    'imageAbout' => $updatedData->Image_AboutUs
-                ]
-            ], 200);
-
+    
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'parafAbout' => $parafAbout]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
+    
 }
 
     
