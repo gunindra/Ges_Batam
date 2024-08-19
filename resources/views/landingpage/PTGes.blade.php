@@ -40,7 +40,7 @@
 			</div> -->
 		<!-- </div><button class="carousel-control-prev" data-bs-slide="prev" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-prev-icon"></span> <span class="visually-hidden">Previous</span></button> <button class="carousel-control-next" data-bs-slide="next" data-bs-target="#carouselExampleCaptions" type="button"><span aria-hidden="true" class="carousel-control-next-icon"></span> <span class="visually-hidden">Next</span></button> thumbnails -->
 		<div class="carousel-indicators">
-			      <button aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carouselExampleCaptions" type="button"></button> 
+			      <button aria-label="Slide 1" class="active" data-bs-slide-to="0" data-bs-target="#carouselExampleCaptions" type="button"></button>
             <!-- <button aria-label="Slide 2" data-bs-slide-to="1" data-bs-target="#carouselExampleCaptions" type="button"></button>
             <button aria-label="Slide 3" data-bs-slide-to="2" data-bs-target="#carouselExampleCaptions" type="button"></button> -->
 		</div>
@@ -163,19 +163,17 @@
             <h1>Our Services</h1>
         </div>
         <div class ="services">
+        @foreach($listservices as $service)
             <div class="cardservice">
                 <div class="icon">
-                  <i class="fa-solid fa-plane fa-1x"></i>
+                    <img src="{{ asset('storage/images/' . $service->image_service) }}" alt="{{ $service->judul_service }}" style="width: 100px; heigt: 100px;">
                 </div>
-                <h2>Plane</h2>
-                <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    Corporis eum placeat nostrum, recusandae facilis repellat laudantium
-                    suscipit quaerat minima unde perspiciatis assumenda aperiam rerum saepe quisquam nulla hic.
-                    Cum, eos?
-                </p>
-                <a  href="/Services"  class="button">Read More</a>
+                <h2>{{ $service->judul_service }}</h2>
+                <p>{{ $service->isi_service }}</p>
+                <a href="/Services" class="button">Read More</a>
             </div>
-            <div class="cardservice">
+        @endforeach
+            {{-- <div class="cardservice">
                 <div class="icon">
                   <i class="fa-solid fa-ship fa-1x"></i>
                 </div>
@@ -198,7 +196,7 @@
                     Cum, eos?
                 </p>
                 <a href="Services2" class="button">Read More</a>
-            </div>
+            </div> --}}
         </div>
     </div>
       <!-- iklan slide -->
