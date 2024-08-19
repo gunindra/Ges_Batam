@@ -27,14 +27,15 @@
                                     <div class="text-center">
                                         <h1 class="h4 text-gray-900 mb-4">Login</h1>
                                     </div>
-                                    <form class="user">
+                                    <form id="loginForm" class="user" method="POST">
+                                        @csrf
                                         <div class="form-group">
-                                            <input type="email" class="form-control" id="exampleInputEmail"
-                                                aria-describedby="emailHelp" placeholder="Enter Email Address">
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                required aria-describedby="emailHelp" placeholder="Enter Email Address">
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" class="form-control" id="exampleInputPassword"
-                                                placeholder="Password">
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                required placeholder="Password">
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small" style="line-height: 1.5rem;">
@@ -42,11 +43,13 @@
                                                 <label class="custom-control-label" for="customCheck">Remember Me</label>
                                             </div>
                                         </div>
+                                        <a href="{{ route('password.request') }}" class="my-2">Forgot Password?</a>
                                         <div class="form-group">
-                                            <a href="{{ route('dashboard') }}" class="btn btn-primary btn-block">Login</a>
+                                            <button type="submit" class="btn btn-primary btn-block">Login</button>
                                         </div>
                                         <div class="form-group text-center">
-                                            <a href="{{ route('PTGes') }}" class="btn btn-secondary btn-block">Back to Home</a>
+                                            <a href="{{ route('PTGes') }}" class="btn btn-secondary btn-block">Back to
+                                                Home</a>
                                         </div>
                                     </form>
                                 </div>
@@ -61,6 +64,54 @@
 @endsection
 
 @section('script')
+    <script>
+        $(document).ready(function() {
+            $('#loginForm').on('submit', function(event) {
+                event.preventDefault();
+
+                Swal.fire({
+                    title: 'Checking...',
+                    html: 'Please wait while we check your credentials.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: "{{ route('login.ajax') }}",
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        Swal.close();
+
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 2000
+                            }).then(() => {
+                                window.location.href = response.redirect;
+                            });
+                        } else {
+                            showMessage("error", response
+                                .message);
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.close(); // Tutup loading jika ada error
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan pada server. Silakan coba lagi.',
+                            showConfirmButton: true
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 @endsection
-
-

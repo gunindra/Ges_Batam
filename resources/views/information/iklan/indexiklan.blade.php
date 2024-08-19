@@ -70,7 +70,7 @@
                 </div>
             </div>
         </div>
-    
+
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
         </div>
@@ -106,7 +106,7 @@
                                         <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
-                                    
+
                                 </tbody>
                             </table> -->
                             </div>
@@ -222,7 +222,7 @@
             }
         });
 
-        
+
 
         $(document).on('click', '.btnUpdateIklan', function(e) {
                 e.preventDefault();
@@ -315,7 +315,7 @@
 
 
 
-        
+
         $(document).on('click', '.btnDestroyIklan', function(e) {
             let id = $(this).data('id');
 
@@ -347,7 +347,7 @@
                     });
                 }
         });
-            
+
      });
 
     });

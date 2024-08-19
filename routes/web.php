@@ -1,38 +1,63 @@
 <?php
 
-use App\Http\Controllers\AboutController;
-use App\Http\Controllers\AboutsController;
-use App\Http\Controllers\CarouselController;
-use App\Http\Controllers\IklanController;
-use App\Http\Controllers\InformationsController;
-use App\Http\Controllers\PembagirateController;
-use App\Http\Controllers\PtgesController;
-use App\Http\Controllers\RateController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\Services1Controller;
-use App\Http\Controllers\Services2Controller;
-use App\Http\Controllers\ServicesController;
-use App\Http\Controllers\SlideController;
-use App\Http\Controllers\TrackingController;
-use App\Http\Controllers\WhyController;
-use App\Http\Controllers\WhysController;
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\DeliveryController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\CostumerController;
-use App\Http\Controllers\DriverController;
-use App\Http\Controllers\RekeningController;
+use App\Http\Controllers\{
+    AboutController, AboutsController, CarouselController, IklanController, InformationsController,
+    PembagirateController, PtgesController, RateController, ServiceController, Services1Controller,
+    Services2Controller, ServicesController, SlideController, TrackingController, WhyController,
+    WhysController, DashboardController, LoginController, BookingController, DeliveryController,
+    InvoiceController, CostumerController, DriverController, RekeningController, ProfileController,
+};
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 
+// Landing Page (Tidak Memerlukan Login)
+Route::get('/PTGes', [PtgesController::class, 'index'])->name('PTGes');
+Route::get('/About', [AboutsController::class, 'index'])->name('About');
+Route::get('/Why', [WhysController::class, 'index'])->name('Why');
+Route::get('/Services', [ServicesController::class, 'index'])->name('Services');
+Route::get('/Slide', [SlideController::class, 'index'])->name('Slide');
+Route::get('/Tracking', [TrackingController::class, 'index'])->name('Tracking');
+Route::get('/Tracking/lacakResi', [TrackingController::class, 'lacakResi'])->name('lacakResi');
+
+// Root URL diarahkan ke Landing Page
+Route::get('/', function () {
+    return redirect('/PTGes');
+});
 
 // Login
 Route::get('/login', [LoginController::class, 'index'])->name('login');
+Route::post('/login', [LoginController::class, 'ajaxLogin'])->name('login.ajax');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->middleware('guest')->name('password.request');
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('guest')->name('password.email');
+Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest')->name('password.update');
+
+
+Route::middleware(['auth'])->group(function () {
 
 // Dashboard
 Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
+
+// Profile
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+// Verifikasi Email
+Route::get('/email/verify', [VerifyEmailController::class, '__invoke'])->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['auth', 'signed'])->name('verification.verify');
+Route::post('/email/verification-notification', [VerifyEmailController::class, 'resendVerification'])->name('verification.send');
+
 
 // Booking Confirmation
 Route::get('/booking', [BookingController::class, 'index'])->name('booking');
@@ -45,7 +70,6 @@ Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDeli
 Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
 Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
 Route::post('/delivery/confirmasiPengantaran', [DeliveryController::class, 'confirmasiPengantaran'])->name('confirmasiPengantaran');
-
 
 // Invoice
 Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice');
@@ -65,7 +89,6 @@ Route::post('/information/abouts/tambah', [AboutController::class, 'addAbout'])-
 Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
 Route::post('/information/whys/tambah', [WhyController::class, 'addWhy'])->name('addWhy');
 
-
 // Services
 Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
 Route::get('/information/services/getlistService', [ServiceController::class, 'getlistService'])->name('getlistService');
@@ -80,7 +103,6 @@ Route::get('/information/carousel/destroy', [CarouselController::class, 'destroy
 Route::post('/information/carousel/tambah', [CarouselController::class, 'addCarousel'])->name('addCarousel');
 Route::post('/information/carousel/update', [CarouselController::class, 'updateCarousel'])->name('updateCarousel');
 
-
 // Informations
 Route::get('/information/informations', [InformationsController::class, 'index'])->name('informations');
 Route::get('/information/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
@@ -88,14 +110,12 @@ Route::get('/information/informations/destroy', [InformationsController::class, 
 Route::post('/information/informations/tambah', [InformationsController::class, 'addInformations'])->name('addInformations');
 Route::post('/information/informations/update', [InformationsController::class, 'updateInformations'])->name('updateInformations');
 
-//Iklan
+// Iklan
 Route::get('/information/iklan', [IklanController::class, 'index'])->name('iklan');
 Route::get('/information/iklan/getlistIklan', [IklanController::class, 'getlistIklan'])->name('getlistIklan');
 Route::get('/information/iklan/destroy', [IklanController::class, 'destroyIklan'])->name('destroyIklan');
 Route::post('/information/iklan/tambah', [IklanController::class, 'addIklan'])->name('addIklan');
 Route::post('/information/iklan/update', [IklanController::class, 'updateIklan'])->name('updateIklan');
-
-
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
@@ -131,11 +151,4 @@ Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate']
 Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
 Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
-// landing page
-Route::get('/PTGes',[PtgesController::class , 'index'])->name('PTGes');
-Route::get('/About',[AboutsController::class , 'index'])->name('About');
-Route::get('/Why',[WhysController::class , 'index'])->name('Why');
-Route::get('/Services',[ServicesController::class , 'index'])->name('Services');
-Route::get('/Slide',[SlideController::class , 'index'])->name('Slide');
-Route::get('/Tracking',[TrackingController::class , 'index'])->name('Tracking');
-Route::get('/Tracking/lacakResi',[TrackingController::class , 'lacakResi'])->name('lacakResi');
+});

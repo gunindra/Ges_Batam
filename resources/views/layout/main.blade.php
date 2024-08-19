@@ -255,24 +255,30 @@
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="img-profile rounded-circle" src="{{ asset('RuangAdmin/img/boy.png') }}"
-                                    style="max-width: 60px">
-                                <span class="ml-2 d-none d-lg-inline text-white small">User</span>
-                            </a>
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="img-profile rounded-circle" src="{{ asset('RuangAdmin/img/boy.png') }}"
+                                 style="max-width: 60px">
+
+                            @if (Auth::check())
+                                <span class="ml-2 d-none d-lg-inline text-white small">{{ Auth::user()->name }}</span>
+                            @else
+                                <span class="ml-2 d-none d-lg-inline text-white small">{{ $username }}</span>
+                            @endif
+                         </a>
+
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                {{-- <a class="dropdown-item" href="#">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
+                                </a> --}}
+                                <a class="dropdown-item" href="{{ route('verification.notice') }}">
+                                    <i class="fas fa-envelope fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Verify Account
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal"
@@ -287,8 +293,7 @@
                 <!-- Topbar -->
 
                 <!-- Modal Logout -->
-                <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
+                <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -301,9 +306,12 @@
                                 <p>Are you sure you want to logout?</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-primary"
-                                    data-dismiss="modal">Cancel</button>
-                                <a href="{{ route('login') }}" class="btn btn-primary">Logout</a>
+                                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
+                                <!-- Form untuk logout dengan metode POST -->
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">Logout</button>
+                                </form>
                             </div>
                         </div>
                     </div>

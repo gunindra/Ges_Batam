@@ -12,7 +12,7 @@ class IklanController extends Controller
     {
         return view('information.iklan.indexiklan');
     }
-    
+
     public function getlistIklan(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
