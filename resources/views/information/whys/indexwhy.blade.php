@@ -9,8 +9,8 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Why</h1>
     </div>
-    <div class="row mb-3">
-        <div class="col-xl-12">
+    <div class="row mb-3 d-flex">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">Why</h6>
@@ -29,9 +29,23 @@
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
-                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#modalPreview" id="#modalCenter">
-                        <span class=""><i class="fas fa-eye"></i></span>
-                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
+                    <div class="preview" id="previewContainer" style="border:1px solid black; height: auto; border-radius:10px;">
+                    @if($whyData)
+                            @if($whyData->Image_WhyUs)
+                                <img src="{{ asset('storage/images/' . $whyData->Image_WhyUs) }}" width="600px" style="padding:5px 30px;">
+                            @endif
+                            <p style="padding-left:30px;">{{ $whyData->Paraf_WhyUs }}</p>
+                        @else
+                            <p class="p-3">No content available</p>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,7 +113,20 @@ $(document).ready(function() {
                                     text: response.message,
                                     icon: "success"
                                 }).then(() => {
-                                    location.reload();
+                                    // Update preview with new data
+                                    var previewContainer = $('#previewContainer');
+
+                                    // Clear previous content
+                                    previewContainer.html('');
+
+                                    // Append new image and text without looping
+                                    if (response.data.imageWhy) {
+                                        previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
+                                    }
+
+                                    if (response.data.parafWhy) {
+                                        previewContainer.append('<p style="margin-left:30px;">' + response.data.parafWhy + '</p>');
+                                    }
                                 });
                             } else {
                                 Swal.fire({

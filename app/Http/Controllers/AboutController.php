@@ -23,7 +23,8 @@ class AboutController extends Controller
         try {
             $fileName = null;
             if ($file) {
-                $fileName = $file->getClientOriginalName();
+                // Generate unique file name to prevent conflicts
+                $fileName = time() . '_' . $file->getClientOriginalName();
                 $file->storeAs('public/images', $fileName);
             }
 
@@ -31,11 +32,21 @@ class AboutController extends Controller
 
             if ($existingData) {
                 // Update existing record
-                DB::table('tbl_aboutus')->update([
+                $dataToUpdate = [
                     'Paraf_AboutUs' => $parafAbout,
-                    'Image_AboutUs' => $fileName,
                     'updated_at' => now(),
-                ]);
+                ];
+
+                // Only update Image_AboutUs if a new file was uploaded
+                if ($fileName) {
+                    $dataToUpdate['Image_AboutUs'] = $fileName;
+                    // Optionally delete the old file if a new one is uploaded
+                    if ($existingData->Image_AboutUs) {
+                        Storage::delete('public/images/' . $existingData->Image_AboutUs);
+                    }
+                }
+
+                DB::table('tbl_aboutus')->update($dataToUpdate);
             } else {
                 // Insert new record
                 DB::table('tbl_aboutus')->insert([
@@ -45,9 +56,22 @@ class AboutController extends Controller
                 ]);
             }
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan'], 200);
+            // Return updated data for preview
+            $updatedData = DB::table('tbl_aboutus')->first();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil disimpan',
+                'data' => [
+                    'parafAbout' => $updatedData->Paraf_AboutUs,
+                    'imageAbout' => $updatedData->Image_AboutUs
+                ]
+            ], 200);
+
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
 }
+
+    

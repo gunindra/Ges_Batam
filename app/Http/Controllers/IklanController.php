@@ -105,25 +105,21 @@ class IklanController extends Controller
         $imageIklan = $request->file('imageIklan');
 
         try {
-            $oldIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+            $dataUpdate = [
+                'judul_iklan' => $judulIklan,
+                'updated_at' => now(),
+            ];
 
+            // Hanya tambahkan file image jika tidak null
             if ($imageIklan) {
                 $fileName = $imageIklan->getClientOriginalName();
-                $filePath = $imageIklan->storeAs('public/images', $fileName);
-
-                if ($oldIklan->image_iklan) {
-                    Storage::delete('public/images/' . $oldIklan->image_iklan);
-                }
-            } else {
-                return response()->json(['status' => 'error', 'message' => 'Gagal Menemukan data'], 401);
+                $imageIklan->storeAs('public/images', $fileName);
+                $dataUpdate['image_iklan'] = $fileName;
             }
+
             DB::table('tbl_iklan')
-            ->where('id', $id)
-            ->update([
-               'judul_iklan' => $judulIklan,
-                'image_iklan' => $fileName,
-                'updated_at' => now(),
-            ]);
+                ->where('id', $id)
+                ->update($dataUpdate);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
