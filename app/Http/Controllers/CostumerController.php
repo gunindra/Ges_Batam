@@ -75,32 +75,6 @@ class CostumerController extends Controller
 
     }
 
-    public function addCostumer(Request $request)
-    {
-
-        $markingCostmer = $request->input('markingCostmer');
-        $namacostumer = $request->input('namaCostmer');
-        $alamatcostumer = $request->input('alamatCustomer');
-        $notlponcostumer = $request->input('noTelpon');
-        $categorycostumer = $request->input('CategoryCustomer');
-        try {
-            DB::table('tbl_pembeli')->insert([
-                'marking' => $markingCostmer,
-                'nama_pembeli' => $namacostumer,
-                'no_wa' => $notlponcostumer,
-                'alamat' => $alamatcostumer,
-                'category' => $categorycostumer,
-                'created_at' => now(),
-            ]);
-
-            // Mengembalikan respons JSON jika berhasil
-            return response()->json(['status' => 'success', 'message' => 'Pelanggan berhasil ditambahkan'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan pelanggan: ' . $e->getMessage()], 500);
-        }
-
-
-    }
 
 
     public function updateCostumer(Request $request)
