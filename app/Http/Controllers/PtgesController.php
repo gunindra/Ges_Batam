@@ -13,15 +13,16 @@ class PtgesController extends Controller
     {
         $listinformation =  DB::select("SELECT * FROM tbl_informations");
         $listservices = DB::select("SELECT * FROM tbl_service");
-
-        // Batasi isi_service hanya 50 karakter (misalnya)
         foreach ($listservices as $service) {
-            $service->isi_service = Str::limit($service->isi_service, 50);
+            $service->isi_service = Str::limit($service->isi_service, 150);
         }
+        $listiklan = DB::select("SELECT image_iklan, judul_iklan FROM tbl_iklan");
+
 
         return view('landingpage.PTGes', [
             'listinformation' => $listinformation,
             'listservices' => $listservices,
+            'listiklan' => $listiklan,
         ]);
     }
 }

@@ -202,14 +202,9 @@
       <!-- iklan slide -->
     <div class="logos">
       <div class="logos-slide">
-        <img src="/img/iklan.png" />
-        <!-- <img src="/img/barstool-store.svg" />
-        <img src="/img/budweiser.svg" />
-        <img src="/img/buzzfeed.svg" />
-        <img src="/img/forbes.svg" />
-        <img src="/img/macys.svg" />
-        <img src="/img/menshealth.svg" />
-        <img src="/img/mrbeast.svg" /> -->
+        @foreach($listiklan as $iklan)
+        <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan }}">
+        @endforeach
       </div>
     </div>
 
