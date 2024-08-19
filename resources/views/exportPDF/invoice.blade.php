@@ -58,10 +58,9 @@
         .table-content td {
             padding: 10px;
             text-align: center;
-            border: 1px solid #ddd; /* Border halus untuk membatasi cell */
+            border: 1px solid #ddd;
         }
 
-        /* Menghilangkan inner-border agar tidak terlihat terpisah */
         .table-content td:first-child {
             border-top-left-radius: 8px;
             border-bottom-left-radius: 8px;
@@ -72,30 +71,8 @@
             border-bottom-right-radius: 8px;
         }
 
-        .table-content tr:first-child td:first-child {
-            border-top-left-radius: 8px;
-        }
-
-        .table-content tr:first-child td:last-child {
-            border-top-right-radius: 8px;
-        }
-
-        .table-content tr:last-child td:first-child {
-            border-bottom-left-radius: 8px;
-        }
-
-        .table-content tr:last-child td:last-child {
-            border-bottom-right-radius: 8px;
-        }
-
         .table-content tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-
-        .total-bayar {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
         }
 
         footer {
@@ -123,20 +100,70 @@
             color: #333;
             line-height: 1.6;
         }
+
+        .cut-line {
+            border-top: 2px dashed #333;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .cut-line::after {
+            content: "Potong di sini";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            padding: 0 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .resi-section {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #fafafa;
+            border-radius: 10px;
+        }
+
+        .table-section {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-section td {
+            padding: 8px 12px;
+            text-align: left;
+            border: none;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+        }
+
+        .table-section td:nth-child(2) {
+            text-align: right;
+        }
+
+        .total-bayar {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Bagian Invoice Utama (Untuk Ditempel) -->
         <div class="row-divider">
             <table class="table-head">
                 <tr>
                     <td style="width: 60%;">
-                        {{-- <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">
-                            <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
-                        </svg> --}}
                         <h4 class="font-weight-bold">PT. GES</h4>
-                        {{-- <p>Jl. Example No. 123, Jakarta, Indonesia</p> --}}
                     </td>
                     <td class="text-right" style="width: 40%;">
                         <h4 class="font-weight-bold">INVOICE</h4>
@@ -154,51 +181,66 @@
         </div>
 
         <div class="row-divider">
-            <p><strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
-                <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] ?? 'Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau' }}
+            <p>
+                <strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
+                @if(empty($additionalDetails['destinationAddress']))
+                    <strong>Alamat Pickup :</strong> <br>Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau
+                @else
+                    <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] }}
+                @endif
             </p>
         </div>
 
         <div class="row-divider">
             <table class="table-content">
                 <tr>
-                    <td colspan="{{ $invoice->pengiriman === 'Delivery' ? 1 : 2 }}">{{ $invoice->pengiriman }}</td>
-                    @if ($invoice->pengiriman === 'Delivery')
                     <td>
-                        <p><strong>Driver :</strong> {{ $additionalDetails['driverName'] ?? 'N/A' }},
-                            {{ $additionalDetails['driverPhone'] ?? 'N/A' }}</p>
+                        <p><strong>{{ $invoice->pengiriman }}</strong></p>
                     </td>
-                    @endif
-                </tr>
-                <tr>
-                    <td colspan="{{ $invoice->tipe_pembayaran === 'Transfer' ? 1 : 2 }}">{{ $invoice->tipe_pembayaran }}</td>
-                    @if ($invoice->tipe_pembayaran === 'Transfer')
-                    <td>
-                        <p><strong>No Rek:</strong> {{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}<br>
-                            <strong>Pemilik:</strong> {{ $paymentDetails['accountHolder'] ?? 'N/A' }}<br>
-                            <strong>Bank:</strong> {{ $paymentDetails['bankName'] ?? 'N/A' }}
-                        </p>
-                    </td>
-                    @endif
-                </tr>
-                <tr>
-                    <td>
-                        <p><strong>Berat: <br> </strong> {{ $berat }} kg</p>
-                        <p><strong>Dimensions: <br> </strong> {{ $panjang }} cm x {{ $lebar }} cm x
-                            {{ $tinggi }} cm</p>
-                    </td>
-                    <td>
-                        <div class="total-bayar">
-                            <h6>Total Bayar</h6>
-                            {{ number_format($hargaIDR, 2) }}
-                        </div>
+                    <td class="text-center">
+                        @if($invoice->pengiriman === 'Delivery')
+                            <p><strong>Driver: </strong>{{ $additionalDetails['driverName'] ?? 'N/A' }}</p>
+                        @else
+                            <p><strong>Penanggung Jawab: </strong>Admin Gudang</p>
+                        @endif
                     </td>
                 </tr>
             </table>
         </div>
 
+        <!-- Garis Potong -->
+        <div class="cut-line"></div>
+
+        <!-- Bagian Bawah (Untuk Dibuang) -->
+        <div class="resi-section">
+            <table class="table-section">
+                <tr>
+                    <td>Metode Pembayaran:</td>
+                    <td>{{ $invoice->tipe_pembayaran }}</td>
+                </tr>
+                @if ($invoice->tipe_pembayaran === 'Transfer')
+                <tr>
+                    <td>No Rek:</td>
+                    <td>{{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td>Pemilik:</td>
+                    <td>{{ $paymentDetails['accountHolder'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td>Bank:</td>
+                    <td>{{ $paymentDetails['bankName'] ?? 'N/A' }}</td>
+                </tr>
+                @endif
+                <tr>
+                    <td>Total Bayar:</td>
+                    <td class="total-bayar">{{ number_format($hargaIDR, 2) }}</td>
+                </tr>
+            </table>
+        </div>
+
         <footer>
-            <p>PT. GES, Jl. Example No. 123, Jakarta, Indonesia</p>
+            <p>PT. GES, Jl. Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
             <p>Telp: 021-12345678 | Email: info@ptges.com | Website: www.ptges.com</p>
         </footer>
     </div>
