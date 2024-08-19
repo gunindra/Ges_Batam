@@ -75,7 +75,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveDriverEdit" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveEditDriver" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -197,48 +197,6 @@
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
-        // Fungsi untuk validasi input
-        // function validateDriverInput(modal) {
-        //     let isValid = true;
-
-        //     // Nama Driver
-        //     if ($(`#${modal} #namaDriver, #${modal} #namaDriverEdit`).val().trim() === '') {
-        //         $(`#${modal} #err-namaDriver`).show();
-        //         isValid = false;
-        //     } else {
-        //         $(`#${modal} #err-namaDriver`).hide();
-        //     }
-
-        //     // Alamat Driver
-        //     if ($(`#${modal} #alamatDriver, #${modal} #alamatDriverEdit`).val().trim() === '') {
-        //         $(`#${modal} #err-alamatDriver`).show();
-        //         isValid = false;
-        //     } else {
-        //         $(`#${modal} #err-alamatDriver`).hide();
-        //     }
-
-        //     // No. Telpon Driver
-        //     if ($(`#${modal} #noTelponDriver, #${modal} #noTelponDriverEdit`).val().trim() === '') {
-        //         $(`#${modal} #err-noTelponDriver`).show();
-        //         isValid = false;
-        //     } else {
-        //         $(`#${modal} #err-noTelponDriver`).hide();
-        //     }
-
-        //     return isValid;
-        // }
-
-        // validateDriverInput('modalTambahDriver');
-        // validateDriverInput('modalEditDriver');
-
-        // $('#namaDriver, #alamatDriver, #noTelponDriver').on('input change', function() {
-        //     validateDriverInput('modalTambahDriver');
-        // });
-
-        // $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit').on('input change', function() {
-        //     validateDriverInput('modalEditDriver');
-        // });
-
         $('#saveDriver').click(function() {
                 // Ambil nilai input
                 var namaDriver = $('#namaDriver').val().trim();
@@ -270,7 +228,7 @@
                     $('#err-noTelponDriver').addClass('d-none');
                 }
 
-               
+
 
                 // Jika semua input valid, lanjutkan aksi simpan
                 if (isValid) {
@@ -327,6 +285,8 @@
                     showMessage("error", "Mohon periksa input yang kosong");
                 }
             });
+
+
             $(document).on('click', '.btnUpdateDriver', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
@@ -356,7 +316,6 @@
                         $('#err-namaDriverEdit').addClass('d-none');
                     }
 
-                    // Validasi Content
                     if (alamatDriver === '') {
                         $('#err-alamatDriverEdit').removeClass('d-none');
                         isValid = false;
@@ -421,6 +380,8 @@
                 // validateInformationsInput('modalEditInformations');
                 $('#modalEditDriver').modal('show');
             });
+
+
             $('#modalTambahDriver').on('hidden.bs.modal', function() {
                 $('#namaDriver,#alamatDriver,#noTelponDriver').val('');
                 validateInput('modalTambahDriver');

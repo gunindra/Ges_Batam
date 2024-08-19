@@ -76,15 +76,37 @@ class CostumerController extends Controller
     }
 
 
+    public function addCostumer(Request $request)
+    {
+        $markingCostmer = $request->input('markingCostmer');
+        $namacostumer = $request->input('namaCustomer');
+        $alamatcostumer = $request->input('alamatCustomer');
+        $notlponcostumer = $request->input('noTelpon');
+        $categorycostumer = $request->input('categoryCustomer');
+        try {
+            DB::table('tbl_pembeli')->insert([
+                'marking' => $markingCostmer,
+                'nama_pembeli' => $namacostumer,
+                'no_wa' => $notlponcostumer,
+                'alamat' => $alamatcostumer,
+                'category' => $categorycostumer,
+                'created_at' => now(),
+            ]);
+            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
+        }
+
+    }
 
     public function updateCostumer(Request $request)
     {
+
         $id = $request->input('id');
-        $namacostumer = $request->input('namaCostmer');
+        $namacostumer = $request->input('namaCustomer');
         $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
-        $categorycostumer = $request->input('CategoryCustomer');
-
+        $categoryCustomer = $request->input('categoryCustomer');
         try {
             DB::table('tbl_pembeli')
             ->where('id', $id)
@@ -92,7 +114,7 @@ class CostumerController extends Controller
                'nama_pembeli' => $namacostumer,
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
-                'category' => $categorycostumer,
+                'category' => $categoryCustomer,
                 'updated_at' => now(),
             ]);
 

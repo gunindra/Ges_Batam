@@ -272,7 +272,6 @@
 
 
     $('#saveCostumer').click(function () {
-        $('#namaCustomer, #alamatCustomer, #noTelpon, #categoryCustomer').data('touched', true);
 
         var markingCostmer = $('#markingCustomer').val();
         var namaCustomer = $('#namaCustomer').val();
@@ -303,15 +302,13 @@
             $('#notelponCustomerError').addClass('d-none');
         }
 
-        if (categoryCustomer === '') {
+        if (categoryCustomer === '' || categoryCustomer === null) {
              $('#categoryCustomerError').removeClass('d-none');
              isValid = false;
         } else {
             $('#categoryCustomerError').addClass('d-none');
         }
 
-
-        if (validateInput('modalTambahCustomer')) {
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -325,6 +322,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
+                        formData.append('markingCostmer', markingCostmer);
                         formData.append('namaCustomer', namaCustomer);
                         formData.append('alamatCustomer', alamatCustomer);
                         formData.append('noTelpon', noTelpon);
@@ -366,9 +364,9 @@
             } else {
                 showMessage("error", "Mohon periksa input yang kosong");
             }
-        }
+
     });
-        
+
 
 
     $('#modalTambahCustomer').on('hidden.bs.modal', function () {
@@ -494,21 +492,22 @@
             $('#modalEditCustomer').modal('show');
         });
 
-        // Menyimpan data customer yang diedit
+
         $(document).on('click', '#saveEditCostumer', function (e) {
             e.preventDefault();
 
             let id = $('#customerIdEdit').val();
-            let namaCustomer = $('#namaCustomerEdit').val();
+            let namaCustomerEdit = $('#namaCustomerEdit').val();
+            console.log(namaCustomerEdit);
             let alamatCustomer = $('#alamatCustomerEdit').val();
             let noTelponCustomer = $('#noTelponEdit').val();
-            let categoryCustomer = $('#CategoryCustomerEdit').val();
+            let categoryCustomer = $('#categoryCustomerEdit').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             let isValid = true;
 
             // Validasi input
-            if (namaCustomer === '') {
+            if (namaCustomerEdit === '') {
                 $('#namaCustomerErrorEdit').removeClass('d-none');
                 isValid = false;
             } else {
@@ -550,7 +549,7 @@
                     if (result.isConfirmed) {
                         let formData = new FormData();
                         formData.append('id', id);
-                        formData.append('namaCustomer', namaCustomer);
+                        formData.append('namaCustomer', namaCustomerEdit);
                         formData.append('alamatCustomer', alamatCustomer);
                         formData.append('noTelpon', noTelponCustomer);
                         formData.append('categoryCustomer', categoryCustomer);
@@ -588,7 +587,7 @@
             $('.text-danger').addClass('d-none');
         });
     });
-    
-    
+
+
 </script>
 @endsection
