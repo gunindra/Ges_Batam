@@ -67,12 +67,12 @@
                         <div class="mt-3">
                             <label for="namaRekening" class="form-label fw-bold">Pemilik</label>
                             <input type="text" class="form-control" id="namaRekeningEdit" value="">
-                            <div id="err-NamaRekening" class="text-danger mt-1">Silahkan isi nama pemilik</div>
+                            <div id="err-NamaRekeningEdit" class="text-danger mt-1 d-none">Silahkan isi nama pemilik</div>
                         </div>
                         <div class="mt-3">
                             <label for="noRek" class="form-label fw-bold">No. Rekening</label>
                             <input type="text" class="form-control" id="noRekeningEdit" value="">
-                            <div id="err-noRekening" class="text-danger mt-1">Silahkan isi no. Rekening</div>
+                            <div id="err-noRekeningEdit" class="text-danger mt-1 d-none">Silahkan isi no. Rekening</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Bank</label>
@@ -83,7 +83,7 @@
                                 <option value="BRI">BRI</option>
                                 <option value="BNI">BNI</option>
                             </select>
-                            <div id="err-bankRekening" class="text-danger mt-1">Silahkan pilih Bank</div>
+                            <div id="err-bankRekeningEdit" class="text-danger mt-1 d-none">Silahkan pilih Bank</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -326,63 +326,6 @@
                 }
             });
 
-            $('#saveEditRekening').click(function() {
-                $('#namaRekeningEdit, #noRekeningEdit, #bankRekeningEdit').data('touched', true);
-
-                let id = $('#rekeningIdEdit').val();
-                let namaRekening = $('#namaRekeningEdit').val();
-                let noRekening = $('#noRekeningEdit').val();
-                let bankRekening = $('#bankRekeningEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                if (validateInput('modalEditRekening')) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateRekening') }}",
-                                data: {
-                                    id: id,
-                                    namaRekening: namaRekening,
-                                    noRekening: noRekening,
-                                    bankRekening: bankRekening,
-                                    _token: csrfToken
-                                },
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Di Update");
-                                        getListRekening();
-                                        $('#modalEditRekening').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Mengubah Rekening",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            });
-
-            $('#modalTambahRekening').on('hidden.bs.modal', function() {
-                $('#namaRekening, #noRekening, #bankRekening').val('');
-                validateInput('modalTambahRekening');
-            });
-
             $(document).on('click', '.btnUpdateRekening', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
@@ -395,8 +338,93 @@
                 $('#bankRekeningEdit').val(nama_bank);
                 $('#rekeningIdEdit').val(id);
 
-                validateInput('modalEditRekening');
+                $(document).on('click', '#saveEditRekening', function(e) {
+
+                    let id = $('#rekeningIdEdit').val();
+                    let namaRekening = $('#namaRekeningEdit').val();
+                    let noRekening = $('#noRekeningEdit').val();
+                    let bankRekening = $('#bankRekeningEdit').val();
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    let isValid = true;
+
+                    if (namaRekening === '') {
+                        $('#err-NamaRekeningEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#err-NamaRekeningEdit').addClass('d-none');
+                    }
+
+                    // Validasi Content
+                    if (noRekening === '') {
+                        $('#err-noRekeningEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#err-noRekeningEdit').addClass('d-none');
+                    }
+
+                    if (bankRekening === '') {
+                        $('#err-bankRekeningEdit').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#err-bankRekeningEdit').addClass('d-none');
+                    }
+ 
+ 
+
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('namaRekening', namaRekening);
+                                formData.append('noRekening', noRekening);
+                                formData.append('bankRekening', bankRekening);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateRekening') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getListRekening();
+                                            $('#modalEditRekening').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
+                })
+
+                // validateInformationsInput('modalEditInformations');
                 $('#modalEditRekening').modal('show');
+            });
+            $('#modalTambahRekening').on('hidden.bs.modal', function() {
+                $('#namaRekening,#noRekening,#bankRekening').val('');
+                validateInput('modalTambahRekening');
             });
 
             $(document).on('click', '.btnDestroyRekening', function(e) {
