@@ -54,34 +54,23 @@
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
-                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#modalPreview" id="#modalCenter">
-                        <span class=""><i class="fas fa-eye"></i></span>
-                    </button>
                 </div>
             </div>
         </div>
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-primary">About</h6>
-                    <div id="containerAbout" class="table-responsive px-3">
+                <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
+                    <div class="preview" id="previewContainer" style="border:1px solid black; height: auto; border-radius:10px;">
+                    @if($aboutData)
+                            @if($aboutData->Image_AboutUs)
+                                <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px" style="padding:5px 30px;">
+                            @endif
+                            <p style="padding-left:30px;">{{ $aboutData->Paraf_AboutUs }}</p>
+                        @else
+                            <p class="p-3">No content available</p>
+                        @endif
                     </div>
-                    <div class="mt-3">
-                        <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
-                        <input type="file" class="form-control" id="imageAbout" value="">
-                        <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                    </div>
-                    <div class="input-group pt-2 mt-3">
-                        <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
-                    </div>
-                    <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi</div>
-                    <button type="button" class="btn btn-primary mt-3" id="saveAbout">
-                        <span class="pr-3"><i class="fas fa-save"></i></span> Save
-                    </button>
-                    <button type="button" class="btn btn-secondary mt-3" data-toggle="modal" data-target="#modalPreview" id="#modalCenter">
-                        <span class=""><i class="fas fa-eye"></i></span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -149,8 +138,20 @@ $(document).ready(function() {
                                     text: response.message,
                                     icon: "success"
                                 }).then(() => {
-                                    // Refresh the page or update content
-                                    location.reload();
+                                    // Update preview with new data
+                                    var previewContainer = $('#previewContainer');
+
+                                    // Clear previous content
+                                    previewContainer.html('');
+
+                                    // Append new image and text without looping
+                                    if (response.data.imageAbout) {
+                                        previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageAbout + '" width="600px" style="padding:5px 30px;">');
+                                    }
+
+                                    if (response.data.parafAbout) {
+                                        previewContainer.append('<p style="margin-left:30px;">' + response.data.parafAbout + '</p>');
+                                    }
                                 });
                             } else {
                                 Swal.fire({
@@ -179,5 +180,7 @@ $(document).ready(function() {
         }
     });
 });
+
+
 </script>
 @endsection

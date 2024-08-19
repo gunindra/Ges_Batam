@@ -232,11 +232,11 @@
 
                 $('#judulIklanEdit').val(judul_iklan);
                 $('#textNamaEdit').text(image_iklan);
-                $('#IklanIdEdit').val(id);
+                $('#iklanIdEdit').val(id);
 
                 $(document).on('click', '#saveEditIklan', function(e) {
 
-                    let id = $('#IklanIdEdit').val();
+                    let id = $('#iklanIdEdit').val();
                     let judulIklan = $('#judulIklanEdit').val();
                     let imageIklan = $('#imageIklanEdit')[0].files[0];
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');

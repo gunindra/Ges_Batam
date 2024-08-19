@@ -101,4 +101,34 @@ class CarouselController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+    public function updateCarousel(Request $request)
+    {
+        $id = $request->input('id');
+        $judulCarousel = $request->input('judulCarousel');
+        $isiCarousel = $request->input('isiCarousel');
+        $imageCarousel = $request->file('imageCarousel');
+
+        try {
+            $dataUpdate = [
+                'judul_carousel' => $judulCarousel,
+                'isi_carousel' => $isiCarousel,
+                'updated_at' => now(),
+            ];
+
+            // Hanya tambahkan file image jika tidak null
+            if ($imageCarousel) {
+                $fileName = $imageCarousel->getClientOriginalName();
+                $imageCarousel->storeAs('public/images', $fileName);
+                $dataUpdate['image_Carousel'] = $fileName;
+            }
+
+            DB::table('tbl_carousel')
+                ->where('id', $id)
+                ->update($dataUpdate);
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+        }
+    }
 }
