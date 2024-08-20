@@ -8,23 +8,26 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
         }
 
         .container {
-            width: 87%;
-            height: 50%;
-            margin: 20px auto;
-            padding: 20px;
+            width: 100vh;
+            height: 100vh;
+            margin: 0;
+            padding: 10px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .row-divider {
             padding-bottom: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
         }
 
         .text-right {
@@ -42,11 +45,18 @@
         .table-head {
             width: 100%;
             margin-bottom: 20px;
+            table-layout: fixed;
         }
 
         .table-head td {
             vertical-align: top;
-            padding: 5px;
+            padding: 10px;
+            font-size: 20px;
+        }
+
+        .table-head h4 {
+            margin: 0;
+            font-size: 24px;
         }
 
         .table-content {
@@ -54,10 +64,11 @@
             border-collapse: separate;
             border-spacing: 0;
             margin-bottom: 20px;
+            font-size: 18px;
         }
 
         .table-content td {
-            padding: 10px;
+            padding: 20px;
             text-align: center;
             border: 1px solid #ddd;
         }
@@ -73,28 +84,28 @@
         }
 
         .table-content tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #ffffff;
         }
 
         footer {
-            margin-top: 20px;
+            margin-top: auto;
+            padding-top: 20px;
             text-align: center;
-            font-size: 12px;
-            color: #666;
+            font-size: 14px;
+            /* color: #666; */
+            border-top: 1px solid #ddd;
+            background-color: #ffffff;
         }
 
         footer p {
-            margin: 0;
-        }
-
-        .logo {
-            display: inline-block;
-            margin-right: 10px;
+            margin: 5px 0;
+            line-height: 1.5;
         }
 
         h4,
         h6 {
-            margin: 0;
+            margin: 10px 0;
+            font-size: 22px;
         }
 
         .container p {
@@ -110,22 +121,22 @@
         }
 
         .cut-line::after {
-            content: "Potong di sini";
+            content: "Cut Here";
             position: absolute;
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #fff;
             padding: 0 10px;
-            font-size: 12px;
+            font-size: 16px;
             color: #666;
         }
 
         .resi-section {
             margin-top: 20px;
-            padding: 10px;
+            padding: 20px;
             border: 1px solid #333;
-            background-color: #fafafa;
+            background-color: #ffffff;
             border-radius: 10px;
         }
 
@@ -133,15 +144,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
+            font-size: 18px;
         }
 
         .table-section td {
-            padding: 8px 12px;
+            padding: 15px 20px;
             text-align: left;
             border: none;
-            background-color: #f4f4f4;
+            /* background-color: #f4f4f4; */
             border-radius: 8px;
         }
 
@@ -150,7 +160,7 @@
         }
 
         .total-bayar {
-            font-size: 20px;
+            font-size: 26px;
             font-weight: bold;
             color: #333;
         }
@@ -184,8 +194,9 @@
         <div class="row-divider">
             <p>
                 <strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
-                @if(empty($additionalDetails['destinationAddress']))
-                    <strong>Alamat Pickup :</strong> <br>Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau
+                @if (empty($additionalDetails['destinationAddress']))
+                    <strong>Alamat Pickup :</strong> <br>Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam,
+                    Kepulauan Riau
                 @else
                     <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] }}
                 @endif
@@ -199,7 +210,7 @@
                         <p><strong>{{ $invoice->pengiriman }}</strong></p>
                     </td>
                     <td class="text-center">
-                        @if($invoice->pengiriman === 'Delivery')
+                        @if ($invoice->pengiriman === 'Delivery')
                             <p><strong>Driver: </strong>{{ $additionalDetails['driverName'] ?? 'N/A' }}</p>
                         @else
                             <p><strong>Penanggung Jawab: </strong>Admin Gudang</p>
@@ -209,6 +220,14 @@
             </table>
         </div>
 
+        <div class="row-divider">
+            <p class="text-center">
+                <strong>Berat :</strong> {{ $berat }} kg<br>
+                <strong>Dimensi :</strong> {{ $invoice->panjang }} x {{ $invoice->lebar }} x {{ $invoice->tinggi }} cm
+            </p>
+        </div>
+
+
         <!-- Garis Potong -->
         <div class="cut-line"></div>
 
@@ -217,21 +236,21 @@
             <table class="table-section">
                 <tr>
                     <td>Metode Pembayaran:</td>
-                    <td>{{ $invoice->tipe_pembayaran }}</td>
+                    <td><strong>{{ $invoice->tipe_pembayaran }}</strong></td>
                 </tr>
                 @if ($invoice->tipe_pembayaran === 'Transfer')
-                <tr>
-                    <td>No Rek:</td>
-                    <td>{{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td>Pemilik:</td>
-                    <td>{{ $paymentDetails['accountHolder'] ?? 'N/A' }}</td>
-                </tr>
-                <tr>
-                    <td>Bank:</td>
-                    <td>{{ $paymentDetails['bankName'] ?? 'N/A' }}</td>
-                </tr>
+                    <tr>
+                        <td>No Rek:</td>
+                        <td>{{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pemilik:</td>
+                        <td>{{ $paymentDetails['accountHolder'] ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Bank:</td>
+                        <td>{{ $paymentDetails['bankName'] ?? 'N/A' }}</td>
+                    </tr>
                 @endif
                 <tr>
                     <td>Total Bayar:</td>
