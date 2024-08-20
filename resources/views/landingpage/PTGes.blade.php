@@ -161,7 +161,7 @@
         @foreach($listservices as $service)
             <div class="cardservice">
                 <div class="icon">
-                    <img src="{{ asset('storage/images/' . $service->image_service) }}" alt="{{ $service->judul_service }}" style="width: 100px; heigt: 100px;">
+                    <img src="{{ asset('storage/images/' . $service->image_service) }}" alt="{{ $service->judul_service }}" style="width: 200px; heigt: 200px;">
                 </div>
                 <h2>{{ $service->judul_service }}</h2>
                 <p>{{ $service->isi_service }}</p>
@@ -204,7 +204,7 @@
     </div>
 
 </div>
-<div class="container d-flex justify-content-center" style="margin-bottom:30px; margin-top:200px;">
+<div class="container d-flex justify-content-center" style="margin-bottom:30px; margin-top:100px;">
 <div class="card col-10">
 <div class="card-body">
   <div class="row">

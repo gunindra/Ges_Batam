@@ -16,7 +16,7 @@
                 </li>
                 @if (!Route::is('About') && !Route::is('Why') && !Route::is('Slide') &&  !Route::is('Tracking'))
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('Services')? 'active' : '' }} {{ request()->is('Services1')? 'active' : '' }} {{ request()->is('Services2')? 'active' : '' }}" href="#Services">Service</a>
+                    <a class="nav-link {{ request()->is('Services')? 'active' : '' }} " href="#Services">Service</a>
                 </li>
                 @if (!Route::is('Services') && !Route::is('Services1') && !Route::is('Services2'))
                 <li class="nav-item">
