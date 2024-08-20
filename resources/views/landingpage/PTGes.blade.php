@@ -165,7 +165,7 @@
                 </div>
                 <h2>{{ $service->judul_service }}</h2>
                 <p>{{ $service->isi_service }}</p>
-                <a href="/Services" class="button">Read More</a>
+                <a href="{{ url('/Services?id=' . $service->id) }}" class="button">Read More</a>
             </div>
         @endforeach
             {{-- <div class="cardservice">
@@ -219,4 +219,11 @@
 </div>
 </div>
 </div>
+
+
+@section('script')
+
+@endsection
+
+
 </x-layout>
