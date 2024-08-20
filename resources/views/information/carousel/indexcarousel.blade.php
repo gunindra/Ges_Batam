@@ -313,7 +313,7 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Customer Ini?",
+                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
