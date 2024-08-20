@@ -146,6 +146,7 @@ class InvoiceController extends Controller
                                             if ($item->tipe_pembayaran === 'Transfer') {
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
+                                            $btnPembayaran .= '<a class="btn btnMarkAsDone btn-sm btn-success text-white" data-id="' . $item->id . '"><i class="fas fa-check-circle"></i></a>';
                                             break;
                                         case 'Out For Delivery':
                                             $statusBadgeClass = 'badge-primary';
@@ -466,6 +467,21 @@ class InvoiceController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            if ($id) {
+                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 6]);
+                return response()->json(['success' => true]);
+            }
+            return response()->json(['success' => false, 'message' => 'ID tidak ditemukan.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
 

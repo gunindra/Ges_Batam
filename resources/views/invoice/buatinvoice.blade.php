@@ -272,10 +272,11 @@
                                 </div>
                                 <div class="mt-3" id="alamatSection" style="display: none;">
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
-                                    <input type="text" class="form-control" id="alamat" style="width: 100%"
-                                        value="" placeholder="Masukkan Alamat Tujuan">
+                                    {{-- <input type="text" class="form-control" id="alamat" style="width: 100%"
+                                        value="" placeholder="Masukkan Alamat Tujuan"> --}}
+                                    <textarea type="text" class="form-control" id="alamat" style="width: 100%"
+                                    value="" placeholder="Masukkan Alamat Tujuan" cols="30" rows="10"></textarea>
                                     <div id="alamatError" class="text-danger mt-1 d-none">Alamat tidak boleh kosong</div>
-
                                     <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
                                     <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
                                         <option value="" selected disabled>Pilih Provinsi</option>
@@ -291,7 +292,7 @@
                             <!-- Right Column: Location Details -->
                             <div class="col-4">
                                 <div class="mt-3" id="lokasiSection" style="display: none;">
-                                    <label for="kota" class="form-label fw-bold mt-2">Kota / Provinsi</label>
+                                    <label for="kota" class="form-label fw-bold mt-2">Kota / Kabupaten</label>
                                     <select class="form-control select2singgle col-8" id="kabupatenKota"
                                         style="width: 100%">
                                         <option value="" selected disabled>Pilih Kabupaten/Kota</option>

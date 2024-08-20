@@ -94,6 +94,7 @@ Route::post('/invoice/completePayment', [InvoiceController::class, 'completePaym
 Route::get('/invoice/deleteInvoice', [InvoiceController::class, 'deleteInvoice'])->name('deleteInvoice');
 Route::get('/invoice/detailBuktiPembayaran', [InvoiceController::class, 'detailBuktiPembayaran'])->name('detailBuktiPembayaran');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
+Route::post('/update-status', [InvoiceController::class, 'updateStatus']);
 
 // About
 Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');
