@@ -19,7 +19,7 @@ class DeliveryController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $filter = $request->filter;
-        $status = $request->status; // Terima filter status dari request
+        $status = $request->status;
 
         if (!$filter) {
             $formattedFilter = date('Y-m');

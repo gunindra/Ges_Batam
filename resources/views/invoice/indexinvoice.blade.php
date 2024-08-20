@@ -79,6 +79,12 @@
                                 {{-- Search --}}
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
+                                <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                                    <option value="" selected disabled>Pilih Filter</option>
+                                    <option value="Out For Delivery">Out For Delivery</option>
+                                    <option value="Delivering">Delivering</option>
+                                    <option value="Done">Done</option>
+                                </select>
                                 <button id="monthEvent" class="btn btn-light form-control ml-2"
                                     style="border: 1px solid #e9ecef;">
                                     <span id="calendarTitle" class="fs-4"></span>
@@ -159,13 +165,15 @@
 
             const getlistInvoice = () => {
                 const txtSearch = $('#txSearch').val();
+                const filterStatus = $('#filterStatus').val();
 
                 $.ajax({
                         url: "{{ route('getlistInvoice') }}",
                         method: "GET",
                         data: {
                             txSearch: txtSearch,
-                            filter: selectedMonth
+                            filter: selectedMonth,
+                            status: filterStatus
                         },
                         beforeSend: () => {
                             $('#containerInvoice').html(loadSpin)
@@ -232,6 +240,10 @@
                     console.log("ini hasil dari filter bulan", selectedMonth);
                     getlistInvoice();
                 }
+            });
+
+            $('#filterStatus').change(function() {
+                getlistInvoice();
             });
 
             $(document).on('click', '.btnExportInvoice', function(e) {

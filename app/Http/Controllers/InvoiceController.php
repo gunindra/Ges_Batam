@@ -53,6 +53,9 @@ class InvoiceController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $filter = $request->filter;
+        $status = $request->status;
+
+
 
         if (!$filter) {
             $formattedFilter = date('Y-m');
@@ -61,6 +64,9 @@ class InvoiceController extends Controller
         }
 
         $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
+
+
+        $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
         $q = "SELECT a.id,
                     a.no_resi,
@@ -75,26 +81,30 @@ class InvoiceController extends Controller
                     a.matauang_id,
                     a.bukti_pembayaran,
                     d.status_name
-                FROM tbl_pembayaran AS a
-                JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
-                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                JOIN tbl_status AS d ON a.status_id = d.id
-                WHERE (
-                    UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
-                    OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
-                    OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
+            FROM tbl_pembayaran AS a
+            JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
+            JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+            JOIN tbl_status AS d ON a.status_id = d.id
+            WHERE (
+                UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
+                OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
+                OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
                 )
                 AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-" . $lastDayOfMonth . "'
-                ORDER BY
-                    CASE d.status_name
+                $statusCondition
+            ORDER BY CASE d.status_name
                         WHEN 'Pending Payment' THEN 1
-                        WHEN 'Out For Delivery' THEN 2
-                        WHEN 'Ready For Pickup' THEN 3
-                        ELSE 4
+                        WHEN 'Debt' THEN 2
+                        WHEN 'Out For Delivery' THEN 3
+                        WHEN 'Ready For Pickup' THEN 4
+                        WHEN 'Delivering' THEN 5
+                        ELSE 6
                     END
-                 LIMIT 100;";
+            LIMIT 100;";
 
         $data = DB::select($q);
+
+
 
         // Nilai tukar mata uang
         $exchangeRates = [

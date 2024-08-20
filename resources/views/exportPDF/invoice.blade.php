@@ -12,7 +12,8 @@
         }
 
         .container {
-            width: 85%;
+            width: 87%;
+            height: 50%;
             margin: 20px auto;
             padding: 20px;
             border-radius: 10px;
