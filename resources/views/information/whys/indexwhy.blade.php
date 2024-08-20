@@ -10,7 +10,7 @@
         <h1 class="h3 mb-0 text-gray-800">Why</h1>
     </div>
     <div class="row mb-3 d-flex">
-        <div class="col-xl-12">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">Why</h6>
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-12 mt-3">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
