@@ -10,7 +10,7 @@
         <h1 class="h3 mb-0 text-gray-800">Why</h1>
     </div>
     <div class="row mb-3 d-flex">
-        <div class="col-xl-6">
+        <div class="col-xl-12">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">Why</h6>
@@ -25,14 +25,14 @@
                         <label for="parafWhy" class="form-label fw-bold p-3">Content</label>
                         <textarea id="parafWhy" class="form-control" aria-label="With textarea">{{ $whyData->Paraf_WhyUs ?? '' }}</textarea>
                     </div>
-                    <div id="parafWhyError" class="text-danger mt-1 d-none">Silahkan isi</div>
+                    <div id="parafWhyError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
                 </div>
             </div>
         </div>
-        <div class="col-xl-6">
+        <div class="col-xl-12 mt-3">
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
