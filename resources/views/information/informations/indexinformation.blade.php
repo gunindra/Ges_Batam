@@ -92,6 +92,7 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-body">
+                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <button type="button" class="btn btn-primary" data-toggle="modal"

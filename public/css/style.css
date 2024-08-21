@@ -30,7 +30,6 @@ dialog h2{
 }
 dialog .controls{
   display:grid;
-  grid-tempalte-columns:1fr 1fr;
   gap:16px;
   margin-bottom:8px;
 }
@@ -130,22 +129,14 @@ dialog .controls button.close-btn{
   height: 100vh;
   min-height: 300px;
 }
-.bg-1, .bg-2, .bg-3 {
+.bg-1 {
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
 }
-.bg-1 {
-  background-image: url(/img/Truck.jpg);
-}
-.bg-2 {
-  background-image: url(/img/Werehouse.jpg);
-}
-.bg-3 {
-  background-image: url(/img/ship.jpg);
-}
+
 .carousel-caption {
-  bottom: 220px;
+  margin-bottom: 220px;
   z-index: 2;
 }
 .carousel-caption h5 {
@@ -319,15 +310,18 @@ dialog .controls button.close-btn{
 .AboutSection {
   background-color: #F8EDFF;
   height: auto;
+  margin-bottom: 70px;
 }
-.heading h1::after{
-  content:"";
-  height:4px;
-  width:50px;
-  background-color:#008DDA;
-  display:block;
-  margin-bottom:10px;
+
+.heading h1::after {
+  content: "";
+  height: 4px;
+  width: 50px;
+  background-color: #008DDA;
+  display: block;
+  margin-bottom: 10px;
 }
+
 .containerAbout .heading {
   width: 85%;
   text-align: left;
@@ -339,17 +333,20 @@ dialog .controls button.close-btn{
 }
 
 .wrapper {
-  width: 85%;
+  width: 100%;
   margin: 50px auto;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .content {
   width: 50%;
-  margin: 0px 25px;
+  margin: 0px 15px;
   transition: transform 0.3s ease;
+  padding: 0 15px; 
+  box-sizing: border-box; 
 }
 
 .content:hover {
@@ -366,6 +363,7 @@ dialog .controls button.close-btn{
   font-size: 19px;
   line-height: 1.5;
   margin-top: 10px;
+  overflow-wrap: break-word;
 }
 
 .content .btn {
@@ -406,10 +404,12 @@ dialog .controls button.close-btn{
 .content .btn:hover::before {
   transform: scaleX(1);
 }
-
 .image {
-  width: 50%;
   transition: transform 0.4s ease;
+  width: 40%; 
+  margin: 0 15px;
+  display: flex;
+  justify-content: center;
 }
 
 .image:hover {
@@ -420,6 +420,7 @@ dialog .controls button.close-btn{
   width: 92%;
   height: auto;
   border-radius: 30px;
+  display: block; 
 }
 
 /* Masuk bagian learn more About*/
@@ -476,141 +477,217 @@ dialog .controls button.close-btn{
   width: 100%;
   height: auto;
   border-radius: 30px;
+  float:right; 
 }
 
 /* bagian Services */
-.title h1{
-  text-align:center;
-  padding-top:50px;
-  font-size:42px;
+.wrapper {
+  padding: 10px 10%;
 }
-.title h1::after{
-  content:"";
-  height:4px;
-  width:230px;
-  background-color:#008DDA;
-  display:block;
-  margin:auto;
+
+#card-area {
+  padding: 0px 0;
 }
-.services {
+
+.box-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-gap: 40px;
+  margin-top: 20px;
+}
+
+.box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2); 
+  cursor: pointer; 
+}
+.box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  transition: transform 0.5s ease; 
+}
+
+.overlay {
+  width: 100%;
+  height: 100%; 
+  background: linear-gradient(transparent, #1c1c1c 90%);
+  border-radius: 10px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px; 
+  text-align: center;
+  font-size: 16px;
+  color: white;
+  transition: opacity 0.5s ease; 
+  opacity: 1; 
+}
+
+.overlay h3 {
+  font-weight: 500;
+  margin-bottom: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.overlay p {
+  font-size: 16px; 
+}
+.button-container {
+  position: relative;
+  height: 300px; 
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 20px; 
+}
+
+.btn-modern {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  color:black;
+  background:white;
+  border: none;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-modern::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, #00d4ff, #008dda);
+  z-index: -1;
+  transition: all 0.4s ease;
+  transform: scaleX(0);
+  transform-origin: right;
+}
+
+.btn-modern:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+  border-radius: 50px;
+}
+
+.btn-modern:hover {
+  color: white;
+  background: #fff;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
+}
+
+.box:hover img {
+  transform: scale(1.1) translateZ(10px); 
+}
+.title h1 {
+  text-align: center;
+  padding-top: 50px;
+  font-size: 42px;
+}
+
+.title h1::after {
+  content: "";
+  height: 4px;
+  width: 230px;
+  background-color: #008dda;
+  display: block;
+  margin: auto;
+}
+
+.service {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 75px auto;
   text-align: center;
-}
-
-.cardservice {
-  width: 100%;
-  max-width: 500px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-  margin: 0 20px;
-  padding: 20px;
-  background-color: #008DDA;
-  border-radius: 10px;
-  cursor: pointer;
-  height:350px;
-}
-
-.cardservice:hover {
-  background-color: #41C9E2;
-  transition: 0.4s ease;
-}
-
-.cardservice .icon {
-  font-size: 35px;
-  margin-bottom: 10px;
-}
-
-.cardservice h2 {
-  font-size: 28px;
-  color: #FDFFE2;
-  margin-bottom: 20px;
-}
-
-.cardservice p {
-  font-size: 17px;
-  margin-bottom: 30px;
-  line-height: 1.5;
-  color: white;
-  max-width: 400px; 
-  max-height: 100px; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  display: -webkit-box; 
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical; 
-  padding: 0 10px; 
-  word-break: break-word; 
-  hyphens: auto;
-}
-
-
-.button {
-  font-size: 15px;
-  text-decoration: none;
-  color: #fff;
-  background-color: #52D3D8;
-  padding: 8px 12px;
-  border-radius: 5px;
-  letter-spacing: 1px;
-}
-
-.button:hover {
-  background-color: #0766AD;
-  transition: 0.4s ease;
+  margin: 75px auto;
+  overflow: hidden;
 }
 
 /* WhyUs */
-.whyus{
-  margin:80px 0px;
+.whyus {
+  margin: 20px 0;
 }
+
 .wrapperwhy {
   width: 100%;
   background-color: #2b2a3d;
-  padding:50px 0px;
+  padding: 50px 0;
 }
+
 .why {
   width: 80%;
   max-width: 1200px;
   margin: auto;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap; 
   padding: 20px;
   border-radius: 10px;
+  box-sizing: border-box;
 }
+
 .image-sectionwhy {
-  width: 40%;
+  width: 100%; 
+  max-width: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 20px; 
 }
+
 .image-sectionwhy img {
   width: 100%;
   height: auto;
   border-radius: 10px;
   border: 2px solid #fff;
 }
+
 article {
-  width: 55%;
+  width: 100%; 
+  max-width: 55%; 
+  box-sizing: border-box;
 }
+
 article h3 {
   font-size: 22px;
   font-weight: 500;
   color: #7d7d7d;
 }
+
 article p {
   font-size: 17px;
   color: #fff;
   margin-top: 25px;
+  line-height: 1.5; /* Improve readability */
+  word-wrap: break-word; /* Ensure text wraps within the container */
 }
+
 article .buttonwhy {
   margin-top: 35px;
 }
+
 article a {
   color: #008DDA;
   padding: 15px 23px;
@@ -621,6 +698,7 @@ article a {
   border-radius: 5px;
   transition: background-color 0.5s ease, color 0.5s ease;
 }
+
 article a:hover {
   background-color: #008DDA;
   color: #fff;
@@ -651,6 +729,7 @@ article a:hover {
   width: 100%;
   border-radius: 15px; 
   object-fit: cover;
+  float:left;
 }
 
 .contentwhy {
@@ -906,19 +985,9 @@ a:hover {
     margin-left: 50px;
     margin-top: 50px;
   }
-   /* Services */
-   .services{
-    display:flex;
-    flex-direction:column;
-  }
-  .cardservice{
-    width:85%;
-    display:flex;
-    margin:40px 0px;
-  }
-
+  
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 776px) {
   /* navbar */
   .navbar-nav {
 		text-align: center;
@@ -1047,6 +1116,28 @@ a:hover {
     margin-left: 0; 
     font-size: 20px; 
   }
+  /* service */
+  .box-area {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+  }
+
+  .box {
+    height: 250px; 
+  }
+
+  .btn-modern {
+    font-size: 14px;
+    padding: 10px 25px;
+  }
+
+  .overlay h3 {
+    font-size: 20px;
+  }
+
+  .overlay p {
+    font-size: 12px;
+  }
   /* footer */
   .containers {
     flex-direction: column;
@@ -1103,7 +1194,9 @@ a:hover {
     width: 90%;
     font-size: 14px;
   }
-}
+  
+  }
+
 @media (max-width: 480px) {
   /* Masuk bagian about us */
   .JudulAbout h2 {
