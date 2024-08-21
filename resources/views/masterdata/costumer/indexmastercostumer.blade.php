@@ -21,7 +21,7 @@
                 <div class="modal-body">
                     <div class="mt-3">
                         <label for="namaCustomer" class="form-label fw-bold">Marking</label>
-                        <input type="text" class="form-control" id="markingCustomer" value="" disabled>
+                        <input type="text" class="form-control" id="markingCustomer" value="">
                     </div>
                     <div class="mt-3">
                         <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>

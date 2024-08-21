@@ -6,7 +6,7 @@
         <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
-                    <div class="bukuslogo py-2 px-3"  style="background-color: white; border-radius: 10px;">
+                    <div class="bukuslogo py-2 px-3" style="background-color: white; border-radius: 10px;">
                         <img src="{{ asset('RuangAdmin/img/logo/logo4.png') }}">
                     </div>
                 </div>
@@ -18,20 +18,25 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
-            <li class="nav-item {{ request()->routeIs('invoice') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('invoice') }}">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>Invoice</span></a>
-            </li>
-            {{-- <li class="nav-item {{ request()->routeIs('booking') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('booking') }}">
-                    <i class="fas fa-book"></i>
-                    <span>Booking Confirmation</span></a>
-            </li> --}}
-            <li class="nav-item {{ request()->routeIs('delivery') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('delivery') }}">
-                    <i class="fas fa-truck"></i>
-                    <span>Delivery</span></a>
+            <li
+                class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('pickup') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"
+                    aria-expanded="true" aria-controls="collapseBootstrap">
+                    <i class="fas fa-user"></i>
+                    <span>Customer</span>
+                </a>
+                <div id="customerMenu" class="collapse" aria-labelledby="headingBootstrap"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Customer</h6>
+                        <a class="collapse-item {{ request()->routeIs('invoice') ? 'active' : '' }}"
+                            href="{{ route('invoice') }}">Invoice</a>
+                        <a class="collapse-item {{ request()->routeIs('delivery') ? 'active' : '' }}"
+                            href="{{ route('delivery') }}">Delivery</a>
+                        <a class="collapse-item {{ request()->routeIs('pickup') ? 'active' : '' }}"
+                            href="{{ route('pickup') }}">Pickup</a>
+                    </div>
+                </div>
             </li>
             <li
                 class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') ? 'active' : '' }}">
@@ -255,16 +260,16 @@
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img class="img-profile rounded-circle" src="{{ asset('RuangAdmin/img/boy.png') }}"
-                                 style="max-width: 60px">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="img-profile rounded-circle" src="{{ asset('RuangAdmin/img/boy.png') }}"
+                                    style="max-width: 60px">
 
-                            @if (Auth::check())
-                                <span class="ml-2 d-none d-lg-inline text-white small">{{ Auth::user()->name }}</span>
-                            @else
-                                <span class="ml-2 d-none d-lg-inline text-white small">{{ $username }}</span>
-                            @endif
-                         </a>
+                                @if (Auth::check())
+                                    <span class="ml-2 d-none d-lg-inline text-white small">{{ Auth::user()->name }}</span>
+                                @else
+                                    <span class="ml-2 d-none d-lg-inline text-white small">{{ $username }}</span>
+                                @endif
+                            </a>
 
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
@@ -293,7 +298,8 @@
                 <!-- Topbar -->
 
                 <!-- Modal Logout -->
-                <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
+                <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -306,9 +312,11 @@
                                 <p>Are you sure you want to logout?</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    data-dismiss="modal">Cancel</button>
                                 <!-- Form untuk logout dengan metode POST -->
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                    style="display: inline;">
                                     @csrf
                                     <button type="submit" class="btn btn-primary">Logout</button>
                                 </form>

@@ -17,7 +17,7 @@ class InvoiceController extends Controller
     {
 
 
-        return view('invoice.indexinvoice');
+        return view('customer.invoice.indexinvoice');
     }
 
     public function addinvoice()
@@ -37,7 +37,7 @@ class InvoiceController extends Controller
         $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
 
 
-        return view('invoice.buatinvoice', [
+        return view('customer.invoice.buatinvoice', [
             'listPembeli' => $listPembeli,
             'listSupir' => $listSopir,
             'listRekening' => $listRekening,
@@ -104,13 +104,10 @@ class InvoiceController extends Controller
 
         $data = DB::select($q);
 
-
-
-        // Nilai tukar mata uang
         $exchangeRates = [
-            1 => 1,      // Rupiah
-            2 => 11400,  // SGD
-            3 => 2200    // Yuan
+            1 => 1,
+            2 => 11400,
+            3 => 2200
         ];
 
         $currencySymbols = [
@@ -146,7 +143,6 @@ class InvoiceController extends Controller
                                             if ($item->tipe_pembayaran === 'Transfer') {
                                                 $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                             }
-                                            $btnPembayaran .= '<a class="btn btnMarkAsDone btn-sm btn-success text-white" data-id="' . $item->id . '"><i class="fas fa-check-circle"></i></a>';
                                             break;
                                         case 'Out For Delivery':
                                             $statusBadgeClass = 'badge-primary';
@@ -243,6 +239,20 @@ class InvoiceController extends Controller
             if (!$pembayaranId) {
                 throw new \Exception("Failed to get the new ID from tbl_pembayaran");
             }
+
+            // if ($metodePengiriman === 'Pickup') {
+            //     DB::table('tbl_pengantaran')->insert([
+            //         'pembayaran_id' => $pembayaranId,
+            //         'tanggal_pengantaran' => $formattedDate,
+            //         'supir_id' => $driver,
+            //         'alamat' => $alamatTujuan,
+            //         'provinsi' => $provinsi,
+            //         'kotakab' => $kabupatenKota,
+            //         'kecamatan' => $kecamatan,
+            //         'kelurahan' => $kelurahan,
+            //         'created_at' => now(),
+            //     ]);
+            // }
 
             if ($metodePengiriman === 'Delivery') {
                 DB::table('tbl_pengantaran')->insert([

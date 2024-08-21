@@ -12,7 +12,7 @@ class DeliveryController extends Controller
     {
 
 
-        return view('delivery.indexdelivery');
+        return view('customer.delivery.indexdelivery');
     }
 
     public function getlistDelivery(Request $request)

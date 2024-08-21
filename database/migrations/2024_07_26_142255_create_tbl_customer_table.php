@@ -10,7 +10,7 @@ class CreateTblCustomerTable extends Migration
     {
         Schema::create('tbl_pembeli', function (Blueprint $table) {
             $table->id();
-            $table->string('marking', 100);
+            $table->string('marking', 100)->unique();
             $table->string('nama_pembeli', 100);
             $table->text('alamat');
             $table->string('no_wa', 50);

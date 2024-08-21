@@ -25,6 +25,7 @@ use App\Http\Controllers\{
     DriverController,
     RekeningController,
     ProfileController,
+    PickupController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -94,7 +95,9 @@ Route::post('/invoice/completePayment', [InvoiceController::class, 'completePaym
 Route::get('/invoice/deleteInvoice', [InvoiceController::class, 'deleteInvoice'])->name('deleteInvoice');
 Route::get('/invoice/detailBuktiPembayaran', [InvoiceController::class, 'detailBuktiPembayaran'])->name('detailBuktiPembayaran');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
-Route::post('/update-status', [InvoiceController::class, 'updateStatus']);
+
+// Pickup
+Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
 
 // About
 Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');

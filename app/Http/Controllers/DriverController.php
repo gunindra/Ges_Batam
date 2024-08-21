@@ -24,8 +24,6 @@ class DriverController extends Controller
                 FROM tbl_supir
         ";
 
-        // dd($q);
-
         $data = DB::select($q);
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableDriver">
