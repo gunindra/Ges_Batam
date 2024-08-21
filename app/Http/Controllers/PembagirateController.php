@@ -107,7 +107,8 @@ class PembagirateController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        nilai_rate
+                    nilai_rate,
+                    rate_for
                 FROM tbl_rate
         ";
 
@@ -120,6 +121,7 @@ class PembagirateController extends Controller
                                     <tr>
                                         <th>No</th>
                                         <th>Nilai</th>
+                                        <th>For</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -131,6 +133,7 @@ class PembagirateController extends Controller
                 <tr>
                     <td class="">' . $no .'</td>
                     <td class="">' . (isset($item->nilai_rate) ? '' . number_format($item->nilai_rate,0, '.', ',') : '-') . '</td>
+                    <td class="">' . $item->rate_for .'</td>
                    <td>
                         <a  class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_rate="' .$item->nilai_rate.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyRate btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>

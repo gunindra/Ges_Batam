@@ -25,28 +25,28 @@
                     </div>
                     <div class="mt-3">
                         <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
-                        <input type="text" class="form-control" id="namaCustomer" value="">
-                        <div id="namaCustomerError" class="text-danger mt-1 d-none">Silahkan isi nama costumer</div>
+                        <input type="text" class="form-control" id="namaCustomer" value="" placeholder="Masukkan nama customer">
+                        <div id="namaCustomerError" class="text-danger mt-1 d-none">Silahkan isi nama customer</div>
                     </div>
                     <div class="mt-3">
                         <label for="alamat" class="form-label fw-bold">Alamat</label>
-                        <textarea class="form-control" id="alamatCustomer" rows="3"></textarea>
-                        <div id="alamatCustomerError" class="text-danger mt-1 d-none">Silahkan isi alamat costumer</div>
+                        <textarea class="form-control" placeholder="Masukkan alamat" id="alamatCustomer" rows="3"></textarea>
+                        <div id="alamatCustomerError" class="text-danger mt-1 d-none">Silahkan isi alamat custumer</div>
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                        <input type="text" class="form-control" id="noTelpon" value="">
+                        <input type="text" placeholder="08*********" class="form-control" id="noTelpon" value="">
                         <div id="notelponCustomerError" class="text-danger mt-1 d-none">Silahkan isi no. telepon
-                            costumer</div>
+                            customer</div>
                     </div>
                     <div class="mt-3">
                         <label for="category" class="form-label fw-bold">Category</label>
                         <select class="form-control" id="categoryCustomer">
-                            <option value="" selected disabled>Select Category Costumer</option>
+                            <option value="" selected disabled>Pilih Category Customer</option>
                             <option value="Normal">Normal</option>
                             <option value="VIP">VIP</option>
                         </select>
-                        <div id="categoryCustomerError" class="text-danger mt-1 d-none">Silahkan pilih category costumer
+                        <div id="categoryCustomerError" class="text-danger mt-1 d-none">Silahkan pilih category customer
                         </div>
                     </div>
                 </div>
@@ -76,30 +76,30 @@
                     <div class="mt-3">
                         <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
                         <input type="text" class="form-control" id="namaCustomerEdit" value="">
-                        <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama costumer</div>
+                        <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer</div>
                     </div>
                     <div class="mt-3">
                         <label for="alamat" class="form-label fw-bold">Alamat</label>
                         <textarea class="form-control" id="alamatCustomerEdit" rows="3"></textarea>
-                        <div id="alamatCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi alamat costumer
+                        <div id="alamatCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi alamat customer
                         </div>
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                         <input type="text" class="form-control" id="noTelponEdit" value="">
                         <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
-                            costumer
+                            customer
                         </div>
                     </div>
                     <div class="mt-3">
                         <label for="categoryCustomerEdit" class="form-label fw-bold">Category</label>
                         <select class="form-control" id="categoryCustomerEdit">
-                            <option value="" selected disabled>Select Category Costumer</option>
+                            <option value="" selected disabled>Select Category Customer</option>
                             <option value="Normal">Normal</option>
                             <option value="VIP">VIP</option>
                         </select>
                         <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category
-                            costumer
+                            customer
                         </div>
                     </div>
                 </div>
