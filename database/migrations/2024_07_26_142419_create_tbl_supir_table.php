@@ -13,6 +13,7 @@ class CreateTblSupirTable extends Migration
             $table->string('nama_supir', 100);
             $table->text('alamat_supir');
             $table->string('no_wa', 15);
+            $table->string('image_sim', 100);
             $table->timestamps();
         });
     }

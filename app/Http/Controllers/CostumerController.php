@@ -64,7 +64,6 @@ class CostumerController extends Controller
                    <td>
                          ' . $showPointButton . '
                         <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama="' .$item->nama_pembeli .'" data-alamat="' .$item->alamat .'" data-notelp="' .$item->no_wa .'" data-category="' .$item->category .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyCustomer btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -124,21 +123,6 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
         }
 
-    }
-
-    public function destroyCostumer(Request $request)
-    {
-        $id = $request->input('id');
-
-        try {
-            DB::table('tbl_pembeli')
-                ->where('id', $id)
-                ->delete();
-
-            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
     }
 
     public function generateMarking(Request $request)

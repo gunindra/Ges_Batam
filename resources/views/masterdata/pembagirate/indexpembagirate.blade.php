@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Pembagi Dan Rate')
+@section('title', 'Rate')
 
 @section('main')
 
@@ -121,17 +121,17 @@
 
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 px-2">Pembagi Dan Rate</h1>
+        <h1 class="h3 mb-0 text-gray-800 px-2">Rate</h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Master Data</li>
-            <li class="breadcrumb-item active" aria-current="page">Pembagi dan Rate</li>
+            <li class="breadcrumb-item active" aria-current="page">Rate</li>
         </ol>
     </div>
     <div class="row mb-3 px-3">
         <div class="col-xl-6 px-2">
             <div class="card ">
                 <div class="card-body ">
-                    <h6 class="m-0 font-weight-bold text-primary">Pembagi</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Pembagi Volume</h6>
                     <div class="d-flex mb-2 mr-3 float-right">
                         {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                         <button type="button" class="btn btn-primary" data-toggle="modal"
@@ -266,7 +266,7 @@
             });
 
         $('#savePembagi').click(function () {
-        
+
             var nilaiPembagi = $('#nilaiPembagi').val().trim();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -479,14 +479,14 @@
             });
 
     $('#saveRate').click(function () {
-   
+
         var nilaiRate = $('#nilaiRate').val().trim();
 
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
         var isValid = true;
 
-   
+
         if (nilaiRate === '') {
             $('#nilaiRateError').removeClass('d-none');
             isValid = false;
@@ -647,11 +647,11 @@
                 }
             })
         });
-       
 
-           
+
+
     });
-        
+
 
     </script>
 

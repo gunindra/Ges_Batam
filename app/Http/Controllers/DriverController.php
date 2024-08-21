@@ -20,7 +20,8 @@ class DriverController extends Controller
         $q = "SELECT id,
                         nama_supir,
                         alamat_supir,
-                        no_wa
+                        no_wa,
+                        image_sim
                 FROM tbl_supir
         ";
 
@@ -44,8 +45,8 @@ class DriverController extends Controller
                     <td class="">' . ($item->alamat_supir ?? '-') .'</td>
                     <td class="">' . ($item->no_wa ?? '-') .'</td>
                    <td>
-                        <a  class="btn btnUpdateDriver btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama_supir="' .$item->nama_supir .'" data-alamat_supir="' .$item->alamat_supir .'" data-no_wa="' .$item->no_wa .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyDriver btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
+                        <a  class="btn btnDetailSim btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->image_sim . '"><i class="fas fa-eye"></i></a>
+                        <a  class="btn btnUpdateDriver btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama_supir="' .$item->nama_supir .'" data-alamat_supir="' .$item->alamat_supir .'" data-no_wa="' .$item->no_wa .'" data-sim="' . $item->image_sim . '"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
@@ -61,12 +62,21 @@ class DriverController extends Controller
         $namaDriver = $request->input('namaDriver');
         $alamatDriver = $request->input('alamatDriver');
         $noTelponDriver = $request->input('noTelponDriver');
+        $simDriver = $request->file('simDriver');
+
+        if ($simDriver) {
+            $fileName = 'SIM_' . $simDriver->getClientOriginalName();
+            $filePath = $simDriver->storeAs('public/sim', $fileName);
+        } else {
+            $fileName = null; // No image was uploaded
+        }
 
         try {
             DB::table('tbl_supir')->insert([
                 'nama_supir' => $namaDriver,
                 'alamat_supir' => $alamatDriver,
                 'no_wa' => $noTelponDriver,
+                'image_sim' => $fileName,
                 'created_at' => now(),
             ]);
 
@@ -82,6 +92,14 @@ class DriverController extends Controller
         $namaDriver = $request->input('namaDriver');
         $alamatDriver = $request->input('alamatDriver');
         $noTelponDriver = $request->input('noTelponDriver');
+        $simDriver = $request->file('simDriverEdit');
+
+        if ($simDriver) {
+            $fileName = 'SIM_' . $simDriver->getClientOriginalName();
+            $filePath = $simDriver->storeAs('public/sim', $fileName);
+        } else {
+            $fileName = null; // No image was uploaded
+        }
 
         try {
             DB::table('tbl_supir')
@@ -90,6 +108,7 @@ class DriverController extends Controller
                'nama_supir' => $namaDriver,
                 'alamat_supir' => $alamatDriver,
                 'no_wa' => $noTelponDriver,
+                'image_sim' => $fileName,
                 'updated_at' => now(),
             ]);
 
@@ -99,18 +118,4 @@ class DriverController extends Controller
         }
     }
 
-    public function destroyDriver(Request $request)
-    {
-        $id = $request->input('id');
-
-        try {
-            DB::table('tbl_supir')
-                ->where('id', $id)
-                ->delete();
-
-            return response()->json(['status' => 'success', 'message' => 'Data Driver berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
 }

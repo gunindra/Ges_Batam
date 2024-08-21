@@ -47,7 +47,6 @@ class RekeningController extends Controller
                     <td class="">' . ($item->nama_bank ?? '-') .'</td>
                    <td>
                         <a  class="btn btnUpdateRekening btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-pemilik="' .$item->pemilik .'" data-nomer_rekening="' .$item->nomer_rekening .'" data-nama_bank="' .$item->nama_bank .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyRekening btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -98,21 +97,6 @@ class RekeningController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Data Rekening berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Rekening: ' . $e->getMessage()], 500);
-        }
-    }
-
-    public function destroyRekening(Request $request)
-    {
-        $id = $request->input('id');
-
-        try {
-            DB::table('tbl_rekening')
-                ->where('id', $id)
-                ->delete();
-
-            return response()->json(['status' => 'success', 'message' => 'Data Rekening berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

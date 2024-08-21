@@ -82,7 +82,7 @@
                         <a class="collapse-item {{ request()->routeIs('rekening') ? 'active' : '' }}"
                             href="{{ route('rekening') }}">Rekening</a>
                         <a class="collapse-item {{ request()->routeIs('pembagirate') ? 'active' : '' }}"
-                            href="{{ route('pembagirate') }}">Pembagi dan Rate</a>
+                            href="{{ route('pembagirate') }}">Rate</a>
                     </div>
                 </div>
             </li>

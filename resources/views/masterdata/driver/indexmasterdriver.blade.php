@@ -5,12 +5,40 @@
 
 @section('main')
 
+
+    <div class="modal fade" id="modalDetailSim" tabindex="-1" role="dialog" aria-labelledby="modalDetailSimTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetailSimTitle">Detail Driver</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="pembayaranStatus" class="form-label fw-bold">SIM Driver:</label>
+                        <div class="containerFoto">
+                            {{-- <img src="storage/app/bukti_pembayaran/1.jpg" alt=""> --}}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" id="saveFileTransfer" class="btn btn-primary">Save</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
 
         <!-- Modal Center -->
-        <div class="modal fade" id="modalTambahDriver" tabindex="-1" role="dialog" aria-labelledby="modalTambahDriverTitle"
-            aria-hidden="true">
+        <div class="modal fade" id="modalTambahDriver" tabindex="-1" role="dialog"
+            aria-labelledby="modalTambahDriverTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -34,6 +62,11 @@
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                             <input type="text" class="form-control" id="noTelponDriver" value="">
                             <div id="err-noTelponDriver" class="text-danger mt-1 d-none">Silahkan isi no. telp driver</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="simDriver" class="form-label fw-bold">Sim</label>
+                            <input type="file" class="form-control" id="simDriver" value="">
+                            <div id="simDriverError" class="text-danger mt-1 d-none">Silahkan masukkan SIM</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -65,12 +98,21 @@
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" id="alamatDriverEdit" rows="3"></textarea>
-                            <div id="err-alamatDriverEdit" class="text-danger mt-1 d-none">Silahkan isi alamat driver</div>
+                            <div id="err-alamatDriverEdit" class="text-danger mt-1 d-none">Silahkan isi alamat driver
+                            </div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                             <input type="text" class="form-control" id="noTelponDriverEdit" value="">
-                            <div id="err-noTelponDriverEdit" class="text-danger mt-1 d-none">Silahkan isi no. telp driver</div>
+                            <div id="err-noTelponDriverEdit" class="text-danger mt-1 d-none">Silahkan isi no. telp driver
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="simDriverEdit" class="form-label fw-bold">Gambar</label>
+                            <p class="">Nama Gambar : <span id="textSimEdit"></span></p>
+                            <input type="file" class="form-control" id="simDriverEdit" value="">
+                            <div id="simDriverEditError" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -156,53 +198,53 @@
 @section('script')
 
     <script>
-    $(document).ready(function() {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+        $(document).ready(function() {
+            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        const getListDriver = () => {
-            const txtSearch = $('#txSearch').val();
+            const getListDriver = () => {
+                const txtSearch = $('#txSearch').val();
 
-            $.ajax({
-                    url: "{{ route('getlistDriver') }}",
-                    method: "GET",
-                    data: {
-                        txSearch: txtSearch
-                    },
-                    beforeSend: () => {
-                        $('#containerDriver').html(loadSpin)
-                    }
-                })
-                .done(res => {
-                    $('#containerDriver').html(res)
-                    $('#tableDriver').DataTable({
-                        searching: false,
-                        lengthChange: false,
-                        "bSort": true,
-                        "aaSorting": [],
-                        pageLength: 7,
-                        "lengthChange": false,
-                        responsive: true,
-                        language: {
-                            search: ""
+                $.ajax({
+                        url: "{{ route('getlistDriver') }}",
+                        method: "GET",
+                        data: {
+                            txSearch: txtSearch
+                        },
+                        beforeSend: () => {
+                            $('#containerDriver').html(loadSpin)
                         }
-                    });
-                })
-        }
+                    })
+                    .done(res => {
+                        $('#containerDriver').html(res)
+                        $('#tableDriver').DataTable({
+                            searching: false,
+                            lengthChange: false,
+                            "bSort": true,
+                            "aaSorting": [],
+                            pageLength: 7,
+                            "lengthChange": false,
+                            responsive: true,
+                            language: {
+                                search: ""
+                            }
+                        });
+                    })
+            }
 
-        getListDriver();
+            getListDriver();
 
-        $('#noTelponDriver, #noTelponDriverEdit').on('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
+            $('#noTelponDriver, #noTelponDriverEdit').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
 
-        $('#saveDriver').click(function() {
+            $('#saveDriver').click(function() {
                 // Ambil nilai input
-                var namaDriver = $('#namaDriver').val().trim();
-                var alamatDriver = $('#alamatDriver').val().trim();
-                var noTelponDriver = $('#noTelponDriver').val().trim(); // Mendapatkan file
-
+                var namaDriver = $('#namaDriver').val();
+                var alamatDriver = $('#alamatDriver').val();
+                var noTelponDriver = $('#noTelponDriver').val().trim();
+                var simDriver = $('#simDriver')[0].files[0];
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 var isValid = true;
@@ -229,9 +271,18 @@
                 }
 
 
+                if (!simDriver) {
+                    $('#simDriverError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#simDriverError').addClass('d-none');
+                }
+
 
                 // Jika semua input valid, lanjutkan aksi simpan
                 if (isValid) {
+
+
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
                         icon: 'question',
@@ -243,11 +294,22 @@
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
+
                             var formData = new FormData();
                             formData.append('namaDriver', namaDriver);
                             formData.append('alamatDriver', alamatDriver);
                             formData.append('noTelponDriver', noTelponDriver);
+                            formData.append('simDriver', simDriver);
                             formData.append('_token', csrfToken);
+
+                            Swal.fire({
+                                title: 'Checking...',
+                                html: 'Please wait while we check your credentials.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
 
                             $.ajax({
                                 type: "POST",
@@ -256,10 +318,13 @@
                                 contentType: false,
                                 processData: false,
                                 success: function(response) {
+
+                                    Swal.close();
+
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Disimpan");
-                                            getListDriver();
+                                        getListDriver();
                                         $('#modalTambahDriver').modal('hide');
                                     } else {
                                         Swal.fire({
@@ -271,6 +336,8 @@
                                     }
                                 },
                                 error: function(xhr) {
+                                    Swal.close();
+
                                     Swal.fire({
                                         title: "Gagal Menambahkan Data",
                                         text: xhr.responseJSON
@@ -293,10 +360,12 @@
                 let nama_supir = $(this).data('nama_supir');
                 let alamat_supir = $(this).data('alamat_supir');
                 let no_wa = $(this).data('no_wa');
+                let sim = $(this).data('sim');
 
                 $('#namaDriverEdit').val(nama_supir);
                 $('#alamatDriverEdit').val(alamat_supir);
                 $('#noTelponDriverEdit').val(no_wa);
+                $('#textSimEdit').text(sim);
                 $('#driverIdEdit').val(id);
 
                 $(document).on('click', '#saveEditDriver', function(e) {
@@ -305,6 +374,7 @@
                     let namaDriver = $('#namaDriverEdit').val();
                     let alamatDriver = $('#alamatDriverEdit').val();
                     let noTelponDriver = $('#noTelponDriverEdit').val();
+                    let simDriverEdit = $('#simDriverEdit')[0].files[0];
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                     let isValid = true;
@@ -330,6 +400,7 @@
                         $('#err-noTelponDriverEdit').addClass('d-none');
                     }
 
+
                     if (isValid) {
                         Swal.fire({
                             title: "Apakah Kamu Yakin?",
@@ -347,6 +418,7 @@
                                 formData.append('namaDriver', namaDriver);
                                 formData.append('alamatDriver', alamatDriver);
                                 formData.append('noTelponDriver', noTelponDriver);
+                                formData.append('simDriverEdit', simDriverEdit);
                                 formData.append('_token', csrfToken);
 
                                 $.ajax({
@@ -384,7 +456,6 @@
 
             $('#modalTambahDriver').on('hidden.bs.modal', function() {
                 $('#namaDriver,#alamatDriver,#noTelponDriver').val('');
-                validateInput('modalTambahDriver');
             });
 
 
@@ -421,7 +492,15 @@
                     }
                 })
             });
-    });
+
+            $(document).on('click', '.btnDetailSim', function(e) {
+                var id = $(this).data('id');
+                var imageSim = $(this).data('bukti');
+                var imageUrl = '/storage/sim/' + imageSim;
+                $('.containerFoto').html('<img src="' + imageUrl + '" alt="SIM Driver" class="img-fluid">');
+                $('#modalDetailSim').modal('show');
+            });
+        });
     </script>
 
 
