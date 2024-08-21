@@ -33,14 +33,8 @@
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Bank</label>
-                            <select class="form-control" id="bankRekening" rows="3">
-                                <option value="" selected disabled>Pilih Bank</option>
-                                <option value="Mandiri">Mandiri</option>
-                                <option value="BCA">BCA</option>
-                                <option value="BRI">BRI</option>
-                                <option value="BNI">BNI</option>
-                            </select>
-                            <div id="err-bankRekening" class="text-danger mt-1 d-none">Silahkan pilih Bank</div>
+                            <input type="text" class="form-control" id="bankRekening" value="" placeholder="Masukkan nama bank">
+                            <div id="err-bankRekening" class="text-danger mt-1 d-none">Silahkan masukkan nama bank</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -76,14 +70,8 @@
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Bank</label>
-                            <select class="form-control" id="bankRekeningEdit" rows="3">
-                                <option value="" selected disabled>Pilih Bank</option>
-                                <option value="Mandiri">Mandiri</option>
-                                <option value="BCA">BCA</option>
-                                <option value="BRI">BRI</option>
-                                <option value="BNI">BNI</option>
-                            </select>
-                            <div id="err-bankRekeningEdit" class="text-danger mt-1 d-none">Silahkan pilih Bank</div>
+                            <input type="text" class="form-control" id="bankRekeningEdit" value="" placeholder="Masukkan nama bank">
+                            <div id="err-bankRekeningEdit" class="text-danger mt-1 d-none">Silahkan masukkan nama bank</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -369,8 +357,8 @@
                     } else {
                         $('#err-bankRekeningEdit').addClass('d-none');
                     }
- 
- 
+
+
 
                     if (isValid) {
                         Swal.fire({
@@ -464,7 +452,7 @@
     </script>
 
 @endsection
-<!-- 
+<!--
 $('#saveRekening').click(function () {
             // Ambil nilai input
             var namaRekening = $('#namaRekening').val().trim();
@@ -494,7 +482,7 @@ $('#saveRekening').click(function () {
                 $('#err-bankRekening').addClass('d-none');
             }
 
-            
+
 
             // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
