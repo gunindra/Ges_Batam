@@ -23,7 +23,7 @@
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"  placeholder="Masukkan content">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
                     </div>
                     <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">

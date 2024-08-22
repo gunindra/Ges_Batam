@@ -23,7 +23,7 @@
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafWhy" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafWhy" class="form-control" aria-label="With textarea">{{ $whyData->Paraf_WhyUs ?? '' }}</textarea>
+                        <textarea id="parafWhy" class="form-control" aria-label="With textarea"  placeholder="Masukkan content">{{ $whyData->Paraf_WhyUs ?? '' }}</textarea>
                     </div>
                     <div id="parafWhyError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">

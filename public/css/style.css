@@ -232,21 +232,21 @@ dialog .controls button.close-btn{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 25px;
+  justify-content: center;
 }
 
-.main-content .box {
+.main-content .box-gallery {
   position: relative;
   cursor: pointer;
   margin-bottom: 15px;
   box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.15);
   height: 250px; 
   overflow: hidden;
-  display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.main-content .box::before {
+.main-content .box-gallery::before {
   content: '';
   position: absolute;
   top: 0;
@@ -256,19 +256,19 @@ dialog .controls button.close-btn{
   transition: all 0.3s ease-in-out;
 }
 
-.main-content .box:hover:before {
+.main-content .box-gallery:hover:before {
   top: 0;
   right: calc(100% - 5px);
   z-index: 10;
 }
 
-.main-content .box img {
+.main-content .box-gallery img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.main-content .box .img-text {
+.main-content .box-gallery .img-text {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -281,28 +281,27 @@ dialog .controls button.close-btn{
   transition: all 0.5s ease-in-out;
 }
 
-.main-content .box:hover .img-text {
+.main-content .box-gallery:hover .img-text {
   top: 0;
   right: 0;
 }
 
-/
 .single-gallery .main-content {
   display: flex;
   justify-content: center;
 }
 
-.single-gallery .box {
+.single-gallery .box-gallery {
   width: 100%;
   max-width: 600px; 
-  height: auto; 
+  height: 250px; 
 }
 
-
 .single-gallery img {
-  width: auto;
+  width: 100%;
   max-width: 100%;
-  height: auto;
+  height: 100%; 
+  object-fit: cover;
 }
 
 
@@ -332,7 +331,7 @@ dialog .controls button.close-btn{
   margin-top: 50px;
 }
 
-.wrapper {
+.wrapper-About {
   width: 100%;
   margin: 50px auto;
   display: flex;
@@ -482,7 +481,8 @@ dialog .controls button.close-btn{
 
 /* bagian Services */
 .wrapper {
-  padding: 10px 10%;
+  padding: 2% 10%;
+  padding-bottom:5%;
 }
 
 #card-area {
@@ -501,11 +501,13 @@ dialog .controls button.close-btn{
   overflow: hidden;
   border-radius: 10px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2); 
-  cursor: pointer; 
+  cursor: pointer;
+  max-width: 130%;
 }
+
 .box img {
-  width: 100%;
-  height: 100%;
+  width: 130%;
+  height: 130%;
   object-fit: cover;
   border-radius: 10px;
   display: block;
@@ -525,12 +527,13 @@ dialog .controls button.close-btn{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 20px; 
+  padding: 50px; 
   text-align: center;
   font-size: 16px;
   color: white;
   transition: opacity 0.5s ease; 
   opacity: 1; 
+
 }
 
 .overlay h3 {
@@ -544,6 +547,7 @@ dialog .controls button.close-btn{
 .overlay p {
   font-size: 16px; 
 }
+
 .button-container {
   position: relative;
   height: 300px; 
@@ -558,8 +562,8 @@ dialog .controls button.close-btn{
   padding: 12px 30px;
   font-size: 16px;
   font-weight: 600;
-  color:black;
-  background:white;
+  color: black;
+  background: white;
   border: none;
   border-radius: 50px;
   text-transform: uppercase;
@@ -600,6 +604,7 @@ dialog .controls button.close-btn{
 .box:hover img {
   transform: scale(1.1) translateZ(10px); 
 }
+
 .title h1 {
   text-align: center;
   padding-top: 50px;
@@ -625,9 +630,30 @@ dialog .controls button.close-btn{
   overflow: hidden;
 }
 
+
+.single-service .box-area,
+.double-service .box-area {
+  display: flex;
+  justify-content: center;
+}
+
+.single-service .box {
+  width: 40%;
+  height: auto;
+}
+
+.double-service .box {
+  width: 35%; 
+  height: auto;
+}
+
+.double-service .box img {
+  object-fit: cover; 
+}
+
 /* WhyUs */
 .whyus {
-  margin: 20px 0;
+  margin: 30px 0;
 }
 
 .wrapperwhy {
@@ -658,10 +684,11 @@ dialog .controls button.close-btn{
 }
 
 .image-sectionwhy img {
-  width: 100%;
+  width: 120%;
   height: auto;
   border-radius: 10px;
   border: 2px solid #fff;
+  margin-right:30px;
 }
 
 article {
@@ -677,7 +704,7 @@ article h3 {
 }
 
 article p {
-  font-size: 17px;
+  font-size: 19px;
   color: #fff;
   margin-top: 25px;
   line-height: 1.5; /* Improve readability */
@@ -934,6 +961,32 @@ a:hover {
   background-color: #128C7E;
 }
 /* Responsive */
+@media only screen and (max-width: 1309px) {
+  /* service */
+  .box {
+    max-width: 40%;
+  }
+  .triple-service .box-area, .single-service .box-area,
+  .double-service .box-area{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box {
+    width: 100%; 
+    height: auto;
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
 @media only screen and (max-width: 991px) {
   /* nav */
   .nav-item{
@@ -985,6 +1038,36 @@ a:hover {
     margin-left: 50px;
     margin-top: 50px;
   }
+  .image img{
+    width: 92%;
+    height: auto;
+    border-radius: 30px;
+    display: block; 
+  }
+  /* service */
+  .triple-service .box-area, .single-service .box-area,
+  .double-service .box-area{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box {
+    width: 70%; 
+    height: auto;
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  .box {
+    max-width: 55%;
+  }
   
 }
 @media only screen and (max-width: 776px) {
@@ -1025,12 +1108,13 @@ a:hover {
   .wrapper{
     flex-direction:column;
     margin-top:0;
+    justify-content:center;
   }
   .container .heading h1{
     font-size:40px;
   }
   .content, .image{
-    width:100%;
+    width:70%;
     margin-top:20px;
   }
   .content h2{
@@ -1072,12 +1156,12 @@ a:hover {
     align-items: center;
   }
   .image-sectionwhy {
-    width: 80%;
+    width: 100%;
     margin-bottom: 20px;
   }
   .image-sectionwhy img {
     height: auto;
-    width: 100%;
+    width: 150%;
   }
   article {
     width: 90%;
@@ -1102,10 +1186,14 @@ a:hover {
     flex-direction: column; 
     align-items: center; 
   }
-
-  .imageWhy {
+  
+  .image-sectionwhy {
     margin-right: 0;
     margin-bottom: 20px; 
+  }
+  .image-sectionwhy img{
+    width:250%;
+    height:auto;
   }
 
   .contentwhy {
@@ -1117,6 +1205,9 @@ a:hover {
     font-size: 20px; 
   }
   /* service */
+  .wrapper{
+    padding-bottom:15%;
+  }
   .box-area {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-gap: 20px;
@@ -1137,6 +1228,29 @@ a:hover {
 
   .overlay p {
     font-size: 12px;
+  }
+  .box {
+    max-width: 60%;
+  }
+  .triple-service .box-area, .single-service .box-area,
+  .double-service .box-area{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box {
+    width: 70%; 
+    height: auto;
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
   }
   /* footer */
   .containers {
@@ -1194,8 +1308,33 @@ a:hover {
     width: 90%;
     font-size: 14px;
   }
-  
+ 
+  /* service */
+  .box {
+    max-width: 90%;
   }
+  .triple-service .box-area, .single-service .box-area,
+  .double-service .box-area{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box {
+    width: 100%; 
+    height: auto;
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+}
 
 @media (max-width: 480px) {
   /* Masuk bagian about us */
@@ -1245,4 +1384,39 @@ a:hover {
     text-align: center;
     margin-left:40px;
   }
-}
+  /* service */
+  .box {
+    max-width: 100%;
+  }
+  .triple-service .box-area, .single-service .box-area,
+  .double-service .box-area{
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px; 
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box {
+    width: 100%; 
+    height: auto;
+  }
+
+  .triple-service .box, .single-service .box,
+  .double-service .box img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  .overlay h3 {
+    font-weight: 500;
+    margin-bottom: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  
+  .overlay p {
+    font-size: 10px; 
+  }
+} 

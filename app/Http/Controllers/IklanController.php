@@ -66,6 +66,11 @@ class IklanController extends Controller
 
 
         try {
+            $chekdata = DB::table('tbl_iklan')->count();
+
+            if ($chekdata >= 7) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
+            }
             if ($file) {
                 $fileName = $file->getClientOriginalName();
                 $filePath = $file->storeAs('public/images', $fileName);
@@ -105,6 +110,7 @@ class IklanController extends Controller
         $imageIklan = $request->file('imageIklan');
 
         try {
+           
             $dataUpdate = [
                 'judul_iklan' => $judulIklan,
                 'updated_at' => now(),

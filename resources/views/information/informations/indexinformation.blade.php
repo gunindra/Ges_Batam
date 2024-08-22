@@ -22,17 +22,17 @@
                         <form id="informationForm" enctype="multipart/form-data">
                             <div class="mt-3">
                                 <label for="judulInformations" class="form-label fw-bold">Judul</label>
-                                <input type="text" class="form-control" id="judulInformations" value="">
+                                <input type="text" class="form-control" id="judulInformations" value="" placeholder="Masukkan judul information">
                                 <div id="judulInformationsError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                             </div>
                             <div class="mt-3">
                                 <label for="isiInformations" class="form-label fw-bold">Content</label>
-                                <textarea class="form-control" id="isiInformations" rows="3"></textarea>
+                                <textarea class="form-control" id="isiInformations" rows="3" placeholder="Masukkan content"></textarea>
                                 <div id="isiInformationsError" class="text-danger mt-1 d-none">Silahkan isi</div>
                             </div>
                             <div class="mt-3">
                                 <label for="imageInformations" class="form-label fw-bold">Gambar</label>
-                                <input type="file" class="form-control" id="imageInformations" value="">
+                                <input type="file" class="form-control" id="imageInformations" value="" >
                                 <div id="imageInformationsError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                             </div>
                             <div class="modal-footer">
@@ -60,12 +60,12 @@
                         <input type="hidden" id="informationsIdEdit">
                         <div class="mt-3">
                             <label for="judulInformations" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulInformationsEdit" value="">
+                            <input type="text" class="form-control" id="judulInformationsEdit" value=""  placeholder="Masukkan judul information">
                             <div id="judulInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiInformations" class="form-label fw-bold">Content</label>
-                            <textarea class="form-control" id="isiInformationsEdit" rows="3"></textarea>
+                            <textarea class="form-control" id="isiInformationsEdit" rows="3" placeholder="Masukkan content"></textarea>
                             <div id="isiInformationsErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
@@ -361,8 +361,29 @@
             });
             $('#modalTambahInformations').on('hidden.bs.modal', function() {
                 $('#judulInformations,#isiInformations,#imageInformations').val('');
-                validateInput('modalTambahInformations');
+                if (!$('#judulInformationsError').hasClass('d-none')) {
+                    $('#judulInformationsError').addClass('d-none');
+                }
+                if (!$('#isiInformationsError').hasClass('d-none')) {
+                    $('#isiInformationsError').addClass('d-none');
+                }
+                if (!$('#imageInformationsError').hasClass('d-none')) {
+                    $('#imageInformationsError').addClass('d-none');
+                }
             });
+            $('#modalEditInformations').on('hidden.bs.modal', function() {
+                $('#judulInformationsEdit,#isiInformationsEdit,#imageInformationsEdit').val('');
+                if (!$('#judulInformationsErrorEdit').hasClass('d-none')) {
+                    $('#judulInformationsErrorEdit').addClass('d-none');
+                }
+                if (!$('#isiInformationsErrorEdit').hasClass('d-none')) {
+                    $('#isiInformationsErrorEdit').addClass('d-none');
+                }
+                if (!$('#imageInformationsErrorEdit').hasClass('d-none')) {
+                    $('#imageInformationsErrorEdit').addClass('d-none');
+                }
+            });
+            
 
 
 

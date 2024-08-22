@@ -50,17 +50,17 @@
                     <div class="modal-body">
                         <div class="mt-3">
                             <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
-                            <input type="text" class="form-control" id="namaDriver" value="">
+                            <input type="text" class="form-control" id="namaDriver" value="" placeholder="Masukkan nama driver">
                             <div id="err-namaDriver" class="text-danger mt-1 d-none">Silahkan isi nama driver</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" id="alamatDriver" rows="3"></textarea>
+                            <textarea class="form-control" id="alamatDriver" rows="3" placeholder="Masukkan alamat"></textarea>
                             <div id="err-alamatDriver" class="text-danger mt-1 d-none">Silahkan isi alamat driver</div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control" id="noTelponDriver" value="">
+                            <input type="text" class="form-control" id="noTelponDriver" value="" placeholder="08***********">
                             <div id="err-noTelponDriver" class="text-danger mt-1 d-none">Silahkan isi no. telp driver</div>
                         </div>
                         <div class="mt-3">

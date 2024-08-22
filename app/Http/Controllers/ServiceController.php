@@ -74,7 +74,7 @@ class ServiceController extends Controller
             // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
             $chekdata = DB::table('tbl_service')->count();
 
-            if ($chekdata >= 6) {
+            if ($chekdata >= 3) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
             }
 
@@ -120,6 +120,7 @@ class ServiceController extends Controller
         $imageService = $request->file('imageService');
 
         try {
+            
             $dataUpdate = [
                 'judul_service' => $judulService,
                 'isi_service' => $isiService,

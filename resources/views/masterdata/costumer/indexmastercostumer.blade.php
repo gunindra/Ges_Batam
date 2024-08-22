@@ -131,19 +131,19 @@
                         <input type="hidden" id="customerIdEdit">
                         <div class="mt-3">
                             <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
-                            <input type="text" class="form-control" id="namaCustomerEdit" value="">
+                            <input type="text" class="form-control" id="namaCustomerEdit" value="" placeholder="Masukkan nama customer">
                             <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer
                             </div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" id="alamatCustomerEdit" rows="3"></textarea>
+                            <textarea class="form-control" id="alamatCustomerEdit" rows="3" placeholder="Masukkan alamat"></textarea>
                             <div id="alamatCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi alamat customer
                             </div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control" id="noTelponEdit" value="">
+                            <input type="text" class="form-control" id="noTelponEdit" value="" placeholder="08**********">
                             <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                                 customer
                             </div>
@@ -620,6 +620,21 @@
                     });
                 } else {
                     showMessage("error", "Mohon periksa input yang kosong");
+                }
+            });
+            $('#modalEditCustomer').on('hidden.bs.modal', function() {
+                $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #categoryCustomerEdit').val('');
+                if (!$('#namaCustomerErrorEdit').hasClass('d-none')) {
+                    $('#namaCustomerErrorEdit').addClass('d-none');
+
+                }
+                if (!$('#alamatCustomerErrorEdit').hasClass('d-none')) {
+                    $('#alamatCustomerErrorEdit').addClass('d-none');
+
+                }
+                if (!$('#notelponCustomerErrorEdit').hasClass('d-none')) {
+                    $('#notelponCustomerErrorEdit').addClass('d-none');
+
                 }
             });
         });

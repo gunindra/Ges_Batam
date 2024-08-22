@@ -52,7 +52,7 @@
         <h1 class="section-header">Information</h1>
         <div class="main-content">
           @foreach($listinformation as $info)
-        <div class="box">
+        <div class="box-gallery">
         <img src="{{ asset('storage/images/' . $info->image_informations) }}" alt="{{ $info->judul_informations }}">
         <div class="img-text">
           <div class="contentGallery">
@@ -119,7 +119,7 @@
   <!-- About us -->
   <section id="About" class="AboutSection">
     <div class="containerAbout">
-      <div class="wrapper">
+      <div class="wrapper-About">
         <div class="content">
           <div class="heading">
             <h1 style="font-size:32px;">About Us</h1>
@@ -157,25 +157,27 @@
     <div class="title">
       <h1>Our Services</h1>
     </div>
-    <div id="card-area">
+    <div id="card-area" class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
       <div class="wrapper">
         <div class="box-area">
-      @foreach($listservices as $service)
-        <div class="box">
-        <img alt="" src="{{ asset('storage/images/' . $service->image_service) }}"
-          alt="{{ $service->judul_service }}">
-        <div class="overlay">
-          <h3>{{ $service->judul_service }}</h3>
-          <p>{{ $service->isi_service }}</p>
-          <div class="button-container">
-          <a href="{{ url('/Services?id=' . $service->id) }}" class="btn-modern">Read More</a>
-          </div>
-        </div>
-        </div>
-      @endforeach
+          @foreach($listservices as $service)
+            <div class="box">
+              <img alt="" src="{{ asset('storage/images/' . $service->image_service) }}"
+                alt="{{ $service->judul_service }}">
+              <div class="overlay">
+                <h3>{{ $service->judul_service }}</h3>
+                <p>{{ $service->isi_service }}</p>
+                <div class="button-container">
+                  <a href="{{ url('/Services?id=' . $service->id) }}" class="btn-modern">Read More</a>
+                </div>
+              </div>
+            </div>
+          @endforeach
         </div>
       </div>
     </div>
+</div>
+</div>
     <!-- iklan slide -->
     <div class="logos">
       <div class="logos-slide">

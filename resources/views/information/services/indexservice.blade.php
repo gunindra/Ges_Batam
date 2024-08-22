@@ -20,12 +20,12 @@
                         <form id="serviceForm" enctype="multipart/form-data">
                             <div class="mt-3">
                                 <label for="judulService" class="form-label fw-bold">Judul</label>
-                                <input type="text" class="form-control" id="judulService" value="">
+                                <input type="text" class="form-control" id="judulService" value="" placeholder="Masukkan judul service">
                                 <div id="judulServiceError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                             </div>
                             <div class="mt-3">
                                 <label for="isiService" class="form-label fw-bold">Content</label>
-                                <textarea class="form-control" id="isiService" rows="3"></textarea>
+                                <textarea class="form-control" id="isiService" rows="3" placeholder="Masukkan content"></textarea>
                                 <div id="isiServiceError" class="text-danger mt-1 d-none">Silahkan isi</div>
                             </div>
                             <div class="mt-3">
@@ -57,12 +57,12 @@
                         <input type="hidden" id="serviceIdEdit">
                         <div class="mt-3">
                             <label for="judulService" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulServiceEdit" value="">
+                            <input type="text" class="form-control" id="judulServiceEdit" value="" placeholder="Masukkan judul service">
                             <div id="judulServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiService" class="form-label fw-bold">Content</label>
-                            <textarea class="form-control" id="isiServiceEdit" rows="3"></textarea>
+                            <textarea class="form-control" id="isiServiceEdit" rows="3" placeholder="Masukkan content"></textarea>
                             <div id="isiServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
                         </div>
                         <div class="mt-3">
@@ -339,7 +339,27 @@
             });
             $('#modalTambahService').on('hidden.bs.modal', function() {
                 $('#judulService,#isiService,#imageService').val('');
-                validateInput('modalTambahService');
+                if (!$('#judulServiceError').hasClass('d-none')) {
+                    $('#judulServiceError').addClass('d-none');
+                }
+                if (!$('#isiServiceError').hasClass('d-none')) {
+                    $('#isiServiceError').addClass('d-none');
+                }
+                if (!$('#imageServiceError').hasClass('d-none')) {
+                    $('#imageServiceError').addClass('d-none');
+                }
+            });
+            $('#modalEditService').on('hidden.bs.modal', function() {
+                $('#judulServiceEdit,#isiServiceEdit,#imageServiceEdit').val('');
+                if (!$('#judulServiceErrorEdit').hasClass('d-none')) {
+                    $('#judulServiceErrorEdit').addClass('d-none');
+                }
+                if (!$('#isiServiceErrorEdit').hasClass('d-none')) {
+                    $('#isiServiceErrorEdit').addClass('d-none');
+                }
+                if (!$('#imageServiceErrorEdit').hasClass('d-none')) {
+                    $('#imageServiceErrorEdit').addClass('d-none');
+                }
             });
 
 

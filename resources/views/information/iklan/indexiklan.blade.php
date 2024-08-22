@@ -21,12 +21,12 @@
                     <div class="modal-body">
                         <div class="mt-3">
                             <label for="judulIklan" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulIklan" value="">
+                            <input type="text" class="form-control" id="judulIklan" value="" placeholder="Masukkan judul iklan">
                             <div id="judulIklanError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
                             <label for="imageIklan" class="form-label fw-bold">Gambar</label>
-                            <input type="file" class="form-control" id="imageIklan" value="">
+                            <input type="file" class="form-control" id="imageIklan" value="" >
                             <div id="imageIklanError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                         </div>
                     <div class="modal-footer">
@@ -52,7 +52,7 @@
                         <input type="hidden" id="iklanIdEdit">
                         <div class="mt-3">
                             <label for="judulIklan" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulIklanEdit" value="">
+                            <input type="text" class="form-control" id="judulIklanEdit" value="" placeholder="Masukkan judul iklan">
                             <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                         </div>
                         <div class="mt-3">
@@ -310,7 +310,25 @@
 
             $('#modalTambahIklan').on('hidden.bs.modal', function() {
                 $('#judulIklan,#imageIklan').val('');
-                validateInput('modalTambahIklan');
+            if (!$('#judulIklanError').hasClass('d-none')) {
+                $('#judulIklanError').addClass('d-none');
+
+            }
+            if (!$('#imageIklanError').hasClass('d-none')) {
+                $('#imageIklanError').addClass('d-none');
+
+            }
+            });
+            $('#modalEditIklan').on('hidden.bs.modal', function() {
+                $('#judulIklanEdit,#imageIklanEdit').val('');
+            if (!$('#judulIklanErrorEdit').hasClass('d-none')) {
+                $('#judulIklanErrorEdit').addClass('d-none');
+
+            }
+            if (!$('#imageIklanErrorEdit').hasClass('d-none')) {
+                $('#imageIklanErrorEdit').addClass('d-none');
+
+            }
             });
 
 
