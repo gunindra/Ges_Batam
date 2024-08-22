@@ -92,26 +92,26 @@
                         <input type="hidden" id="driverIdEdit">
                         <div class="mt-3">
                             <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
-                            <input type="text" class="form-control" id="namaDriverEdit" value="">
+                            <input type="text" class="form-control" id="namaDriverEdit" value="" placeholder="Masukkan nama driver">
                             <div id="err-namaDriverEdit" class="text-danger mt-1 d-none">Silahkan isi nama driver</div>
                         </div>
                         <div class="mt-3">
                             <label for="alamat" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" id="alamatDriverEdit" rows="3"></textarea>
+                            <textarea class="form-control" id="alamatDriverEdit" rows="3" placeholder="Masukkan alamat"></textarea>
                             <div id="err-alamatDriverEdit" class="text-danger mt-1 d-none">Silahkan isi alamat driver
                             </div>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control" id="noTelponDriverEdit" value="">
+                            <input type="text" class="form-control" id="noTelponDriverEdit" value="" placeholder="08***********">
                             <div id="err-noTelponDriverEdit" class="text-danger mt-1 d-none">Silahkan isi no. telp driver
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label for="simDriverEdit" class="form-label fw-bold">Gambar</label>
-                            <p class="">Nama Gambar : <span id="textSimEdit"></span></p>
+                            <label for="simDriverEdit" class="form-label fw-bold">Sim</label>
+                            <p class="">Nama Sim : <span id="textSimEdit"></span></p>
                             <input type="file" class="form-control" id="simDriverEdit" value="">
-                            <div id="simDriverEditError" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                            <div id="simDriverEditError" class="text-danger mt-1 d-none">Silahkan masukkan SIM 
                             </div>
                         </div>
                     </div>

@@ -60,12 +60,12 @@
                         <input type="hidden" id="rekeningIdEdit">
                         <div class="mt-3">
                             <label for="namaRekening" class="form-label fw-bold">Pemilik</label>
-                            <input type="text" class="form-control" id="namaRekeningEdit" value="">
+                            <input type="text" class="form-control" id="namaRekeningEdit" value="" placeholder="Masukkan Nama Pemilik">
                             <div id="err-NamaRekeningEdit" class="text-danger mt-1 d-none">Silahkan isi nama pemilik</div>
                         </div>
                         <div class="mt-3">
                             <label for="noRek" class="form-label fw-bold">No. Rekening</label>
-                            <input type="text" class="form-control" id="noRekeningEdit" value="">
+                            <input type="text" class="form-control" id="noRekeningEdit" value="" placeholder="Masukkan No. Rekening">
                             <div id="err-noRekeningEdit" class="text-danger mt-1 d-none">Silahkan isi no. Rekening</div>
                         </div>
                         <div class="mt-3">
@@ -313,6 +313,21 @@
                     showMessage("error", "Mohon periksa input yang kosong");
                 }
             });
+            $('#modalTambahRekening').on('hidden.bs.modal', function() {
+                $('#namaRekening, #noRekening, #bankRekening').val('');
+                if (!$('#err-NamaRekening').hasClass('d-none')) {
+                    $('#err-NamaRekening').addClass('d-none');
+
+                }
+                if (!$('#err-noRekening').hasClass('d-none')) {
+                    $('#err-noRekening').addClass('d-none');
+
+                }          
+                if (!$('#err-bankRekening').hasClass('d-none')) {
+                    $('#err-bankRekening').addClass('d-none');
+
+                }
+            });
 
             $(document).on('click', '.btnUpdateRekening', function(e) {
                 e.preventDefault();
@@ -410,10 +425,22 @@
                 // validateInformationsInput('modalEditInformations');
                 $('#modalEditRekening').modal('show');
             });
-            $('#modalTambahRekening').on('hidden.bs.modal', function() {
-                $('#namaRekening,#noRekening,#bankRekening').val('');
-                validateInput('modalTambahRekening');
+            $('#modalEditRekening').on('hidden.bs.modal', function() {
+                $('#namaRekeningEdit, #noRekeningEdit, #bankRekeningEdit').val('');
+                if (!$('#err-NamaRekeningEdit').hasClass('d-none')) {
+                    $('#err-NamaRekeningEdit').addClass('d-none');
+
+                }
+                if (!$('#err-noRekeningEdit').hasClass('d-none')) {
+                    $('#err-noRekeningEdit').addClass('d-none');
+
+                }          
+                if (!$('#err-bankRekeningEdit').hasClass('d-none')) {
+                    $('#err-bankRekeningEdit').addClass('d-none');
+
+                }
             });
+
 
             $(document).on('click', '.btnDestroyRekening', function(e) {
                 let id = $(this).data('id');
