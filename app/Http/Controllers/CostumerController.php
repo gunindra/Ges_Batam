@@ -23,7 +23,9 @@ class CostumerController extends Controller
                     alamat,
                     no_wa,
                     sisa_poin,
-                    category
+                    category,
+                    transaksi_terakhir,
+                    status
                 FROM tbl_pembeli
         ";
 
@@ -49,10 +51,6 @@ class CostumerController extends Controller
             ? '<td><span class="badge badge-primary">VIP</span></td>'
             : '<td class="">' . ($item->category ?? '-') . '</td>';
 
-            $showPointButton = ($item->category == 'VIP')
-            ? '<a class="btn btnPointCostumer btn-sm btn-primary text-white" data-poin="' .$item->sisa_poin .'">Show point</a>'
-            : '';
-
             $output .=
                 '
                 <tr>
@@ -62,8 +60,8 @@ class CostumerController extends Controller
                     <td class="">' . ($item->no_wa ?? '-') .'</td>
                     ' . $categoryCell . '
                    <td>
-                         ' . $showPointButton . '
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama="' .$item->nama_pembeli .'" data-alamat="' .$item->alamat .'" data-notelp="' .$item->no_wa .'" data-category="' .$item->category .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-category="' .$item->category. '"  data-poin="' .$item->sisa_poin .'" data-transaksi="' .$item->transaksi_terakhir .'" data-status="' .$item->status .'" ><i class="fas fa-eye"></i></a>
+                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama="' .$item->nama_pembeli .'" data-alamat="' .$item->alamat .'" data-notelp="' .$item->no_wa .'" data-category="' .$item->category .'" data-status="' .$item->status .'"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
@@ -77,26 +75,36 @@ class CostumerController extends Controller
 
     public function addCostumer(Request $request)
     {
-        $markingCostmer = $request->input('markingCostmer');
+        $markingCostumer = $request->input('markingCostmer');
         $namacostumer = $request->input('namaCustomer');
         $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categorycostumer = $request->input('categoryCustomer');
+        $isActive = $request->input('isActive');
+
         try {
+            $existingCustomer = DB::table('tbl_pembeli')->where('marking', $markingCostumer)->first();
+
+            if ($existingCustomer) {
+                return response()->json(['status' => 'error', 'message' => 'Marking sudah ada, tidak dapat menambahkan pelanggan dengan marking yang sama.'], 409);
+            }
+
             DB::table('tbl_pembeli')->insert([
-                'marking' => $markingCostmer,
+                'marking' => $markingCostumer,
                 'nama_pembeli' => $namacostumer,
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
                 'category' => $categorycostumer,
+                'status' => $isActive,
                 'created_at' => now(),
             ]);
-            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil diupdate'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
-        }
 
+            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil ditambahkan'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
+        }
     }
+
 
     public function updateCostumer(Request $request)
     {
@@ -106,6 +114,8 @@ class CostumerController extends Controller
         $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categoryCustomer = $request->input('categoryCustomer');
+        $isActive = $request->input('isactiveEdit');
+
         try {
             DB::table('tbl_pembeli')
             ->where('id', $id)
@@ -114,6 +124,7 @@ class CostumerController extends Controller
                 'no_wa' => $notlponcostumer,
                 'alamat' => $alamatcostumer,
                 'category' => $categoryCustomer,
+                'status' => $isActive,
                 'updated_at' => now(),
             ]);
 
