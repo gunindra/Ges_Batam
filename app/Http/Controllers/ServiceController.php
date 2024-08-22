@@ -11,7 +11,7 @@ class ServiceController extends Controller
     public function index()
     {
       
-        return view('information.services.indexservice');
+        return view('content.services.indexservice');
     }
 
     public function getlistService(Request $request)
@@ -75,7 +75,7 @@ class ServiceController extends Controller
             $chekdata = DB::table('tbl_service')->count();
 
             if ($chekdata >= 3) {
-                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
+                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 3 data sudah tercapai.'], 400);
             }
 
             if ($file) {

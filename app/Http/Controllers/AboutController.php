@@ -12,7 +12,7 @@ class AboutController extends Controller
     {
         // Get existing about data
         $aboutData = DB::table('tbl_aboutus')->first();
-        return view('information.abouts.indexabout', compact('aboutData'));
+        return view('content.abouts.indexabout', compact('aboutData'));
     }
 
     public function addAbout(Request $request)

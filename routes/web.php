@@ -100,40 +100,40 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
 
 // About
-Route::get('/information/abouts', [AboutController::class, 'index'])->name('abouts');
-Route::post('/information/abouts/tambah', [AboutController::class, 'addAbout'])->name('addAbout');
+Route::get('/content/abouts', [AboutController::class, 'index'])->name('abouts');
+Route::post('/content/abouts/tambah', [AboutController::class, 'addAbout'])->name('addAbout');
 
 // Why
-Route::get('/information/whys', [WhyController::class, 'index'])->name('whys');
-Route::post('/information/whys/tambah', [WhyController::class, 'addWhy'])->name('addWhy');
+Route::get('/content/whys', [WhyController::class, 'index'])->name('whys');
+Route::post('/content/whys/tambah', [WhyController::class, 'addWhy'])->name('addWhy');
 
 // Services
-Route::get('/information/services', [ServiceController::class, 'index'])->name('services');
-Route::get('/information/services/getlistService', [ServiceController::class, 'getlistService'])->name('getlistService');
-Route::post('/information/services/tambah', [ServiceController::class, 'addService'])->name('addService');
-Route::post('/information/services/update', [ServiceController::class, 'updateService'])->name('updateService');
-Route::get('/information/services/destroy', [ServiceController::class, 'destroyService'])->name('destroyService');
+Route::get('/content/services', [ServiceController::class, 'index'])->name('services');
+Route::get('/content/services/getlistService', [ServiceController::class, 'getlistService'])->name('getlistService');
+Route::post('/content/services/tambah', [ServiceController::class, 'addService'])->name('addService');
+Route::post('/content/services/update', [ServiceController::class, 'updateService'])->name('updateService');
+Route::get('/content/services/destroy', [ServiceController::class, 'destroyService'])->name('destroyService');
 
 // Carousel
-Route::get('/information/carousel', [CarouselController::class, 'index'])->name('carousel');
-Route::get('/information/carousel/getlistCarousel', [CarouselController::class, 'getlistCarousel'])->name('getlistCarousel');
-Route::get('/information/carousel/destroy', [CarouselController::class, 'destroyCarousel'])->name('destroyCarousel');
-Route::post('/information/carousel/tambah', [CarouselController::class, 'addCarousel'])->name('addCarousel');
-Route::post('/information/carousel/update', [CarouselController::class, 'updateCarousel'])->name('updateCarousel');
+Route::get('/content/carousel', [CarouselController::class, 'index'])->name('carousel');
+Route::get('/content/carousel/getlistCarousel', [CarouselController::class, 'getlistCarousel'])->name('getlistCarousel');
+Route::get('/content/carousel/destroy', [CarouselController::class, 'destroyCarousel'])->name('destroyCarousel');
+Route::post('/content/carousel/tambah', [CarouselController::class, 'addCarousel'])->name('addCarousel');
+Route::post('/content/carousel/update', [CarouselController::class, 'updateCarousel'])->name('updateCarousel');
 
 // Informations
-Route::get('/information/informations', [InformationsController::class, 'index'])->name('informations');
-Route::get('/information/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
-Route::get('/information/informations/destroy', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
-Route::post('/information/informations/tambah', [InformationsController::class, 'addInformations'])->name('addInformations');
-Route::post('/information/informations/update', [InformationsController::class, 'updateInformations'])->name('updateInformations');
+Route::get('/content/informations', [InformationsController::class, 'index'])->name('informations');
+Route::get('/content/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
+Route::get('/content/informations/destroy', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
+Route::post('/content/informations/tambah', [InformationsController::class, 'addInformations'])->name('addInformations');
+Route::post('/content/informations/update', [InformationsController::class, 'updateInformations'])->name('updateInformations');
 
 // Iklan
-Route::get('/information/iklan', [IklanController::class, 'index'])->name('iklan');
-Route::get('/information/iklan/getlistIklan', [IklanController::class, 'getlistIklan'])->name('getlistIklan');
-Route::get('/information/iklan/destroy', [IklanController::class, 'destroyIklan'])->name('destroyIklan');
-Route::post('/information/iklan/tambah', [IklanController::class, 'addIklan'])->name('addIklan');
-Route::post('/information/iklan/update', [IklanController::class, 'updateIklan'])->name('updateIklan');
+Route::get('/content/iklan', [IklanController::class, 'index'])->name('iklan');
+Route::get('/content/iklan/getlistIklan', [IklanController::class, 'getlistIklan'])->name('getlistIklan');
+Route::get('/content/iklan/destroy', [IklanController::class, 'destroyIklan'])->name('destroyIklan');
+Route::post('/content/iklan/tambah', [IklanController::class, 'addIklan'])->name('addIklan');
+Route::post('/content/iklan/update', [IklanController::class, 'updateIklan'])->name('updateIklan');
 
 // Costumer
 Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');

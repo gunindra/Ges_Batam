@@ -10,7 +10,7 @@ class InformationsController extends Controller
 {
     public function index()
     {
-        return view('information.informations.indexinformation');
+        return view('content.informations.indexinformation');
     }
     public function getlistInformations(Request $request)
     {

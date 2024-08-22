@@ -10,7 +10,7 @@ class IklanController extends Controller
 {
     public function index()
     {
-        return view('information.iklan.indexiklan');
+        return view('content.iklan.indexiklan');
     }
 
     public function getlistIklan(Request $request)

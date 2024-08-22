@@ -12,7 +12,7 @@ class WhyController extends Controller
     {
         // Get existing about data
         $whyData = DB::table('tbl_whyus')->first();
-        return view('information.whys.indexwhy', compact('whyData'));
+        return view('content.whys.indexwhy', compact('whyData'));
     }
 
     public function addWhy(Request $request)

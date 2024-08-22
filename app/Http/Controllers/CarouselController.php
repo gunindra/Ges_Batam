@@ -10,7 +10,7 @@ class CarouselController extends Controller
 {
     public function index()
     {
-        return view('information.carousel.indexcarousel');
+        return view('content.carousel.indexcarousel');
     }
     
     public function getlistCarousel(Request $request)
