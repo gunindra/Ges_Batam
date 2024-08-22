@@ -214,13 +214,11 @@ class DeliveryController extends Controller
         $tester = $request->input('namafoto');
 
         try {
-            // Gunakan Storage untuk mendapatkan URL file
             $filePath = 'public/bukti_pengantaran/' . $tester;
 
             if (!Storage::exists($filePath)) {
                 return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan'], 404);
             }
-            // Mendapatkan URL dari file
             $url = Storage::url($filePath);
             return response()->json(['status' => 'success', 'url' => $url], 200);
 
