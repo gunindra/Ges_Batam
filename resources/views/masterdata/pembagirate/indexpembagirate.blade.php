@@ -78,8 +78,17 @@
                 <div class="modal-body">
                     <div class="mt-3">
                         <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
-                        <input type="text" class="form-control" id="nilaiRate" value="">
+                        <input type="text" class="form-control" id="nilaiRate" value="" placeholder="Masukkan Nilai Rate">
                         <div id="nilaiRateError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="forRate" class="form-label fw-bold">For</label>
+                        <select class="form-control" name="forRate" id="forRate">
+                            <option value="" selected disabled>Pilih for</option>
+                            <option value="Volume">Volume</option>
+                            <option value="Berat">Berat</option>
+                        </select>
+                        <div id="forRateError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -107,6 +116,15 @@
                         <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiRateEdit" value="">
                         <div id="nilaiRateErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="forRateEdit" class="form-label fw-bold">For</label>
+                        <select class="form-control" name="forRate" id="forRateEdit">
+                            <option value="" selected disabled>Pilih for</option>
+                            <option value="Volume">Volume</option>
+                            <option value="Berat">Berat</option>
+                        </select>
+                        <div id="forRateEditError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
 
                 </div>
@@ -397,7 +415,6 @@
 
         $('#modalTambahPembagi').on('hidden.bs.modal', function() {
             $('#nilaiPembagi').val('');
-            validateInput('modalTambahPembagi');
         });
 
         $(document).on('click', '.btnDestroyPembagi', function (e) {
@@ -481,6 +498,7 @@
     $('#saveRate').click(function () {
 
         var nilaiRate = $('#nilaiRate').val().trim();
+        var forRate = $('#forRate').val();
 
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -492,6 +510,12 @@
             isValid = false;
         } else {
             $('#nilaiRateError').addClass('d-none');
+        }
+        if (!forRate) {
+            $('#forRateError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#forRateError').addClass('d-none');
         }
 
         // Jika semua input valid, lanjutkan aksi simpan
@@ -509,6 +533,7 @@
                 if (result.isConfirmed) {
                     var formData = new FormData();
                     formData.append('nilaiRate', nilaiRate);
+                    formData.append('forRate', forRate);
                     formData.append('_token', csrfToken);
 
                     $.ajax({
@@ -541,8 +566,10 @@
         e.preventDefault();
         let id = $(this).data('id');
         let nilai_rate = $(this).data('nilai_rate');
+        let rate_for = $(this).data('rate_for');
 
         $('#nilaiRateEdit').val(nilai_rate);
+        $('#forRateEdit').val(rate_for);
         $('#rateIdEdit').val(id);
 
         $(document).on('click', '#saveEditRate', function(e) {
@@ -550,6 +577,7 @@
 
             let id = $('#rateIdEdit').val();
             let nilaiRate = $('#nilaiRateEdit').val();
+            let rateFor = $('#forRateEdit').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             let isValid = true;
@@ -577,6 +605,7 @@
                         let formData = new FormData();
                         formData.append('id', id);
                         formData.append('nilaiRate', nilaiRate);
+                        formData.append('rateFor', rateFor);
                         formData.append('_token', csrfToken);
 
                         $.ajax({
@@ -610,7 +639,6 @@
 
         $('#modalTambahRate').on('hidden.bs.modal', function() {
         $('#nilaiRate').val('');
-        validateInput('modalTambahRate');
         });
 
 

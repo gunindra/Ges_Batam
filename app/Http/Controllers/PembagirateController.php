@@ -131,11 +131,11 @@ class PembagirateController extends Controller
             $output .=
                 '
                 <tr>
-                    <td class="">' . $no .'</td>
+                    <td class="">' . $no++ .'</td>
                     <td class="">' . (isset($item->nilai_rate) ? '' . number_format($item->nilai_rate,0, '.', ',') : '-') . '</td>
                     <td class="">' . $item->rate_for .'</td>
                    <td>
-                        <a  class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_rate="' .$item->nilai_rate.'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_rate="' .$item->nilai_rate.'" data-rate_for="' .$item->rate_for.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyRate btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -148,13 +148,14 @@ class PembagirateController extends Controller
     public function addRate(Request $request)
     {
         $nilaiRate = $request->input('nilaiRate');
+        $forRate = $request->input('forRate');
 
         try {
             DB::table('tbl_rate')->insert([
                 'nilai_rate' => $nilaiRate,
+                'rate_for' => $forRate,
                 'created_at' => now(),
             ]);
-
             return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
@@ -168,7 +169,6 @@ class PembagirateController extends Controller
             DB::table('tbl_rate')
                 ->where('id', $id)
                 ->delete();
-
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -178,12 +178,14 @@ class PembagirateController extends Controller
     {
         $id = $request->input('id');
         $nilaiRate = $request->input('nilaiRate');
+        $rateFor = $request->input('rateFor');
 
         try {
             DB::table('tbl_rate')
             ->where('id', $id)
             ->update([
                 'nilai_rate' => $nilaiRate,
+                'rate_for' => $rateFor,
                 'updated_at' => now(),
             ]);
 
