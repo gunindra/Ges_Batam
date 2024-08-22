@@ -22,7 +22,7 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
-        $listPembeli = DB::select("SELECT id, nama_pembeli, no_wa FROM tbl_pembeli");
+        $listPembeli = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli");
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 

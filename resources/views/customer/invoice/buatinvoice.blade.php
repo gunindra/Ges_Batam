@@ -151,7 +151,7 @@
                                         <option value="" selected disabled>Pilih Customer</option>
                                         @foreach ($listPembeli as $pembeli)
                                             <option value="{{ $pembeli->id }}">
-                                                {{ $pembeli->nama_pembeli }} - {{ $pembeli->no_wa }}</option>
+                                                {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}</option>
                                         @endforeach
                                     </select>
                                     <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Customer</div>
