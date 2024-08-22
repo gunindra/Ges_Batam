@@ -460,6 +460,7 @@ dialog .controls button.close-btn{
   line-height: 1.5;
   margin-top: 10px;
   padding-bottom:50px;
+  overflow-wrap: break-word;
 }
 
 .content-container {
@@ -782,6 +783,7 @@ article a:hover {
 
 .contentwhy p {
   line-height: 1.6;
+  overflow-wrap: break-word;
 }
 /* slide iklan */
 
