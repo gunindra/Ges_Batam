@@ -16,6 +16,8 @@ class CreateTblCustomerTable extends Migration
             $table->string('no_wa', 50);
             $table->string('sisa_poin', 50)->nullable();
             $table->string('category', 50);
+            $table->timestamp('transaksi_terakhir')->nullable();
+            $table->tinyInteger('status');
             $table->timestamps();
         });
     }
