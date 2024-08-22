@@ -64,7 +64,7 @@ class InformationsController extends Controller
 
         $judulInformations = $request->input('judulInformations');
         $isiInformations = $request->input('isiInformations');
-        $file = $request->file('imageInformations');
+        $imageInformations = $request->file('imageInformations');
 
         try {
             // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
@@ -74,9 +74,9 @@ class InformationsController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
             }
 
-            if ($file) {
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->storeAs('public/images', $fileName);
+            if ($imageInformations) {
+                $fileName = 'Information_' . $imageInformations->getClientOriginalName();
+                $filePath = $imageInformations->storeAs('public/images', $fileName);
             } else {
                 $fileName = null; // No image was uploaded
             }

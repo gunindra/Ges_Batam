@@ -64,16 +64,15 @@ class CarouselController extends Controller
 
         $judulCarousel = $request->input('judulCarousel');
         $isiCarousel = $request->input('isiCarousel');
-        $file = $request->file('imageCarousel');
+        $imageCarousel = $request->file('imageCarousel');
 
         try {
-            if ($file) {
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->storeAs('public/images', $fileName);
+            if ($imageCarousel) {
+                $fileName = 'Carousel_' . $imageCarousel->getClientOriginalName();
+                $filePath = $imageCarousel->storeAs('public/images', $fileName);
             } else {
-                $file = null; // No image was uploaded
+                $fileName = null; // No image was uploaded
             }
-
             DB::table('tbl_carousel')->insert([
                 'judul_carousel' => $judulCarousel,
                 'isi_carousel' => $isiCarousel,

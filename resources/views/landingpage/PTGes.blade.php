@@ -21,7 +21,7 @@
     <div class="carousel-inner">
       @foreach($listcarousel as $index => $carousel)
         <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-          <img class="d-block w-100 bg-1" src="{{ asset('storage/images/' . $carousel->image_carousel) }}" alt="{{ $carousel->judul_carousel }}">
+          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}" alt="{{ $carousel->judul_carousel }}">
           <div class="carousel-caption">
             <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
             <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>

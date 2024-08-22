@@ -68,7 +68,7 @@ class ServiceController extends Controller
 
         $judulService = $request->input('judulService');
         $isiService = $request->input('isiService');
-        $file = $request->file('imageService');
+        $imageService = $request->file('imageService');
 
         try {
             // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
@@ -78,9 +78,9 @@ class ServiceController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 3 data sudah tercapai.'], 400);
             }
 
-            if ($file) {
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->storeAs('public/images', $fileName);
+            if ($imageService) {
+                $fileName = 'Service_' . $imageService->getClientOriginalName();
+                $filePath = $imageService->storeAs('public/images', $fileName);
             } else {
                 $fileName = null; // No image was uploaded
             }

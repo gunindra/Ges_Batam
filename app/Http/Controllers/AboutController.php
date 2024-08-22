@@ -18,19 +18,17 @@ class AboutController extends Controller
     public function addAbout(Request $request)
     {
         $parafAbout = $request->input('parafAbout');
-        $file = $request->file('imageAbout');
+        $imageAbout = $request->file('imageAbout');
     
         try {
             $fileName = null;
             $existingData = DB::table('tbl_aboutus')->first();
     
-            if ($file) {
-                // Jika ada gambar baru yang diunggah, simpan gambar tersebut
-                $fileName = $file->getClientOriginalName();
-                $file->storeAs('public/images', $fileName);
-            } elseif ($existingData) {
-                // Jika tidak ada gambar baru yang diunggah, gunakan gambar lama
-                $fileName = $existingData->Image_AboutUs;
+            if ($imageAbout) {
+                $fileName = 'AboutUs_' . $imageAbout->getClientOriginalName();
+                $filePath = $imageAbout->storeAs('public/images', $fileName);
+            } else {
+                $fileName = null; // No image was uploaded
             }
     
             if ($existingData) {

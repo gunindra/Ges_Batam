@@ -18,16 +18,16 @@ class WhyController extends Controller
     public function addWhy(Request $request)
     {
         $parafWhy = $request->input('parafWhy');
-        $file = $request->file('imageWhy');
+        $imageWhy = $request->file('imageWhy');
 
         try {
             $fileName = null;
-            if ($file) {
-                // Generate unique file name to prevent conflicts
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/images', $fileName);
+            if ($imageWhy) {
+                $fileName = 'WhyUs_' . $imageWhy->getClientOriginalName();
+                $filePath = $imageWhy->storeAs('public/images', $fileName);
+            } else {
+                $fileName = null; // No image was uploaded
             }
-
             $existingData = DB::table('tbl_whyus')->first();
 
             if ($existingData) {

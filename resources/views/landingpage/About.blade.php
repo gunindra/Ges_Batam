@@ -1,24 +1,27 @@
 <x-layout>
+  @section('title', 'PT. GES | About Us')
 
-    @section('title', 'PT. GES | About Us')
-<body class="navigasi-page">
-  <div class="JudulAbout">
-    <h2>About Us</h2>
-  </div>
-  <div class="content-container">
-    <div class="contentAbout">
-      <h2>What they say about us</h2>
-      <p id="parafAbout">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati pariatur accusamus similique ad minima vel eaque laboriosam, enim mollitia? Porro eius magni eaque deserunt perferendis voluptatum necessitatibus iure, maxime totam?
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum sapiente vitae reprehenderit ratione accusamus, deleniti delectus at quos quas iure magnam eos quasi exercitationem, quae porro velit nam repellat amet.
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Accusantium asperiores ducimus ex obcaecati, nesciunt quaerat, repellat dolorum eligendi minima consequatur tenetur quae quisquam possimus perferendis est blanditiis, ipsum sequi voluptatem?
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vel sit sed doloribus provident eos iusto possimus quasi cumque impedit maiores asperiores alias qui debitis labore iure distinctio, excepturi dolor dolore.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quisquam nulla deserunt illum voluptates, rem eveniet odit eligendi. Officia reiciendis molestiae voluptatem, explicabo eveniet adipisci iure sit rem, ab inventore ducimus.
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Adipisci quas iure aut unde dignissimos velit cupiditate perspiciatis! Assumenda, voluptates accusantium neque quae, esse doloribus sed deleniti, libero atque accusamus nobis.
-      </p>
+  <body class="navigasi-page">
+    <div class="JudulAbout">
+      <h2>About Us</h2>
     </div>
-    <div class="imageAbout" id="imageAbout">
-      <img src="/img/Whyus.jpg" alt="About Us Image" style="border-radius:30px;">
+
+    @if($dataAbout)
+    <div class="content-container">
+      <div class="contentAbout">
+        <h2>What they say about us</h2>
+        <p id="parafAbout">
+          {{ $dataAbout[0]->Paraf_AboutUs }}
+        </p>
+      </div>
+      <div class="imageAbout" id="imageAbout">
+        <img src="{{ asset('storage/images/' . $dataAbout[0]->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
+      </div>
     </div>
-  </div>
-</body>
+    @else
+    <div class="content-container">
+      <p>No data found for the given ID.</p>
+    </div>
+    @endif
+  </body>
 </x-layout>

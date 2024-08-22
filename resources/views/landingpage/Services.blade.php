@@ -2,10 +2,10 @@
     @section('title', 'PT. GES | Services')
     <body class="navigasi-page">
         <div class="container d-flex justify-content-center mb-5">
-            <div class="card col-8 mb-4" style="margin-top:100px;">
+            <div class="card col-lg-8 col-md-10 col-sm-12 mb-4" style="margin-top:100px;">
                 <div class="card-body text-center">
                     <div class="d-flex justify-content-center mb-5">
-                        <img src="{{ asset('storage/images/' . $dataService[0]->image_service) }}" alt="{{ $dataService[0]->judul_service }}" style="width: 400px; height: 400px;">
+                        <img src="{{ asset('storage/images/' . $dataService[0]->image_service) }}" alt="{{ $dataService[0]->judul_service }}" class="img-fluid" style="max-width: 100%; height: auto;">
                     </div>
                     <div class="col-12">
                         <h3 class="text-primary">{{ $dataService[0]->judul_service }}</h3>
@@ -14,6 +14,5 @@
                 </div>
             </div>
         </div>
-        </dicardServicev>
     </body>
 </x-layout>

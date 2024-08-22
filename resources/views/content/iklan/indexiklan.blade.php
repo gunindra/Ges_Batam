@@ -7,28 +7,29 @@
 <div class="container-fluid" id="container-wrapper">
 
 
- <!-- Modal tambah -->
- <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog"
-            aria-labelledby="modalTambahIklanTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTambahIklan">Tambah Iklan</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    <!-- Modal tambah -->
+    <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog" aria-labelledby="modalTambahIklanTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahIklan">Tambah Iklan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                        <input type="text" class="form-control" id="judulIklan" value=""
+                            placeholder="Masukkan judul iklan">
+                        <div id="judulIklanError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                     </div>
-                    <div class="modal-body">
-                        <div class="mt-3">
-                            <label for="judulIklan" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulIklan" value="" placeholder="Masukkan judul iklan">
-                            <div id="judulIklanError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="imageIklan" class="form-label fw-bold">Gambar</label>
-                            <input type="file" class="form-control" id="imageIklan" value="" >
-                            <div id="imageIklanError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                        </div>
+                    <div class="mt-3">
+                        <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                        <input type="file" class="form-control" id="imageIklan" value="">
+                        <div id="imageIklanError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                         <button type="button" id="saveIklan" class="btn btn-primary">Save changes</button>
@@ -36,55 +37,56 @@
                 </div>
             </div>
         </div>
-        </div>
-     <!-- Modal Edit -->
-     <div class="modal fade" id="modalEditIklan" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditIklanTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditIklanTitle">Edit Iklan</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    </div>
+    <!-- Modal Edit -->
+    <div class="modal fade" id="modalEditIklan" tabindex="-1" role="dialog" aria-labelledby="modalEditIklanTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditIklanTitle">Edit Iklan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="iklanIdEdit">
+                    <div class="mt-3">
+                        <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                        <input type="text" class="form-control" id="judulIklanEdit" value=""
+                            placeholder="Masukkan judul iklan">
+                        <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                     </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="iklanIdEdit">
-                        <div class="mt-3">
-                            <label for="judulIklan" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="judulIklanEdit" value="" placeholder="Masukkan judul iklan">
-                            <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="imageIklan" class="form-label fw-bold">Gambar</label>
-                            <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
-                            <input type="file" class="form-control" id="imageIklanEdit" value="">
-                            <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
-                        </div>
+                    <div class="mt-3">
+                        <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                        <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                        <input type="file" class="form-control" id="imageIklanEdit" value="">
+                        <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveEditIklan" class="btn btn-primary">Save changes</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditIklan" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
+    </div>
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
-        </div>
-        <div class="row mb-3">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex mb-2 mr-3 float-right">
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
+    </div>
+    <div class="row mb-3">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex mb-2 mr-3 float-right">
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
-                                        class="fas fa-plus"></i></span>Tambah Iklan</button>
-                        </div>
+                                    class="fas fa-plus"></i></span>Tambah Iklan</button>
+                    </div>
                     <div id="containerIklan" class="table-responsive px-2">
-                            <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
+                        <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
@@ -109,33 +111,33 @@
 
                                 </tbody>
                             </table> -->
-                            </div>
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 @section('script')
 <script>
-    $(document).ready(function() {
-            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-            const getlistIklan = () => {
+        const getlistIklan = () => {
             const txtSearch = $('#txSearch').val();
 
             $.ajax({
-                    url: "{{ route('getlistIklan') }}",
-                    method: "GET",
-                    data: {
-                        txSearch: txtSearch
-                    },
-                    beforeSend: () => {
-                        $('#containerIklan').html(loadSpin)
-                    }
-                })
+                url: "{{ route('getlistIklan') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerIklan').html(loadSpin)
+                }
+            })
                 .done(res => {
                     $('#containerIklan').html(res)
                     $('#tableIklan').DataTable({
@@ -210,9 +212,19 @@
                                 } else {
                                     Swal.fire({
                                         title: "Gagal Menambahkan Data",
+                                        text: response
+                                            .message,
                                         icon: "error"
                                     });
                                 }
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan Data",
+                                    text: xhr.responseJSON
+                                        .message,
+                                    icon: "error",
+                                });
                             }
                         });
                     }
@@ -224,92 +236,92 @@
 
 
 
-        $(document).on('click', '.btnUpdateIklan', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                let judul_iklan = $(this).data('judul_iklan');
-                let image_iklan = $(this).data('image_iklan');
+        $(document).on('click', '.btnUpdateIklan', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let judul_iklan = $(this).data('judul_iklan');
+            let image_iklan = $(this).data('image_iklan');
 
-                $('#judulIklanEdit').val(judul_iklan);
-                $('#textNamaEdit').text(image_iklan);
-                $('#iklanIdEdit').val(id);
+            $('#judulIklanEdit').val(judul_iklan);
+            $('#textNamaEdit').text(image_iklan);
+            $('#iklanIdEdit').val(id);
 
-                $(document).on('click', '#saveEditIklan', function(e) {
+            $(document).on('click', '#saveEditIklan', function (e) {
 
-                    let id = $('#iklanIdEdit').val();
-                    let judulIklan = $('#judulIklanEdit').val();
-                    let imageIklan = $('#imageIklanEdit')[0].files[0];
-                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                let id = $('#iklanIdEdit').val();
+                let judulIklan = $('#judulIklanEdit').val();
+                let imageIklan = $('#imageIklanEdit')[0].files[0];
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                    let isValid = true;
+                let isValid = true;
 
-                    if (judulIklan === '') {
-                        $('#judulIklanErrorEdit').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#judulIklanErrorEdit').addClass('d-none');
-                    }
+                if (judulIklan === '') {
+                    $('#judulIklanErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#judulIklanErrorEdit').addClass('d-none');
+                }
 
-                    // Validasi Gambar (hanya jika file gambar diubah)
-                    if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
-                        $('#imageIklanErrorEdit').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#imageIklanErrorEdit').addClass('d-none');
-                    }
+                // Validasi Gambar (hanya jika file gambar diubah)
+                if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
+                    $('#imageIklanErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageIklanErrorEdit').addClass('d-none');
+                }
 
-                    if (isValid) {
-                        Swal.fire({
-                            title: "Apakah Kamu Yakin?",
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#5D87FF',
-                            cancelButtonColor: '#49BEFF',
-                            confirmButtonText: 'Ya',
-                            cancelButtonText: 'Tidak',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                let formData = new FormData();
-                                formData.append('id', id);
-                                formData.append('judulIklan', judulIklan);
-                                formData.append('imageIklan', imageIklan);
-                                formData.append('_token', csrfToken);
+                if (isValid) {
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('judulIklan', judulIklan);
+                            formData.append('imageIklan', imageIklan);
+                            formData.append('_token', csrfToken);
 
-                                $.ajax({
-                                    type: "POST",
-                                    url: "{{ route('updateIklan') }}",
-                                    data: formData,
-                                    contentType: false,
-                                    processData: false,
-                                    success: function(response) {
-                                        if (response.status === 'success') {
-                                            showMessage("success",
-                                                "Data Berhasil Diubah");
-                                            getlistIklan();
-                                            $('#modalEditIklan').modal(
-                                                'hide');
-                                        } else {
-                                            Swal.fire({
-                                                title: "Gagal Menambahkan",
-                                                icon: "error"
-                                            });
-                                        }
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateIklan') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Diubah");
+                                        getlistIklan();
+                                        $('#modalEditIklan').modal(
+                                            'hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
                                     }
-                                });
-                            }
-                        });
-                    } else {
-                        showMessage("error", "Mohon periksa input yang kosong");
-                    }
-                })
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
+            })
 
-                // validateInformationsInput('modalEditInformations');
-                $('#modalEditIklan').modal('show');
-            });
+            // validateInformationsInput('modalEditInformations');
+            $('#modalEditIklan').modal('show');
+        });
 
-            $('#modalTambahIklan').on('hidden.bs.modal', function() {
-                $('#judulIklan,#imageIklan').val('');
+        $('#modalTambahIklan').on('hidden.bs.modal', function () {
+            $('#judulIklan,#imageIklan').val('');
             if (!$('#judulIklanError').hasClass('d-none')) {
                 $('#judulIklanError').addClass('d-none');
 
@@ -318,9 +330,9 @@
                 $('#imageIklanError').addClass('d-none');
 
             }
-            });
-            $('#modalEditIklan').on('hidden.bs.modal', function() {
-                $('#judulIklanEdit,#imageIklanEdit').val('');
+        });
+        $('#modalEditIklan').on('hidden.bs.modal', function () {
+            $('#judulIklanEdit,#imageIklanEdit').val('');
             if (!$('#judulIklanErrorEdit').hasClass('d-none')) {
                 $('#judulIklanErrorEdit').addClass('d-none');
 
@@ -329,12 +341,12 @@
                 $('#imageIklanErrorEdit').addClass('d-none');
 
             }
-            });
+        });
 
 
 
 
-        $(document).on('click', '.btnDestroyIklan', function(e) {
+        $(document).on('click', '.btnDestroyIklan', function (e) {
             let id = $(this).data('id');
 
             Swal.fire({
@@ -354,7 +366,7 @@
                         data: {
                             id: id,
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if (response.status === 'success') {
                                 showMessage("success", "Berhasil menghapus");
                                 getlistIklan();
@@ -364,9 +376,9 @@
                         }
                     });
                 }
-        });
+            });
 
-     });
+        });
 
     });
 </script>

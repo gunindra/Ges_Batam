@@ -62,7 +62,7 @@ class IklanController extends Controller
     {
 
         $judulIklan = $request->input('judulIklan');
-        $file = $request->file('imageIklan');
+        $imageIklan = $request->file('imageIklan');
 
 
         try {
@@ -71,12 +71,13 @@ class IklanController extends Controller
             if ($chekdata >= 7) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
             }
-            if ($file) {
-                $fileName = $file->getClientOriginalName();
-                $filePath = $file->storeAs('public/images', $fileName);
+            if ($imageIklan) {
+                $fileName = 'Iklan_' . $imageIklan->getClientOriginalName();
+                $filePath = $imageIklan->storeAs('public/images', $fileName);
             } else {
-                $file = null; // No image was uploaded
+                $fileName = null; // No image was uploaded
             }
+
 
             DB::table('tbl_iklan')->insert([
                 'judul_iklan' => $judulIklan,
