@@ -143,11 +143,9 @@
                                         placeholder="Pilih tanggal">
                                     <div id="tanggalError" class="text-danger mt-1 d-none">Tanggal tidak boleh kosong</div>
                                 </div>
-                            </div>
-                            <div class="col-6">
                                 <div class="mt-3">
                                     <label for="customer" class="form-label fw-bold col-12">Customer</label>
-                                    <select class="form-control select2singgle" id="selectCostumer" style="width: 65%">
+                                    <select class="form-control select2singgle" id="selectCostumer" style="width: 67%">
                                         <option value="" selected disabled>Pilih Customer</option>
                                         @foreach ($listPembeli as $pembeli)
                                             <option value="{{ $pembeli->id }}">
@@ -156,6 +154,8 @@
                                     </select>
                                     <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Customer</div>
                                 </div>
+                            </div>
+                            <div class="col-6">
                                 <div class="mt-3">
                                     <label for="currencyInvoice" class="form-label fw-bold">Currency</label>
                                     <select class="form-control col-8" name="" id="currencyInvoice">
@@ -167,10 +167,16 @@
                                         @endforeach
                                     </select>
                                     <div id="currencyInvoiceError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
-                                        terlebih
-                                        dahulu
+                                        terlebih dahulu</div>
+                                </div>
+                                <div class="mt-3" id="rateCurrencySection" style="display: none;">
+                                    <label for="rateCurrency" class="form-label fw-bold">Rate Currency</label>
+                                    <input type="text" class="form-control col-8" id="rateCurrency" value=""
+                                        placeholder="Masukkan rate">
+                                    <div id="rateCurrencyError" class="text-danger mt-1 d-none">Rate tidak boleh kosong
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <div class="divider mt-4">
@@ -274,8 +280,8 @@
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
                                     {{-- <input type="text" class="form-control" id="alamat" style="width: 100%"
                                         value="" placeholder="Masukkan Alamat Tujuan"> --}}
-                                    <textarea type="text" class="form-control" id="alamat" style="width: 100%"
-                                    value="" placeholder="Masukkan Alamat Tujuan" cols="30" rows="10"></textarea>
+                                    <textarea type="text" class="form-control" id="alamat" style="width: 100%" value=""
+                                        placeholder="Masukkan Alamat Tujuan" cols="30" rows="10"></textarea>
                                     <div id="alamatError" class="text-danger mt-1 d-none">Alamat tidak boleh kosong</div>
                                     <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
                                     <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
@@ -339,7 +345,7 @@
                             <div class="col-6">
                                 <div class="mt-3" id="rekeningSection" style="display: none;">
                                     <label for="rekening" class="form-label fw-bold col-12">Pilih Rekening</label>
-                                    <select class="form-control select2singgle col-8" id="rekening" style="width: 65%">
+                                    <select class="form-control select2singgle col-8" id="rekening" style="width: 67%">
                                         <option value="" selected disabled>Pilih Rekening</option>
                                         @foreach ($listRekening as $rekening)
                                             <option value="{{ $rekening->id }}">
@@ -487,8 +493,6 @@
             });
 
             var today = new Date().toISOString().split('T')[0];
-            // $('#tanggal').val(today);
-            // $('#tanggal').attr('min', today);
             $('#tanggal').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
@@ -496,27 +500,41 @@
                 autoclose: true,
             });
 
-            const exchangeRates = {
-                1: 1,
-                2: 11400,
-                3: 2200
-            };
+            $('#currencyInvoice').change(function() {
+                const selectedCurrency = $(this).val();
+                if (selectedCurrency !== '1') {
+                    $('#rateCurrencySection').show();
+                } else {
+                    $('#rateCurrencySection').hide();
+                    $('#rateCurrency').val(''); // Mengosongkan input rate currency jika disembunyikan
+                }
+                updateDisplayedTotalHarga();
+            });
 
+            $('#rateCurrency').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                updateDisplayedTotalHarga(); // Update total harga saat rateCurrency diubah
+            });
 
             function updateDisplayedTotalHarga() {
                 const currencyValue = $('#currencyInvoice').val();
                 const totalHargaIDR = $('#totalHargaValue').val();
+                const customRate = $('#rateCurrency').val();
                 let convertedTotal = 0;
 
                 if (!currencyValue) {
                     $('#total-harga').text('-');
-                } else if (currencyValue in exchangeRates) {
-                    convertedTotal = totalHargaIDR / exchangeRates[currencyValue];
+                } else if (currencyValue == 1) { // Untuk Rupiah, langsung tampilkan tanpa konversi
+                    $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+                } else if (customRate && currencyValue !==
+                    '1') { // Jika currency bukan Rupiah dan ada rate yang diinputkan
+                    convertedTotal = totalHargaIDR / customRate;
                     let currencySymbol = "";
 
-                    if (currencyValue == 1) {
-                        currencySymbol = "Rp. ";
-                    } else if (currencyValue == 2) {
+                    if (currencyValue == 2) {
                         currencySymbol = "$ ";
                     } else if (currencyValue == 3) {
                         currencySymbol = "¥ ";
@@ -536,6 +554,7 @@
             });
 
             updateDisplayedTotalHarga();
+
 
 
             $('#toggleSwitch').change(function() {
@@ -667,6 +686,7 @@
                 const tanggal = $('#tanggal').val().trim();
                 const customer = $('#selectCostumer').val();
                 const currencyInvoice = $('#currencyInvoice').val();
+                const rateCurrency = $('#rateCurrency').val();
                 const beratBarang = $('#beratBarang').val().trim();
                 const panjang = $('#panjang').val().trim();
                 const lebar = $('#lebar').val().trim();
@@ -713,6 +733,13 @@
                     isValid = false;
                 } else {
                     $('#currencyInvoiceError').addClass('d-none');
+                }
+
+                if (rateCurrency === '') {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
                 }
 
                 if (metodePengiriman === 'Delivery') {
@@ -819,6 +846,7 @@
                         tanggal: tanggal,
                         customer: customer,
                         currencyInvoice: currencyInvoice,
+                        rateCurrency: rateCurrency,
                         beratBarang: beratBarang,
                         panjang: panjang,
                         lebar: lebar,

@@ -321,12 +321,9 @@
                 });
             });
 
-            // Validasi input untuk nomor telepon
             $('#noTelpon, #noTelponEdit').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
-
-            //untuk Add
 
             $('#saveCostumer').click(function() {
 

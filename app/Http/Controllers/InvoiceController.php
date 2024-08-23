@@ -55,8 +55,6 @@ class InvoiceController extends Controller
         $filter = $request->filter;
         $status = $request->status;
 
-
-
         if (!$filter) {
             $formattedFilter = date('Y-m');
         } else {
@@ -64,7 +62,6 @@ class InvoiceController extends Controller
         }
 
         $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
-
 
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
@@ -79,6 +76,7 @@ class InvoiceController extends Controller
                     f.tipe_pembayaran,
                     a.harga,
                     a.matauang_id,
+                    a.rate_matauang,
                     a.bukti_pembayaran,
                     d.status_name
             FROM tbl_pembayaran AS a
@@ -104,12 +102,6 @@ class InvoiceController extends Controller
 
         $data = DB::select($q);
 
-        $exchangeRates = [
-            1 => 1,
-            2 => 11400,
-            3 => 2200
-        ];
-
         $currencySymbols = [
             1 => 'Rp ',
             2 => '$ ',
@@ -117,79 +109,80 @@ class InvoiceController extends Controller
         ];
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No Resi</th>
-                                        <th>Tanggal</th>
-                                        <th>Costumer</th>
-                                        <th>Jenis Pembayaran</th>
-                                        <th>Harga</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                                foreach ($data as $item) {
+                    <thead class="thead-light">
+                        <tr>
+                            <th>No Resi</th>
+                            <th>Tanggal</th>
+                            <th>Customer</th>
+                            <th>Jenis Pembayaran</th>
+                            <th>Harga</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    foreach ($data as $item) {
 
-                                    $statusBadgeClass = '';
-                                    $btnPembayaran = '';
-                                    switch ($item->status_name) {
-                                        case 'Pending Payment':
-                                            $statusBadgeClass = 'badge-warning';
-                                            $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
-                                            break;
-                                        case 'Ready For Pickup':
-                                            $statusBadgeClass = 'badge-success';
-                                            if ($item->tipe_pembayaran === 'Transfer') {
-                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                                            }
-                                            break;
-                                        case 'Out For Delivery':
-                                            $statusBadgeClass = 'badge-primary';
-                                            if ($item->tipe_pembayaran === 'Transfer') {
-                                                $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                                            }
-                                            break;
-                                        case 'Delivering':
-                                            $statusBadgeClass = 'badge-delivering';
-                                            break;
-                                        case 'Debt':
-                                            $statusBadgeClass = 'badge-danger';
-                                            break;
-                                        case 'Done':
-                                            $statusBadgeClass = 'badge-secondary';
-                                            break;
-                                        default:
-                                            $statusBadgeClass = 'badge-secondary';
-                                            break;
-                                    }
-
-
-                                    $convertedHarga = $item->harga;
-                                    if ($item->matauang_id != 1) {
-                                        $convertedHarga = $item->harga / $exchangeRates[$item->matauang_id];
-                                    }
-
-                                    $output .=
-                                        '
-                                        <tr>
-                                            <td class="">' . ($item->no_resi ?? '-') . '</td>
-                                            <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
-                                            <td class="">' . ($item->pembeli ?? '-') . '</td>
-                                            <td class="">' . ($item->tipe_pembayaran ?? '-') . '</td>
-                                            <td class="">' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
-                                            <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
-                                            <td>
-                                                ' . $btnPembayaran . '
-                                                <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                                                <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
-                                            </td>
-                                        </tr>
-                                    ';
+                        $statusBadgeClass = '';
+                        $btnPembayaran = '';
+                        switch ($item->status_name) {
+                            case 'Pending Payment':
+                                $statusBadgeClass = 'badge-warning';
+                                $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
+                                break;
+                            case 'Ready For Pickup':
+                                $statusBadgeClass = 'badge-success';
+                                if ($item->tipe_pembayaran === 'Transfer') {
+                                    $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                 }
+                                break;
+                            case 'Out For Delivery':
+                                $statusBadgeClass = 'badge-primary';
+                                if ($item->tipe_pembayaran === 'Transfer') {
+                                    $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                                }
+                                break;
+                            case 'Delivering':
+                                $statusBadgeClass = 'badge-delivering';
+                                break;
+                            case 'Debt':
+                                $statusBadgeClass = 'badge-danger';
+                                break;
+                            case 'Done':
+                                $statusBadgeClass = 'badge-secondary';
+                                break;
+                            default:
+                                $statusBadgeClass = 'badge-secondary';
+                                break;
+                        }
+
+                        $convertedHarga = $item->harga;
+                        if ($item->matauang_id != 1) {
+                            $convertedHarga = $item->harga / $item->rate_matauang;
+                        }
+
+                        $output .=
+                            '
+                            <tr>
+                                <td>' . ($item->no_resi ?? '-') . '</td>
+                                <td>' . ($item->tanggal_bayar ?? '-') . '</td>
+                                <td>' . ($item->pembeli ?? '-') . '</td>
+                                <td>' . ($item->tipe_pembayaran ?? '-') . '</td>
+                                <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
+                                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
+                                <td>
+                                    ' . $btnPembayaran . '
+                                    <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
+                                    <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        ';
+                    }
         $output .= '</tbody></table>';
         return $output;
     }
+
+
 
 
     public function tambainvoice(Request $request)
@@ -198,6 +191,7 @@ class InvoiceController extends Controller
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
         $currencyInvoice = $request->input('currencyInvoice');
+        $rateCurrency = $request->input('rateCurrency');
         $beratBarang = floatval(str_replace(',', '.', $request->input('beratBarang')));
         $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
         $lebar = floatval(str_replace(',', '.', $request->input('lebar')));
@@ -232,6 +226,7 @@ class InvoiceController extends Controller
                 'pembayaran_id' => $metodePembayaran,
                 'rekening_id' => $rekening,
                 'matauang_id' => $currencyInvoice,
+                'rate_matauang' => $rateCurrency,
                 'status_id' => 1,
                 'created_at' => now(),
             ]);
