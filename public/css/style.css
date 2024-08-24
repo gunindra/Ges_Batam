@@ -66,6 +66,8 @@ dialog .controls button.close-btn{
 }
 .navbar {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: transparent;
+  box-shadow: none;
 }
 
 .navbar.transparent {
@@ -73,13 +75,30 @@ dialog .controls button.close-btn{
   box-shadow: none;
 }
 
-
+.navbar.scrolled .nav-link {
+  color: #ffffff; 
+}
 .navbar.scrolled {
-  background-color: #6499E9; 
-  color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #6499E9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+.navbar-logo {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
+.navbar.scrolled .navbar-logo {
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.navbar.transparent .navbar-logo {
+  background-color: transparent;
+  box-shadow: none;
+}
 .navbar .navbar-toggler-icon {
   background-image: url('data:image/svg+xml;charset=utf8,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3e%3cpath stroke="%23ffffff" stroke-width="10" d="M10 25h80M10 50h80M10 75h80"/%3e%3c/svg%3e') !important;
 }
@@ -89,10 +108,11 @@ dialog .controls button.close-btn{
 }
 .navigasi-page .navbar{
   background-color: #6499E9; 
-  
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 .navigasi-page-navbar{
-  background-color: #6499E9; 
+  background-color: #6499E9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 .navbar .nav-link {
   color: #ffffff;
@@ -125,6 +145,27 @@ dialog .controls button.close-btn{
 	line-height: 0.3;
 	background: #;
 }
+.navbar-logo {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+  border-radius: 5px;
+  background-color:white;
+  padding:10px 10px;
+}
+
+.navbar-logo:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4); 
+}
+.navbar-shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+}
+.navbar.homepage .navbar-logo {
+  display: none;
+}
+.navbar:not(.homepage) .navbar-logo {
+  display: block;
+}
+
+
 /* carousel  */
 .carousel-item {
   height: 100vh; 
@@ -136,7 +177,7 @@ dialog .controls button.close-btn{
 .carousel-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; 
+  object-fit: cover;  
 }
 
 .carousel-caption {
@@ -186,6 +227,11 @@ dialog .controls button.close-btn{
 
 .carousel-indicators button {
   width: 100px;
+}
+.single-slide .carousel-control-prev,
+.single-slide .carousel-control-next,
+.single-slide .carousel-indicators {
+  display: none;
 }
 /* main */
 .main{
@@ -352,9 +398,9 @@ dialog .controls button.close-btn{
 
 .content {
   width: 50%;
-  margin: 0px 15px;
+  margin: 0px 60px;
   transition: transform 0.3s ease;
-  padding: 0 15px; 
+  padding: 0 60px; 
   box-sizing: border-box; 
 }
 
@@ -566,7 +612,7 @@ dialog .controls button.close-btn{
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  padding-bottom: 20px; 
+  padding-bottom: 20pxnavbar
 }
 
 .btn-modern {
@@ -649,7 +695,7 @@ dialog .controls button.close-btn{
 }
 
 .single-service .box {
-  width: 40%;
+  width: 35%;
   height: auto;
 }
 
@@ -745,6 +791,7 @@ article a:hover {
 .nav-page {
   padding: 20px;
 }
+
 .Judulwhy h2 {
   text-align: center;
   margin-bottom: 20px;
@@ -753,13 +800,15 @@ article a:hover {
 
 .content-containerwhy {
   display: flex;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   align-items: flex-start; 
   padding: 20px;
+  gap: 20px; 
 }
 
 .imageWhy {
-  flex: 1;
+  flex: 1 1 300px; 
+  max-width: 500px;
   margin-right: 20px;
 }
 
@@ -767,11 +816,11 @@ article a:hover {
   width: 100%;
   border-radius: 15px; 
   object-fit: cover;
-  float:left;
 }
 
 .contentwhy {
-  flex: 2;
+  flex: 2 1 500px; 
+  min-width: 300px; 
 }
 
 .contentwhy h2 {
@@ -785,6 +834,7 @@ article a:hover {
   line-height: 1.6;
   overflow-wrap: break-word;
 }
+
 /* slide iklan */
 
 @keyframes slide {

@@ -14,20 +14,20 @@ class PtgesController extends Controller
         $listinformation =  DB::select("SELECT * FROM tbl_informations");
         $listservices = DB::select("SELECT * FROM tbl_service");
         foreach ($listservices as $service) {
-            $service->isi_service = Str::limit($service->isi_service, 150);
+            $service->isi_service = Str::limit($service->isi_service, 150,'');
         }
         $listiklan = DB::select("SELECT image_iklan, judul_iklan FROM tbl_iklan");
         $aboutus = DB::table('tbl_aboutus')->first();
         if ($aboutus) {
-            $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 210); 
+            $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 210, '');
         }
         $whyus = DB::table('tbl_whyus')->first();
         if ($whyus) {
-            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 210); 
+            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 210 ,''); 
         }
         $listcarousel =  DB::select("SELECT * FROM tbl_carousel");
         foreach ($listcarousel as $carousel) {
-            $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160);
+            $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160,'');
         }
        
 

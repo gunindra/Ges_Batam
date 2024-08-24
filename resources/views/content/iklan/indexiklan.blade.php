@@ -75,6 +75,10 @@
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Content</li>
+            <li class="breadcrumb-item active" aria-current="page">Iklan</li>
+        </ol>
     </div>
     <div class="row mb-3">
         <div class="col-xl-12">

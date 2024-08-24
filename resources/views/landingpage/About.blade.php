@@ -2,7 +2,7 @@
   @section('title', 'PT. GES | About Us')
 
   <body class="navigasi-page">
-    <div class="JudulAbout">
+    <div id="About" class="JudulAbout">
       <h2>About Us</h2>
     </div>
 

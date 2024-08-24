@@ -7,9 +7,13 @@ use Illuminate\Support\Facades\DB;
 
 class SlideController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-      
-        return view('landingpage.Slide');
+        $id = $request->query('id');
+
+        $dataCarousel = DB::select("SELECT * FROM tbl_carousel WHERE id = $id");
+
+        return view('landingpage.Slide', ['dataCarousel' => $dataCarousel]);
     }
+
 }

@@ -13,38 +13,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 // Scroll navbar carousel
-document.addEventListener('DOMContentLoaded', function() {
-    const navbar = document.querySelector('.navbar');
-    const carousel = document.querySelector('.carousel');
-    const navbarToggler = document.querySelector('.navbar-toggler');
+// document.addEventListener('DOMContentLoaded', function() {
+//     const navbar = document.querySelector('.navbar');
+//     const carousel = document.querySelector('.carousel');
+//     const navbarToggler = document.querySelector('.navbar-toggler');
 
-    function handleScroll() {
-        if (carousel && window.scrollY > (carousel.offsetHeight - navbar.offsetHeight)) {
-            navbar.classList.add('scrolled');
-            navbar.classList.remove('transparent');
-        } else {
-            navbar.classList.remove('scrolled');
-            if (!navbar.classList.contains('open')) {
-                navbar.classList.add('transparent');
-            }
-        }
-    }
+//     function handleScroll() {
+//         if (carousel && window.scrollY > (carousel.offsetHeight - navbar.offsetHeight)) {
+//             navbar.classList.add('scrolled');
+//             navbar.classList.remove('transparent');
+//         } else {
+//             navbar.classList.remove('scrolled');
+//             if (!navbar.classList.contains('open')) {
+//                 navbar.classList.add('transparent');
+//             }
+//         }
+//     }
 
-    function handleTogglerClick() {
-        navbar.classList.toggle('open');
-        if (navbar.classList.contains('open')) {
-            navbar.classList.remove('transparent');
-        } else {
-            if (carousel && window.scrollY <= (carousel.offsetHeight - navbar.offsetHeight)) {
-                navbar.classList.add('transparent');
-            }
-        }
-    }
+//     function handleTogglerClick() {
+//         navbar.classList.toggle('open');
+//         if (navbar.classList.contains('open')) {
+//             navbar.classList.remove('transparent');
+//         } else {
+//             if (carousel && window.scrollY <= (carousel.offsetHeight - navbar.offsetHeight)) {
+//                 navbar.classList.add('transparent');
+//             }
+//         }
+//     }
 
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-    navbarToggler.addEventListener('click', handleTogglerClick);
-});
+//     handleScroll();
+//     window.addEventListener('scroll', handleScroll);
+//     navbarToggler.addEventListener('click', handleTogglerClick);
+// });
 // Slide
 var copy = document.querySelector(".logos-slide").cloneNode(true);
 document.querySelector(".logos").appendChild(copy);
@@ -86,23 +86,75 @@ document.addEventListener('DOMContentLoaded', function() {
 // Home.addEventListener("click", function (){
 //   window.location.href= "PTGes.blade.php";
 // });
+  
+  document.addEventListener("scroll", function() {
+    const navbar = document.querySelector('.navbar');
+    const carousel = document.querySelector('#carouselExample');
+    const aboutSection = document.querySelector('#About');
 
+    const carouselHeight = carousel.offsetHeight;
+    const aboutPosition = aboutSection.offsetTop;
+    const scrollPosition = window.scrollY;
 
+    if (scrollPosition < carouselHeight) {
+        navbar.classList.remove('scrolled');
+        navbar.classList.add('transparent');
+    } else if (scrollPosition >= carouselHeight && scrollPosition < aboutPosition) {
+        navbar.classList.remove('transparent');
+        navbar.classList.add('scrolled');
+    } else if (scrollPosition >= aboutPosition) {
+        navbar.classList.remove('transparent');
+        navbar.classList.add('scrolled');
+    }
+});
 document.addEventListener('DOMContentLoaded', function() {
-    const thumbnailImage = document.querySelector('#thumbnailImage');
-    const modalImage = document.querySelector('#modalImage');
-    const imageModal = $('#imageModal');
+    const navbar = document.querySelector('.navbar');
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarLogo = document.querySelector('.navbar-logo');
+    const carousel = document.querySelector('.carousel');
+    const isHomePage = window.location.pathname === '/';
   
-    // Show modal when thumbnail image is clicked
-    thumbnailImage.addEventListener('click', function() {
-      modalImage.src = thumbnailImage.src;
-      imageModal.modal('show');
-    });
-  
-    // Close modal when clicking outside the modal content
-    imageModal.on('click', function(e) {
-      if ($(e.target).hasClass('modal')) {
-        imageModal.modal('hide');
-      }
-    });
-  });
+    function handleScroll() {
+        if (carousel) {
+            if (window.scrollY > (carousel.offsetHeight - navbar.offsetHeight)) {
+                // If scrolled past carousel, make navbar colored
+                navbar.classList.add('scrolled');
+                navbar.classList.remove('transparent');
+            } else {
+                // If still on carousel, keep navbar transparent
+                navbar.classList.remove('scrolled');
+                navbar.classList.add('transparent');
+            }
+        }
+    }
+
+    function handleTogglerClick() {
+        navbar.classList.toggle('open');
+        if (navbar.classList.contains('open')) {
+            navbar.classList.remove('transparent');
+        } else {
+            if (carousel && window.scrollY <= (carousel.offsetHeight - navbar.offsetHeight)) {
+                navbar.classList.add('transparent');
+            }
+        }
+    }
+
+    // Set homepage class and logo visibility
+    if (isHomePage) {
+        navbar.classList.add('homepage');
+    } else {
+        navbar.classList.remove('homepage');
+        navbar.classList.add('scrolled'); // Ensure navbar is styled correctly on other pages
+        navbar.classList.remove('transparent');
+    }
+
+    handleScroll(); // Initial check
+    window.addEventListener('scroll', handleScroll);
+    navbarToggler.addEventListener('click', handleTogglerClick);
+});
+function scrollToSection(SectionId){
+    const element = document.getElementById(SectionId);
+    if(element){
+        element.scrollIntoView({ behavior: 'smooth'});
+    }
+}
