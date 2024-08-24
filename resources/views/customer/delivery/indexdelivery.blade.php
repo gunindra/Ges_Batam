@@ -57,6 +57,40 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog" aria-labelledby="modalFilterTanggalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFilterTanggalTitle">Filter Tanggal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mt-3">
+                                <label for="pembayaranStatus" class="form-label fw-bold">Pilih Tanggal:</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="date" id="startDate" class="form-control"
+                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
+                                    <span class="mx-2">sampai</span>
+                                    <input type="date" id="endDate" class="form-control"
+                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveFilterTanggal" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
@@ -84,10 +118,7 @@
                                     <option value="Delivering">Delivering</option>
                                     <option value="Done">Done</option>
                                 </select>
-                                <button id="monthEvent" class="btn btn-light form-control ml-2"
-                                    style="border: 1px solid #e9ecef; width: 100px;">
-                                    <span id="calendarTitle" class="fs-4"></span>
-                                </button>
+                                <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                     onclick="window.location.reload()">
                                     Reset
@@ -157,18 +188,19 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        let selectedMonth = getCurrentMonth();
-
         const getlistDelivery = () => {
             const txtSearch = $('#txSearch').val();
             const filterStatus = $('#filterStatus').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
 
             $.ajax({
                     url: "{{ route('getlistDelivery') }}",
                     method: "GET",
                     data: {
                         txSearch: txtSearch,
-                        filter: selectedMonth,
+                        startDate: startDate,
+                        endDate: endDate,
                         status: filterStatus
                     },
                     beforeSend: () => {
@@ -201,45 +233,42 @@
             }
         })
 
-        function getCurrentMonth() {
-            const months = [
-                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-            ];
-
-            const currentDate = new Date();
-            const currentMonth = months[currentDate.getMonth()];
-            const currentYear = currentDate.getFullYear();
-
-            return `${currentMonth} ${currentYear}`;
-        }
-
-        $(document).ready(function() {
-            $('#calendarTitle').text(selectedMonth);
-        });
-
-        const monthFilterInput = document.getElementById('monthEvent');
-
-        const flatpickrInstance = flatpickr(monthFilterInput, {
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "M Y",
-                    altFormat: "M Y",
-                    theme: "light"
-                })
-            ],
+        flatpickr("#startDate", {
+            dateFormat: "d M Y",
             onChange: function(selectedDates, dateStr, instance) {
-                const selectedDate = selectedDates[0];
-                selectedMonth = instance.formatDate(selectedDate, "M Y");
-                $('#calendarTitle').text(selectedMonth);
-                console.log("ini hasil dari filter bulan", selectedMonth);
-                getlistDelivery();
+
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
             }
         });
 
+        flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    $('#endDate').val('');
+                }
+            }
+        });
+
+        $(document).on('click', '#filterTanggal', function(e) {
+            $('#modalFilterTanggal').modal('show');
+        });
+
+
+
         $('#filterStatus').change(function() {
             getlistDelivery();
+        });
+
+        $('#saveFilterTanggal').click(function() {
+            getlistDelivery();
+            $('#modalFilterTanggal').modal('hide');
         });
 
         $(document).on('click', '.btnAcceptPengantaran', function(e) {

@@ -18,49 +18,43 @@ class DeliveryController extends Controller
     public function getlistDelivery(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $filter = $request->filter;
-        $status = $request->status;
+        $status = strtoupper(trim($request->status));
 
-        if (!$filter) {
-            $formattedFilter = date('Y-m');
-        } else {
-            $formattedFilter = date_create_from_format("M Y", $filter)->format("Y-m");
+        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
+        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
+
+        $query = DB::table('tbl_pengantaran as a')
+            ->select(
+                'a.id',
+                'b.no_resi',
+                DB::raw("DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
+                'c.nama_supir',
+                'a.alamat',
+                'a.bukti_pengantaran',
+                'd.status_name',
+                DB::raw("CONCAT_WS(', ', a.kelurahan, a.kecamatan, a.kotakab, a.provinsi) AS full_address")
+            )
+            ->join('tbl_pembayaran as b', 'a.pembayaran_id', '=', 'b.id')
+            ->join('tbl_supir as c', 'a.supir_id', '=', 'c.id')
+            ->join('tbl_status as d', 'b.status_id', '=', 'd.id')
+            ->where(function($query) use ($txSearch) {
+                $query->where(DB::raw('UPPER(c.nama_supir)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('UPPER(b.no_resi)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('UPPER(a.alamat)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('UPPER(d.status_name)'), 'LIKE', $txSearch);
+            });
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('a.tanggal_pengantaran', [$startDate, $endDate]);
         }
 
-        $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
+        if (!empty($status)) {
+            $query->where(DB::raw('UPPER(d.status_name)'), $status);
+        }
 
-        $q = "SELECT
-                    a.id,
-                    b.no_resi,
-                    DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran,
-                    c.nama_supir,
-                    a.alamat,
-                    a.bukti_pengantaran,
-                    d.status_name,
-                    CONCAT_WS(', ', a.kelurahan, a.kecamatan, a.kotakab, a.provinsi) AS full_address
-                FROM
-                    tbl_pengantaran AS a
-                JOIN
-                    tbl_pembayaran AS b ON a.pembayaran_id = b.id
-                JOIN
-                    tbl_supir AS c ON a.supir_id = c.id
-                JOIN
-                    tbl_status AS d ON b.status_id = d.id
-                WHERE (
-                    UPPER(c.nama_supir) LIKE UPPER('$txSearch')
-                    OR UPPER(b.no_resi) LIKE UPPER('$txSearch')
-                    OR UPPER(a.alamat) LIKE UPPER('$txSearch')
-                    OR UPPER(d.status_name) LIKE UPPER('$txSearch')
-                )
-                AND a.tanggal_pengantaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-" . $lastDayOfMonth . "'";
+        $query->limit(100);
 
-            if (!empty($status)) {
-            $q .= " AND d.status_name = '" . strtoupper($status) . "'";
-            }
-
-            $q .= " LIMIT 100";
-
-        $data = DB::select($q);
+        $data = $query->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
                                 <thead class="thead-light">
