@@ -52,16 +52,14 @@ class InvoiceController extends Controller
     public function getlistInvoice(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $filter = $request->filter;
         $status = $request->status;
+        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
+        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
 
-        if (!$filter) {
-            $formattedFilter = date('Y-m');
-        } else {
-            $formattedFilter = date_create_from_format("M Y", $filter)->format("Y-m");
+        $dateCondition = '';
+        if ($startDate && $endDate) {
+            $dateCondition = "AND a.tanggal_pembayaran BETWEEN '$startDate' AND '$endDate'";
         }
-
-        $lastDayOfMonth = date("t", strtotime($formattedFilter . "-01"));
 
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
@@ -88,7 +86,7 @@ class InvoiceController extends Controller
                 OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
                 OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
                 )
-                AND a.tanggal_pembayaran BETWEEN '" . $formattedFilter . "-01' AND '" . $formattedFilter . "-" . $lastDayOfMonth . "'
+                $dateCondition
                 $statusCondition
             ORDER BY CASE d.status_name
                         WHEN 'Pending Payment' THEN 1
@@ -97,7 +95,8 @@ class InvoiceController extends Controller
                         WHEN 'Ready For Pickup' THEN 4
                         WHEN 'Delivering' THEN 5
                         ELSE 6
-                    END
+                    END,
+                     a.id DESC
             LIMIT 100;";
 
         $data = DB::select($q);
@@ -181,6 +180,7 @@ class InvoiceController extends Controller
         $output .= '</tbody></table>';
         return $output;
     }
+
 
 
 

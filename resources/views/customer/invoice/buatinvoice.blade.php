@@ -461,10 +461,9 @@
                 }
             });
 
-            // Tarik data untuk Kelurahan berdasarkan Kecamatan
             $('#kecamatan').change(function() {
                 var districtId = $(this).val();
-                selectedKecamatanName = $('#kecamatan option:selected').text(); // Store the name
+                selectedKecamatanName = $('#kecamatan option:selected').text();
                 if (districtId) {
                     $.ajax({
                         url: 'https://www.emsifa.com/api-wilayah-indonesia/api/villages/' +
@@ -485,7 +484,7 @@
             });
 
             $('#kelurahan').change(function() {
-                selectedKelurahanName = $('#kelurahan option:selected').text(); // Store the name
+                selectedKelurahanName = $('#kelurahan option:selected').text();
             });
 
             $('.select2singgle').select2({
@@ -524,7 +523,7 @@
 
                 if (!currencyValue) {
                     $('#total-harga').text('-');
-                } else if (currencyValue == 1) { // Untuk Rupiah, langsung tampilkan tanpa konversi
+                } else if (currencyValue == 1) {
                     $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
@@ -735,7 +734,7 @@
                     $('#currencyInvoiceError').addClass('d-none');
                 }
 
-                if (rateCurrency === '') {
+                if (currencyInvoice === '1' && rateCurrency === null ) {
                     $('#rateCurrencyError').removeClass('d-none');
                     isValid = false;
                 } else {
