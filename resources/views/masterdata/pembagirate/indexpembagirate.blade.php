@@ -414,9 +414,20 @@
         });
 
         $('#modalTambahPembagi').on('hidden.bs.modal', function() {
-            $('#nilaiPembagi').val('');
-        });
+                $('#nilaiPembagi').val('');
+                if (!$('#nilaiPembagiError').hasClass('d-none')) {
+                    $('#nilaiPembagiError').addClass('d-none');
 
+                }
+               
+            });
+            $('#modalEditPembagi').on('hidden.bs.modal', function() {
+                $('#nilaiPembagiEdit').val('');
+                if (!$('#nilaiPembagiErrorEdit').hasClass('d-none')) {
+                    $('#nilaiPembagiErrorEdit').addClass('d-none');
+
+                }
+            });
         $(document).on('click', '.btnDestroyPembagi', function (e) {
             let id = $(this).data('id');
 
@@ -561,6 +572,16 @@
             showMessage("error", "Mohon periksa input yang kosong");
         }
         });
+        $('#modalTambahRate').on('hidden.bs.modal', function() {
+                $('#nilaiRate,#forRate').val('');
+                if (!$('#nilaiRateError').hasClass('d-none')) {
+                    $('#nilaiRateError').addClass('d-none');
+                }
+                if (!$('#forRateError').hasClass('d-none')) {
+                    $('#forRateError').addClass('d-none');
+                }
+               
+            });
 
         $(document).on('click', '.btnUpdateRate', function(e) {
         e.preventDefault();
@@ -637,9 +658,13 @@
         $('#modalEditRate').modal('show');
         });
 
-        $('#modalTambahRate').on('hidden.bs.modal', function() {
-        $('#nilaiRate').val('');
-        });
+        $('#modalEditRate').on('hidden.bs.modal', function() {
+                $('#nilaiRateEdit').val('');
+                if (!$('#nilaiRateErrorEdit').hasClass('d-none')) {
+                    $('#nilaiRateErrorEdit').addClass('d-none');
+                }
+            });
+
 
 
         $(document).on('click', '.btnDestroyRate', function (e) {

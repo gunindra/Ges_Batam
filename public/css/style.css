@@ -838,10 +838,10 @@ article a:hover {
 /* slide iklan */
 
 @keyframes slide {
-  from {
+  0% {
     transform: translateX(0);
   }
-  to {
+  100% {
     transform: translateX(-100%);
   }
 }
@@ -880,16 +880,18 @@ article a:hover {
 
 .logos-slide {
   display: inline-block;
-  animation: 35s slide infinite linear;
+  animation: slide 35s linear infinite;
+  animation-timing-function: linear;
 }
 
 .logos-slide img {
   height: 100px;
-  margin: 0 100px;
+  margin: 0 50px;
 }
+
 /* footer */
 footer {
-  background: #3D3B40;
+  background: #3C3D37;
   padding-top: 50px;
   margin-top:auto;
   
@@ -995,7 +997,7 @@ a:hover {
 }
 
 .bottom-bar p {
-  color: #343434;
+  color: white;
   margin: 0;
   font-size: 16px;
   padding: 7px;

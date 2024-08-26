@@ -352,6 +352,25 @@
                     showMessage("error", "Mohon periksa input yang kosong");
                 }
             });
+            $('#modalTambahDriver').on('hidden.bs.modal', function() {
+                $('#namaDriver, #alamatDriver, #noTelponDriver, #simDriver').val('');
+                if (!$('#err-namaDriver').hasClass('d-none')) {
+                    $('#err-namaDriver').addClass('d-none');
+
+                }
+                if (!$('#err-alamatDriver').hasClass('d-none')) {
+                    $('#err-alamatDriver').addClass('d-none');
+
+                }
+                if (!$('#err-noTelponDriver').hasClass('d-none')) {
+                    $('#err-noTelponDriver').addClass('d-none');
+
+                }
+                if (!$('#simDriverError').hasClass('d-none')) {
+                    $('#simDriverError').addClass('d-none');
+
+                }
+            });
 
 
             $(document).on('click', '.btnUpdateDriver', function(e) {
@@ -454,8 +473,20 @@
             });
 
 
-            $('#modalTambahDriver').on('hidden.bs.modal', function() {
-                $('#namaDriver,#alamatDriver,#noTelponDriver').val('');
+            $('#modalEditDriver').on('hidden.bs.modal', function() {
+                $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit, #simDriverEdit').val('');
+                if (!$('#err-namaDriverEdit').hasClass('d-none')) {
+                    $('#err-namaDriverEdit').addClass('d-none');
+
+                }
+                if (!$('#err-alamatDriverEdit').hasClass('d-none')) {
+                    $('#err-alamatDriverEdit').addClass('d-none');
+
+                }
+                if (!$('#err-noTelponDriverEdit').hasClass('d-none')) {
+                    $('#err-noTelponDriverEdit').addClass('d-none');
+
+                }
             });
 
 
