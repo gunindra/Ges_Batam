@@ -28,6 +28,7 @@ return new class extends Migration
             $table->decimal('rate_matauang', 15,2)->nullable();
             $table->string('bukti_pembayaran', 100)->nullable();
             $table->foreignId('status_id')->constrained('tbl_status');
+            $table->enum('status_pembayaran', ['Lunas', 'Belum lunas']);
             $table->timestamps();
         });
 

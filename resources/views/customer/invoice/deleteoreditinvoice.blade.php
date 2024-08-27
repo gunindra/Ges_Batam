@@ -112,11 +112,11 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Buat Invoice</h1>
+            <h1 class="h3 mb-0 text-gray-800">Edit Invoice</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Costumer</li>
                 <li class="breadcrumb-item"><a href="{{ route('invoice') }}">Invoice</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Buat Invoice</li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Invoice</li>
             </ol>
         </div>
 
@@ -131,13 +131,13 @@
                     <div class="card-body">
                         <div class="d-flex flex-row">
                             <div class="col-6">
-                                <div class="mt-3">
+                                {{-- <div class="mt-3">
                                     <label for="noResi" class="form-label fw-bold">No Resi</label>
                                     <input type="text" class="form-control col-8" id="noResi" value=""
                                         placeholder="Scan Resi">
                                     <div id="noResiError" class="text-danger mt-1 d-none">Silahkan Scan No Resi terlebih
                                         dahulu</div>
-                                </div>
+                                </div> --}}
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
                                     <input type="text" class="form-control col-8" id="tanggal" value=""
@@ -417,6 +417,10 @@
 
 @endsection
 @section('script')
+
+    <script>
+
+    </script>
     <script>
         $(document).ready(function() {
             // Store names of selected options

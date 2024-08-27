@@ -15,9 +15,11 @@ class InvoiceController extends Controller
 {
     public function index()
     {
+        $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
-
-        return view('customer.invoice.indexinvoice');
+        return view('customer.invoice.indexinvoice', [
+            'listStatus' => $listStatus
+        ]);
     }
 
     public function addinvoice()
@@ -32,7 +34,7 @@ class InvoiceController extends Controller
 
         $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
 
-        $listRateVolume = DB::select("SELECT id, nilai_rate FROM tbl_rate");
+        $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
 
         $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
 
@@ -46,6 +48,55 @@ class InvoiceController extends Controller
             'listCurrency' => $listCurrency,
             'lisPembagi' => $lisPembagi
         ]);
+    }
+
+    public function editinvoice(Request $request, $id)
+    {
+        $data = DB::table('tbl_pembayaran as a')
+                ->leftJoin('tbl_pengantaran as b', 'a.id', '=', 'b.pembayaran_id')
+                ->where('a.id', $id)
+                ->select(
+                    'a.*',
+                    'b.tanggal_pengantaran',
+                    'b.supir_id',
+                    'b.alamat',
+                    'b.provinsi',
+                    'b.kotakab',
+                    'b.kecamatan',
+                    'b.kelurahan'
+                )
+                ->first();
+
+        $listPembeli = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli");
+
+        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+
+        $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
+
+        $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
+
+        $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
+
+        $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
+
+        $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
+
+
+        return view('customer.invoice.deleteoreditinvoice', [
+            'listPembeli' => $listPembeli,
+            'listSupir' => $listSopir,
+            'listRekening' => $listRekening,
+            'listTipePembayaran' => $listTipePembayaran,
+            'listRateVolume' => $listRateVolume,
+            'listCurrency' => $listCurrency,
+            'lisPembagi' => $lisPembagi,
+            '$data' => $data
+        ]);
+    }
+
+    public function cicilanInvoice(Request $request, $id)
+    {
+        return view('customer.invoice.cicilaninvoice');
     }
 
 
@@ -71,6 +122,7 @@ class InvoiceController extends Controller
                     a.panjang,
                     a.lebar,
                     a.tinggi,
+                    a.pembayaran_id,
                     f.tipe_pembayaran,
                     a.harga,
                     a.matauang_id,
@@ -124,10 +176,18 @@ class InvoiceController extends Controller
 
                         $statusBadgeClass = '';
                         $btnPembayaran = '';
+                        $btnEditinvoice = '';
+                        $btnCicilan = '';
+
+                        if ($item->pembayaran_id == 4) {
+                            $btnCicilan = '<a class="btn btnCicilan btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-list-alt"></i></a>';
+                        }
+
                         switch ($item->status_name) {
                             case 'Pending Payment':
                                 $statusBadgeClass = 'badge-warning';
                                 $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
+                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Ready For Pickup':
                                 $statusBadgeClass = 'badge-success';
@@ -143,9 +203,6 @@ class InvoiceController extends Controller
                                 break;
                             case 'Delivering':
                                 $statusBadgeClass = 'badge-delivering';
-                                break;
-                            case 'Debt':
-                                $statusBadgeClass = 'badge-danger';
                                 break;
                             case 'Done':
                                 $statusBadgeClass = 'badge-secondary';
@@ -170,9 +227,11 @@ class InvoiceController extends Controller
                                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                 <td>
+
+                                    ' . $btnCicilan . '
                                     ' . $btnPembayaran . '
+                                    ' . $btnEditinvoice . '
                                     <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                                    <a class="btn btnDeleteInvoice btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
                                 </td>
                             </tr>
                         ';
@@ -181,8 +240,89 @@ class InvoiceController extends Controller
         return $output;
     }
 
+    public function getlistHeadCicilan(Request $request)
+    {
+        $id = $request->input('id');
 
 
+        $data = DB::table('tbl_pembayaran')
+            ->join('tbl_pembeli', 'tbl_pembayaran.pembeli_id', '=', 'tbl_pembeli.id')
+            ->select('tbl_pembayaran.no_resi', 'tbl_pembeli.nama_pembeli', 'tbl_pembayaran.status_pembayaran', 'tbl_pembayaran.cicilan')
+            ->where('tbl_pembayaran.id', $id)
+            ->first();
+
+        return response()->json($data);
+    }
+
+    public function getlistCicilan(Request $request)
+    {
+        $id = $request->input('id');
+        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
+        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
+
+        $dateCondition = '';
+        if ($startDate && $endDate) {
+            $dateCondition = "AND tanggal_pembayaran BETWEEN '$startDate' AND '$endDate'";
+        }
+
+        $q = " SELECT   id,
+                        userlogin,
+                        jumlah_cicilan,
+                        DATE_FORMAT(tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
+                        metode_pembayaran,
+                        bukti_pembayaran
+                FROM tbl_cicilan
+                WHERE pembayaran_id = $id
+                and (
+                UPPER(userlogin) LIKE UPPER('$txSearch')
+                OR UPPER(metode_pembayaran) LIKE UPPER('$txSearch')
+                )
+                $dateCondition
+                ORDER BY id DESC
+                LIMIT 100
+                ";
+
+                    $data = DB::select($q);
+
+
+
+                    $output = '  <table class="table align-items-center table-flush table-hover" id="tableCicilan">
+                                 <thead class="thead-light">
+                                    <tr>
+                                        <th>Admin</th>
+                                        <th>Tanggal Pembayaran</th>
+                                        <th>Jumlah Pembayaran</th>
+                                        <th>Metode Pembayaran</th>
+                                        <th>Bukti Pembayaran</th>
+                                    </tr>
+                                </thead>
+                                <tbody>';
+                    foreach ($data as $item) {
+
+                        $btnDetailBukti = '-';
+                        if ($item->bukti_pembayaran)
+                        {
+                            $btnDetailBukti = '<a  class="btn btnDetailSim btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                        }
+
+                        $output .=
+                            '
+                            <tr>
+                                <td class="">' . ($item->userlogin ?? '-') .'</td>
+                                <td class="">' . ($item->tanggal_bayar ?? '-') .'</td>
+                                <td class="">' . (isset($item->jumlah_cicilan) ? '' . number_format($item->jumlah_cicilan,0, '.', ',') : '-') . '</td>
+                                <td class="">' . ($item->metode_pembayaran ?? '-') .'</td>
+                                <td>
+                                 ' . $btnDetailBukti . '
+                                </td>
+                            </tr>
+                        ';
+                    }
+
+                    $output .= '</tbody></table>';
+                    return $output;
+    }
 
 
     public function tambainvoice(Request $request)
@@ -213,6 +353,21 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
+            $statusId = 1;
+            $statusPembayaran = '';
+            $cicilan = null;
+
+            if ($metodePembayaran == 4) {
+                if ($metodePengiriman == 'Delivery') {
+                    $statusId = 3;
+                    $statusPembayaran = 'Belum Lunas';
+                } else {
+                    $statusId = 2;
+                    $statusPembayaran = 'Belum Lunas';
+                }
+                $cicilan = $totalharga;
+            }
+
             $pembayaranId = DB::table('tbl_pembayaran')->insertGetId([
                 'no_resi' => $noResi,
                 'tanggal_pembayaran' => $formattedDate,
@@ -227,7 +382,9 @@ class InvoiceController extends Controller
                 'rekening_id' => $rekening,
                 'matauang_id' => $currencyInvoice,
                 'rate_matauang' => $rateCurrency,
-                'status_id' => 1,
+                'status_id' => $statusId,
+                'status_pembayaran' => $statusPembayaran,
+                'cicilan' => $cicilan,
                 'created_at' => now(),
             ]);
 
@@ -303,9 +460,15 @@ class InvoiceController extends Controller
                 // Update status based on pengiriman
                 try {
                     if ($payment->pengiriman === 'Delivery') {
-                        DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 3]);
+                        DB::table('tbl_pembayaran')->where('id', $id)->update([
+                            'status_id' => 3,
+                            'status_pembayaran' => 'Lunas'
+                        ]);
                     } elseif ($payment->pengiriman === 'Pickup') {
-                        DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 2]);
+                        DB::table('tbl_pembayaran')->where('id', $id)->update([
+                            'status_id' => 2,
+                            'status_pembayaran' => 'Lunas'
+                        ]);
                     }
                 } catch (\Exception $e) {
                     return response()->json(['error' => true, 'message' => 'Failed to update payment status.'], 500);
@@ -474,6 +637,48 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function bayarTagihan(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $jumlahCicilan = $request->jumlahPembayaran;
+            $metodePembayaran = $request->metodePembayaran;
+            $buktiPembayaran = $request->buktiPembayaran !== 'undefined' ? $request->buktiPembayaran : null;
+
+            $pembayaran = DB::table('tbl_pembayaran')->where('id', $id)->first();
+
+            if (!$pembayaran) {
+                return response()->json(['status' => 'error', 'message' => 'Data pembayaran tidak ditemukan']);
+            }
+
+            $cicilanBaru = $pembayaran->cicilan - $jumlahCicilan;
+            $statusPembayaranBaru = $cicilanBaru <= 0 ? 'Lunas' : 'Belum Lunas';
+
+            DB::table('tbl_pembayaran')->where('id', $id)->update([
+                'cicilan' => $cicilanBaru,
+                'status_pembayaran' => $statusPembayaranBaru,
+                'updated_at' => now()
+            ]);
+
+            DB::table('tbl_cicilan')->insert([
+                'pembayaran_id' => $id,
+                'userlogin' => auth()->user()->name,
+                'jumlah_cicilan' => $jumlahCicilan,
+                'tanggal_pembayaran' => now(),
+                'metode_pembayaran' => $metodePembayaran,
+                'bukti_pembayaran' => $buktiPembayaran,
+                'created_at' => now()
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Pembayaran berhasil disimpan']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
+
+
+
 
     public function updateStatus(Request $request)
     {

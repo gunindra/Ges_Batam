@@ -55,21 +55,18 @@
                                         <td>B0230123</td>
                                         <td>24 Juli 2024</td>
                                         <td>Tandrio</td>
-                                        <td><span class="badge badge-warning">Paid</span></td>
+                                        <td><span class="badge badge-warning">Ready For Pickup</span></td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                            <a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>B0234043</td>
                                         <td>28 Juli 2024</td>
                                         <td>Tandrio</td>
-                                        <td><span class="badge badge-warning">Paid</span></td>
+                                        <td><span class="badge badge-warning">Ready For Pickup</span></td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i
-                                                    class="fas fa-trash"></i></a>
+                                            <a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>
                                         </td>
                                     </tr>
                                 </tbody>

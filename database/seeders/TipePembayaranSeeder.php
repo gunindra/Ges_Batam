@@ -14,6 +14,7 @@ class TipePembayaranSeeder extends Seeder
             ['tipe_pembayaran' => 'Cash'],
             ['tipe_pembayaran' => 'Transfer'],
             ['tipe_pembayaran' => 'Poin'],
+            ['tipe_pembayaran' => 'Cicilan'],
         ];
 
         DB::table('tbl_tipe_pembayaran')->insert($statuses);

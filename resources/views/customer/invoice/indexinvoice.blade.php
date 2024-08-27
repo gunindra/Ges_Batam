@@ -112,10 +112,10 @@
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
-                                    <option value="" selected disabled>Pilih Filter</option>
-                                    <option value="Out For Delivery">Out For Delivery</option>
-                                    <option value="Delivering">Delivering</option>
-                                    <option value="Done">Done</option>
+                                    <option value="" selected disabled>Pilih Status</option>
+                                    @foreach ($listStatus as $status)
+                                        <option value="{{ $status->status_name }}">{{ $status->status_name }}</option>
+                                    @endforeach
                                 </select>
                                 <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -250,7 +250,8 @@
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
                     if (endDate < startDate) {
-                        showwMassage(error,"Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                        showwMassage(error,
+                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
                         $('#endDate').val('');
                     }
                 }
@@ -503,6 +504,21 @@
                     }
                 })
             });
+
+            $(document).on('click', '.btnEditInvoice', function(e) {
+                let id = $(this).data('id');
+                var url = "{{ route('editinvoice', ':id') }}";
+                url = url.replace(':id', id);
+                window.location.href = url;
+            });
+
+            $(document).on('click', '.btnCicilan', function(e) {
+                let id = $(this).data('id');
+                var url = "{{ route('cicilanInvoice', ':id') }}";
+                url = url.replace(':id', id);
+                window.location.href = url;
+            });
+
         });
     </script>
 @endsection
