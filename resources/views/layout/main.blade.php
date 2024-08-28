@@ -39,7 +39,7 @@
                 </div>
             </li>
             <li
-                class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') || request()->routeIs('popup') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
                     aria-expanded="true" aria-controls="collapseBootstraps">
                     <i class="fas fa-tasks"></i>
@@ -61,6 +61,8 @@
                             href="{{ route('carousel') }}">Carousel</a>
                         <a class="collapse-item {{ request()->routeIs('iklan') ? 'active' : '' }}"
                             href="{{ route('iklan') }}">Iklan</a>
+                        <a class="collapse-item {{ request()->routeIs('popup') ? 'active' : '' }}"
+                            href="{{ route('popup') }}">Popup</a>
                     </div>
                 </div>
             </li>

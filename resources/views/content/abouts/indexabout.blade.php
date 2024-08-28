@@ -24,10 +24,12 @@
                         <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imageAbout" value="">
                         <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <p>Nama Gambar= {{ $aboutData->Image_AboutUs }}</p> 
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"  placeholder="Masukkan content">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"
+                            placeholder="Masukkan content">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
                     </div>
                     <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
@@ -39,17 +41,20 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
-                    <div class="preview" id="previewContainer" style="border:1px solid black; height: auto; border-radius:10px;">
-                    @if($aboutData)
+                    <h6 class="m-0 font-weight-bold text-primary p-2">Preview</h6>
+                    <div class="preview" id="previewContainer"
+                        style="border:1px solid black; height: auto; border-radius:10px;">
+                        @if($aboutData)
                             @if($aboutData->Image_AboutUs)
-                                <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px" style="padding:5px 30px;">
+                                <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px"
+                                    style="padding:5px 30px;">
                             @endif
                             <p style="padding-left:30px;">{{ $aboutData->Paraf_AboutUs }}</p>
                         @else
                             <p class="p-3">No content available</p>
                         @endif
                     </div>
+
                 </div>
             </div>
         </div>
@@ -60,33 +65,30 @@
 
 @section('script')
 <script>
-$(document).ready(function() {
+   $(document).ready(function() {
     $(document).on('click', '#saveAbout', function(e) {
-        e.preventDefault(); // Prevent default button behavior
+        e.preventDefault();
 
-        // Ambil nilai input
         var parafAbout = $('#parafAbout').val().trim();
         var imageAbout = $('#imageAbout')[0].files[0];
-
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
         var isValid = true;
 
-        // Validasi input
         if (parafAbout === '') {
             $('#parafAboutError').removeClass('d-none');
             isValid = false;
         } else {
             $('#parafAboutError').addClass('d-none');
         }
-        if (!imageAbout) {
+
+        if (!imageAbout && !$('#previewContainer img').length) {
             $('#imageAboutError').removeClass('d-none');
             isValid = false;
         } else {
             $('#imageAboutError').addClass('d-none');
         }
 
-        // Jika semua input valid, lanjutkan aksi simpan
         if (isValid) {
             Swal.fire({
                 title: "Apakah Kamu Yakin?",
@@ -101,7 +103,9 @@ $(document).ready(function() {
                 if (result.isConfirmed) {
                     var formData = new FormData();
                     formData.append('parafAbout', parafAbout);
-                    formData.append('imageAbout', imageAbout);
+                    if (imageAbout) {
+                        formData.append('imageAbout', imageAbout);
+                    }
                     formData.append('_token', csrfToken);
 
                     $.ajax({
@@ -117,15 +121,12 @@ $(document).ready(function() {
                                     text: response.message,
                                     icon: "success"
                                 }).then(() => {
-                                    // Update preview with new data
                                     var previewContainer = $('#previewContainer');
-
-                                    // Clear previous content
                                     previewContainer.html('');
 
-                                    // Append new image and text without looping
                                     if (response.data.imageAbout) {
                                         previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageAbout + '" width="600px" style="padding:5px 30px;">');
+                                        previewContainer.append('<p style="padding-left:30px;">' + response.data.imageAbout + '</p>'); // Menampilkan nama gambar
                                     }
 
                                     if (response.data.parafAbout) {
@@ -159,6 +160,7 @@ $(document).ready(function() {
         }
     });
 });
+
 
 
 </script>

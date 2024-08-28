@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\PopupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     AboutController,
@@ -103,6 +104,12 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 
 // Pickup
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
+
+// Popup
+Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
+Route::post('/content/popup/tambah', [PopupController::class, 'addPopup'])->name('addPopup');
+Route::delete('/content/popup/destroy', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
+
 
 // About
 Route::get('/content/abouts', [AboutController::class, 'index'])->name('abouts');

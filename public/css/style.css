@@ -14,40 +14,70 @@ body {
 
 /* popup */
 
-dialog{
-  box-sizing:border-box;
-  width:calc(100% - 16px);
-  max-width:400px;
-  border:1px solid #ddd;
-  border-radius:8px;
-  text-align:center;
-  padding:13px 24px 16px;
+.popup-dialog {
+  position: relative;
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 1);
+  text-align: center;
+  background-color: white;
+  font-family: Arial, sans-serif;
+  position:fixed;
 }
-dialog h2{
-  margin-bottom:8px;
-  color:#555;
-  padding:0 8px;
-  font-size:15px;
+
+.popup-image {
+  width: 100%;
+  border-radius: 8px;
 }
-dialog .controls{
-  display:grid;
-  gap:16px;
-  margin-bottom:8px;
+
+.popup-title {
+  font-size: 24px;
+  margin: 20px 0 10px;
+  color: #333;
 }
-dialog .controls button{
-  padding:12px;
-  cursor:pointer;
-  background:#00acee;
-  outline:none;
-  border: 1px solid #00acee;
-  border-radius:5px;
-  color:#ddd;
-  font-size:1em;
+
+.popup-text {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 15px;
 }
-dialog .controls button.close-btn{
-  background:transparent;
-  color:#00acee;
+.popup-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
+
+.btn-Go {
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.btn-Go a {
+  color: white;
+  text-decoration: none;
+}
+
+/* .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+} */
+
 
 /* nav */
 .nav-item{
@@ -404,9 +434,9 @@ dialog .controls button.close-btn{
   box-sizing: border-box; 
 }
 
-.content:hover {
+/* .content:hover {
   transform: translateY(-10px);
-}
+} */
 
 .content h2 {
   font-size: 24px;
@@ -459,6 +489,7 @@ dialog .controls button.close-btn{
 .content .btn:hover::before {
   transform: scaleX(1);
 }
+
 .image {
   transition: transform 0.4s ease;
   width: 40%; 
@@ -467,9 +498,9 @@ dialog .controls button.close-btn{
   justify-content: center;
 }
 
-.image:hover {
+/* .image:hover {
   transform: translateY(-10px);
-}
+} */
 
 .image img {
   width: 92%;
@@ -548,7 +579,7 @@ dialog .controls button.close-btn{
 
 .box-area {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr); 
   grid-gap: 40px;
   margin-top: 20px;
 }
@@ -659,7 +690,8 @@ dialog .controls button.close-btn{
 }
 
 .box:hover img {
-  transform: scale(1.1) translateZ(10px); 
+  transform: scale(1.1) translateZ(10px);
+  filter: blur(3px); 
 }
 
 .title h1 {
@@ -842,7 +874,7 @@ article a:hover {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% + 250px));
   }
 }
 
@@ -880,15 +912,16 @@ article a:hover {
 
 .logos-slide {
   display: inline-block;
-  animation: slide 35s linear infinite;
+  animation: slide 40s linear infinite;
   animation-timing-function: linear;
 }
 
 .logos-slide img {
   height: 100px;
+  width: auto;
   margin: 0 50px;
+  vertical-align: middle;
 }
-
 /* footer */
 footer {
   background: #3C3D37;
@@ -1024,8 +1057,46 @@ a:hover {
 .whatsapp-float:hover {
   background-color: #128C7E;
 }
+
 /* Responsive */
+@media (max-width: 1440px) {
+  .containerAbout .heading h1 {
+    font-size: 45px;
+  }
+
+  .content {
+    width: 40%;
+    margin: 0px 20px;
+    padding: 0 10px;
+  }
+
+  .image {
+    width: 45%;
+    margin: 0 20px;
+  }
+}
+
 @media only screen and (max-width: 1309px) {
+  /* about */
+  .containerAbout .heading h1 {
+    font-size: 40px;
+  }
+
+  .content {
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 20px;
+  }
+
+  .wrapper-About {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image {
+    width: 50%;
+    margin: 20px 0;
+  }
   /* service */
   .box {
     max-width: 40%;
@@ -1090,8 +1161,24 @@ a:hover {
     margin-left:90px;
   }
   /* About */
-  .AboutSection{
-    margin:0px;
+  .containerAbout .heading h1 {
+    font-size: 40px;
+  }
+
+  .content {
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 20px;
+  }
+
+  .wrapper-About {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image {
+    width: 80%;
+    margin: 20px 0;
   }
   /* Masuk bagian about */
   .content-container {
@@ -1103,10 +1190,47 @@ a:hover {
     margin-top: 50px;
   }
   .image img{
-    width: 92%;
+    width: 60%;
     height: auto;
     border-radius: 30px;
     display: block; 
+  }
+  /* why */
+  .why {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image-sectionwhy {
+    max-width: 80%; 
+    margin-bottom: 20px;
+  }
+
+  .image-sectionwhy img {
+    width: 100%;
+    max-width: none; 
+  }
+
+  article {
+    max-width: 80%; 
+    padding: 0 20px;
+  }
+
+  article h3 {
+    font-size: 21px; 
+  }
+
+  article p {
+    font-size: 18px;
+  }
+
+  article .buttonwhy {
+    margin-top: 25px;
+  }
+
+  article a {
+    padding: 14px 22px; 
+    font-size: 18px; 
   }
   /* service */
   .triple-service .box-area, .single-service .box-area,
@@ -1169,24 +1293,37 @@ a:hover {
     margin-left:60px;
   }
   /* About us */
-  .wrapper{
-    flex-direction:column;
-    margin-top:0;
-    justify-content:center;
+  .containerAbout .heading h1 {
+    font-size: 28px;
   }
-  .container .heading h1{
-    font-size:40px;
+
+  .content {
+    width: 100%;
+    margin: 10px 0;
+    padding: 0 10px;
   }
-  .content, .image{
-    width:70%;
-    margin-top:20px;
+
+  .content h2 {
+    font-size: 20px;
   }
-  .content h2{
-    font-size:25px;
+
+  .content p {
+    font-size: 16px;
   }
-  .content .btn{
-    font-size:16px;
-    padding:12px 14px;
+
+  .content .btn {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .wrapper-About {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image {
+    width: 100%;
+    margin: 10px 0;
   }
   /* Masuk bagian About us */
   .content-container {
@@ -1206,44 +1343,6 @@ a:hover {
   
   .contentAbout p {
     font-size: 16px;
-  }
-  /* why */
-  .wrapperwhy {
-    margin-top: 15px;
-  }
-  .titlewhy h1 {
-    font-size: 28px;
-    text-align: center;
-  }
-  .why {
-    flex-direction: column;
-    align-items: center;
-  }
-  .image-sectionwhy {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  .image-sectionwhy img {
-    height: auto;
-    width: 150%;
-  }
-  article {
-    width: 90%;
-    margin-top: 30px;
-    text-align: center;
-  }
-  article h3 {
-    font-size: 18px;
-  }
-  article p {
-    font-size: 15px;
-  }
-  article .buttonwhy {
-    margin-bottom: 50px;
-  }
-  article a {
-    padding: 8px 20px;
-    font-size: 17px;
   }
   /* Masuk bagian Why */
   .content-containerwhy {
@@ -1372,6 +1471,40 @@ a:hover {
     width: 90%;
     font-size: 14px;
   }
+  /* about */
+  .content-container {
+    flex-direction: column;
+    margin: 0 20px;
+  }
+  
+  .contentAbout {
+    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .imageAbout {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .JudulAbout h2 {
+    margin-left: 20px;
+    margin-top: 30px;
+    font-size: 24px;
+  }
+
+  .JudulAbout h2::after {
+    width: 30px;
+  }
+
+  .contentAbout h2 {
+    font-size: 20px;
+  }
+
+  .contentAbout p {
+    font-size: 14px;
+  }
  
   /* service */
   .box {
@@ -1396,6 +1529,46 @@ a:hover {
     width: 100%;
     height: auto;
     object-fit: cover;
+  }
+  /* why */
+  .why {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .image-sectionwhy {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .image-sectionwhy img {
+    width: 100%;
+    max-width: none; /* Remove the 120% width */
+    margin-right: 0; /* Remove the right margin */
+  }
+
+  article {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
+  article h3 {
+    font-size: 20px; /* Slightly smaller font size */
+  }
+
+  article p {
+    font-size: 16px; /* Slightly smaller font size */
+    margin-top: 15px; /* Adjust margin for smaller screens */
+  }
+
+  article .buttonwhy {
+    margin-top: 20px; /* Adjust margin for smaller screens */
+  }
+
+  article a {
+    padding: 12px 20px; /* Adjust padding for smaller screens */
+    font-size: 17px; /* Adjust font size for smaller screens */
   }
   
 }

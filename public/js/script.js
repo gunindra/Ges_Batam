@@ -1,17 +1,16 @@
 // pop up
 document.addEventListener('DOMContentLoaded', function() {
-    const dialog = document.querySelector('#welcome-dialog');
-    
-    dialog.showModal(); // Show the dialog every time the page is loaded
-    
-    dialog.querySelector('.about-btn').addEventListener('click', function() {
-        window.location.href = '/About'; 
-    });
-  
-    dialog.querySelector('.close-btn').addEventListener('click', function() {
+    const dialog = document.getElementById('welcome-dialog');
+    const closeButton = dialog.querySelector('.close-btn');
+
+    // Open dialog (if necessary, adjust as needed)
+    dialog.showModal();
+
+    // Close button functionality
+    closeButton.addEventListener('click', function() {
         dialog.close();
     });
-  });
+});
 // Scroll navbar carousel
 // document.addEventListener('DOMContentLoaded', function() {
 //     const navbar = document.querySelector('.navbar');
@@ -158,3 +157,10 @@ function scrollToSection(SectionId){
         element.scrollIntoView({ behavior: 'smooth'});
     }
 }
+document.getElementById('textarea').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        this.value += '\n\n'; // Tambahkan dua baris baru untuk jarak
+    }
+});
+

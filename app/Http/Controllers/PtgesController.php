@@ -23,14 +23,13 @@ class PtgesController extends Controller
         }
         $whyus = DB::table('tbl_whyus')->first();
         if ($whyus) {
-            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 210 ,''); 
+            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 209 ,''); 
         }
         $listcarousel =  DB::select("SELECT * FROM tbl_carousel");
         foreach ($listcarousel as $carousel) {
             $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160,'');
         }
-       
-
+        $popup = DB::table('tbl_popup')->first();
 
 
         return view('landingpage.PTGes', [
@@ -40,6 +39,7 @@ class PtgesController extends Controller
             'aboutus' => $aboutus,
             'whyus' => $whyus,
             'listcarousel' => $listcarousel,
+            'popup' => $popup,
         ]);
     }
 }

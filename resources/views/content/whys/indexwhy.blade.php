@@ -18,12 +18,13 @@
             <div class="card">
                 <div class="card-body">
                     <h6 class="m-0 font-weight-bold text-primary">Why</h6>
-                    <div id="containerAbout" class="table-responsive px-3">
+                    <div id="containerWhy" class="table-responsive px-3">
                     </div>
                     <div class="mt-3">
                         <label for="imageWhy" class="form-label fw-bold p-1">Image</label>
-                        <input type="file" class="form-control" id="imageWhy" value="">
+                        <input type="file" class="form-control" id="imageWhy">
                         <div id="imageWhyError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <p>Nama Gambar= {{ $whyData->Image_WhyUs }}</p> 
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafWhy" class="form-label fw-bold p-3">Content</label>
@@ -79,14 +80,13 @@ $(document).ready(function() {
         } else {
             $('#parafWhyError').addClass('d-none');
         }
-        if (!imageWhy) {
+        if (!imageWhy && !$('#previewContainer img').length) {
             $('#imageWhyError').removeClass('d-none');
             isValid = false;
         } else {
             $('#imageWhyError').addClass('d-none');
         }
 
-        // Jika semua input valid, lanjutkan aksi simpan
         if (isValid) {
             Swal.fire({
                 title: "Apakah Kamu Yakin?",
@@ -101,7 +101,9 @@ $(document).ready(function() {
                 if (result.isConfirmed) {
                     var formData = new FormData();
                     formData.append('parafWhy', parafWhy);
-                    formData.append('imageWhy', imageWhy);
+                    if (imageWhy) {
+                        formData.append('imageWhy', imageWhy);
+                    }
                     formData.append('_token', csrfToken);
 
                     $.ajax({
@@ -117,15 +119,12 @@ $(document).ready(function() {
                                     text: response.message,
                                     icon: "success"
                                 }).then(() => {
-                                    // Update preview with new data
                                     var previewContainer = $('#previewContainer');
-
-                                    // Clear previous content
                                     previewContainer.html('');
 
-                                    // Append new image and text without looping
                                     if (response.data.imageWhy) {
                                         previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
+                                        previewContainer.append('<p style="padding-left:30px;">' + response.data.imageWhy + '</p>'); // Menampilkan nama gambar
                                     }
 
                                     if (response.data.parafWhy) {

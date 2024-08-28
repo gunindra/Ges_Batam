@@ -10,7 +10,6 @@ class AboutController extends Controller
 {
     public function index()
     {
-        // Get existing about data
         $aboutData = DB::table('tbl_aboutus')->first();
         return view('content.abouts.indexabout', compact('aboutData'));
     }
@@ -19,16 +18,14 @@ class AboutController extends Controller
     {
         $parafAbout = $request->input('parafAbout');
         $imageAbout = $request->file('imageAbout');
-    
+        
         try {
-            $fileName = null;
             $existingData = DB::table('tbl_aboutus')->first();
+            $fileName = $existingData ? $existingData->Image_AboutUs : null; // Pertahankan gambar yang ada
     
             if ($imageAbout) {
                 $fileName = 'AboutUs_' . $imageAbout->getClientOriginalName();
-                $filePath = $imageAbout->storeAs('public/images', $fileName);
-            } else {
-                $fileName = null; // No image was uploaded
+                $imageAbout->storeAs('public/images', $fileName);
             }
     
             if ($existingData) {
@@ -52,6 +49,8 @@ class AboutController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
+    
+    
     
 }
 

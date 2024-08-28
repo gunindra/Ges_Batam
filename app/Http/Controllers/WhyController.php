@@ -10,7 +10,6 @@ class WhyController extends Controller
 {
     public function index()
     {
-        // Get existing about data
         $whyData = DB::table('tbl_whyus')->first();
         return view('content.whys.indexwhy', compact('whyData'));
     }
@@ -19,57 +18,34 @@ class WhyController extends Controller
     {
         $parafWhy = $request->input('parafWhy');
         $imageWhy = $request->file('imageWhy');
-
+    
         try {
-            $fileName = null;
+            $existingData = DB::table('tbl_whyus')->first();
+            $fileName = $existingData ? $existingData->Image_WhyUs : null; 
+    
             if ($imageWhy) {
                 $fileName = 'WhyUs_' . $imageWhy->getClientOriginalName();
-                $filePath = $imageWhy->storeAs('public/images', $fileName);
-            } else {
-                $fileName = null; // No image was uploaded
+                $imageWhy->storeAs('public/images', $fileName);
             }
-            $existingData = DB::table('tbl_whyus')->first();
-
+    
             if ($existingData) {
-                // Update existing record
-                $dataToUpdate = [
+                DB::table('tbl_whyus')->update([
                     'Paraf_WhyUs' => $parafWhy,
+                    'Image_WhyUs' => $fileName,
                     'updated_at' => now(),
-                ];
-
-                // Only update Image_AboutUs if a new file was uploaded
-                if ($fileName) {
-                    $dataToUpdate['Image_WhyUs'] = $fileName;
-                    // Optionally delete the old file if a new one is uploaded
-                    if ($existingData->Image_WhyUs) {
-                        Storage::delete('public/images/' . $existingData->Image_WhyUs);
-                    }
-                }
-
-                DB::table('tbl_whyus')->update($dataToUpdate);
+                ]);
             } else {
-                // Insert new record
                 DB::table('tbl_whyus')->insert([
                     'Paraf_WhyUs' => $parafWhy,
                     'Image_WhyUs' => $fileName,
                     'created_at' => now(),
                 ]);
             }
-
-            // Return updated data for preview
-            $updatedData = DB::table('tbl_whyus')->first();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => [
-                    'parafWhy' => $updatedData->Paraf_WhyUs,
-                    'imageWhy' => $updatedData->Image_WhyUs
-                ]
-            ], 200);
-
+    
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'parafWhy' => $parafWhy]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
+    
 }

@@ -2,54 +2,65 @@
 
   @section('title', 'PT. GES')
   <!-- popup -->
-  <dialog id="welcome-dialog">
-    <h2>Selamat Datang</h2>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.
-      Pariatur dolorum porro nulla deleniti atque cumque,
-      minus laudantium autem quas veritatis repudiandae ut soluta eveniet alias vero quaerat tempora unde odio!</p>
-    <div class="controls">
-      <button class="about-btn">Go to About</button>
-    </div>
-    <div class="controls">
-      <button class="close-btn">Close</button>
-    </div>
-  </dialog>
+  @if(isset($popup) && ($popup->Image_Popup || $popup->Judul_Popup || $popup->Paraf_Popup || $popup->Link_Popup))
+    <dialog id="welcome-dialog" class="popup-dialog">
+        <!-- <button class="close-btn">×</button> -->
+        
+        @if($popup->Image_Popup)
+            <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
+        @endif
+
+        @if($popup->Judul_Popup)
+            <h2 class="popup-title">{{ $popup->Judul_Popup }}</h2>
+        @endif
+
+        @if($popup->Paraf_Popup)
+            <p class="popup-text">{{ $popup->Paraf_Popup }}</p>
+        @endif
+
+        @if($popup->Link_Popup)
+            <div class="controls">
+                <button class="btn-Go btn btn-primary">
+                    <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white;">Go to Login</a>
+                </button>
+            </div>
+        @endif
+    </dialog>
+@endif
 
   <!-- Carousel -->
   <div id="Home">
-  <div id="carouselExampleCaptions" class="carousel slide {{ count($listcarousel) === 1 ? 'single-slide' : '' }}" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        @foreach($listcarousel as $index => $carousel)
-      <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-        <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}"
-        alt="{{ $carousel->judul_carousel }}">
-        <div class="carousel-caption">
-        <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
-        <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>
-        <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $carousel->id) }}">Learn More</a>
+    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach($listcarousel as $index => $carousel)
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                    <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}" alt="{{ $carousel->judul_carousel }}">
+                    <div class="carousel-caption">
+                        <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
+                        <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>
+                        <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $carousel->id) }}">Learn More</a>
+                    </div>
+                </div>
+            @endforeach
         </div>
-      </div>
-    @endforeach
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
-        data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
-        data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-      <div class="carousel-indicators">
-        @foreach($listcarousel as $index => $carousel)
-      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ $index }}"
-        class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
-        aria-label="Slide {{ $index + 1 }}"></button>
-    @endforeach
-      </div>
+        
+        @if(count($listcarousel) > 1)
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>      
+        <div class="carousel-indicators">
+            @foreach($listcarousel as $index => $carousel)
+                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+            @endforeach
+        </div>
+        @endif
     </div>
-  </div>
+</div>
 
   <!-- Main -->
   <div class="main">
@@ -160,39 +171,37 @@
   </div>
   <!-- Services -->
   <div class="section" id="Services">
-    <div class="title">
-      <h1>Our Services</h1>
-    </div>
-    <div id="card-area"
-      class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
-      <div class="wrapper">
-        <div class="box-area">
-          @foreach($listservices as $service)
-        <div class="box">
-        <img alt="" src="{{ asset('storage/images/' . $service->image_service) }}"
-          alt="{{ $service->judul_service }}">
-        <div class="overlay">
-          <h3>{{ $service->judul_service }}</h3>
-          <p>{{ $service->isi_service }}</p>
-          <div class="button-container">
-          <a href="{{ url('/Services?id=' . $service->id) }}" class="btn-modern">Read More</a>
+  <div class="title">
+    <h1>Our Services</h1>
+  </div>
+  <div id="card-area" class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
+    <div class="wrapper">
+      <div class="box-area">
+        @foreach($listservices as $service)
+          <div class="box">
+            <img src="{{ asset('storage/images/' . $service->image_service) }}" alt="{{ $service->judul_service }}">
+            <div class="overlay">
+              <h3>{{ $service->judul_service }}</h3>
+              <p>{{ $service->isi_service }}</p>
+              <div class="button-container">
+                <a href="{{ url('/Services?id=' . $service->id) }}" class="btn-modern">Read More</a>
+              </div>
+            </div>
           </div>
-        </div>
-        </div>
-      @endforeach
-        </div>
+        @endforeach
       </div>
     </div>
   </div>
-  </div>
+</div>
+
   <!-- iklan slide -->
   <div class="logos">
     <div class="logos-slide">
-      @foreach($listiklan as $iklan)
-      <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan }}">
-    @endforeach
+        @foreach($listiklan as $iklan)
+            <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan }}">
+        @endforeach
     </div>
-  </div>
+</div>
 
   </div>
   <div class="Contact" id="Contact">
@@ -227,6 +236,13 @@
         const urlWithoutHash = window.location.href.split('#')[0];
         window.history.replaceState(null, null, urlWithoutHash);
       }
+    });
+    document.addEventListener('DOMContentLoaded' , function(){
+      var myCarousel = document.querySelector('#carouselExampleCaptions')
+      var carouselSlide = new bootstrap.Carousel(myCarousel,{
+        interval:4100,
+        ride:'carouselSlide'
+      });
     });
   </script>
 
