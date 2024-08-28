@@ -105,6 +105,7 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 // Pickup
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
 Route::get('/pickup/getlistPickup', [PickupController::class, 'getlistPickup'])->name('getlistPickup');
+Route::post('/pickup/acceptPickup', [PickupController::class, 'acceptPickup'])->name('acceptPickup');
 
 // Popup
 Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');

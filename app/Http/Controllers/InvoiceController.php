@@ -360,7 +360,7 @@ class InvoiceController extends Controller
 
         try {
             $statusId = 1;
-            $statusPembayaran = '';
+            $statusPembayaran = 'Belum Lunas';
             $cicilan = null;
 
             if ($metodePembayaran == 4) {
