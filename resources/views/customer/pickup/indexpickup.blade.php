@@ -40,8 +40,8 @@
                             </div>
                         </div>
                         <div id="containerPickup" class="table-responsive px-3">
-                            <table class="table align-items-center table-flush table-hover" id="tablePickup">
-                                <thead class="thead-light">
+                            <!-- <table class="table align-items-center table-flush table-hover" id="tablePickup"> -->
+                                <!-- <thead class="thead-light">
                                     <tr>
                                         <th>No Resi</th>
                                         <th>Tanggal</th>
@@ -70,7 +70,7 @@
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
+                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -80,4 +80,43 @@
     <!---Container Fluid-->
 
 
+@endsection
+@section('script')
+<script>
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getlistPickup = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                url: "{{ route('getlistPickup') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerPickup').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerPickup').html(res)
+                    $('#tablePickup').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+    });
+</script>
 @endsection

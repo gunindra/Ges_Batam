@@ -434,9 +434,9 @@ body {
   box-sizing: border-box; 
 }
 
-/* .content:hover {
-  transform: translateY(-10px);
-} */
+.content:hover {
+  transform: translateY(0px);
+}
 
 .content h2 {
   font-size: 24px;
@@ -498,9 +498,9 @@ body {
   justify-content: center;
 }
 
-/* .image:hover {
-  transform: translateY(-10px);
-} */
+.image:hover {
+  transform: translateY(0px);
+}
 
 .image img {
   width: 92%;
