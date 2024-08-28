@@ -121,7 +121,7 @@
             } else {
                 $('#linkPopupError').addClass('d-none');
             }
-            if (!imagePopup) {
+            if (!imagePopup && !$('#previewContainer img').length) {
                 $('#imagePopupError').removeClass('d-none');
                 isValid = false;
             } else {

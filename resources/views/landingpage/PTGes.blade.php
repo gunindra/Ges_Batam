@@ -4,8 +4,6 @@
   <!-- popup -->
   @if(isset($popup) && ($popup->Image_Popup || $popup->Judul_Popup || $popup->Paraf_Popup || $popup->Link_Popup))
     <dialog id="welcome-dialog" class="popup-dialog">
-        <!-- <button class="close-btn">×</button> -->
-        
         @if($popup->Image_Popup)
             <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
         @endif
@@ -21,13 +19,12 @@
         @if($popup->Link_Popup)
             <div class="controls">
                 <button class="btn-Go btn btn-primary">
-                    <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white;">Go to Login</a>
+                    <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white;">Go</a>
                 </button>
             </div>
         @endif
     </dialog>
-@endif
-
+    @endif
   <!-- Carousel -->
   <div id="Home">
     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
@@ -244,6 +241,7 @@
         ride:'carouselSlide'
       });
     });
+
   </script>
 
   @endsection

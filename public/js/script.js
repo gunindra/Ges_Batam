@@ -1,16 +1,29 @@
 // pop up
 document.addEventListener('DOMContentLoaded', function() {
-    const dialog = document.getElementById('welcome-dialog');
-    const closeButton = dialog.querySelector('.close-btn');
+    const welcomeDialog = document.getElementById('welcome-dialog');
+    const goButton = document.querySelector('.btn-Go a');
 
-    // Open dialog (if necessary, adjust as needed)
-    dialog.showModal();
+    // Cek jika popup telah ditampilkan sebelumnya
+    if (!sessionStorage.getItem('popupDisplayed')) {
+        welcomeDialog.showModal();
+    }
 
-    // Close button functionality
-    closeButton.addEventListener('click', function() {
-        dialog.close();
+    // Saat tombol Go diklik
+    goButton.addEventListener('click', function() {
+        sessionStorage.setItem('popupDisplayed', 'true');
+    });
+
+    // Event listener untuk tombol back (popstate)
+    window.addEventListener('popstate', function() {
+        sessionStorage.setItem('popupDisplayed', 'true');
+        if (welcomeDialog.open) {
+            welcomeDialog.close();
+        }
     });
 });
+
+
+
 // Scroll navbar carousel
 // document.addEventListener('DOMContentLoaded', function() {
 //     const navbar = document.querySelector('.navbar');

@@ -14,58 +14,62 @@ class PopupController extends Controller
         return view('content.popup.indexpopup', compact('popupData'));
     }
 
-    public function addPopup(Request $request)
-    {
-        $judulPopup = $request->input('judulPopup');
-        $parafPopup = $request->input('parafPopup');
-        $linkPopup = $request->input('linkPopup');
-        $imagePopup = $request->file('imagePopup');
+ public function addPopup(Request $request)
+{
+    $judulPopup = $request->input('judulPopup');
+    $parafPopup = $request->input('parafPopup');
+    $linkPopup = $request->input('linkPopup');
+    $imagePopup = $request->file('imagePopup');
 
-        try {
-            $fileName = null;
-            $existingData = DB::table('tbl_popup')->first();
+    try {
+        $fileName = null;
+        $existingData = DB::table('tbl_popup')->first();
 
-            if ($imagePopup) {
-                $fileName = 'Popup_' . $imagePopup->getClientOriginalName();
-                $imagePopup->storeAs('public/images', $fileName);
-            }
-            
-
-            if ($existingData) {
-                DB::table('tbl_popup')->update([
-                    'Judul_Popup' => $judulPopup,
-                    'Paraf_Popup' => $parafPopup,
-                    'Link_Popup' => $linkPopup,
-                    'Image_Popup' => $fileName,
-                    'updated_at' => now(),
-                ]);
-                $id = $existingData->id;
-            } else {
-                $id = DB::table('tbl_popup')->insertGetId([
-                    'Judul_Popup' => $judulPopup,
-                    'Paraf_Popup' => $parafPopup,
-                    'Link_Popup' => $linkPopup,
-                    'Image_Popup' => $fileName,
-                    'created_at' => now(),
-                ]);
-            }
-            $popupData = DB::table('tbl_popup')->where('id', $id)->first();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => [
-                    'id' => $popupData->id,
-                    'imagePopup' => $popupData->Image_Popup,
-                    'judulPopup' => $popupData->Judul_Popup,
-                    'parafPopup' => $popupData->Paraf_Popup,
-                    'linkPopup' => $popupData->Link_Popup
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
+        if ($existingData) {
+            $fileName = $existingData->Image_Popup; // Mengambil nama gambar lama jika ada
         }
+
+        if ($imagePopup) {
+            $fileName = 'Popup_' . $imagePopup->getClientOriginalName();
+            $imagePopup->storeAs('public/images', $fileName);
+        }
+
+        if ($existingData) {
+            DB::table('tbl_popup')->update([
+                'Judul_Popup' => $judulPopup,
+                'Paraf_Popup' => $parafPopup,
+                'Link_Popup' => $linkPopup,
+                'Image_Popup' => $fileName, // Gunakan gambar lama atau baru
+                'updated_at' => now(),
+            ]);
+            $id = $existingData->id;
+        } else {
+            $id = DB::table('tbl_popup')->insertGetId([
+                'Judul_Popup' => $judulPopup,
+                'Paraf_Popup' => $parafPopup,
+                'Link_Popup' => $linkPopup,
+                'Image_Popup' => $fileName,
+                'created_at' => now(),
+            ]);
+        }
+        
+        $popupData = DB::table('tbl_popup')->where('id', $id)->first();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil disimpan',
+            'data' => [
+                'id' => $popupData->id,
+                'imagePopup' => $popupData->Image_Popup,
+                'judulPopup' => $popupData->Judul_Popup,
+                'parafPopup' => $popupData->Paraf_Popup,
+                'linkPopup' => $popupData->Link_Popup
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
     }
+}
 
 
 
