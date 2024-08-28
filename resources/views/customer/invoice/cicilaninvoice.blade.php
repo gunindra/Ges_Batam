@@ -81,6 +81,33 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modalDetailBukti" tabindex="-1" role="dialog" aria-labelledby="modalDetailBuktiTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetailSimTitle">Bukti Pembayaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="pembayaranStatus" class="form-label fw-bold">Foto Bukti:</label>
+                        <div class="containerFoto">
+                            {{-- <img src="storage/app/bukti_pembayaran/1.jpg" alt=""> --}}
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    {{-- <button type="button" id="saveFileTransfer" class="btn btn-primary">Save</button> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     <!---Container Fluid-->
@@ -207,29 +234,31 @@
                     id: id
                 },
                 success: function(response) {
-                    // Mengganti konten dalam containerHeadCicilan
                     $('#containerHeadCicilan').html(`
                 <table style="width: 50%; border-collapse: collapse;">
                     <tr>
                         <td style="width: 50%; padding: 0.5rem;"><strong>No Resi</strong></td>
-                        <td style="padding: 0.5rem;">: ${response.no_resi}</td>
+                        <td style="padding: 0.5rem;">: ${response.no_resi ? response.no_resi : '-'}</td>
                     </tr>
                     <tr>
                         <td style="width: 50%; padding: 0.5rem;"><strong>Customer</strong></td>
-                        <td style="padding: 0.5rem;">: ${response.nama_pembeli}</td>
+                        <td style="padding: 0.5rem;">: ${response.nama_pembeli ? response.nama_pembeli : '-'} </td>
                     </tr>
                 </table>
                 <table style="width: 50%; border-collapse: collapse;">
                     <tr>
                         <td style="width: 50%; padding: 0.5rem;"><strong>Status Pembayaran</strong></td>
-                        <td style="padding: 0.5rem;">: ${response.status_pembayaran}</td>
+                        <td style="padding: 0.5rem;">:  ${response.status_pembayaran ? response.status_pembayaran : '-'}    </td>
                     </tr>
                     <tr>
                         <td style="width: 50%; padding: 0.5rem;"><strong>Sisa Tagihan</strong></td>
-                         <td style="padding: 0.5rem;">: ${formatRupiah(response.cicilan)}</td>
+                         <td style="padding: 0.5rem;">: ${response.cicilan ? formatRupiah(response.cicilan) : '-'}</td>
                     </tr>
                 </table>
             `);
+                    if (response.status_pembayaran === 'Lunas') {
+                        $('#btnBuatPembayaran').hide();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -338,8 +367,10 @@
 
                 if (metodePembayaran === 'Tunai') {
                     $('#inputBuktiPembayaran').addClass('d-none');
+                    $('#buktiPembayaran').val(''); // Menghapus file yang dipilih
                 } else {
                     $('#inputBuktiPembayaran').removeClass('d-none');
+                    $('#buktiPembayaran').val(''); // Menghapus file yang dipilih ketika metode diubah
                 }
 
                 console.log('Metode pembayaran yang dipilih: ' + metodePembayaran);
@@ -400,9 +431,19 @@
                                     } else {
                                         Swal.fire({
                                             title: "Gagal Menambahkan",
+                                            text: response
+                                                .message,
                                             icon: "error"
                                         });
                                     }
+                                },
+                                error: function(xhr, status, error) {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: "Terjadi kesalahan saat memproses permintaan.",
+                                        icon: "error"
+                                    });
+                                    console.log("AJAX error: ", error);
                                 }
                             });
                         }
@@ -412,11 +453,18 @@
                 }
             });
 
+
             function formatRupiah(angka) {
                 return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
+        });
 
-
+        $(document).on('click', '.btnDetailCicilan', function(e) {
+            var id = $(this).data('id');
+            var imageBuktiPembayaran = $(this).data('bukti');
+            var imageUrl = '/storage/bukti_pembayaran_cicilan/' + imageBuktiPembayaran;
+            $('.containerFoto').html('<img src="' + imageUrl + '" alt="Gambar Bukti Cicilan" class="img-fluid">');
+            $('#modalDetailBukti').modal('show');
         });
     </script>
 

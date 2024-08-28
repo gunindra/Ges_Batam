@@ -128,6 +128,7 @@ class InvoiceController extends Controller
                     a.matauang_id,
                     a.rate_matauang,
                     a.bukti_pembayaran,
+                    a.status_pembayaran,
                     d.status_name
             FROM tbl_pembayaran AS a
             JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
@@ -137,6 +138,7 @@ class InvoiceController extends Controller
                 UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
                 OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
                 OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
+                OR UPPER( a.status_pembayaran) LIKE UPPER('$txSearch')
                 )
                 $dateCondition
                 $statusCondition
@@ -167,6 +169,7 @@ class InvoiceController extends Controller
                             <th>Customer</th>
                             <th>Jenis Pembayaran</th>
                             <th>Harga</th>
+                            <th>Pembayaran</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -194,12 +197,14 @@ class InvoiceController extends Controller
                                 if ($item->tipe_pembayaran === 'Transfer') {
                                     $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                 }
+                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Out For Delivery':
                                 $statusBadgeClass = 'badge-primary';
                                 if ($item->tipe_pembayaran === 'Transfer') {
                                     $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                                 }
+                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Delivering':
                                 $statusBadgeClass = 'badge-delivering';
@@ -225,6 +230,7 @@ class InvoiceController extends Controller
                                 <td>' . ($item->pembeli ?? '-') . '</td>
                                 <td>' . ($item->tipe_pembayaran ?? '-') . '</td>
                                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
+                                <td>' . ($item->status_pembayaran ?? '-') . '</td>
                                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                 <td>
 
@@ -303,7 +309,7 @@ class InvoiceController extends Controller
                         $btnDetailBukti = '-';
                         if ($item->bukti_pembayaran)
                         {
-                            $btnDetailBukti = '<a  class="btn btnDetailSim btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
+                            $btnDetailBukti = '<a  class="btn btnDetailCicilan btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
                         }
 
                         $output .=
@@ -579,7 +585,7 @@ class InvoiceController extends Controller
             // Save PDF to storage
             try {
                 $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
-                $filePath = storage_path('app/public/' . $fileName);
+                $filePath = storage_path('app/public/invoice/' . $fileName);
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 \Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
@@ -587,7 +593,7 @@ class InvoiceController extends Controller
             }
 
             // Send PDF URL
-            $url = asset('storage/' . $fileName);
+            $url = asset('storage/invoice/' . $fileName);
             return response()->json(['url' => $url]);
 
         } catch (\Exception $e) {
@@ -644,12 +650,16 @@ class InvoiceController extends Controller
             $id = $request->id;
             $jumlahCicilan = $request->jumlahPembayaran;
             $metodePembayaran = $request->metodePembayaran;
-            $buktiPembayaran = $request->buktiPembayaran !== 'undefined' ? $request->buktiPembayaran : null;
+            $buktiPembayaran = $request->file('buktiPembayaran');
 
             $pembayaran = DB::table('tbl_pembayaran')->where('id', $id)->first();
 
             if (!$pembayaran) {
                 return response()->json(['status' => 'error', 'message' => 'Data pembayaran tidak ditemukan']);
+            }
+
+            if ($jumlahCicilan > $pembayaran->cicilan) {
+                return response()->json(['status' => 'error', 'message' => 'Jumlah pembayaran melebihi sisa cicilan yang ada']);
             }
 
             $cicilanBaru = $pembayaran->cicilan - $jumlahCicilan;
@@ -661,13 +671,24 @@ class InvoiceController extends Controller
                 'updated_at' => now()
             ]);
 
+            $fileName = null;
+
+            if ($buktiPembayaran) {
+                try {
+                    $fileName = time() . '_' . $buktiPembayaran->getClientOriginalName();
+                    $filePath = $buktiPembayaran->storeAs('public/bukti_pembayaran_cicilan/', $fileName);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => true, 'message' => 'File upload failed.'], 500);
+                }
+            }
+
             DB::table('tbl_cicilan')->insert([
                 'pembayaran_id' => $id,
                 'userlogin' => auth()->user()->name,
                 'jumlah_cicilan' => $jumlahCicilan,
                 'tanggal_pembayaran' => now(),
                 'metode_pembayaran' => $metodePembayaran,
-                'bukti_pembayaran' => $buktiPembayaran,
+                'bukti_pembayaran' => $fileName,
                 'created_at' => now()
             ]);
 
@@ -676,6 +697,8 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
+
+
 
 
 
