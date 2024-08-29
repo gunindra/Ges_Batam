@@ -1,7 +1,5 @@
 <?php
 
-
-use App\Http\Controllers\PopupController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     AboutController,
@@ -27,6 +25,8 @@ use App\Http\Controllers\{
     RekeningController,
     ProfileController,
     PickupController,
+    VendorController,
+    PopupController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -184,3 +184,7 @@ Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRat
 Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
 });
+
+
+// Vendor
+Route::get('/vendors/vendor', [VendorController::class, 'index'])->name('vendor');

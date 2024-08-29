@@ -1,23 +1,27 @@
-// pop up
 document.addEventListener('DOMContentLoaded', function() {
     const welcomeDialog = document.getElementById('welcome-dialog');
     const goButton = document.querySelector('.btn-Go a');
 
-    // Cek jika popup telah ditampilkan sebelumnya
     if (!sessionStorage.getItem('popupDisplayed')) {
         welcomeDialog.showModal();
     }
 
-    // Saat tombol Go diklik
     goButton.addEventListener('click', function() {
         sessionStorage.setItem('popupDisplayed', 'true');
     });
 
-    // Event listener untuk tombol back (popstate)
     window.addEventListener('popstate', function() {
-        sessionStorage.setItem('popupDisplayed', 'true');
-        if (welcomeDialog.open) {
-            welcomeDialog.close();
+        if (sessionStorage.getItem('popupDisplayed') === 'true') {
+            if (welcomeDialog.open) {
+                welcomeDialog.close();
+            }
+        }
+    });
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) { 
+            if (sessionStorage.getItem('popupDisplayed') === 'true' && welcomeDialog.open) {
+                welcomeDialog.close();
+            }
         }
     });
 });

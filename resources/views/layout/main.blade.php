@@ -39,6 +39,22 @@
                 </div>
             </li>
             <li
+            class="nav-item {{ request()->routeIs('vendor')? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrapsVendor"
+                    aria-expanded="true" aria-controls="collapseBootstrapsVendor">
+                    <i class="fas fa-truck"></i>
+                    <span>Vendor</span>
+                </a>
+                <div id="collapseBootstrapsVendor" class="collapse" aria-labelledby="headingBootstrap"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Vendor</h6>
+                        <a class="collapse-item {{ request()->routeIs('vendor') ? 'active' : '' }}"
+                            href="{{ route('vendor') }}">Vendor</a>
+                    </div>
+                </div>
+            </li>
+            <li
             class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') || request()->routeIs('popup') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
                     aria-expanded="true" aria-controls="collapseBootstraps">
@@ -88,6 +104,7 @@
                     </div>
                 </div>
             </li>
+           
             <hr class="sidebar-divider">
         </ul>
         <!-- Sidebar -->

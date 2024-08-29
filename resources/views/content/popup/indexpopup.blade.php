@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Popup')
+@section('title', ' Content | Popup')
 
 @section('main')
 

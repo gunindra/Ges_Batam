@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Carousel')
+@section('title', 'Content | Carousel')
 
 @section('main')
 <div class="container-fluid" id="container-wrapper">
