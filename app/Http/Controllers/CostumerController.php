@@ -17,19 +17,22 @@ class CostumerController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT id,
-                    marking,
-                    nama_pembeli,
-                    alamat,
-                    no_wa,
-                    sisa_poin,
-                    category,
-                    transaksi_terakhir,
-                    status
-                FROM tbl_pembeli
+        $q = "SELECT tp.id,
+                     tp.marking,
+                     tp.nama_pembeli,
+                     GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
+                     COUNT(ta.alamat) AS alamat_count,
+                     tp.no_wa,
+                     tp.sisa_poin,
+                     tp.category,
+                     tp.metode_pengiriman,
+                     DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
+                     tp.status
+                FROM tbl_pembeli tp
+                LEFT JOIN tbl_alamat ta ON ta.pembeli_id = tp.id
+                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.category, tp.transaksi_terakhir, tp.status
+                ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
         ";
-
-        // dd($q);
 
         $data = DB::select($q);
 
@@ -38,103 +41,124 @@ class CostumerController extends Controller
                         <tr>
                             <th>Marking</th>
                             <th>Nama</th>
+                            <th>Pengiriman</th>
                             <th>Alamat</th>
-                            <th>No. Telp</th>
-                            <th>Category</th>
+                            <th>Transaksi Terakhir</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                 <tbody>';
         foreach ($data as $item) {
 
-            $categoryCell = ($item->category == 'VIP')
-            ? '<td><span class="badge badge-primary">VIP</span></td>'
-            : '<td class="">' . ($item->category ?? '-') . '</td>';
+            $statusCell = ($item->status == 1)
+                ? '<td><span class="badge badge-success">Active</span></td>'
+                : '<td><span class="badge badge-danger">Non Active</span></td>';
+
+            $alamatCell = ($item->alamat_count > 1)
+                ? '<td><button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-alamat="' . htmlentities($item->alamat) . '">Lihat Alamat (' . $item->alamat_count . ')</button></td>'
+                : '<td class="">' . ($item->alamat ?? '-') . '</td>';
 
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->marking ?? '-') .'</td>
-                    <td class="">' . ($item->nama_pembeli ?? '-') .'</td>
-                    <td class="">' . ($item->alamat ?? '-') .'</td>
-                    <td class="">' . ($item->no_wa ?? '-') .'</td>
-                    ' . $categoryCell . '
-                   <td>
-                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-category="' .$item->category. '"  data-poin="' .$item->sisa_poin .'" data-transaksi="' .$item->transaksi_terakhir .'" data-status="' .$item->status .'" ><i class="fas fa-eye"></i></a>
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-nama="' .$item->nama_pembeli .'" data-alamat="' .$item->alamat .'" data-notelp="' .$item->no_wa .'" data-category="' .$item->category .'" data-status="' .$item->status .'"><i class="fas fa-edit"></i></a>
+                    <td class="">' . ($item->marking ?? '-') . '</td>
+                    <td class="">' . ($item->nama_pembeli ?? '-') . '</td>
+                     <td class="">' . ($item->metode_pengiriman ?? '-') . '</td>
+                    ' . $alamatCell . '
+                    <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
+                    ' . $statusCell . '
+                    <td>
+                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-category="' . $item->category . '"  data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
+                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-category="' . $item->category . '" data-status="' . $item->status . '"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
         }
 
         $output .= '</tbody></table>';
-         return $output;
-
+        return $output;
     }
-
 
     public function addCostumer(Request $request)
     {
         $markingCostumer = $request->input('markingCostmer');
         $namacostumer = $request->input('namaCustomer');
-        $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categorycostumer = $request->input('categoryCustomer');
-        $isActive = $request->input('isActive');
+        $metodePengiriman = $request->input('metodePengiriman');
+        $alamatcostumer = $request->input('alamatCustomer', []);
 
         try {
-            $existingCustomer = DB::table('tbl_pembeli')->where('marking', $markingCostumer)->first();
+            DB::beginTransaction();
 
-            if ($existingCustomer) {
-                return response()->json(['status' => 'error', 'message' => 'Marking sudah ada, tidak dapat menambahkan pelanggan dengan marking yang sama.'], 409);
-            }
-
-            DB::table('tbl_pembeli')->insert([
+            $pembeliId = DB::table('tbl_pembeli')->insertGetId([
                 'marking' => $markingCostumer,
                 'nama_pembeli' => $namacostumer,
                 'no_wa' => $notlponcostumer,
-                'alamat' => $alamatcostumer,
                 'category' => $categorycostumer,
-                'status' => $isActive,
+                'metode_pengiriman' => $metodePengiriman,
+                'status' => 1,
                 'created_at' => now(),
             ]);
 
+            foreach ($alamatcostumer as $alamat) {
+                DB::table('tbl_alamat')->insert([
+                    'pembeli_id' => $pembeliId,
+                    'alamat' => $alamat,
+                    'created_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
 
-
     public function updateCostumer(Request $request)
     {
-
         $id = $request->input('id');
         $namacostumer = $request->input('namaCustomer');
-        $alamatcostumer = $request->input('alamatCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categoryCustomer = $request->input('categoryCustomer');
         $isActive = $request->input('isactiveEdit');
+        $alamatcostumer = $request->input('alamatCustomer');
 
         try {
-            DB::table('tbl_pembeli')
-            ->where('id', $id)
-            ->update([
-               'nama_pembeli' => $namacostumer,
-                'no_wa' => $notlponcostumer,
-                'alamat' => $alamatcostumer,
-                'category' => $categoryCustomer,
-                'status' => $isActive,
-                'updated_at' => now(),
-            ]);
+            DB::beginTransaction();
 
-            // Mengembalikan respons JSON jika berhasil
+            DB::table('tbl_pembeli')
+                ->where('id', $id)
+                ->update([
+                    'nama_pembeli' => $namacostumer,
+                    'no_wa' => $notlponcostumer,
+                    'category' => $categoryCustomer,
+                    'metode_pengiriman' => $request->input('metodePengiriman'),
+                    'status' => $isActive,
+                    'updated_at' => now(),
+                ]);
+
+            DB::table('tbl_alamat')
+                ->where('pembeli_id', $id)
+                ->update([
+                    'alamat' => $alamatcostumer,
+
+                    'updated_at' => now(),
+                ]);
+
+            DB::commit();
+
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil diupdate'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
         }
-
     }
+
 
     public function generateMarking(Request $request)
     {

@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_itemdetail', function (Blueprint $table) {
+        Schema::create('tbl_alamat', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pemesanan_id')->constrained('tbl_pemesanan');
-            $table->string('nama_barang', 100);
-            $table->decimal('harga_barang', 10, 2);
+            $table->foreignId('pembeli_id')->constrained('tbl_pembeli')->onDelete('cascade');
+            $table->text('alamat');
+            $table->string('kota', 100)->nullable();
+            $table->string('provinsi', 100)->nullable();
+            $table->string('kode_pos', 20)->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_itemdetail');
+        Schema::dropIfExists('tbl_alamat');
     }
 };

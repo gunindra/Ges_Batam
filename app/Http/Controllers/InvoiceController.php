@@ -53,19 +53,34 @@ class InvoiceController extends Controller
     public function editinvoice(Request $request, $id)
     {
         $data = DB::table('tbl_pembayaran as a')
-                ->leftJoin('tbl_pengantaran as b', 'a.id', '=', 'b.pembayaran_id')
-                ->where('a.id', $id)
-                ->select(
-                    'a.*',
-                    'b.tanggal_pengantaran',
-                    'b.supir_id',
-                    'b.alamat',
-                    'b.provinsi',
-                    'b.kotakab',
-                    'b.kecamatan',
-                    'b.kelurahan'
-                )
-                ->first();
+        ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
+        ->leftJoin('tbl_pengantaran as c', 'a.id', '=', 'c.pembayaran_id')
+        ->leftJoin('tbl_supir as d', 'c.supir_id', '=', 'd.id')
+        ->where('a.id', $id)
+        ->select(
+            'a.id',
+            'a.no_resi',
+            DB::raw("DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar"),
+            'b.marking',
+            'b.nama_pembeli',
+            'a.berat',
+            'a.panjang',
+            'a.lebar',
+            'a.tinggi',
+            'a.pengiriman',
+            'd.nama_supir',
+            'c.alamat',
+            'c.provinsi',
+            'c.kotakab',
+            'c.kecamatan',
+            'c.kelurahan',
+            'a.pembayaran_id',
+            'a.rekening_id',
+            'a.rate_matauang',
+            'a.matauang_id'
+        )
+        ->first();
+
 
         $listPembeli = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli");
 
@@ -90,7 +105,7 @@ class InvoiceController extends Controller
             'listRateVolume' => $listRateVolume,
             'listCurrency' => $listCurrency,
             'lisPembagi' => $lisPembagi,
-            '$data' => $data
+            'data' => $data
         ]);
     }
 

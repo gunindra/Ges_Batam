@@ -255,12 +255,12 @@
                                         <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $rate)
-                                            @if ($rate->rate_for == 'Volume')
-                                                <option value="{{ $rate->nilai_rate }}">
-                                                    {{ number_format($rate->nilai_rate, 0, ',', '.') }}
-                                                </option>
-                                            @endif
-                                        @endforeach
+                                                @if ($rate->rate_for == 'Volume')
+                                                    <option value="{{ $rate->nilai_rate }}">
+                                                        {{ number_format($rate->nilai_rate, 0, ',', '.') }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
                                         </select>
                                         <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
                                         </div>
@@ -419,7 +419,46 @@
 @section('script')
 
     <script>
+        // let data = @json($data);
+        // console.log(data);
 
+        // // Set the value of the date input
+        // $('#tanggal').val(data.tanggal_bayar);
+
+        // // Set the selected customer
+        // $('#selectCostumer').val(data.pembayaran_id).trigger('change');
+
+        // // Set the selected currency
+        // $('#currencyInvoice').val(data.matauang_id).trigger('change');
+
+        // // Set the rate currency
+        // $('#rateCurrency').val(data.rate_matauang);
+
+        // // Set the berat
+        // $('#beratBarang').val(data.berat);
+
+        // // Set the panjang, lebar, tinggi
+        // $('#panjang').val(data.panjang);
+        // $('#lebar').val(data.lebar);
+        // $('#tinggi').val(data.tinggi);
+
+        // // Set the selected driver
+        // $('#driver').val(data.nama_supir).trigger('change');
+
+        // // Set the alamat
+        // $('#alamat').val(data.alamat);
+
+        // // Set the provinsi, kotakab, kecamatan, kelurahan
+        // $('#provinsi').val(data.provinsi).trigger('change');
+        // $('#kabupatenKota').val(data.kotakab).trigger('change');
+        // $('#kecamatan').val(data.kecamatan).trigger('change');
+        // $('#kelurahan').val(data.kelurahan).trigger('change');
+
+        // // Set the selected payment method
+        // $('#metodePembayaran').val(data.pembayaran_id).trigger('change');
+
+        // // Set the selected rekening
+        // $('#rekening').val(data.rekening_id).trigger('change');
     </script>
     <script>
         $(document).ready(function() {
@@ -638,7 +677,7 @@
                     $('#totalHargaValue').val(0);
                 } else {
                     berat = Math.max(2, berat);
-                    let hargaPerKg =  $('#rateBerat').val();
+                    let hargaPerKg = $('#rateBerat').val();
                     let totalHarga = berat * hargaPerKg;
                     if (totalHarga > 250000) {
                         showMessage("error", "Barang Diatas 250.000 pakai Volume")
@@ -700,6 +739,26 @@
                 }
             });
 
+            let data = @json($data);
+            console.log(data);
+            $('#tanggal').val(data.tanggal_bayar);
+            $('#selectCostumer').val(data.pembayaran_id).trigger('change');
+            $('#currencyInvoice').val(data.matauang_id).trigger('change');
+            $('#rateCurrency').val(data.rate_matauang);
+            $('#beratBarang').val(data.berat);
+            $('#panjang').val(data.panjang);
+            $('#lebar').val(data.lebar);
+            $('#tinggi').val(data.tinggi);
+            $('#driver').val(data.nama_supir).trigger('change');
+            $('#alamat').val(data.alamat);
+            $('#provinsi').val(data.provinsi).trigger('change');
+            $('#kabupatenKota').val(data.kotakab).trigger('change');
+            $('#kecamatan').val(data.kecamatan).trigger('change');
+            $('#kelurahan').val(data.kelurahan).trigger('change');
+            $('#metodePembayaran').val(data.pembayaran_id).trigger('change');
+            $('#rekening').val(data.rekening_id).trigger('change');
+            // Check the appropriate checkbox based on the value of data.pengiriman
+
             $('#buatInvoice').click(function() {
 
                 // Collect all form data
@@ -757,7 +816,7 @@
                     $('#currencyInvoiceError').addClass('d-none');
                 }
 
-                if (currencyInvoice === '1' && rateCurrency === null ) {
+                if (currencyInvoice === '1' && rateCurrency === null) {
                     $('#rateCurrencyError').removeClass('d-none');
                     isValid = false;
                 } else {

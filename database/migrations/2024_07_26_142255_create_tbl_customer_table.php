@@ -12,14 +12,16 @@ class CreateTblCustomerTable extends Migration
             $table->id();
             $table->string('marking', 100)->unique();
             $table->string('nama_pembeli', 100);
-            $table->text('alamat');
             $table->string('no_wa', 50);
             $table->string('sisa_poin', 50)->nullable();
             $table->string('category', 50);
             $table->timestamp('transaksi_terakhir')->nullable();
             $table->tinyInteger('status');
+            $table->timestamp('non_active_at')->nullable();
+            $table->string('metode_pengiriman', 50);
             $table->timestamps();
         });
+
     }
 
     public function down()

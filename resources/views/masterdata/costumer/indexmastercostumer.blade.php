@@ -4,59 +4,10 @@
 
 @section('main')
 
-    <style>
-        /* Custom Checkbox Styling */
-        .custom-checkbox input[type="checkbox"] {
-            display: none;
-        }
-
-        .custom-checkbox label {
-            display: inline-block;
-            position: relative;
-            padding-left: 30px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .custom-checkbox label::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #007bff;
-            border-radius: 5px;
-            background: transparent;
-            transition: background 0.3s;
-        }
-
-        .custom-checkbox input[type="checkbox"]:checked+label::before {
-            background: #007bff;
-        }
-
-        .custom-checkbox label::after {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 2px;
-            width: 6px;
-            height: 12px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg) scale(0);
-            transition: transform 0.3s ease;
-        }
-
-        .custom-checkbox input[type="checkbox"]:checked+label::after {
-            transform: rotate(45deg) scale(1);
-        }
-    </style>
-
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
 
-        <!-- Modal tambah -->
+        <!-- Modal Tambah Customer -->
         <div class="modal fade" id="modalTambahCustomer" tabindex="-1" role="dialog" aria-labelledby="modalTambahCustomerTitle"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -69,7 +20,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
-                            <label for="namaCustomer" class="form-label fw-bold">Marking</label>
+                            <label for="markingCustomer" class="form-label fw-bold">Marking</label>
                             <input type="text" class="form-control" id="markingCustomer" value="">
                             <div id="markingCostumerError" class="text-danger mt-1 d-none">Silahkan isi marking</div>
                         </div>
@@ -80,9 +31,26 @@
                             <div id="namaCustomerError" class="text-danger mt-1 d-none">Silahkan isi nama customer</div>
                         </div>
                         <div class="mt-3">
-                            <label for="alamat" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" placeholder="Masukkan alamat" id="alamatCustomer" rows="3"></textarea>
-                            <div id="alamatCustomerError" class="text-danger mt-1 d-none">Silahkan isi alamat custumer</div>
+                            <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
+                            <select class="form-control" id="metodePengiriman">
+                                <option value="" selected disabled>Pilih Metode Pengiriman</option>
+                                <option value="Pickup">Pickup</option>
+                                <option value="Delivery">Delivery</option>
+                            </select>
+                            <div id="metodePengirimanError" class="text-danger mt-1 d-none">Silahkan pilih metode pengiriman
+                            </div>
+                        </div>
+
+                        <div id="alamatSection" style="display: none;">
+                            <div id="alamatContainer">
+                                <div class="mt-3 alamat-item">
+                                    <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
+                                    <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                                    <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn" style="display: none;"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3"><i class="fas fa-plus"></i></button>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
@@ -92,7 +60,7 @@
                                 customer</div>
                         </div>
                         <div class="mt-3">
-                            <label for="category" class="form-label fw-bold">Category</label>
+                            <label for="categoryCustomer" class="form-label fw-bold">Category</label>
                             <select class="form-control" id="categoryCustomer">
                                 <option value="" selected disabled>Pilih Category Customer</option>
                                 <option value="Normal">Normal</option>
@@ -100,10 +68,6 @@
                             </select>
                             <div id="categoryCustomerError" class="text-danger mt-1 d-none">Silahkan pilih category customer
                             </div>
-                        </div>
-                        <div class="mt-3 custom-checkbox">
-                            <input type="checkbox" id="isactive">
-                            <label for="isactive" class="form-label fw-bold">Active</label>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -114,7 +78,6 @@
             </div>
         </div>
         <!--End Modal Tambah -->
-
 
         <!-- Modal Edit -->
         <div class="modal fade" id="modalEditCustomer" tabindex="-1" role="dialog"
@@ -131,7 +94,8 @@
                         <input type="hidden" id="customerIdEdit">
                         <div class="mt-3">
                             <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
-                            <input type="text" class="form-control" id="namaCustomerEdit" value="" placeholder="Masukkan nama customer">
+                            <input type="text" class="form-control" id="namaCustomerEdit" value=""
+                                placeholder="Masukkan nama customer">
                             <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer
                             </div>
                         </div>
@@ -143,7 +107,8 @@
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control" id="noTelponEdit" value="" placeholder="08**********">
+                            <input type="text" class="form-control" id="noTelponEdit" value=""
+                                placeholder="08**********">
                             <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                                 customer
                             </div>
@@ -203,6 +168,30 @@
             </div>
         </div>
         <!--End Modal Detail -->
+
+        <!-- Modal untuk Menampilkan Alamat -->
+        <div class="modal fade" id="modalAlamatCustomer" tabindex="-1" role="dialog"
+            aria-labelledby="modalAlamatCustomerTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalAlamatCustomerTitle">Daftar Alamat Customer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="alamatList" class="list-group">
+                            <!-- Alamat akan ditambahkan di sini -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Customer</h1>
@@ -325,49 +314,99 @@
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
-            $('#saveCostumer').click(function() {
+            function toggleRemoveButton() {
+                const alamatItems = $('#alamatContainer').children('.alamat-item');
+                if (alamatItems.length > 1) {
+                    $('.remove-alamat-btn').show();
+                } else {
+                    $('.remove-alamat-btn').hide();
+                }
+            }
 
+            $('#metodePengiriman').change(function() {
+                var metodePengiriman = $(this).val();
+                if (metodePengiriman === 'Delivery') {
+                    $('#alamatSection').show();
+                } else {
+                    $('#alamatSection').hide();
+                    $('#alamatContainer').find('textarea').val('');
+                    $('#alamatContainer').children('.alamat-item:gt(0)').remove();
+                    toggleRemoveButton();
+                }
+            });
+
+
+            $('#addAlamatButton').click(function() {
+                let alamatContainer = $('#alamatContainer');
+                let newAlamat = `<div class="mt-3 alamat-item">
+                            <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                            <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+                alamatContainer.append(newAlamat);
+                toggleRemoveButton();
+            });
+
+            $(document).on('click', '.remove-alamat-btn', function() {
+                $(this).closest('.alamat-item').remove();
+                toggleRemoveButton();
+            });
+
+            $('#saveCostumer').click(function() {
                 var markingCostmer = $('#markingCustomer').val();
                 var namaCustomer = $('#namaCustomer').val();
-                var alamatCustomer = $('#alamatCustomer').val();
                 var noTelpon = $('#noTelpon').val().trim();
                 var categoryCustomer = $('#categoryCustomer').val();
-                let isActive = $('#isactive').prop('checked') ? 1 : 0;
+                var metodePengiriman = $('#metodePengiriman').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 var isValid = true;
 
+                $('.text-danger').addClass('d-none');
+
+
                 if (markingCostmer === '') {
                     $('#markingCostumerError').removeClass('d-none');
                     isValid = false;
-                } else {
-                    $('#markingCostumerError').addClass('d-none');
                 }
+
+
                 if (namaCustomer === '') {
                     $('#namaCustomerError').removeClass('d-none');
                     isValid = false;
-                } else {
-                    $('#namaCustomerError').addClass('d-none');
                 }
-                if (alamatCustomer === '') {
-                    $('#alamatCustomerError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#alamatCustomerError').addClass('d-none');
-                }
+
 
                 if (noTelpon === '') {
                     $('#notelponCustomerError').removeClass('d-none');
                     isValid = false;
-                } else {
-                    $('#notelponCustomerError').addClass('d-none');
                 }
+
 
                 if (categoryCustomer === '' || categoryCustomer === null) {
                     $('#categoryCustomerError').removeClass('d-none');
                     isValid = false;
-                } else {
-                    $('#categoryCustomerError').addClass('d-none');
+                }
+
+
+                if (metodePengiriman === '' || metodePengiriman === null) {
+                    $('#metodePengirimanError').removeClass('d-none');
+                    isValid = false;
+                }
+
+
+                var alamatCustomer = [];
+                if (metodePengiriman === 'Delivery') {
+                    $('textarea[name="alamatCustomer[]"]').each(function() {
+                        var alamat = $(this).val().trim();
+                        if (alamat === '') {
+                            $(this).siblings('.alamat-error').removeClass('d-none');
+                            isValid = false;
+                        } else {
+                            alamatCustomer.push(alamat);
+                        }
+                    });
                 }
 
                 if (isValid) {
@@ -385,11 +424,16 @@
                             var formData = new FormData();
                             formData.append('markingCostmer', markingCostmer);
                             formData.append('namaCustomer', namaCustomer);
-                            formData.append('alamatCustomer', alamatCustomer);
                             formData.append('noTelpon', noTelpon);
                             formData.append('categoryCustomer', categoryCustomer);
-                            formData.append('isActive', isActive);
+                            formData.append('metodePengiriman', metodePengiriman);
                             formData.append('_token', csrfToken);
+
+                            if (metodePengiriman === 'Delivery') {
+                                alamatCustomer.forEach((alamat, index) => {
+                                    formData.append('alamatCustomer[]', alamat);
+                                });
+                            }
 
                             $.ajax({
                                 type: "POST",
@@ -406,8 +450,7 @@
                                     } else {
                                         Swal.fire({
                                             title: "Gagal Menambahkan Data",
-                                            text: response
-                                                .message,
+                                            text: response.message,
                                             icon: "error",
                                         });
                                     }
@@ -415,8 +458,7 @@
                                 error: function(xhr) {
                                     Swal.fire({
                                         title: "Gagal Menambahkan Data",
-                                        text: xhr.responseJSON
-                                            .message,
+                                        text: xhr.responseJSON.message,
                                         icon: "error",
                                     });
                                 }
@@ -429,26 +471,15 @@
 
             });
 
-
             $('#modalTambahCustomer').on('hidden.bs.modal', function() {
-                $('#namaCustomer, #alamatCustomer, #noTelpon, #categoryCustomer').val('');
-                if (!$('#namaCustomerError').hasClass('d-none')) {
-                    $('#namaCustomerError').addClass('d-none');
-
-                }
-                if (!$('#alamatCustomerError').hasClass('d-none')) {
-                    $('#alamatCustomerError').addClass('d-none');
-
-                }
-                if (!$('#notelponCustomerError').hasClass('d-none')) {
-                    $('#notelponCustomerError').addClass('d-none');
-
-                }
-                if (!$('#categoryCustomerError').hasClass('d-none')) {
-                    $('#categoryCustomerError').addClass('d-none');
-
-                }
+                $('#namaCustomer, #noTelpon, #categoryCustomer, #markingCustomer').val('');
+                $('#alamatContainer').children('.alamat-item:gt(0)').remove();
+                $('#alamatContainer').children('.alamat-item').first().find('textarea').val('');
+                $('#alamatSection').hide();
+                $('#metodePengiriman').val('').trigger('change');
+                $('.text-danger').addClass('d-none');
             });
+
 
             $(document).on('click', '.btnPointCostumer', function(e) {
                 let category = $(this).data('category');
@@ -633,6 +664,22 @@
                     $('#notelponCustomerErrorEdit').addClass('d-none');
 
                 }
+            });
+
+            $(document).on('click', '.show-address-modal', function() {
+                let alamat = $(this).data('alamat');
+                let alamatArray = alamat.split(', ');
+
+                let alamatList = $('#alamatList');
+                alamatList.empty(); // Kosongkan daftar alamat
+
+                // Tambahkan setiap alamat sebagai item dalam daftar
+                alamatArray.forEach(function(item) {
+                    alamatList.append('<li class="list-group-item">' + item + '</li>');
+                });
+
+                // Tampilkan modal
+                $('#modalAlamatCustomer').modal('show');
             });
         });
     </script>
