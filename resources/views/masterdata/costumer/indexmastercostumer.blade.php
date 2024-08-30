@@ -47,10 +47,12 @@
                                     <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
                                     <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
                                     <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
-                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn" style="display: none;"><i class="fas fa-trash-alt"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
+                                        style="display: none;"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </div>
-                            <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3"><i class="fas fa-plus"></i></button>
+                            <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
                         <div class="mt-3">
                             <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
@@ -63,8 +65,11 @@
                             <label for="categoryCustomer" class="form-label fw-bold">Category</label>
                             <select class="form-control" id="categoryCustomer">
                                 <option value="" selected disabled>Pilih Category Customer</option>
-                                <option value="Normal">Normal</option>
-                                <option value="VIP">VIP</option>
+                                @foreach ($listCategory as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->category_name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <div id="categoryCustomerError" class="text-danger mt-1 d-none">Silahkan pilih category customer
                             </div>
@@ -117,6 +122,11 @@
                             <label for="categoryCustomerEdit" class="form-label fw-bold">Category</label>
                             <select class="form-control" id="categoryCustomerEdit">
                                 <option value="" selected disabled>Select Category Customer</option>
+                                @foreach ($listCategory as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->category_name }}
+                                    </option>
+                                @endforeach
                                 <option value="Normal">Normal</option>
                                 <option value="VIP">VIP</option>
                             </select>

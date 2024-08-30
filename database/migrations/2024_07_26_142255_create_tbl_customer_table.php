@@ -14,7 +14,6 @@ class CreateTblCustomerTable extends Migration
             $table->string('nama_pembeli', 100);
             $table->string('no_wa', 50);
             $table->string('sisa_poin', 50)->nullable();
-            $table->string('category', 50);
             $table->foreignId('category_id')->constrained('tbl_category')->onDelete('cascade');
             $table->timestamp('transaksi_terakhir')->nullable();
             $table->tinyInteger('status');

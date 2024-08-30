@@ -9,8 +9,11 @@ class CostumerController extends Controller
 {
     public function index() {
 
+        $listCategory = DB::select("SELECT id, category_name FROM tbl_category");
 
-        return view('masterdata.costumer.indexmastercostumer');
+        return view('masterdata.costumer.indexmastercostumer', [
+            'listCategory' => $listCategory
+        ]);
     }
 
     public function getlistCostumer(Request $request)
