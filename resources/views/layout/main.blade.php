@@ -104,6 +104,11 @@
                     </div>
                 </div>
             </li>
+            <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('tracking') }}">
+                <i class="fas fa-globe-asia"></i>
+                    <span>Tracking</span></a>
+            </li>
            
             <hr class="sidebar-divider">
         </ul>

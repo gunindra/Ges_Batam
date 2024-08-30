@@ -23,6 +23,7 @@ class DriverController extends Controller
                         no_wa,
                         image_sim
                 FROM tbl_supir
+                WHERE (UPPER(nama_supir) LIKE UPPER('$txSearch') OR UPPER(alamat_supir) LIKE UPPER('$txSearch') OR UPPER(no_wa) LIKE UPPER('$txSearch'))
         ";
 
         $data = DB::select($q);

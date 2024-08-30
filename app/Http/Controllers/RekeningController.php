@@ -22,6 +22,7 @@ class RekeningController extends Controller
                         nomer_rekening,
                         nama_bank
                 FROM tbl_rekening
+                WHERE (UPPER(pemilik) LIKE UPPER('$txSearch') OR UPPER(nomer_rekening) LIKE UPPER('$txSearch') OR UPPER(nama_bank) LIKE UPPER('$txSearch'))
         ";
 
         // dd($q);

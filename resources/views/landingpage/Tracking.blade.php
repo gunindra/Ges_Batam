@@ -1,6 +1,9 @@
 <x-layout>
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/inputTags.css') }}">
+    @endpush
+    @stack('styles')
     @section('title', 'PT. GES | Tracking')
-
     <body class="navigasi-page">
         <div class="Judul">
             <div class="container" style="padding-top: 100px; padding-bottom: 100px">
@@ -19,33 +22,19 @@
                                             <!-- Ubah align-items-start menjadi align-items-center -->
                                             <div class="flex-grow-1">
                                                 <div class="mt-1">
-                                                    <label for="trackingResi" class="form-label"
+                                                    <label for="tags" class="form-label"
                                                         style="font-weight: bold;">Masukkan No Resi</label>
-                                                    <input type="text" class="form-control" id="trackingResi"
+                                                    <input type="text" class="form-control" id="tags"  name="tags"
                                                         placeholder="Masukkan nomor resi"
                                                         style="padding: 10px; border-radius: 5px;">
-                                                    <div id="err-trackingResi" class="text-danger d-none"
-                                                        style="color: red;">Silahkan Masukkan Nomor Resi</div>
+                                                    <div id="err-tags" class="text-danger d-none" style="color: red;">
+                                                        Silahkan Masukkan Nomor Resi</div>
                                                 </div>
                                             </div>
                                             <div class="ml-2 mt-4">
                                                 <!-- Beri margin agar ada jarak antara input dan tombol -->
-                                                <button id="btnLacak" class="btn btn-primary mt-2"
+                                                <button id="btnLacak" class="btn btn-primary"
                                                     style="padding: 10px 20px; font-weight: bold;">Lacak</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <!-- Section View Status -->
-                                    <div class="col-6" id="statusSection" style="margin-top: 20px;">
-                                        <h2 style="font-size: 1.5rem; font-weight: bold;">Status Pengiriman</h2>
-                                        <div class="card"
-                                            style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); padding: 20px; border-radius: 5px;">
-                                            <div class="card-body" id="trackingInfo">
-                                                <!-- Default content when no resi is entered -->
-                                                <p class="text-muted" style="color: #6c757d;">Masukkan nomor resi untuk
-                                                    melihat status pengiriman.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -59,31 +48,31 @@
         </div>
 
         @section('script')
-            <script>
-                $(document).ready(function() {
-                    $('#btnLacak').click(function() {
-                        let noresi = $('#trackingResi').val();
+        <script>
+            $(document).ready(function () {
+                $('#btnLacak').click(function () {
+                    let noresi = $('#tags').val();
 
-                        if (noresi === '') {
-                            $('#err-trackingResi').removeClass('d-none');
-                            return;
-                        } else {
-                            $('#err-trackingResi').addClass('d-none');
-                        }
+                    if (noresi === '') {
+                        $('#err-tags').removeClass('d-none');
+                        return;
+                    } else {
+                        $('#err-tags').addClass('d-none');
+                    }
 
-                        $.ajax({
-                            type: "GET",
-                            url: "{{ route('lacakResi') }}",
-                            data: {
-                                noresi: noresi
-                            },
-                            success: function(response) {
-                                let contentHTML = '';
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('lacakResi') }}",
+                        data: {
+                            noresi: noresi
+                        },
+                        success: function (response) {
+                            let contentHTML = '';
 
-                                if (response.length > 0) {
-                                    let data = response[0];
+                            if (response.length > 0) {
+                                let data = response[0];
 
-                                    contentHTML = `
+                                contentHTML = `
                         <div style="display: flex; justify-content: space-between;">
                             ${data.no_resi ? `
                                             <div style="flex: 1;">
@@ -125,23 +114,57 @@
                                         </div>
                                         ` : ''}
                     `;
-                                } else {
-                                    contentHTML = `
+                            } else {
+                                contentHTML = `
                         <div class="alert alert-danger" role="alert" style="padding: 10px; border-radius: 5px;">
                             Data tidak ditemukan untuk nomor resi <strong>"${noresi}"</strong>.
                         </div>
                     `;
-                                }
-
-                                $('#trackingInfo').html(contentHTML);
-                            },
-                            error: function() {
-                                showMessage("error", "Terjadi kesalahan, coba lagi nanti.");
                             }
-                        });
+
+                            $('#trackingInfo').html(contentHTML);
+                        },
+                        error: function () {
+                            showMessage("error", "Terjadi kesalahan, coba lagi nanti.");
+                        }
                     });
                 });
-            </script>
+            });
+            jQuery(document).ready(function ($) {
+                var tags = $('#tags').inputTags({
+                    tags: [],
+                    create: function () {
+                        $('span', '#events').text('create');
+                    },
+                    update: function () {
+                        $('span', '#events').text('update');
+                    },
+                    destroy: function () {
+                        $('span', '#events').text('destroy');
+                    },
+                    selected: function () {
+                        $('span', '#events').text('selected');
+                    },
+                    unselected: function () {
+                        $('span', '#events').text('unselected');
+                    },
+                    change: function (elem) {
+                        $('.results').empty().html('<strong>Tags:</strong> ' + elem.tags.join(' - '));
+                    },
+                    autocompleteTagSelect: function (elem) {
+                        console.info('autocompleteTagSelect');
+                    }
+                });
+                var autocomplete = $('#tags').inputTags('options', 'autocomplete');
+                $('span', '#autocomplete').text(autocomplete.values.join(', '));
+            });
+        </script>
+         @push('scripts')
+            <script src="{{ asset('js/index.js') }}"></script>
+            <script src="{{ asset('js/jquery.inputTags.min.js') }}"></script>
+        @endpush
+        @stack('scripts')
         @endsection
+       
     </body>
-</x-layout>
+    </x-layout>

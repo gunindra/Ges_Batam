@@ -100,6 +100,10 @@
                                 data-target="#modalTambahRekening" id="#modalCenter"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Rekening</button>
                         </div>
+                        <div class="float-left">
+                            <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                                class="form-control rounded-3" placeholder="Search">
+                        </div>
                         <div id="containerRekening" class="table-responsive px-3 ">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableRekening">
                                 <thead class="thead-light">
@@ -187,6 +191,14 @@
             }
 
             getListRekening();
+
+            $('#txSearch').keyup(function(e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getListRekening();
+            }
+        })
+
 
             $('#noRekening, #noRekeningEdit').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
