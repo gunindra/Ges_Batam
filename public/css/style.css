@@ -220,7 +220,7 @@ body {
   text-transform: capitalize;
   letter-spacing: 2px;
   margin-top: 25px;
-  font-family: 'Moon Dance', cursive;
+  font-family: cursive;
 }
 
 .carousel-caption p {
@@ -1059,44 +1059,8 @@ a:hover {
 }
 
 /* Responsive */
-@media (max-width: 1440px) {
-  .containerAbout .heading h1 {
-    font-size: 45px;
-  }
-
-  .content {
-    width: 40%;
-    margin: 0px 20px;
-    padding: 0 10px;
-  }
-
-  .image {
-    width: 45%;
-    margin: 0 20px;
-  }
-}
-
 @media only screen and (max-width: 1309px) {
-  /* about */
-  .containerAbout .heading h1 {
-    font-size: 40px;
-  }
-
-  .content {
-    width: 100%;
-    margin: 20px 0;
-    padding: 0 20px;
-  }
-
-  .wrapper-About {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .image {
-    width: 50%;
-    margin: 20px 0;
-  }
+  
   /* service */
   .box {
     max-width: 40%;
@@ -1202,7 +1166,7 @@ a:hover {
   }
 
   .image-sectionwhy {
-    max-width: 80%; 
+    max-width: 70%; 
     margin-bottom: 20px;
   }
 
@@ -1222,10 +1186,13 @@ a:hover {
 
   article p {
     font-size: 18px;
+    display: flex;
+    justify-content: center; 
   }
 
   article .buttonwhy {
-    margin-top: 25px;
+    display: flex;
+    justify-content: center; 
   }
 
   article a {
@@ -1343,6 +1310,39 @@ a:hover {
   
   .contentAbout p {
     font-size: 16px;
+  }
+  /* why */
+  .why {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .image-sectionwhy {
+    max-width: 30%; 
+    margin-bottom: 20px; 
+  }
+
+  .image-sectionwhy img {
+    width: 100%; 
+    margin-right: 0; 
+  }
+
+  article {
+    max-width: 100%; 
+    text-align: center;
+  }
+
+  article h3 {
+    font-size: 20px;
+  }
+
+  article p {
+    font-size: 17px;
+  }
+
+  article a {
+    font-size: 17px;
+    padding: 12px 20px;
   }
   /* Masuk bagian Why */
   .content-containerwhy {

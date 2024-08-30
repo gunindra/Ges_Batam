@@ -26,7 +26,8 @@ use App\Http\Controllers\{
     ProfileController,
     PickupController,
     VendorController,
-    PopupController
+    PopupController,
+    TrackingsController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -187,4 +188,7 @@ Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destr
 
 
 // Vendor
-Route::get('/vendors/vendor', [VendorController::class, 'index'])->name('vendor');
+Route::get('/vendor', [VendorController::class, 'index'])->name('vendor');
+
+//Tracking
+Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');

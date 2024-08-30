@@ -27,7 +27,7 @@
     @endif
   <!-- Carousel -->
   <div id="Home">
-    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="Carousel">
         <div class="carousel-inner">
             @foreach($listcarousel as $index => $carousel)
                 <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
