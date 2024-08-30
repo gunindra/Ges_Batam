@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_alamat', function (Blueprint $table) {
+        Schema::create('tbl_category', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pembeli_id')->constrained('tbl_pembeli')->onDelete('cascade');
-            $table->text('alamat');
+            $table->string('category_name', 50);
+            $table->decimal('minimum_rate', 15,2)->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_alamat');
+        Schema::dropIfExists('tbl_category');
     }
 };
