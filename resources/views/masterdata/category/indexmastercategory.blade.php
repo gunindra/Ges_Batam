@@ -5,8 +5,8 @@
 @section('main')
 <div class="container-fluid" id="container-wrapper">
 
-   <!-- Modal tambah -->
-   <div class="modal fade" id="modalTambahCategory" tabindex="-1" role="dialog"
+    <!-- Modal tambah -->
+    <div class="modal fade" id="modalTambahCategory" tabindex="-1" role="dialog"
         aria-labelledby="modalTambahCategoryTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -24,7 +24,8 @@
                     </div>
                     <div class="mt-3">
                         <label for="minimumRateCategory" class="form-label fw-bold">Rate</label>
-                        <textarea class="form-control" id="minimumRateCategory" rows="3" placeholder="Masukkan content"></textarea>
+                        <input type="text" class="form-control" id="minimumRateCategory" value=""
+                            placeholder="Masukkan content">
                         <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Rate </div>
                     </div>
                     <div class="modal-footer">
@@ -35,36 +36,38 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalEditCategory" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditCategoryTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditCategoryTitle">Edit Information</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    <div class="modal fade" id="modalEditCategory" tabindex="-1" role="dialog" aria-labelledby="modalEditCategoryTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditCategoryTitle">Edit Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="categoryIdEdit">
+                    <div class="mt-3">
+                        <label for="namaCategory" class="form-label fw-bold">nama</label>
+                        <input type="text" class="form-control" id="namaCategoryEdit" value=""
+                            placeholder="Masukkan Nama Category">
+                        <div id="namaCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
                     </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="categoryIdEdit">
-                        <div class="mt-3">
-                            <label for="namaCategory" class="form-label fw-bold">nama</label>
-                            <input type="text" class="form-control" id="namaCategoryEdit" value=""  placeholder="Masukkan Nama Category">
-                            <div id="namaCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
-                        </div>
-                        <div class="mt-3">
-                            <label for="minimumRateCategory" class="form-label fw-bold">Rate</label>
-                            <textarea class="form-control" id="minimumRateCategoryEdit" rows="3" placeholder="Masukkan Rate"></textarea>
-                            <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Rate</div>
-                        </div>
+                    <div class="mt-3">
+                        <label for="minimumRateCategory" class="form-label fw-bold">Rate</label>
+                        <input type="text" class="form-control" id="minimumRateCategoryEdit" value=""
+                            placeholder="Masukkan content">
+                        <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Rate</div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveEditCategory" class="btn btn-primary">Save changes</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditCategory" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
+    </div>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 px-4">Category</h1>
@@ -154,32 +157,128 @@
         }
 
         getlistCategory();
-        // $('#minimumRateCategory').on('input', function() {
-        //         this.value = this.value.replace(/[^0-9]/g, '');
-        //     });
-            $('#saveCategory').click(function() {
-                // Ambil nilai input
-                var namaCategory = $('#namaCategory').val().trim();
-                var minimumRateCategory = $('#minimumRateCategory').val().trim();
+        $('#minimumRateCategory,#minimumRateCategoryEdit').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        $('#saveCategory').click(function () {
+            // Ambil nilai input
+            var namaCategory = $('#namaCategory').val().trim();
+            var minimumRateCategory = $('#minimumRateCategory').val().trim();
 
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var isValid = true;
+
+            if (namaCategory === '') {
+                $('#namaCategoryError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#namaCategoryError').addClass('d-none');
+            }
+
+            if (minimumRateCategory === '') {
+                $('#minimumRateCategoryError').removeClass('d-none').text("Rate Category tidak boleh kosong");
+                isValid = false;
+            } else if (isNaN(minimumRateCategory) || parseFloat(minimumRateCategory) < 0) {
+                $('#minimumRateCategoryError').removeClass('d-none').text("Rate Category harus berupa angka positif");
+                isValid = false;
+            } else if (parseFloat(minimumRateCategory) > 100000000000000000) {
+                $('#minimumRateCategoryError').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
+                isValid = false;
+            } else {
+                $('#minimumRateCategoryError').addClass('d-none');
+            }
+
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('namaCategory', namaCategory);
+                        formData.append('minimumRateCategory', minimumRateCategory);
+                        formData.append('_token', csrfToken);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addCategory') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistCategory();
+                                    $('#modalTambahCategory').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        text: response.message,
+                                        icon: "error",
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan Data",
+                                    text: xhr.responseJSON.message,
+                                    icon: "error",
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong atau tidak valid");
+            }
+        });
+
+        $(document).on('click', '.btnUpdateCategory', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let category_name = $(this).data('category_name');
+            let minimum_rate = $(this).data('minimum_rate');
+
+            $('#namaCategoryEdit').val(category_name);
+            $('#minimumRateCategoryEdit').val(minimum_rate);
+            $('#categoryIdEdit').val(id);
+
+            $(document).on('click', '#saveEditCategory', function (e) {
+
+                let id = $('#categoryIdEdit').val();
+                let namaCategory = $('#namaCategoryEdit').val();
+                let minimumRateCategory = $('#minimumRateCategoryEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                var isValid = true;
+                let isValid = true;
 
                 if (namaCategory === '') {
-                    $('#namaCategoryError').removeClass('d-none');
+                    $('#namaCategoryErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#namaCategoryError').addClass('d-none');
-                }
-                if (minimumRateCategory === '') {
-                    $('#minimumRateCategoryError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#minimumRateCategoryError').addClass('d-none');
+                    $('#namaCategoryErrorEdit').addClass('d-none');
                 }
 
-                // Jika semua input valid, lanjutkan aksi simpan
+                if (minimumRateCategory === '') {
+                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Rate Category tidak boleh kosong");
+                    isValid = false;
+                } else if (isNaN(minimumRateCategory) || parseFloat(minimumRateCategory) < 0) {
+                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Rate Category harus berupa angka positif");
+                    isValid = false;
+                } else if (parseFloat(minimumRateCategory) > 100000000000000000) {
+                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
+                    isValid = false;
+                } else {
+                    $('#minimumRateCategoryErrorEdit').addClass('d-none');
+                }
                 if (isValid) {
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
@@ -192,184 +291,94 @@
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            var formData = new FormData();
+                            let formData = new FormData();
+                            formData.append('id', id);
                             formData.append('namaCategory', namaCategory);
                             formData.append('minimumRateCategory', minimumRateCategory);
                             formData.append('_token', csrfToken);
 
                             $.ajax({
                                 type: "POST",
-                                url: "{{ route('addCategory') }}",
+                                url: "{{ route('updateCategory') }}",
                                 data: formData,
                                 contentType: false,
                                 processData: false,
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data Berhasil Disimpan");
+                                            "Data Berhasil Diubah");
                                         getlistCategory();
-                                        $('#modalTambahCategory').modal('hide');
+                                        $('#modalEditCategory').modal(
+                                            'hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Gagal Menambahkan Data",
-                                            text: response
-                                                .message,
-                                            icon: "error",
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
                                         });
                                     }
-                                },
-                                error: function(xhr) {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: xhr.responseJSON
-                                            .message,
-                                        icon: "error",
-                                    });
                                 }
                             });
                         }
                     });
                 } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+                    showMessage("error", "Mohon periksa input yang kosong atau tidak valid");
                 }
-            });
-            $(document).on('click', '.btnUpdateCategory', function(e) {
-                e.preventDefault();
-                let id = $(this).data('id');
-                let category_name = $(this).data('category_name');
-                let minimum_rate = $(this).data('minimum_rate');
-
-                $('#namaCategoryEdit').val(category_name);
-                $('#minimumRateCategoryEdit').val(minimum_rate);
-                $('#categoryIdEdit').val(id);
-
-                $(document).on('click', '#saveEditCategory', function(e) {
-
-                    let id = $('#categoryIdEdit').val();
-                    let namaCategory = $('#namaCategoryEdit').val();
-                    let minimumRateCategory = $('#minimumRateCategoryEdit').val();
-                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                    let isValid = true;
-
-                    if (namaCategory === '') {
-                        $('#namaCategoryErrorEdit').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#namaCategoryErrorEdit').addClass('d-none');
-                    }
-
-                    // Validasi Content
-                    if (minimumRateCategory === '') {
-                        $('#minimumRateCategoryErrorEdit').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#minimumRateCategoryErrorEdit').addClass('d-none');
-                    }
-
-
-                    if (isValid) {
-                        Swal.fire({
-                            title: "Apakah Kamu Yakin?",
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#5D87FF',
-                            cancelButtonColor: '#49BEFF',
-                            confirmButtonText: 'Ya',
-                            cancelButtonText: 'Tidak',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                let formData = new FormData();
-                                formData.append('id', id);
-                                formData.append('namaCategory', namaCategory);
-                                formData.append('minimumRateCategory', minimumRateCategory);
-                                formData.append('_token', csrfToken);
-
-                                $.ajax({
-                                    type: "POST",
-                                    url: "{{ route('updateCategory') }}",
-                                    data: formData,
-                                    contentType: false,
-                                    processData: false,
-                                    success: function(response) {
-                                        if (response.status === 'success') {
-                                            showMessage("success",
-                                                "Data Berhasil Diubah");
-                                            getlistCategory();
-                                            $('#modalEditCategory').modal(
-                                                'hide');
-                                        } else {
-                                            Swal.fire({
-                                                title: "Gagal Menambahkan",
-                                                icon: "error"
-                                            });
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    } else {
-                        showMessage("error", "Mohon periksa input yang kosong");
-                    }
-                })
+            })
             $('#modalEditCategory').modal('show');
+        });
+        $('#modalTambahCategory').on('hidden.bs.modal', function () {
+            $('#namaCategory,#minimumRateCategory').val('');
+            if (!$('#namaCategoryError').hasClass('d-none')) {
+                $('#namaCategoryError').addClass('d-none');
+            }
+            if (!$('#minimumRateCategoryError').hasClass('d-none')) {
+                $('#minimumRateCategoryError').addClass('d-none');
+            }
+        });
+        $('#modalEditCategory').on('hidden.bs.modal', function () {
+            $('#namaCategoryEdit,#minimumRateCategoryEdit').val('');
+            if (!$('#namaCategoryErrorEdit').hasClass('d-none')) {
+                $('#namaCategoryErrorEdit').addClass('d-none');
+            }
+            if (!$('#minimumRateCategoryErrorEdit').hasClass('d-none')) {
+                $('#minimumRateCategoryErrorEdit').addClass('d-none');
+            }
+        });
 
-            $('#modalTambahCategory').on('hidden.bs.modal', function() {
-                $('#namaCategory,#minimumRateCategory').val('');
-                if (!$('#namaCategoryError').hasClass('d-none')) {
-                    $('#namaCategoryError').addClass('d-none');
-                }
-                if (!$('#minimumRateCategoryError').hasClass('d-none')) {
-                    $('#minimumRateCategoryError').addClass('d-none');
-                }
-            });
-            $('#modalEditCategory').on('hidden.bs.modal', function() {
-                $('#namaCategoryEdit,#minimumRateCategoryEdit').val('');
-                if (!$('#namaCategoryErrorEdit').hasClass('d-none')) {
-                    $('#namaCategoryErrorEdit').addClass('d-none');
-                }
-                if (!$('#minimumRateCategoryErrorEdit').hasClass('d-none')) {
-                    $('#minimumRateCategoryErrorEdit').addClass('d-none');
-                }
-            });
-            
+        $(document).on('click', '.btnDestroyCategory', function (e) {
+            let id = $(this).data('id');
 
-    });
-    $(document).on('click', '.btnDestroyCategory', function(e) {
-                let id = $(this).data('id');
-
-                Swal.fire({
-                    title: "Apakah Kamu Yakin Ingin Hapus Ini?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "GET",
-                            url: "{{ route('destroyCategory') }}",
-                            data: {
-                                id: id,
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    showMessage("success",
-                                        "Berhasil menghapus");
-                                    getlistCategory();
-                                } else {
-                                    showMessage("error", "Gagal menghapus");
-                                }
+            Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('destroyCategory') }}",
+                        data: {
+                            id: id,
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                showMessage("success",
+                                    "Berhasil menghapus");
+                                getlistCategory();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
                             }
-                        });
-                    }
-                });
-
+                        }
+                    });
+                }
             });
-});
+
+        });
+    });
 </script>
-@endsection 
+@endsection

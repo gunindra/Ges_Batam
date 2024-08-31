@@ -41,7 +41,7 @@ class CategoryController extends Controller
                 '
                 <tr>
                     <td class="">' . ($item->category_name ?? '-') .'</td>
-                    <td class="">' . ($item->minimum_rate ?? '-') .'</td>
+                    <td class="">' . (isset($item->minimum_rate) ? ' ' . number_format($item->minimum_rate,0, '.', ',') : '-') . '</td>
                     <td>
                         <a  class="btn btnUpdateCategory btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-category_name="' .$item->category_name .'" data-minimum_rate="' .$item->minimum_rate .'" ><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyCategory btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
