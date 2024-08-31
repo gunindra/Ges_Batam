@@ -98,45 +98,61 @@
                     <div class="modal-body">
                         <input type="hidden" id="customerIdEdit">
                         <div class="mt-3">
-                            <label for="namaCustomer" class="form-label fw-bold">Nama Customer</label>
+                            <label for="namaCustomerEdit" class="form-label fw-bold">Nama Customer</label>
                             <input type="text" class="form-control" id="namaCustomerEdit" value=""
                                 placeholder="Masukkan nama customer">
                             <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer
                             </div>
                         </div>
+
                         <div class="mt-3">
-                            <label for="alamat" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" id="alamatCustomerEdit" rows="3" placeholder="Masukkan alamat"></textarea>
-                            <div id="alamatCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi alamat customer
+                            <label for="metodePengirimanEdit" class="form-label fw-bold">Metode Pengiriman</label>
+                            <select class="form-control" id="metodePengirimanEdit">
+                                <option value="" selected disabled>Pilih Metode Pengiriman</option>
+                                <option value="Pickup">Pickup</option>
+                                <option value="Delivery">Delivery</option>
+                            </select>
+                            <div id="metodePengirimanErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih metode
+                                pengiriman
                             </div>
                         </div>
+
+                        <div id="alamatSectionEdit" style="display: none;">
+                            <div id="alamatContainerEdit">
+                                <div class="mt-3 alamat-item">
+                                    <label for="alamatCustomerEdit" class="form-label fw-bold">Alamat</label>
+                                    <textarea class="form-control" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                                    <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
+                                        style="display: none;"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" id="addAlamatButtonEdit" class="btn btn-secondary mt-3"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
+
                         <div class="mt-3">
-                            <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
+                            <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
                             <input type="text" class="form-control" id="noTelponEdit" value=""
                                 placeholder="08**********">
                             <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                                 customer
                             </div>
                         </div>
+
                         <div class="mt-3">
                             <label for="categoryCustomerEdit" class="form-label fw-bold">Category</label>
                             <select class="form-control" id="categoryCustomerEdit">
-                                <option value="" selected disabled>Select Category Customer</option>
+                                <option value="" selected disabled>Pilih Category Customer</option>
                                 @foreach ($listCategory as $category)
                                     <option value="{{ $category->id }}">
                                         {{ $category->category_name }}
                                     </option>
                                 @endforeach
-                                <option value="Normal">Normal</option>
-                                <option value="VIP">VIP</option>
                             </select>
                             <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category
                                 customer
                             </div>
-                        </div>
-                        <div class="mt-3 custom-checkbox">
-                            <input type="checkbox" id="isactiveEdit">
-                            <label for="isactiveEdit" class="form-label fw-bold">Active</label>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -147,6 +163,7 @@
             </div>
         </div>
         <!--End Modal Edit -->
+
 
         <!-- Modal Detail -->
         <div class="modal fade" id="modalPointCostumer" tabindex="-1" role="dialog"
@@ -556,22 +573,80 @@
                 let noTelp = $(this).data('notelp');
                 let alamat = $(this).data('alamat');
                 let category = $(this).data('category');
-                let status = $(this).data('status');
+                let pengiriman = $(this).data('metode_pengiriman');
 
+                // Memisahkan string alamat menjadi array
+                let alamatArray = alamat.split(', ');
+
+                // Kosongkan container alamat dan tambahkan textarea sesuai jumlah alamat
+                $('#alamatContainerEdit').empty();
+                alamatArray.forEach((alamatItem, index) => {
+                    let newAlamat = `<div class="mt-3 alamat-item">
+                            <label for="alamatCustomerEdit${index}" class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" id="alamatCustomerEdit${index}" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3">${alamatItem}</textarea>
+                            <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+                    $('#alamatContainerEdit').append(newAlamat);
+                });
+
+                // Logika untuk menampilkan dan menyembunyikan tombol hapus alamat
+                function toggleRemoveButtonEdit() {
+                    const alamatItems = $('#alamatContainerEdit').children('.alamat-item');
+                    if (alamatItems.length > 1) {
+                        $('.remove-alamat-btn').show();
+                    } else {
+                        $('.remove-alamat-btn').hide();
+                    }
+                }
+
+                // Menangani perubahan metode pengiriman
+                $('#metodePengirimanEdit').change(function() {
+                    var metodePengiriman = $(this).val();
+                    if (metodePengiriman === 'Delivery') {
+                        $('#alamatSectionEdit').show(); // Tampilkan bagian alamat
+                    } else {
+                        $('#alamatSectionEdit').hide(); // Sembunyikan bagian alamat
+                        $('#alamatContainerEdit').find('textarea').val('');
+                        $('#alamatContainerEdit').children('.alamat-item:gt(0)').remove();
+                        toggleRemoveButtonEdit();
+                    }
+                });
+
+                // Menambahkan alamat baru ketika tombol 'Tambah Alamat' ditekan pada modal edit
+                $('#addAlamatButtonEdit').click(function() {
+                    let alamatContainer = $('#alamatContainerEdit');
+                    let newAlamat = `<div class="mt-3 alamat-item">
+                            <label for="alamatCustomerEditNew" class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                            <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+                    alamatContainer.append(newAlamat);
+                    toggleRemoveButtonEdit();
+                });
+
+                // Hapus alamat saat tombol 'Hapus Alamat' ditekan pada modal edit
+                $(document).on('click', '.remove-alamat-btn', function() {
+                    $(this).closest('.alamat-item').remove();
+                    toggleRemoveButtonEdit();
+                });
+
+                // Isi form edit dengan data yang diterima
                 $('#namaCustomerEdit').val(nama);
                 $('#noTelponEdit').val(noTelp);
-                $('#alamatCustomerEdit').val(alamat);
                 $('#categoryCustomerEdit').val(category);
+                $('#metodePengirimanEdit').val(pengiriman);
                 $('#customerIdEdit').val(id);
 
-                if (status === 1) {
-                    $('#isactiveEdit').prop('checked', true);
-                } else {
-                    $('#isactiveEdit').prop('checked', false);
-                }
+                // Trigger event change untuk memastikan tampilan sesuai dengan metode pengiriman yang dipilih
+                $('#metodePengirimanEdit').trigger('change');
+
+                toggleRemoveButtonEdit();
 
                 $('#modalEditCustomer').modal('show');
             });
+
 
 
             $(document).on('click', '#saveEditCostumer', function(e) {
@@ -579,13 +654,14 @@
 
                 let id = $('#customerIdEdit').val();
                 let namaCustomerEdit = $('#namaCustomerEdit').val();
-                let alamatCustomer = $('#alamatCustomerEdit').val();
                 let noTelponCustomer = $('#noTelponEdit').val();
+                let metodePengiriman = $('#metodePengirimanEdit').val();
                 let categoryCustomer = $('#categoryCustomerEdit').val();
-                let isactiveEdit = $('#isactiveEdit').prop('checked') ? 1 : 0;
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
+
+                // Validasi Nama Customer
                 if (namaCustomerEdit === '') {
                     $('#namaCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
@@ -593,13 +669,7 @@
                     $('#namaCustomerErrorEdit').addClass('d-none');
                 }
 
-                if (alamatCustomer === '') {
-                    $('#alamatCustomerErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#alamatCustomerErrorEdit').addClass('d-none');
-                }
-
+                // Validasi Nomor Telepon
                 if (noTelponCustomer === '') {
                     $('#notelponCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
@@ -607,13 +677,28 @@
                     $('#notelponCustomerErrorEdit').addClass('d-none');
                 }
 
-                if (categoryCustomer === '') {
+                // Validasi Kategori Customer
+                if (categoryCustomer === '' || categoryCustomer === null) {
                     $('#CategoryCustomerErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#CategoryCustomerErrorEdit').addClass('d-none');
                 }
 
+                // Validasi dan kumpulkan semua alamat
+                let alamatCustomer = [];
+                if (metodePengiriman === 'Delivery') {
+                    $('#alamatContainerEdit').find('textarea').each(function() {
+                        let alamat = $(this).val().trim();
+                        if (alamat === '') {
+                            $(this).siblings('.alamat-error').removeClass('d-none');
+                            isValid = false;
+                        } else {
+                            $(this).siblings('.alamat-error').addClass('d-none');
+                            alamatCustomer.push(alamat);
+                        }
+                    });
+                }
                 if (isValid) {
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
@@ -629,11 +714,14 @@
                             let formData = new FormData();
                             formData.append('id', id);
                             formData.append('namaCustomer', namaCustomerEdit);
-                            formData.append('alamatCustomer', alamatCustomer);
                             formData.append('noTelpon', noTelponCustomer);
+                            formData.append('metodePengiriman', metodePengiriman);
                             formData.append('categoryCustomer', categoryCustomer);
-                            formData.append('isactiveEdit', isactiveEdit);
                             formData.append('_token', csrfToken);
+
+                            alamatCustomer.forEach((alamat, index) => {
+                                formData.append('alamatCustomer[]', alamat);
+                            });
 
                             $.ajax({
                                 type: "POST",
@@ -652,6 +740,13 @@
                                             icon: "error"
                                         });
                                     }
+                                },
+                                error: function(xhr) {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        text: xhr.responseJSON.message,
+                                        icon: "error",
+                                    });
                                 }
                             });
                         }
@@ -660,20 +755,33 @@
                     showMessage("error", "Mohon periksa input yang kosong");
                 }
             });
+
+            // $('#modalEditCustomer').on('hidden.bs.modal', function() {
+            //     $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #categoryCustomerEdit').val('');
+            //     if (!$('#namaCustomerErrorEdit').hasClass('d-none')) {
+            //         $('#namaCustomerErrorEdit').addClass('d-none');
+
+            //     }
+            //     if (!$('#alamatCustomerErrorEdit').hasClass('d-none')) {
+            //         $('#alamatCustomerErrorEdit').addClass('d-none');
+
+            //     }
+            //     if (!$('#notelponCustomerErrorEdit').hasClass('d-none')) {
+            //         $('#notelponCustomerErrorEdit').addClass('d-none');
+
+            //     }
+            // });
+
             $('#modalEditCustomer').on('hidden.bs.modal', function() {
-                $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #categoryCustomerEdit').val('');
-                if (!$('#namaCustomerErrorEdit').hasClass('d-none')) {
-                    $('#namaCustomerErrorEdit').addClass('d-none');
-
-                }
-                if (!$('#alamatCustomerErrorEdit').hasClass('d-none')) {
-                    $('#alamatCustomerErrorEdit').addClass('d-none');
-
-                }
-                if (!$('#notelponCustomerErrorEdit').hasClass('d-none')) {
-                    $('#notelponCustomerErrorEdit').addClass('d-none');
-
-                }
+                $('#namaCustomerEdit, #noTelponEdit, #categoryCustomerEdit, #markingCustomerEdit')
+                    .val('');
+                $('#alamatContainerEdit').children('.alamat-item:gt(0)').remove();
+                $('#alamatContainerEdit').children('.alamat-item').first().find('textarea').val(
+                    '');
+                $('.text-danger').addClass('d-none');
+                $('#alamatSectionEdit').hide();
+                $('#metodePengirimanEdit').val('').trigger('change');
+                toggleRemoveButtonEdit();
             });
 
             $(document).on('click', '.show-address-modal', function() {

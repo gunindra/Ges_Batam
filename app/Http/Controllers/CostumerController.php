@@ -21,19 +21,21 @@ class CostumerController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT tp.id,
-                     tp.marking,
-                     tp.nama_pembeli,
-                     GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
-                     COUNT(ta.alamat) AS alamat_count,
-                     tp.no_wa,
-                     tp.sisa_poin,
-                     tp.category,
-                     tp.metode_pengiriman,
-                     DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
-                     tp.status
+                    tp.marking,
+                    tp.nama_pembeli,
+                    GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
+                    COUNT(ta.alamat) AS alamat_count,
+                    tp.no_wa,
+                    tp.sisa_poin,
+                    tp.metode_pengiriman,
+                    DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
+                    tp.status,
+                    tp.category_id,
+                    tc.category_name
                 FROM tbl_pembeli tp
                 LEFT JOIN tbl_alamat ta ON ta.pembeli_id = tp.id
-                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.category, tp.transaksi_terakhir, tp.status
+                LEFT JOIN tbl_category tc ON tp.category_id = tc.id
+                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tc.category_name
                 ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
         ";
 
@@ -72,8 +74,8 @@ class CostumerController extends Controller
                     <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
                     ' . $statusCell . '
                     <td>
-                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-category="' . $item->category . '"  data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-category="' . $item->category . '" data-status="' . $item->status . '"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '"  data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
+                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '"  data-metode_pengiriman="' . $item->metode_pengiriman . '"  data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
@@ -99,7 +101,7 @@ class CostumerController extends Controller
                 'marking' => $markingCostumer,
                 'nama_pembeli' => $namacostumer,
                 'no_wa' => $notlponcostumer,
-                'category' => $categorycostumer,
+                'category_id' => $categorycostumer,
                 'metode_pengiriman' => $metodePengiriman,
                 'status' => 1,
                 'created_at' => now(),
@@ -128,30 +130,41 @@ class CostumerController extends Controller
         $namacostumer = $request->input('namaCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categoryCustomer = $request->input('categoryCustomer');
-        $isActive = $request->input('isactiveEdit');
         $alamatcostumer = $request->input('alamatCustomer');
-
+        $metodePengiriman = $request->input('metodePengiriman');
         try {
             DB::beginTransaction();
 
+            // Update data customer di tbl_pembeli
             DB::table('tbl_pembeli')
                 ->where('id', $id)
                 ->update([
                     'nama_pembeli' => $namacostumer,
                     'no_wa' => $notlponcostumer,
-                    'category' => $categoryCustomer,
-                    'metode_pengiriman' => $request->input('metodePengiriman'),
-                    'status' => $isActive,
+                    'category_id' => $categoryCustomer,
+                    'metode_pengiriman' => $metodePengiriman,
                     'updated_at' => now(),
                 ]);
 
+            // Hapus semua alamat lama dari tbl_alamat untuk customer ini
             DB::table('tbl_alamat')
                 ->where('pembeli_id', $id)
-                ->update([
-                    'alamat' => $alamatcostumer,
+                ->delete();
 
-                    'updated_at' => now(),
-                ]);
+            // Insert alamat baru ke tbl_alamat hanya jika metode pengiriman adalah Delivery dan alamat tidak kosong
+            if ($metodePengiriman === 'Delivery' && !empty($alamatcostumer)) {
+                foreach ($alamatcostumer as $alamat) {
+                    // Cek jika alamat tidak null atau kosong
+                    if (!is_null($alamat) && trim($alamat) !== '') {
+                        DB::table('tbl_alamat')->insert([
+                            'pembeli_id' => $id,
+                            'alamat' => $alamat,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
 
             DB::commit();
 
@@ -161,6 +174,8 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
+
+
 
 
     public function generateMarking(Request $request)
