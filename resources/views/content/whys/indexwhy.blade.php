@@ -45,8 +45,8 @@
                     @if($whyData)
                             @if($whyData->Image_WhyUs)
                                 <img src="{{ asset('storage/images/' . $whyData->Image_WhyUs) }}" width="600px" style="padding:5px 30px;">
+                                <p style="margin-left:30px;">{{ $whyData->Paraf_WhyUs ?? '' }}</p>
                             @endif
-                            <p style="padding-left:30px;">{{ $whyData->Paraf_WhyUs }}</p>
                         @else
                             <p class="p-3">No content available</p>
                         @endif
@@ -124,7 +124,6 @@ $(document).ready(function() {
 
                                     if (response.data.imageWhy) {
                                         previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
-                                        previewContainer.append('<p style="padding-left:30px;">' + response.data.imageWhy + '</p>'); // Menampilkan nama gambar
                                     }
 
                                     if (response.data.parafWhy) {

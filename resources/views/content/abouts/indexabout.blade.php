@@ -48,8 +48,8 @@
                             @if($aboutData->Image_AboutUs)
                                 <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px"
                                     style="padding:5px 30px;">
+                                <p style="margin-left:30px;">{{ $aboutData->Paraf_AboutUs ?? '' }}</p>
                             @endif
-                            <p style="padding-left:30px;">{{ $aboutData->Paraf_AboutUs }}</p>
                         @else
                             <p class="p-3">No content available</p>
                         @endif
@@ -125,10 +125,8 @@
                                     previewContainer.html('');
 
                                     if (response.data.imageAbout) {
-                                        previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageAbout + '" width="600px" style="padding:5px 30px;">');
-                                        previewContainer.append('<p style="padding-left:30px;">' + response.data.imageAbout + '</p>'); // Menampilkan nama gambar
+                                        previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageAbout + '" width="600px" style="padding:5px 30px;">');                   
                                     }
-
                                     if (response.data.parafAbout) {
                                         previewContainer.append('<p style="margin-left:30px;">' + response.data.parafAbout + '</p>');
                                     }

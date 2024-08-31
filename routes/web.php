@@ -27,7 +27,8 @@ use App\Http\Controllers\{
     PickupController,
     VendorController,
     PopupController,
-    TrackingsController
+    TrackingsController,
+    CategoryController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -164,6 +165,13 @@ Route::get('/masterdata/driver/list', [DriverController::class, 'getlistDriver']
 Route::post('/masterdata/driver/tambah', [DriverController::class, 'addDriver'])->name('addDriver');
 Route::post('/masterdata/driver/update', [DriverController::class, 'updateDriver'])->name('updateDriver');
 Route::get('/masterdata/driver/destroy', [DriverController::class, 'destroyDriver'])->name('destroyDriver');
+
+// Category
+Route::get('/masterdata/category', [CategoryController::class, 'index'])->name('category');
+Route::get('/masterdata/category/getlistCategory', [CategoryController::class, 'getlistCategory'])->name('getlistCategory');
+Route::post('/masterdata/category/tambah', [CategoryController::class, 'addCategory'])->name('addCategory');
+Route::post('/masterdata/category/update', [CategoryController::class, 'updateCategory'])->name('updateCategory');
+Route::get('/masterdata/category/destroy', [CategoryController::class, 'destroyCategory'])->name('destroyCategory');
 
 // Rekening
 Route::get('/masterdata/rekening', [RekeningController::class, 'index'])->name('rekening');

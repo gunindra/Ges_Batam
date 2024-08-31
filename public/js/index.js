@@ -230,6 +230,32 @@
                         var key = e.key;
                         var value = self.$input.val().trim();
 
+                        if (value.includes(' ')) {
+                            // Pisahkan input berdasarkan pola " "
+                            var tags = value.split(' ');
+
+                            // Proses setiap tag yang ditemukan sebelum koma spasi
+                            for (var i = 0; i < tags.length - 1; i++) {
+                                var tag = tags[i].trim();
+
+                                // Validasi dan tambahkan tag jika valid
+                                if (self._validate(tag, true)) {
+                                    self._buildItem(tag);
+                                    self._insert(tag);
+                                }
+                            }
+
+                            // Simpan sisa input yang tidak diproses
+                            self.$input.val(tags[tags.length - 1]);
+
+                            self._updateValue();
+                            self.destroy();
+                            self._autocomplete._build();
+                            self.$input.focus();
+
+                            return false;
+                        }
+
                         if ($.inArray(key, self.keys) < 0) {
                             self._autocomplete._init(true);
                             self._autocomplete._show();

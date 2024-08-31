@@ -17,7 +17,7 @@
                 <div class="card-body">
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#modalTambahTrackingr" id="#modalCenter"><span class="pr-2"><i
+                            data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
                                     class="fas fa-plus"></i></span>Tambah Tracking</button>
                     </div>
                     <div id="containerTracking" class="table-responsive px-2">

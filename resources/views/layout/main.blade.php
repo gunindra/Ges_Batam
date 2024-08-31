@@ -83,7 +83,7 @@
                 </div>
             </li>
             <li
-                class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                     aria-expanded="true" aria-controls="collapseBootstrap">
                     <i class="far fa-fw fa-window-maximize"></i>
@@ -101,6 +101,8 @@
                             href="{{ route('rekening') }}">Rekening</a>
                         <a class="collapse-item {{ request()->routeIs('pembagirate') ? 'active' : '' }}"
                             href="{{ route('pembagirate') }}">Rate</a>
+                        <a class="collapse-item {{ request()->routeIs('category') ? 'active' : '' }}"
+                            href="{{ route('category') }}">Category</a>
                     </div>
                 </div>
             </li>
