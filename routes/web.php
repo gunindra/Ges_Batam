@@ -192,11 +192,16 @@ Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate']
 Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
 Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
-});
-
-
 // Vendor
 Route::get('/vendor', [VendorController::class, 'index'])->name('vendor');
 
 //Tracking
 Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
+Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
+Route::post('/tracking/addTracking', [TrackingsController::class, 'addTracking'])->name('addTracking');
+
+
+
+});
+
+

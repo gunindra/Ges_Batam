@@ -23,8 +23,6 @@ class InformationsController extends Controller
                 FROM tbl_informations
         ";
 
-        // dd($q);
-
         $data = DB::select($q);
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableInformations">
