@@ -496,6 +496,7 @@ body {
   margin: 0 15px;
   display: flex;
   justify-content: center;
+  
 }
 
 .image:hover {
@@ -868,7 +869,9 @@ article a:hover {
 }
 
 /* slide iklan */
-
+.hidden{
+  display:none;
+}
 @keyframes slide {
   0% {
     transform: translateX(0);
@@ -1059,7 +1062,42 @@ a:hover {
 }
 
 /* Responsive */
-@media only screen and (max-width: 1309px) {
+@media (max-width: 1500px) {
+  .wrapper-About {
+    flex-direction: column; 
+    align-items: center;
+  }
+  
+  .content {
+    width: 80%;
+    margin: 0 0 20px 0; 
+    padding: 0 20px; 
+  }
+  
+  .image {
+    width: 45%; 
+    margin: 0;
+    justify-content: center; 
+  }
+  
+  .heading h1 {
+    font-size: 40px;
+  }
+  
+  .content h2 {
+    font-size: 20px;
+  }
+  
+  .content p {
+    font-size: 16px;
+  }
+  
+  .content .btn {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+}
+@media only screen and (max-width: 1440px) {
   
   /* service */
   .box {

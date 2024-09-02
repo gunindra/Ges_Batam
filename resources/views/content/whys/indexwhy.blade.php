@@ -24,7 +24,7 @@
                         <label for="imageWhy" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imageWhy">
                         <div id="imageWhyError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                        <p>Nama Gambar= {{ $whyData->Image_WhyUs }}</p> 
+                        <p>Nama Gambar= {{ $whyData->Image_WhyUs ?? '-'}}</p> 
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafWhy" class="form-label fw-bold p-3">Content</label>

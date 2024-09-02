@@ -26,7 +26,7 @@
     </dialog>
   @endif
   <!-- Carousel -->
-  <div id="Home">
+ <div id="Home">
     @if(count($listcarousel) > 0)
     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
@@ -223,13 +223,13 @@
   </div>
 
   <!-- iklan slide -->
-  <div class="logos">
-    <div class="logos-slide">
-      @foreach($listiklan as $iklan)
-      <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan ?? '-'}}">
+  <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}">
+  <div class="logos-slide">
+    @foreach($listiklan as $iklan)
+      <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan ?? '-' }}">
     @endforeach
-    </div>
   </div>
+</div>
 
   </div>
   <div class="Contact" id="Contact">
@@ -272,6 +272,7 @@
         ride: 'carouselSlide'
       });
     });
+    
 
   </script>
 

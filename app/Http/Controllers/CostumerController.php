@@ -20,6 +20,14 @@ class CostumerController extends Controller
     public function getlistCostumer(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $status = $request->status;
+
+        $statusCondition = '';
+            if ($status === '1') {
+                $statusCondition = "AND tp.status = 1";
+            } elseif ($status === '0') {
+                $statusCondition = "AND tp.status = 0";
+            }
 
         $q = "SELECT tp.id,
                 tp.marking,
@@ -42,12 +50,15 @@ class CostumerController extends Controller
                 OR UPPER(ta.alamat) LIKE UPPER('$txSearch')
                 OR UPPER(tp.transaksi_terakhir) LIKE UPPER('$txSearch')
                 )
+                $statusCondition
+
                 GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tp.category_id, tc.category_name
                 ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
                
                         ";
 
         $data = DB::select($q);
+        
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
                         <thead class="thead-light">
