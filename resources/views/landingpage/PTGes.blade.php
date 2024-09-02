@@ -27,19 +27,20 @@
   @endif
   <!-- Carousel -->
   <div id="Home">
-    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="Carousel">
+    @if(count($listcarousel) > 0)
+    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         @foreach($listcarousel as $index => $carousel)
-      <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-        <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}"
-        alt="{{ $carousel->judul_carousel }}">
-        <div class="carousel-caption">
-        <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
-        <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>
-        <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $carousel->id) }}">Learn More</a>
+        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}"
+          alt="{{ $carousel->judul_carousel }}">
+          <div class="carousel-caption">
+            <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
+            <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>
+            <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $carousel->id) }}">Learn More</a>
+          </div>
         </div>
-      </div>
-    @endforeach
+        @endforeach
       </div>
 
       @if(count($listcarousel) > 1)
@@ -54,15 +55,29 @@
       <span class="visually-hidden">Next</span>
       </button>
       <div class="carousel-indicators">
-      @foreach($listcarousel as $index => $carousel)
-      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ $index }}"
-      class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
-      aria-label="Slide {{ $index + 1 }}"></button>
-    @endforeach
+        @foreach($listcarousel as $index => $carousel)
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ $index }}"
+        class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
+        aria-label="Slide {{ $index + 1 }}"></button>
+        @endforeach
       </div>
-    @endif
+      @endif
     </div>
-  </div>
+    @else
+    <div id="carouselExampleCaptions" class="carousel slide">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/no-image.png') }}"
+          alt="No Image">
+          <div class="carousel-caption">
+            <h5 id="judulCarousel">No Image Available</h5>
+            <p id="parafCarousel">There are no images to display.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    @endif
+</div>
 
   <!-- Main -->
   <div class="main">

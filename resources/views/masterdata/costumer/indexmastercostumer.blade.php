@@ -238,6 +238,10 @@
                                 data-target="#modalTambahCustomer" id="modalTambahCost"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Customer</button>
                         </div>
+                        <div class="float-left">
+                            <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                                class="form-control rounded-3" placeholder="Search">
+                        </div>
                         <div id="containerCustomer" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableCostumer">
                             <thead class="thead-light">
@@ -322,6 +326,13 @@
             }
 
             getListCustomer();
+            
+            $('#txSearch').keyup(function(e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getListCustomer();
+            }
+        })
 
             $(document).on('click', '#modalTambahCost', function(e) {
                 $.ajax({

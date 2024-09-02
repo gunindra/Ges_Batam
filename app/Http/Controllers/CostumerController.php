@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class CostumerController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 
         $listCategory = DB::select("SELECT id, category_name FROM tbl_category");
 
@@ -21,23 +22,30 @@ class CostumerController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT tp.id,
-                    tp.marking,
-                    tp.nama_pembeli,
-                    GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
-                    COUNT(ta.alamat) AS alamat_count,
-                    tp.no_wa,
-                    tp.sisa_poin,
-                    tp.metode_pengiriman,
-                    DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
-                    tp.status,
-                    tp.category_id,
-                    tc.category_name
+                tp.marking,
+                tp.nama_pembeli,
+                GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
+                COUNT(ta.alamat) AS alamat_count,
+                tp.no_wa,
+                tp.sisa_poin,
+                tp.metode_pengiriman,
+                DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
+                tp.status,
+                tp.category_id,
+                tc.category_name
                 FROM tbl_pembeli tp
                 LEFT JOIN tbl_alamat ta ON ta.pembeli_id = tp.id
                 LEFT JOIN tbl_category tc ON tp.category_id = tc.id
-                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tc.category_name
+                 WHERE (
+                UPPER(tp.nama_pembeli) LIKE UPPER('$txSearch')
+                OR UPPER(tp.metode_pengiriman) LIKE UPPER('$txSearch')
+                OR UPPER(ta.alamat) LIKE UPPER('$txSearch')
+                OR UPPER(tp.transaksi_terakhir) LIKE UPPER('$txSearch')
+                )
+                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tp.category_id, tc.category_name
                 ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
-        ";
+               
+                        ";
 
         $data = DB::select($q);
 
@@ -184,7 +192,7 @@ class CostumerController extends Controller
         $data = DB::select($q);
         if (!empty($data)) {
             $lastMarking = $data[0]->marking;
-            $newMarking = str_pad((int)$lastMarking + 1, 4, '0', STR_PAD_LEFT);
+            $newMarking = str_pad((int) $lastMarking + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newMarking = '0001';
         }
