@@ -82,6 +82,11 @@
                     </div>
                 </div>
             </li>
+            <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('tracking') }}">
+                <i class="fas fa-globe-asia"></i>
+                    <span>Tracking</span></a>
+            </li>
             <li
                 class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
@@ -106,12 +111,6 @@
                     </div>
                 </div>
             </li>
-            <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('tracking') }}">
-                <i class="fas fa-globe-asia"></i>
-                    <span>Tracking</span></a>
-            </li>
-
             <hr class="sidebar-divider">
         </ul>
         <!-- Sidebar -->
