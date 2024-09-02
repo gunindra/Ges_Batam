@@ -43,8 +43,8 @@ class TrackingsController extends Controller
                     <td class="">' . ($item->status ?? '-') .'</td>
                     <td class="">' . ($item->keterangan ?? '-') .'</td>
                     <td>
-                        <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
+                        <a  class="btn btnUpdateTracking btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-no_resi="' .$item->no_resi .'" data-no_do="' .$item->no_do .'" data-status="' .$item->status .'" data-keterangan="' .$item->keterangan .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyTracking btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -69,6 +69,47 @@ class TrackingsController extends Controller
             return response()->json(['message' => 'Tracking berhasil ditambahkan'], 200);
         } catch (Exception $e) {
             return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateTracking(Request $request)
+    {
+        try {
+
+            $idTracking = $request->input('id');
+
+            if (!$idTracking) {
+                return response()->json(['message' => 'ID Tracking tidak ditemukan'], 400);
+            }
+            DB::table('tbl_tracking')
+                ->where('id', $idTracking)
+                ->update([
+                    'no_do' => $request->input('noDeliveryOrder'),
+                    // 'status' => $request->input('status'),
+                    'keterangan' => $request->input('keterangan'),
+                    'updated_at' => now(),
+                ]);
+
+            return response()->json(['message' => 'Tracking berhasil diperbarui'], 200);
+        } catch (Exception $e) {
+            // Tangani pengecualian jika terjadi kesalahan
+            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+
+    }
+
+
+    public function deleteTracking(Request $request)
+    {
+        $id = $request->input('id');
+
+        try {
+
+            DB::table('tbl_tracking')->where('id', $id)->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data Invoice berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

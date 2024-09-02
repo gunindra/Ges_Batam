@@ -199,6 +199,8 @@ Route::get('/vendor', [VendorController::class, 'index'])->name('vendor');
 Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
 Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
 Route::post('/tracking/addTracking', [TrackingsController::class, 'addTracking'])->name('addTracking');
+Route::post('/tracking/updateTracking', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
+Route::get('/tracking/deleteTracking', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');
 
 
 

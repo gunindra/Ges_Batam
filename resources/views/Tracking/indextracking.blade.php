@@ -24,7 +24,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="status" class="form-label fw-bold">Status</label>
-                        <input type="text" class="form-control" id="status" value=""
+                        <input type="text" class="form-control" id="status" value="Dalam Perjalanan"
                             placeholder="Masukkan Status">
                         <div id="statusError" class="text-danger mt-1 d-none">Silahkan isi Status</div>
                     </div>
@@ -50,6 +50,42 @@
         </div>
     </div>
     <!--End Modal Tambah Tracking-->
+
+    <!-- Modal Edit Tracking -->
+    <div class="modal fade" id="modalEditTracking" tabindex="-1" role="dialog" aria-labelledby="modalEditTrackingTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditTrackingTitle">Edit Tracking : <span id="noResiEdit">-</span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="idTracking" id="idTrackingEdit">
+                    <div class="mt-3">
+                        <label for="noDeliveryOrderEdit" class="form-label fw-bold">No. Delivery Order</label>
+                        <input type="text" class="form-control" id="noDeliveryOrderEdit" value=""
+                            placeholder="Masukkan No. Delivery Order">
+                        <div id="noDeliveryOrderErrorEdit" class="text-danger mt-1 d-none">Silahkan isi No. Delivery Order
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="keteranganEdit" class="form-label fw-bold">Keterangan</label>
+                        <textarea class="form-control" name="keteranganEdit" id="keteranganEdit" cols="20" rows="10"
+                            placeholder="Masukkan keterangan"></textarea>
+                        <div id="keteranganErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveUpdateTracking" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Modal Edit Tracking-->
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -203,27 +239,156 @@
             }
 
             if (isValid) {
-                $.ajax({
-                    url: "{{ route('addTracking') }}",
-                    method: 'POST',
-                    data: {
-                        _token: csrfToken,
-                        noDeliveryOrder: noDeliveryOrder,
-                        status: status,
-                        keterangan: keterangan,
-                        noResi: noResi,
-                    },
-                    success: function(response) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('addTracking') }}",
+                            method: 'POST',
+                            data: {
+                                _token: csrfToken,
+                                noDeliveryOrder: noDeliveryOrder,
+                                status: status,
+                                keterangan: keterangan,
+                                noResi: noResi,
+                            },
+                            success: function(response) {
 
-                        showMessage("success", "Data Berhasil Disimpan");
-                        $('#modalTambahTracking').modal('hide');
-                        getlistTracking();
-                    },
-                    error: function(xhr) {
+                                showMessage("success", "Data Berhasil Disimpan");
+                                $('#modalTambahTracking').modal('hide');
+                                getlistTracking();
+                            },
+                            error: function(xhr) {
 
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+
+
+
+        $(document).on('click', '.btnUpdateTracking', function(e) {
+            let id = $(this).data('id')
+            let no_do = $(this).data('no_do')
+            let keterangan = $(this).data('keterangan');
+            let no_resi =  $(this).data('no_resi');
+
+
+            $('#noDeliveryOrderEdit').val(no_do);
+            $('#keteranganEdit').val(keterangan);
+            $('#idTrackingEdit').val(id)
+            $('#noResiEdit').text(no_resi)
+            $('#modalEditTracking').modal('show');
+        })
+
+
+
+        $('#saveUpdateTracking').click(function() {
+
+            // Ambil nilai dari input
+            var idTracking = $('#idTrackingEdit').val();
+            var noDeliveryOrder = $('#noDeliveryOrderEdit').val().trim();
+            var keterangan = $('#keteranganEdit').val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var isValid = true;
+
+            // Validasi No. Delivery Order
+            if (noDeliveryOrder === '') {
+                $('#noDeliveryOrderErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#noDeliveryOrderErrorEdit').addClass('d-none');
+            }
+
+            // Validasi Keterangan
+            if (keterangan === '') {
+                $('#keteranganErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#keteranganErrorEdit').addClass('d-none');
+            }
+
+            if (isValid) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('updateTracking') }}",
+                            method: 'POST',
+                            data: {
+                                _token: csrfToken,
+                                id: idTracking,
+                                noDeliveryOrder: noDeliveryOrder,
+                                keterangan: keterangan,
+                            },
+                            success: function(response) {
+                                showMessage("success", "Data Berhasil Diperbarui");
+                                $('#modalEditTracking').modal('hide');
+                                getlistTracking();
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                            }
+                        });
                     }
                 });
             }
+        });
+
+
+        $(document).on('click', '.btnDestroyTracking', function(e) {
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Hapus Tracking Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('deleteTracking') }}",
+                        data: {
+                            id: id,
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                showMessage("success",
+                                    "Berhasil menghapus");
+                                getlistTracking();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
+                            }
+                        }
+                    });
+                }
+            })
         });
     </script>
 
