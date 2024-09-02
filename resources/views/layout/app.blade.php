@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
   <link rel="stylesheet" href="{{ asset('css/flatpickr.css') }}">
   <link rel="stylesheet" href="{{ asset('css/monthSelect.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/inputTags.css') }}">
   @stack('styles')
 
 </head>
@@ -46,6 +47,8 @@
   <script type="text/javascript" src="{{ asset('js/sweetalert2.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/flatpickr.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/monthSelect.js') }}"></script>
+  <script src="{{ asset('js/index.js') }}"></script>
+  <script src="{{ asset('js/jquery.inputTags.min.js') }}"></script>
   <script>
       function showMessage(type, message) {
 

@@ -84,85 +84,85 @@
         </div>
         <!--End Modal Tambah -->
 
-        <!-- Modal Edit -->
-        <div class="modal fade" id="modalEditCustomer" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditCustomerTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditCustomerTitle">Edit Customer</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="customerIdEdit">
-                        <div class="mt-3">
-                            <label for="namaCustomerEdit" class="form-label fw-bold">Nama Customer</label>
-                            <input type="text" class="form-control" id="namaCustomerEdit" value=""
-                                placeholder="Masukkan nama customer">
-                            <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer
-                            </div>
+            <!-- Modal Edit -->
+            <div class="modal fade" id="modalEditCustomer" tabindex="-1" role="dialog"
+                aria-labelledby="modalEditCustomerTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditCustomerTitle">Edit Customer</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-
-                        <div class="mt-3">
-                            <label for="metodePengirimanEdit" class="form-label fw-bold">Metode Pengiriman</label>
-                            <select class="form-control" id="metodePengirimanEdit">
-                                <option value="" selected disabled>Pilih Metode Pengiriman</option>
-                                <option value="Pickup">Pickup</option>
-                                <option value="Delivery">Delivery</option>
-                            </select>
-                            <div id="metodePengirimanErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih metode
-                                pengiriman
-                            </div>
-                        </div>
-
-                        <div id="alamatSectionEdit" style="display: none;">
-                            <div id="alamatContainerEdit">
-                                <div class="mt-3 alamat-item">
-                                    <label for="alamatCustomerEdit" class="form-label fw-bold">Alamat</label>
-                                    <textarea class="form-control" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3"></textarea>
-                                    <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
-                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
-                                        style="display: none;"><i class="fas fa-trash-alt"></i></button>
+                        <div class="modal-body">
+                            <input type="hidden" id="customerIdEdit">
+                            <div class="mt-3">
+                                <label for="namaCustomerEdit" class="form-label fw-bold">Nama Customer</label>
+                                <input type="text" class="form-control" id="namaCustomerEdit" value=""
+                                    placeholder="Masukkan nama customer">
+                                <div id="namaCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama customer
                                 </div>
                             </div>
-                            <button type="button" id="addAlamatButtonEdit" class="btn btn-secondary mt-3"><i
-                                    class="fas fa-plus"></i></button>
-                        </div>
 
-                        <div class="mt-3">
-                            <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
-                            <input type="text" class="form-control" id="noTelponEdit" value=""
-                                placeholder="08**********">
-                            <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
-                                customer
+                            <div class="mt-3">
+                                <label for="metodePengirimanEdit" class="form-label fw-bold">Metode Pengiriman</label>
+                                <select class="form-control" id="metodePengirimanEdit">
+                                    <option value="" selected disabled>Pilih Metode Pengiriman</option>
+                                    <option value="Pickup">Pickup</option>
+                                    <option value="Delivery">Delivery</option>
+                                </select>
+                                <div id="metodePengirimanErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih metode
+                                    pengiriman
+                                </div>
+                            </div>
+
+                            <div id="alamatSectionEdit" style="display: none;">
+                                <div id="alamatContainerEdit">
+                                    <div class="mt-3 alamat-item">
+                                        <label for="alamatCustomerEdit" class="form-label fw-bold">Alamat</label>
+                                        <textarea class="form-control" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                                        <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                                        <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
+                                            style="display: none;"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                                <button type="button" id="addAlamatButtonEdit" class="btn btn-secondary mt-3"><i
+                                        class="fas fa-plus"></i></button>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
+                                <input type="text" class="form-control" id="noTelponEdit" value=""
+                                    placeholder="08**********">
+                                <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
+                                    customer
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="categoryCustomerEdit" class="form-label fw-bold">Category</label>
+                                <select class="form-control" id="categoryCustomerEdit">
+                                    <option value="" selected disabled>Pilih Category Customer</option>
+                                    @foreach ($listCategory as $category)
+                                        <option value="{{ $category->id }}">
+                                            {{ $category->category_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category
+                                    customer
+                                </div>
                             </div>
                         </div>
-
-                        <div class="mt-3">
-                            <label for="categoryCustomerEdit" class="form-label fw-bold">Category</label>
-                            <select class="form-control" id="categoryCustomerEdit">
-                                <option value="" selected disabled>Pilih Category Customer</option>
-                                @foreach ($listCategory as $category)
-                                    <option value="{{ $category->id }}">
-                                        {{ $category->category_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <div id="categoryCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category
-                                customer
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                            <button type="button" id="saveEditCostumer" class="btn btn-primary">Save changes</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveEditCostumer" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
-        </div>
-        <!--End Modal Edit -->
+            <!--End Modal Edit -->
 
 
         <!-- Modal Detail -->
@@ -614,7 +614,7 @@
                 });
 
                 // Menambahkan alamat baru ketika tombol 'Tambah Alamat' ditekan pada modal edit
-                $('#addAlamatButtonEdit').click(function() {
+                $('#addAlamatButtonEdit').off('click').on('click', function() {
                     let alamatContainer = $('#alamatContainerEdit');
                     let newAlamat = `<div class="mt-3 alamat-item">
                             <label for="alamatCustomerEditNew" class="form-label fw-bold">Alamat</label>

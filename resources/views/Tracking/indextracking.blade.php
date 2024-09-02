@@ -3,96 +3,183 @@
 @section('title', 'Tracking')
 
 @section('main')
-<div class="container-fluid" id="container-wrapper">
 
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 px-4">Tracking</h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Tracking</li>
-        </ol>
+<!-- Modal Tambah Tracking -->
+<div class="modal fade" id="modalTambahTracking" tabindex="-1" role="dialog" aria-labelledby="modalTambahTrackingTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahTrackingTitle">Tambah Tracking</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label for="noDeliveryOrder" class="form-label fw-bold">No. Delivery Order</label>
+                    <input type="text" class="form-control" id="noDeliveryOrder" value=""
+                        placeholder="Masukkan No. Delivery Order">
+                    <div id="noDeliveryOrderError" class="text-danger mt-1 d-none">Silahkan isi No. Delivery Order</div>
+                </div>
+                <div class="mt-3">
+                    <label for="status" class="form-label fw-bold">Status</label>
+                    <input type="text" class="form-control" id="status" value=""
+                        placeholder="Masukkan Status">
+                    <div id="statusError" class="text-danger mt-1 d-none">Silahkan isi Status</div>
+                </div>
+                <div class="mt-3">
+                    <label for="keterangan" class="form-label fw-bold">Keterangan</label>
+                    <textarea class="form-control" name="" id="" cols="20" rows="10" placeholder="Masukkan keterangan"></textarea>
+                    <div id="keteranganError" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
+                </div>
+                <div class="mt-3">
+                    <label for="noResi" class="form-label" >No Resi</label>
+                    <input type="text" class="form-control" id="tags" name="noResi"
+                        placeholder="Masukkan Nomor Resi" style="padding: 10px; border-radius: 5px;">
+                    <div id="noResiError" class="text-danger d-none">
+                        Silahkan masukkan Nomor Resi</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                <button type="button" id="saveCostumer" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-xl-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex mb-2 mr-3 float-right">
-                        <button type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Tambah Tracking</button>
-                    </div>
-                    <div id="containerTracking" class="table-responsive px-2">
-                        <table class="table align-items-center table-flush table-hover" id="tableVendor">
+</div>
+<!--End Modal Tambah Tracking-->
+
+    <div class="container-fluid" id="container-wrapper">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800 px-4">Tracking</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Tracking</li>
+            </ol>
+        </div>
+        <div class="row mb-3">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex mb-2 mr-3 float-right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
+                                        class="fas fa-plus"></i></span>Tambah Tracking</button>
+                        </div>
+                        <div id="containerTracking" class="table-responsive px-2">
+                            <table class="table align-items-center table-flush table-hover" id="tableVendor">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>No.</th>
-                                        <th>Judul</th>
-                                        <th>Isi Vendor</th>
-                                        <th>Image</th>
+                                        <th>No. Resi</th>
+                                        <th>No. DO</th>
+                                        <th>Status</th>
+                                        <th>Keterangan</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1.</td>
-                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                        <td>GES293492384</td>
+                                        <td>08339248</td>
+                                        <td>Sedang Perjalanan</td>
+                                        <td>Estimasi Sampai Sekitar 2 Bulan</td>
                                         <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i
+                                            <a href="#" class="btn btn-sm btn-secondary"><i
                                                     class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i
+                                                    class="fas fa-trash"></i></a>
+                                            <a href="#" class="btn btn-sm btn-primary btnGambar"><i
+                                                    class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
-                                    
+
                                 </tbody>
                             </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
-<!-- @section('script')
-<script>
-    $(document).ready(function () {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+ @section('script')
+
+ <script>
+     jQuery(document).ready(function ($) {
+                var tags = $('#tags').inputTags({
+                    tags: [],
+                    create: function () {
+                        $('span', '#events').text('create');
+                    },
+                    update: function () {
+                        $('span', '#events').text('update');
+                    },
+                    destroy: function () {
+                        $('span', '#events').text('destroy');
+                    },
+                    selected: function () {
+                        $('span', '#events').text('selected');
+                    },
+                    unselected: function () {
+                        $('span', '#events').text('unselected');
+                    },
+                    change: function (elem) {
+                        $('.results').empty().html('<strong>Tags:</strong> ' + elem.tags.join(' - '));
+                    },
+                    autocompleteTagSelect: function (elem) {
+                        console.info('autocompleteTagSelect');
+                    }
+                });
+                var autocomplete = $('#tags').inputTags('options', 'autocomplete');
+                $('span', '#autocomplete').text(autocomplete.values.join(', '));
+            });
+ </script>
+
+    {{-- <script>
+        $(document).ready(function() {
+            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        const getlistTracking = () => {
-            const txtSearch = $('#txSearch').val();
+            const getlistTracking = () => {
+                const txtSearch = $('#txSearch').val();
 
-            $.ajax({
-                url: "",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch
-                },
-                beforeSend: () => {
-                    $('#containerTracking').html(loadSpin)
-                }
-            })
-                .done(res => {
-                    $('#containerTracking').html(res)
-                    $('#tableTracking').DataTable({
-                        searching: false,
-                        lengthChange: false,
-                        "bSort": true,
-                        "aaSorting": [],
-                        pageLength: 7,
-                        "lengthChange": false,
-                        responsive: true,
-                        language: {
-                            search: ""
+                $.ajax({
+                        url: "",
+                        method: "GET",
+                        data: {
+                            txSearch: txtSearch
+                        },
+                        beforeSend: () => {
+                            $('#containerTracking').html(loadSpin)
                         }
-                    });
-                })
-        }
+                    })
+                    .done(res => {
+                        $('#containerTracking').html(res)
+                        $('#tableTracking').DataTable({
+                            searching: false,
+                            lengthChange: false,
+                            "bSort": true,
+                            "aaSorting": [],
+                            pageLength: 7,
+                            "lengthChange": false,
+                            responsive: true,
+                            language: {
+                                search: ""
+                            }
+                        });
+                    })
+            }
 
-        getlistTracking();
+            getlistTracking();
 
-    }); -->
-<!-- </script>
-@endsection -->
+        });
+    </script> --}}
+
+    <script>
+        //   $('#addAlamatButton').click(function() {
+
+        //   })
+    </script>
+@endsection
