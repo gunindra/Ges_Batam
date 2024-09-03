@@ -24,7 +24,7 @@
                         <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imageAbout" value="">
                         <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                        <p>Nama Gambar= {{ $aboutData->Image_AboutUs ?? ' -' }}</p>
+                        <p>Nama Gambar= <span id="imageName">{{ $aboutData->Image_AboutUs ?? ' -' }}</span></p>
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
@@ -130,6 +130,7 @@
                                     if (response.data.parafAbout) {
                                         previewContainer.append('<p style="margin-left:30px;">' + response.data.parafAbout + '</p>');
                                     }
+                                    $('#imageName').text(response.data.imageAbout || ' -');
                                 });
                             } else {
                                 Swal.fire({
