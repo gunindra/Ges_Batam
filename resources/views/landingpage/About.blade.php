@@ -20,7 +20,10 @@
     </div>
     @else
     <div class="content-container">
-      <p>No data found for the given ID.</p>
+      <p>-</p>
+      <div class="imageAbout" id="imageAbout">
+        <img src="{{ asset('/img/default.jpg') }}" alt="About Us Image" style="border-radius:30px; height:350px; width:500px;" >
+      </div>
     </div>
     @endif
   </body>

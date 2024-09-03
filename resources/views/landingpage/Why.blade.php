@@ -15,9 +15,16 @@
       </div>
     </div>
     @else
-    <div class="content-container">
-      <p>No data found for the given ID.</p>
+    <div class="content-containerwhy">
+    <div class="imageWhy">
+    <img src="{{ asset('/img/default.jpg') }}" alt="Why Us Image" style="height:350px; width:500px;">
+      </div>
+     
+    <div class="contentwhy">
+      <p>-</p>
     </div>
+    </div>
+    
     @endif
   </body>
 </x-layout>

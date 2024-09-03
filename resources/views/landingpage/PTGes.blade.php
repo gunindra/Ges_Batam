@@ -167,26 +167,26 @@
   </div>
   <!-- About us -->
   <section id="About" class="AboutSection">
-    <div class="containerAbout">
-      <div class="wrapper-About">
-        <div class="content">
-          <div class="heading">
-            <h1 style="font-size:32px;">About Us</h1>
-          </div>
-          <h2>What they say about us</h2>
-          <p id="parafAbout">{{ $aboutus->Paraf_AboutUs ?? '-'}}</p>
-          <a href="/About" class="btn">Learn More</a>
+  <div class="containerAbout">
+    <div class="wrapper-About">
+      <div class="content">
+        <div class="heading">
+          <h1 style="font-size:32px;">About Us</h1>
         </div>
-        <div class="image" id="imageAbout">
-      @if (!empty($aboutus->Image_AboutUs))
-        <img src="{{ asset('storage/images/' . $aboutus->Image_AboutUs) }}" style="border-radius:30px;">
+        <h2>What they say about us</h2>
+        <p id="parafAbout">{{ $aboutus->Paraf_AboutUs ?? '-'}}</p>
+        <a href="/About" class="btn">Learn More</a>
+      </div>
+      <div class="image" id="imageAbout">
+        @if (!empty($aboutus->Image_AboutUs))
+          <img src="{{ asset('storage/images/' . $aboutus->Image_AboutUs) }}" style="border-radius:30px;">
         @else
-        -
-      @endif
-        </div>
+          <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
+        @endif
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- WHY US -->
   <div class="whyus">
@@ -196,7 +196,7 @@
         @if (!empty($whyus->Image_WhyUs))
           <img src="{{ asset('storage/images/' . $whyus->Image_WhyUs) }}" id="imageWhy">
           @else
-          <p style="color:white;">-</p>
+          <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
         @endif
         </div>
         <article>
@@ -211,30 +211,42 @@
   </div>
   <!-- Services -->
   <div class="section" id="Services">
-    <div class="title">
-      <h1>Our Services</h1>
-    </div>
-    <div id="card-area"
-      class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
-      <div class="wrapper">
-        <div class="box-area">
+  <div class="title">
+    <h1>Our Services</h1>
+  </div>
+  <div id="card-area"
+    class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
+    <div class="wrapper">
+      <div class="box-area d-flex justify-content-center align-items-center" style="min-height: 300px;">
+        @if(count($listservices) > 0)
           @foreach($listservices as $service)
-        <div class="box">
-        <img src="{{ asset('storage/images/' . $service->image_service) }}"
-          alt="{{ $service->judul_service ?? '-' }}">
-        <div class="overlay">
-          <h3>{{ $service->judul_service ?? '-'}}</h3>
-          <p>{{ $service->isi_service ?? '-'}}</p>
-          <div class="button-container">
-          <a href="{{ url('/Services?id=' . $service->id) ?? '-'}}" class="btn-modern">Read More</a>
+            <div class="box">
+              <img src="{{ asset('storage/images/' . $service->image_service) }}"
+                alt="{{ $service->judul_service ?? '-' }}">
+              <div class="overlay">
+                <h3>{{ $service->judul_service ?? '-'}}</h3>
+                <p>{{ $service->isi_service ?? '-'}}</p>
+                <div class="button-container">
+                  <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
+                </div>
+              </div>
+            </div>
+          @endforeach
+        @else
+          <div class="box d-flex flex-column justify-content-center align-items-center text-center" style="height: 300px; width: 400px;">
+            <img src="{{ asset('/img/default.jpg') }}" alt="No Image Available" class="mb-3">
+            <div class="overlay">
+              <h3>No Services Available</h3>
+              <p>There are currently no services to display.</p>
+            </div>
           </div>
-        </div>
-        </div>
-      @endforeach
-        </div>
+        @endif
       </div>
     </div>
   </div>
+</div>
+
+
 
   <!-- iklan slide -->
   <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}">
