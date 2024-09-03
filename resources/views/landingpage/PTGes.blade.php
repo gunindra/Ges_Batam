@@ -67,7 +67,7 @@
     <div id="carouselExampleCaptions" class="carousel slide">
       <div class="carousel-inner">
         <div class="carousel-item active">
-          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/no-image.png') }}"
+          <img class="d-block w-100 carousel-image" src="img/Default.jpg"
           alt="No Image">
           <div class="carousel-caption">
             <h5 id="judulCarousel">No Image Available</h5>
@@ -83,22 +83,36 @@
   <div class="main">
     <!-- Gallery -->
     <div class="wrapperGallery @if(count($listinformation) == 1) single-gallery @endif">
-      <h1 class="section-header">Information</h1>
-      <div class="main-content">
-        @foreach($listinformation as $info)
+  <h1 class="section-header">Information</h1>
+  <div class="main-content">
+    @if(count($listinformation) > 0)
+      @foreach($listinformation as $info)
+        <div class="box-gallery">
+          <img src="{{ asset('storage/images/' . $info->image_informations) }}"
+          alt="{{ $info->judul_informations ?? '-'}}">
+          <div class="img-text">
+            <div class="contentGallery">
+              <h2>{{ $info->judul_informations ?? '-'}}</h2>
+              <p>{{ $info->isi_informations ?? '-'}}</p>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    @else
+    <div class="main-content">
       <div class="box-gallery">
-        <img src="{{ asset('storage/images/' . $info->image_informations) }}"
-        alt="{{ $info->judul_informations ?? '-'}}">
+        <img src="{{ asset('/img/Noimage.png') }}" alt="No Image Available">
         <div class="img-text">
-        <div class="contentGallery">
-          <h2>{{ $info->judul_informations ?? '-'}}</h2>
-          <p>{{ $info->isi_informations ?? '-'}}</p>
-        </div>
+          <div class="contentGallery">
+            <h2>No Information Available</h2>
+            <p>There is no information to display.</p>
+          </div>
         </div>
       </div>
-    @endforeach
-      </div>
-    </div>
+    @endif
+  </div>
+</div>
+
     {{-- <div class="box">
       <img src="" alt="">
       <div class="img-text">
