@@ -4,6 +4,7 @@
     @endpush
     @stack('styles')
     @section('title', 'PT. GES | Tracking')
+
     <body class="navigasi-page">
         <div class="Judul">
             <div class="container" style="padding-top: 100px; padding-bottom: 100px">
@@ -14,7 +15,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <!-- Section Masukkan Resi -->
-                                    <div class="col-6">
+                                    <div class="col-8">
                                         <div class="d-flex align-items-center">
                                             <h1 style="font-size: 2rem; font-weight: bold;">Tracking Resi</h1>
                                         </div>
@@ -24,8 +25,8 @@
                                                 <div class="mt-1">
                                                     <label for="tags" class="form-label"
                                                         style="font-weight: bold;">Masukkan No Resi</label>
-                                                    <input type="text" class="form-control" id="tags"  name="tags"
-                                                        placeholder="Masukkan nomor resi"
+                                                    <input type="text" class="form-control" id="tags"
+                                                        name="tags" placeholder="Masukkan nomor resi"
                                                         style="padding: 10px; border-radius: 5px;">
                                                     <div id="err-tags" class="text-danger d-none" style="color: red;">
                                                         Silahkan Masukkan Nomor Resi</div>
@@ -38,6 +39,23 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div id="trackingTableContainer" class="row mt-4 d-none">
+                                        <div class="col-12">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No. Resi</th>
+                                                        <th>No. DO</th>
+                                                        <th>Status</th>
+                                                        <th>Keterangan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="trackingTableBody">
+                                                    <!-- Data akan ditambahkan di sini melalui JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -48,123 +66,85 @@
         </div>
 
         @section('script')
-        <script>
-            $(document).ready(function () {
-                $('#btnLacak').click(function () {
-                    let noresi = $('#tags').val();
-
-                    if (noresi === '') {
-                        $('#err-tags').removeClass('d-none');
-                        return;
-                    } else {
-                        $('#err-tags').addClass('d-none');
-                    }
-
-                    $.ajax({
-                        type: "GET",
-                        url: "{{ route('lacakResi') }}",
-                        data: {
-                            noresi: noresi
+            <script>
+                $(document).ready(function() {
+                    $('#tags').inputTags({
+                        tags: [],
+                        autocomplete: {
+                            values: []
                         },
-                        success: function (response) {
-                            let contentHTML = '';
-
-                            if (response.length > 0) {
-                                let data = response[0];
-
-                                contentHTML = `
-                        <div style="display: flex; justify-content: space-between;">
-                            ${data.no_resi ? `
-                                            <div style="flex: 1;">
-                                                <label class="form-label" style="font-weight: bold;">No Resi :</label>
-                                                <p style="font-weight: bold;">${data.no_resi}</p>
-                                            </div>
-                                            ` : ''}
-                            ${data.nama_pembeli ? `
-                                            <div style="flex: 1;">
-                                                <label class="form-label" style="font-weight: bold;">Customer :</label>
-                                                <p style="font-weight: bold;">${data.nama_pembeli}</p>
-                                            </div>
-                                            ` : ''}
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                            ${data.status_name ? `
-                                            <div style="flex: 1;">
-                                                <label class="form-label" style="font-weight: bold;">Status :</label>
-                                                <span style="display: inline-block; background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 5px;">${data.status_name}</span>
-                                            </div>
-                                            ` : ''}
-                            ${data.nama_supir ? `
-                                            <div style="flex: 1;">
-                                                <label class="form-label" style="font-weight: bold;">Nama Driver :</label>
-                                                <p style="font-weight: bold;">${data.nama_supir}</p>
-                                            </div>
-                                            ` : ''}
-                        </div>
-                        ${data.full_address || data.alamat ? `
-                                        <div style="margin-top: 20px;">
-                                            <label class="form-label" style="font-weight: bold;">Alamat :</label>
-                                            <p style="font-weight: bold;">${data.alamat ? data.alamat : ''}${data.full_address ? `, ${data.full_address}` : ''}</p>
-                                        </div>
-                                        ` : ''}
-                        ${data.no_wa ? `
-                                        <div style="margin-top: 10px;">
-                                            <label class="form-label" style="font-weight: bold;">No. Telepon :</label>
-                                            <p style="font-weight: bold;">${data.no_wa}</p>
-                                        </div>
-                                        ` : ''}
-                    `;
-                            } else {
-                                contentHTML = `
-                        <div class="alert alert-danger" role="alert" style="padding: 10px; border-radius: 5px;">
-                            Data tidak ditemukan untuk nomor resi <strong>"${noresi}"</strong>.
-                        </div>
-                    `;
-                            }
-
-                            $('#trackingInfo').html(contentHTML);
+                        create: function() {
+                            $('span', '#events').text('create');
                         },
-                        error: function () {
-                            showMessage("error", "Terjadi kesalahan, coba lagi nanti.");
+                        update: function() {
+                            $('span', '#events').text('update');
+                        },
+                        destroy: function() {
+                            $('span', '#events').text('destroy');
+                        },
+                        selected: function() {
+                            $('span', '#events').text('selected');
+                        },
+                        unselected: function() {
+                            $('span', '#events').text('unselected');
+                        },
+                        change: function(elem) {
+                            $('.results').empty().html('<strong>Tags:</strong> ' + elem.tags.join(', '));
                         }
                     });
+
+                    $('#btnLacak').click(function() {
+                        let noresiTags = $('#tags').val().trim();
+                        if (noresiTags === '') {
+                            $('#err-tags').removeClass('d-none');
+                            return;
+                        } else {
+                            $('#err-tags').addClass('d-none');
+                        }
+                        $.ajax({
+                            type: "GET",
+                            url: "{{ route('lacakResi') }}",
+                            data: {
+                                noresiTags: noresiTags
+                            },
+                            success: function(response) {
+                                let tableBody = $('#trackingTableBody');
+                                tableBody.empty();
+
+                                if (response.length > 0) {
+                                    response.forEach(function(item) {
+                                        let row = `<tr>
+                        <td>${item.no_resi}</td>
+                        <td>${item.no_do}</td>
+                        <td>${item.status}</td>
+                        <td>${item.keterangan}</td>
+                        `;
+                                        tableBody.append(row);
+                                    });
+
+                                    $('#trackingTableContainer').removeClass('d-none');
+                                } else {
+                                    $('#trackingTableContainer').removeClass(
+                                    'd-none'); // Pastikan container tetap muncul meski data kosong
+
+                                    let emptyRow =
+                                        `<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>`;
+                                    tableBody.append(emptyRow);
+                                }
+                            },
+                            error: function() {
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti.");
+                            }
+                        });
+                    });
+
                 });
-            });
-            jQuery(document).ready(function ($) {
-                var tags = $('#tags').inputTags({
-                    tags: [],
-                    create: function () {
-                        $('span', '#events').text('create');
-                    },
-                    update: function () {
-                        $('span', '#events').text('update');
-                    },
-                    destroy: function () {
-                        $('span', '#events').text('destroy');
-                    },
-                    selected: function () {
-                        $('span', '#events').text('selected');
-                    },
-                    unselected: function () {
-                        $('span', '#events').text('unselected');
-                    },
-                    change: function (elem) {
-                        $('.results').empty().html('<strong>Tags:</strong> ' + elem.tags.join(' - '));
-                    },
-                    autocompleteTagSelect: function (elem) {
-                        console.info('autocompleteTagSelect');
-                    }
-                });
-                var autocomplete = $('#tags').inputTags('options', 'autocomplete');
-                $('span', '#autocomplete').text(autocomplete.values.join(', '));
-            });
-        </script>
-         @push('scripts')
-            <script src="{{ asset('js/index.js') }}"></script>
-            <script src="{{ asset('js/jquery.inputTags.min.js') }}"></script>
-        @endpush
-        @stack('scripts')
+            </script>
+            @push('scripts')
+                <script src="{{ asset('js/index.js') }}"></script>
+            @endpush
+            @stack('scripts')
         @endsection
-       
+
     </body>
-    </x-layout>
+</x-layout>
