@@ -167,7 +167,7 @@
       @if (!empty($aboutus->Image_AboutUs))
         <img src="{{ asset('storage/images/' . $aboutus->Image_AboutUs) }}" style="border-radius:30px;">
         @else
-        Gambar tidak ada
+        -
       @endif
         </div>
       </div>
@@ -182,7 +182,7 @@
         @if (!empty($whyus->Image_WhyUs))
           <img src="{{ asset('storage/images/' . $whyus->Image_WhyUs) }}" id="imageWhy">
           @else
-          <p style="color:white;">Gambar tidak ada</p>
+          <p style="color:white;">-</p>
         @endif
         </div>
         <article>

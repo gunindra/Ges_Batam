@@ -92,10 +92,10 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Invoice</h1>
+            <h1 class="h3 mb-0 text-gray-800">Payment</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Costumer</li>
-                <li class="breadcrumb-item active" aria-current="page">Invoice</li>
+                <li class="breadcrumb-item active" aria-current="page">Payment</li>
             </ol>
         </div>
 

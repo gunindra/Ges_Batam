@@ -249,6 +249,12 @@
                             <option value="0">Non Active</option>
                         </select>
                     </div>
+                    <div class="float-left ps-4">
+                    <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                                    onclick="window.location.reload()">
+                                    Reset
+                                </button>
+                    </div>
                     <div id="containerCustomer" class="table-responsive px-3">
                         {{-- <table class="table align-items-center table-flush table-hover" id="tableCostumer">
                             <thead class="thead-light">
