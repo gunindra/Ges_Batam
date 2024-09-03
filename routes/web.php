@@ -25,6 +25,7 @@ use App\Http\Controllers\{
     RekeningController,
     ProfileController,
     PickupController,
+    PaymentController,
     VendorController,
     PopupController,
     TrackingsController,
@@ -108,6 +109,11 @@ Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name(
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
 Route::get('/pickup/getlistPickup', [PickupController::class, 'getlistPickup'])->name('getlistPickup');
 Route::post('/pickup/acceptPickup', [PickupController::class, 'acceptPickup'])->name('acceptPickup');
+
+// Pembayaran
+Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
+Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
+
 
 // Popup
 Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');

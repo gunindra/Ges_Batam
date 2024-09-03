@@ -35,6 +35,8 @@
                             href="{{ route('delivery') }}">Delivery</a>
                         <a class="collapse-item {{ request()->routeIs('pickup') ? 'active' : '' }}"
                             href="{{ route('pickup') }}">Pickup</a>
+                        <a class="collapse-item {{ request()->routeIs('payment') ? 'active' : '' }}"
+                            href="{{ route('payment') }}">Payment</a>
                     </div>
                 </div>
             </li>
