@@ -59,6 +59,9 @@ class InformationsController extends Controller
     }
     public function addInformations(Request $request)
     {
+        $request->validate([
+            'imageInformations' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
 
         $judulInformations = $request->input('judulInformations');
         $isiInformations = $request->input('isiInformations');
@@ -109,6 +112,9 @@ class InformationsController extends Controller
 
     public function updateInformations(Request $request)
     {
+        $request->validate([
+            'imageInformations' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
         $id = $request->input('id');
         $judulInformations = $request->input('judulInformations');
         $isiInformations = $request->input('isiInformations');

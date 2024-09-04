@@ -16,6 +16,9 @@ class PopupController extends Controller
 
  public function addPopup(Request $request)
 {
+    $request->validate([
+        'imagePopup' => 'nullable|mimes:jpg,jpeg,png,svg|max:2048', 
+    ]);
     $judulPopup = $request->input('judulPopup');
     $parafPopup = $request->input('parafPopup');
     $linkPopup = $request->input('linkPopup');

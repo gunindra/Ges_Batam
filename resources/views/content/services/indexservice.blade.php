@@ -197,8 +197,15 @@
             } else {
                 $('#isiServiceError').addClass('d-none');
             }
-
-            if (!imageService) {
+            if (imageService) {
+            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
+            if (!validExtensions.includes(imageService.type)) {
+                $('#imageServiceError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                isValid = false;
+            }else {
+                $('#imageServiceError').addClass('d-none');
+            }
+        }else if (!imageService) {
                 $('#imageServiceError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -289,8 +296,15 @@
                     $('#isiServiceErrorEdit').addClass('d-none');
                 }
 
-                // Validasi Gambar (hanya jika file gambar diubah)
-                if (imageService === 0 && $('#textNamaEdit').text() === '') {
+                        if (imageService) {
+                    var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
+                    if (!validExtensions.includes(imageService.type)) {
+                        $('#imageServiceErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        isValid = false;
+                    }else {
+                        $('#imageServiceErrorEdit').addClass('d-none');
+                    }
+                }else if (imageService === 0 && $('#textNamaEdit').text() === '') {
                     $('#imageServiceErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {

@@ -16,12 +16,15 @@ class AboutController extends Controller
 
     public function addAbout(Request $request)
     {
+        $request->validate([
+            'imageAbout' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
         $parafAbout = $request->input('parafAbout');
         $imageAbout = $request->file('imageAbout');
         
         try {
             $existingData = DB::table('tbl_aboutus')->first();
-            $fileName = $existingData ? $existingData->Image_AboutUs : null; // Pertahankan gambar yang ada
+            $fileName = $existingData ? $existingData->Image_AboutUs : null; 
     
             if ($imageAbout) {
                 $fileName = 'AboutUs_' . $imageAbout->getClientOriginalName();

@@ -176,8 +176,15 @@
             } else {
                 $('#judulIklanError').addClass('d-none');
             }
-
-            if (!imageIklan) {
+            if (imageIklan) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
+                if (!validExtensions.includes(imageIklan.type)) {
+                    $('#imageIklanError').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageIklanError').addClass('d-none');
+                }
+            }else if (!imageIklan) {
                 $('#imageIklanError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -266,8 +273,15 @@
                     $('#judulIklanErrorEdit').addClass('d-none');
                 }
 
-                // Validasi Gambar (hanya jika file gambar diubah)
-                if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
+                if (imageIklan) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png','image/svg+xml'];
+                if (!validExtensions.includes(imageIklan.type)) {
+                    $('#imageIklanErrorEdit').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageIklanErrorEdit').addClass('d-none');
+                }
+        }else if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
                     $('#imageIklanErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {

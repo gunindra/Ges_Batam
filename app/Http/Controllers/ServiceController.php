@@ -65,6 +65,9 @@ class ServiceController extends Controller
 
     public function addService(Request $request)
     {
+        $request->validate([
+            'imageService' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
 
         $judulService = $request->input('judulService');
         $isiService = $request->input('isiService');
@@ -109,6 +112,9 @@ class ServiceController extends Controller
 
     public function updateService(Request $request)
     {
+        $request->validate([
+            'imageService' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
         $id = $request->input('id');
         $judulService= $request->input('judulService');
         $isiService = $request->input('isiService');

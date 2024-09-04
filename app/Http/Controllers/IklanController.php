@@ -60,6 +60,9 @@ class IklanController extends Controller
     }
     public function addIklan(Request $request)
     {
+        $request->validate([
+            'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|max:2048', 
+        ]);
 
         $judulIklan = $request->input('judulIklan');
         $imageIklan = $request->file('imageIklan');
@@ -106,6 +109,10 @@ class IklanController extends Controller
     }
     public function updateIklan(Request $request)
     {
+        $request->validate([
+            'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|max:2048', 
+        ]);
+
         $id = $request->input('id');
         $judulIklan = $request->input('judulIklan');
         $imageIklan = $request->file('imageIklan');

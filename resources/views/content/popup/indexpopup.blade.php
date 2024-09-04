@@ -121,7 +121,15 @@
             } else {
                 $('#linkPopupError').addClass('d-none');
             }
-            if (!imagePopup && !$('#previewContainer img').length) {
+            if (imagePopup) {
+            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png','image/svg+xml']; 
+            if (!validExtensions.includes(imagePopup.type)) {
+                $('#imagePopupError').text('Hanya file JPG , JPEG , SVG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                isValid = false;
+            }else {
+                $('#imagePopupError').addClass('d-none');
+            }
+        }else if (!imagePopup && !$('#previewContainer img').length) {
                 $('#imagePopupError').removeClass('d-none');
                 isValid = false;
             } else {

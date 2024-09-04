@@ -65,7 +65,7 @@
 
 @section('script')
 <script>
-   $(document).ready(function() {
+  $(document).ready(function() {
     $(document).on('click', '#saveAbout', function(e) {
         e.preventDefault();
 
@@ -82,7 +82,16 @@
             $('#parafAboutError').addClass('d-none');
         }
 
-        if (!imageAbout && !$('#previewContainer img').length) {
+        // Check if imageAbout is empty or not valid
+        if (imageAbout) {
+            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
+            if (!validExtensions.includes(imageAbout.type)) {
+                $('#imageAboutError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageAboutError').addClass('d-none');
+            }
+        } else if (!$('#previewContainer img').length) {
             $('#imageAboutError').removeClass('d-none');
             isValid = false;
         } else {
@@ -153,12 +162,13 @@
         } else {
             Swal.fire({
                 title: "Periksa Input",
-                text: "Tolong periksa input yang kosong",
+                text: "Tolong periksa input yang kosong atau tidak valid",
                 icon: "warning"
             });
         }
     });
 });
+
 
 
 

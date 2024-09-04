@@ -16,6 +16,9 @@ class WhyController extends Controller
 
     public function addWhy(Request $request)
     {
+        $request->validate([
+            'imageWhy' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+        ]);
         $parafWhy = $request->input('parafWhy');
         $imageWhy = $request->file('imageWhy');
     

@@ -80,7 +80,15 @@ $(document).ready(function() {
         } else {
             $('#parafWhyError').addClass('d-none');
         }
-        if (!imageWhy && !$('#previewContainer img').length) {
+        if (imageWhy) {
+            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
+            if (!validExtensions.includes(imageWhy.type)) {
+                $('#imageWhyError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageWhyError').addClass('d-none');
+            }
+        } else if (!$('#previewContainer img').length) {
             $('#imageWhyError').removeClass('d-none');
             isValid = false;
         } else {
@@ -152,7 +160,7 @@ $(document).ready(function() {
         } else {
             Swal.fire({
                 title: "Periksa Input",
-                text: "Tolong periksa input yang kosong",
+                text: "Tolong periksa input yang kosong atau tidak valid",
                 icon: "warning"
             });
         }
