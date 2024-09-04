@@ -30,7 +30,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="keterangan" class="form-label fw-bold">Keterangan</label>
-                        <textarea class="form-control" name="keterangan" id="keterangan" cols="20" rows="10"
+                        <textarea class="form-control" name="keterangan" id="keterangan"  rows="5"
                             placeholder="Masukkan keterangan"></textarea>
                         <div id="keteranganError" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
                     </div>
@@ -73,7 +73,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="keteranganEdit" class="form-label fw-bold">Keterangan</label>
-                        <textarea class="form-control" name="keteranganEdit" id="keteranganEdit" cols="20" rows="10"
+                        <textarea class="form-control" name="keteranganEdit" id="keteranganEdit"  rows="5"
                             placeholder="Masukkan keterangan"></textarea>
                         <div id="keteranganErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
                     </div>
@@ -102,6 +102,10 @@
                             <button type="button" class="btn btn-primary" data-toggle="modal"
                                 data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Tracking</button>
+                        </div>
+                        <div class="float-left">
+                        <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                        class="form-control rounded-3" placeholder="Search">
                         </div>
                         <div id="containerTracking" class="table-responsive px-2">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableVendor">
@@ -207,6 +211,13 @@
         }
 
         getlistTracking();
+
+        $('#txSearch').keyup(function(e) {
+                var inputText = $(this).val();
+                if (inputText.length >= 1 || inputText.length == 0) {
+                    getlistTracking();
+                }
+            });
 
         $('#saveTracking').click(function() {
 

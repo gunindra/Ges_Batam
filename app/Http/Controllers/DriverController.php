@@ -59,6 +59,9 @@ class DriverController extends Controller
 
     public function addDriver(Request $request)
     {
+        $request->validate([
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png|', 
+        ]);
 
         $namaDriver = $request->input('namaDriver');
         $alamatDriver = $request->input('alamatDriver');
@@ -89,6 +92,10 @@ class DriverController extends Controller
 
     public function updateDriver(Request $request)
     {
+        $request->validate([
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png|', 
+        ]);
+
         $id = $request->input('id');
         $namaDriver = $request->input('namaDriver');
         $alamatDriver = $request->input('alamatDriver');

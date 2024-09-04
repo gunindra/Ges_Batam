@@ -62,7 +62,7 @@ class CarouselController extends Controller
     public function addCarousel(Request $request)
     {
         $request->validate([
-            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
         $judulCarousel = $request->input('judulCarousel');
@@ -106,7 +106,7 @@ class CarouselController extends Controller
     public function updateCarousel(Request $request)
     {
         $request->validate([
-            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
         $id = $request->input('id');
         $judulCarousel = $request->input('judulCarousel');

@@ -17,7 +17,7 @@ class AboutController extends Controller
     public function addAbout(Request $request)
     {
         $request->validate([
-            'imageAbout' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+            'imageAbout' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
         $parafAbout = $request->input('parafAbout');
         $imageAbout = $request->file('imageAbout');

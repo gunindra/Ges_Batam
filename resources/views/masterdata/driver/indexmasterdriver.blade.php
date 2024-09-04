@@ -149,8 +149,8 @@
                                     class="fas fa-plus"></i></span>Tambah Driver</button>
                     </div>
                     <div class="float-left">
-                            <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
-                                class="form-control rounded-3" placeholder="Search">
+                        <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                            class="form-control rounded-3" placeholder="Search">
                     </div>
                     <div id="containerDriver" class="table-responsive px-3">
                         {{-- <table class="table align-items-center table-flush table-hover" id="tableDriver">
@@ -242,8 +242,8 @@
         }
 
         getListDriver();
-        
-        $('#txSearch').keyup(function(e) {
+
+        $('#txSearch').keyup(function (e) {
             var inputText = $(this).val();
             if (inputText.length >= 1 || inputText.length == 0) {
                 getListDriver();
@@ -285,8 +285,15 @@
                 $('#err-noTelponDriver').addClass('d-none');
             }
 
-
-            if (!simDriver) {
+            if (simDriver) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(simDriver.type)) {
+                    $('#simDriverError').text('Hanya file JPG , JPEG  atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#simDriverError').addClass('d-none');
+                }
+            } else if (!simDriver) {
                 $('#simDriverError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -434,54 +441,62 @@
                     $('#err-noTelponDriverEdit').addClass('d-none');
                 }
 
-
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('namaDriver', namaDriver);
-                            formData.append('alamatDriver', alamatDriver);
-                            formData.append('noTelponDriver', noTelponDriver);
-                            formData.append('simDriverEdit', simDriverEdit);
-                            formData.append('_token', csrfToken);
-
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateDriver') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getListDriver();
-                                        $('#modalEditDriver').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+                if (simDriver) {
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validExtensions.includes(simDriver.type)) {
+                        $('#simDriverEditError').text('Hanya file JPG , JPEG  atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#simDriverEditError').addClass('d-none');
+                    }
                 }
-            })
+                    if (isValid) {
+                        Swal.fire({
+                            title: "Apakah Kamu Yakin?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                let formData = new FormData();
+                                formData.append('id', id);
+                                formData.append('namaDriver', namaDriver);
+                                formData.append('alamatDriver', alamatDriver);
+                                formData.append('noTelponDriver', noTelponDriver);
+                                formData.append('simDriverEdit', simDriverEdit);
+                                formData.append('_token', csrfToken);
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{{ route('updateDriver') }}",
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (response) {
+                                        if (response.status === 'success') {
+                                            showMessage("success",
+                                                "Data Berhasil Diubah");
+                                            getListDriver();
+                                            $('#modalEditDriver').modal(
+                                                'hide');
+                                        } else {
+                                            Swal.fire({
+                                                title: "Gagal Menambahkan",
+                                                icon: "error"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        showMessage("error", "Mohon periksa input yang kosong");
+                    }
+                })
 
             // validateInformationsInput('modalEditInformations');
             $('#modalEditDriver').modal('show');

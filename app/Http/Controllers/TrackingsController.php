@@ -19,7 +19,11 @@ class TrackingsController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT * FROM tbl_tracking";
+        $q = "SELECT * FROM tbl_tracking
+             WHERE (
+                UPPER(no_resi) LIKE UPPER('$txSearch')
+                OR UPPER(no_do) LIKE UPPER('$txSearch')
+                )";
 
         $data = DB::select($q);
 

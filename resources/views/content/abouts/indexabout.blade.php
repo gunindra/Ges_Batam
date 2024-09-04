@@ -4,6 +4,8 @@
 
 @section('main')
 
+<link href="{{ asset('/css/styleckeditor.css') }}" rel="stylesheet">
+
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -60,9 +62,9 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('/js/main.js') }}"></script>
 <!---Container Fluid-->
 @endsection
-
 @section('script')
 <script>
   $(document).ready(function() {
@@ -167,9 +169,16 @@
             });
         }
     });
+
 });
 
-
+document.addEventListener("DOMContentLoaded", function() {
+    ClassicEditor
+        .create(document.querySelector('#parafAbout'))
+        .catch(error => {
+            console.error(error);
+        });
+});
 
 
 </script>

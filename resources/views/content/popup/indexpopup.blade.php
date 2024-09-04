@@ -122,14 +122,14 @@
                 $('#linkPopupError').addClass('d-none');
             }
             if (imagePopup) {
-            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png','image/svg+xml']; 
-            if (!validExtensions.includes(imagePopup.type)) {
-                $('#imagePopupError').text('Hanya file JPG , JPEG , SVG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
-                isValid = false;
-            }else {
-                $('#imagePopupError').addClass('d-none');
-            }
-        }else if (!imagePopup && !$('#previewContainer img').length) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
+                if (!validExtensions.includes(imagePopup.type)) {
+                    $('#imagePopupError').text('Hanya file JPG , JPEG , SVG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imagePopupError').addClass('d-none');
+                }
+            } else if (!imagePopup && !$('#previewContainer img').length) {
                 $('#imagePopupError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -159,7 +159,7 @@
                             <p style="padding-left:30px;">${response.data.parafPopup}</p>
                             <p class="text-primary" style="padding-left:30px;">${response.data.linkPopup}</p>
                         `);
-                            $('#destroyPopup').data('id', response.data.id); 
+                            $('#destroyPopup').data('id', response.data.id);
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Data Saved',
@@ -224,7 +224,7 @@
                                 $('#imagePopup').val('');
                                 $('#previewContainer').html('<p class="p-3">No content available</p>');
                                 $('#textNamaEdit').text('Belum ada gambar');
-                                $('#destroyPopup').data('id', ''); 
+                                $('#destroyPopup').data('id', '');
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Berhasil',
