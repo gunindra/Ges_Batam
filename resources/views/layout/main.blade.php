@@ -51,8 +51,8 @@
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Vendor</h6>
-                        <a class="collapse-item {{ request()->routeIs('vendor') ? 'active' : '' }}"
-                            href="{{ route('vendor') }}">Vendor</a>
+                        <a class="collapse-item {{ request()->routeIs('supplierInvoice') ? 'active' : '' }}"
+                            href="{{ route('supplierInvoice') }}">Invoice</a>
                     </div>
                 </div>
             </li>
@@ -110,6 +110,11 @@
                             href="{{ route('pembagirate') }}">Rate</a>
                         <a class="collapse-item {{ request()->routeIs('category') ? 'active' : '' }}"
                             href="{{ route('category') }}">Category</a>
+                        <a class="collapse-item {{ request()->routeIs('role') ? 'active' : '' }}"
+                            href="{{ route('role') }}">Role</a>
+                        <a class="collapse-item {{ request()->routeIs('user') ? 'active' : '' }}"
+                            href="{{ route('user') }}">User</a>
+                       
                     </div>
                 </div>
             </li>

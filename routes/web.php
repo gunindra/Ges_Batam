@@ -26,7 +26,9 @@ use App\Http\Controllers\{
     ProfileController,
     PickupController,
     PaymentController,
-    VendorController,
+    SupplierInvoiceController,
+    UserController,
+    RoleController,
     PopupController,
     TrackingsController,
     CategoryController
@@ -85,9 +87,6 @@ Route::get('/booking/dataBookingForm', [BookingController::class, 'dataBookingFo
 
 // Delivery
 Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
-Route::get('/delivery/addDelivery', [DeliveryController::class, 'addDelivery'])->name('addDelivery');
-Route::post('/delivery/addDelivery', [DeliveryController::class, 'cekResi'])->name('cekResi');
-Route::post('/delivery/buatDelivery', [DeliveryController::class, 'buatDelivery'])->name('buatDelivery');
 Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
 Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
 Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
@@ -201,8 +200,17 @@ Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate']
 Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
 Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
+//user
+Route::get('/masterdata/user', [UserController::class, 'index'])->name('user');
+Route::get('/masterdata/user/list', [UserController::class, 'getlistUser'])->name('getlistUser');
+
+//role
+Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
+
 // Vendor
-Route::get('/vendor', [VendorController::class, 'index'])->name('vendor');
+Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
+Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
+
 
 //Tracking
 Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
