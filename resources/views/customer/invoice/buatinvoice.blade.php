@@ -106,6 +106,24 @@
             transform: translateX(20px);
             /* Adjusted translation */
         }
+
+        #pickupDelivery h2 {
+            font-size: 2rem;
+            color: #298be2;
+            font-weight: bold;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
     </style>
 
 
@@ -144,17 +162,6 @@
                                         placeholder="Pilih tanggal">
                                     <div id="tanggalError" class="text-danger mt-1 d-none">Tanggal tidak boleh kosong</div>
                                 </div>
-                                <div class="mt-3">
-                                    <label for="customer" class="form-label fw-bold col-12">Customer</label>
-                                    <select class="form-control select2singgle" id="selectCostumer" style="width: 67%">
-                                        <option value="" selected disabled>Pilih Customer</option>
-                                        @foreach ($listPembeli as $pembeli)
-                                            <option value="{{ $pembeli->id }}">
-                                                {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Customer</div>
-                                </div>
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
@@ -177,9 +184,38 @@
                                     <div id="rateCurrencyError" class="text-danger mt-1 d-none">Rate tidak boleh kosong
                                     </div>
                                 </div>
-
                             </div>
                         </div>
+                        <div class="divider mt-4">
+                            <span>Costumer</span>
+                        </div>
+                        <div class="d-flex">
+                            <div class="col-6">
+                                <div class="mt-3">
+                                    <label for="customer" class="form-label fw-bold col-12">Customer</label>
+                                    <select class="form-control select2singgle" id="selectCostumer" style="width: 67%">
+                                        <option value="" selected disabled>Pilih Customer</option>
+                                        @foreach ($listPembeli as $pembeli)
+                                            <option value="{{ $pembeli->id }}"
+                                                data-metode="{{ $pembeli->metode_pengiriman }}"
+                                                data-alamat="{{ $pembeli->alamat }}"
+                                                data-jumlahalamat="{{ $pembeli->jumlah_alamat }}">
+                                                {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Customer</div>
+                                </div>
+                                <div class="mt-3" id="alamatContainer"></div>
+
+                            </div>
+                            <div class="col-6">
+                                <div class="mt-5" id="pickupDelivery" style="display: none;">
+                                    <h2></h2>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="divider mt-4">
                             <span>Detail Barang</span>
                         </div>
@@ -255,12 +291,12 @@
                                         <select class="form-control" id="rateVolume">
                                             <option value="" selected disabled>Pilih Rate</option>
                                             @foreach ($listRateVolume as $rate)
-                                            @if ($rate->rate_for == 'Volume')
-                                                <option value="{{ $rate->nilai_rate }}">
-                                                    {{ number_format($rate->nilai_rate, 0, ',', '.') }}
-                                                </option>
-                                            @endif
-                                        @endforeach
+                                                @if ($rate->rate_for == 'Volume')
+                                                    <option value="{{ $rate->nilai_rate }}">
+                                                        {{ number_format($rate->nilai_rate, 0, ',', '.') }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
                                         </select>
                                         <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
                                         </div>
@@ -268,11 +304,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="divider mt-4">
+                        {{-- <div class="divider mt-4">
                             <span>Pengiriman</span>
-                        </div>
-                        <div class="d-flex flex-row">
-                            <!-- Left Column: Delivery Method -->
+                        </div> --}}
+                        {{-- <div class="d-flex flex-row">
+
                             <div class="col-4">
                                 <div class="mt-3">
                                     <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
@@ -287,7 +323,7 @@
                                 </div>
                             </div>
 
-                            <!-- Middle Column: Driver and Address -->
+
                             <div class="col-4">
                                 <div class="mt-3" id="driverSection" style="display: none;">
                                     <label for="driver" class="form-label fw-bold col-12">Driver</label>
@@ -303,15 +339,14 @@
                                 </div>
                                 <div class="mt-3" id="alamatSection" style="display: none;">
                                     <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
-                                    {{-- <input type="text" class="form-control" id="alamat" style="width: 100%"
-                                        value="" placeholder="Masukkan Alamat Tujuan"> --}}
+
                                     <textarea type="text" class="form-control" id="alamat" style="width: 100%" value=""
                                         placeholder="Masukkan Alamat Tujuan" cols="30" rows="10"></textarea>
                                     <div id="alamatError" class="text-danger mt-1 d-none">Alamat tidak boleh kosong</div>
                                     <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
                                     <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
                                         <option value="" selected disabled>Pilih Provinsi</option>
-                                        <!-- Options will be populated dynamically -->
+
                                     </select>
                                     <div id="provinsiError" class="text-danger mt-1 d-none">Provinsi tidak boleh kosong
                                     </div>
@@ -320,21 +355,20 @@
 
                             </div>
 
-                            <!-- Right Column: Location Details -->
                             <div class="col-4">
                                 <div class="mt-3" id="lokasiSection" style="display: none;">
                                     <label for="kota" class="form-label fw-bold mt-2">Kota / Kabupaten</label>
                                     <select class="form-control select2singgle col-8" id="kabupatenKota"
                                         style="width: 100%">
                                         <option value="" selected disabled>Pilih Kabupaten/Kota</option>
-                                        <!-- Options will be populated dynamically -->
+
                                     </select>
                                     <div id="kotaError" class="text-danger mt-1 d-none">Kota/Kab tidak boleh kosong</div>
 
                                     <label for="kecamatan" class="form-label fw-bold mt-2">Kecamatan</label>
                                     <select class="form-control select2singgle col-8" id="kecamatan" style="width: 100%">
                                         <option value="" selected disabled>Pilih Kecamatan</option>
-                                        <!-- Options will be populated dynamically -->
+
                                     </select>
                                     <div id="kecamatanError" class="text-danger mt-1 d-none">Kecamatan tidak boleh kosong
                                     </div>
@@ -342,14 +376,14 @@
                                     <label for="kelurahan" class="form-label fw-bold">Kelurahan</label>
                                     <select class="form-control select2singgle col-8" id="kelurahan" style="width: 100%">
                                         <option value="" selected disabled>Pilih Kelurahan</option>
-                                        <!-- Options will be populated dynamically -->
+
                                     </select>
                                     <div id="kelurahanError" class="text-danger mt-1 d-none">Kelurahan tidak boleh kosong
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="divider mt-4">
+                        </div> --}}
+                        {{-- <div class="divider mt-4">
                             <span>Metode Pembayaran</span>
                         </div>
                         <div class="d-flex flex-row">
@@ -381,7 +415,7 @@
                                     <div id="rekeningError" class="text-danger mt-1 d-none">Silahkan pilih rekening</div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row">
                             <div class="col-12 mt-4 d-none" id="rowDimensi">
                                 <div class="col-2 offset-8 me-1">
@@ -419,110 +453,63 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            // Store names of selected options
-            var selectedProvinsiName = '';
-            var selectedKabupatenKotaName = '';
-            var selectedKecamatanName = '';
-            var selectedKelurahanName = '';
-
-            // Tarik data untuk Provinsi
-            $.ajax({
-                url: 'https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json',
-                method: 'GET',
-                success: function(data) {
-                    var $provinsi = $('#provinsi');
-                    $provinsi.empty().append(
-                        '<option value="" selected disabled>Pilih Provinsi</option>');
-                    $.each(data, function(index, provinsi) {
-                        $provinsi.append('<option value="' + provinsi.id + '">' + provinsi
-                            .name + '</option>');
-                    });
-                }
-            });
-
-            // Tarik data untuk Kabupaten/Kota berdasarkan Provinsi
-            $('#provinsi').change(function() {
-                var provinsiId = $(this).val();
-                selectedProvinsiName = $('#provinsi option:selected').text(); // Store the name
-                if (provinsiId) {
-                    $.ajax({
-                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/regencies/' +
-                            provinsiId + '.json',
-                        method: 'GET',
-                        success: function(data) {
-                            var $kabupatenKota = $('#kabupatenKota');
-                            $kabupatenKota.empty().append(
-                                '<option value="" selected disabled>Pilih Kabupaten/Kota</option>'
-                            );
-                            $.each(data, function(index, regency) {
-                                $kabupatenKota.append('<option value="' + regency.id +
-                                    '">' + regency.name + '</option>');
-                            });
-                        }
-                    });
-                }
-            });
-
-            // Tarik data untuk Kecamatan berdasarkan Kabupaten/Kota
-            $('#kabupatenKota').change(function() {
-                var regencyId = $(this).val();
-                selectedKabupatenKotaName = $('#kabupatenKota option:selected').text(); // Store the name
-                if (regencyId) {
-                    $.ajax({
-                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/districts/' +
-                            regencyId + '.json',
-                        method: 'GET',
-                        success: function(data) {
-                            var $kecamatan = $('#kecamatan');
-                            $kecamatan.empty().append(
-                                '<option value="" selected disabled>Pilih Kecamatan</option>'
-                            );
-                            $.each(data, function(index, district) {
-                                $kecamatan.append('<option value="' + district.id +
-                                    '">' + district.name + '</option>');
-                            });
-                        }
-                    });
-                }
-            });
-
-            $('#kecamatan').change(function() {
-                var districtId = $(this).val();
-                selectedKecamatanName = $('#kecamatan option:selected').text();
-                if (districtId) {
-                    $.ajax({
-                        url: 'https://www.emsifa.com/api-wilayah-indonesia/api/villages/' +
-                            districtId + '.json',
-                        method: 'GET',
-                        success: function(data) {
-                            var $kelurahan = $('#kelurahan');
-                            $kelurahan.empty().append(
-                                '<option value="" selected disabled>Pilih Kelurahan</option>'
-                            );
-                            $.each(data, function(index, village) {
-                                $kelurahan.append('<option value="' + village.id +
-                                    '">' + village.name + '</option>');
-                            });
-                        }
-                    });
-                }
-            });
-
-            $('#kelurahan').change(function() {
-                selectedKelurahanName = $('#kelurahan option:selected').text();
-            });
 
             $('.select2singgle').select2({
                 width: 'resolve'
             });
 
-            var today = new Date().toISOString().split('T')[0];
+            $('#pickupDelivery').hide();
+
+            $('#selectCostumer').change(function() {
+                var selectedCustomer = $(this).val();
+                var metodePengiriman = $('#selectCostumer option:selected').data('metode');
+                var alamat = $('#selectCostumer option:selected').data('alamat');
+                var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
+
+                if (selectedCustomer) {
+                    $('#pickupDelivery').show();
+
+                    if (metodePengiriman === 'Pickup') {
+                        $('#pickupDelivery h2').text('Pick Up');
+                        $('#alamatContainer')
+                            .empty(); // Kosongkan container jika metode pengiriman adalah Pickup
+
+                    } else if (metodePengiriman === 'Delivery' && jumlahAlamat == 1) {
+                        $('#pickupDelivery h2').text('Delivery');
+                        $('#alamatContainer').html('<p>' + alamat +
+                            '</p>');
+
+                    } else if (metodePengiriman === 'Delivery' && jumlahAlamat > 1) {
+                        $('#pickupDelivery h2').text('Delivery');
+
+                        // Buat dropdown untuk memilih alamat jika ada lebih dari 1 alamat
+                        var alamatList = alamat.split(', ');
+                        var selectAlamat =
+                            '<label for="alamatSelect" class="form-label">Alamat</label>';
+                        selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
+                        selectAlamat +=
+                            '<option value="" selected disabled>Pilih Alamat</option>'; // Opsi pertama
+                        alamatList.forEach(function(alamatItem) {
+                            selectAlamat += '<option value="' + alamatItem + '">' + alamatItem +
+                                '</option>';
+                        });
+                        selectAlamat += '</select>';
+                        $('#alamatContainer').html(selectAlamat); // Tampilkan dropdown di container
+                    }
+                } else {
+                    $('#pickupDelivery').hide();
+                    $('#alamatContainer').empty();
+                }
+            });
+
+            var today = new Date();
+
             $('#tanggal').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,
                 autoclose: true,
-            });
+            }).datepicker('setDate', today);
 
             $('#currencyInvoice').change(function() {
                 const selectedCurrency = $(this).val();
@@ -530,14 +517,14 @@
                     $('#rateCurrencySection').show();
                 } else {
                     $('#rateCurrencySection').hide();
-                    $('#rateCurrency').val(''); // Mengosongkan input rate currency jika disembunyikan
+                    $('#rateCurrency').val('');
                 }
                 updateDisplayedTotalHarga();
             });
 
             $('#rateCurrency').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
-                updateDisplayedTotalHarga(); // Update total harga saat rateCurrency diubah
+                updateDisplayedTotalHarga();
             });
 
             function updateDisplayedTotalHarga() {
@@ -634,7 +621,7 @@
                     $('#totalHargaValue').val(0);
                 } else {
                     berat = Math.max(2, berat);
-                    let hargaPerKg =  $('#rateBerat').val();
+                    let hargaPerKg = $('#rateBerat').val();
                     let totalHarga = berat * hargaPerKg;
                     if (totalHarga > 250000) {
                         showMessage("error", "Barang Diatas 250.000 pakai Volume")
@@ -662,39 +649,39 @@
                 $('#totalHargaValue').val(totalHargaVolume);
             }
 
-            function updateSections() {
-                if ($('#delivery').is(':checked')) {
-                    $('#driverSection').show();
-                    $('#alamatSection, #lokasiSection').show();
-                } else {
-                    $('#driverSection').hide();
-                    $('#alamatSection, #lokasiSection').hide();
-                }
-            }
+            // function updateSections() {
+            //     if ($('#delivery').is(':checked')) {
+            //         $('#driverSection').show();
+            //         $('#alamatSection, #lokasiSection').show();
+            //     } else {
+            //         $('#driverSection').hide();
+            //         $('#alamatSection, #lokasiSection').hide();
+            //     }
+            // }
 
-            $('#pickup').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#delivery').prop('checked', false);
-                    updateSections();
-                }
-            });
+            // $('#pickup').change(function() {
+            //     if ($(this).is(':checked')) {
+            //         $('#delivery').prop('checked', false);
+            //         updateSections();
+            //     }
+            // });
 
-            $('#delivery').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#pickup').prop('checked', false);
-                    updateSections();
-                }
-            });
+            // $('#delivery').change(function() {
+            //     if ($(this).is(':checked')) {
+            //         $('#pickup').prop('checked', false);
+            //         updateSections();
+            //     }
+            // });
 
-            updateSections();
+            // updateSections();
 
-            $('#metodePembayaran').change(function() {
-                if ($(this).val() === '2') {
-                    $('#rekeningSection').show();
-                } else {
-                    $('#rekeningSection').hide();
-                }
-            });
+            // $('#metodePembayaran').change(function() {
+            //     if ($(this).val() === '2') {
+            //         $('#rekeningSection').show();
+            //     } else {
+            //         $('#rekeningSection').hide();
+            //     }
+            // });
 
             $('#buatInvoice').click(function() {
 
@@ -709,15 +696,28 @@
                 const panjang = $('#panjang').val().trim();
                 const lebar = $('#lebar').val().trim();
                 const tinggi = $('#tinggi').val().trim();
-                const metodePengiriman = $('#delivery').is(':checked') ? 'Delivery' : 'Pickup';
-                const metodePembayaran = $('#metodePembayaran').val();
-                const driver = metodePengiriman === 'Delivery' ? $('#driver').val() : null;
-                const alamat = metodePengiriman === 'Delivery' ? $('#alamat').val().trim() : null;
-                const provinsi = metodePengiriman === 'Delivery' ? $('#provinsi').val() : null;
-                const kabupatenKota = metodePengiriman === 'Delivery' ? $('#kabupatenKota').val() : null;
-                const kecamatan = metodePengiriman === 'Delivery' ? $('#kecamatan').val() : null;
-                const kelurahan = metodePengiriman === 'Delivery' ? $('#kelurahan').val() : null;
-                const rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
+                var metodePengiriman = $('#selectCostumer option:selected').data('metode');
+                var alamat = null;
+
+                if (metodePengiriman === 'Delivery') {
+                    // Cek apakah ada dropdown untuk memilih alamat
+                    if ($('#alamatSelect').length > 0) {
+                        // Jika ada dropdown, ambil nilai dari dropdown
+                        alamat = $('#alamatSelect').val();
+                    } else {
+                        // Jika tidak ada dropdown, ambil nilai alamat dari teks yang ditampilkan
+                        alamat = $('#alamatContainer p').text().trim();
+                    }
+                }
+                // const metodePengiriman = $('#delivery').is(':checked') ? 'Delivery' : 'Pickup';
+                // const metodePembayaran = $('#metodePembayaran').val();
+                // const driver = metodePengiriman === 'Delivery' ? $('#driver').val() : null;
+                // const alamat = metodePengiriman === 'Delivery' ? $('#alamat').val().trim() : null;
+                // const provinsi = metodePengiriman === 'Delivery' ? $('#provinsi').val() : null;
+                // const kabupatenKota = metodePengiriman === 'Delivery' ? $('#kabupatenKota').val() : null;
+                // const kecamatan = metodePengiriman === 'Delivery' ? $('#kecamatan').val() : null;
+                // const kelurahan = metodePengiriman === 'Delivery' ? $('#kelurahan').val() : null;
+                // const rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
                 const pembagiVolume = $('#toggleSwitch').is(':checked') ? $('#pembagiVolume').val() : null;
                 const rateVolume = $('#toggleSwitch').is(':checked') ? $('#rateVolume').val() : null;
                 let totalharga = $('#totalHargaValue').val();
@@ -753,70 +753,70 @@
                     $('#currencyInvoiceError').addClass('d-none');
                 }
 
-                if (currencyInvoice === '1' && rateCurrency === null ) {
+                if (currencyInvoice === '1' && rateCurrency === null) {
                     $('#rateCurrencyError').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#rateCurrencyError').addClass('d-none');
                 }
 
-                if (metodePengiriman === 'Delivery') {
-                    if (driver === null) {
-                        $('#driverError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#driverError').addClass('d-none');
-                    }
+                // if (metodePengiriman === 'Delivery') {
+                //     if (driver === null) {
+                //         $('#driverError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#driverError').addClass('d-none');
+                //     }
 
-                    if (alamat === '') {
-                        $('#alamatError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#alamatError').addClass('d-none');
-                    }
+                //     if (alamat === '') {
+                //         $('#alamatError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#alamatError').addClass('d-none');
+                //     }
 
-                    if (provinsi === null) {
-                        $('#provinsiError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#provinsiError').addClass('d-none');
-                    }
+                //     if (provinsi === null) {
+                //         $('#provinsiError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#provinsiError').addClass('d-none');
+                //     }
 
-                    if (kabupatenKota === null) {
-                        $('#kotaError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#kotaError').addClass('d-none');
-                    }
+                //     if (kabupatenKota === null) {
+                //         $('#kotaError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#kotaError').addClass('d-none');
+                //     }
 
-                    if (kecamatan === null) {
-                        $('#kecamatanError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#kecamatanError').addClass('d-none');
-                    }
+                //     if (kecamatan === null) {
+                //         $('#kecamatanError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#kecamatanError').addClass('d-none');
+                //     }
 
-                    if (kelurahan === null) {
-                        $('#kelurahanError').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#kelurahanError').addClass('d-none');
-                    }
-                }
+                //     if (kelurahan === null) {
+                //         $('#kelurahanError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#kelurahanError').addClass('d-none');
+                //     }
+                // }
 
-                if (metodePembayaran === null) {
-                    $('#metodePembayaranError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#metodePembayaranError').addClass('d-none');
-                }
+                // if (metodePembayaran === null) {
+                //     $('#metodePembayaranError').removeClass('d-none');
+                //     isValid = false;
+                // } else {
+                //     $('#metodePembayaranError').addClass('d-none');
+                // }
 
-                if (metodePembayaran === '2' && rekening === null) {
-                    $('#rekeningError').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#rekeningError').addClass('d-none');
-                }
+                // if (metodePembayaran === '2' && rekening === null) {
+                //     $('#rekeningError').removeClass('d-none');
+                //     isValid = false;
+                // } else {
+                //     $('#rekeningError').addClass('d-none');
+                // }
 
                 if ($('#toggleSwitch').is(':checked')) {
                     if (panjang === '' || lebar === '' || tinggi === '') {
@@ -876,15 +876,15 @@
                         panjang: panjang,
                         lebar: lebar,
                         tinggi: tinggi,
-                        metodePengiriman: metodePengiriman,
-                        driver: driver,
+                        // metodePengiriman: metodePengiriman,
+                        // driver: driver,
                         alamat: alamat,
-                        provinsi: selectedProvinsiName,
-                        kabupatenKota: selectedKabupatenKotaName,
-                        kecamatan: selectedKecamatanName,
-                        kelurahan: selectedKelurahanName,
-                        metodePembayaran: metodePembayaran,
-                        rekening: rekening,
+                        // provinsi: selectedProvinsiName,
+                        // kabupatenKota: selectedKabupatenKotaName,
+                        // kecamatan: selectedKecamatanName,
+                        // kelurahan: selectedKelurahanName,
+                        // metodePembayaran: metodePembayaran,
+                        // rekening: rekening,
                         totalharga: totalharga,
                         _token: csrfToken
                     },

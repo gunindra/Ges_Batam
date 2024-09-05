@@ -13,19 +13,10 @@ return new class extends Migration
     {
         Schema::create('tbl_pembayaran', function (Blueprint $table) {
             $table->id();
-            $table->string('no_resi', 100)->unique();
-            $table->date('tanggal_pembayaran');
-            $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
-            $table->decimal('berat', 8,2)->nullable();
-            $table->decimal('panjang', 8,2)->nullable();
-            $table->decimal('lebar', 8,2)->nullable();
-            $table->decimal('tinggi', 8,2)->nullable();
-            $table->enum('pengiriman', ['Pickup', 'Delivery']);
+            $table->foreignId('invoice_id')->constrained('tbl_invoice');
             $table->decimal('harga', 15,2);
             $table->foreignId('pembayaran_id')->constrained('tbl_tipe_pembayaran');
             $table->foreignId('rekening_id')->nullable()->constrained('tbl_rekening');
-            $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
-            $table->decimal('rate_matauang', 15,2)->nullable();
             $table->string('bukti_pembayaran', 100)->nullable();
             $table->foreignId('status_id')->constrained('tbl_status');
             $table->enum('status_pembayaran', ['Lunas', 'Belum lunas']);

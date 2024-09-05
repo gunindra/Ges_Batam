@@ -91,6 +91,26 @@
         </div>
     </div>
 
+    <!-- Modal Structure -->
+    <div class="modal fade" id="invoiceModal" tabindex="-1" role="dialog" aria-labelledby="invoiceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invoiceModalLabel">Detail Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
@@ -124,8 +144,8 @@
                                     Reset
                                 </button>
                             </div>
-                            {{-- <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
-                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a> --}}
+                            <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
+                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Pengantaran</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
@@ -409,6 +429,33 @@
                     showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
                     $('#modalBuktiPengantaran').modal('show');
                 }
+            });
+        });
+
+        $(document).on('click', '.show-invoice-modal', function() {
+            var supirName = $(this).data('supir');
+            var invoiceNumbers = $(this).data('invoices').split(', ');
+            var customerNames = $(this).data('customers').split(', ');
+            var addresses = $(this).data('alamat').split(', ');
+            var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
+            modalContent += '<thead><tr><th>No. Resi</th><th>Customer</th><th>Alamat</th></tr></thead><tbody>';
+            for (var i = 0; i < invoiceNumbers.length; i++) {
+                modalContent += '<tr>';
+                modalContent += '<td>' + invoiceNumbers[i] + '</td>';
+                modalContent += '<td>' + customerNames[i] + '</td>';
+                modalContent += '<td>' + addresses[i] + '</td>';
+                modalContent += '</tr>';
+            }
+            modalContent += '</tbody></table>';
+            $('#modalContent').html(modalContent);
+            $('#invoiceModal').modal('show');
+            $('#invoiceTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                lengthChange: false,
+                pageLength: 5
             });
         });
     </script>

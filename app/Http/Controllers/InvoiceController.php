@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\RequestException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Str;
 
 class InvoiceController extends Controller
 {
@@ -24,7 +25,16 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
-        $listPembeli = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli");
+        $listPembeli = DB::select("SELECT a.id,
+                                        a.nama_pembeli,
+                                        a.marking,
+                                        a.metode_pengiriman,
+                                        GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
+                                        COUNT(b.id) AS jumlah_alamat
+                                    FROM tbl_pembeli a
+                                    LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
+                                    GROUP BY a.id");
+
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
@@ -124,36 +134,31 @@ class InvoiceController extends Controller
 
         $dateCondition = '';
         if ($startDate && $endDate) {
-            $dateCondition = "AND a.tanggal_pembayaran BETWEEN '$startDate' AND '$endDate'";
+            $dateCondition = "AND a.tanggal_invoice BETWEEN '$startDate' AND '$endDate'";
         }
 
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
         $q = "SELECT a.id,
                     a.no_resi,
-                    DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
+                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
                     b.nama_pembeli AS pembeli,
+                    a.alamat,
+                    b.metode_pengiriman,
                     a.berat,
                     a.panjang,
                     a.lebar,
                     a.tinggi,
-                    a.pembayaran_id,
-                    f.tipe_pembayaran,
                     a.harga,
                     a.matauang_id,
                     a.rate_matauang,
-                    a.bukti_pembayaran,
-                    a.status_pembayaran,
                     d.status_name
-            FROM tbl_pembayaran AS a
-            JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
+            FROM tbl_invoice AS a
             JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
             JOIN tbl_status AS d ON a.status_id = d.id
             WHERE (
                 UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
                 OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
-                OR UPPER(f.tipe_pembayaran) LIKE UPPER('$txSearch')
-                OR UPPER( a.status_pembayaran) LIKE UPPER('$txSearch')
                 )
                 $dateCondition
                 $statusCondition
@@ -182,9 +187,9 @@ class InvoiceController extends Controller
                             <th>No Resi</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
-                            <th>Jenis Pembayaran</th>
+                            <th>Pengiriman</th>
+                            <th>Alamat</th>
                             <th>Harga</th>
-                            <th>Pembayaran</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -193,32 +198,19 @@ class InvoiceController extends Controller
                     foreach ($data as $item) {
 
                         $statusBadgeClass = '';
-                        $btnPembayaran = '';
                         $btnEditinvoice = '';
-                        $btnCicilan = '';
-
-                        if ($item->pembayaran_id == 4) {
-                            $btnCicilan = '<a class="btn btnCicilan btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-list-alt"></i></a>';
-                        }
 
                         switch ($item->status_name) {
-                            case 'Pending Payment':
+                            case 'Batam / Sortir':
                                 $statusBadgeClass = 'badge-warning';
-                                $btnPembayaran = '<a class="btn btnPembayaran btn-sm btn-success text-white" data-id="' . $item->id . '" data-tipe="' . $item->tipe_pembayaran . '"><i class="fas fa-check"></i></a>';
                                 $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Ready For Pickup':
                                 $statusBadgeClass = 'badge-success';
-                                if ($item->tipe_pembayaran === 'Transfer') {
-                                    $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                                }
                                 $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Out For Delivery':
                                 $statusBadgeClass = 'badge-primary';
-                                if ($item->tipe_pembayaran === 'Transfer') {
-                                    $btnPembayaran = '<a class="btn btnDetailPembayaran btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                                }
                                 $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Delivering':
@@ -243,14 +235,12 @@ class InvoiceController extends Controller
                                 <td>' . ($item->no_resi ?? '-') . '</td>
                                 <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                                 <td>' . ($item->pembeli ?? '-') . '</td>
-                                <td>' . ($item->tipe_pembayaran ?? '-') . '</td>
+                                <td>' . ($item->metode_pengiriman ?? '-') . '</td>
+                                <td>' . ($item->alamat ?? '-') . '</td>
                                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
-                                <td>' . ($item->status_pembayaran ?? '-') . '</td>
                                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                 <td>
 
-                                    ' . $btnCicilan . '
-                                    ' . $btnPembayaran . '
                                     ' . $btnEditinvoice . '
                                     <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
                                 </td>
@@ -357,15 +347,7 @@ class InvoiceController extends Controller
         $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
         $lebar = floatval(str_replace(',', '.', $request->input('lebar')));
         $tinggi = floatval(str_replace(',', '.', $request->input('tinggi')));
-        $metodePengiriman = $request->input('metodePengiriman');
-        $driver = $request->input('driver');
         $alamatTujuan = $request->input('alamat');
-        $provinsi = $request->input('provinsi');
-        $kabupatenKota = $request->input('kabupatenKota');
-        $kecamatan = $request->input('kecamatan');
-        $kelurahan = $request->input('kelurahan');
-        $metodePembayaran = $request->input('metodePembayaran');
-        $rekening = $request->input('rekening');
         $totalharga = $request->input('totalharga');
 
         $date = DateTime::createFromFormat('j F Y', $tanggal);
@@ -375,80 +357,52 @@ class InvoiceController extends Controller
 
         try {
             $statusId = 1;
-            $statusPembayaran = 'Belum Lunas';
-            $cicilan = null;
-
-            if ($metodePembayaran == 4) {
-                if ($metodePengiriman == 'Delivery') {
-                    $statusId = 3;
-                    $statusPembayaran = 'Belum Lunas';
-                } else {
-                    $statusId = 2;
-                    $statusPembayaran = 'Belum Lunas';
-                }
-                $cicilan = $totalharga;
-            }
-
-            $pembayaranId = DB::table('tbl_pembayaran')->insertGetId([
+            $pembayaranId = DB::table('tbl_invoice')->insertGetId([
                 'no_resi' => $noResi,
-                'tanggal_pembayaran' => $formattedDate,
+                'tanggal_invoice' => $formattedDate,
                 'pembeli_id' => $customer,
+                'alamat' => $alamatTujuan,
                 'berat' => $beratBarang,
                 'panjang' => $panjang,
                 'lebar' => $lebar,
                 'tinggi' => $tinggi,
-                'pengiriman' => $metodePengiriman,
                 'harga' => $totalharga,
-                'pembayaran_id' => $metodePembayaran,
-                'rekening_id' => $rekening,
                 'matauang_id' => $currencyInvoice,
                 'rate_matauang' => $rateCurrency,
                 'status_id' => $statusId,
-                'status_pembayaran' => $statusPembayaran,
-                'cicilan' => $cicilan,
                 'created_at' => now(),
             ]);
 
             if (!$pembayaranId) {
-                throw new \Exception("Failed to get the new ID from tbl_pembayaran");
+                throw new \Exception("Gagal mendapatkan ID baru dari tbl_invoice");
             }
 
-            // if ($metodePengiriman === 'Pickup') {
-            //     DB::table('tbl_pengantaran')->insert([
-            //         'pembayaran_id' => $pembayaranId,
-            //         'tanggal_pengantaran' => $formattedDate,
-            //         'supir_id' => $driver,
-            //         'alamat' => $alamatTujuan,
-            //         'provinsi' => $provinsi,
-            //         'kotakab' => $kabupatenKota,
-            //         'kecamatan' => $kecamatan,
-            //         'kelurahan' => $kelurahan,
-            //         'created_at' => now(),
-            //     ]);
-            // }
+            $updatedTracking = DB::table('tbl_tracking')
+                ->where('no_resi', $noResi)
+                ->update(['status' => 'Batam / Sortir']);
 
-            if ($metodePengiriman === 'Delivery') {
-                DB::table('tbl_pengantaran')->insert([
-                    'pembayaran_id' => $pembayaranId,
-                    'tanggal_pengantaran' => $formattedDate,
-                    'supir_id' => $driver,
-                    'alamat' => $alamatTujuan,
-                    'provinsi' => $provinsi,
-                    'kotakab' => $kabupatenKota,
-                    'kecamatan' => $kecamatan,
-                    'kelurahan' => $kelurahan,
-                    'created_at' => now(),
-                ]);
+            if (!$updatedTracking) {
+                throw new \Exception("Gagal memperbarui status di tbl_tracking");
             }
+
+            $updatedPembeli = DB::table('tbl_pembeli')
+                ->where('id', $customer)
+                ->update(['transaksi_terakhir' => now()]);
+
+            if (!$updatedPembeli) {
+                throw new \Exception("Gagal memperbarui transaksi terakhir di tbl_pembeli");
+            }
+
 
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function completePayment(Request $request)
     {
@@ -599,7 +553,7 @@ class InvoiceController extends Controller
 
             // Save PDF to storage
             try {
-                $fileName = 'invoice_' . $invoice->no_resi . '.pdf';
+                $fileName = 'invoice_' . (string) Str::uuid() . '.pdf';
                 $filePath = storage_path('app/public/invoice/' . $fileName);
                 $pdf->save($filePath);
             } catch (\Exception $e) {
@@ -712,12 +666,6 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
-
-
-
-
-
-
     public function updateStatus(Request $request)
     {
         $id = $request->id;

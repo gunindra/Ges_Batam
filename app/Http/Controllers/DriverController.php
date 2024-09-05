@@ -60,7 +60,7 @@ class DriverController extends Controller
     public function addDriver(Request $request)
     {
         $request->validate([
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png|', 
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png|',
         ]);
 
         $namaDriver = $request->input('namaDriver');
@@ -72,7 +72,7 @@ class DriverController extends Controller
             $fileName = 'SIM_' . $simDriver->getClientOriginalName();
             $filePath = $simDriver->storeAs('public/sim', $fileName);
         } else {
-            $fileName = null; // No image was uploaded
+            $fileName = null;
         }
 
         try {
@@ -93,7 +93,7 @@ class DriverController extends Controller
     public function updateDriver(Request $request)
     {
         $request->validate([
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png|', 
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png|',
         ]);
 
         $id = $request->input('id');

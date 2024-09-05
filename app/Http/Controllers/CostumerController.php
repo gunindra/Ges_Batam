@@ -54,11 +54,11 @@ class CostumerController extends Controller
 
                 GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tp.category_id, tc.category_name
                 ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
-               
+
                         ";
 
         $data = DB::select($q);
-        
+
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
                         <thead class="thead-light">

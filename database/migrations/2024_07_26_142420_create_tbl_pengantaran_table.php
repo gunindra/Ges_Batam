@@ -13,21 +13,17 @@ return new class extends Migration
     {
         Schema::create('tbl_pengantaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pembayaran_id')->constrained('tbl_pembayaran')->unique();
-            $table->date('tanggal_pengantaran');
+            $table->foreignId('invoice_id')->constrained('tbl_invoice');
             $table->foreignId('supir_id')->constrained('tbl_supir');
-            $table->text('alamat');
-            $table->string('provinsi', 100);
-            $table->string('kotakab', 100);
-            $table->string('kecamatan', 100);
-            $table->string('kelurahan', 100);
+            $table->date('tanggal_pengantaran');
+            $table->foreignId('status_id')->constrained('tbl_status')->default(3);
             $table->text('bukti_pengantaran')->nullable();
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Reverse the migrations.fe
      */
     public function down(): void
     {

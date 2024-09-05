@@ -17,61 +17,72 @@ class DeliveryController extends Controller
 
     public function getlistDelivery(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        // $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = strtoupper(trim($request->status));
 
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
 
+        // Query untuk mendapatkan data pengiriman
         $query = DB::table('tbl_pengantaran as a')
             ->select(
-                'a.id',
-                'b.no_resi',
-                DB::raw("DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
-                'c.nama_supir',
-                'a.alamat',
-                'a.bukti_pengantaran',
+                DB::raw("GROUP_CONCAT(a.id SEPARATOR ', ') as list_id"),  // Mengambil ID pengiriman
+                'a.supir_id',
+                'e.nama_supir',
+                DB::raw("GROUP_CONCAT(b.no_resi SEPARATOR ', ') as list_no_resi"),
+                DB::raw("GROUP_CONCAT(c.nama_pembeli SEPARATOR ', ') as list_nama_pembeli"),
+                DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ', ') as list_alamat"),
+                DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) AS tanggal_pengantaran"),
                 'd.status_name',
-                DB::raw("CONCAT_WS(', ', a.kelurahan, a.kecamatan, a.kotakab, a.provinsi) AS full_address")
+                DB::raw('COUNT(a.id) as jumlah_invoice')
             )
-            ->join('tbl_pembayaran as b', 'a.pembayaran_id', '=', 'b.id')
-            ->join('tbl_supir as c', 'a.supir_id', '=', 'c.id')
-            ->join('tbl_status as d', 'b.status_id', '=', 'd.id')
-            ->where(function($query) use ($txSearch) {
-                $query->where(DB::raw('UPPER(c.nama_supir)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('UPPER(b.no_resi)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('UPPER(a.alamat)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('UPPER(d.status_name)'), 'LIKE', $txSearch);
-            });
+            ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
+            ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
+            ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
+            ->join('tbl_supir as e', 'a.supir_id', '=', 'e.id')
+            ->groupBy('a.supir_id', 'e.nama_supir', 'd.status_name');
 
+        // Filter berdasarkan txSearch (no_resi atau nama pembeli)
+        if ($request->txSearch) {
+            $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+            $query->where(function ($q) use ($txSearch) {
+                $q->where(DB::raw('UPPER(e.nama_supir)'), 'LIKE', $txSearch);
+            });
+        }
+
+        if ($request->status) {
+            $query->where('d.status_name', '=', $status);
+        }
+
+        // Filter berdasarkan tanggal pengantaran
         if ($startDate && $endDate) {
             $query->whereBetween('a.tanggal_pengantaran', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $query->where('a.tanggal_pengantaran', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->where('a.tanggal_pengantaran', '<=', $endDate);
         }
 
-        if (!empty($status)) {
-            $query->where(DB::raw('UPPER(d.status_name)'), $status);
-        }
-
+        // Batasan jumlah data yang diambil
         $query->limit(100);
 
+        // Eksekusi query dan ambil hasilnya
         $data = $query->get();
 
+        // Membuat output tabel
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No Resi</th>
-                                        <th>Tanggal</th>
-                                        <th>Driver</th>
-                                        <th>Pengiriman</th>
-                                        <th>Daerah</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Supir</th>
+                                <th>Jumlah Invoice</th>
+                                <th>Tanggal Penganatran</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
 
         foreach ($data as $item) {
-
             $statusBadgeClass = '';
             $btnAcceptPengantaran = '';
             $btnBuktiPengantaran = '';
@@ -80,31 +91,38 @@ class DeliveryController extends Controller
             switch ($item->status_name) {
                 case 'Out For Delivery':
                     $statusBadgeClass = 'badge-out-for-delivery';
-                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->id . '"><i class="fas fa-truck-moving"></i></a>';
+                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->list_id . '"><i class="fas fa-truck-moving"></i></a>';
                     break;
                 case 'Delivering':
                     $statusBadgeClass = 'badge-delivering';
-                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->id . '" ><i class="fas fa-camera"></i></a>';
+                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-list_id="' . $item->list_id . '" ><i class="fas fa-camera"></i></a>';
                     break;
                 case 'Debt':
                     $statusBadgeClass = 'badge-danger'; // Merah
                     break;
                 case 'Done':
                     $statusBadgeClass = 'badge-secondary'; // Abu-abu
-                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-list_id="' . $item->list_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
                     break;
                 default:
-                    $statusBadgeClass = 'badge-secondary'; // Default
+                    $statusBadgeClass = 'badge-secondary';
                     break;
             }
 
+            $btnInvoice = '
+                <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                    data-supir="' . $item->nama_supir . '"
+                    data-invoices="' . htmlentities($item->list_no_resi) . '"
+                    data-customers="' . htmlentities($item->list_nama_pembeli) . '"
+                    data-alamat="' . htmlentities($item->list_alamat) . '">
+                    Invoice (' . $item->jumlah_invoice . ')
+                </button>';
+
             $output .= '
                 <tr>
-                    <td class="">' . ($item->no_resi ?? '-') . '</td>
-                    <td class="">' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                    <td class="">' . ($item->nama_supir ?? '-') . '</td>
-                    <td class="">' . ($item->alamat ?? '-') . '</td>
-                    <td class="">' . ($item->full_address ?? '-') . '</td>
+                    <td>' . ($item->nama_supir ?? '-') . '</td>
+                    <td>' . $btnInvoice . '</td>
+                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
                     <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                     <td>
                         ' . $btnAcceptPengantaran . '
@@ -115,8 +133,13 @@ class DeliveryController extends Controller
         }
 
         $output .= '</tbody></table>';
+
         return $output;
     }
+
+
+
+
 
 
     public function acceptPengantaran(Request $request)
