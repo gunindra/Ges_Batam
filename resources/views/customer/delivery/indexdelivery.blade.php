@@ -122,7 +122,6 @@
             </ol>
         </div>
 
-
         <div class="row">
             <div class="col-lg-12">
                 <div class="card mb-4">
@@ -144,7 +143,7 @@
                                     Reset
                                 </button>
                             </div>
-                            <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
+                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Pengantaran</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('tbl_pengantaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->constrained('tbl_invoice');
             $table->foreignId('supir_id')->constrained('tbl_supir');
             $table->date('tanggal_pengantaran');
             $table->foreignId('status_id')->constrained('tbl_status')->default(3);

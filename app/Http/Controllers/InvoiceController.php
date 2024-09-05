@@ -38,8 +38,6 @@ class InvoiceController extends Controller
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
-        $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
-
         $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
 
         $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
@@ -51,7 +49,6 @@ class InvoiceController extends Controller
 
         return view('customer.invoice.buatinvoice', [
             'listPembeli' => $listPembeli,
-            'listSupir' => $listSopir,
             'listRekening' => $listRekening,
             'listTipePembayaran' => $listTipePembayaran,
             'listRateVolume' => $listRateVolume,

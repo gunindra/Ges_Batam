@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use DateTime;
 
 class DeliveryController extends Controller
 {
@@ -17,32 +18,31 @@ class DeliveryController extends Controller
 
     public function getlistDelivery(Request $request)
     {
-        // $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = strtoupper(trim($request->status));
 
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
 
-        // Query untuk mendapatkan data pengiriman
         $query = DB::table('tbl_pengantaran as a')
             ->select(
-                DB::raw("GROUP_CONCAT(a.id SEPARATOR ', ') as list_id"),  // Mengambil ID pengiriman
+                'a.id as pengantaran_id',
                 'a.supir_id',
                 'e.nama_supir',
                 DB::raw("GROUP_CONCAT(b.no_resi SEPARATOR ', ') as list_no_resi"),
                 DB::raw("GROUP_CONCAT(c.nama_pembeli SEPARATOR ', ') as list_nama_pembeli"),
                 DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ', ') as list_alamat"),
                 DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) AS tanggal_pengantaran"),
-                'd.status_name',
-                DB::raw('COUNT(a.id) as jumlah_invoice')
+                's.status_name',
+                DB::raw('COUNT(pd.id) as jumlah_invoice')
             )
-            ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
+            ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
+            ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
-            ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
+            ->join('tbl_status as s', 'a.status_id', '=', 's.id')
             ->join('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.supir_id', 'e.nama_supir', 'd.status_name');
+            ->groupBy('a.id');
 
-        // Filter berdasarkan txSearch (no_resi atau nama pembeli)
+
         if ($request->txSearch) {
             $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
             $query->where(function ($q) use ($txSearch) {
@@ -54,7 +54,6 @@ class DeliveryController extends Controller
             $query->where('d.status_name', '=', $status);
         }
 
-        // Filter berdasarkan tanggal pengantaran
         if ($startDate && $endDate) {
             $query->whereBetween('a.tanggal_pengantaran', [$startDate, $endDate]);
         } elseif ($startDate) {
@@ -63,13 +62,10 @@ class DeliveryController extends Controller
             $query->where('a.tanggal_pengantaran', '<=', $endDate);
         }
 
-        // Batasan jumlah data yang diambil
         $query->limit(100);
 
-        // Eksekusi query dan ambil hasilnya
         $data = $query->get();
 
-        // Membuat output tabel
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
                         <thead class="thead-light">
                             <tr>
@@ -91,18 +87,18 @@ class DeliveryController extends Controller
             switch ($item->status_name) {
                 case 'Out For Delivery':
                     $statusBadgeClass = 'badge-out-for-delivery';
-                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->list_id . '"><i class="fas fa-truck-moving"></i></a>';
+                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-truck-moving"></i></a>';
                     break;
                 case 'Delivering':
                     $statusBadgeClass = 'badge-delivering';
-                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-list_id="' . $item->list_id . '" ><i class="fas fa-camera"></i></a>';
+                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-list_id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
                     break;
                 case 'Debt':
-                    $statusBadgeClass = 'badge-danger'; // Merah
+                    $statusBadgeClass = 'badge-danger';
                     break;
                 case 'Done':
-                    $statusBadgeClass = 'badge-secondary'; // Abu-abu
-                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-list_id="' . $item->list_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    $statusBadgeClass = 'badge-secondary';
+                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-list_id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
                     break;
                 default:
                     $statusBadgeClass = 'badge-secondary';
@@ -138,6 +134,127 @@ class DeliveryController extends Controller
     }
 
 
+    public function addDelivery()
+    {
+        $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
+
+        return view('customer.delivery.buatdelivery', [
+            'listSupir' => $listSopir,
+        ]);
+    }
+
+    public function cekResi(Request $request)
+    {
+        $noResi = $request->input('no_resi');
+        $invoice = DB::table('tbl_invoice')
+            ->where('no_resi', $noResi)
+            ->first();
+
+        if ($invoice) {
+            $pembeli = DB::table('tbl_pembeli')
+                ->where('id', $invoice->pembeli_id)
+                ->first();
+
+            $status = DB::table('tbl_status')
+                ->where('id', $invoice->status_id)
+                ->first();
+
+            if ($pembeli && $status) {
+                if ($pembeli->metode_pengiriman === 'Delivery') {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Resi valid untuk pengiriman Delivery',
+                        'data' => [
+                            'no_resi' => $invoice->no_resi,
+                            'nama_pembeli' => $pembeli->nama_pembeli,
+                            'status_name' => $status->status_name
+                        ]
+                    ]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Nomor resi ini untuk Pickup']);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => 'Data pembeli atau status tidak ditemukan']);
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => 'Resi tidak ditemukan']);
+        }
+    }
+
+
+    public function buatDelivery(Request $request)
+    {
+        $resiList = $request->input('resi_list');
+        $tanggalPickup = $request->input('tanggal_pickup');
+        $driverId = $request->input('driver_id');
+
+        $date = DateTime::createFromFormat('j F Y', $tanggalPickup);
+        $formattedDate = $date ? $date->format('Y-m-d') : null;
+
+        if (!$resiList || count($resiList) == 0) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada resi yang diterima']);
+        }
+
+        if (!$tanggalPickup) {
+            return response()->json(['success' => false, 'message' => 'Tanggal delivery tidak boleh kosong']);
+        }
+
+        if (!$driverId) {
+            return response()->json(['success' => false, 'message' => 'Driver tidak dipilih']);
+        }
+
+        DB::beginTransaction();
+        try {
+            $pengantaranId = DB::table('tbl_pengantaran')->insertGetId([
+                'supir_id' => $driverId,
+                'tanggal_pengantaran' => $formattedDate,
+                'status_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            foreach ($resiList as $noResi) {
+                $invoice = DB::table('tbl_invoice')->where('no_resi', $noResi)->first();
+
+                if ($invoice) {
+
+                    DB::table('tbl_pengantaran_detail')->insert([
+                        'pengantaran_id' => $pengantaranId,
+                        'invoice_id' => $invoice->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+
+                    $updatedTracking = DB::table('tbl_tracking')
+                        ->where('no_resi', $noResi)
+                        ->update(['status' => 'Deliveing..']);
+
+                    if (!$updatedTracking) {
+                        throw new \Exception("Gagal memperbarui status di tbl_tracking");
+                    }
+
+
+                    $updateInvoice = DB::table('tbl_invoice')
+                        ->where('no_resi', $noResi)
+                        ->update(['status_id' => 4]);
+
+                    if (!$updateInvoice) {
+                        throw new \Exception("Gagal memperbarui status di tbl_invoice");
+                    }
+                } else {
+                    throw new \Exception("Invoice tidak ditemukan untuk resi: " . $noResi);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Delivery berhasil dibuat!']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
 
 
