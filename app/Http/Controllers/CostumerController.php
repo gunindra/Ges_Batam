@@ -46,9 +46,7 @@ class CostumerController extends Controller
                 LEFT JOIN tbl_category tc ON tp.category_id = tc.id
                  WHERE (
                 UPPER(tp.nama_pembeli) LIKE UPPER('$txSearch')
-                OR UPPER(tp.metode_pengiriman) LIKE UPPER('$txSearch')
-                OR UPPER(ta.alamat) LIKE UPPER('$txSearch')
-                OR UPPER(tp.transaksi_terakhir) LIKE UPPER('$txSearch')
+                OR UPPER(tp.marking) LIKE UPPER('$txSearch')
                 )
                 $statusCondition
 

@@ -40,7 +40,7 @@ class DeliveryController extends Controller
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
             ->join('tbl_status as s', 'a.status_id', '=', 's.id')
             ->join('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.id');
+            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name');
 
 
         if ($request->txSearch) {
@@ -91,14 +91,14 @@ class DeliveryController extends Controller
                     break;
                 case 'Delivering':
                     $statusBadgeClass = 'badge-delivering';
-                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-list_id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
+                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
                     break;
                 case 'Debt':
                     $statusBadgeClass = 'badge-danger';
                     break;
                 case 'Done':
                     $statusBadgeClass = 'badge-secondary';
-                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-list_id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
                     break;
                 default:
                     $statusBadgeClass = 'badge-secondary';
@@ -344,9 +344,10 @@ class DeliveryController extends Controller
         $idpengantaran = $request->input('id');
         $file = $request->file('file');
 
+
+
         try {
             $result = DB::table('tbl_pengantaran')
-                        ->select('pembayaran_id')
                         ->where('id', $idpengantaran)
                         ->first();
 
@@ -357,7 +358,6 @@ class DeliveryController extends Controller
                 ], 404);
             }
 
-            $pembayaranId = $result->pembayaran_id;
 
             if ($file) {
                 try {
@@ -372,7 +372,7 @@ class DeliveryController extends Controller
                 return response()->json(['error' => true, 'message' => 'File not uploaded.'], 400);
             }
 
-            DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 6]);
+            // DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 6]);
 
             return response()->json([
                 'status' => 'success',

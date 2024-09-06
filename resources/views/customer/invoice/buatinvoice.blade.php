@@ -198,6 +198,7 @@
                                         @foreach ($listPembeli as $pembeli)
                                             <option value="{{ $pembeli->id }}"
                                                 data-metode="{{ $pembeli->metode_pengiriman }}"
+                                                data-minrate="{{ $pembeli->minimum_rate }}"
                                                 data-alamat="{{ $pembeli->alamat }}"
                                                 data-jumlahalamat="{{ $pembeli->jumlah_alamat }}">
                                                 {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}
@@ -460,11 +461,16 @@
 
             $('#pickupDelivery').hide();
 
+            let globalMinrate = 0;
+
             $('#selectCostumer').change(function() {
                 var selectedCustomer = $(this).val();
                 var metodePengiriman = $('#selectCostumer option:selected').data('metode');
                 var alamat = $('#selectCostumer option:selected').data('alamat');
                 var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
+                var minrate = $('#selectCostumer option:selected').data('minrate') || 0;
+                globalMinrate = minrate;
+
 
                 if (selectedCustomer) {
                     $('#pickupDelivery').show();
@@ -496,10 +502,16 @@
                         selectAlamat += '</select>';
                         $('#alamatContainer').html(selectAlamat); // Tampilkan dropdown di container
                     }
+
+
+
                 } else {
                     $('#pickupDelivery').hide();
                     $('#alamatContainer').empty();
                 }
+
+                // updateTotalHargaBerat();
+                // updateTotalHargaVolume();
             });
 
             var today = new Date();
@@ -532,6 +544,12 @@
                 const totalHargaIDR = $('#totalHargaValue').val();
                 const customRate = $('#rateCurrency').val();
                 let convertedTotal = 0;
+
+
+                if (!totalHargaIDR || isNaN(totalHargaIDR) || totalHargaIDR.trim() === '') {
+                    $('#total-harga').text('-');
+                    return; // Kembalikan jika total harga tidak valid
+                }
 
                 if (!currencyValue) {
                     $('#total-harga').text('-');
@@ -612,29 +630,58 @@
                 updateDisplayedTotalHarga();
             });
 
+            // function updateTotalHargaBerat() {
+            //     let beratRaw = $('#beratBarang').val().replace(',', '.');
+            //     let berat = parseFloat(beratRaw);
+
+
+
+            //     if (beratRaw.trim() === '' || isNaN(berat)) {
+            //         $('#total-harga').text('Rp. 0');
+            //         $('#totalHargaValue').val(0);
+            //     } else {
+            //         let hargaPerKg = $('#rateBerat').val();
+            //         let totalHarga = berat * hargaPerKg;
+            //         if (totalHarga < minrate) {
+            //             totalHarga = minrate;
+            //         }
+            //         $('#totalHargaValue').val(totalHarga);
+            //         updateDisplayedTotalHarga();
+            //         // if (totalHarga > 250000) {
+            //         //     // showMessage("error", "Barang Diatas 250.000 pakai Volume")
+            //         //     // $('#beratBarang').val('');
+            //         //     // $('#total-harga').text('Rp. 0');
+            //         //     // $('#toggleSwitch').click();
+            //         // } else {
+
+            //         // }
+
+            //     }
+            // }
+
+
             function updateTotalHargaBerat() {
                 let beratRaw = $('#beratBarang').val().replace(',', '.');
                 let berat = parseFloat(beratRaw);
+                let hargaPerKg = $('#rateBerat').val();
 
-                if (beratRaw.trim() === '' || isNaN(berat)) {
-                    $('#total-harga').text('Rp. 0');
-                    $('#totalHargaValue').val(0);
+                if (beratRaw.trim() === '' || isNaN(berat) || hargaPerKg.trim() === '') {
+                    $('#total-harga').text('-');
+                    $('#totalHargaValue').val('');
                 } else {
-                    berat = Math.max(2, berat);
-                    let hargaPerKg = $('#rateBerat').val();
+                    hargaPerKg = parseFloat(hargaPerKg);
                     let totalHarga = berat * hargaPerKg;
-                    if (totalHarga > 250000) {
-                        showMessage("error", "Barang Diatas 250.000 pakai Volume")
-                        $('#beratBarang').val('');
-                        $('#total-harga').text('Rp. 0');
-                        $('#toggleSwitch').click();
-                    } else {
-                        $('#totalHargaValue').val(totalHarga)
-                        updateDisplayedTotalHarga();
+                    if (totalHarga < globalMinrate) {
+                        totalHarga = globalMinrate;
                     }
 
+                    $('#totalHargaValue').val(totalHarga);
+                    updateDisplayedTotalHarga();
                 }
             }
+
+
+
 
             function updateTotalHargaVolume() {
                 var panjang = parseFloat($('#panjang').val().replace(',', '.')) || 0;

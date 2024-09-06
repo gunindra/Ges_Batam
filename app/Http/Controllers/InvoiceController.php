@@ -29,11 +29,19 @@ class InvoiceController extends Controller
                                         a.nama_pembeli,
                                         a.marking,
                                         a.metode_pengiriman,
+                                        c.id,
+                                        c.minimum_rate,
                                         GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
                                         COUNT(b.id) AS jumlah_alamat
                                     FROM tbl_pembeli a
                                     LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
-                                    GROUP BY a.id");
+                                    JOIN tbl_category c ON a.category_id = c.id
+                                    GROUP BY a.id,
+                                    a.nama_pembeli,
+                                     a.marking,
+                                      a.metode_pengiriman,
+                                       c.id,
+                                        c.minimum_rate");
 
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
