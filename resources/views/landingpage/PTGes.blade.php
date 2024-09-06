@@ -19,7 +19,7 @@
     @if($popup->Link_Popup)
     <div class="controls">
       <button class="btn-Go btn btn-primary">
-      <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white;">Go</a>
+      <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white; ">Go</a>
       </button>
     </div>
   @endif

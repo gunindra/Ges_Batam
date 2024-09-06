@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // wa
     document.getElementById('whatsappButton').onclick = function() {
         var phoneNumber = '6289636090157';
-        var message = 'Halo Admin, saya ingin bertanya tentang logistic ';
+        var message = 'Halo Admin, saya memiliki masalah website ini';
         var whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
         window.open(whatsappUrl, '_blank');
     };
