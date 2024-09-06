@@ -88,6 +88,7 @@ Route::get('/booking/dataBookingForm', [BookingController::class, 'dataBookingFo
 // Delivery
 Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
 Route::get('/delivery/addDelivery', [DeliveryController::class, 'addDelivery'])->name('addDelivery');
+Route::get('/delivery/getlistTableBuatDelivery', [DeliveryController::class, 'getlistTableBuatDelivery'])->name('getlistTableBuatDelivery');
 Route::post('/delivery/cekResi', [DeliveryController::class, 'cekResi'])->name('cekResi');
 Route::post('/delivery/buatDelivery', [DeliveryController::class, 'buatDelivery'])->name('buatDelivery');
 Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');

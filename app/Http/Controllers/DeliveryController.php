@@ -143,6 +143,52 @@ class DeliveryController extends Controller
         ]);
     }
 
+    public function getlistTableBuatDelivery (Request $request)
+    {
+        $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
+
+        $q = "SELECT a.id,
+                                a.no_resi,
+                                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                                b.nama_pembeli AS pembeli,
+                                b.metode_pengiriman,
+                                a.status_id
+                        FROM tbl_invoice AS a
+                        JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+                        JOIN tbl_status AS d ON a.status_id = d.id
+                        WHERE a.status_id = 1
+                        AND b.metode_pengiriman = 'Delivery'
+                        AND a.tanggal_invoice = '$filterDate'
+                        ";
+
+
+        $data = DB::select($q);
+
+                $output = '<table id="datatable_resi" class="table table-bordered table-hover">
+                <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select_all"></th>
+                            <th>No Resi</th>
+                            <th>Tanggal</th>
+                            <th>Customer</th>
+                        </tr>
+                </thead>
+                <tbody>';
+                foreach ($data as $item) {
+                    $output .=
+                        '
+                       <tr>
+                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_resi . '"></td>
+                            <td>' . ($item->no_resi ?? '-') . '</td>
+                            <td>' . ($item->tanggal_bayar ?? '-') . '</td>
+                            <td>' . ($item->pembeli ?? '-') . '</td>
+                        </tr>
+                    ';
+                }
+        $output .= '</tbody></table>';
+        return $output;
+    }
+
     public function cekResi(Request $request)
     {
         $noResi = $request->input('no_resi');

@@ -149,6 +149,7 @@ class InvoiceController extends Controller
                     a.harga,
                     a.matauang_id,
                     a.rate_matauang,
+                    d.id,
                     d.status_name
             FROM tbl_invoice AS a
             JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
@@ -159,12 +160,12 @@ class InvoiceController extends Controller
                 )
                 $dateCondition
                 $statusCondition
-            ORDER BY CASE d.status_name
-                        WHEN 'Pending Payment' THEN 1
-                        WHEN 'Debt' THEN 2
-                        WHEN 'Out For Delivery' THEN 3
-                        WHEN 'Ready For Pickup' THEN 4
-                        WHEN 'Delivering' THEN 5
+            ORDER BY CASE d.id
+                        WHEN '1' THEN 1
+                        WHEN '5' THEN 2
+                        WHEN '3' THEN 3
+                        WHEN '2' THEN 4
+                        WHEN '4' THEN 5
                         ELSE 6
                     END,
                      a.id DESC
