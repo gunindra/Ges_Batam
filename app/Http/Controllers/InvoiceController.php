@@ -356,8 +356,6 @@ class InvoiceController extends Controller
         $alamatTujuan = $request->input('alamat');
         $totalharga = $request->input('totalharga');
 
-        dd($customer);
-
         $date = DateTime::createFromFormat('j F Y', $tanggal);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
 

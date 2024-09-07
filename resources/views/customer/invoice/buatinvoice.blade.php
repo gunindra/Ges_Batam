@@ -470,8 +470,6 @@
                 var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
                 var minrate = $('#selectCostumer option:selected').data('minrate') || 0;
                 globalMinrate = minrate;
-
-
                 if (selectedCustomer) {
                     $('#pickupDelivery').show();
 
