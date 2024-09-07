@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('category_name', 50);
             $table->decimal('minimum_rate', 15,2)->nullable();
+            $table->decimal('maximum_rate', 15,2)->nullable();
             $table->timestamps();
         });
     }

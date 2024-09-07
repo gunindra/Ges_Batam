@@ -18,7 +18,8 @@ class CategoryController extends Controller
 
         $q = "SELECT id,
                         category_name,
-                        minimum_rate
+                        minimum_rate,
+                        maximum_rate
                 FROM tbl_category
         ";
 
@@ -30,7 +31,8 @@ class CategoryController extends Controller
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Nama</th>
-                                        <th>Rate</th>
+                                        <th>Minimum Rate</th>
+                                        <th>Maximum Rate</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -42,8 +44,9 @@ class CategoryController extends Controller
                 <tr>
                     <td class="">' . ($item->category_name ?? '-') .'</td>
                     <td class="">' . (isset($item->minimum_rate) ? ' ' . number_format($item->minimum_rate,0, '.', ',') : '-') . '</td>
+                    <td class="">' . (isset($item->maximum_rate) ? ' ' . number_format($item->maximum_rate,0, '.', ',') : '-') . '</td>
                     <td>
-                        <a  class="btn btnUpdateCategory btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-category_name="' .$item->category_name .'" data-minimum_rate="' .$item->minimum_rate .'" ><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateCategory btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-category_name="' .$item->category_name .'" data-minimum_rate="' .$item->minimum_rate .'" data-maximum_rate="' .$item->maximum_rate .'" ><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyCategory btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -58,11 +61,13 @@ class CategoryController extends Controller
 
         $namaCategory = $request->input('namaCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');
+        $maximumRateCategory = $request->input('maximumRateCategory');
         try {
            
             DB::table('tbl_category')->insert([
                 'category_name' => $namaCategory,
                 'minimum_rate' => $minimumRateCategory,
+                'maximum_rate' => $maximumRateCategory,
                 'created_at' => now(),
             ]);
 
@@ -76,11 +81,13 @@ class CategoryController extends Controller
         $id = $request->input('id');
         $namaCategory = $request->input('namaCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');
+        $maximumRateCategory = $request->input('maximumRateCategory');
 
         try {
             $dataUpdate = [
                 'category_name' => $namaCategory,
                 'minimum_rate' => $minimumRateCategory,
+                'maximum_rate' => $maximumRateCategory,
                 'updated_at' => now(),
             ];
 

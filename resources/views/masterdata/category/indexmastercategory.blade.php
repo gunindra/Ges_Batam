@@ -23,10 +23,16 @@
                         <div id="namaCategoryError" class="text-danger mt-1 d-none">Silahkan isi nama</div>
                     </div>
                     <div class="mt-3">
-                        <label for="minimumRateCategory" class="form-label fw-bold">Rate</label>
+                        <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategory" value=""
                             placeholder="Masukkan content">
-                        <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Rate </div>
+                        <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
+                        <input type="text" class="form-control" id="maximumRateCategory" value=""
+                            placeholder="Masukkan content">
+                        <div id="maximumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -55,10 +61,16 @@
                         <div id="namaCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
                     </div>
                     <div class="mt-3">
-                        <label for="minimumRateCategory" class="form-label fw-bold">Rate</label>
+                        <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategoryEdit" value=""
                             placeholder="Masukkan content">
-                        <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Rate</div>
+                        <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
+                        <input type="text" class="form-control" id="maximumRateCategoryEdit" value=""
+                            placeholder="Masukkan content">
+                        <div id="maximumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -157,13 +169,14 @@
         }
 
         getlistCategory();
-        $('#minimumRateCategory,#minimumRateCategoryEdit').on('input', function () {
+        $('#minimumRateCategory,#minimumRateCategoryEdit,#maximumRateCategory,#maximumRateCategoryEdit').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
         $('#saveCategory').click(function () {
             // Ambil nilai input
             var namaCategory = $('#namaCategory').val().trim();
             var minimumRateCategory = $('#minimumRateCategory').val().trim();
+            var maximumRateCategory = $('#maximumRateCategory').val().trim();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -177,16 +190,30 @@
             }
 
             if (minimumRateCategory === '') {
-                $('#minimumRateCategoryError').removeClass('d-none').text("Rate Category tidak boleh kosong");
+                $('#minimumRateCategoryError').removeClass('d-none').text("Minimum Rate Category tidak boleh kosong");
                 isValid = false;
             } else if (isNaN(minimumRateCategory) || parseFloat(minimumRateCategory) < 0) {
-                $('#minimumRateCategoryError').removeClass('d-none').text("Rate Category harus berupa angka positif");
+                $('#minimumRateCategoryError').removeClass('d-none').text("Minimum Rate Category harus berupa angka positif");
                 isValid = false;
             } else if (parseFloat(minimumRateCategory) > 100000000000000000) {
                 $('#minimumRateCategoryError').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
                 isValid = false;
             } else {
                 $('#minimumRateCategoryError').addClass('d-none');
+            }
+
+
+            if (maximumRateCategory === '') {
+                $('#maximumRateCategoryError').removeClass('d-none').text("Maximum Rate Category tidak boleh kosong");
+                isValid = false;
+            } else if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
+                $('#maximumRateCategoryError').removeClass('d-none').text("Maximum Rate Category harus berupa angka positif");
+                isValid = false;
+            } else if (parseFloat(maximumRateCategory) > 100000000000000000) {
+                $('#maximumRateCategoryError').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
+                isValid = false;
+            } else {
+                $('#maximumRateCategoryError').addClass('d-none');
             }
 
             // Jika semua input valid, lanjutkan aksi simpan
@@ -205,6 +232,7 @@
                         var formData = new FormData();
                         formData.append('namaCategory', namaCategory);
                         formData.append('minimumRateCategory', minimumRateCategory);
+                        formData.append('maximumRateCategory', maximumRateCategory);
                         formData.append('_token', csrfToken);
 
                         $.ajax({
@@ -246,9 +274,11 @@
             let id = $(this).data('id');
             let category_name = $(this).data('category_name');
             let minimum_rate = $(this).data('minimum_rate');
+            let maximum_rate = $(this).data('maximum_rate');
 
             $('#namaCategoryEdit').val(category_name);
             $('#minimumRateCategoryEdit').val(minimum_rate);
+            $('#maximumRateCategoryEdit').val(maximum_rate);
             $('#categoryIdEdit').val(id);
 
             $(document).on('click', '#saveEditCategory', function (e) {
@@ -256,6 +286,7 @@
                 let id = $('#categoryIdEdit').val();
                 let namaCategory = $('#namaCategoryEdit').val();
                 let minimumRateCategory = $('#minimumRateCategoryEdit').val();
+                let maximumRateCategory = $('#maximumRateCategoryEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
@@ -268,16 +299,30 @@
                 }
 
                 if (minimumRateCategory === '') {
-                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Rate Category tidak boleh kosong");
+                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Minimum Rate Category tidak boleh kosong");
                     isValid = false;
                 } else if (isNaN(minimumRateCategory) || parseFloat(minimumRateCategory) < 0) {
-                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Rate Category harus berupa angka positif");
+                    $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Minimum Rate Category harus berupa angka positif");
                     isValid = false;
                 } else if (parseFloat(minimumRateCategory) > 100000000000000000) {
                     $('#minimumRateCategoryErrorEdit').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
                     isValid = false;
                 } else {
                     $('#minimumRateCategoryErrorEdit').addClass('d-none');
+                }
+
+
+                if (maximumRateCategory === '') {
+                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text("Maximum Rate Category tidak boleh kosong");
+                    isValid = false;
+                } else if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
+                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text("Maximum Rate Category harus berupa angka positif");
+                    isValid = false;
+                } else if (parseFloat(maximumRateCategory) > 100000000000000000) {
+                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text("Maximum karakter tidak boleh lebih dari 15 ");
+                    isValid = false;
+                } else {
+                    $('#maximumRateCategoryErrorEdit').addClass('d-none');
                 }
                 if (isValid) {
                     Swal.fire({
@@ -295,6 +340,7 @@
                             formData.append('id', id);
                             formData.append('namaCategory', namaCategory);
                             formData.append('minimumRateCategory', minimumRateCategory);
+                            formData.append('maximumRateCategory', maximumRateCategory);
                             formData.append('_token', csrfToken);
 
                             $.ajax({
@@ -327,21 +373,27 @@
             $('#modalEditCategory').modal('show');
         });
         $('#modalTambahCategory').on('hidden.bs.modal', function () {
-            $('#namaCategory,#minimumRateCategory').val('');
+            $('#namaCategory,#minimumRateCategory,#maximumRateCategory').val('');
             if (!$('#namaCategoryError').hasClass('d-none')) {
                 $('#namaCategoryError').addClass('d-none');
             }
             if (!$('#minimumRateCategoryError').hasClass('d-none')) {
                 $('#minimumRateCategoryError').addClass('d-none');
             }
+            if (!$('#maximumRateCategoryError').hasClass('d-none')) {
+                $('#maximumRateCategoryError').addClass('d-none');
+            }
         });
         $('#modalEditCategory').on('hidden.bs.modal', function () {
-            $('#namaCategoryEdit,#minimumRateCategoryEdit').val('');
+            $('#namaCategoryEdit,#minimumRateCategoryEdit,#maximumRateCategoryEdit').val('');
             if (!$('#namaCategoryErrorEdit').hasClass('d-none')) {
                 $('#namaCategoryErrorEdit').addClass('d-none');
             }
             if (!$('#minimumRateCategoryErrorEdit').hasClass('d-none')) {
                 $('#minimumRateCategoryErrorEdit').addClass('d-none');
+            }
+            if (!$('#maximumRateCategoryErrorEdit').hasClass('d-none')) {
+                $('#maximumRateCategoryErrorEdit').addClass('d-none');
             }
         });
 
