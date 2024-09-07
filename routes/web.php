@@ -208,6 +208,8 @@ Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destr
 Route::get('/masterdata/user', [UserController::class, 'index'])->name('user');
 Route::get('/masterdata/user/list', [UserController::class, 'getlistUser'])->name('getlistUser');
 Route::post('/masterdata/user/tambah', [UserController::class, 'addUsers'])->name('addUsers');
+Route::post('/masterdata/user/update', [UserController::class, 'updateUsers'])->name('updateUsers');
+Route::get('/masterdata/user/destroy', [UserController::class, 'destroyUsers'])->name('destroyUsers');
 
 //role
 Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');

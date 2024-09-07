@@ -48,8 +48,8 @@ class UserController extends Controller
                     <td class="">' . ($item->role ?? '-') . '</td>
                 
                  <td>
-                        <a  class="btn btnUpdateBooking btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-name="' .$item->name .'" data-email="' .$item->email .'"  data-role="' .$item->role .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyBooking btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a> 
+                        <a  class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-name="' .$item->name .'" data-email="' .$item->email .'"  data-role="' .$item->role .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a> 
                 </td>
                 </tr>
             ';
@@ -80,4 +80,43 @@ class UserController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
         }
     }
+     public function updateUsers(Request $request)
+    {
+        $id = $request->input('id');
+        $nameUsers = $request->input('nameUsers');
+        $emailUsers = $request->input('emailUsers');
+        $roleUsers = $request->input('roleUsers');
+
+        try {
+            $dataUpdate = [
+                'name' => $nameUsers,
+                'email' => $emailUsers,
+                'role' => $roleUsers,
+                'updated_at' => now(),
+            ];
+
+            DB::table('tbl_users')
+                ->where('id', $id)
+                ->update($dataUpdate);
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+        }
+    }
+    public function destroyUsers(Request $request)
+    {
+        $id = $request->input('id');
+
+        try {
+            DB::table('tbl_users')
+                ->where('id', $id)
+                ->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 }

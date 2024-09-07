@@ -98,7 +98,7 @@
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                             class="form-control rounded-3" placeholder="Search">
                     </div>
-                    <div class="d-flex mb-2 mr-3 float-right">
+                    <div class="d-flex mb-3 mr-3 float-right">
                         {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahUsers" id="#modalCenter"><span class="pr-2"><i
@@ -280,6 +280,147 @@
             if (!$('#roleUsersError').hasClass('d-none')) {
                 $('#roleUsersError').addClass('d-none');
             }
+        });
+        $(document).on('click', '.btnUpdateUsers', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let name = $(this).data('name');
+            let email = $(this).data('email');
+            let role = $(this).data('role');
+
+            $('#nameUsersEdit').val(name);
+            $('#emailUsersEdit').val(email);
+            $('#roleUsersEdit').val(role);
+            $('#usersIdEdit').val(id);
+
+            $(document).on('click', '#saveEditUsers', function (e) {
+
+                let id = $('#usersIdEdit').val();
+                let nameUsers = $('#nameUsersEdit').val();
+                let emailUsers = $('#emailUsersEdit').val();
+                let roleUsers = $('#roleUsersEdit').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                let isValid = true;
+
+                if (nameUsers === '') {
+                    $('#nameUsersErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#nameUsersErrorEdit').addClass('d-none');
+                }
+
+                // Validasi Content
+                if (emailUsers === '') {
+                    $('#emailUsersErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#emailUsersErrorEdit').addClass('d-none');
+                }
+
+                if (roleUsers === '') {
+                    $('#roleUsersErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#roleUsersErrorEdit').addClass('d-none');
+                }
+
+                
+                if (isValid) {
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('nameUsers', nameUsers);
+                            formData.append('emailUsers', emailUsers);
+                            formData.append('roleUsers', roleUsers);
+                            formData.append('_token', csrfToken);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateUsers') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Diubah");
+                                            getListUser();
+                                        $('#modalEditUsers').modal(
+                                            'hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
+            })
+
+            // validateInformationsInput('modalEditInformations');
+            $('#modalEditUsers').modal('show');
+        });
+        $('#modalEditUsers').on('hidden.bs.modal', function () {
+            $('#nameUsersEdit,#emailUsersEdit,#roleUsersEdit').val('');
+            if (!$('#nameUsersErrorEdit').hasClass('d-none')) {
+                $('#nameUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#emailUsersErrorEdit').hasClass('d-none')) {
+                $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#roleUsersErrorEdit').hasClass('d-none')) {
+                $('#roleUsersErrorEdit').addClass('d-none');
+            }
+        });
+        $(document).on('click', '.btnDestroyUsers', function (e) {
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('destroyUsers') }}",
+                        data: {
+                            id: id,
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                showMessage("success",
+                                    "Berhasil menghapus");
+                                    getListUser();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
+                            }
+                        }
+                    });
+                }
+            });
+
         });
     });
     
