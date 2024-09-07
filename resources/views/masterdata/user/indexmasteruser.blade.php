@@ -6,6 +6,83 @@
 
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
+<div class="modal fade" id="modalTambahUsers" tabindex="-1" role="dialog"
+        aria-labelledby="modalTambahUsersTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahUsers">Tambah User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="usersForm" enctype="multipart/form-data">
+                        <div class="mt-3">
+                            <label for="nameUsers" class="form-label fw-bold">name</label>
+                            <input type="text" class="form-control" id="nameUsers" value=""
+                                placeholder="Masukkan nama user">
+                            <div id="nameUsersError" class="text-danger mt-1 d-none">Silahkan isi Name</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="emailUsers" class="form-label fw-bold">Email</label>
+                            <input type="text" class="form-control" id="emailUsers" value=""
+                                placeholder="Masukkan email user">
+                            <div id="emailUsersError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="roleUsers" class="form-label fw-bold">Role</label>
+                            <input type="text" class="form-control" id="roleUsers" value=""
+                                placeholder="Masukkan role user">
+                            <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                            <button type="button" id="saveUsers" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalEditUsers" tabindex="-1" role="dialog"
+        aria-labelledby="modalEditUsersTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditUsersTitle">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="usersIdEdit">
+                    <div class="mt-3">
+                        <label for="nameUsersEdit" class="form-label fw-bold">Name</label>
+                        <input type="text" class="form-control" id="nameUsersEdit" value=""
+                            placeholder="Masukkan nama user">
+                        <div id="nameUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Name</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="emailUsersEdit" class="form-label fw-bold">Email</label>
+                        <input type="text" class="form-control" id="emailUsersEdit" value=""
+                            placeholder="Masukkan email user">
+                        <div id="emailUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Email</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="roleUsersEdit" class="form-label fw-bold">Role</label>
+                        <input type="text" class="form-control" id="roleUsersEdit" value=""
+                            placeholder="Masukkan role user">
+                        <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditUsers" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">User</h1>
         <ol class="breadcrumb">
@@ -20,6 +97,12 @@
                     <div class="float-left">
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                             class="form-control rounded-3" placeholder="Search">
+                    </div>
+                    <div class="d-flex mb-2 mr-3 float-right">
+                        {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalTambahUsers" id="#modalCenter"><span class="pr-2"><i
+                                    class="fas fa-plus"></i></span>Tambah User</button>
                     </div>
                     <div id="containerUser" class="table-responsive px-3 ">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableUser">
@@ -100,7 +183,106 @@
             }
 
             getListUser();
+
+            $('#saveUsers').click(function () {
+            // Ambil nilai input
+            var nameUsers = $('#nameUsers').val().trim();
+            var emailUsers = $('#emailUsers').val().trim();
+            var roleUsers = $('#roleUsers').val().trim();
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var isValid = true;
+
+            if (nameUsers === '') {
+                $('#nameUsersError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#nameUsersError').addClass('d-none');
+            }
+            if (emailUsers === '') {
+                $('#emailUsersError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#emailUsersError').addClass('d-none');
+            }
+            if (roleUsers === '') {
+                $('#roleUsersError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#roleUsersError').addClass('d-none');
+            }
+
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('nameUsers', nameUsers);
+                        formData.append('emailUsers', emailUsers);
+                        formData.append('roleUsers', roleUsers);
+                        formData.append('_token', csrfToken);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addUsers') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success",
+                                        "Data Berhasil Disimpan");
+                                        getListUser();
+                                    $('#modalTambahUsers').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        text: response
+                                            .message,
+                                        icon: "error",
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan Data",
+                                    text: xhr.responseJSON
+                                        .message,
+                                    icon: "error",
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
         });
+
+        $('#modalTambahUsers').on('hidden.bs.modal', function () {
+            $('#nameUsers,#emailUsers,#roleUsers').val('');
+            if (!$('#nameUsersError').hasClass('d-none')) {
+                $('#nameUsersError').addClass('d-none');
+            }
+            if (!$('#emailUsersError').hasClass('d-none')) {
+                $('#emailUsersError').addClass('d-none');
+            }
+            if (!$('#roleUsersError').hasClass('d-none')) {
+                $('#roleUsersError').addClass('d-none');
+            }
+        });
+    });
+    
 </script>
 
 @endsection

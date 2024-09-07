@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function index()
@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT
+        $q = "SELECT a.id,
 		            a.name, 
 		            a.email, 
 		            a.role 
@@ -34,6 +34,7 @@ class UserController extends Controller
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>';
@@ -45,6 +46,11 @@ class UserController extends Controller
                     <td class="">' . ($item->name ?? '-') . '</td>
                     <td class="">' . ($item->email ?? '-') . '</td>
                     <td class="">' . ($item->role ?? '-') . '</td>
+                
+                 <td>
+                        <a  class="btn btnUpdateBooking btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-name="' .$item->name .'" data-email="' .$item->email .'"  data-role="' .$item->role .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyBooking btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a> 
+                </td>
                 </tr>
             ';
         }
@@ -53,5 +59,25 @@ class UserController extends Controller
         return $output;
     }
 
+    public function addUsers(Request $request)
+    {
+        $nameUsers = $request->input('nameUsers');
+        $emailUsers = $request->input('emailUsers');
+        $roleUsers = $request->input('roleUsers');
 
+        try {
+
+            DB::table('tbl_users')->insert([
+                'name' => $nameUsers,
+                'email' => $emailUsers,
+                'role' => $roleUsers,
+                'password' => Hash::make('password'),
+                'created_at' => now(),
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+        }
+    }
 }
