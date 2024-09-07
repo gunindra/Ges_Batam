@@ -341,9 +341,10 @@ class DeliveryController extends Controller
 
     public function confirmasiPengantaran(Request $request)
     {
+        
         $idpengantaran = $request->input('id');
         $file = $request->file('file');
-
+        
 
 
         try {
@@ -391,6 +392,8 @@ class DeliveryController extends Controller
 
     public function detailBuktiPengantaran(Request $request)
     {
+        
+        
         $tester = $request->input('namafoto');
 
         try {

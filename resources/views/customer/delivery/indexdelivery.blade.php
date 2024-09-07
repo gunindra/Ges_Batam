@@ -19,7 +19,7 @@
                     <div class="mt-3">
                         <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Bukti Pengantaran</label>
                         <input type="file" class="form-control" id="pengantaranStatus" value="">
-                        <div id="err-pengantaranStatus" class="text-danger mt-1">Silakan masukkan file</div>
+                        <div id="err-pengantaranStatus" class="text-danger mt-1 d-none" >Silakan masukkan file</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -337,13 +337,20 @@
                 const fileInput = $('#pengantaranStatus');
                 const file = fileInput[0].files[0];
 
-                if (!file) {
-                    $('#err-pengantaranStatus').show();
+                if (file) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(file.type)) {
+                    $('#err-pengantaranStatus').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#err-pengantaranStatus').hide();
+                    $('#err-pengantaranStatus').addClass('d-none');
                 }
-
+            }else if (!file) {
+                $('#err-pengantaranStatus').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-pengantaranStatus').addClass('d-none');
+            }
                 return isValid;
             }
 
@@ -400,6 +407,13 @@
             });
 
             $('#modalConfirmasiPengantaran').modal('show');
+        });
+        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function () {
+            $('#pengantaranStatus').val('');
+            if (!$('#err-pengantaranStatus').hasClass('d-none')) {
+                $('#err-pengantaranStatus').addClass('d-none');
+
+            }
         });
 
         $(document).on('click', '.btnDetailPengantaran', function(e) {

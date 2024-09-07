@@ -18,6 +18,11 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
+            <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('tracking') }}">
+                <i class="fas fa-globe-asia"></i>
+                    <span>Tracking</span></a>
+            </li>
             <li
                 class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('pickup') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"
@@ -83,11 +88,6 @@
                             href="{{ route('popup') }}">Popup</a>
                     </div>
                 </div>
-            </li>
-            <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('tracking') }}">
-                <i class="fas fa-globe-asia"></i>
-                    <span>Tracking</span></a>
             </li>
             <li
                 class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') ? 'active' : '' }}">
