@@ -25,13 +25,13 @@
                     <div class="mt-3">
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategory" value=""
-                            placeholder="Masukkan content">
+                            placeholder="Masukkan Minimum Rate">
                         <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate </div>
                     </div>
                     <div class="mt-3">
                         <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
                         <input type="text" class="form-control" id="maximumRateCategory" value=""
-                            placeholder="Masukkan content">
+                            placeholder="Masukkan Maximum Rate">
                         <div id="maximumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate </div>
                     </div>
                     <div class="modal-footer">
@@ -63,13 +63,13 @@
                     <div class="mt-3">
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategoryEdit" value=""
-                            placeholder="Masukkan content">
+                            placeholder="Masukkan Minimum Rate">
                         <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate</div>
                     </div>
                     <div class="mt-3">
                         <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
                         <input type="text" class="form-control" id="maximumRateCategoryEdit" value=""
-                            placeholder="Masukkan content">
+                            placeholder="Masukkan Maximum Rate">
                         <div id="maximumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate</div>
                     </div>
                 </div>

@@ -6,24 +6,76 @@
 
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
-    <div class="modal fade" id="modalRoleMaster" tabindex="-1" role="dialog" aria-labelledby="modalEditIklanTitle"
+    <!-- Modal tambah -->
+    <div class="modal fade" id="modalTambahRole" tabindex="-1" role="dialog" aria-labelledby="modalTambahRoleTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalRoleMasterTitle">Role Master</h5>
+                    <h5 class="modal-title" id="modalTambahRole">Tambah Iklan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="roleMasterId">
+                    <div class="mt-3">
+                        <label for="roleMaster" class="form-label fw-bold">Role</label>
+                        <input type="text" class="form-control" id="roleMaster" value="" placeholder="Masukkan Role">
+                        <div id="roleMasterError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveRoleMaster" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Edit -->
+    <div class="modal fade" id="modalEditRole" tabindex="-1" role="dialog" aria-labelledby="modalEditRoleTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditRoleTitle">Edit Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="roleIdEdit">
+                    <div class="mt-3">
+                        <label for="roleMaster" class="form-label fw-bold">Role</label>
+                        <input type="text" class="form-control" id="roleMasterEdit" value=""
+                            placeholder="Masukkan role">
+                        <div id="roleMasterErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditRole" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalMenuAkses" tabindex="-1" role="dialog" aria-labelledby="modalTambahMenuAksesTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalMenuAksesTitle">Menu Akses</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="menuAksesId">
                     <div class="CheckAll mt-1">
                         <input type="checkbox" class="largerCheckbox" id="chkAll" />
                         <label for="selectAll" class="form-label fw-bold">Select All</label>
                     </div>
-                     <!-- dashboard -->
-                     <div class="dashboard mt-1 mx-3">
+                    <!-- dashboard -->
+                    <div class="dashboard mt-1 mx-3">
                         <input type="checkbox" class="largerCheckbox tblChk" data-id="B0230123" />
                         <label for="dashboard" class="form-label fw-bold">Dashboard</label>
                     </div>
@@ -127,7 +179,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    <button type="button" id="saveRoleMaster" class="btn btn-primary">Save changes</button>
+                    <button type="button" id="saveMenuAkses" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -154,12 +206,17 @@
                 <div class="col-lg-12">
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="float-left">
+                            <div class="float-left mb-3">
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
                             </div>
+                            <div class="d-flex mb-2 mr-3 float-right">
+                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#modalTambahRole" id="#modalCenter"><span class="pr-2"><i
+                                            class="fas fa-plus"></i></span>Tambah Role</button>
+                            </div>
                             <div id="containerRole" class="table-responsive px-3 ">
-                                <table class="table align-items-center table-flush table-hover" id="tableRole">
+                                <!-- <table class="table align-items-center table-flush table-hover" id="tableRole">
                                     <thead class="thead-light">
                                         <tr>
                                             <th>Pemilik</th>
@@ -188,7 +245,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> -->
                             </div>
                         </div>
                     </div>
@@ -202,12 +259,12 @@
                 <div class="col-lg-12">
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="float-left">
+                            <div class="float-left mb-3">
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
                             </div>
-                            <div id="containerAkses" class="table-responsive px-3 ">
-                                <table class="table align-items-center table-flush table-hover" id="tableAkses">
+                            <div id="containerMenuAkses" class="table-responsive px-3 ">
+                                <!-- <table class="table align-items-center table-flush table-hover" id="tableAkses">
                                     <thead class="thead-light">
                                         <tr>
                                             <th>nama</th>
@@ -236,7 +293,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> -->
                             </div>
                         </div>
                     </div>
@@ -331,6 +388,291 @@
         $('input.tblChk').click(function () {
             updateSelectAllStatus();
         });
+    });
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getlistRole = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                url: "{{ route('getlistRole') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerRole').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerRole').html(res)
+                    $('#tableRole').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getlistRole();
+
+        $('#saveRoleMaster').click(function () {
+            // Ambil nilai input
+            var roleMaster = $('#roleMaster').val().trim();
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var isValid = true;
+
+            if (roleMaster === '') {
+                $('#roleMasterError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#roleMasterError').addClass('d-none');
+            }
+            // Jika semua input valid, lanjutkan aksi simpan
+            if (isValid) {
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('roleMaster', roleMaster);
+                        formData.append('_token', csrfToken);
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('addRole') }}",
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    showMessage("success", "Data Berhasil Disimpan");
+                                    getlistRole();
+                                    $('#modalTambahRole').modal('hide');
+                                } else {
+                                    Swal.fire({
+                                        title: "Gagal Menambahkan Data",
+                                        text: response
+                                            .message,
+                                        icon: "error"
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan Data",
+                                    text: xhr.responseJSON
+                                        .message,
+                                    icon: "error",
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                showMessage("error", "Mohon periksa input yang kosong");
+            }
+        });
+        $('#modalTambahRole').on('hidden.bs.modal', function () {
+            $('#roleMaster').val('');
+            if (!$('#roleMasterError').hasClass('d-none')) {
+                $('#roleMasterError').addClass('d-none');
+
+            }
+            if (!$('#roleMasterError').hasClass('d-none')) {
+                $('#roleMasterError').addClass('d-none');
+
+            }
+        });
+        $(document).on('click', '.btnUpdateRole', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let role = $(this).data('role');
+
+            $('#roleMasterEdit').val(role);
+            $('#roleIdEdit').val(id);
+
+            $(document).on('click', '#saveEditRole', function (e) {
+
+                let id = $('#roleIdEdit').val();
+                let roleMaster = $('#roleMasterEdit').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                let isValid = true;
+
+                if (roleMaster === '') {
+                    $('#roleMasterErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#roleMasterErrorEdit').addClass('d-none');
+                }
+
+                if (isValid) {
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('roleMaster', roleMaster);
+                            formData.append('_token', csrfToken);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateRole') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (response) {
+                                    if (response.status === 'success') {
+                                        showMessage("success",
+                                            "Data Berhasil Diubah");
+                                        getlistRole();
+                                        $('#modalEditRole').modal(
+                                            'hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
+            })
+
+            // validateInformationsInput('modalEditInformations');
+            $('#modalEditRole').modal('show');
+        });
+        $('#modalEditRole').on('hidden.bs.modal', function () {
+            $('#roleMasterEdit').val('');
+            if (!$('#roleMasterErrorEdit').hasClass('d-none')) {
+                $('#roleMasterErrorEdit').addClass('d-none');
+
+            }
+            if (!$('#roleMasterErrorEdit').hasClass('d-none')) {
+                $('#roleMasterErrorEdit').addClass('d-none');
+
+            }
+        });
+        $(document).on('click', '.btnDestroyRole', function (e) {
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('destroyRole') }}",
+                        data: {
+                            id: id,
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                showMessage("success", "Berhasil menghapus");
+                                getlistRole();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
+                            }
+                        }
+                    });
+                }
+            });
+
+        });
+
+    });
+</script>
+<script>
+         $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
+
+        const getlistMenu = () => {
+            const txtSearch = $('#txSearch').val();
+
+            $.ajax({
+                url: "{{ route('getlistMenu') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerMenuAkses').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerMenuAkses').html(res)
+                    $('#tableMenuAkses').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getlistMenu();
+
+        $(document).ready(function() {
+    // Saat tombol edit ditekan
+    $(document).on('click', '.btnUpdateMenuAkses', function() {
+        var id = $(this).data('id'); // ambil data-id dari tombol
+        var role = $(this).data('role'); // ambil data-role dari tombol
+        
+        // Set nilai id dan role ke dalam input di modal
+        $('#menuAksesId').val(id);
+        $('#modalMenuAksesTitle').text('Edit Menu Akses'); // Set judul modal
+
+        // Tampilkan modal
+        $('#modalMenuAkses').modal('show');
+    });
+});
     });
 </script>
 @endsection

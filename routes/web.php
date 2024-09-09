@@ -213,6 +213,12 @@ Route::get('/masterdata/user/destroy', [UserController::class, 'destroyUsers'])-
 
 //role
 Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
+Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');
+Route::post('/masterdata/role/tambah', [RoleController::class, 'addRole'])->name('addRole');
+Route::post('/masterdata/role/update', [RoleController::class, 'updateRole'])->name('updateRole');
+Route::get('/masterdata/role/destroy', [RoleController::class, 'destroyRole'])->name('destroyRole');
+//Menu
+Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 
 // Vendor
 Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
