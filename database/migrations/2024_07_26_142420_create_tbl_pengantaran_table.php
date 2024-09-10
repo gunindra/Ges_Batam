@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('tbl_pengantaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supir_id')->constrained('tbl_supir');
+            $table->foreignId('supir_id')->nullable()->constrained('tbl_supir');
             $table->date('tanggal_pengantaran');
+            $table->enum('metode_pengiriman', ['Pickup', 'Delivery']);
             $table->foreignId('status_id')->constrained('tbl_status')->default(3);
             $table->text('bukti_pengantaran')->nullable();
             $table->timestamps();

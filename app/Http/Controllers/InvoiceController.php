@@ -29,7 +29,7 @@ class InvoiceController extends Controller
                                         a.nama_pembeli,
                                         a.marking,
                                         a.metode_pengiriman,
-                                        c.id,
+                                        c.id AS category_id,
                                         c.minimum_rate,
                                         GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
                                         COUNT(b.id) AS jumlah_alamat
@@ -208,11 +208,11 @@ class InvoiceController extends Controller
 
                         switch ($item->status_name) {
                             case 'Batam / Sortir':
-                                $statusBadgeClass = 'badge-warning';
+                                $statusBadgeClass = 'badge-primary';
                                 $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Ready For Pickup':
-                                $statusBadgeClass = 'badge-success';
+                                $statusBadgeClass = 'badge-warning';
                                 $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                                 break;
                             case 'Out For Delivery':
@@ -348,6 +348,7 @@ class InvoiceController extends Controller
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
         $currencyInvoice = $request->input('currencyInvoice');
+        $metodePengiriman = $request->input('metodePengiriman');
         $rateCurrency = $request->input('rateCurrency');
         $beratBarang = floatval(str_replace(',', '.', $request->input('beratBarang')));
         $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
@@ -367,6 +368,7 @@ class InvoiceController extends Controller
                 'no_resi' => $noResi,
                 'tanggal_invoice' => $formattedDate,
                 'pembeli_id' => $customer,
+                'metode_pengiriman' => $metodePengiriman,
                 'alamat' => $alamatTujuan,
                 'berat' => $beratBarang,
                 'panjang' => $panjang,

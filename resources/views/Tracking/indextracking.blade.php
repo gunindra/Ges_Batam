@@ -30,8 +30,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="keterangan" class="form-label fw-bold">Keterangan</label>
-                        <textarea class="form-control" name="keterangan" id="keterangan"  rows="5"
-                            placeholder="Masukkan keterangan"></textarea>
+                        <textarea class="form-control" name="keterangan" id="keterangan" rows="5" placeholder="Masukkan keterangan"></textarea>
                         <div id="keteranganError" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
                     </div>
                     <div class="mt-3">
@@ -73,7 +72,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="keteranganEdit" class="form-label fw-bold">Keterangan</label>
-                        <textarea class="form-control" name="keteranganEdit" id="keteranganEdit"  rows="5"
+                        <textarea class="form-control" name="keteranganEdit" id="keteranganEdit" rows="5"
                             placeholder="Masukkan keterangan"></textarea>
                         <div id="keteranganErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
                     </div>
@@ -104,8 +103,8 @@
                                         class="fas fa-plus"></i></span>Tambah Tracking</button>
                         </div>
                         <div class="float-left">
-                        <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
-                        class="form-control rounded-3" placeholder="Search">
+                            <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                                class="form-control rounded-3" placeholder="Search">
                         </div>
                         <div id="containerTracking" class="table-responsive px-2">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableVendor">
@@ -213,11 +212,11 @@
         getlistTracking();
 
         $('#txSearch').keyup(function(e) {
-                var inputText = $(this).val();
-                if (inputText.length >= 1 || inputText.length == 0) {
-                    getlistTracking();
-                }
-            });
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistTracking();
+            }
+        });
 
         $('#saveTracking').click(function() {
 
@@ -248,7 +247,6 @@
             } else {
                 $('#keteranganError').addClass('d-none');
             }
-
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -261,6 +259,16 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
+
+                        Swal.fire({
+                            title: 'Sedang memproses...',
+                            text: 'Harap menunggu hingga proses selesai',
+                            icon: 'info',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             url: "{{ route('addTracking') }}",
                             method: 'POST',
@@ -272,13 +280,14 @@
                                 noResi: noResi,
                             },
                             success: function(response) {
-
+                                Swal.close();
                                 showMessage("success", "Data Berhasil Disimpan");
                                 $('#modalTambahTracking').modal('hide');
                                 getlistTracking();
                             },
-                            error: function(xhr) {
-
+                            error: function(xhr, status, error) {
+                                Swal.close();
+                                showMessage('error', 'Terjadi kesalahan: ' + error);
                             }
                         });
                     }
@@ -294,7 +303,7 @@
             let id = $(this).data('id')
             let no_do = $(this).data('no_do')
             let keterangan = $(this).data('keterangan');
-            let no_resi =  $(this).data('no_resi');
+            let no_resi = $(this).data('no_resi');
 
 
             $('#noDeliveryOrderEdit').val(no_do);

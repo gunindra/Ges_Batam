@@ -19,7 +19,7 @@
                     <div class="mt-3">
                         <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Bukti Pengantaran</label>
                         <input type="file" class="form-control" id="pengantaranStatus" value="">
-                        <div id="err-pengantaranStatus" class="text-danger mt-1 d-none" >Silakan masukkan file</div>
+                        <div id="err-pengantaranStatus" class="text-danger mt-1 d-none">Silakan masukkan file</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -338,19 +338,21 @@
                 const file = fileInput[0].files[0];
 
                 if (file) {
-                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                if (!validExtensions.includes(file.type)) {
-                    $('#err-pengantaranStatus').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validExtensions.includes(file.type)) {
+                        $('#err-pengantaranStatus').text(
+                                'Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong')
+                            .removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#err-pengantaranStatus').addClass('d-none');
+                    }
+                } else if (!file) {
+                    $('#err-pengantaranStatus').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#err-pengantaranStatus').addClass('d-none');
                 }
-            }else if (!file) {
-                $('#err-pengantaranStatus').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#err-pengantaranStatus').addClass('d-none');
-            }
                 return isValid;
             }
 
@@ -408,7 +410,7 @@
 
             $('#modalConfirmasiPengantaran').modal('show');
         });
-        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function () {
+        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function() {
             $('#pengantaranStatus').val('');
             if (!$('#err-pengantaranStatus').hasClass('d-none')) {
                 $('#err-pengantaranStatus').addClass('d-none');
@@ -447,9 +449,34 @@
 
         $(document).on('click', '.show-invoice-modal', function() {
             var supirName = $(this).data('supir');
-            var invoiceNumbers = $(this).data('invoices').split(', ');
-            var customerNames = $(this).data('customers').split(', ');
-            var addresses = $(this).data('alamat').split(', ');
+            var invoiceNumbers = $(this).data('invoices');
+            var customerNames = $(this).data('customers');
+            var addresses = $(this).data('alamat');
+
+            // Debugging untuk melihat tipe data yang diterima
+            console.log('Invoices:', invoiceNumbers);
+            console.log('Customers:', customerNames);
+            console.log('Addresses:', addresses);
+
+            // Periksa apakah invoiceNumbers adalah string
+            if (typeof invoiceNumbers !== 'string') {
+                invoiceNumbers = String(invoiceNumbers); // Konversi ke string jika bukan string
+            }
+
+            // Cek apakah ada koma dalam string, jika tidak maka tidak perlu di-split
+            if (invoiceNumbers.indexOf(',') === -1) {
+                invoiceNumbers = [invoiceNumbers]; // Masukkan ke dalam array jika hanya satu nomor
+            } else {
+                invoiceNumbers = invoiceNumbers.split(', ');
+            }
+
+            customerNames = customerNames ? customerNames.split(', ') : [];
+            addresses = addresses ? addresses.split(', ') : [];
+
+            console.log('After split - Invoices:', invoiceNumbers);
+            console.log('After split - Customers:', customerNames);
+            console.log('After split - Addresses:', addresses);
+
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
             modalContent += '<thead><tr><th>No. Resi</th><th>Customer</th><th>Alamat</th></tr></thead><tbody>';
             for (var i = 0; i < invoiceNumbers.length; i++) {

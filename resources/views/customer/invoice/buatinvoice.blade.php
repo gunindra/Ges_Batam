@@ -476,7 +476,7 @@
                     if (metodePengiriman === 'Pickup') {
                         $('#pickupDelivery h2').text('Pick Up');
                         $('#alamatContainer')
-                            .empty(); // Kosongkan container jika metode pengiriman adalah Pickup
+                            .empty();
 
                     } else if (metodePengiriman === 'Delivery' && jumlahAlamat == 1) {
                         $('#pickupDelivery h2').text('Delivery');
@@ -486,30 +486,27 @@
                     } else if (metodePengiriman === 'Delivery' && jumlahAlamat > 1) {
                         $('#pickupDelivery h2').text('Delivery');
 
-                        // Buat dropdown untuk memilih alamat jika ada lebih dari 1 alamat
                         var alamatList = alamat.split(', ');
                         var selectAlamat =
                             '<label for="alamatSelect" class="form-label">Alamat</label>';
                         selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
                         selectAlamat +=
-                            '<option value="" selected disabled>Pilih Alamat</option>'; // Opsi pertama
+                            '<option value="" selected disabled>Pilih Alamat</option>';
                         alamatList.forEach(function(alamatItem) {
                             selectAlamat += '<option value="' + alamatItem + '">' + alamatItem +
                                 '</option>';
                         });
                         selectAlamat += '</select>';
-                        $('#alamatContainer').html(selectAlamat); // Tampilkan dropdown di container
+                        $('#alamatContainer').html(selectAlamat);
                     }
-
-
 
                 } else {
                     $('#pickupDelivery').hide();
                     $('#alamatContainer').empty();
                 }
-
-                // updateTotalHargaBerat();
-                // updateTotalHargaVolume();
+                updateTotalHargaVolume();
+                updateTotalHargaBerat();
+                updateDisplayedTotalHarga();
             });
 
             var today = new Date();
@@ -557,7 +554,7 @@
                         maximumFractionDigits: 2
                     }));
                 } else if (customRate && currencyValue !==
-                    '1') { // Jika currency bukan Rupiah dan ada rate yang diinputkan
+                    '1') {
                     convertedTotal = totalHargaIDR / customRate;
                     let currencySymbol = "";
 
@@ -729,7 +726,6 @@
             // });
 
             $('#buatInvoice').click(function() {
-
                 // Collect all form data
                 const noResi = $('#noResi').val().trim();
                 const tanggal = $('#tanggal').val().trim();
@@ -921,7 +917,7 @@
                         panjang: panjang,
                         lebar: lebar,
                         tinggi: tinggi,
-                        // metodePengiriman: metodePengiriman,
+                        metodePengiriman: metodePengiriman,
                         // driver: driver,
                         alamat: alamat,
                         // provinsi: selectedProvinsiName,

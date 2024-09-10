@@ -23,7 +23,9 @@ class TrackingsController extends Controller
              WHERE (
                 UPPER(no_resi) LIKE UPPER('$txSearch')
                 OR UPPER(no_do) LIKE UPPER('$txSearch')
-                )";
+                )
+                ORDER BY id Desc
+                LIMIT 100";
 
         $data = DB::select($q);
 
