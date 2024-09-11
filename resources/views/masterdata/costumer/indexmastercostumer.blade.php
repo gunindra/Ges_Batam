@@ -57,7 +57,10 @@
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                        <input type="text" placeholder="08*********" class="form-control" id="noTelpon" value="">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomor">+62</span>
+                            <input type="text" placeholder="8**********" class="form-control" id="noTelpon" value="">
+                        </div>
                         <div id="notelponCustomerError" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                             customer</div>
                     </div>
@@ -134,7 +137,10 @@
 
                     <div class="mt-3">
                         <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
-                        <input type="text" class="form-control" id="noTelponEdit" value="" placeholder="08**********">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomorEdit">+62</span>
+                            <input type="text" placeholder="8**********" class="form-control" id="noTelponEdit" value="">
+                        </div>
                         <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                             customer
                         </div>
@@ -250,10 +256,10 @@
                         </select>
                     </div>
                     <div class="float-left ps-4">
-                    <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
-                                    onclick="window.location.reload()">
-                                    Reset
-                                </button>
+                        <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                            onclick="window.location.reload()">
+                            Reset
+                        </button>
                     </div>
                     <div id="containerCustomer" class="table-responsive px-3">
                         {{-- <table class="table align-items-center table-flush table-hover" id="tableCostumer">
@@ -348,9 +354,9 @@
                 getListCustomer();
             }
         });
-        $('#filterStatus').change(function() {
-                getListCustomer();
-            });
+        $('#filterStatus').change(function () {
+            getListCustomer();
+        });
 
 
         $(document).on('click', '#modalTambahCost', function (e) {
@@ -382,7 +388,7 @@
 
         $('#metodePengiriman').change(function () {
             var metodePengiriman = $(this).val();
-            if (metodePengiriman === 'Delivery') {
+            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                 $('#alamatSection').show();
             } else {
                 $('#alamatSection').hide();
@@ -413,10 +419,18 @@
         $('#saveCostumer').click(function () {
             var markingCostmer = $('#markingCustomer').val();
             var namaCustomer = $('#namaCustomer').val();
-            var noTelpon = $('#noTelpon').val().trim();
+            // var noTelpon = $('#noTelpon').val().trim();
             var categoryCustomer = $('#categoryCustomer').val();
             var metodePengiriman = $('#metodePengiriman').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+
+            let nomors = $('#nomor').text();
+            let clearplus = nomors.replace('+', '')
+            let nomorTelpon = $('#noTelpon').val();
+            let valueNotlep = clearplus + nomorTelpon;
+            // console.log(valueNotlep);
+
 
             var isValid = true;
 
@@ -454,7 +468,7 @@
 
 
             var alamatCustomer = [];
-            if (metodePengiriman === 'Delivery') {
+            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                 $('textarea[name="alamatCustomer[]"]').each(function () {
                     var alamat = $(this).val().trim();
                     if (alamat === '') {
@@ -481,12 +495,12 @@
                         var formData = new FormData();
                         formData.append('markingCostmer', markingCostmer);
                         formData.append('namaCustomer', namaCustomer);
-                        formData.append('noTelpon', noTelpon);
+                        formData.append('noTelpon', valueNotlep);
                         formData.append('categoryCustomer', categoryCustomer);
                         formData.append('metodePengiriman', metodePengiriman);
                         formData.append('_token', csrfToken);
 
-                        if (metodePengiriman === 'Delivery') {
+                        if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                             alamatCustomer.forEach((alamat, index) => {
                                 formData.append('alamatCustomer[]', alamat);
                             });
@@ -601,6 +615,8 @@
             let id = $(this).data('id');
             let nama = $(this).data('nama');
             let noTelp = $(this).data('notelp');
+            noTelp = String(noTelp);
+            let noTelpWithoutCode = noTelp.slice(2); 
             let alamat = $(this).data('alamat');
             let category = $(this).data('category');
             let pengiriman = $(this).data('metode_pengiriman');
@@ -633,7 +649,7 @@
             // Menangani perubahan metode pengiriman
             $('#metodePengirimanEdit').change(function () {
                 var metodePengiriman = $(this).val();
-                if (metodePengiriman === 'Delivery') {
+                if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                     $('#alamatSectionEdit').show(); // Tampilkan bagian alamat
                 } else {
                     $('#alamatSectionEdit').hide(); // Sembunyikan bagian alamat
@@ -664,7 +680,7 @@
 
             // Isi form edit dengan data yang diterima
             $('#namaCustomerEdit').val(nama);
-            $('#noTelponEdit').val(noTelp);
+            $('#noTelponEdit').val(noTelpWithoutCode);
             $('#categoryCustomerEdit').val(category);
             $('#metodePengirimanEdit').val(pengiriman);
             $('#customerIdEdit').val(id);
@@ -717,7 +733,7 @@
 
             // Validasi dan kumpulkan semua alamat
             let alamatCustomer = [];
-            if (metodePengiriman === 'Delivery') {
+            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                 $('#alamatContainerEdit').find('textarea').each(function () {
                     let alamat = $(this).val().trim();
                     if (alamat === '') {
