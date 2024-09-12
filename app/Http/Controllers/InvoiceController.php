@@ -136,6 +136,7 @@ class InvoiceController extends Controller
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
+        $isNotif = $request->isNotif;
 
         $dateCondition = '';
         if ($startDate && $endDate) {
@@ -189,7 +190,11 @@ class InvoiceController extends Controller
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                     <thead class="thead-light">
-                        <tr>
+                        <tr>';
+                        if ($isNotif == 'true') {
+                            $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
+                        }
+                 $output .= '
                             <th>No Resi</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
@@ -237,7 +242,12 @@ class InvoiceController extends Controller
 
                         $output .=
                             '
-                            <tr>
+                            <tr>';
+                            if ($isNotif == 'true') {
+                                $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
+                            }
+                             $output .=
+                            '
                                 <td>' . ($item->no_resi ?? '-') . '</td>
                                 <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                                 <td>' . ($item->pembeli ?? '-') . '</td>

@@ -4,8 +4,6 @@
 
 @section('main')
 
-<link href="{{ asset('/css/styleckeditor.css') }}" rel="stylesheet">
-
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -32,6 +30,9 @@
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
                         <textarea id="parafAbout" class="form-control" aria-label="With textarea"
                             placeholder="Masukkan content">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                            <!-- <div id="editor">
+
+                            </div> -->
                     </div>
                     <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
@@ -62,7 +63,7 @@
         </div>
     </div>
 </div>
-<script src="{{ asset('/js/main.js') }}"></script>
+<script src="ckeditor/ckeditor5.js"></script>
 <!---Container Fluid-->
 @endsection
 @section('script')
@@ -174,11 +175,12 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     ClassicEditor
-        .create(document.querySelector('#parafAbout'))
+        .create(document.querySelector('#editor'))
         .catch(error => {
             console.error(error);
         });
 });
+
 
 
 </script>
