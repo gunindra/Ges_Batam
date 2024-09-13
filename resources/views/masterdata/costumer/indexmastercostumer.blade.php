@@ -616,7 +616,7 @@
             let nama = $(this).data('nama');
             let noTelp = $(this).data('notelp');
             noTelp = String(noTelp);
-            let noTelpWithoutCode = noTelp.slice(2); 
+            let noTelpWithoutCode = noTelp.slice(2);
             let alamat = $(this).data('alamat');
             let category = $(this).data('category');
             let pengiriman = $(this).data('metode_pengiriman');

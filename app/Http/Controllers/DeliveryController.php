@@ -28,6 +28,8 @@ class DeliveryController extends Controller
 
     public function getlistDelivery(Request $request)
     {
+
+
         $status = strtoupper(trim($request->status));
 
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
@@ -39,7 +41,7 @@ class DeliveryController extends Controller
                 'a.metode_pengiriman',
                 'a.supir_id',
                 'e.nama_supir',
-                DB::raw("GROUP_CONCAT(b.no_resi SEPARATOR ', ') as list_no_resi"),
+                DB::raw("GROUP_CONCAT(b.no_invoice SEPARATOR ', ') as list_no_resi"),
                 DB::raw("GROUP_CONCAT(c.nama_pembeli SEPARATOR ', ') as list_nama_pembeli"),
                 DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ', ') as list_alamat"),
                 DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) AS tanggal_pengantaran"),
@@ -164,7 +166,7 @@ class DeliveryController extends Controller
         $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
 
         $q = "SELECT a.id,
-                                a.no_resi,
+                                a.no_invoice,
                                 DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
                                 b.nama_pembeli AS pembeli,
                                 b.metode_pengiriman,
@@ -194,8 +196,8 @@ class DeliveryController extends Controller
                     $output .=
                         '
                        <tr>
-                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_resi . '"></td>
-                            <td>' . ($item->no_resi ?? '-') . '</td>
+                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
+                            <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
@@ -209,7 +211,7 @@ class DeliveryController extends Controller
         $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
 
         $q = "SELECT a.id,
-                                a.no_resi,
+                                a.no_invoice,
                                 DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
                                 b.nama_pembeli AS pembeli,
                                 b.metode_pengiriman,
@@ -239,8 +241,8 @@ class DeliveryController extends Controller
                     $output .=
                         '
                        <tr>
-                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_resi . '"></td>
-                            <td>' . ($item->no_resi ?? '-') . '</td>
+                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
+                            <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
@@ -252,10 +254,10 @@ class DeliveryController extends Controller
 
     public function cekResi(Request $request)
     {
-        $noResi = $request->input('no_resi');
+        $noResi = $request->input('no_invoice');
 
         $invoice = DB::table('tbl_invoice')
-            ->where('no_resi', $noResi)
+            ->where('no_invoice', $noResi)
             ->first();
 
         if ($invoice) {
@@ -280,7 +282,7 @@ class DeliveryController extends Controller
                         'success' => true,
                         'message' => 'Resi valid untuk pengiriman Delivery',
                         'data' => [
-                            'no_resi' => $invoice->no_resi,
+                            'no_invoice' => $invoice->no_invoice,
                             'nama_pembeli' => $pembeli->nama_pembeli,
                             'status_name' => $status->status_name
                         ]
@@ -300,10 +302,10 @@ class DeliveryController extends Controller
 
     public function cekResiPickup(Request $request)
     {
-        $noResi = $request->input('no_resi');
+        $noResi = $request->input('no_invoice');
 
         $invoice = DB::table('tbl_invoice')
-            ->where('no_resi', $noResi)
+            ->where('no_invoice', $noResi)
             ->first();
 
         if ($invoice) {
@@ -329,7 +331,7 @@ class DeliveryController extends Controller
                         'success' => true,
                         'message' => 'Resi valid untuk pengiriman Pickup',
                         'data' => [
-                            'no_resi' => $invoice->no_resi,
+                            'no_invoice' => $invoice->no_invoice,
                             'nama_pembeli' => $pembeli->nama_pembeli,
                             'status_name' => $status->status_name
                         ]
@@ -385,7 +387,7 @@ class DeliveryController extends Controller
             $resiPerPembeli = [];
 
             foreach ($resiList as $noResi) {
-                $invoice = DB::table('tbl_invoice')->where('no_resi', $noResi)->first();
+                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noResi)->first();
 
                 if ($invoice) {
                     // Tambahkan ke tbl_pengantaran_detail
@@ -398,7 +400,7 @@ class DeliveryController extends Controller
 
                     // Perbarui status di tbl_tracking
                     $updatedTracking = DB::table('tbl_tracking')
-                        ->where('no_resi', $noResi)
+                        ->where('no_invoice', $noResi)
                         ->update(['status' => 'Delivering..']);
 
                     if (!$updatedTracking) {
@@ -407,7 +409,7 @@ class DeliveryController extends Controller
 
                     // Perbarui status di tbl_invoice
                     $updateInvoice = DB::table('tbl_invoice')
-                        ->where('no_resi', $noResi)
+                        ->where('no_invoice', $noResi)
                         ->update(['status_id' => 4]);
 
                     if (!$updateInvoice) {
@@ -486,7 +488,7 @@ class DeliveryController extends Controller
             $resiPerPembeli = [];
 
             foreach ($resiList as $noResi) {
-                $invoice = DB::table('tbl_invoice')->where('no_resi', $noResi)->first();
+                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noResi)->first();
 
                 if ($invoice) {
                     // Tambahkan ke tbl_pengantaran_detail
@@ -499,7 +501,7 @@ class DeliveryController extends Controller
 
                     // Perbarui status di tbl_tracking
                     $updatedTracking = DB::table('tbl_tracking')
-                        ->where('no_resi', $noResi)
+                        ->where('no_invoice', $noResi)
                         ->update(['status' => 'Ready For Pickup']);
 
                     if (!$updatedTracking) {
@@ -508,7 +510,7 @@ class DeliveryController extends Controller
 
                     // Perbarui status di tbl_invoice
                     $updateInvoice = DB::table('tbl_invoice')
-                        ->where('no_resi', $noResi)
+                        ->where('no_invoice', $noResi)
                         ->update(['status_id' => 2]);
 
                     if (!$updateInvoice) {

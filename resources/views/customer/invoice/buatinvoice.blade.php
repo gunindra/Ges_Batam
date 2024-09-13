@@ -150,11 +150,12 @@
                         <div class="d-flex flex-row">
                             <div class="col-6">
                                 <div class="mt-3">
-                                    <label for="noResi" class="form-label fw-bold">No Resi</label>
-                                    <input type="text" class="form-control col-8" id="noResi" value=""
+                                    <label for="noResi" class="form-label fw-bold">No Invoice :</label>
+                                    <h2 class="fw-bold" id="noInvoice">{{ $newNoinvoce }}</h2>
+                                    {{-- <input type="text" class="form-control col-8" id="noResi" value=""
                                         placeholder="Scan Resi">
                                     <div id="noResiError" class="text-danger mt-1 d-none">Silahkan Scan No Resi terlebih
-                                        dahulu</div>
+                                        dahulu</div> --}}
                                 </div>
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
@@ -216,207 +217,71 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="divider mt-4">
                             <span>Detail Barang</span>
                         </div>
-                        <div class="d-flex flex-row">
-                            <label class="switch">
-                                <input type="checkbox" id="toggleSwitch">
-                                <span class="slider"></span>
-                            </label>
-                            <label class="fw-bold pl-2" id="idlabel">Berat</label>
-                        </div>
-                        <div class="d-flex flex-row">
-                            <div class="col-6" id="weightDiv">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class="mt-3">
-                                            <label for="beratBarang" class="form-label fw-bold">Berat (Kg)</label>
-                                            <input type="text" class="form-control" id="beratBarang" value="">
-                                            <div id="beratError" class="text-danger mt-1 d-none">Masukkan Berat</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mt-3">
-                                            <label for="rateSelect" class="form-label fw-bold">Rate</label>
-                                            <select class="form-control" id="rateBerat">
-                                                <option value="" selected disabled>Pilih Rate</option>
-                                                @foreach ($listRateVolume as $rate)
-                                                    @if ($rate->rate_for == 'Berat')
-                                                        <option value="{{ $rate->nilai_rate }}">
-                                                            {{ number_format($rate->nilai_rate, 0, ',', '.') }}
-                                                        </option>
-                                                    @endif
-                                                @endforeach
-                                            </select>
-                                            <div id="rateBeratError" class="text-danger mt-1 d-none">Silahkan Pilih Rate
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 d-none" id="volumeDiv">
-                                <div class="d-flex flex-row mt-3">
-                                    <!-- Volume Section -->
-                                    <div class="flex-grow-1 me-3">
-                                        <label for="volume" class="form-label fw-bold">Volume</label>
-                                        <div class="d-flex align-items-center">
-                                            <input type="text" class="form-control col-2 me-1" id="panjang"
-                                                placeholder="P" value="">
-                                            <span class="mx-1">X</span>
-                                            <input type="text" class="form-control col-2 mx-1" id="lebar"
-                                                placeholder="L" value="">
-                                            <span class="mx-1">X</span>
-                                            <input type="text" class="form-control col-2 ms-1" id="tinggi"
-                                                placeholder="T" value="">
-                                            <span class="ml-2 ">cm</span>
-                                        </div>
-                                    </div>
-                                    <!-- Pembagi Section -->
-                                    <div class="flex-grow-1">
-                                        <label for="pembagiVolume" class="form-label fw-bold">Pembagi</label>
-                                        <select class="form-control" id="pembagiVolume">
-                                            <option value="" selected disabled>Pilih Pembagi</option>
-                                            @foreach ($lisPembagi as $pembagi)
-                                                <option value="{{ $pembagi->nilai_pembagi }}">
-                                                    {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div id="pembagiErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih
-                                            Pembagi</div>
-                                    </div>
-                                    <!-- Rate Section -->
-                                    <div class="flex-grow-1 ml-3">
-                                        <label for="rate" class="form-label fw-bold">Rate</label>
-                                        <select class="form-control" id="rateVolume">
-                                            <option value="" selected disabled>Pilih Rate</option>
-                                            @foreach ($listRateVolume as $rate)
-                                                @if ($rate->rate_for == 'Volume')
-                                                    <option value="{{ $rate->nilai_rate }}">
-                                                        {{ number_format($rate->nilai_rate, 0, ',', '.') }}
-                                                    </option>
-                                                @endif
-                                            @endforeach
-                                        </select>
-                                        <div id="raterErrorVolume" class="text-danger mt-1 d-none">Silahkan Pilih Rate
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {{-- <div class="divider mt-4">
-                            <span>Pengiriman</span>
-                        </div> --}}
-                        {{-- <div class="d-flex flex-row">
-
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <label for="metodePengiriman" class="form-label fw-bold">Metode Pengiriman</label>
-                                    <div>
-                                        <input type="checkbox" id="pickup" checked>
-                                        <label for="pickup" class="form-label fw-bold">Pick Up</label>
-                                    </div>
-                                    <div>
-                                        <input type="checkbox" id="delivery">
-                                        <label for="delivery" class="form-label fw-bold">Delivery</label>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="col-4">
-                                <div class="mt-3" id="driverSection" style="display: none;">
-                                    <label for="driver" class="form-label fw-bold col-12">Driver</label>
-                                    <select class="form-control select2singgle col-8" id="driver" style="width: 100%">
-                                        <option value="" selected disabled>Pilih Driver</option>
-                                        @foreach ($listSupir as $supir)
-                                            <option value="{{ $supir->id }}">
-                                                {{ $supir->nama_supir }} - {{ $supir->no_wa }}
+                        <!-- Pilihan Rate Berat dan Volume -->
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="rateSelect" class="form-label fw-bold">Rate (Berat)</label>
+                                <select class="form-control" id="rateBerat">
+                                    <option value="" selected disabled>Pilih Rate</option>
+                                    @foreach ($listRateVolume as $rate)
+                                        @if ($rate->rate_for == 'Berat')
+                                            <option value="{{ $rate->nilai_rate }}">
+                                                {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                             </option>
-                                        @endforeach
-                                    </select>
-                                    <div id="driverError" class="text-danger mt-1 d-none">Silahkan pilih driver</div>
-                                </div>
-                                <div class="mt-3" id="alamatSection" style="display: none;">
-                                    <label for="alamat" class="form-label fw-bold">Alamat Tujuan</label>
-
-                                    <textarea type="text" class="form-control" id="alamat" style="width: 100%" value=""
-                                        placeholder="Masukkan Alamat Tujuan" cols="30" rows="10"></textarea>
-                                    <div id="alamatError" class="text-danger mt-1 d-none">Alamat tidak boleh kosong</div>
-                                    <label for="provinsi" class="form-label mt-1 fw-bold">Provinsi</label>
-                                    <select class="form-control select2singgle col-8" id="provinsi" style="width: 100%">
-                                        <option value="" selected disabled>Pilih Provinsi</option>
-
-                                    </select>
-                                    <div id="provinsiError" class="text-danger mt-1 d-none">Provinsi tidak boleh kosong
-                                    </div>
-                                </div>
-
-
+                                        @endif
+                                    @endforeach
+                                </select>
+                                <div id="rateBeratError" class="text-danger mt-1 d-none">Silahkan Pilih Rate</div>
                             </div>
-
-                            <div class="col-4">
-                                <div class="mt-3" id="lokasiSection" style="display: none;">
-                                    <label for="kota" class="form-label fw-bold mt-2">Kota / Kabupaten</label>
-                                    <select class="form-control select2singgle col-8" id="kabupatenKota"
-                                        style="width: 100%">
-                                        <option value="" selected disabled>Pilih Kabupaten/Kota</option>
-
-                                    </select>
-                                    <div id="kotaError" class="text-danger mt-1 d-none">Kota/Kab tidak boleh kosong</div>
-
-                                    <label for="kecamatan" class="form-label fw-bold mt-2">Kecamatan</label>
-                                    <select class="form-control select2singgle col-8" id="kecamatan" style="width: 100%">
-                                        <option value="" selected disabled>Pilih Kecamatan</option>
-
-                                    </select>
-                                    <div id="kecamatanError" class="text-danger mt-1 d-none">Kecamatan tidak boleh kosong
-                                    </div>
-
-                                    <label for="kelurahan" class="form-label fw-bold">Kelurahan</label>
-                                    <select class="form-control select2singgle col-8" id="kelurahan" style="width: 100%">
-                                        <option value="" selected disabled>Pilih Kelurahan</option>
-
-                                    </select>
-                                    <div id="kelurahanError" class="text-danger mt-1 d-none">Kelurahan tidak boleh kosong
-                                    </div>
-                                </div>
+                            <div class="col-sm-6">
+                                <label for="pembagiVolume" class="form-label fw-bold">Pembagi</label>
+                                <select class="form-control" id="pembagiVolume">
+                                    <option value="" selected disabled>Pilih Pembagi</option>
+                                    @foreach ($lisPembagi as $pembagi)
+                                        <option value="{{ $pembagi->nilai_pembagi }}">
+                                            {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                        </div> --}}
-                        {{-- <div class="divider mt-4">
-                            <span>Metode Pembayaran</span>
                         </div>
-                        <div class="d-flex flex-row">
-                            <div class="col-4">
-                                <div class="mt-3">
-                                    <label for="metodePembayaran" class="form-label fw-bold">Metode Pembayaran</label>
-                                    <select class="form-control" id="metodePembayaran">
-                                        <option value="" selected disabled>Pilih Pembayaran</option>
-                                        @foreach ($listTipePembayaran as $tipepembayaran)
-                                            <option value="{{ $tipepembayaran->id }}">
-                                                {{ $tipepembayaran->tipe_pembayaran }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="metodePembayaranError" class="text-danger mt-1 d-none">Silahkan pilih metode
-                                        pembayaran</div>
-                                </div>
+
+                        <div class="form-group row mt-3">
+                            <div class="col-sm-6">
+                                <label for="rate" class="form-label fw-bold">Rate (Volume)</label>
+                                <select class="form-control" id="rateVolume">
+                                    <option value="" selected disabled>Pilih Rate</option>
+                                    @foreach ($listRateVolume as $rate)
+                                        @if ($rate->rate_for == 'Volume')
+                                            <option value="{{ $rate->nilai_rate }}">
+                                                {{ number_format($rate->nilai_rate, 0, ',', '.') }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="col-6">
-                                <div class="mt-3" id="rekeningSection" style="display: none;">
-                                    <label for="rekening" class="form-label fw-bold col-12">Pilih Rekening</label>
-                                    <select class="form-control select2singgle col-8" id="rekening" style="width: 67%">
-                                        <option value="" selected disabled>Pilih Rekening</option>
-                                        @foreach ($listRekening as $rekening)
-                                            <option value="{{ $rekening->id }}">
-                                                {{ $rekening->pemilik }} - {{ $rekening->nomer_rekening }} |
-                                                {{ $rekening->nama_bank }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div id="rekeningError" class="text-danger mt-1 d-none">Silahkan pilih rekening</div>
-                                </div>
-                            </div>
-                        </div> --}}
+                        </div>
+
+                        <!-- Tabel Input Berat dan Dimensi -->
+                        <table class="table mt-4">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>No. Resi</th>
+                                    <th>Berat/Dimensi</th>
+                                    <th>Hitungan</th>
+                                    <th>Harga</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="barang-list">
+                            </tbody>
+                        </table>
+                        <!-- Tombol Tambah Barang -->
+                        <button type="button" class="btn btn-primary" id="addItemBtn"><span class="pr-2"><i
+                                    class="fas fa-plus"></i></span>Tambah Barang</button>
                         <div class="row">
                             <div class="col-12 mt-4 d-none" id="rowDimensi">
                                 <div class="col-2 offset-8 me-1">
@@ -452,6 +317,453 @@
 
 @endsection
 @section('script')
+    <script>
+        $(document).ready(function() {
+            $('.select2singgle').select2({
+                width: 'resolve'
+            });
+
+            let globalMinrate = 0;
+            $('#pickupDelivery').hide();
+
+            $('#selectCostumer').change(function() {
+                var selectedCustomer = $(this).val();
+                var metodePengiriman = $('#selectCostumer option:selected').data('metode');
+                var alamat = $('#selectCostumer option:selected').data('alamat');
+                var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
+                var minrate = $('#selectCostumer option:selected').data('minrate') || 0;
+                globalMinrate = minrate;
+
+                if (selectedCustomer) {
+                    $('#pickupDelivery').show();
+                    if (metodePengiriman === 'Pickup') {
+                        $('#pickupDelivery h2').text('Pick Up');
+                        $('#alamatContainer').empty();
+                    } else if (metodePengiriman === 'Delivery' && jumlahAlamat == 1) {
+                        $('#pickupDelivery h2').text('Delivery');
+                        $('#alamatContainer').html('<p>' + alamat + '</p>');
+                    } else if (metodePengiriman === 'Delivery' && jumlahAlamat > 1) {
+                        $('#pickupDelivery h2').text('Delivery');
+                        var alamatList = alamat.split(', ');
+                        var selectAlamat = '<label for="alamatSelect" class="form-label">Alamat</label>';
+                        selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
+                        selectAlamat += '<option value="" selected disabled>Pilih Alamat</option>';
+                        alamatList.forEach(function(alamatItem) {
+                            selectAlamat += '<option value="' + alamatItem + '">' + alamatItem +
+                                '</option>';
+                        });
+                        selectAlamat += '</select>';
+                        $('#alamatContainer').html(selectAlamat);
+                    }
+                } else {
+                    $('#pickupDelivery').hide();
+                    $('#alamatContainer').empty();
+                }
+                updateDisplayedTotalHarga();
+            });
+
+            var today = new Date();
+            $('#tanggal').datepicker({
+                format: 'dd MM yyyy',
+                todayBtn: 'linked',
+                todayHighlight: true,
+                autoclose: true,
+            }).datepicker('setDate', today);
+
+            $('#currencyInvoice').change(function() {
+                const selectedCurrency = $(this).val();
+                if (selectedCurrency !== '1') {
+                    $('#rateCurrencySection').show();
+                } else {
+                    $('#rateCurrencySection').hide();
+                    $('#rateCurrency').val('');
+                }
+                updateDisplayedTotalHarga();
+            });
+
+            $('#rateCurrency').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); // Menghilangkan karakter non-numerik
+                updateDisplayedTotalHarga();
+            });
+
+
+            let itemIndex = 1; // Mulai dari 1 untuk baris pertama
+
+            // Fungsi untuk menambah baris baru, termasuk baris pertama
+            function addItemRow(isFirstRow = false) {
+                const removeButton = isFirstRow ? '' :
+                    '<button type="button" class="btn btn-danger remove-item"><span class="pr-2"><i class="fas fa-trash"></i></span>Hapus</button>';
+                const newRow = `
+        <tr data-index="${itemIndex}">
+            <td class="item-number">${itemIndex}</td>
+            <td><input type="text" class="form-control"  name="noResi[]" placeholder="Scan No Resi"></td>
+            <td>
+                <select class="form-control selectBeratDimensi" data-index="${itemIndex}">
+                    <option value="berat">Berat</option>
+                    <option value="dimensi">Dimensi</option>
+                </select>
+            </td>
+            <td class="hitungan" data-index="${itemIndex}">
+                <input type="number" class="form-control beratBarang" data-index="${itemIndex}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
+            </td>
+            <td><span class="hargaBarang">Rp. 0</span></td>
+             <td>${removeButton}</td>
+        </tr>`;
+
+                $('#barang-list').append(newRow);
+                if (!isFirstRow) {
+                    $('input[name="noResi[]"]').last().focus();
+                }
+                itemIndex++;
+
+                setRemoveItemButton();
+                attachInputEvents(); // Attach event handler ke baris baru
+                attachSelectChangeEvent();
+            }
+            addItemRow(true);
+
+            // Tambah baris baru saat tombol "Tambah Barang" ditekan
+            $('#addItemBtn').click(function() {
+                addItemRow();
+            });
+
+            function attachSelectChangeEvent() {
+                $('.selectBeratDimensi').off('change').on('change', function() {
+                    const row = $(this).closest('tr');
+                    const selectedValue = $(this).val();
+                    const index = $(this).data('index');
+
+                    if (selectedValue === 'berat') {
+                        row.find('.hitungan').html(`
+                    <input type="number" class="form-control beratBarang" data-index="${index}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
+                `);
+                    } else if (selectedValue === 'dimensi') {
+                        row.find('.hitungan').html(`
+                    <div class="d-flex">
+                        <input type="number" class="form-control me-1 panjangVolume" data-index="${index}" placeholder="P" min="0" step="0.01">
+                        <span class="mx-1 mt-2">×</span>
+                        <input type="number" class="form-control me-1 lebarVolume" data-index="${index}" placeholder="L" min="0" step="0.01">
+                        <span class="mx-1 mt-2">×</span>
+                        <input type="number" class="form-control me-1 tinggiVolume" data-index="${index}" placeholder="T" min="0" step="0.01">
+                        <span class="ml-2 pt-2">Cm</span>
+                    </div>
+                `);
+                    }
+                });
+            }
+
+            // Attach event handler ke semua elemen input (baik baris baru maupun lama)
+            function attachInputEvents() {
+                // Event untuk input berat
+                $('#barang-list').on('input', '.beratBarang', function() {
+                    const row = $(this).closest('tr');
+                    const beratValue = $(this).val();
+
+                    // Kosongkan input volume jika berat diisi
+                    if (beratValue.trim() !== "") {
+                        row.find('.panjangVolume').val(''); // Kosongkan input panjang
+                        row.find('.lebarVolume').val(''); // Kosongkan input lebar
+                        row.find('.tinggiVolume').val(''); // Kosongkan input tinggi
+                    }
+
+                    updateTotalHargaBerat(row); // Hitung total harga berdasarkan berat
+                });
+
+                // Event untuk input volume (panjang, lebar, tinggi)
+                $('#barang-list').on('input', '.panjangVolume, .lebarVolume, .tinggiVolume', function() {
+                    const row = $(this).closest('tr');
+                    const panjangValue = row.find('.panjangVolume').val();
+                    const lebarValue = row.find('.lebarVolume').val();
+                    const tinggiValue = row.find('.tinggiVolume').val();
+
+                    // Kosongkan input berat jika salah satu input volume diisi
+                    if (panjangValue.trim() !== "" || lebarValue.trim() !== "" || tinggiValue.trim() !==
+                        "") {
+                        row.find('.beratBarang').val(''); // Kosongkan input berat
+                    }
+
+                    updateTotalHargaVolume(row); // Hitung total harga berdasarkan volume
+                });
+            }
+
+            // Fungsi untuk mengupdate total harga berdasarkan berat
+            function updateTotalHargaBerat(row) {
+                const berat = parseFloat(row.find('.beratBarang').val()) || 0;
+                const hargaPerKg = parseFloat($('#rateBerat').val()) || 0;
+
+                if (berat > 0 && hargaPerKg) {
+                    let totalHarga = berat * hargaPerKg;
+                    totalHarga = Math.max(totalHarga, globalMinrate);
+                    row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
+                } else {
+                    row.find('.hargaBarang').text("Rp. 0");
+                }
+                updateDisplayedTotalHarga();
+            }
+
+            // Fungsi untuk mengupdate total harga berdasarkan volume
+            function updateTotalHargaVolume(row) {
+                const panjang = parseFloat(row.find('.panjangVolume').val()) || 0;
+                const lebar = parseFloat(row.find('.lebarVolume').val()) || 0;
+                const tinggi = parseFloat(row.find('.tinggiVolume').val()) || 0;
+                const volume = panjang * lebar * tinggi;
+                const pembagi = parseFloat($('#pembagiVolume').val()) || 1;
+                const rate = parseFloat($('#rateVolume').val()) || 1;
+
+                if (volume > 0 && rate) {
+                    let totalHargaVolume = (volume / pembagi) * rate;
+                    row.find('.hargaBarang').text("Rp. " + totalHargaVolume.toLocaleString('id-ID'));
+                } else {
+                    row.find('.hargaBarang').text("Rp. 0");
+                }
+                updateDisplayedTotalHarga();
+            }
+
+
+            function updateDisplayedTotalHarga() {
+                let totalHarga = 0;
+                // Hitung total harga dari elemen dengan class hargaBarang
+                $('.hargaBarang').each(function() {
+                    let harga = $(this).text().replace(/[^0-9,-]+/g, ""); // Mengambil angka dari text
+                    totalHarga += parseFloat(harga) || 0;
+                });
+
+                // Simpan nilai total harga IDR ke dalam #totalHargaValue
+                $('#totalHargaValue').val(totalHarga); // Selalu simpan harga IDR di totalHargaValue
+
+                // Ambil nilai mata uang dan rate konversi
+                const currencyValue = $('#currencyInvoice').val();
+                const totalHargaIDR = totalHarga; // total harga dalam IDR
+                const customRate = $('#rateCurrency').val();
+                let convertedTotal = 0;
+
+                // Validasi apakah total harga valid
+                if (!totalHargaIDR || isNaN(totalHargaIDR) || totalHargaIDR === 0) {
+                    $('#total-harga').text('-');
+                    return;
+                }
+
+                // Jika tidak ada mata uang yang dipilih
+                if (!currencyValue) {
+                    $('#total-harga').text('-');
+                }
+                // Jika mata uang yang dipilih adalah Rupiah (IDR)
+                else if (currencyValue == 1) {
+                    $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+                }
+                // Jika mata uang lain dipilih dan ada rate yang diinputkan
+                else if (customRate && currencyValue !== '1') {
+                    convertedTotal = totalHargaIDR / customRate;
+                    let currencySymbol = "";
+
+                    if (currencyValue == 2) {
+                        currencySymbol = "$ "; // Simbol untuk SGD
+                    } else if (currencyValue == 3) {
+                        currencySymbol = "¥ "; // Simbol untuk RMB
+                    }
+
+                    $('#total-harga').text(currencySymbol + convertedTotal.toLocaleString('id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+                }
+                // Jika kondisi lainnya tidak terpenuhi
+                else {
+                    $('#total-harga').text('-');
+                }
+            }
+
+
+            // Fungsi untuk tombol hapus pada baris selain baris pertama
+            function setRemoveItemButton() {
+                $('.remove-item').off('click').on('click', function() {
+                    $(this).closest('tr').remove();
+                    renumberItems(); // Renumbering setelah item dihapus
+                    updateDisplayedTotalHarga();
+                });
+            }
+
+            // Fungsi untuk me-reorder nomor item setelah penghapusan atau penambahan
+            function renumberItems() {
+                let index = 1;
+                $('#barang-list tr').each(function() {
+                    $(this).find('.item-number').text(index);
+                    $(this).attr('data-index', index);
+                    index++;
+                });
+                itemIndex = index;
+            }
+
+            $('#buatInvoice').click(function() {
+                // Collect all form data
+                const noResi = [];
+                const beratBarang = [];
+                const panjang = [];
+                const lebar = [];
+                const tinggi = [];
+                const hargaBarang = [];
+
+                $('#barang-list tr').each(function() {
+                    noResi.push($(this).find('input[name="noResi[]"]').val().trim());
+                    beratBarang.push($(this).find('.beratBarang').val());
+                    panjang.push($(this).find('.panjangVolume').val());
+                    lebar.push($(this).find('.lebarVolume').val());
+                    tinggi.push($(this).find('.tinggiVolume').val());
+                    hargaBarang.push($(this).find('.hargaBarang').text().replace(/[^0-9,-]+/g, "")
+                        .trim());
+                });
+
+                const noInvoice = $('#noInvoice').text().trim();
+                const tanggal = $('#tanggal').val().trim();
+                const customer = $('#selectCostumer').val();
+                const currencyInvoice = $('#currencyInvoice').val();
+                const rateCurrency = $('#rateCurrency').val();
+                var metodePengiriman = $('#selectCostumer option:selected').data('metode');
+                var alamat = null;
+
+                if (metodePengiriman === 'Delivery') {
+                    if ($('#alamatSelect').length > 0) {
+                        alamat = $('#alamatSelect').val();
+                    } else {
+                        alamat = $('#alamatContainer p').text().trim();
+                    }
+                }
+
+                let totalharga = $('#totalHargaValue').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                let isValid = true;
+
+                if (noResi === '') {
+                    $('#noResiError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#noResiError').addClass('d-none');
+                }
+
+                if (tanggal === '') {
+                    $('#tanggalError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#tanggalError').addClass('d-none');
+                }
+
+                if (customer === null) {
+                    $('#customerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#customerError').addClass('d-none');
+                }
+
+                if (currencyInvoice === null) {
+                    $('#currencyInvoiceError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#currencyInvoiceError').addClass('d-none');
+                }
+
+                if (currencyInvoice === '1' && rateCurrency === null) {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
+                }
+
+                // if ($('#toggleSwitch').is(':checked')) {
+                //     if (panjang === '' || lebar === '' || tinggi === '') {
+                //         $('#volumeError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#volumeError').addClass('d-none');
+                //     }
+
+                //     if (pembagiVolume === null) {
+                //         $('#pembagiErrorVolume').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#pembagiErrorVolume').addClass('d-none');
+                //     }
+
+                //     if (rateVolume === null) {
+                //         $('#raterErrorVolume').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#raterErrorVolume').addClass('d-none');
+                //     }
+                // } else {
+                //     if (beratBarang === '') {
+                //         $('#beratError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#beratError').addClass('d-none');
+                //     }
+
+                //     if (!rateBerat) {
+                //         $('#rateBeratError').removeClass('d-none');
+                //         isValid = false;
+                //     } else {
+                //         $('#rateBeratError').addClass('d-none');
+                //     }
+                // }
+
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('tambainvoice') }}",
+                    data: {
+                        noInvoice: noInvoice,
+                        noResi: noResi,
+                        tanggal: tanggal,
+                        customer: customer,
+                        currencyInvoice: currencyInvoice,
+                        rateCurrency: rateCurrency,
+                        beratBarang: beratBarang,
+                        panjang: panjang,
+                        lebar: lebar,
+                        tinggi: tinggi,
+                        metodePengiriman: metodePengiriman,
+                        alamat: alamat,
+                        totalharga: totalharga,
+                        hargaBarang: hargaBarang,
+                        _token: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Invoice berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat invoice",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan. Mohon coba lagi.";
+                        Swal.fire({
+                            title: "Gagal membuat invoice",
+                            text: errorMessage,
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+@endsection
+@section('tidakterpakai')
     <script>
         $(document).ready(function() {
 
@@ -579,151 +891,116 @@
 
             updateDisplayedTotalHarga();
 
-            $('#toggleSwitch').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#idlabel').text('Volume');
-                    $('#volumeDiv').removeClass('d-none');
-                    $('#rowDimensi').removeClass('d-none');
-                    $('#weightDiv').addClass('d-none');
-                } else {
-                    $('#idlabel').text('Berat');
-                    $('#volumeDiv').addClass('d-none');
-                    $('#rowDimensi').addClass('d-none');
-                    $('#weightDiv').removeClass('d-none');
+            let itemCount = 0;
+            // Function to add a new item row
+            function addItem() {
+                itemCount++;
+
+                const newRow = `
+        <tr id="row${itemCount}">
+            <td>${itemCount}</td>
+            <td>
+                <input type="text" class="form-control" id="noResi${itemCount}" value="" placeholder="Scan Resi">
+            </td>
+            <td>
+                <input type="number" class="form-control" id="beratBarang${itemCount}" oninput="updateTotalHargaBerat(${itemCount});" placeholder="0,00" min="0" step="0.01">
+            </td>
+            <td>
+                <div class="d-flex">
+                    <input type="number" class="form-control me-1" id="panjang${itemCount}" oninput="updateTotalHargaVolume(${itemCount});" placeholder="P" min="0" step="0.01">
+                    <span class="mx-1 mt-2">×</span>
+                    <input type="number" class="form-control me-1" id="lebar${itemCount}" oninput="updateTotalHargaVolume(${itemCount});" placeholder="L" min="0" step="0.01">
+                    <span class="mx-1 mt-2">×</span>
+                    <input type="number" class="form-control me-1" id="tinggi${itemCount}" oninput="updateTotalHargaVolume(${itemCount});" placeholder="T" min="0" step="0.01">
+                    <span class="ml-2 pt-2">Cm</span>
+                </div>
+            </td>
+            <td>
+                <span id="harga${itemCount}">Rp. 0</span>
+            </td>
+            ${itemCount === 1 ? '<td></td>' : `<td><button type="button" class="btn btn-secondary" onclick="removeItem(${itemCount})">X</button></td>`}
+        </tr>`;
+
+                $('#barang-list').append(newRow);
+            }
+
+            // Fungsi untuk menghapus baris
+            function removeItem(id) {
+                $(`#row${id}`).remove();
+                recalculateRowNumbers();
+            }
+
+            // Fungsi untuk menghitung ulang nomor baris setelah penghapusan
+            function recalculateRowNumbers() {
+                itemCount = 0;
+                $('#barang-list tr').each(function(index) {
+                    itemCount++;
+                    $(this).attr('id', `row${itemCount}`);
+                    $(this).find('td:first').text(itemCount);
+                });
+            }
+
+            // Fungsi perhitungan total harga berdasarkan berat
+            function updateTotalHargaBerat(rowId) {
+                let beratRaw = $(`#beratBarang${rowId}`).val();
+                let berat = parseFloat(beratRaw);
+                let hargaPerKg = parseFloat($('#rateBerat').val());
+
+                if (!beratRaw.trim() || isNaN(berat) || isNaN(hargaPerKg)) {
+                    $(`#harga${rowId}`).text('Rp. 0');
+                    return;
                 }
-            });
 
-            $('#beratBarang').on('input', function() {
-                this.value = this.value.replace(/[^0-9,.]/g, '');
-                this.value = this.value.replace('.', ',');
-
-                if (this.value) {
-                    $('#panjang, #lebar, #tinggi').val('');
+                let totalHarga = berat * hargaPerKg;
+                if (totalHarga < globalMinrate) {
+                    totalHarga = globalMinrate;
                 }
-                updateTotalHargaBerat();
-                updateDisplayedTotalHarga();
 
-                var berat = parseFloat(this.value.replace(',', '.')) || 0;
+                $(`#harga${rowId}`).text(`Rp. ${totalHarga.toLocaleString('id-ID', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`);
+            }
 
-            });
+            // Fungsi perhitungan total harga berdasarkan volume
+            function updateTotalHargaVolume(rowId) {
+                let panjang = parseFloat($(`#panjang${rowId}`).val()) || 0;
+                let lebar = parseFloat($(`#lebar${rowId}`).val()) || 0;
+                let tinggi = parseFloat($(`#tinggi${rowId}`).val()) || 0;
+                let volume = panjang * lebar * tinggi;
+                let pembagi = parseFloat($('#pembagiVolume').val()) || 1;
+                let rate = parseFloat($('#rateVolume').val()) || 1;
+
+                let totalHargaVolume = (volume / pembagi) * rate;
+
+                $(`#harga${rowId}`).text(`Rp. ${totalHargaVolume.toLocaleString('id-ID', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`);
+            }
+
+            // Event listeners untuk perubahan rate dan pembagi
             $('#rateBerat').change(function() {
-                updateTotalHargaBerat();
-                updateDisplayedTotalHarga();
-            });
-
-            $('#panjang, #lebar, #tinggi').on('input', function() {
-                this.value = this.value.replace(/[^0-9,.]/g, '');
-                this.value = this.value.replace('.', ',');
-
-                $('#beratBarang').val('');
-                updateTotalHargaVolume();
-                updateDisplayedTotalHarga();
+                $('#barang-list tr').each(function(index, row) {
+                    let rowId = $(row).attr('id').replace('row', '');
+                    updateTotalHargaBerat(rowId);
+                });
             });
 
             $('#pembagiVolume, #rateVolume').change(function() {
-                updateTotalHargaVolume();
-                updateDisplayedTotalHarga();
+                $('#barang-list tr').each(function(index, row) {
+                    let rowId = $(row).attr('id').replace('row', '');
+                    updateTotalHargaVolume(rowId);
+                });
             });
 
-            // function updateTotalHargaBerat() {
-            //     let beratRaw = $('#beratBarang').val().replace(',', '.');
-            //     let berat = parseFloat(beratRaw);
+            // Baris awal
+            addItem();
 
-
-
-            //     if (beratRaw.trim() === '' || isNaN(berat)) {
-            //         $('#total-harga').text('Rp. 0');
-            //         $('#totalHargaValue').val(0);
-            //     } else {
-            //         let hargaPerKg = $('#rateBerat').val();
-            //         let totalHarga = berat * hargaPerKg;
-            //         if (totalHarga < minrate) {
-            //             totalHarga = minrate;
-            //         }
-            //         $('#totalHargaValue').val(totalHarga);
-            //         updateDisplayedTotalHarga();
-            //         // if (totalHarga > 250000) {
-            //         //     // showMessage("error", "Barang Diatas 250.000 pakai Volume")
-            //         //     // $('#beratBarang').val('');
-            //         //     // $('#total-harga').text('Rp. 0');
-            //         //     // $('#toggleSwitch').click();
-            //         // } else {
-
-            //         // }
-
-            //     }
-            // }
-
-
-            function updateTotalHargaBerat() {
-                let beratRaw = $('#beratBarang').val().replace(',', '.');
-                let berat = parseFloat(beratRaw);
-                let hargaPerKg = $('#rateBerat').val();
-
-                if (beratRaw.trim() === '' || isNaN(berat) || hargaPerKg.trim() === '') {
-                    $('#total-harga').text('-');
-                    $('#totalHargaValue').val('');
-                } else {
-                    hargaPerKg = parseFloat(hargaPerKg);
-                    let totalHarga = berat * hargaPerKg;
-                    if (totalHarga < globalMinrate) {
-                        totalHarga = globalMinrate;
-                    }
-
-                    $('#totalHargaValue').val(totalHarga);
-                    updateDisplayedTotalHarga();
-                }
-            }
-
-
-
-
-            function updateTotalHargaVolume() {
-                var panjang = parseFloat($('#panjang').val().replace(',', '.')) || 0;
-                var lebar = parseFloat($('#lebar').val().replace(',', '.')) || 0;
-                var tinggi = parseFloat($('#tinggi').val().replace(',', '.')) || 0;
-                var volume = panjang * lebar * tinggi;
-                var pembagi = parseFloat($('#pembagiVolume').val()) || 1;
-                var rate = parseFloat($('#rateVolume').val()) || 1;
-                var totalHargaVolume = (volume / pembagi) * rate;
-                $('#dimensiValue').text(volume);
-                updateDisplayedTotalHarga();
-                $('#totalHargaValue').val(totalHargaVolume);
-            }
-
-            // function updateSections() {
-            //     if ($('#delivery').is(':checked')) {
-            //         $('#driverSection').show();
-            //         $('#alamatSection, #lokasiSection').show();
-            //     } else {
-            //         $('#driverSection').hide();
-            //         $('#alamatSection, #lokasiSection').hide();
-            //     }
-            // }
-
-            // $('#pickup').change(function() {
-            //     if ($(this).is(':checked')) {
-            //         $('#delivery').prop('checked', false);
-            //         updateSections();
-            //     }
-            // });
-
-            // $('#delivery').change(function() {
-            //     if ($(this).is(':checked')) {
-            //         $('#pickup').prop('checked', false);
-            //         updateSections();
-            //     }
-            // });
-
-            // updateSections();
-
-            // $('#metodePembayaran').change(function() {
-            //     if ($(this).val() === '2') {
-            //         $('#rekeningSection').show();
-            //     } else {
-            //         $('#rekeningSection').hide();
-            //     }
-            // });
+            // Event listener untuk tombol tambah barang
+            $('#addItemBtn').on('click', function() {
+                addItem();
+            });
 
             $('#buatInvoice').click(function() {
                 // Collect all form data
@@ -750,15 +1027,6 @@
                         alamat = $('#alamatContainer p').text().trim();
                     }
                 }
-                // const metodePengiriman = $('#delivery').is(':checked') ? 'Delivery' : 'Pickup';
-                // const metodePembayaran = $('#metodePembayaran').val();
-                // const driver = metodePengiriman === 'Delivery' ? $('#driver').val() : null;
-                // const alamat = metodePengiriman === 'Delivery' ? $('#alamat').val().trim() : null;
-                // const provinsi = metodePengiriman === 'Delivery' ? $('#provinsi').val() : null;
-                // const kabupatenKota = metodePengiriman === 'Delivery' ? $('#kabupatenKota').val() : null;
-                // const kecamatan = metodePengiriman === 'Delivery' ? $('#kecamatan').val() : null;
-                // const kelurahan = metodePengiriman === 'Delivery' ? $('#kelurahan').val() : null;
-                // const rekening = metodePembayaran === '2' ? $('#rekening').val() : null;
                 const pembagiVolume = $('#toggleSwitch').is(':checked') ? $('#pembagiVolume').val() : null;
                 const rateVolume = $('#toggleSwitch').is(':checked') ? $('#rateVolume').val() : null;
                 let totalharga = $('#totalHargaValue').val();
@@ -800,64 +1068,6 @@
                 } else {
                     $('#rateCurrencyError').addClass('d-none');
                 }
-
-                // if (metodePengiriman === 'Delivery') {
-                //     if (driver === null) {
-                //         $('#driverError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#driverError').addClass('d-none');
-                //     }
-
-                //     if (alamat === '') {
-                //         $('#alamatError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#alamatError').addClass('d-none');
-                //     }
-
-                //     if (provinsi === null) {
-                //         $('#provinsiError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#provinsiError').addClass('d-none');
-                //     }
-
-                //     if (kabupatenKota === null) {
-                //         $('#kotaError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#kotaError').addClass('d-none');
-                //     }
-
-                //     if (kecamatan === null) {
-                //         $('#kecamatanError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#kecamatanError').addClass('d-none');
-                //     }
-
-                //     if (kelurahan === null) {
-                //         $('#kelurahanError').removeClass('d-none');
-                //         isValid = false;
-                //     } else {
-                //         $('#kelurahanError').addClass('d-none');
-                //     }
-                // }
-
-                // if (metodePembayaran === null) {
-                //     $('#metodePembayaranError').removeClass('d-none');
-                //     isValid = false;
-                // } else {
-                //     $('#metodePembayaranError').addClass('d-none');
-                // }
-
-                // if (metodePembayaran === '2' && rekening === null) {
-                //     $('#rekeningError').removeClass('d-none');
-                //     isValid = false;
-                // } else {
-                //     $('#rekeningError').addClass('d-none');
-                // }
 
                 if ($('#toggleSwitch').is(':checked')) {
                     if (panjang === '' || lebar === '' || tinggi === '') {
@@ -918,14 +1128,7 @@
                         lebar: lebar,
                         tinggi: tinggi,
                         metodePengiriman: metodePengiriman,
-                        // driver: driver,
                         alamat: alamat,
-                        // provinsi: selectedProvinsiName,
-                        // kabupatenKota: selectedKabupatenKotaName,
-                        // kecamatan: selectedKecamatanName,
-                        // kelurahan: selectedKelurahanName,
-                        // metodePembayaran: metodePembayaran,
-                        // rekening: rekening,
                         totalharga: totalharga,
                         _token: csrfToken
                     },

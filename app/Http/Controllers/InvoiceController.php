@@ -25,6 +25,32 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
+
+        $yearMonth = date('ym');
+        $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
+        $data = DB::select($q);
+
+        if (!empty($data)) {
+            $lastMarking = $data[0]->no_invoice;
+            $lastYearMonth = substr($lastMarking, 0, 4);
+
+            if ($lastYearMonth === $yearMonth) {
+
+                $lastNumber = (int)substr($lastMarking, 4);
+                $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+            } else {
+
+                $newNumber = '00001';
+            }
+        } else {
+
+            $newNumber = '00001';
+        }
+
+
+        $newNoinvoice = $yearMonth . $newNumber;
+
+
         $listPembeli = DB::select("SELECT a.id,
                                         a.nama_pembeli,
                                         a.marking,
@@ -61,7 +87,8 @@ class InvoiceController extends Controller
             'listTipePembayaran' => $listTipePembayaran,
             'listRateVolume' => $listRateVolume,
             'listCurrency' => $listCurrency,
-            'lisPembagi' => $lisPembagi
+            'lisPembagi' => $lisPembagi,
+            'newNoinvoce' => $newNoinvoice
         ]);
     }
 
@@ -145,30 +172,34 @@ class InvoiceController extends Controller
 
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
-        $q = "SELECT a.id,
-                    a.no_resi,
-                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                    b.nama_pembeli AS pembeli,
-                    a.alamat,
-                    b.metode_pengiriman,
-                    a.berat,
-                    a.panjang,
-                    a.lebar,
-                    a.tinggi,
-                    a.harga,
-                    a.matauang_id,
-                    a.rate_matauang,
-                    d.id,
-                    d.status_name
+        $q ="SELECT a.id,
+                a.no_invoice,
+                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                b.nama_pembeli AS pembeli,
+                a.alamat,
+                a.metode_pengiriman,
+                a.total_harga AS harga,
+                a.matauang_id,
+                a.rate_matauang,
+                GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list,
+                GROUP_CONCAT(r.berat ORDER BY r.no_resi SEPARATOR ', ') AS berat_list,
+                GROUP_CONCAT(r.panjang ORDER BY r.no_resi SEPARATOR ', ') AS panjang_list,
+                GROUP_CONCAT(r.lebar ORDER BY r.no_resi SEPARATOR ', ') AS lebar_list,
+                GROUP_CONCAT(r.tinggi ORDER BY r.no_resi SEPARATOR ', ') AS tinggi_list,
+                GROUP_CONCAT(r.harga ORDER BY r.no_resi SEPARATOR ', ') AS harga_list,
+                d.id AS status_id,
+                d.status_name
             FROM tbl_invoice AS a
             JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
             JOIN tbl_status AS d ON a.status_id = d.id
+            JOIN tbl_resi AS r ON r.invoice_id = a.id
             WHERE (
-                UPPER(b.nama_pembeli) LIKE UPPER('$txSearch')
-                OR UPPER(a.no_resi) LIKE UPPER('$txSearch')
+                UPPER(b.nama_pembeli) LIKE '$txSearch'
+                OR UPPER(r.no_resi) LIKE '$txSearch'
                 )
-                $dateCondition
-                $statusCondition
+            $dateCondition
+            $statusCondition
+            GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name
             ORDER BY CASE d.id
                         WHEN '1' THEN 1
                         WHEN '5' THEN 2
@@ -177,7 +208,7 @@ class InvoiceController extends Controller
                         WHEN '4' THEN 5
                         ELSE 6
                     END,
-                     a.id DESC
+                    a.id DESC
             LIMIT 100;";
 
         $data = DB::select($q);
@@ -195,7 +226,7 @@ class InvoiceController extends Controller
                             $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
                         }
                  $output .= '
-                            <th>No Resi</th>
+                            <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
                             <th>Pengiriman</th>
@@ -248,7 +279,7 @@ class InvoiceController extends Controller
                             }
                              $output .=
                             '
-                                <td>' . ($item->no_resi ?? '-') . '</td>
+                                <td>' . ($item->no_invoice ?? '-') . '</td>
                                 <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                                 <td>' . ($item->pembeli ?? '-') . '</td>
                                 <td>' . ($item->metode_pengiriman ?? '-') . '</td>
@@ -354,18 +385,21 @@ class InvoiceController extends Controller
 
     public function tambainvoice(Request $request)
     {
+        $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
         $currencyInvoice = $request->input('currencyInvoice');
         $metodePengiriman = $request->input('metodePengiriman');
         $rateCurrency = $request->input('rateCurrency');
-        $beratBarang = floatval(str_replace(',', '.', $request->input('beratBarang')));
-        $panjang = floatval(str_replace(',', '.', $request->input('panjang')));
-        $lebar = floatval(str_replace(',', '.', $request->input('lebar')));
-        $tinggi = floatval(str_replace(',', '.', $request->input('tinggi')));
+        $beratBarang = $request->input('beratBarang');
+        $panjang = $request->input('panjang');
+        $lebar = $request->input('lebar');
+        $tinggi = $request->input('tinggi');
         $alamatTujuan = $request->input('alamat');
+        $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
+
 
         $date = DateTime::createFromFormat('j F Y', $tanggal);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
@@ -373,34 +407,45 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-            $statusId = 1;
-            $pembayaranId = DB::table('tbl_invoice')->insertGetId([
-                'no_resi' => $noResi,
+
+            $invoiceId = DB::table('tbl_invoice')->insertGetId([
+                'no_invoice' => $noInvoice,
                 'tanggal_invoice' => $formattedDate,
                 'pembeli_id' => $customer,
                 'metode_pengiriman' => $metodePengiriman,
                 'alamat' => $alamatTujuan,
-                'berat' => $beratBarang,
-                'panjang' => $panjang,
-                'lebar' => $lebar,
-                'tinggi' => $tinggi,
-                'harga' => $totalharga,
                 'matauang_id' => $currencyInvoice,
                 'rate_matauang' => $rateCurrency,
-                'status_id' => $statusId,
+                'total_harga' => $totalharga,
+                'status_id' => 1,
                 'created_at' => now(),
             ]);
 
-            if (!$pembayaranId) {
+            foreach ($noResi as $index => $resi) {
+                DB::table('tbl_resi')->insert([
+                    'invoice_id' => $invoiceId,
+                    'no_resi' => $resi,
+                    'berat' => $beratBarang[$index] ?? null,
+                    'panjang' => $panjang[$index] ?? null,
+                    'lebar' => $lebar[$index] ?? null,
+                    'tinggi' => $tinggi[$index] ?? null,
+                    'harga' => $hargaBarang[$index] ?? null,
+                    'created_at' => now(),
+                ]);
+            }
+
+            if (!$invoiceId) {
                 throw new \Exception("Gagal mendapatkan ID baru dari tbl_invoice");
             }
 
-            $updatedTracking = DB::table('tbl_tracking')
-                ->where('no_resi', $noResi)
-                ->update(['status' => 'Batam / Sortir']);
+            foreach ($noResi as $resi) {
+                $updatedTracking = DB::table('tbl_tracking')
+                    ->where('no_resi', $resi)
+                    ->update(['status' => 'Batam / Sortir']);
 
-            if (!$updatedTracking) {
-                throw new \Exception("Gagal memperbarui status di tbl_tracking");
+                if (!$updatedTracking) {
+                    throw new \Exception("{$resi} No Resi ini tidak terdaftar di Tracking");
+                }
             }
 
             $updatedPembeli = DB::table('tbl_pembeli')

@@ -13,21 +13,18 @@ return new class extends Migration
     {
         Schema::create('tbl_invoice', function (Blueprint $table) {
             $table->id();
-            $table->string('no_resi', 100)->unique();
+            $table->string('no_invoice', 20)->unique();
             $table->timestamp('tanggal_invoice');
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
             $table->string('metode_pengiriman', 50);
             $table->text('alamat')->nullable();
-            $table->decimal('berat', 8,2)->nullable();
-            $table->decimal('panjang', 8,2)->nullable();
-            $table->decimal('lebar', 8,2)->nullable();
-            $table->decimal('tinggi', 8,2)->nullable();
             $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
             $table->decimal('rate_matauang', 15,2)->nullable();
-            $table->decimal('harga', 15,2);
+            $table->decimal('total_harga', 15,2);
             $table->foreignId('status_id')->constrained('tbl_status')->default(1);
             $table->timestamps();
         });
+
     }
 
     /**
