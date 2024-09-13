@@ -527,33 +527,22 @@ class InvoiceController extends Controller
         $id = intval($id);
 
         try {
-            // Fetch invoice data
+            // Fetch invoice data berdasarkan id invoice
             $q = "SELECT a.id,
-                        a.no_resi,
-                        DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
+                        a.no_invoice,
+                        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
                         b.nama_pembeli AS pembeli,
-                        b.no_wa AS nohp,
-                        d.nama_supir,
-                        d.no_wa AS supir_no_wa,
-                        c.alamat,
-                        a.berat,
-                        a.panjang,
-                        a.lebar,
-                        a.tinggi,
-                        a.pengiriman,
-                        f.tipe_pembayaran,
-                        e.nomer_rekening,
-                        e.pemilik,
-                        e.nama_bank,
-                        a.harga
-                    FROM tbl_pembayaran AS a
+                        a.alamat,
+                        a.metode_pengiriman,
+                        a.total_harga AS harga,
+                        a.matauang_id,
+                        a.rate_matauang,
+                        d.id AS status_id,
+                        d.status_name
+                    FROM tbl_invoice AS a
                     JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                    JOIN tbl_tipe_pembayaran AS f ON a.pembayaran_id = f.id
-                    LEFT JOIN tbl_pengantaran AS c ON a.id = c.pembayaran_id
-                    LEFT JOIN tbl_supir AS d ON c.supir_id = d.id
-                    LEFT JOIN tbl_rekening AS e ON a.rekening_id = e.id
-                    WHERE a.id = $id;
-                  ";
+                    JOIN tbl_status AS d ON a.status_id = d.id
+                    WHERE a.id = $id";
             $invoice = DB::select($q);
 
             if (!$invoice) {
@@ -562,48 +551,17 @@ class InvoiceController extends Controller
 
             $invoice = $invoice[0];
 
-            // Handle delivery or pickup
-            $additionalDetails = [];
-            if ($invoice->pengiriman === 'Delivery') {
-                $additionalDetails = [
-                    'driverName' => $invoice->nama_supir ?? 'N/A', // Default to 'N/A' if null
-                    'driverPhone' => $invoice->supir_no_wa ?? 'N/A',
-                    'destinationAddress' => $invoice->alamat ?? 'N/A'
-                ];
-            }
+            // Ambil data resi yang terkait dengan invoice
+            $resiData = DB::table('tbl_resi')
+                ->where('invoice_id', $id)
+                ->get(['no_resi', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
-            // Handle berat (default to 0 if null)
-            $berat = $invoice->berat ?? 0;
 
-            // Handle payment type
-            $paymentDetails = [];
-            if ($invoice->tipe_pembayaran === 'Transfer') {
-                $paymentDetails = [
-                    'rekeningNumber' => $invoice->nomer_rekening ?? 'N/A',
-                    'accountHolder' => $invoice->pemilik ?? 'N/A',
-                    'bankName' => $invoice->nama_bank ?? 'N/A'
-                ];
-            }
-
-            // Calculate harga in IDR
-            try {
-                $hargaIDR = $invoice->harga;
-            } catch (\Exception $e) {
-                \Log::error('Error calculating exchange rate: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to calculate exchange rate'], 500);
-            }
-
-            // Generate PDF
             try {
                 $pdf = Pdf::loadView('exportPDF.invoice', [
                     'invoice' => $invoice,
-                    'hargaIDR' => $hargaIDR,
-                    'additionalDetails' => $additionalDetails,
-                    'paymentDetails' => $paymentDetails,
-                    'berat' => $berat,
-                    'panjang' => $invoice->panjang,
-                    'lebar' => $invoice->lebar,
-                    'tinggi' => $invoice->tinggi,
+                    'resiData' => $resiData,
+                    'hargaIDR' => $invoice->harga,
                     'tanggal' => $invoice->tanggal_bayar,
                 ])
                 ->setPaper('A4', 'portrait')
@@ -634,6 +592,7 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
+
 
     public function deleteInvoice(Request $request)
     {

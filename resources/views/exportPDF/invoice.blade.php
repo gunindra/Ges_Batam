@@ -1,33 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
-    <title>Invoice PDF</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ $invoice->no_invoice }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 15mm 10mm 15mm 10mm;
+
+            @bottom-right {
+                content: "Halaman " counter(page) " dari " counter(pages);
+            }
+        }
+
         body {
             font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
             margin: 0;
             padding: 0;
         }
 
         .container {
-            width: 100vh;
-            height: 100vh;
-            margin: 0;
-            padding: 10px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #ffffff;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .row-divider {
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
+        .title {
+            margin-bottom: 10px;
+        }
+
+        .title h2 {
+            margin: 0;
+            color: #444;
+        }
+
+        .title h5 {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
         .text-right {
@@ -38,231 +75,162 @@
             text-align: center;
         }
 
-        .font-weight-bold {
-            font-weight: bold;
-        }
-
-        .table-head {
-            width: 100%;
-            margin-bottom: 20px;
-            table-layout: fixed;
-        }
-
-        .table-head td {
-            vertical-align: top;
-            padding: 10px;
-            font-size: 20px;
-        }
-
-        .table-head h4 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .table-content {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .table-content td {
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        .table-content td:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-        }
-
-        .table-content td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        .table-content tr:nth-child(even) {
-            background-color: #ffffff;
-        }
-
-        footer {
-            margin-top: auto;
-            padding-top: 20px;
-            text-align: center;
-            font-size: 14px;
-            /* color: #666; */
-            border-top: 1px solid #ddd;
-            background-color: #ffffff;
-        }
-
-        footer p {
-            margin: 5px 0;
-            line-height: 1.5;
-        }
-
-        h4,
-        h6 {
-            margin: 10px 0;
-            font-size: 22px;
-        }
-
-        .container p {
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .cut-line {
-            border-top: 2px dashed #333;
-            margin: 20px 0;
-            text-align: center;
-            position: relative;
-        }
-
-        .cut-line::after {
-            content: "Cut Here";
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #fff;
-            padding: 0 10px;
-            font-size: 16px;
-            color: #666;
-        }
-
-        .resi-section {
+        .summary {
             margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #333;
-            background-color: #ffffff;
-            border-radius: 10px;
         }
 
-        .table-section {
+        .summary p {
+            margin: 5px 0;
+        }
+
+        @media print {
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+
+            button {
+                display: none;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @media screen {
+            .container {
+                max-width: 900px;
+            }
+        }
+
+        /* kop */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .logo-container {
+            flex: 0 0 23%;
+            padding-right: 15px;
+            padding-left: 30px;
+        }
+
+        .logo {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 18px;
+            max-width: 120px;
+            height: auto;
         }
 
-        .table-section td {
-            padding: 15px 20px;
-            text-align: left;
-            border: none;
-            /* background-color: #f4f4f4; */
-            border-radius: 8px;
+        .company-info {
+            flex: 0 0 75%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 90px;
         }
 
-        .table-section td:nth-child(2) {
-            text-align: right;
-        }
-
-        .total-bayar {
-            font-size: 26px;
+        .company-name {
+            font-size: 18pt;
             font-weight: bold;
-            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .company-address {
+            font-size: 10pt;
+            line-height: 1.3;
+        }
+
+        .document-title {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            clear: both;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Bagian Invoice Utama (Untuk Ditempel) -->
-        <div class="row-divider">
-            <table class="table-head">
-                <tr>
-                    <td style="width: 60%;">
-                        <h4 class="font-weight-bold">PT. GES</h4>
-                    </td>
-                    <td class="text-right" style="width: 40%;">
-                        <h4 class="font-weight-bold">INVOICE</h4>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 60%;">
-                        <h4 class="font-weight-bold">{{ $tanggal }}</h4>
-                    </td>
-                    <td class="text-right" style="width: 40%;">
-                        <h4 class="font-weight-bold">{{ $invoice->no_resi }}</h4>
-                    </td>
-                </tr>
-            </table>
+        <div class="header">
+            <div class="logo-container">
+                {{-- <img src="{{asset('/img/logo4.png')}}" alt="logo" class="logo"> --}}
+            </div>
+            <div class="company-info">
+                <div class="company-name">PT. GES LOGISTIC</div>
+                <div class="company-address">
+                    42Q2+6PH, Unnamed Road,
+                    Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau<br>
+                    Telp: 0856-BATU-KECE (0856-2288-5323) | Email: Pt@batukerenrambut.com
+                </div>
+            </div>
         </div>
 
-        <div class="row-divider">
-            <p>
-                <strong>Customer :</strong> {{ $invoice->pembeli }}, {{ $invoice->nohp }}<br>
-                @if (empty($additionalDetails['destinationAddress']))
-                    <strong>Alamat Pickup :</strong> <br>Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam,
-                    Kepulauan Riau
-                @else
-                    <strong>Alamat Tujuan :</strong> <br>{{ $additionalDetails['destinationAddress'] }}
-                @endif
-            </p>
+        <div class="title">
+            <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
+            <h5>Pembeli: {{ $invoice->pembeli }}</h5>
+            <h2>Invoice: {{ $invoice->no_invoice }}</h2>
         </div>
 
-        <div class="row-divider">
-            <table class="table-content">
+        <table>
+            <thead>
                 <tr>
-                    <td>
-                        <p><strong>{{ $invoice->pengiriman }}</strong></p>
-                    </td>
-                    <td class="text-center">
-                        @if ($invoice->pengiriman === 'Delivery')
-                            <p><strong>Driver: </strong>{{ $additionalDetails['driverName'] ?? 'N/A' }}</p>
+                    <th>No.</th>
+                    <th>No Resi</th>
+                    <th>Berat/Dimensi</th>
+                    <th>Hitungan</th>
+                    <th>Harga</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $no = 1;
+                @endphp
+                @foreach ($resiData as $resi)
+                    <tr>
+                        <td>{{ $no++ }}</td>
+                        <td>{{ $resi->no_resi }}</td>
+                        @if ($resi->berat)
+                            <td>Berat</td>
                         @else
-                            <p><strong>Penanggung Jawab: </strong>Admin Gudang</p>
+                            <td>Dimensi</td>
                         @endif
-                    </td>
-                </tr>
-            </table>
-        </div>
 
-        <div class="row-divider">
-            <p class="text-center">
-                <strong>Berat :</strong> {{ $berat }} kg<br>
-                <strong>Dimensi :</strong> {{ $invoice->panjang }} x {{ $invoice->lebar }} x {{ $invoice->tinggi }} cm
-            </p>
-        </div>
-
-
-        <!-- Garis Potong -->
-        <div class="cut-line"></div>
-
-        <!-- Bagian Bawah (Untuk Dibuang) -->
-        <div class="resi-section">
-            <table class="table-section">
-                <tr>
-                    <td>Metode Pembayaran:</td>
-                    <td><strong>{{ $invoice->tipe_pembayaran }}</strong></td>
-                </tr>
-                @if ($invoice->tipe_pembayaran === 'Transfer')
-                    <tr>
-                        <td>No Rek:</td>
-                        <td>{{ $paymentDetails['rekeningNumber'] ?? 'N/A' }}</td>
+                        @if ($resi->berat)
+                            <td>{{ $resi->berat }}</td>
+                        @else
+                            <td>{{ $resi->panjang ?? '0' }} x {{ $resi->lebar ?? '0' }} x {{ $resi->tinggi ?? '0' }} cm
+                            </td>
+                        @endif
+                        <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>
                     </tr>
-                    <tr>
-                        <td>Pemilik:</td>
-                        <td>{{ $paymentDetails['accountHolder'] ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Bank:</td>
-                        <td>{{ $paymentDetails['bankName'] ?? 'N/A' }}</td>
-                    </tr>
-                @endif
-                <tr>
-                    <td>Total Bayar:</td>
-                    <td class="total-bayar">{{ number_format($hargaIDR, 2) }}</td>
-                </tr>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
 
-        <footer>
-            <p>PT. GES, Jl. Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
-            <p>Telp: 021-12345678 | Email: info@ptges.com | Website: www.ptges.com</p>
-        </footer>
+        <div class="summary">
+            <p class="text-right">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+        </div>
     </div>
 </body>
 
