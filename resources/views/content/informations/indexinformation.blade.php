@@ -241,7 +241,14 @@
                         formData.append('isiInformations', isiInformations);
                         formData.append('imageInformations', imageInformations);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data information.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addInformations') }}",
@@ -250,6 +257,17 @@
                             processData: false,
                             success: function (response) {
                                 if (response.status === 'success') {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     showMessage("success",
                                         "Data Berhasil Disimpan");
                                     getlistInformations();
@@ -317,14 +335,14 @@
                 }
 
                 if (imageInformations) {
-                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                if (!validExtensions.includes(imageInformations.type)) {
-                    $('#imageInformationsErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageInformationsErrorEdit').addClass('d-none');
-                }
-                }else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validExtensions.includes(imageInformations.type)) {
+                        $('#imageInformationsErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageInformationsErrorEdit').addClass('d-none');
+                    }
+                } else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
                     $('#imageInformationsErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
@@ -347,9 +365,18 @@
                             formData.append('id', id);
                             formData.append('judulInformations', judulInformations);
                             formData.append('isiInformations', isiInformations);
+                            if(imageInformations){
                             formData.append('imageInformations', imageInformations);
+                            }
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your data information.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updateInformations') }}",
@@ -357,6 +384,17 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
@@ -423,6 +461,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process delete your data information.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyInformations') }}",
@@ -430,6 +476,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");

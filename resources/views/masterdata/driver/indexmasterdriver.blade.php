@@ -323,10 +323,9 @@
                         formData.append('noTelponDriver', noTelponDriver);
                         formData.append('simDriver', simDriver);
                         formData.append('_token', csrfToken);
-
                         Swal.fire({
                             title: 'Checking...',
-                            html: 'Please wait while we check your credentials.',
+                            html: 'Please wait while we process your data driver.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -342,6 +341,16 @@
                             success: function (response) {
 
                                 Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
 
                                 if (response.status === 'success') {
                                     showMessage("success",
@@ -396,128 +405,150 @@
 
 
         $(document).on('click', '.btnUpdateDriver', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let nama_supir = $(this).data('nama_supir');
-            let alamat_supir = $(this).data('alamat_supir');
-            let no_wa = $(this).data('no_wa');
-            let sim = $(this).data('sim');
+    e.preventDefault();
+    let id = $(this).data('id');
+    let nama_supir = $(this).data('nama_supir');
+    let alamat_supir = $(this).data('alamat_supir');
+    let no_wa = $(this).data('no_wa');
+    let sim = $(this).data('sim');
+    
+    $('#namaDriverEdit').val(nama_supir);
+    $('#alamatDriverEdit').val(alamat_supir);
+    $('#noTelponDriverEdit').val(no_wa);
+    $('#textSimEdit').text(sim); // Display the current SIM
+    $('#driverIdEdit').val(id);
+    $('#currentSim').val(sim); // Store current SIM name or URL
 
-            $('#namaDriverEdit').val(nama_supir);
-            $('#alamatDriverEdit').val(alamat_supir);
-            $('#noTelponDriverEdit').val(no_wa);
-            $('#textSimEdit').text(sim);
-            $('#driverIdEdit').val(id);
+    $(document).on('click', '#saveEditDriver', function (e) {
+        e.preventDefault();
+        let id = $('#driverIdEdit').val();
+        let namaDriver = $('#namaDriverEdit').val();
+        let alamatDriver = $('#alamatDriverEdit').val();
+        let noTelponDriver = $('#noTelponDriverEdit').val();
+        let simDriverEdit = $('#simDriverEdit')[0].files[0];
+        let currentSim = $('#currentSim').val(); // Get current SIM name
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            $(document).on('click', '#saveEditDriver', function (e) {
+        let isValid = true;
 
-                let id = $('#driverIdEdit').val();
-                let namaDriver = $('#namaDriverEdit').val();
-                let alamatDriver = $('#alamatDriverEdit').val();
-                let noTelponDriver = $('#noTelponDriverEdit').val();
-                let simDriverEdit = $('#simDriverEdit')[0].files[0];
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        if (namaDriver === '') {
+            $('#err-namaDriverEdit').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#err-namaDriverEdit').addClass('d-none');
+        }
 
-                let isValid = true;
+        if (alamatDriver === '') {
+            $('#err-alamatDriverEdit').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#err-alamatDriverEdit').addClass('d-none');
+        }
 
-                if (namaDriver === '') {
-                    $('#err-namaDriverEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-namaDriverEdit').addClass('d-none');
-                }
+        if (noTelponDriver === '') {
+            $('#err-noTelponDriverEdit').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#err-noTelponDriverEdit').addClass('d-none');
+        }
 
-                if (alamatDriver === '') {
-                    $('#err-alamatDriverEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-alamatDriverEdit').addClass('d-none');
-                }
+        if (simDriverEdit && simDriverEdit !== '') {
+            var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validExtensions.includes(simDriverEdit.type)) {
+                $('#simDriverEditError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#simDriverEditError').addClass('d-none');
+            }
+        }
 
-                if (noTelponDriver === '') {
-                    $('#err-noTelponDriverEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-noTelponDriverEdit').addClass('d-none');
-                }
-
-                if (simDriver) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                    if (!validExtensions.includes(simDriver.type)) {
-                        $('#simDriverEditError').text('Hanya file JPG , JPEG  atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#simDriverEditError').addClass('d-none');
+        if (isValid) {
+            Swal.fire({
+                title: "Apakah Kamu Yakin?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('namaDriver', namaDriver);
+                    formData.append('alamatDriver', alamatDriver);
+                    formData.append('noTelponDriver', noTelponDriver);
+                    if(simDriverEdit){
+                    formData.append('simDriverEdit', simDriverEdit ? simDriverEdit : currentSim); // Use current SIM if no new image
                     }
-                }
-                    if (isValid) {
-                        Swal.fire({
-                            title: "Apakah Kamu Yakin?",
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#5D87FF',
-                            cancelButtonColor: '#49BEFF',
-                            confirmButtonText: 'Ya',
-                            cancelButtonText: 'Tidak',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                let formData = new FormData();
-                                formData.append('id', id);
-                                formData.append('namaDriver', namaDriver);
-                                formData.append('alamatDriver', alamatDriver);
-                                formData.append('noTelponDriver', noTelponDriver);
-                                formData.append('simDriverEdit', simDriverEdit);
-                                formData.append('_token', csrfToken);
+                    formData.append('_token', csrfToken);
 
-                                $.ajax({
-                                    type: "POST",
-                                    url: "{{ route('updateDriver') }}",
-                                    data: formData,
-                                    contentType: false,
-                                    processData: false,
-                                    success: function (response) {
-                                        if (response.status === 'success') {
-                                            showMessage("success",
-                                                "Data Berhasil Diubah");
-                                            getListDriver();
-                                            $('#modalEditDriver').modal(
-                                                'hide');
-                                        } else {
-                                            Swal.fire({
-                                                title: "Gagal Menambahkan",
-                                                icon: "error"
-                                            });
-                                        }
-                                    }
+                    Swal.fire({
+                        title: 'Checking...',
+                        html: 'Please wait while we process your driver data update.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('updateDriver') }}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
                                 });
                             }
-                        });
-                    } else {
-                        showMessage("error", "Mohon periksa input yang kosong");
-                    }
-                })
 
-            // validateInformationsInput('modalEditInformations');
-            $('#modalEditDriver').modal('show');
-        });
+                            if (response.status === 'success') {
+                                showMessage("success", "Data Berhasil Diubah");
+                                getListDriver();
+                                $('#modalEditDriver').modal('hide');
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal Menambahkan",
+                                    icon: "error"
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            showMessage("error", "Mohon periksa input yang kosong");
+        }
+    });
 
+    $('#modalEditDriver').modal('show');
+});
 
-        $('#modalEditDriver').on('hidden.bs.modal', function () {
-            $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit, #simDriverEdit').val('');
-            if (!$('#err-namaDriverEdit').hasClass('d-none')) {
-                $('#err-namaDriverEdit').addClass('d-none');
-
-            }
-            if (!$('#err-alamatDriverEdit').hasClass('d-none')) {
-                $('#err-alamatDriverEdit').addClass('d-none');
-
-            }
-            if (!$('#err-noTelponDriverEdit').hasClass('d-none')) {
-                $('#err-noTelponDriverEdit').addClass('d-none');
-
-            }
-        });
+$('#modalEditDriver').on('hidden.bs.modal', function () {
+    $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit, #simDriverEdit').val('');
+    if (!$('#err-namaDriverEdit').hasClass('d-none')) {
+        $('#err-namaDriverEdit').addClass('d-none');
+    }
+    if (!$('#err-alamatDriverEdit').hasClass('d-none')) {
+        $('#err-alamatDriverEdit').addClass('d-none');
+    }
+    if (!$('#err-noTelponDriverEdit').hasClass('d-none')) {
+        $('#err-noTelponDriverEdit').addClass('d-none');
+    }
+    if (!$('#simDriverEditError').hasClass('d-none')) {
+        $('#simDriverEditError').addClass('d-none');
+    }
+});
 
 
         $(document).on('click', '.btnDestroyDriver', function (e) {
@@ -534,6 +565,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Checking...',
+                        html: 'Please wait while we process delete your data driver.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyDriver') }}",
@@ -541,6 +580,18 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
+
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus Driver");

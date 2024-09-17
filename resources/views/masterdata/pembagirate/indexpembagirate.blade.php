@@ -64,13 +64,13 @@
     </div>
 
 
-      <!-- Modal tambah -->
-      <div class="modal fade" id="modalTambahRate" tabindex="-1" role="dialog"
-        aria-labelledby="modalTambahRateTitle" aria-hidden="true">
+    <!-- Modal tambah -->
+    <div class="modal fade" id="modalTambahRate" tabindex="-1" role="dialog" aria-labelledby="modalTambahRateTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahRate">Tambah Pembagi</h5>
+                    <h5 class="modal-title" id="modalTambahRate">Tambah Rate</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -78,7 +78,8 @@
                 <div class="modal-body">
                     <div class="mt-3">
                         <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
-                        <input type="text" class="form-control" id="nilaiRate" value="" placeholder="Masukkan Nilai Rate">
+                        <input type="text" class="form-control" id="nilaiRate" value=""
+                            placeholder="Masukkan Nilai Rate">
                         <div id="nilaiRateError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                     <div class="mt-3">
@@ -279,9 +280,9 @@
 
         getlistPembagi();
 
-        $('#nilaiPembagi,#nilaiPembagiEdit').on('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
+        $('#nilaiPembagi,#nilaiPembagiEdit').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
 
         $('#savePembagi').click(function () {
 
@@ -315,7 +316,14 @@
                         var formData = new FormData();
                         formData.append('nilaiPembagi', nilaiPembagi);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data pembagi.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addPembagi') }}",
@@ -323,6 +331,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
                                     getlistPembagi();
@@ -342,7 +361,7 @@
             }
         });
 
-        $(document).on('click', '.btnUpdatePembagi', function(e) {
+        $(document).on('click', '.btnUpdatePembagi', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
             let nilai_pembagi = $(this).data('nilai_pembagi');
@@ -350,7 +369,7 @@
             $('#nilaiPembagiEdit').val(nilai_pembagi);
             $('#pembagiIdEdit').val(id);
 
-            $(document).on('click', '#saveEditPembagi', function(e) {
+            $(document).on('click', '#saveEditPembagi', function (e) {
                 e.preventDefault();
 
                 let id = $('#pembagiIdEdit').val();
@@ -383,14 +402,32 @@
                             formData.append('id', id);
                             formData.append('nilaiPembagi', nilaiPembagi);
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your data pembagi.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updatePembagi') }}",
                                 data: formData,
                                 contentType: false,
                                 processData: false,
-                                success: function(response) {
+                                success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success", "Data Berhasil Diubah");
                                         getlistPembagi();
@@ -413,21 +450,21 @@
             $('#modalEditPembagi').modal('show');
         });
 
-        $('#modalTambahPembagi').on('hidden.bs.modal', function() {
-                $('#nilaiPembagi').val('');
-                if (!$('#nilaiPembagiError').hasClass('d-none')) {
-                    $('#nilaiPembagiError').addClass('d-none');
+        $('#modalTambahPembagi').on('hidden.bs.modal', function () {
+            $('#nilaiPembagi').val('');
+            if (!$('#nilaiPembagiError').hasClass('d-none')) {
+                $('#nilaiPembagiError').addClass('d-none');
 
-                }
-               
-            });
-            $('#modalEditPembagi').on('hidden.bs.modal', function() {
-                $('#nilaiPembagiEdit').val('');
-                if (!$('#nilaiPembagiErrorEdit').hasClass('d-none')) {
-                    $('#nilaiPembagiErrorEdit').addClass('d-none');
+            }
 
-                }
-            });
+        });
+        $('#modalEditPembagi').on('hidden.bs.modal', function () {
+            $('#nilaiPembagiEdit').val('');
+            if (!$('#nilaiPembagiErrorEdit').hasClass('d-none')) {
+                $('#nilaiPembagiErrorEdit').addClass('d-none');
+
+            }
+        });
         $(document).on('click', '.btnDestroyPembagi', function (e) {
             let id = $(this).data('id');
 
@@ -442,6 +479,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data pembagi.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyPembagi') }}",
@@ -449,6 +494,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");
@@ -461,11 +517,11 @@
                 }
             })
         });
-});
+    });
 
- </script>
-  <script>
-         $(document).ready(function () {
+</script>
+<script>
+    $(document).ready(function () {
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
@@ -502,115 +558,34 @@
 
         getlistRate();
 
-        $('#nilaiRate,#nilaiRateEdit').on('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-
-    $('#saveRate').click(function () {
-
-        var nilaiRate = $('#nilaiRate').val().trim();
-        var forRate = $('#forRate').val();
-
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        var isValid = true;
-
-
-        if (nilaiRate === '') {
-            $('#nilaiRateError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#nilaiRateError').addClass('d-none');
-        }
-        if (!forRate) {
-            $('#forRateError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#forRateError').addClass('d-none');
-        }
-
-        // Jika semua input valid, lanjutkan aksi simpan
-        if (isValid) {
-            Swal.fire({
-                title: "Apakah Kamu Yakin?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#5D87FF',
-                cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    var formData = new FormData();
-                    formData.append('nilaiRate', nilaiRate);
-                    formData.append('forRate', forRate);
-                    formData.append('_token', csrfToken);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('addRate') }}",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            if (response.status === 'success') {
-                                showMessage("success", "Data Berhasil Disimpan");
-                                getlistRate();
-                                $('#modalTambahRate').modal('hide');
-                            } else {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    icon: "error"
-                                });
-                            }
-                        }
-                    });
-                }
-            });
-        } else {
-            showMessage("error", "Mohon periksa input yang kosong");
-        }
+        $('#nilaiRate,#nilaiRateEdit').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
         });
-        $('#modalTambahRate').on('hidden.bs.modal', function() {
-                $('#nilaiRate,#forRate').val('');
-                if (!$('#nilaiRateError').hasClass('d-none')) {
-                    $('#nilaiRateError').addClass('d-none');
-                }
-                if (!$('#forRateError').hasClass('d-none')) {
-                    $('#forRateError').addClass('d-none');
-                }
-               
-            });
 
-        $(document).on('click', '.btnUpdateRate', function(e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-        let nilai_rate = $(this).data('nilai_rate');
-        let rate_for = $(this).data('rate_for');
+        $('#saveRate').click(function () {
 
-        $('#nilaiRateEdit').val(nilai_rate);
-        $('#forRateEdit').val(rate_for);
-        $('#rateIdEdit').val(id);
+            var nilaiRate = $('#nilaiRate').val().trim();
+            var forRate = $('#forRate').val();
 
-        $(document).on('click', '#saveEditRate', function(e) {
-            e.preventDefault();
-
-            let id = $('#rateIdEdit').val();
-            let nilaiRate = $('#nilaiRateEdit').val();
-            let rateFor = $('#forRateEdit').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            let isValid = true;
+            var isValid = true;
 
-            // Validasi Nilai Pembagi
+
             if (nilaiRate === '') {
-                $('#nilaiRateErrorEdit').removeClass('d-none');
+                $('#nilaiRateError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#nilaiRateErrorEdit').addClass('d-none');
+                $('#nilaiRateError').addClass('d-none');
+            }
+            if (!forRate) {
+                $('#forRateError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#forRateError').addClass('d-none');
             }
 
+            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -623,26 +598,43 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        let formData = new FormData();
-                        formData.append('id', id);
+                        var formData = new FormData();
                         formData.append('nilaiRate', nilaiRate);
-                        formData.append('rateFor', rateFor);
+                        formData.append('forRate', forRate);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data rate.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
-                            url: "{{ route('updateRate') }}",
+                            url: "{{ route('addRate') }}",
                             data: formData,
                             contentType: false,
                             processData: false,
-                            success: function(response) {
+                            success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Diubah");
+                                    showMessage("success", "Data Berhasil Disimpan");
                                     getlistRate();
-                                    $('#modalEditRate').modal('hide');
+                                    $('#modalTambahRate').modal('hide');
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan",
+                                        title: "Gagal Menambahkan Data",
                                         icon: "error"
                                     });
                                 }
@@ -654,16 +646,116 @@
                 showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+        $('#modalTambahRate').on('hidden.bs.modal', function () {
+            $('#nilaiRate,#forRate').val('');
+            if (!$('#nilaiRateError').hasClass('d-none')) {
+                $('#nilaiRateError').addClass('d-none');
+            }
+            if (!$('#forRateError').hasClass('d-none')) {
+                $('#forRateError').addClass('d-none');
+            }
 
-        $('#modalEditRate').modal('show');
         });
 
-        $('#modalEditRate').on('hidden.bs.modal', function() {
-                $('#nilaiRateEdit').val('');
-                if (!$('#nilaiRateErrorEdit').hasClass('d-none')) {
+        $(document).on('click', '.btnUpdateRate', function (e) {
+            e.preventDefault();
+            let id = $(this).data('id');
+            let nilai_rate = $(this).data('nilai_rate');
+            let rate_for = $(this).data('rate_for');
+
+            $('#nilaiRateEdit').val(nilai_rate);
+            $('#forRateEdit').val(rate_for);
+            $('#rateIdEdit').val(id);
+
+            $(document).on('click', '#saveEditRate', function (e) {
+                e.preventDefault();
+
+                let id = $('#rateIdEdit').val();
+                let nilaiRate = $('#nilaiRateEdit').val();
+                let rateFor = $('#forRateEdit').val();
+                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                let isValid = true;
+
+                // Validasi Nilai Pembagi
+                if (nilaiRate === '') {
+                    $('#nilaiRateErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
                     $('#nilaiRateErrorEdit').addClass('d-none');
                 }
+
+                if (isValid) {
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formData = new FormData();
+                            formData.append('id', id);
+                            formData.append('nilaiRate', nilaiRate);
+                            formData.append('rateFor', rateFor);
+                            formData.append('_token', csrfToken);
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your data rate.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('updateRate') }}",
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
+                                    if (response.status === 'success') {
+                                        showMessage("success", "Data Berhasil Diubah");
+                                        getlistRate();
+                                        $('#modalEditRate').modal('hide');
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan",
+                                            icon: "error"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    showMessage("error", "Mohon periksa input yang kosong");
+                }
             });
+
+            $('#modalEditRate').modal('show');
+        });
+
+        $('#modalEditRate').on('hidden.bs.modal', function () {
+            $('#nilaiRateEdit').val('');
+            if (!$('#nilaiRateErrorEdit').hasClass('d-none')) {
+                $('#nilaiRateErrorEdit').addClass('d-none');
+            }
+        });
 
 
 
@@ -681,6 +773,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data rate.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyRate') }}",
@@ -688,6 +788,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");
@@ -706,6 +817,6 @@
     });
 
 
-    </script>
+</script>
 
 @endsection

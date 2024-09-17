@@ -198,14 +198,14 @@
                 $('#isiServiceError').addClass('d-none');
             }
             if (imageService) {
-            var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
-            if (!validExtensions.includes(imageService.type)) {
-                $('#imageServiceError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
-                isValid = false;
-            }else {
-                $('#imageServiceError').addClass('d-none');
-            }
-        }else if (!imageService) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(imageService.type)) {
+                    $('#imageServiceError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageServiceError').addClass('d-none');
+                }
+            } else if (!imageService) {
                 $('#imageServiceError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -230,7 +230,14 @@
                         formData.append('isiService', isiService);
                         formData.append('imageService', imageService);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data service.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addService') }}",
@@ -238,6 +245,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
                                     getlistService();
@@ -296,15 +314,15 @@
                     $('#isiServiceErrorEdit').addClass('d-none');
                 }
 
-                        if (imageService) {
-                    var validExtensions = ['image/jpeg', 'image/jpg' ,'image/png']; 
+                if (imageService) {
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(imageService.type)) {
                         $('#imageServiceErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
                         isValid = false;
-                    }else {
+                    } else {
                         $('#imageServiceErrorEdit').addClass('d-none');
                     }
-                }else if (imageService === 0 && $('#textNamaEdit').text() === '') {
+                } else if (imageService === 0 && $('#textNamaEdit').text() === '') {
                     $('#imageServiceErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
@@ -327,9 +345,18 @@
                             formData.append('id', id);
                             formData.append('judulService', judulService);
                             formData.append('isiService', isiService);
-                            formData.append('imageService', imageService);
+                            if (imageService) {
+                                formData.append('imageService', imageService);
+                            }
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process your data service.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updateService') }}",
@@ -337,6 +364,17 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
@@ -402,6 +440,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data service.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyService') }}",
@@ -409,6 +455,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");

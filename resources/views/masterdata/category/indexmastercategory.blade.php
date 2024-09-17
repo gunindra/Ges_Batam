@@ -26,13 +26,15 @@
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategory" value=""
                             placeholder="Masukkan Minimum Rate">
-                        <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate </div>
+                        <div id="minimumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate
+                        </div>
                     </div>
                     <div class="mt-3">
                         <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
                         <input type="text" class="form-control" id="maximumRateCategory" value=""
                             placeholder="Masukkan Maximum Rate">
-                        <div id="maximumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate </div>
+                        <div id="maximumRateCategoryError" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -55,7 +57,7 @@
                 <div class="modal-body">
                     <input type="hidden" id="categoryIdEdit">
                     <div class="mt-3">
-                        <label for="namaCategory" class="form-label fw-bold">nama</label>
+                        <label for="namaCategory" class="form-label fw-bold">Nama Category</label>
                         <input type="text" class="form-control" id="namaCategoryEdit" value=""
                             placeholder="Masukkan Nama Category">
                         <div id="namaCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
@@ -64,13 +66,15 @@
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
                         <input type="text" class="form-control" id="minimumRateCategoryEdit" value=""
                             placeholder="Masukkan Minimum Rate">
-                        <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate</div>
+                        <div id="minimumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Minimum Rate
+                        </div>
                     </div>
                     <div class="mt-3">
                         <label for="maximumRateCategory" class="form-label fw-bold">Maximum Rate</label>
                         <input type="text" class="form-control" id="maximumRateCategoryEdit" value=""
                             placeholder="Masukkan Maximum Rate">
-                        <div id="maximumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate</div>
+                        <div id="maximumRateCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Maximum Rate
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -234,7 +238,14 @@
                         formData.append('minimumRateCategory', minimumRateCategory);
                         formData.append('maximumRateCategory', maximumRateCategory);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your category.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCategory') }}",
@@ -242,6 +253,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
                                     getlistCategory();
@@ -342,7 +364,14 @@
                             formData.append('minimumRateCategory', minimumRateCategory);
                             formData.append('maximumRateCategory', maximumRateCategory);
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your category.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updateCategory') }}",
@@ -350,6 +379,17 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
@@ -411,6 +451,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your category.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyCategory') }}",
@@ -418,6 +466,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");

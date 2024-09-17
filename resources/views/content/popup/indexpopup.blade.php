@@ -23,7 +23,7 @@
                         <label for="imagePopup" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imagePopup">
                         <div id="imagePopupError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                         <p>Nama Gambar= <span id="imageName">{{ $popupData->Image_Popup ?? ' -' }}</span></p>
+                        <p>Nama Gambar= <span id="imageName">{{ $popupData->Image_Popup ?? ' -' }}</span></p>
                     </div>
                     <div class="mt-3">
                         <label for="judulPopup" class="form-label fw-bold">Judul</label>
@@ -86,99 +86,117 @@
 <script>
     $(document).ready(function () {
         $(document).on('click', '#savePopup', function (e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    var judulPopup = $('#judulPopup').val().trim();
-    var parafPopup = $('#parafPopup').val().trim();
-    var linkPopup = $('#linkPopup').val().trim();
-    var imagePopup = $('#imagePopup')[0].files[0];
-    var existingImage = $('#textNamaEdit').text();  // Gambar yang sudah ada
+            var judulPopup = $('#judulPopup').val().trim();
+            var parafPopup = $('#parafPopup').val().trim();
+            var linkPopup = $('#linkPopup').val().trim();
+            var imagePopup = $('#imagePopup')[0].files[0];
+            var existingImage = $('#textNamaEdit').text();  // Gambar yang sudah ada
 
-    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-    var isValid = true;
+            var isValid = true;
 
-    if (judulPopup === '') {
-        $('#judulPopupError').removeClass('d-none');
-        isValid = false;
-    } else {
-        $('#judulPopupError').addClass('d-none');
-    }
-    if (parafPopup === '') {
-        $('#parafPopupError').removeClass('d-none');
-        isValid = false;
-    } else {
-        $('#parafPopupError').addClass('d-none');
-    }
-    if (linkPopup === '') {
-        $('#linkPopupError').removeClass('d-none');
-        isValid = false;
-    } else {
-        $('#linkPopupError').addClass('d-none');
-    }
-    if (imagePopup) {
-        var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-        if (!validExtensions.includes(imagePopup.type)) {
-            $('#imagePopupError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#imagePopupError').addClass('d-none');
-        }
-    } else if (!$('#previewContainer img').length) {
-            $('#imagePopupError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#imagePopupError').addClass('d-none');
-        }
+            if (judulPopup === '') {
+                $('#judulPopupError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#judulPopupError').addClass('d-none');
+            }
+            if (parafPopup === '') {
+                $('#parafPopupError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#parafPopupError').addClass('d-none');
+            }
+            if (linkPopup === '') {
+                $('#linkPopupError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#linkPopupError').addClass('d-none');
+            }
+            if (imagePopup) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(imagePopup.type)) {
+                    $('#imagePopupError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imagePopupError').addClass('d-none');
+                }
+            } else if (!$('#previewContainer img').length) {
+                $('#imagePopupError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imagePopupError').addClass('d-none');
+            }
 
-    if (isValid) {
-        var formData = new FormData();
-        formData.append('judulPopup', judulPopup);
-        formData.append('parafPopup', parafPopup);
-        formData.append('linkPopup', linkPopup);
-        formData.append('imagePopup', imagePopup ? imagePopup : existingImage);  // Kirim gambar yang ada jika tidak diubah
-        formData.append('_token', csrfToken);
+            if (isValid) {
+                var formData = new FormData();
+                formData.append('judulPopup', judulPopup);
+                formData.append('parafPopup', parafPopup);
+                formData.append('linkPopup', linkPopup);
+                formData.append('imagePopup', imagePopup ? imagePopup : existingImage);  // Kirim gambar yang ada jika tidak diubah
+                formData.append('_token', csrfToken);
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Please wait while we process your data popup.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                $.ajax({
+                    url: '{{ route("addPopup") }}',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        Swal.close();
 
-        $.ajax({
-            url: '{{ route("addPopup") }}',
-            method: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                if (response.status === 'success') {
-                    $('#textNamaEdit').text(response.data.imagePopup);
-                    $('#previewContainer').html(`
+                        if (response.url) {
+                            window.open(response.url, '_blank');
+                        } else if (response.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error
+                            });
+                        }
+                        if (response.status === 'success') {
+                            $('#textNamaEdit').text(response.data.imagePopup);
+                            $('#previewContainer').html(`
                     <img src="{{ asset('storage/images/') }}/${response.data.imagePopup}" width="600px" style="padding:5px 30px;">
                     <p style="padding-left:30px;">${response.data.judulPopup}</p>
                     <p style="padding-left:30px;">${response.data.parafPopup}</p>
                     <p class="text-primary" style="padding-left:30px;">${response.data.linkPopup}</p>
                 `);
-                
-                    $('#destroyPopup').data('id', response.data.id);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Data Saved',
-                        text: response.message
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message
-                    });
-                }
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to save data'
+
+                            $('#destroyPopup').data('id', response.data.id);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Data Saved',
+                                text: response.message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to save data'
+                        });
+                    }
                 });
             }
         });
-    }
-});
 
 
         $(document).on('click', '#destroyPopup', function (e) {
@@ -206,6 +224,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data popup.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "DELETE",
                         url: "{{ route('destroyPopup') }}",
@@ -214,6 +240,17 @@
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 $('#judulPopup').val('');
                                 $('#parafPopup').val('');

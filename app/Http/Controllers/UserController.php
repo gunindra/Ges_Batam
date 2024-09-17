@@ -10,17 +10,20 @@ class UserController extends Controller
     public function index()
     {
 
+        $listRole = DB::select("SELECT role FROM tbl_role");
 
-        return view('masterdata.user.indexmasteruser');
+        return view('masterdata.user.indexmasteruser', [
+            'listRole' => $listRole
+        ]);
     }
     public function getlistUser(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT a.id,
-		            a.name, 
-		            a.email, 
-		            a.role 
+        $q = "SELECT id,
+		            name, 
+		            email, 
+		            role 
 		FROM tbl_users AS a 
         ";
 

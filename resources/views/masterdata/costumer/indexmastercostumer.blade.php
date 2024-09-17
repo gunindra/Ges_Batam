@@ -139,7 +139,8 @@
                         <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
                         <div class="input-group">
                             <span class="input-group-text" id="nomorEdit">+62</span>
-                            <input type="text" placeholder="8**********" class="form-control" id="noTelponEdit" value="">
+                            <input type="text" placeholder="8**********" class="form-control" id="noTelponEdit"
+                                value="">
                         </div>
                         <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                             customer
@@ -185,12 +186,12 @@
                 <div class="modal-body">
                     <div class="text-center">
                         <div class="mb-4">
-                            <h1 id="pointValue" class="display-3 font-weight-bold text-primary">?</h1>
-                            <p class="text-muted">Transaksi terakhir : <span id="transaksiDate">-</span></p>
+                            <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
+                            <p class="text-muted">Poin</p>
                         </div>
-                        <div>
+                        <!-- <div>
                             <p id="statusValue" class="h5"></p>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center">
@@ -499,13 +500,20 @@
                         formData.append('categoryCustomer', categoryCustomer);
                         formData.append('metodePengiriman', metodePengiriman);
                         formData.append('_token', csrfToken);
-
+                        
                         if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                             alamatCustomer.forEach((alamat, index) => {
                                 formData.append('alamatCustomer[]', alamat);
                             });
                         }
-
+                        Swal.fire({
+                        title: 'Checking...',
+                        html: 'Please wait while we process your data customer.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCostumer') }}",
@@ -513,6 +521,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Data Berhasil Disimpan");
@@ -553,11 +572,14 @@
 
 
         $(document).on('click', '.btnPointCostumer', function (e) {
+            e.preventDefault(); 
+            let poinValue = $(this).data('poin')|| 0;
             let category = $(this).data('category');
-            let point = $(this).data('poin');
             let transaksi = $(this).data('transaksi');
             let status = $(this).data('status');
 
+            $('#pointValue').text(poinValue).show();
+            
             if (!transaksi) {
                 $('#transaksiDate').text('Tanggal belum tersedia');
             } else {
@@ -644,7 +666,7 @@
                 } else {
                     $('.remove-alamat-btn').hide();
                 }
-            }
+            } 
 
             // Menangani perubahan metode pengiriman
             $('#metodePengirimanEdit').change(function () {
@@ -700,7 +722,7 @@
 
             let id = $('#customerIdEdit').val();
             let namaCustomerEdit = $('#namaCustomerEdit').val();
-            let noTelponCustomer = $('#noTelponEdit').val();
+            let noTelponCustomer = '62' + $('#noTelponEdit').val();
             let metodePengiriman = $('#metodePengirimanEdit').val();
             let categoryCustomer = $('#categoryCustomerEdit').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -764,11 +786,19 @@
                         formData.append('metodePengiriman', metodePengiriman);
                         formData.append('categoryCustomer', categoryCustomer);
                         formData.append('_token', csrfToken);
+                        
 
                         alamatCustomer.forEach((alamat, index) => {
                             formData.append('alamatCustomer[]', alamat);
                         });
-
+                        Swal.fire({
+                        title: 'Checking...',
+                        html: 'Please wait while we process update your data customer.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('updateCostumer') }}",
@@ -776,6 +806,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Diubah");
                                     getListCustomer();

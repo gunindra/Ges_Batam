@@ -184,7 +184,7 @@
                 } else {
                     $('#imageIklanError').addClass('d-none');
                 }
-            }else if (!imageIklan) {
+            } else if (!imageIklan) {
                 $('#imageIklanError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -208,7 +208,14 @@
                         formData.append('judulIklan', judulIklan);
                         formData.append('imageIklan', imageIklan);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data iklan.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addIklan') }}",
@@ -216,6 +223,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
                                     getlistIklan();
@@ -274,14 +292,14 @@
                 }
 
                 if (imageIklan) {
-                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png','image/svg+xml'];
-                if (!validExtensions.includes(imageIklan.type)) {
-                    $('#imageIklanErrorEdit').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageIklanErrorEdit').addClass('d-none');
-                }
-        }else if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
+                    if (!validExtensions.includes(imageIklan.type)) {
+                        $('#imageIklanErrorEdit').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#imageIklanErrorEdit').addClass('d-none');
+                    }
+                } else if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
                     $('#imageIklanErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
@@ -303,9 +321,18 @@
                             let formData = new FormData();
                             formData.append('id', id);
                             formData.append('judulIklan', judulIklan);
+                            if(imageIklan){
                             formData.append('imageIklan', imageIklan);
+                            }
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your data iklan.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updateIklan') }}",
@@ -313,6 +340,17 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
@@ -378,6 +416,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data iklan.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyIklan') }}",
@@ -385,6 +431,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success", "Berhasil menghapus");
                                 getlistIklan();

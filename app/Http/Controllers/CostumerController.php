@@ -169,7 +169,7 @@ class CostumerController extends Controller
                 ->delete();
 
             // Insert alamat baru ke tbl_alamat hanya jika metode pengiriman adalah Delivery dan alamat tidak kosong
-            if ($metodePengiriman === 'Delivery' && !empty($alamatcostumer)) {
+            if ($metodePengiriman === 'Delivery' && !empty($alamatcostumer) || $metodePengiriman === 'Pickup' && !empty($alamatcostumer)) {
                 foreach ($alamatcostumer as $alamat) {
                     // Cek jika alamat tidak null atau kosong
                     if (!is_null($alamat) && trim($alamat) !== '') {

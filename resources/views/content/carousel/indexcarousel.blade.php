@@ -228,7 +228,14 @@
                         formData.append('isiCarousel', isiCarousel);
                         formData.append('imageCarousel', imageCarousel);
                         formData.append('_token', csrfToken);
-
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your data carousel.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCarousel') }}",
@@ -236,6 +243,17 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Disimpan");
                                     getlistCarousel();
@@ -269,6 +287,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your data carousel.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyCarousel') }}",
@@ -276,6 +302,17 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success", "Berhasil menghapus");
                                 getlistCarousel();
@@ -357,9 +394,18 @@
                             formData.append('id', id);
                             formData.append('judulCarousel', judulCarousel);
                             formData.append('isiCarousel', isiCarousel);
+                            if(imageCarousel){
                             formData.append('imageCarousel', imageCarousel);
+                            }
                             formData.append('_token', csrfToken);
-
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your data carousel.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             $.ajax({
                                 type: "POST",
                                 url: "{{ route('updateCarousel') }}",
@@ -367,6 +413,17 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");

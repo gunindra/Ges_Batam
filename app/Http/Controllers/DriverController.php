@@ -93,37 +93,41 @@ class DriverController extends Controller
     public function updateDriver(Request $request)
     {
         $request->validate([
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png|',
+            'simDriverEdit' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-
+    
         $id = $request->input('id');
         $namaDriver = $request->input('namaDriver');
         $alamatDriver = $request->input('alamatDriver');
         $noTelponDriver = $request->input('noTelponDriver');
         $simDriver = $request->file('simDriverEdit');
-
+    
+        // Retrieve the existing driver record
+        $driver = DB::table('tbl_supir')->where('id', $id)->first();
+        
         if ($simDriver) {
-            $fileName = 'SIM_' . $simDriver->getClientOriginalName();
+            $fileName = 'SIM_' . time() . '_' . $simDriver->getClientOriginalName(); // Add a timestamp to avoid filename conflicts
             $filePath = $simDriver->storeAs('public/sim', $fileName);
         } else {
-            $fileName = null; // No image was uploaded
+            // Use the existing image if no new image is uploaded
+            $fileName = $driver->image_sim;
         }
-
+    
         try {
             DB::table('tbl_supir')
-            ->where('id', $id)
-            ->update([
-               'nama_supir' => $namaDriver,
-                'alamat_supir' => $alamatDriver,
-                'no_wa' => $noTelponDriver,
-                'image_sim' => $fileName,
-                'updated_at' => now(),
-            ]);
-
+                ->where('id', $id)
+                ->update([
+                    'nama_supir' => $namaDriver,
+                    'alamat_supir' => $alamatDriver,
+                    'no_wa' => $noTelponDriver,
+                    'image_sim' => $fileName, // Update with the new or old image
+                    'updated_at' => now(),
+                ]);
+    
             return response()->json(['status' => 'success', 'message' => 'Data Driver berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Driver: ' . $e->getMessage()], 500);
         }
     }
-
+    
 }

@@ -6,8 +6,8 @@
 
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
-<div class="modal fade" id="modalTambahUsers" tabindex="-1" role="dialog"
-        aria-labelledby="modalTambahUsersTitle" aria-hidden="true">
+    <div class="modal fade" id="modalTambahUsers" tabindex="-1" role="dialog" aria-labelledby="modalTambahUsersTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -19,21 +19,27 @@
                 <div class="modal-body">
                     <form id="usersForm" enctype="multipart/form-data">
                         <div class="mt-3">
-                            <label for="nameUsers" class="form-label fw-bold">name</label>
+                            <label for="nameUsers" class="form-label fw-bold">Nama</label>
                             <input type="text" class="form-control" id="nameUsers" value=""
                                 placeholder="Masukkan nama user">
-                            <div id="nameUsersError" class="text-danger mt-1 d-none">Silahkan isi Name</div>
+                            <div id="nameUsersError" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
                         </div>
                         <div class="mt-3">
                             <label for="emailUsers" class="form-label fw-bold">Email</label>
-                            <input type="text" class="form-control" id="emailUsers" value=""
+                            <input type="email" class="form-control" id="emailUsers" value=""
                                 placeholder="Masukkan email user">
                             <div id="emailUsersError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
                         </div>
                         <div class="mt-3">
                             <label for="roleUsers" class="form-label fw-bold">Role</label>
-                            <input type="text" class="form-control" id="roleUsers" value=""
-                                placeholder="Masukkan role user">
+                            <select class="form-control" id="roleUsers" style="width: 466px;">
+                                <option value="" selected disabled>Pilih Role</option>
+                                @foreach ($listRole as $role)
+                                    <option value="{{ $role->role }}">
+                                        {{ $role->role }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                         </div>
                         <div class="modal-footer">
@@ -45,8 +51,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalEditUsers" tabindex="-1" role="dialog"
-        aria-labelledby="modalEditUsersTitle" aria-hidden="true">
+    <div class="modal fade" id="modalEditUsers" tabindex="-1" role="dialog" aria-labelledby="modalEditUsersTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -58,10 +64,10 @@
                 <div class="modal-body">
                     <input type="hidden" id="usersIdEdit">
                     <div class="mt-3">
-                        <label for="nameUsersEdit" class="form-label fw-bold">Name</label>
+                        <label for="nameUsersEdit" class="form-label fw-bold">Nama</label>
                         <input type="text" class="form-control" id="nameUsersEdit" value=""
                             placeholder="Masukkan nama user">
-                        <div id="nameUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Name</div>
+                        <div id="nameUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
                     </div>
                     <div class="mt-3">
                         <label for="emailUsersEdit" class="form-label fw-bold">Email</label>
@@ -71,8 +77,14 @@
                     </div>
                     <div class="mt-3">
                         <label for="roleUsersEdit" class="form-label fw-bold">Role</label>
-                        <input type="text" class="form-control" id="roleUsersEdit" value=""
-                            placeholder="Masukkan role user">
+                        <select class="form-control" id="roleUsersEdit" style="width: 466px;">
+                            <option value="" selected disabled>Pilih Role</option>
+                            @foreach ($listRole as $role)
+                                <option value="{{ $role->role }}">
+                                    {{ $role->role }}
+                                </option>
+                            @endforeach
+                        </select>
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>
                 </div>
@@ -147,52 +159,53 @@
 
 @section('script')
 <script>
-      $(document).ready(function() {
-            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-            const getListUser = () => {
-                const txtSearch = $('#txSearch').val();
+        const getListUser = () => {
+            const txtSearch = $('#txSearch').val();
 
-                $.ajax({
-                        url: "{{ route('getlistUser') }}",
-                        method: "GET",
-                        data: {
-                            txSearch: txtSearch
-                        },
-                        beforeSend: () => {
-                            $('#containerUser').html(loadSpin)
+            $.ajax({
+                url: "{{ route('getlistUser') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerUser').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerUser').html(res)
+                    $('#tableUser').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
                         }
-                    })
-                    .done(res => {
-                        $('#containerUser').html(res)
-                        $('#tableUser').DataTable({
-                            searching: false,
-                            lengthChange: false,
-                            "bSort": true,
-                            "aaSorting": [],
-                            pageLength: 7,
-                            "lengthChange": false,
-                            responsive: true,
-                            language: {
-                                search: ""
-                            }
-                        });
-                    })
-            }
+                    });
+                })
+        }
 
-            getListUser();
+        getListUser();
 
-            $('#saveUsers').click(function () {
+        $('#saveUsers').click(function () {
             // Ambil nilai input
             var nameUsers = $('#nameUsers').val().trim();
             var emailUsers = $('#emailUsers').val().trim();
-            var roleUsers = $('#roleUsers').val().trim();
+            var roleUsers = $('#roleUsers').val();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             if (nameUsers === '') {
                 $('#nameUsersError').removeClass('d-none');
@@ -201,12 +214,18 @@
                 $('#nameUsersError').addClass('d-none');
             }
             if (emailUsers === '') {
-                $('#emailUsersError').removeClass('d-none');
+                $('#emailUsersError').text('Silahkan isi Email').removeClass('d-none');
+                isValid = false;
+            } else if (!emailRegex.test(emailUsers)) {
+                $('#emailUsersError').text('Format Email tidak valid').removeClass('d-none');
+                isValid = false;
+            } else if (!emailUsers.endsWith('@gmail.com')) {
+                $('#emailUsersError').text('Email harus menggunakan @gmail.com').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#emailUsersError').addClass('d-none');
             }
-            if (roleUsers === '') {
+            if (!roleUsers || roleUsers === '' || roleUsers === '0') {
                 $('#roleUsersError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -231,6 +250,14 @@
                         formData.append('emailUsers', emailUsers);
                         formData.append('roleUsers', roleUsers);
                         formData.append('_token', csrfToken);
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we process your user.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
 
                         $.ajax({
                             type: "POST",
@@ -239,10 +266,21 @@
                             contentType: false,
                             processData: false,
                             success: function (response) {
+                                Swal.close();
+
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Data Berhasil Disimpan");
-                                        getListUser();
+                                    getListUser();
                                     $('#modalTambahUsers').modal('hide');
                                 } else {
                                     Swal.fire({
@@ -265,7 +303,7 @@
                     }
                 });
             } else {
-                showMessage("error", "Mohon periksa input yang kosong");
+                showMessage("error", "Mohon periksa input yang kosong atau tidak valid");
             }
         });
 
@@ -302,6 +340,7 @@
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
                 if (nameUsers === '') {
                     $('#nameUsersErrorEdit').removeClass('d-none');
@@ -309,23 +348,27 @@
                 } else {
                     $('#nameUsersErrorEdit').addClass('d-none');
                 }
-
-                // Validasi Content
                 if (emailUsers === '') {
-                    $('#emailUsersErrorEdit').removeClass('d-none');
+                    $('#emailUsersErrorEdit').text('Silahkan isi Email').removeClass('d-none');
+                    isValid = false;
+                } else if (!emailRegex.test(emailUsers)) {
+                    $('#emailUsersErrorEdit').text('Format Email tidak valid').removeClass('d-none');
+                    isValid = false;
+                } else if (!emailUsers.endsWith('@gmail.com')) {
+                    $('#emailUsersErrorEdit').text('Email harus menggunakan @gmail.com').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#emailUsersErrorEdit').addClass('d-none');
                 }
 
-                if (roleUsers === '') {
+                if (!roleUsers || roleUsers === '' || roleUsers === '0') {
                     $('#roleUsersErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#roleUsersErrorEdit').addClass('d-none');
                 }
 
-                
+
                 if (isValid) {
                     Swal.fire({
                         title: "Apakah Kamu Yakin?",
@@ -344,6 +387,14 @@
                             formData.append('emailUsers', emailUsers);
                             formData.append('roleUsers', roleUsers);
                             formData.append('_token', csrfToken);
+                            Swal.fire({
+                                title: 'Loading...',
+                                text: 'Please wait while we process update your user.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
 
                             $.ajax({
                                 type: "POST",
@@ -352,10 +403,21 @@
                                 contentType: false,
                                 processData: false,
                                 success: function (response) {
+                                    Swal.close();
+
+                                    if (response.url) {
+                                        window.open(response.url, '_blank');
+                                    } else if (response.error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.error
+                                        });
+                                    }
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data Berhasil Diubah");
-                                            getListUser();
+                                        getListUser();
                                         $('#modalEditUsers').modal(
                                             'hide');
                                     } else {
@@ -402,6 +464,14 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process delete your user.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                     $.ajax({
                         type: "GET",
                         url: "{{ route('destroyUsers') }}",
@@ -409,10 +479,21 @@
                             id: id,
                         },
                         success: function (response) {
+                            Swal.close();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");
-                                    getListUser();
+                                getListUser();
                             } else {
                                 showMessage("error", "Gagal menghapus");
                             }
@@ -423,7 +504,7 @@
 
         });
     });
-    
+
 </script>
 
 @endsection
