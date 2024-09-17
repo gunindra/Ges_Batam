@@ -19,12 +19,20 @@ class UserController extends Controller
     public function getlistUser(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $role = $request->role;
+
+        $roles = $role ? "AND role LIKE '$role'" : "";
 
         $q = "SELECT id,
 		            name, 
 		            email, 
 		            role 
-		FROM tbl_users AS a 
+		FROM tbl_users 
+         WHERE (
+                UPPER(name) LIKE UPPER('$txSearch')
+                OR UPPER(email) LIKE UPPER('$txSearch')
+                )
+                $roles
         ";
 
         // dd($q);

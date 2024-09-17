@@ -62,8 +62,11 @@
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                        <input type="text" class="form-control" id="noTelponDriver" value=""
-                            placeholder="08***********">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomor">+62</span>
+                            <input type="text" class="form-control" id="noTelponDriver" value=""
+                                placeholder="8***********">
+                        </div>
                         <div id="err-noTelponDriver" class="text-danger mt-1 d-none">Silahkan isi no. telp driver</div>
                     </div>
                     <div class="mt-3">
@@ -108,8 +111,11 @@
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
-                        <input type="text" class="form-control" id="noTelponDriverEdit" value=""
-                            placeholder="08***********">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomorEdit">+62</span>
+                            <input type="text" class="form-control" id="noTelponDriverEdit" value=""
+                                placeholder="8***********">
+                        </div>
                         <div id="err-noTelponDriverEdit" class="text-danger mt-1 d-none">Silahkan isi no. telp driver
                         </div>
                     </div>
@@ -262,6 +268,13 @@
             var simDriver = $('#simDriver')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+            let nomors = $('#nomor').text();
+            
+            let clearplus = nomors.replace('+', '')
+            let valueNotlep = clearplus + noTelponDriver;
+            console.log(valueNotlep)
+
+
             var isValid = true;
 
             if (namaDriver === '') {
@@ -320,7 +333,7 @@
                         var formData = new FormData();
                         formData.append('namaDriver', namaDriver);
                         formData.append('alamatDriver', alamatDriver);
-                        formData.append('noTelponDriver', noTelponDriver);
+                        formData.append('noTelponDriver', valueNotlep);
                         formData.append('simDriver', simDriver);
                         formData.append('_token', csrfToken);
                         Swal.fire({
@@ -404,17 +417,19 @@
         });
 
 
-        $(document).on('click', '.btnUpdateDriver', function (e) {
+$(document).on('click', '.btnUpdateDriver', function (e) {
     e.preventDefault();
     let id = $(this).data('id');
     let nama_supir = $(this).data('nama_supir');
     let alamat_supir = $(this).data('alamat_supir');
     let no_wa = $(this).data('no_wa');
+    no_wa = String(no_wa);
+    let noWaWithoutCode = no_wa.slice(2);
     let sim = $(this).data('sim');
     
     $('#namaDriverEdit').val(nama_supir);
     $('#alamatDriverEdit').val(alamat_supir);
-    $('#noTelponDriverEdit').val(no_wa);
+    $('#noTelponDriverEdit').val(noWaWithoutCode);
     $('#textSimEdit').text(sim); // Display the current SIM
     $('#driverIdEdit').val(id);
     $('#currentSim').val(sim); // Store current SIM name or URL
@@ -424,7 +439,9 @@
         let id = $('#driverIdEdit').val();
         let namaDriver = $('#namaDriverEdit').val();
         let alamatDriver = $('#alamatDriverEdit').val();
-        let noTelponDriver = $('#noTelponDriverEdit').val();
+        let noTelponDrivers = $('#noTelponDriverEdit').val();
+        let noTelpon = '62' + noTelponDrivers;
+        console.log(noTelpon)
         let simDriverEdit = $('#simDriverEdit')[0].files[0];
         let currentSim = $('#currentSim').val(); // Get current SIM name
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -445,7 +462,7 @@
             $('#err-alamatDriverEdit').addClass('d-none');
         }
 
-        if (noTelponDriver === '') {
+        if (noTelponDrivers === '') {
             $('#err-noTelponDriverEdit').removeClass('d-none');
             isValid = false;
         } else {
@@ -478,7 +495,7 @@
                     formData.append('id', id);
                     formData.append('namaDriver', namaDriver);
                     formData.append('alamatDriver', alamatDriver);
-                    formData.append('noTelponDriver', noTelponDriver);
+                    formData.append('noTelponDriver', noTelpon);
                     if(simDriverEdit){
                     formData.append('simDriverEdit', simDriverEdit ? simDriverEdit : currentSim); // Use current SIM if no new image
                     }

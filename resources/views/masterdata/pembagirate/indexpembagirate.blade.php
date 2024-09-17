@@ -23,7 +23,7 @@
                 <div class="modal-body">
                     <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
-                        <input type="text" class="form-control" id="nilaiPembagi" value="">
+                        <input type="text" class="form-control" id="nilaiPembagi" value="" placeholder="Silahkan isi Nilai">
                         <div id="nilaiPembagiError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                 </div>

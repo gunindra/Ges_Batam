@@ -41,7 +41,7 @@
                         </div>
                     </div>
 
-                    <div id="alamatSection" style="display: none;">
+                    <div id="alamatSection">
                         <div id="alamatContainer">
                             <div class="mt-3 alamat-item">
                                 <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
@@ -52,8 +52,8 @@
                                     style="display: none;"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
-                        <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3"><i
-                                class="fas fa-plus"></i></button>
+                        <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3" style="display:none;"><i
+                                class="fas fa-plus" ></i></button>
                     </div>
                     <div class="mt-3">
                         <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
@@ -120,7 +120,7 @@
                         </div>
                     </div>
 
-                    <div id="alamatSectionEdit" style="display: none;">
+                    <div id="alamatSectionEdit">
                         <div id="alamatContainerEdit">
                             <div class="mt-3 alamat-item">
                                 <label for="alamatCustomerEdit" class="form-label fw-bold">Alamat</label>
@@ -388,20 +388,27 @@
         }
 
         $('#metodePengiriman').change(function () {
-            var metodePengiriman = $(this).val();
-            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
-                $('#alamatSection').show();
-            } else {
-                $('#alamatSection').hide();
-                $('#alamatContainer').find('textarea').val('');
-                $('#alamatContainer').children('.alamat-item:gt(0)').remove();
-                toggleRemoveButton();
-            }
-        });
-
+        var metodePengiriman = $(this).val();
+        if (metodePengiriman === 'Delivery') {
+            $('#alamatSection').show();
+            $('#addAlamatButton').show(); 
+        } else if (metodePengiriman === 'Pickup') {
+            $('#alamatSection').show();
+            $('#addAlamatButton').hide();  
+            $('#alamatContainer').find('textarea').val('');
+            $('#alamatContainer').children('.alamat-item:gt(0)').remove(); 
+        } else {
+            $('#alamatSection').hide();
+            $('#alamatContainer').find('textarea').val('');
+            $('#alamatContainer').children('.alamat-item:gt(0)').remove();
+            toggleRemoveButton();
+        }
+        toggleRemoveButton();
+    });
 
         $('#addAlamatButton').click(function () {
             let alamatContainer = $('#alamatContainer');
+            
             let newAlamat = `<div class="mt-3 alamat-item">
                             <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
@@ -420,66 +427,64 @@
         $('#saveCostumer').click(function () {
             var markingCostmer = $('#markingCustomer').val();
             var namaCustomer = $('#namaCustomer').val();
-            // var noTelpon = $('#noTelpon').val().trim();
+            var nomorTelpon = $('#noTelpon').val().trim(); 
             var categoryCustomer = $('#categoryCustomer').val();
             var metodePengiriman = $('#metodePengiriman').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-
             let nomors = $('#nomor').text();
             let clearplus = nomors.replace('+', '')
-            let nomorTelpon = $('#noTelpon').val();
             let valueNotlep = clearplus + nomorTelpon;
-            // console.log(valueNotlep);
-
 
             var isValid = true;
 
             $('.text-danger').addClass('d-none');
-
 
             if (markingCostmer === '') {
                 $('#markingCostumerError').removeClass('d-none');
                 isValid = false;
             }
 
-
             if (namaCustomer === '') {
                 $('#namaCustomerError').removeClass('d-none');
                 isValid = false;
             }
 
-
-            if (noTelpon === '') {
+            if (nomorTelpon === '') {
                 $('#notelponCustomerError').removeClass('d-none');
                 isValid = false;
             }
-
 
             if (categoryCustomer === '' || categoryCustomer === null) {
                 $('#categoryCustomerError').removeClass('d-none');
                 isValid = false;
             }
 
-
             if (metodePengiriman === '' || metodePengiriman === null) {
                 $('#metodePengirimanError').removeClass('d-none');
                 isValid = false;
             }
 
-
             var alamatCustomer = [];
-            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
-                $('textarea[name="alamatCustomer[]"]').each(function () {
-                    var alamat = $(this).val().trim();
-                    if (alamat === '') {
-                        $(this).siblings('.alamat-error').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        alamatCustomer.push(alamat);
-                    }
-                });
+        if (metodePengiriman === 'Delivery') {
+            $('textarea[name="alamatCustomer[]"]').each(function () {
+                var alamat = $(this).val().trim();
+                if (alamat === '') {
+                    $(this).siblings('.alamat-error').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    alamatCustomer.push(alamat);
+                }
+            });
+        } else if (metodePengiriman === 'Pickup') {
+            var alamat = $('textarea[name="alamatCustomer[]"]').first().val().trim();
+            if (alamat === '') {
+                $('textarea[name="alamatCustomer[]"]').siblings('.alamat-error').removeClass('d-none');
+                isValid = false;
+            } else {
+                alamatCustomer.push(alamat);
             }
+        }
 
             if (isValid) {
                 Swal.fire({
@@ -500,20 +505,22 @@
                         formData.append('categoryCustomer', categoryCustomer);
                         formData.append('metodePengiriman', metodePengiriman);
                         formData.append('_token', csrfToken);
-                        
+
                         if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
                             alamatCustomer.forEach((alamat, index) => {
                                 formData.append('alamatCustomer[]', alamat);
                             });
                         }
+
                         Swal.fire({
-                        title: 'Checking...',
-                        html: 'Please wait while we process your data customer.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
+                            title: 'Checking...',
+                            html: 'Please wait while we process your data customer.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
                         $.ajax({
                             type: "POST",
                             url: "{{ route('addCostumer') }}",
@@ -523,18 +530,18 @@
                             success: function (response) {
                                 Swal.close();
 
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
+                                if (response.url) {
+                                    window.open(response.url, '_blank');
+                                } else if (response.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: response.error
+                                    });
+                                }
+
                                 if (response.status === 'success') {
-                                    showMessage("success",
-                                        "Data Berhasil Disimpan");
+                                    showMessage("success", "Data Berhasil Disimpan");
                                     getListCustomer();
                                     $('#modalTambahCustomer').modal('hide');
                                 } else {
@@ -558,7 +565,6 @@
             } else {
                 showMessage("error", "Mohon periksa input yang kosong");
             }
-
         });
 
         $('#modalTambahCustomer').on('hidden.bs.modal', function () {
@@ -572,14 +578,14 @@
 
 
         $(document).on('click', '.btnPointCostumer', function (e) {
-            e.preventDefault(); 
-            let poinValue = $(this).data('poin')|| 0;
+            e.preventDefault();
+            let poinValue = $(this).data('poin') || 0;
             let category = $(this).data('category');
             let transaksi = $(this).data('transaksi');
             let status = $(this).data('status');
 
             $('#pointValue').text(poinValue).show();
-            
+
             if (!transaksi) {
                 $('#transaksiDate').text('Tanggal belum tersedia');
             } else {
@@ -666,7 +672,7 @@
                 } else {
                     $('.remove-alamat-btn').hide();
                 }
-            } 
+            }
 
             // Menangani perubahan metode pengiriman
             $('#metodePengirimanEdit').change(function () {
@@ -718,130 +724,135 @@
 
 
         $(document).on('click', '#saveEditCostumer', function (e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            let id = $('#customerIdEdit').val();
-            let namaCustomerEdit = $('#namaCustomerEdit').val();
-            let noTelponCustomer = '62' + $('#noTelponEdit').val();
-            let metodePengiriman = $('#metodePengirimanEdit').val();
-            let categoryCustomer = $('#categoryCustomerEdit').val();
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    let id = $('#customerIdEdit').val();
+    let namaCustomerEdit = $('#namaCustomerEdit').val();
+    let noTelponInput = $('#noTelponEdit').val().trim(); 
+    let noTelponCustomer = '62' + noTelponInput;
+    let metodePengiriman = $('#metodePengirimanEdit').val();
+    let categoryCustomer = $('#categoryCustomerEdit').val();
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            let isValid = true;
+    let isValid = true;
 
-            // Validasi Nama Customer
-            if (namaCustomerEdit === '') {
-                $('#namaCustomerErrorEdit').removeClass('d-none');
+    // Validasi Nama Customer
+    if (namaCustomerEdit === '') {
+        $('#namaCustomerErrorEdit').removeClass('d-none');
+        isValid = false;
+    } else {
+        $('#namaCustomerErrorEdit').addClass('d-none');
+    }
+
+    // Validasi Nomor Telepon
+    if (noTelponInput === '') {
+        $('#notelponCustomerErrorEdit').removeClass('d-none');
+        isValid = false;
+    } else {
+        $('#notelponCustomerErrorEdit').addClass('d-none');
+    }
+
+    // Validasi Kategori Customer
+    if (categoryCustomer === '' || categoryCustomer === null) {
+        $('#CategoryCustomerErrorEdit').removeClass('d-none');
+        isValid = false;
+    } else {
+        $('#CategoryCustomerErrorEdit').addClass('d-none');
+    }
+
+    // Validasi dan kumpulkan semua alamat
+    let alamatCustomer = [];
+    if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
+        $('#alamatContainerEdit').find('textarea').each(function () {
+            let alamat = $(this).val().trim();
+            if (alamat === '') {
+                $(this).siblings('.alamat-error').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#namaCustomerErrorEdit').addClass('d-none');
-            }
-
-            // Validasi Nomor Telepon
-            if (noTelponCustomer === '') {
-                $('#notelponCustomerErrorEdit').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#notelponCustomerErrorEdit').addClass('d-none');
-            }
-
-            // Validasi Kategori Customer
-            if (categoryCustomer === '' || categoryCustomer === null) {
-                $('#CategoryCustomerErrorEdit').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#CategoryCustomerErrorEdit').addClass('d-none');
-            }
-
-            // Validasi dan kumpulkan semua alamat
-            let alamatCustomer = [];
-            if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
-                $('#alamatContainerEdit').find('textarea').each(function () {
-                    let alamat = $(this).val().trim();
-                    if (alamat === '') {
-                        $(this).siblings('.alamat-error').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $(this).siblings('.alamat-error').addClass('d-none');
-                        alamatCustomer.push(alamat);
-                    }
-                });
-            }
-            if (isValid) {
-                Swal.fire({
-                    title: "Apakah Kamu Yakin?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        let formData = new FormData();
-                        formData.append('id', id);
-                        formData.append('namaCustomer', namaCustomerEdit);
-                        formData.append('noTelpon', noTelponCustomer);
-                        formData.append('metodePengiriman', metodePengiriman);
-                        formData.append('categoryCustomer', categoryCustomer);
-                        formData.append('_token', csrfToken);
-                        
-
-                        alamatCustomer.forEach((alamat, index) => {
-                            formData.append('alamatCustomer[]', alamat);
-                        });
-                        Swal.fire({
-                        title: 'Checking...',
-                        html: 'Please wait while we process update your data customer.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('updateCostumer') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Diubah");
-                                    getListCustomer();
-                                    $('#modalEditCustomer').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan",
-                                        icon: "error"
-                                    });
-                                }
-                            },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON.message,
-                                    icon: "error",
-                                });
-                            }
-                        });
-                    }
-                });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
+                $(this).siblings('.alamat-error').addClass('d-none');
+                alamatCustomer.push(alamat);
             }
         });
+    }
+
+    if (isValid) {
+        Swal.fire({
+            title: "Apakah Kamu Yakin?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#5D87FF',
+            cancelButtonColor: '#49BEFF',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Tidak',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData();
+                formData.append('id', id);
+                formData.append('namaCustomer', namaCustomerEdit);
+                formData.append('noTelpon', noTelponCustomer);
+                formData.append('metodePengiriman', metodePengiriman);
+                formData.append('categoryCustomer', categoryCustomer);
+                formData.append('_token', csrfToken);
+
+                alamatCustomer.forEach((alamat, index) => {
+                    formData.append('alamatCustomer[]', alamat);
+                });
+
+                Swal.fire({
+                    title: 'Checking...',
+                    html: 'Please wait while we process update your data customer.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('updateCostumer') }}",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        Swal.close();
+
+                        if (response.url) {
+                            window.open(response.url, '_blank');
+                        } else if (response.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error
+                            });
+                        }
+
+                        if (response.status === 'success') {
+                            showMessage("success", "Data Berhasil Diubah");
+                            getListCustomer();
+                            $('#modalEditCustomer').modal('hide');
+                        } else {
+                            Swal.fire({
+                                title: "Gagal Menambahkan",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            title: "Gagal Menambahkan Data",
+                            text: xhr.responseJSON.message,
+                            icon: "error",
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        showMessage("error", "Mohon periksa input yang kosong");
+    }
+});
+
 
         // $('#modalEditCustomer').on('hidden.bs.modal', function() {
         //     $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #categoryCustomerEdit').val('');

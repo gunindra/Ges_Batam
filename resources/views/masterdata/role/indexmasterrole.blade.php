@@ -432,6 +432,12 @@
         }
 
         getlistRole();
+        $('#txSearch').keyup(function (e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistRole();
+            }
+        });
 
         $('#saveRoleMaster').click(function () {
             // Ambil nilai input

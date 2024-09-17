@@ -109,6 +109,24 @@
                     <div class="float-left">
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                             class="form-control rounded-3" placeholder="Search">
+
+                    </div>
+                    <div class="float-left ml-2">
+                        <select class="form-control" id="filterRole" style="width: 200px;">
+                            <option value="" selected disabled>Pilih Role</option>
+                            @foreach ($listRole as $role)
+                                <option value="{{ $role->role }}">
+                                    {{ $role->role }}
+                                </option>
+                            @endforeach
+
+                        </select>
+                    </div>
+                    <div class="float-left ml-1">
+                        <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                            onclick="window.location.reload()">
+                            Reset
+                        </button>
                     </div>
                     <div class="d-flex mb-3 mr-3 float-right">
                         {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
@@ -166,12 +184,14 @@
 
         const getListUser = () => {
             const txtSearch = $('#txSearch').val();
+            const filterRole = $('#filterRole').val();
 
             $.ajax({
                 url: "{{ route('getlistUser') }}",
                 method: "GET",
                 data: {
-                    txSearch: txtSearch
+                    txSearch: txtSearch,
+                    role: filterRole
                 },
                 beforeSend: () => {
                     $('#containerUser').html(loadSpin)
@@ -195,6 +215,15 @@
         }
 
         getListUser();
+        $('#txSearch').keyup(function (e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getListUser();
+            }
+        });
+        $('#filterRole').change(function () {
+            getListUser();
+        });
 
         $('#saveUsers').click(function () {
             // Ambil nilai input

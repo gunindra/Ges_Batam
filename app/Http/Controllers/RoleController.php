@@ -18,6 +18,9 @@ class RoleController extends Controller
         $q = "SELECT id,
                         role
                 FROM tbl_role
+                 WHERE (
+                UPPER(role) LIKE UPPER('$txSearch')
+                )
         ";
 
         // dd($q);
