@@ -187,9 +187,8 @@
         </div>
 
         <div class="title">
-            <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
-            <h5>Pembeli: {{ $invoice->pembeli }}</h5>
-            <h2>Invoice: {{ $invoice->no_invoice }}</h2>
+            <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
+            <h5>Pembeli: {{ $invoice->nama_pembeli }}</h5>
         </div>
 
         <table>
@@ -197,10 +196,9 @@
                 <tr>
                     <th>No.</th>
                     <th>No. Resi</th>
-                    <th>No. Do</th>
+                    <th>No. DO</th>
                     <th>Berat/Dimensi</th>
                     <th>Hitungan</th>
-                    <th>Harga</th>
                 </tr>
             </thead>
             <tbody>
@@ -224,15 +222,10 @@
                             <td>{{ $resi->panjang ?? '0' }} x {{ $resi->lebar ?? '0' }} x {{ $resi->tinggi ?? '0' }} cm
                             </td>
                         @endif
-                        <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-
-        <div class="summary">
-            <p class="text-right">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
-        </div>
     </div>
 </body>
 

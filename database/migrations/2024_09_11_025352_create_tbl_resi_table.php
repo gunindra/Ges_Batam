@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('invoice_id')->constrained('tbl_invoice');
             $table->string('no_resi', 100)->unique();
+            $table->string('no_do', 100);
             $table->decimal('berat', 8,2)->nullable();
             $table->decimal('panjang', 8,2)->nullable();
             $table->decimal('lebar', 8,2)->nullable();

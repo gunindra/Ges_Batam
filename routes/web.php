@@ -113,6 +113,7 @@ Route::get('/invoice/editinvoice/{id}', [InvoiceController::class, 'editinvoice'
 Route::get('/invoice/cicilanInvoice/{id}', [InvoiceController::class, 'cicilanInvoice'])->name('cicilanInvoice');
 Route::post('/invoice/bayarTagihan', [InvoiceController::class, 'bayarTagihan'])->name('bayarTagihan');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
+Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
 
 // Pickup
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
