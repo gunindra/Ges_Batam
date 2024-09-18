@@ -114,6 +114,7 @@ Route::get('/invoice/cicilanInvoice/{id}', [InvoiceController::class, 'cicilanIn
 Route::post('/invoice/bayarTagihan', [InvoiceController::class, 'bayarTagihan'])->name('bayarTagihan');
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
 Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
+Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
 
 // Pickup
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');

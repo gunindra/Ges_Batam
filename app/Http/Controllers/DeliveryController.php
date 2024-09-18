@@ -64,7 +64,7 @@ class DeliveryController extends Controller
         }
 
         if ($request->status) {
-            $query->where('d.status_name', '=', $status);
+            $query->where('s.status_name', '=', $status);
         }
 
         if ($startDate && $endDate) {
@@ -85,7 +85,7 @@ class DeliveryController extends Controller
                                 <th>Pengiriman</th>
                                 <th>Supir</th>
                                 <th>Jumlah Invoice</th>
-                                <th>Tanggal Penganatran</th>
+                                <th>Tanggal Pengantaran</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -166,17 +166,28 @@ class DeliveryController extends Controller
         $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
 
         $q = "SELECT a.id,
-                                a.no_invoice,
-                                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                                b.nama_pembeli AS pembeli,
-                                b.metode_pengiriman,
-                                a.status_id
-                        FROM tbl_invoice AS a
-                        JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                        JOIN tbl_status AS d ON a.status_id = d.id
-                        WHERE a.status_id = 1
-                        AND b.metode_pengiriman = 'Delivery'
-                        AND a.tanggal_invoice = '$filterDate'
+
+                a.no_invoice,
+
+                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+
+                b.nama_pembeli AS pembeli,
+
+                a.metode_pengiriman,
+
+                a.status_id
+
+                FROM tbl_invoice AS a
+
+                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+
+                JOIN tbl_status AS d ON a.status_id = d.id
+
+                WHERE a.status_id = 1
+
+                AND a.metode_pengiriman = 'Delivery'
+
+                AND DATE(a.tanggal_invoice) = '$filterDate'
                         ";
 
 
@@ -186,7 +197,7 @@ class DeliveryController extends Controller
                 <thead>
                         <tr>
                             <th><input type="checkbox" id="select_all"></th>
-                            <th>No Resi</th>
+                            <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
                         </tr>
@@ -230,7 +241,7 @@ class DeliveryController extends Controller
                 $output = '<table id="datatable_resi_pickup" class="table table-bordered table-hover">
                 <thead>
                         <tr>
-                            <th><input type="checkbox" id="select_all"></th>
+                            <th><input type="checkbox" id="select_all_pickup"></th>
                             <th>No Resi</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
@@ -241,7 +252,7 @@ class DeliveryController extends Controller
                     $output .=
                         '
                        <tr>
-                            <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
+                            <td><input type="checkbox" class="checkbox_resi_pickup" value="' . $item->no_invoice . '"></td>
                             <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
@@ -347,10 +358,6 @@ class DeliveryController extends Controller
         }
     }
 
-
-
-
-
     public function buatDelivery(Request $request)
     {
         $resiList = $request->input('resi_list');
@@ -380,70 +387,39 @@ class DeliveryController extends Controller
                 'tanggal_pengantaran' => $formattedDate,
                 'status_id' => 4,
                 'created_at' => now(),
-                'updated_at' => now(),
             ]);
 
-            // Array untuk menyimpan nomor resi berdasarkan pembeli
-            $resiPerPembeli = [];
-
-            foreach ($resiList as $noResi) {
-                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noResi)->first();
+            foreach ($resiList as $noInvoice) {
+                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
 
                 if ($invoice) {
-                    // Tambahkan ke tbl_pengantaran_detail
                     DB::table('tbl_pengantaran_detail')->insert([
                         'pengantaran_id' => $pengantaranId,
                         'invoice_id' => $invoice->id,
                         'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
 
-                    // Perbarui status di tbl_tracking
-                    $updatedTracking = DB::table('tbl_tracking')
-                        ->where('no_invoice', $noResi)
-                        ->update(['status' => 'Delivering..']);
+                    $resiList = DB::table('tbl_resi')->where('invoice_id', $invoice->id)->pluck('no_resi');
 
-                    if (!$updatedTracking) {
-                        throw new \Exception("Gagal memperbarui status di tbl_tracking");
+                    foreach ($resiList as $noResi) {
+                        $updatedTracking = DB::table('tbl_tracking')
+                            ->where('no_resi', $noResi)
+                            ->update(['status' => 'Delivering']);
+
+                        if (!$updatedTracking) {
+                            throw new \Exception("Gagal memperbarui status di tbl_tracking untuk resi: " . $noResi);
+                        }
                     }
 
-                    // Perbarui status di tbl_invoice
                     $updateInvoice = DB::table('tbl_invoice')
-                        ->where('no_invoice', $noResi)
+                        ->where('no_invoice', $noInvoice)
                         ->update(['status_id' => 4]);
 
                     if (!$updateInvoice) {
-                        throw new \Exception("Gagal memperbarui status di tbl_invoice");
-                    }
-
-                    // Kumpulkan nomor resi berdasarkan pembeli
-                    $pembeliId = $invoice->pembeli_id;
-                    $pembeli = DB::table('tbl_pembeli')->where('id', $pembeliId)->first();
-
-                    if ($pembeli) {
-                        if (!isset($resiPerPembeli[$pembeliId])) {
-                            $resiPerPembeli[$pembeliId] = [
-                                'no_wa' => $pembeli->no_wa,
-                                'resi' => [],
-                            ];
-                        }
-                        // Tambahkan nomor resi ke daftar resi pembeli
-                        $resiPerPembeli[$pembeliId]['resi'][] = $noResi;
+                        throw new \Exception("Gagal memperbarui status di tbl_invoice untuk no_invoice: " . $noInvoice);
                     }
                 } else {
-                    throw new \Exception("Invoice tidak ditemukan untuk resi: " . $noResi);
-                }
-            }
-
-            foreach ($resiPerPembeli as $pembeliId => $dataPembeli) {
-                if ($dataPembeli['no_wa']) {
-                    $pesanResi = implode(", ", $dataPembeli['resi']);
-                    $pesan = "Pengiriman untuk resi berikut sedang dalam proses pengantaran: " . $pesanResi;
-
-                    $this->kirimPesanWhatsapp($dataPembeli['no_wa'], $pesan);
-                } else {
-                    // Jika nomor WhatsApp kosong atau tidak ditemukan
-                    Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $pembeliId);
+                    throw new \Exception("Invoice tidak ditemukan untuk no_invoice: " . $noInvoice);
                 }
             }
 
@@ -455,7 +431,6 @@ class DeliveryController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-
 
 
     public function buatPickup(Request $request)
@@ -484,14 +459,11 @@ class DeliveryController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Array untuk menyimpan nomor resi berdasarkan pembeli
-            $resiPerPembeli = [];
+            foreach ($resiList as $noInvoice) {
 
-            foreach ($resiList as $noResi) {
-                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noResi)->first();
+                $invoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
 
                 if ($invoice) {
-                    // Tambahkan ke tbl_pengantaran_detail
                     DB::table('tbl_pengantaran_detail')->insert([
                         'pengantaran_id' => $pengantaranId,
                         'invoice_id' => $invoice->id,
@@ -499,53 +471,27 @@ class DeliveryController extends Controller
                         'updated_at' => now(),
                     ]);
 
-                    // Perbarui status di tbl_tracking
-                    $updatedTracking = DB::table('tbl_tracking')
-                        ->where('no_invoice', $noResi)
-                        ->update(['status' => 'Ready For Pickup']);
+                    $resiList = DB::table('tbl_resi')->where('invoice_id', $invoice->id)->pluck('no_resi');
 
-                    if (!$updatedTracking) {
-                        throw new \Exception("Gagal memperbarui status di tbl_tracking");
+                    foreach ($resiList as $noResi) {
+                        $updatedTracking = DB::table('tbl_tracking')
+                            ->where('no_resi', $noResi)
+                            ->update(['status' => 'Ready For Pickup']);
+
+                        if (!$updatedTracking) {
+                            throw new \Exception("Gagal memperbarui status di tbl_tracking untuk resi: " . $noResi);
+                        }
                     }
 
-                    // Perbarui status di tbl_invoice
                     $updateInvoice = DB::table('tbl_invoice')
-                        ->where('no_invoice', $noResi)
+                        ->where('no_invoice', $noInvoice)
                         ->update(['status_id' => 2]);
 
                     if (!$updateInvoice) {
-                        throw new \Exception("Gagal memperbarui status di tbl_invoice");
-                    }
-
-                    // Kumpulkan nomor resi berdasarkan pembeli
-                    $pembeliId = $invoice->pembeli_id;
-                    $pembeli = DB::table('tbl_pembeli')->where('id', $pembeliId)->first();
-
-                    if ($pembeli) {
-                        if (!isset($resiPerPembeli[$pembeliId])) {
-                            $resiPerPembeli[$pembeliId] = [
-                                'no_wa' => $pembeli->no_wa,
-                                'resi' => [],
-                            ];
-                        }
-                        $resiPerPembeli[$pembeliId]['resi'][] = $noResi;
+                        throw new \Exception("Gagal memperbarui status di tbl_invoice untuk no_invoice: " . $noInvoice);
                     }
                 } else {
-                    throw new \Exception("Invoice tidak ditemukan untuk resi: " . $noResi);
-                }
-            }
-
-            // Setelah semua nomor resi terkumpul, kirim pesan WhatsApp sekali untuk setiap pembeli
-            foreach ($resiPerPembeli as $pembeliId => $dataPembeli) {
-                if ($dataPembeli['no_wa']) {
-                    $pesanResi = implode(", ", $dataPembeli['resi']);
-                    $pesan = "Pengiriman untuk resi berikut telah siap untuk di pickup: " . $pesanResi;
-
-                    // Panggil fungsi kirim pesan
-                    $this->kirimPesanWhatsapp($dataPembeli['no_wa'], $pesan);
-                } else {
-                    // Jika nomor WhatsApp kosong atau tidak ditemukan
-                    Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $pembeliId);
+                    throw new \Exception("Invoice tidak ditemukan untuk no_invoice: " . $noInvoice);
                 }
             }
 
@@ -557,8 +503,6 @@ class DeliveryController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-
-
 
 
     public function acceptPengantaran(Request $request)
@@ -659,25 +603,4 @@ class DeliveryController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-
-
-
-
-
-    // public function kirimPesanWhatsapp($noWa, $message)
-    // {
-    //     $response = Http::post('https://wa.aplikasiajp.com/send-message', [
-    //         'api_key' => 'qpWaNfN8vSQ7I8m1JiqzqfyyLWG9uT',
-    //         'sender' => '6285183058668',
-    //         'number' => $noWa,
-    //         'message' => $message
-    //     ]);
-    //     if ($response->successful()) {
-    //         return true;
-    //     } else {
-
-    //         $errorMessage = $response->json()['msg'] ?? 'Gagal mengirim pesan WhatsApp';
-    //         throw new \Exception($errorMessage);
-    //     }
-    // }
 }

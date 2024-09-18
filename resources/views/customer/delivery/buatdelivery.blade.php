@@ -82,7 +82,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
+                            {{-- <div class="row mt-3">
                                 <div class="col-md-6">
                                     <!-- Input Resi -->
                                     <label class="form-label fw-bold">Input Resi Menggunakan</label>
@@ -100,9 +100,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
-                            <div class="row mt-3" id="resi_container">
+                            {{-- <div class="row mt-3" id="resi_container">
                                 <div class="col-md-6">
                                     <!-- No. Resi -->
                                     <label for="no_resi" class="form-label fw-bold">No. Resi</label>
@@ -133,9 +133,9 @@
                                         <button class="btn btn-primary px-5 py-2" id="buatDelivery">Buat Delivery</button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <!-- DataTable for List Batam / Sortir -->
-                            <div class="row mt-3 d-none" id="datatable_resi_wrapper">
+                            <div class="row mt-3" id="datatable_resi_wrapper">
                                 <div class="col-md-12">
                                     <div class="row">
                                         <div class="col-md-4">
@@ -195,7 +195,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
+                            {{-- <div class="row mt-3">
                                 <div class="col-md-6">
 
                                     <label class="form-label fw-bold">Input Resi Menggunakan</label>
@@ -213,9 +213,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
-                            <div class="row mt-3" id="resi_container_pickup">
+                            {{-- <div class="row mt-3" id="resi_container_pickup">
                                 <div class="col-md-6">
 
                                     <label for="no_resi_pickup" class="form-label fw-bold">No. Resi</label>
@@ -246,10 +246,10 @@
                                         <button class="btn btn-primary px-5 py-2" id="buatPickup">Buat Pickup</button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <!-- DataTable for List Batam / Sortir (Pickup) -->
-                            <div class="row mt-3 d-none" id="datatable_resi_wrapper_pickup">
+                            <div class="row mt-3" id="datatable_resi_wrapper_pickup">
                                 <div class="col-md-12">
                                     <div class="row">
                                         <div class="col-md-4">
@@ -305,13 +305,10 @@
                 e.preventDefault();
                 var tab = $(this).data('tab');
 
-                // Remove 'show active' from all tab panes and add 'd-none' to hide them
                 $('.tab-pane').removeClass('show active').addClass('d-none');
 
-                // Remove 'd-none' from the selected tab and add 'show active' to display it
                 $('#' + tab).removeClass('d-none').addClass('show active');
 
-                // Update the active class for the nav links
                 $('.nav-links').removeClass('active');
                 $(this).addClass('active');
             });
@@ -357,21 +354,18 @@
                     });
 
                     $('#select_all').on('click', function() {
-                        // Ambil semua baris yang ada di dalam tbody
+
                         var rows = $('#datatable_resi tbody tr');
 
-                        // Pilih/deselect checkbox hanya pada baris yang terlihat
                         $('input[type="checkbox"]:visible', rows).prop('checked', this.checked);
                     });
 
-                    // Attach event handler untuk checkbox individual setelah tabel dimuat
                     $('#datatable_resi tbody').on('click', 'input[type="checkbox"]', function() {
                         var totalCheckboxes = $('#datatable_resi tbody input[type="checkbox"]:visible')
                             .length;
                         var checkedCheckboxes = $(
                             '#datatable_resi tbody input[type="checkbox"]:visible:checked').length;
 
-                        // Centang atau uncentang "Select All" sesuai dengan status checkbox individual
                         $('#select_all').prop('checked', totalCheckboxes === checkedCheckboxes);
                     });
                 })
@@ -391,15 +385,15 @@
         }).datepicker('setDate', today);
 
 
-        $('input[name="input_resi"]').on('change', function() {
-            if ($(this).val() === 'list') {
-                $('#datatable_resi_wrapper').removeClass('d-none');
-                $('#resi_container').addClass('d-none');
-            } else {
-                $('#datatable_resi_wrapper').addClass('d-none');
-                $('#resi_container').removeClass('d-none');
-            }
-        });
+        // $('input[name="input_resi"]').on('change', function() {
+        //     if ($(this).val() === 'list') {
+        //         $('#datatable_resi_wrapper').removeClass('d-none');
+        //         $('#resi_container').addClass('d-none');
+        //     } else {
+        //         $('#datatable_resi_wrapper').addClass('d-none');
+        //         $('#resi_container').removeClass('d-none');
+        //     }
+        // });
 
         $('#datatable_resi tbody').on('change', 'input[type="checkbox"]', function() {
             if (!this.checked) {
@@ -411,128 +405,128 @@
         });
         let enteredResis = [];
 
-        $('#tambah').on('click', function(e) {
-            e.preventDefault();
+        // $('#tambah').on('click', function(e) {
+        //     e.preventDefault();
 
-            var noResi = $('#no_resi').val();
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        //     var noResi = $('#no_resi').val();
+        //     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (noResi === '') {
-                showMessage('error', 'Mohon periksa input yang kosong');
-                return;
-            }
-            if (enteredResis.includes(noResi)) {
-                showMessage('error', 'Nomor resi sudah ada.');
-                return;
-            }
+        //     if (noResi === '') {
+        //         showMessage('error', 'Mohon periksa input yang kosong');
+        //         return;
+        //     }
+        //     if (enteredResis.includes(noResi)) {
+        //         showMessage('error', 'Nomor resi sudah ada.');
+        //         return;
+        //     }
 
-            $.ajax({
-                url: "{{ route('cekResi') }}",
-                method: 'POST',
-                data: {
-                    _token: csrfToken,
-                    no_resi: noResi,
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showMessage('success', response.message);
-                        const data = response.data;
-                        $('#table_resi_container').show();
-                        var rowCount = $('#table_resi_body tr').length + 1;
-                        var tableRow = `
-                    <tr>
-                        <td>${rowCount}</td>
-                        <td>${data.no_resi}</td>
-                        <td>${data.nama_pembeli}</td>
-                        <td>${data.status_name}</td>
-                    </tr>
-                `;
-                        $('#table_resi_body').append(tableRow);
-                        enteredResis.push(noResi);
-                        $('#no_resi').val('');
-
-
-
-                    } else {
-                        showMessage('error', response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    showMessage('error', 'Terjadi kesalahan: ' + error);
-                }
-            });
-        });
-
-        $('#buatDelivery').on('click', function(e) {
-            e.preventDefault();
-
-            var noResi = [];
-            var tanggal_delivery = $('#tanggal_delivery').val();
-            var driver = $('#driver').val();
+        //     $.ajax({
+        //         url: "{{ route('cekResi') }}",
+        //         method: 'POST',
+        //         data: {
+        //             _token: csrfToken,
+        //             no_resi: noResi,
+        //         },
+        //         success: function(response) {
+        //             if (response.success) {
+        //                 showMessage('success', response.message);
+        //                 const data = response.data;
+        //                 $('#table_resi_container').show();
+        //                 var rowCount = $('#table_resi_body tr').length + 1;
+        //                 var tableRow = `
+    //             <tr>
+    //                 <td>${rowCount}</td>
+    //                 <td>${data.no_resi}</td>
+    //                 <td>${data.nama_pembeli}</td>
+    //                 <td>${data.status_name}</td>
+    //             </tr>
+    //         `;
+        //                 $('#table_resi_body').append(tableRow);
+        //                 enteredResis.push(noResi);
+        //                 $('#no_resi').val('');
 
 
-            if (tanggal_delivery === '') {
-                $('#tanggalPickupError').removeClass('d-none');
-                showMessage('error', 'Tanggal delivery tidak boleh kosong.');
-                return;
-            } else {
-                $('#tanggalPickupError').addClass('d-none');
-            }
 
-            if (driver === null) {
-                $('#driverError').removeClass('d-none');
-                showMessage('error', 'Silahkan pilih driver.');
-                return;
-            } else {
-                $('#driverError').addClass('d-none');
-            }
+        //             } else {
+        //                 showMessage('error', response.message);
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             showMessage('error', 'Terjadi kesalahan: ' + error);
+        //         }
+        //     });
+        // });
 
-            $('#table_resi_body tr').each(function() {
-                var noResiItem = $(this).find('td').eq(1).text();
-                noResi.push(noResiItem);
-            });
+        // $('#buatDelivery').on('click', function(e) {
+        //     e.preventDefault();
+
+        //     var noResi = [];
+        //     var tanggal_delivery = $('#tanggal_delivery').val();
+        //     var driver = $('#driver').val();
 
 
-            if (noResi.length === 0) {
-                showMessage('error', 'Tidak ada resi yang dimasukkan.');
-                return;
-            }
+        //     if (tanggal_delivery === '') {
+        //         $('#tanggalPickupError').removeClass('d-none');
+        //         showMessage('error', 'Tanggal delivery tidak boleh kosong.');
+        //         return;
+        //     } else {
+        //         $('#tanggalPickupError').addClass('d-none');
+        //     }
 
-            Swal.fire({
-                title: 'Sedang memproses...',
-                text: 'Harap menunggu hingga proses selesai',
-                icon: 'info',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+        //     if (driver === null) {
+        //         $('#driverError').removeClass('d-none');
+        //         showMessage('error', 'Silahkan pilih driver.');
+        //         return;
+        //     } else {
+        //         $('#driverError').addClass('d-none');
+        //     }
 
-            $.ajax({
-                url: "{{ route('buatDelivery') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    resi_list: noResi,
-                    tanggal: tanggal_delivery,
-                    driver_id: driver
-                },
-                success: function(response) {
-                    Swal.close();
-                    if (response.success) {
-                        showMessage("success", "Delivery berhasil dibuat!").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        showMessage('error', 'Gagal membuat delivery: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.close();
-                    showMessage('error', 'Terjadi kesalahan: ' + error);
-                }
-            });
-        });
+        //     $('#table_resi_body tr').each(function() {
+        //         var noResiItem = $(this).find('td').eq(1).text();
+        //         noResi.push(noResiItem);
+        //     });
+
+
+        //     if (noResi.length === 0) {
+        //         showMessage('error', 'Tidak ada resi yang dimasukkan.');
+        //         return;
+        //     }
+
+        //     Swal.fire({
+        //         title: 'Sedang memproses...',
+        //         text: 'Harap menunggu hingga proses selesai',
+        //         icon: 'info',
+        //         allowOutsideClick: false,
+        //         didOpen: () => {
+        //             Swal.showLoading();
+        //         }
+        //     });
+
+        //     $.ajax({
+        //         url: "{{ route('buatDelivery') }}",
+        //         method: 'POST',
+        //         data: {
+        //             _token: '{{ csrf_token() }}',
+        //             resi_list: noResi,
+        //             tanggal: tanggal_delivery,
+        //             driver_id: driver
+        //         },
+        //         success: function(response) {
+        //             Swal.close();
+        //             if (response.success) {
+        //                 showMessage("success", "Delivery berhasil dibuat!").then(() => {
+        //                     location.reload();
+        //                 });
+        //             } else {
+        //                 showMessage('error', 'Gagal membuat delivery: ' + response.message);
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             Swal.close();
+        //             showMessage('error', 'Terjadi kesalahan: ' + error);
+        //         }
+        //     });
+        // });
 
 
         $('#filter_date').on('change', function() {
@@ -575,38 +569,52 @@
                 return;
             }
 
-            Swal.fire({
-                title: 'Sedang memproses...',
-                text: 'Harap menunggu hingga proses selesai',
-                icon: 'info',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
 
-            $.ajax({
-                url: "{{ route('buatDelivery') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    resi_list: selectedNoResi,
-                    tanggal: tanggal_delivery,
-                    driver_id: driver
-                },
-                success: function(response) {
-                    Swal.close();
-                    if (response.success) {
-                        showMessage("success", "Delivery berhasil dibuat!").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        showMessage('error', 'Gagal membuat delivery: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.close();
-                    showMessage('error', 'Terjadi kesalahan: ' + error);
+            Swal.fire({
+                title: 'Apakah kamu yakin ingin Delivery invoice ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sedang memproses...',
+                        text: 'Harap menunggu hingga proses selesai',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        url: "{{ route('buatDelivery') }}",
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            resi_list: selectedNoResi,
+                            tanggal: tanggal_delivery,
+                            driver_id: driver
+                        },
+                        success: function(response) {
+                            Swal.close();
+                            if (response.success) {
+                                showMessage("success", "Delivery berhasil dibuat!").then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                showMessage('error', 'Gagal membuat delivery: ' + response
+                                    .message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.close();
+                            showMessage('error', 'Terjadi kesalahan: ' + error);
+                        }
+                    });
                 }
             });
         });
@@ -660,7 +668,7 @@
                     });
                 })
         }
-        // getlistTableBuatPickup();
+
 
         var today = new Date();
         $('#tanggal_pickup, #filter_date_pickup').datepicker({
@@ -677,136 +685,135 @@
         $('#filter_date_pickup').trigger('change');
 
 
-        $('input[name="input_resi_pickup"]').on('change', function() {
-            if ($(this).val() === 'list') {
-                $('#datatable_resi_wrapper_pickup').removeClass('d-none');
-                $('#resi_container_pickup').addClass('d-none');
-            } else {
-                $('#datatable_resi_wrapper_pickup').addClass('d-none');
-                $('#resi_container_pickup').removeClass('d-none');
-            }
-        });
+        // $('input[name="input_resi_pickup"]').on('change', function() {
+        //     if ($(this).val() === 'list') {
+        //         $('#datatable_resi_wrapper_pickup').removeClass('d-none');
+        //         $('#resi_container_pickup').addClass('d-none');
+        //     } else {
+        //         $('#datatable_resi_wrapper_pickup').addClass('d-none');
+        //         $('#resi_container_pickup').removeClass('d-none');
+        //     }
+        // });
 
         let enteredResisPickup = [];
 
-        // Event saat tombol tambah resi ditekan
-        $('#tambah_pickup').on('click', function(e) {
-            e.preventDefault();
+        // $('#tambah_pickup').on('click', function(e) {
+        //     e.preventDefault();
 
-            var noResi = $('#no_resi_pickup').val(); // Mengambil nilai dari input resi
-            const csrfToken = $('meta[name="csrf-token"]').attr('content'); // Token CSRF untuk keamanan
+        //     var noResi = $('#no_resi_pickup').val();
+        //     const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (noResi === '') {
-                showMessage('error', 'Mohon periksa input yang kosong'); // Validasi input kosong
-                return;
-            }
-            if (enteredResisPickup.includes(noResi)) {
-                showMessage('error', 'Nomor resi sudah ada.'); // Validasi jika resi sudah pernah dimasukkan
-                return;
-            }
+        //     if (noResi === '') {
+        //         showMessage('error', 'Mohon periksa input yang kosong');
+        //         return;
+        //     }
+        //     if (enteredResisPickup.includes(noResi)) {
+        //         showMessage('error', 'Nomor resi sudah ada.');
+        //         return;
+        //     }
 
-            $.ajax({
-                url: "{{ route('cekResiPickup') }}",
-                method: 'POST',
-                data: {
-                    _token: csrfToken,
-                    no_resi: noResi,
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showMessage('success', response.message);
-                        const data = response.data;
-                        $('#table_resi_container_pickup').show();
-                        var rowCount = $('#table_resi_body_pickup tr').length + 1;
-                        var tableRow = `
-                    <tr>
-                        <td>${rowCount}</td>
-                        <td>${data.no_resi}</td>
-                        <td>${data.nama_pembeli}</td>
-                        <td>${data.status_name}</td>
-                    </tr>
-                `;
-                        $('#table_resi_body_pickup').append(tableRow);
-                        enteredResisPickup.push(noResi);
-                        $('#no_resi_pickup').val('');
+        //     $.ajax({
+        //         url: "{{ route('cekResiPickup') }}",
+        //         method: 'POST',
+        //         data: {
+        //             _token: csrfToken,
+        //             no_resi: noResi,
+        //         },
+        //         success: function(response) {
+        //             if (response.success) {
+        //                 showMessage('success', response.message);
+        //                 const data = response.data;
+        //                 $('#table_resi_container_pickup').show();
+        //                 var rowCount = $('#table_resi_body_pickup tr').length + 1;
+        //                 var tableRow = `
+    //             <tr>
+    //                 <td>${rowCount}</td>
+    //                 <td>${data.no_resi}</td>
+    //                 <td>${data.nama_pembeli}</td>
+    //                 <td>${data.status_name}</td>
+    //             </tr>
+    //         `;
+        //                 $('#table_resi_body_pickup').append(tableRow);
+        //                 enteredResisPickup.push(noResi);
+        //                 $('#no_resi_pickup').val('');
 
-                    } else {
-                        showMessage('error', response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    showMessage('error', 'Terjadi kesalahan: ' +
-                        error);
-                }
-            });
-        });
+        //             } else {
+        //                 showMessage('error', response.message);
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             showMessage('error', 'Terjadi kesalahan: ' +
+        //                 error);
+        //         }
+        //     });
+        // });
 
-        $('#buatPickup').on('click', function(e) {
-            e.preventDefault();
+        // $('#buatPickup').on('click', function(e) {
+        //     e.preventDefault();
 
-            var noResi = [];
-            var tanggal_pickup = $('#tanggal_pickup').val();
+        //     var noResi = [];
+        //     var tanggal_pickup = $('#tanggal_pickup').val();
 
-            if (tanggal_pickup === '') {
-                $('#tanggalPickupError').removeClass('d-none');
-                showMessage('error', 'Tanggal delivery tidak boleh kosong.');
-                return;
-            } else {
-                $('#tanggalPickupError').addClass('d-none');
-            }
+        //     if (tanggal_pickup === '') {
+        //         $('#tanggalPickupError').removeClass('d-none');
+        //         showMessage('error', 'Tanggal delivery tidak boleh kosong.');
+        //         return;
+        //     } else {
+        //         $('#tanggalPickupError').addClass('d-none');
+        //     }
 
-            $('#table_resi_body_pickup tr').each(function() {
-                var noResiItem = $(this).find('td').eq(1).text();
-                noResi.push(noResiItem);
-            });
-
-
-            if (noResi.length === 0) {
-                showMessage('error', 'Tidak ada resi yang dimasukkan.');
-                return;
-            }
-
-            Swal.fire({
-                title: 'Sedang memproses...',
-                text: 'Harap menunggu hingga proses selesai',
-                icon: 'info',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            $.ajax({
-                url: "{{ route('buatPickup') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    resi_list: noResi,
-                    tanggal: tanggal_pickup,
-                },
-                success: function(response) {
-                    Swal.close();
-                    if (response.success) {
-                        showMessage("success", "Pickup berhasil dibuat!").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        showMessage('error', 'Gagal membuat Pickup: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.close();
-                    showMessage('error', 'Terjadi kesalahan: ' + error);
-                }
-            });
-        });
+        //     $('#table_resi_body_pickup tr').each(function() {
+        //         var noResiItem = $(this).find('td').eq(1).text();
+        //         noResi.push(noResiItem);
+        //     });
 
 
-        $('#buatDeliveryTable').on('click', function(e) {
+        //     if (noResi.length === 0) {
+        //         showMessage('error', 'Tidak ada resi yang dimasukkan.');
+        //         return;
+        //     }
+
+        //     Swal.fire({
+        //         title: 'Sedang memproses...',
+        //         text: 'Harap menunggu hingga proses selesai',
+        //         icon: 'info',
+        //         allowOutsideClick: false,
+        //         didOpen: () => {
+        //             Swal.showLoading();
+        //         }
+        //     });
+
+        //     $.ajax({
+        //         url: "{{ route('buatPickup') }}",
+        //         method: 'POST',
+        //         data: {
+        //             _token: '{{ csrf_token() }}',
+        //             resi_list: noResi,
+        //             tanggal: tanggal_pickup,
+        //         },
+        //         success: function(response) {
+        //             Swal.close();
+        //             if (response.success) {
+        //                 showMessage("success", "Pickup berhasil dibuat!").then(() => {
+        //                     location.reload();
+        //                 });
+        //             } else {
+        //                 showMessage('error', 'Gagal membuat Pickup: ' + response.message);
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             Swal.close();
+        //             showMessage('error', 'Terjadi kesalahan: ' + error);
+        //         }
+        //     });
+        // });
+
+
+        $('#buatPickupTable').on('click', function(e) {
             var selectedNoResi = [];
 
             // Ambil nilai dari checkbox yang dicentang
-            $('input.checkbox_resi:checked').each(function() {
+            $('input.checkbox_resi_pickup:checked').each(function() {
                 selectedNoResi.push($(this).val());
             });
 
@@ -815,48 +822,61 @@
 
             if (tanggal_pickup === '') {
                 $('#tanggalPickupError').removeClass('d-none');
-                showMessage('error', 'Tanggal delivery tidak boleh kosong.');
+                showMessage('error', 'Tanggal Pickup tidak boleh kosong.');
                 return;
             } else {
                 $('#tanggalPickupError').addClass('d-none');
             }
 
             if (selectedNoResi.length === 0) {
-                showMessage('error', 'Silakan pilih No Resi yang ingin di-delivery.');
+                showMessage('error', 'Silakan pilih No Resi yang ingin di-Pickup.');
                 return;
             }
 
             Swal.fire({
-                title: 'Sedang memproses...',
-                text: 'Harap menunggu hingga proses selesai',
-                icon: 'info',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+                title: 'Apakah kamu yakin ingin Pick Up invoice ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sedang memproses...',
+                        text: 'Harap menunggu hingga proses selesai',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-            $.ajax({
-                url: "{{ route('buatPickup') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    resi_list: selectedNoResi,
-                    tanggal: tanggal_pickup,
-                },
-                success: function(response) {
-                    Swal.close();
-                    if (response.success) {
-                        showMessage("success", "Pickup berhasil dibuat!").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        showMessage('error', 'Gagal membuat Pickup: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.close();
-                    showMessage('error', 'Terjadi kesalahan: ' + error);
+                    $.ajax({
+                        url: "{{ route('buatPickup') }}",
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            resi_list: selectedNoResi,
+                            tanggal: tanggal_pickup,
+                        },
+                        success: function(response) {
+                            Swal.close();
+                            if (response.success) {
+                                showMessage("success", "Pickup berhasil dibuat!").then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                showMessage('error', 'Gagal membuat Pickup: ' + response
+                                    .message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.close();
+                            showMessage('error', 'Terjadi kesalahan: ' + error);
+                        }
+                    });
                 }
             });
         });

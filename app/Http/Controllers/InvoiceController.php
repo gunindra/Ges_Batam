@@ -221,89 +221,93 @@ class InvoiceController extends Controller
         $data = DB::select($q);
 
         $currencySymbols = [
-            1 => 'Rp ',
+            1 => 'Rp. ',
             2 => '$ ',
             3 => '¥ '
         ];
 
-        $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
+                    $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                     <thead class="thead-light">
                         <tr>';
                         if ($isNotif == 'true') {
                             $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
                         }
-                 $output .= '
+                $output .= '
                             <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
                             <th>Pengiriman</th>
                             <th>Alamat</th>
                             <th>Harga</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
+                            <th>Status</th>';
+                        if ($isNotif != 'true') {
+                            $output .= '<th>Action</th>';
+                        }
+                $output .= '</tr>
                     </thead>
                     <tbody>';
-                    foreach ($data as $item) {
 
-                        $statusBadgeClass = '';
-                        $btnEditinvoice = '';
+            foreach ($data as $item) {
+            $statusBadgeClass = '';
+            $btnEditinvoice = '';
+            $btnChangeMethod = '';
 
-                        switch ($item->status_name) {
-                            case 'Batam / Sortir':
-                                $statusBadgeClass = 'badge-primary';
-                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Ready For Pickup':
-                                $statusBadgeClass = 'badge-warning';
-                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Out For Delivery':
-                                $statusBadgeClass = 'badge-primary';
-                                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Delivering':
-                                $statusBadgeClass = 'badge-delivering';
-                                break;
-                            case 'Done':
-                                $statusBadgeClass = 'badge-secondary';
-                                break;
-                            default:
-                                $statusBadgeClass = 'badge-secondary';
-                                break;
-                        }
+            switch ($item->status_name) {
+            case 'Batam / Sortir':
+                $statusBadgeClass = 'badge-primary';
+                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                break;
+            case 'Ready For Pickup':
+                $statusBadgeClass = 'badge-warning';
+                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                break;
+            case 'Out For Delivery':
+                $statusBadgeClass = 'badge-primary';
+                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                break;
+            case 'Delivering':
+                $statusBadgeClass = 'badge-delivering';
+                break;
+            case 'Done':
+                $statusBadgeClass = 'badge-secondary';
+                break;
+            default:
+                $statusBadgeClass = 'badge-secondary';
+                break;
+            }
 
-                        $convertedHarga = $item->harga;
-                        if ($item->matauang_id != 1) {
-                            $convertedHarga = $item->harga / $item->rate_matauang;
-                        }
+            if ($item->metode_pengiriman == 'Pickup') {
+            $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
+            }
 
-                        $output .=
-                            '
-                            <tr>';
-                            if ($isNotif == 'true') {
-                                $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
-                            }
-                             $output .=
-                            '
-                                <td>' . ($item->no_invoice ?? '-') . '</td>
-                                <td>' . ($item->tanggal_bayar ?? '-') . '</td>
-                                <td>' . ($item->pembeli ?? '-') . '</td>
-                                <td>' . ($item->metode_pengiriman ?? '-') . '</td>
-                                <td>' . ($item->alamat ?? '-') . '</td>
-                                <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
-                                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
-                                <td>
+            $convertedHarga = $item->harga;
+            if ($item->matauang_id != 1) {
+            $convertedHarga = $item->harga / $item->rate_matauang;
+            }
 
-                                    ' . $btnEditinvoice . '
-                                    <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                                </td>
-                            </tr>
-                        ';
-                    }
-        $output .= '</tbody></table>';
-        return $output;
-    }
+            $output .= '<tr>';
+            if ($isNotif == 'true') {
+                $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
+            }
+            $output .= '
+                <td>' . ($item->no_invoice ?? '-') . '</td>
+                <td>' . ($item->tanggal_bayar ?? '-') . '</td>
+                <td>' . ($item->pembeli ?? '-') . '</td>
+                <td>' . ($item->metode_pengiriman ?? '-') . '</td>
+                <td>' . ($item->alamat ?? '-') . '</td>
+                <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
+                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
+            if ($isNotif != 'true') {
+                $output .= '<td>' . $btnChangeMethod . ' ' . $btnEditinvoice . '
+                            <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
+                            </td>';
+            }
+            $output .= '</tr>';
+            }
+            $output .= '</tbody></table>';
+
+            return $output;
+                }
 
     public function getlistHeadCicilan(Request $request)
     {
@@ -442,8 +446,6 @@ class InvoiceController extends Controller
                     'harga' => $hargaBarang[$index] ?? null,
                     'created_at' => now(),
                 ]);
-
-
 
             }
 
@@ -809,6 +811,34 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
+    }
+
+    public function changeMethod(Request $request)
+    {
+        $invoiceId = $request->input('id');
+        $newMethod = $request->input('method');
+
+        $invoice = DB::table('tbl_invoice')->where('id', $invoiceId)->first();
+
+        if ($invoice && $newMethod == 'Delivery' && $invoice->metode_pengiriman == 'Pickup') {
+            $alamatPembeli = DB::table('tbl_alamat')
+            ->where('pembeli_id', $invoice->pembeli_id)
+            ->first();
+
+            if ($alamatPembeli) {
+                DB::table('tbl_invoice')->where('id', $invoiceId)->update([
+                    'metode_pengiriman' => 'Delivery',
+                    'alamat' => $alamatPembeli->alamat,
+                    'updated_at' => now()
+                ]);
+
+                return response()->json(['success' => true, 'message' => 'Metode pengiriman berhasil diubah menjadi Delivery dan alamat diperbarui']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Alamat pembeli tidak ditemukan']);
+            }
+        }
+
+        return response()->json(['success' => false, 'message' => 'Gagal mengubah metode pengiriman']);
     }
 
 }

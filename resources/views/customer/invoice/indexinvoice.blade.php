@@ -247,9 +247,9 @@
                 isNotifEnabled = !isNotifEnabled;
 
                 if (!isNotifEnabled) {
-                    $('#kirimNot').removeClass('d-none'); // Tampilkan tombol
+                    $('#kirimNot').removeClass('d-none');
                 } else {
-                    $('#kirimNot').addClass('d-none'); // Sembunyikan tombol
+                    $('#kirimNot').addClass('d-none');
                 }
 
                 $(document).on('change', '.selectAll', function() {
@@ -307,13 +307,15 @@
                                 },
                                 success: function(response) {
                                     Swal
-                                .close();
+                                        .close();
 
                                     if (response.success) {
                                         showMessage("success",
                                             "Berhasil mengirim notifikasi");
-                                        getlistInvoice (false);
-                                    $('#kirimNot').addClass('d-none');
+                                        isNotifEnabled =
+                                            true;
+                                        getlistInvoice(!isNotifEnabled);
+                                        $('#kirimNot').addClass('d-none');
                                     } else {
                                         showMessage("error", response.message ||
                                             "Gagal mengirim notifikasi");
@@ -321,10 +323,10 @@
                                 },
                                 error: function() {
                                     Swal
-                                .close();
+                                        .close();
                                     showMessage("error",
                                         "Terjadi kesalahan saat mengirim notifikasi"
-                                        );
+                                    );
                                 }
                             });
                         }
@@ -626,6 +628,50 @@
                 url = url.replace(':id', id);
                 window.location.href = url;
             });
+
+            $(document).on('click', '.btnChangeMethod', function(e) {
+                let id = $(this).data('id');
+                let method = $(this).data('method');
+
+                Swal.fire({
+                    title: "Apakah Anda ingin mengubah pengiriman invoice ini menjadi Delivery?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "GET",
+                            url: "{{ route('changeMethod') }}",
+                            data: {
+                                id: id,
+                                method: method,
+                            },
+                            success: function(response) {
+                                if (response
+                                    .success) {
+                                    showMessage("success", response
+                                    .message);
+                                    getlistInvoice
+                                ();
+                                } else {
+                                    showMessage("error", response.message ||
+                                        "Gagal mengubah invoice");
+                                }
+                            },
+                            error: function() {
+                                showMessage("error",
+                                    "Terjadi kesalahan dalam mengubah invoice");
+                            }
+                        });
+                    }
+                })
+            });
+
 
         });
     </script>

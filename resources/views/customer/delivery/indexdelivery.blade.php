@@ -115,7 +115,7 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Delivery</h1>
+            <h1 class="h3 mb-0 text-gray-800">Delivery / Pick Up</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Costumer</li>
                 <li class="breadcrumb-item active" aria-current="page">Delivery</li>
@@ -133,6 +133,7 @@
                                     class="form-control rounded-3" placeholder="Search">
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Filter</option>
+                                    <option value="Ready For Pickup">Ready For Pickup</option>
                                     <option value="Out For Delivery">Out For Delivery</option>
                                     <option value="Delivering">Delivering</option>
                                     <option value="Done">Done</option>
@@ -453,19 +454,17 @@
             var customerNames = $(this).data('customers');
             var addresses = $(this).data('alamat');
 
-            // Debugging untuk melihat tipe data yang diterima
             console.log('Invoices:', invoiceNumbers);
             console.log('Customers:', customerNames);
             console.log('Addresses:', addresses);
 
-            // Periksa apakah invoiceNumbers adalah string
+
             if (typeof invoiceNumbers !== 'string') {
-                invoiceNumbers = String(invoiceNumbers); // Konversi ke string jika bukan string
+                invoiceNumbers = String(invoiceNumbers);
             }
 
-            // Cek apakah ada koma dalam string, jika tidak maka tidak perlu di-split
             if (invoiceNumbers.indexOf(',') === -1) {
-                invoiceNumbers = [invoiceNumbers]; // Masukkan ke dalam array jika hanya satu nomor
+                invoiceNumbers = [invoiceNumbers];
             } else {
                 invoiceNumbers = invoiceNumbers.split(', ');
             }
@@ -478,7 +477,7 @@
             console.log('After split - Addresses:', addresses);
 
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent += '<thead><tr><th>No. Resi</th><th>Customer</th><th>Alamat</th></tr></thead><tbody>';
+            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th></tr></thead><tbody>';
             for (var i = 0; i < invoiceNumbers.length; i++) {
                 modalContent += '<tr>';
                 modalContent += '<td>' + invoiceNumbers[i] + '</td>';
