@@ -20,7 +20,7 @@ public function addContact(Request $request)
    
     
     try {
-        $existingData = DB::table('tbl_aboutus')->first();
+        $existingData = DB::table('tbl_contact')->first();
 
         if ($existingData) {
             // Update data yang sudah ada

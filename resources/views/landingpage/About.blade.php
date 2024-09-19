@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout :contact="$contact ?? '' ">
   @section('title', 'PT. GES | About Us')
 
   <body class="navigasi-page">

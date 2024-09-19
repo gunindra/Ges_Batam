@@ -1,5 +1,5 @@
-<x-layout>
-
+<x-layout :contact="$contact">
+  
   @section('title', 'PT. GES')
   <!-- popup -->
   @if(isset($popup) && ($popup->Image_Popup || $popup->Judul_Popup || $popup->Paraf_Popup || $popup->Link_Popup))
@@ -273,9 +273,9 @@
           <p class="pt-3" style="color:#1679AB; font-size: 20px; font-family: sans-serif;">42Q2+6PH, Unnamed Road,
             Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
           <div class="Contact-Us" style="font-size:17px; color:#1679AB;">
-            <p><i class="ph ph-envelope fa-xl"></i> Tandrio@example.com</p>
-            <p><i class="ph ph-phone fa-xl"></i> +0896 3678 9898 (main)</p>
-            <p><i class="ph ph-phone-plus fa-xl"></i> +0896 4383 4876 (second)</p>
+            <p><i class="ph ph-envelope fa-xl"></i> {{ $contact->email ?? '-'}}</p>
+            <p><i class="ph ph-phone fa-xl"></i> {{ $contact->phone ? '+62' . $contact->phone : '-' }}</p>
+            <p><i class="ph ph-phone-plus fa-xl"></i> {{ $contact->phones ? '+62' . $contact->phones : '-' }}</p>
           </div>
         </div>
       </div>

@@ -7,10 +7,16 @@ use Illuminate\Http\Request;
 
 class TrackingController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
 
-
-        return view('landingpage.Tracking');
+        $id = $request->query('id');
+    
+            $contact = DB::table('tbl_contact')->first(); 
+    
+            return view('landingpage.Tracking', [
+                'contact' => $contact,
+            ]);
+        
     }
 
     public function lacakResi(Request $request)

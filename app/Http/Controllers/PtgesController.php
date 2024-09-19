@@ -30,9 +30,9 @@ class PtgesController extends Controller
             $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160,'');
         }
         $popup = DB::table('tbl_popup')->first();
+        $contact = DB::table('tbl_contact')->first();
 
-
-        return view('landingpage.PTGes', [
+        return view('landingpage.PTGes ', [
             'listinformation' => $listinformation,
             'listservices' => $listservices,
             'listiklan' => $listiklan,
@@ -40,6 +40,7 @@ class PtgesController extends Controller
             'whyus' => $whyus,
             'listcarousel' => $listcarousel,
             'popup' => $popup,
+            'contact' => $contact,
         ]);
     }
 }

@@ -21,20 +21,30 @@
                     </div>
                     <div class="mt-3">
                         <label for="emailContact" class="form-label fw-bold">Email</label>
-                        <input type="text" class="form-control" id="emailContact"  value="{{ isset($contactData->email) ? $contactData->email : '' }}"
+                        <input type="email" class="form-control" id="emailContact"
+                            value="{{ isset($contactData->email) ? $contactData->email : '' }}"
                             placeholder="Masukkan email">
                         <div id="emailContactError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
                     </div>
                     <div class="mt-3">
                         <label for="phoneContact" class="form-label fw-bold">Phone (main)</label>
-                        <input type="text" class="form-control" id="phoneContact"  value="{{ isset($contactData->phone) ? $contactData->phone : '' }}"
-                            placeholder="Masukkan phone ">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomor">+62</span>
+                            <input type="text" class="form-control" id="phoneContact"
+                                value="{{ isset($contactData->phone) ? ltrim($contactData->phone, '62') : '' }}"
+                                placeholder="Masukkan phone">
+                        </div>
                         <div id="phoneContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
                     </div>
+
                     <div class="mt-3">
                         <label for="phonesContact" class="form-label fw-bold">Phone (second)</label>
-                        <input type="text" class="form-control" id="phonesContact"  value="{{ isset($contactData->phones) ? $contactData->phones : '' }}"
-                            placeholder="Masukkan phone ">
+                        <div class="input-group">
+                            <span class="input-group-text" id="nomorr">+62</span>
+                            <input type="text" class="form-control" id="phonesContact"
+                                value="{{ isset($contactData->phones) ? ltrim($contactData->phones, '62') : '' }}"
+                                placeholder="Masukkan phone ">
+                        </div>
                         <div id="phonesContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
                     </div>
                     <button type="button" class="btn btn-primary mt-3" id="saveContact">
@@ -50,9 +60,9 @@
                     <div class="preview" id="previewContainer"
                         style="border:1px solid black; height: auto; border-radius:10px;">
                         @if($contactData)
-                                <p style="margin-left:30px;">{{ $contactData->email ?? '' }}</p>
-                                <p style="margin-left:30px;">{{ $contactData->phone ?? '' }}</p>
-                                <p style="margin-left:30px;">{{ $contactData->phones ?? '' }}</p>
+                            <p style="margin-left:30px;">{{ $contactData->email ?? '' }}</p>
+                            <p style="margin-left:30px;">{{ $contactData->phone ? '+62' . $contactData->phone : '' }}</p>
+                            <p style="margin-left:30px;">{{ $contactData->phones ? '+62' . $contactData->phones : '' }}</p>
                         @else
                             <p class="p-3">No content available</p>
                         @endif
@@ -74,19 +84,20 @@
 
             var emailContact = $('#emailContact').val().trim();
             var phoneContact = $('#phoneContact').val().trim();
-            var phonesContact = $('#phoneContact').val().trim();
+            var phonesContact = $('#phonesContact').val().trim();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             var isValid = true;
 
-            if (alamatContact === '') {
-                $('#alamatContactError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#alamatContactError').addClass('d-none');
-            }
             if (emailContact === '') {
-                $('#emailContactError').removeClass('d-none');
+                $('#emailContactError').text('Silahkan isi Email').removeClass('d-none');
+                isValid = false;
+            } else if (!emailRegex.test(emailContact)) {
+                $('#emailContactError').text('Format Email tidak valid').removeClass('d-none');
+                isValid = false;
+            } else if (!emailContact.endsWith('@gmail.com')) {
+                $('#emailContactError').text('Email harus menggunakan @gmail.com').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#emailContactError').addClass('d-none');
@@ -104,9 +115,6 @@
                 $('#phonesContactError').addClass('d-none');
             }
 
-
-
-            
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -121,8 +129,8 @@
                     if (result.isConfirmed) {
                         var formData = new FormData();
                         formData.append('emailContact', emailContact);
-                        formData.append('phoneContact', phoneContact);
-                        formData.append('phonesContact', phonesContact);
+                        formData.append('phoneContact', phoneContact); // No prefix here
+                        formData.append('phonesContact', phonesContact); // No prefix here
                         formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
@@ -162,16 +170,15 @@
                                         if (response.data.emailContact) {
                                             previewContainer.append('<p style="margin-left:30px;">' + response.data.emailContact + '</p>');
                                         }
-                                      
+
                                         if (response.data.phoneContact) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.phoneContact + '</p>');
+                                            previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phoneContact + '</p>');
                                         }
-                                      
+
                                         if (response.data.phonesContact) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.phonesContact + '</p>');
+                                            previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phonesContact + '</p>');
                                         }
-                                      
-                                      
+
                                     });
                                 } else {
                                     Swal.fire({
@@ -200,17 +207,10 @@
             }
         });
 
+        // Remove non-numeric characters from phone input
+        $('#phoneContact, #phonesContact').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
     });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        ClassicEditor
-            .create(document.querySelector('#editor'))
-            .catch(error => {
-                console.error(error);
-            });
-    });
-
-
-
 </script>
 @endsection

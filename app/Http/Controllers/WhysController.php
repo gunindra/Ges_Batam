@@ -14,8 +14,12 @@ class WhysController extends Controller
             $id = $request->query('id');
     
             $dataWhy = DB::select("SELECT * FROM tbl_whyus WHERE id = 1");
+            $contact = DB::table('tbl_contact')->first(); 
     
-            return view('landingpage.Why', ['dataWhy' => $dataWhy]);
+            return view('landingpage.Why', [
+                'dataWhy' => $dataWhy,
+                'contact' => $contact,
+            ]);
         }
       
 

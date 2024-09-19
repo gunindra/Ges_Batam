@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout :contact="$contact">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/inputTags.css') }}">
     @endpush
