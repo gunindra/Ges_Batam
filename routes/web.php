@@ -95,6 +95,7 @@ Route::post('/delivery/cekResi', [DeliveryController::class, 'cekResi'])->name('
 Route::post('/delivery/cekResiPickup', [DeliveryController::class, 'cekResiPickup'])->name('cekResiPickup');
 Route::post('/delivery/buatDelivery', [DeliveryController::class, 'buatDelivery'])->name('buatDelivery');
 Route::post('/delivery/buatPickup', [DeliveryController::class, 'buatPickup'])->name('buatPickup');
+Route::get('/delivery/exportPDF', [DeliveryController::class, 'exportPDF'])->name('exportPDFDelivery');
 Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
 Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
 Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');

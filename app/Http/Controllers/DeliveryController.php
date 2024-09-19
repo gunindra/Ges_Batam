@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Http;
 use DateTime;
 use App\Traits\WhatsappTrait;
 use Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Str;
 
 class DeliveryController extends Controller
 {
@@ -95,7 +97,7 @@ class DeliveryController extends Controller
         foreach ($data as $item) {
             $statusBadgeClass = '';
             $btnAcceptPengantaran = '';
-            $btnBuktiPengantaran = '';
+            // $btnBuktiPengantaran = '';
             $btnDetailPengantaran = '';
 
             switch ($item->status_name) {
@@ -141,7 +143,7 @@ class DeliveryController extends Controller
                     <td>
                         ' . $btnAcceptPengantaran . '
                         ' . $btnDetailPengantaran . '
-                        ' . $btnBuktiPengantaran . '
+                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
                     </td>
                 </tr>';
         }
@@ -601,6 +603,103 @@ class DeliveryController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $id = $request->input('id');
+
+        // Mengambil data pengantaran
+        try {
+            $pengantaran = DB::table('tbl_pengantaran as a')
+                ->select(
+                    'a.id as pengantaran_id',
+                    'a.supir_id',
+                    'b.nama_supir',
+                    'a.metode_pengiriman',
+                    DB::raw("DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y') as tanggal_pengantaran"),
+                    DB::raw("GROUP_CONCAT(c.invoice_id ORDER BY c.invoice_id ASC SEPARATOR ', ') as list_invoice")
+                )
+                ->leftJoin('tbl_supir as b', 'a.supir_id', '=', 'b.id')
+                ->join('tbl_pengantaran_detail as c', 'a.id', '=', 'c.pengantaran_id')
+                ->where('a.id', $id)
+                ->groupBy('a.id', 'a.supir_id', 'b.nama_supir', 'a.metode_pengiriman', 'a.tanggal_pengantaran')
+                ->first();
+
+            if (!$pengantaran) {
+                return response()->json(['error' => 'Pengantaran tidak ditemukan.'], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching pengantaran data: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to fetch pengantaran data'], 500);
+        }
+
+        // Mengambil data invoices
+        try {
+            $invoiceIds = explode(', ', $pengantaran->list_invoice);
+            $invoices = DB::table('tbl_invoice as i')
+                ->select('i.id', 'i.no_invoice', 'i.alamat', 'p.nama_pembeli')
+                ->join('tbl_pembeli as p', 'i.pembeli_id', '=', 'p.id')
+                ->whereIn('i.id', $invoiceIds)
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error fetching invoice data: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to fetch invoice data'], 500);
+        }
+
+        // Mengambil data resi
+        try {
+            $invoiceResi = DB::table('tbl_resi as r')
+            ->select(
+                'r.invoice_id',
+                'r.no_resi',
+                'r.no_do',
+                'r.berat',
+                'r.panjang',
+                'r.lebar',
+                'r.tinggi'
+            )
+            ->whereIn('r.invoice_id', $invoiceIds)
+            ->get()
+            ->groupBy('invoice_id');
+        } catch (\Exception $e) {
+            Log::error('Error fetching resi data: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to fetch resi data'], 500);
+        }
+
+        // Membuat PDF
+        try {
+            $pdf = Pdf::loadView('exportPDF.deliverylist', [
+                'pengantaran' => $pengantaran,
+                'invoices' => $invoices,
+                'invoiceResi' => $invoiceResi,
+            ])
+            ->setPaper('A4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+            ->setWarnings(false);
+        } catch (\Exception $e) {
+            Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to generate PDF'], 500);
+        }
+
+        // Menyimpan PDF
+        try {
+            $fileName = 'Delivery' . (string) Str::uuid() . '.pdf';
+            $filePath = storage_path('app/public/delivery/' . $fileName);
+            $pdf->save($filePath);
+        } catch (\Exception $e) {
+            Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to save PDF'], 500);
+        }
+
+        // Mengirim URL PDF sebagai respons
+        try {
+            $url = asset('storage/delivery/' . $fileName);
+            return response()->json(['url' => $url]);
+        } catch (\Exception $e) {
+            Log::error('Error sending PDF URL: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Failed to send PDF URL'], 500);
         }
     }
 }

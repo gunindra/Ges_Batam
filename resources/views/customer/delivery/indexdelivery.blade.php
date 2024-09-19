@@ -291,44 +291,176 @@
             $('#modalFilterTanggal').modal('hide');
         });
 
-        $(document).on('click', '.btnAcceptPengantaran', function(e) {
-            let id = $(this).data('id');
+        $(document).on('click', '.btnDetailPengantaran', function(e) {
+            e.preventDefault();
+            let namafoto = $(this).data('bukti');
+            $.ajax({
+                url: "{{ route('detailBuktiPengantaran') }}",
+                method: 'GET',
+                data: {
+                    namafoto: namafoto,
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let imageUrl = response.url;
 
-            Swal.fire({
-                title: "Apakah Barang Dengan Resi Ini Siap Diatarkan?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#5D87FF',
-                cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "GET",
-                        url: "{{ route('acceptPengantaran') }}",
-                        data: {
-                            id: id,
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.status === 'error') {
-                                showMessage("error", response.message);
-                            } else {
-                                showMessage("success", response.message);
-                                getlistDelivery();
-                            }
-                        },
-                        error: function() {
-                            showMessage("error", "Terjadi kesalahan pada server.");
-                        }
-                    });
+                        console.log(imageUrl);
+
+                        $('#modalBuktiPengantaran').find('.containerFoto').html(
+                            '<img src="' + imageUrl + '" class="img-fluid">');
+                    } else {
+                        showMessage("error", "Gagal memuat bukti pembayaran");
+                    }
+                    $('#modalBuktiPengantaran').modal('show');
+                },
+                error: function(xhr) {
+                    showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
+                    $('#modalBuktiPengantaran').modal('show');
                 }
             });
         });
+
+
+        $(document).on('click', '.btnExportPDF', function() {
+            let pengantaranId = $(this).data('id');
+
+            Swal.fire({
+                    title: 'Loading...',
+                    text: 'Please wait while we process your request.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('exportPDFDelivery') }}",
+                data: {
+                    id: pengantaranId,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                        Swal.close();
+
+                        if (response.url) {
+                            window.open(response.url, '_blank');
+                        } else if (response.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+
+                        let errorMessage = 'Gagal Export Invoice';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage
+                        });
+                    }
+            });
+        });
+
+        $(document).on('click', '.show-invoice-modal', function() {
+            var supirName = $(this).data('supir');
+            var invoiceNumbers = $(this).data('invoices');
+            var customerNames = $(this).data('customers');
+            var addresses = $(this).data('alamat');
+
+
+            if (typeof invoiceNumbers !== 'string') {
+                invoiceNumbers = String(invoiceNumbers);
+            }
+
+            if (invoiceNumbers.indexOf(',') === -1) {
+                invoiceNumbers = [invoiceNumbers];
+            } else {
+                invoiceNumbers = invoiceNumbers.split(', ');
+            }
+
+            customerNames = customerNames ? customerNames.split(', ') : [];
+            addresses = addresses ? addresses.split(', ') : [];
+
+            console.log('After split - Invoices:', invoiceNumbers);
+            console.log('After split - Customers:', customerNames);
+            console.log('After split - Addresses:', addresses);
+
+            var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
+            modalContent +=
+                '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th><th>Action</th></tr></thead><tbody>';
+            for (var i = 0; i < invoiceNumbers.length; i++) {
+                modalContent += '<tr>';
+                modalContent += '<td>' + invoiceNumbers[i] + '</td>';
+                modalContent += '<td>' + customerNames[i] + '</td>';
+                modalContent += '<td>' + addresses[i] + '</td>';
+                modalContent +=
+                    '<td><button type="button" class="btn btn-warning btnBuktiPengantaran" data-invoice="' +
+                    invoiceNumbers[i] + '">Accept Pengantaran</button></td>';
+                modalContent += '</tr>';
+            }
+            modalContent += '</tbody></table>';
+            $('#modalContent').html(modalContent);
+            $('#invoiceModal').modal('show');
+            $('#invoiceTable').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                lengthChange: false,
+                pageLength: 5
+            });
+        });
+
+        // $(document).on('click', '.btnBuktiPengantaran', function(e) {
+        //     let id = $(this).data('id');
+
+        //     Swal.fire({
+        //         title: "Apakah Barang Dengan Resi Ini Siap Diatarkan?",
+        //         icon: 'question',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#5D87FF',
+        //         cancelButtonColor: '#49BEFF',
+        //         confirmButtonText: 'Ya',
+        //         cancelButtonText: 'Tidak',
+        //         reverseButtons: true
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             $.ajax({
+        //                 type: "GET",
+        //                 url: "{{ route('acceptPengantaran') }}",
+        //                 data: {
+        //                     id: id,
+        //                 },
+        //                 headers: {
+        //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //                 },
+        //                 success: function(response) {
+        //                     if (response.status === 'error') {
+        //                         showMessage("error", response.message);
+        //                     } else {
+        //                         showMessage("success", response.message);
+        //                         getlistDelivery();
+        //                     }
+        //                 },
+        //                 error: function() {
+        //                     showMessage("error", "Terjadi kesalahan pada server.");
+        //                 }
+        //             });
+        //         }
+        //     });
+        // });
+
+
 
         $(document).on('click', '.btnBuktiPengantaran', function(e) {
             let id = $(this).data('id');
@@ -417,85 +549,6 @@
                 $('#err-pengantaranStatus').addClass('d-none');
 
             }
-        });
-
-        $(document).on('click', '.btnDetailPengantaran', function(e) {
-            e.preventDefault();
-            let namafoto = $(this).data('bukti');
-            $.ajax({
-                url: "{{ route('detailBuktiPengantaran') }}",
-                method: 'GET',
-                data: {
-                    namafoto: namafoto,
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        let imageUrl = response.url;
-
-                        console.log(imageUrl);
-
-                        $('#modalBuktiPengantaran').find('.containerFoto').html(
-                            '<img src="' + imageUrl + '" class="img-fluid">');
-                    } else {
-                        showMessage("error", "Gagal memuat bukti pembayaran");
-                    }
-                    $('#modalBuktiPengantaran').modal('show');
-                },
-                error: function(xhr) {
-                    showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
-                    $('#modalBuktiPengantaran').modal('show');
-                }
-            });
-        });
-
-        $(document).on('click', '.show-invoice-modal', function() {
-            var supirName = $(this).data('supir');
-            var invoiceNumbers = $(this).data('invoices');
-            var customerNames = $(this).data('customers');
-            var addresses = $(this).data('alamat');
-
-            console.log('Invoices:', invoiceNumbers);
-            console.log('Customers:', customerNames);
-            console.log('Addresses:', addresses);
-
-
-            if (typeof invoiceNumbers !== 'string') {
-                invoiceNumbers = String(invoiceNumbers);
-            }
-
-            if (invoiceNumbers.indexOf(',') === -1) {
-                invoiceNumbers = [invoiceNumbers];
-            } else {
-                invoiceNumbers = invoiceNumbers.split(', ');
-            }
-
-            customerNames = customerNames ? customerNames.split(', ') : [];
-            addresses = addresses ? addresses.split(', ') : [];
-
-            console.log('After split - Invoices:', invoiceNumbers);
-            console.log('After split - Customers:', customerNames);
-            console.log('After split - Addresses:', addresses);
-
-            var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th></tr></thead><tbody>';
-            for (var i = 0; i < invoiceNumbers.length; i++) {
-                modalContent += '<tr>';
-                modalContent += '<td>' + invoiceNumbers[i] + '</td>';
-                modalContent += '<td>' + customerNames[i] + '</td>';
-                modalContent += '<td>' + addresses[i] + '</td>';
-                modalContent += '</tr>';
-            }
-            modalContent += '</tbody></table>';
-            $('#modalContent').html(modalContent);
-            $('#invoiceModal').modal('show');
-            $('#invoiceTable').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                info: true,
-                lengthChange: false,
-                pageLength: 5
-            });
         });
     </script>
 @endsection
