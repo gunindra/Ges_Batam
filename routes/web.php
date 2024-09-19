@@ -30,6 +30,7 @@ use App\Http\Controllers\{
     UserController,
     RoleController,
     ContactController,
+    SupirController,
     PopupController,
     TrackingsController,
     CategoryController
@@ -242,6 +243,8 @@ Route::post('/tracking/addTracking', [TrackingsController::class, 'addTracking']
 Route::post('/tracking/updateTracking', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
 Route::get('/tracking/deleteTracking', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');
 
+//Supir
+Route::get('/supir', [SupirController::class, 'index'])->name('supir');
 
 
 });

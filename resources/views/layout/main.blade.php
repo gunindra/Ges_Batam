@@ -23,6 +23,11 @@
                 <i class="fas fa-globe-asia"></i>
                     <span>Tracking</span></a>
             </li>
+            <li class="nav-item {{ request()->routeIs('supir') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supir') }}">
+                <i class="fas fa-truck-loading"></i>
+                    <span>Driver</span></a>
+            </li>
             <li
                 class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('pickup') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"
