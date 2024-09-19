@@ -18,9 +18,9 @@
 
     @if($popup->Link_Popup)
     <div class="controls">
-      <button class="btn-Go btn btn-primary">
-      <a href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white; ">Go</a>
-      </button>
+      <a class="btn-Go btn btn-primary" href="{{ $popup->Link_Popup }}" style="text-decoration:none; color:white; width:150px;">
+          Learn More
+      </a>
     </div>
   @endif
     </dialog>
@@ -100,7 +100,7 @@
       @endforeach
     @else
     <div class="main-content">
-      <div class="box-gallery">
+      <div class="box-gallery" style="width:1200px;">
         <img src="{{ asset('/img/Noimage.png') }}" alt="No Image Available">
         <div class="img-text">
           <div class="contentGallery">

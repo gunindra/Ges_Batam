@@ -29,6 +29,7 @@ use App\Http\Controllers\{
     SupplierInvoiceController,
     UserController,
     RoleController,
+    ContactController,
     PopupController,
     TrackingsController,
     CategoryController
@@ -131,6 +132,9 @@ Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
 Route::post('/content/popup/tambah', [PopupController::class, 'addPopup'])->name('addPopup');
 Route::delete('/content/popup/destroy', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
 
+// Contact
+Route::get('/content/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/content/contact/tambah', [ContactController::class, 'addContact'])->name('addContact');
 
 // About
 Route::get('/content/abouts', [AboutController::class, 'index'])->name('abouts');

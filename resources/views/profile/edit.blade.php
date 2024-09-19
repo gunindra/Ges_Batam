@@ -9,44 +9,96 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form id="profileForm">
-                            @csrf
-                            @method('PATCH')
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="profileForm">
+                    @csrf
+                    @method('PATCH')
 
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input id="name" class="form-control" type="text" name="name"
-                                    value="{{ old('name', auth()->user()->name) }}" required autofocus>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input id="email" class="form-control" type="email" name="email"
-                                    value="{{ old('email', auth()->user()->email) }}" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">New Password (optional)</label>
-                                <input id="password" class="form-control" type="password" name="password">
-                                <span id="password-error" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password_confirmation">Confirm Password</label>
-                                <input id="password_confirmation" class="form-control" type="password"
-                                    name="password_confirmation">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
-                        </form>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input id="name" class="form-control" type="text" name="name"
+                            value="{{ old('name', auth()->user()->name) }}" required autofocus>
                     </div>
-                </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input id="email" class="form-control" type="email" name="email"
+                            value="{{ old('email', auth()->user()->email) }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">New Password (optional)</label>
+                        <input id="password" class="form-control" type="password" name="password">
+                        <span id="password-error" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirmation">Confirm Password</label>
+                        <input id="password_confirmation" class="form-control" type="password"
+                            name="password_confirmation">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
             </div>
         </div>
     </div>
+
+    <!-- New Card -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-body">
+            <h4 class="card-title">User Points</h4>
+                <p class="card-text">Here is an overview of your current points and other relevant details.</p>
+                
+                <div class="mb-3">
+                    <div class="text-center">
+                        <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
+                        <p class="text-muted">Poin</p>
+                    </div>
+                </div>
+               
+
+                <div class="mb-3">
+                    <h5>Points Earned</h5>
+                    <ul>
+                        <li>Purchase point: <span class="text-primary">200 points</span></li>
+                        <li>Referral bonus: <span class="text-primary">300 points</span></li>
+                        <li>Purchase bonus: <span class="text-primary">10 points</span></li>
+                    </ul>
+                </div>
+
+                <div class="rewards-section">
+            <h4>Penukaran Poin</h4>
+            <div class="reward-item">
+                <p>Diskon 10% Pengiriman (100 Poin)</p>
+                <button class="btn-redeem btn-primary" data-points="100">Tukar</button>
+            </div>
+            <div class="reward-item">
+                <p>Voucher Asuransi Pengiriman (200 Poin)</p>
+                <button class="btn-redeem btn-primary" data-points="200">Tukar</button>
+            </div>
+            <div class="reward-item">
+                <p>Merchandise Eksklusif (500 Poin)</p>
+                <button class="btn-redeem btn-primary" data-points="500">Tukar</button>
+            </div>
+        </div>
+
+
+                <!-- <div class="mb-3">
+                    <h5>Recent Activities</h5>
+                    <ul>
+                        <li>September 10, 2024 - Survey completed</li>
+                        <li>September 12, 2024 - Referral bonus awarded</li>
+                    </ul>
+                </div>  -->
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 
 @endsection
 

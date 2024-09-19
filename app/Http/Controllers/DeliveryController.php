@@ -53,7 +53,7 @@ class DeliveryController extends Controller
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
             ->join('tbl_status as s', 'a.status_id', '=', 's.id')
             ->leftjoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name');
+            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name','a.metode_pengiriman');
 
 
         if ($request->txSearch) {

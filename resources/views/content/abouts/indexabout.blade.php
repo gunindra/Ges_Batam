@@ -17,7 +17,6 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-primary">About</h6>
                     <div id="containerAbout" class="table-responsive px-3">
                     </div>
                     <div class="mt-3">

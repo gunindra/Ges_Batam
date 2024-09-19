@@ -17,7 +17,6 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-primary">Popup</h6>
                     <div id="containerPopup" class="table-responsive px-3"></div>
                     <div class="mt-3">
                         <label for="imagePopup" class="form-label fw-bold p-1">Image</label>
@@ -92,7 +91,7 @@
             var parafPopup = $('#parafPopup').val().trim();
             var linkPopup = $('#linkPopup').val().trim();
             var imagePopup = $('#imagePopup')[0].files[0];
-            var existingImage = $('#textNamaEdit').text();  // Gambar yang sudah ada
+            var existingImage = $('#imageName').text();  // Gambar yang sudah ada
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -165,7 +164,7 @@
                             });
                         }
                         if (response.status === 'success') {
-                            $('#textNamaEdit').text(response.data.imagePopup);
+                            $('#imageName').text(response.data.imagePopup);
                             $('#previewContainer').html(`
                     <img src="{{ asset('storage/images/') }}/${response.data.imagePopup}" width="600px" style="padding:5px 30px;">
                     <p style="padding-left:30px;">${response.data.judulPopup}</p>
@@ -257,7 +256,7 @@
                                 $('#linkPopup').val('');
                                 $('#imagePopup').val('');
                                 $('#previewContainer').html('<p class="p-3">No content available</p>');
-                                $('#textNamaEdit').text('Belum ada gambar');
+                                $('#imageName').text('Belum ada gambar');
                                 $('#destroyPopup').data('id', '');
                                 Swal.fire({
                                     icon: 'success',

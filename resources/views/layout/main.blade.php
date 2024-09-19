@@ -38,8 +38,6 @@
                             href="{{ route('invoice') }}">Invoice</a>
                         <a class="collapse-item {{ request()->routeIs('delivery') ? 'active' : '' }}"
                             href="{{ route('delivery') }}">Delivery</a>
-                        <a class="collapse-item {{ request()->routeIs('pickup') ? 'active' : '' }}"
-                            href="{{ route('pickup') }}">Pickup</a>
                         <a class="collapse-item {{ request()->routeIs('payment') ? 'active' : '' }}"
                             href="{{ route('payment') }}">Payment</a>
                     </div>
@@ -62,7 +60,7 @@
                 </div>
             </li>
             <li
-            class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') || request()->routeIs('popup') ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('carousel') || request()->routeIs('iklan') || request()->routeIs('popup') || request()->routeIs('contact')  ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
                     aria-expanded="true" aria-controls="collapseBootstraps">
                     <i class="fas fa-tasks"></i>
@@ -86,6 +84,8 @@
                             href="{{ route('iklan') }}">Iklan</a>
                         <a class="collapse-item {{ request()->routeIs('popup') ? 'active' : '' }}"
                             href="{{ route('popup') }}">Popup</a>
+                        <a class="collapse-item {{ request()->routeIs('contact') ? 'active' : '' }}"
+                            href="{{ route('contact') }}">Contact</a>
                     </div>
                 </div>
             </li>

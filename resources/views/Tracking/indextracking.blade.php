@@ -246,6 +246,12 @@
         } else {
             $('#keteranganError').addClass('d-none');
         }
+        if (noResi === undefined || noResi.length === 0) {
+            $('#noResiError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#noResiError').addClass('d-none');
+        }
         if (isValid) {
             Swal.fire({
                 title: "Apakah Kamu Yakin?",
@@ -295,7 +301,32 @@
             showMessage("error", "Mohon periksa input yang kosong");
         }
     });
+    $('#modalTambahTracking').on('hidden.bs.modal', function () {
+            $('#noDeliveryOrder,#keterangan,#noResi').val('');
+            if (!$('#noDeliveryOrderError').hasClass('d-none')) {
+                $('#noDeliveryOrderError').addClass('d-none');
 
+            }
+            if (!$('#noResiError').hasClass('d-none')) {
+                $('#noResiError').addClass('d-none');
+
+            }
+            if (!$('#keteranganError').hasClass('d-none')) {
+                $('#keteranganError').addClass('d-none');
+
+            }
+        });
+        $('#modalEditTracking').on('hidden.bs.modal', function () {
+            $('#noDeliveryOrderEdit,#keteranganEdit').val('');
+            if (!$('#noDeliveryOrderErrorEdit').hasClass('d-none')) {
+                $('#noDeliveryOrderErrorEdit').addClass('d-none');
+
+            }
+            if (!$('#keteranganErrorEdit').hasClass('d-none')) {
+                $('#keteranganErrorEdit').addClass('d-none');
+
+            }
+        });
 
 
     $(document).on('click', '.btnUpdateTracking', function (e) {
