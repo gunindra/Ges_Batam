@@ -31,6 +31,7 @@ class PtgesController extends Controller
         }
         $popup = DB::table('tbl_popup')->first();
         $contact = DB::table('tbl_contact')->first();
+        $wa = DB::table('tbl_wa')->first();
 
         return view('landingpage.PTGes ', [
             'listinformation' => $listinformation,
@@ -40,6 +41,7 @@ class PtgesController extends Controller
             'whyus' => $whyus,
             'listcarousel' => $listcarousel,
             'popup' => $popup,
+            'wa' => $wa,
             'contact' => $contact,
         ]);
     }

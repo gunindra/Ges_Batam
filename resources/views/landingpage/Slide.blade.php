@@ -1,4 +1,4 @@
-<x-layout :contact="$contact">
+<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
     @section('title', 'PT. GES | Carousel')
 <body class="navigasi-page">
 <div class="JudulSlide text-primary" style="margin-top:100px; text-align:center;  font-family: cursive;  ">

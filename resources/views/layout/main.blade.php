@@ -91,6 +91,8 @@
                             href="{{ route('popup') }}">Popup</a>
                         <a class="collapse-item {{ request()->routeIs('contact') ? 'active' : '' }}"
                             href="{{ route('contact') }}">Contact</a>
+                        <a class="collapse-item {{ request()->routeIs('whatsapp') ? 'active' : '' }}"
+                            href="{{ route('whatsapp') }}">Whatsapp</a>
                     </div>
                 </div>
             </li>

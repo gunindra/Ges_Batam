@@ -1,4 +1,4 @@
-<x-layout :contact="$contact ?? '' ">
+<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
   @section('title', 'PT. GES | About Us')
 
   <body class="navigasi-page">
@@ -22,7 +22,7 @@
     <div class="content-container">
       <p>-</p>
       <div class="imageAbout" id="imageAbout">
-        <img src="{{ asset('/img/default.jpg') }}" alt="About Us Image" style="border-radius:30px; height:350px; width:500px;" >
+        <img src="{{ asset('/img/default.jpg') }}" alt="About Us Image" style="border-radius:30px; height:350px; width:500px;">
       </div>
     </div>
     @endif

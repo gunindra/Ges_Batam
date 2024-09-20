@@ -90,12 +90,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 // wa
-    document.getElementById('whatsappButton').onclick = function() {
-        var phoneNumber = '6289636090157';
-        var message = 'Halo Admin, saya memiliki masalah website ini';
-        var whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
-        window.open(whatsappUrl, '_blank');
-    };
+$(function () {
+    // Ambil nomor dari localStorage
+    var savedWaNumber = localStorage.getItem('whatsappNumber');
+
+    // Periksa apakah nomor tersimpan di localStorage
+    if (savedWaNumber) {
+        $('#whatsappButton').attr('href', 'https://wa.me/' + savedWaNumber);
+    }
+});
 
 // const Home = document.getElementById("Home");
 

@@ -30,6 +30,7 @@ use App\Http\Controllers\{
     UserController,
     RoleController,
     ContactController,
+    WhatsappController,
     SupirController,
     PopupController,
     TrackingsController,
@@ -167,6 +168,10 @@ Route::get('/content/informations/destroy', [InformationsController::class, 'des
 Route::post('/content/informations/tambah', [InformationsController::class, 'addInformations'])->name('addInformations');
 Route::post('/content/informations/update', [InformationsController::class, 'updateInformations'])->name('updateInformations');
 
+// whatsapp
+Route::get('/content/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp');
+Route::post('/content/whatsapp/tambah', [WhatsappController::class, 'addWa'])->name('addWa');
+Route::delete('/content/whatsapp/destroy', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
 // Iklan
 Route::get('/content/iklan', [IklanController::class, 'index'])->name('iklan');
 Route::get('/content/iklan/getlistIklan', [IklanController::class, 'getlistIklan'])->name('getlistIklan');

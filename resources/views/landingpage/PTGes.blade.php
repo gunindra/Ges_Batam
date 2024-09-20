@@ -1,4 +1,5 @@
-<x-layout :contact="$contact">
+<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
+
   
   @section('title', 'PT. GES')
   <!-- popup -->
@@ -274,8 +275,8 @@
             Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
           <div class="Contact-Us" style="font-size:17px; color:#1679AB;">
             <p><i class="ph ph-envelope fa-xl"></i> {{ $contact->email ?? '-'}}</p>
-            <p><i class="ph ph-phone fa-xl"></i> {{ $contact->phone ? '+62' . $contact->phone : '-' }}</p>
-            <p><i class="ph ph-phone-plus fa-xl"></i> {{ $contact->phones ? '+62' . $contact->phones : '-' }}</p>
+            <p><i class="ph ph-phone fa-xl"></i> {{ is_object($contact) && isset($contact->phone) ? '+62' . $contact->phone : '-' }}</p>
+            <p><i class="ph ph-phone-plus fa-xl"></i> {{ is_object($contact) && isset($contact->phones) ? '+62' . $contact->phones : '-' }}</p>
           </div>
         </div>
       </div>
