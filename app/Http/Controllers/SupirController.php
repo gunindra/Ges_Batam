@@ -47,14 +47,12 @@ class SupirController extends Controller
                     // Proses foto jika ada
                     if ($request->hasFile('photo')) {
                         $photoFile = $request->file('photo');
-                        // Gabungkan timestamp dan no_invoice sebagai nama file foto
                         $photoFilename = time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension();
                         $photoPath = $photoFile->storeAs('bukti_pengantaran', $photoFilename, 'public'); // Simpan di folder bukti_pengantaran
                     } else {
                         $photoPath = null;
                     }
 
-                    // Update tbl_pengantaran_detail
                     DB::table('tbl_pengantaran_detail')
                         ->where('invoice_id', $invoiceId)
                         ->update([
@@ -63,7 +61,6 @@ class SupirController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                    // Update tbl_invoice, set status_id = 6
                     DB::table('tbl_invoice')
                         ->where('id', $invoiceId)
                         ->update([
@@ -71,13 +68,11 @@ class SupirController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                    // Ambil pengantaran_id dari tbl_pengantaran_detail
                     $pengantaranId = DB::table('tbl_pengantaran_detail')
                         ->where('invoice_id', $invoiceId)
                         ->value('pengantaran_id');
 
                     if ($pengantaranId) {
-                        // Update status pengiriman di tbl_pengantaran
                         DB::table('tbl_pengantaran')
                             ->where('id', $pengantaranId)
                             ->update([
@@ -86,15 +81,14 @@ class SupirController extends Controller
                             ]);
                     }
 
-                    // Ambil no_resi dari tbl_resi berdasarkan invoice_id
-                    $noResi = DB::table('tbl_resi')
+                    $noResiList = DB::table('tbl_resi')
                         ->where('invoice_id', $invoiceId)
-                        ->value('no_resi');
+                        ->pluck('no_resi');
 
-                    if ($noResi) {
-                        // Update data di tbl_tracking berdasarkan no_resi
+                    if ($noResiList->isNotEmpty()) {
+
                         DB::table('tbl_tracking')
-                            ->where('no_resi', $noResi)
+                            ->whereIn('no_resi', $noResiList)
                             ->update([
                                 'status' => 'Done',
                                 'updated_at' => now(),
@@ -113,6 +107,15 @@ class SupirController extends Controller
             \Log::error('General error: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
+    }
+
+    public function jumlahresi(Request $request)
+    {
+        $invoiceIds = $request->input('invoice_ids');
+        $count = DB::table('tbl_resi')
+                    ->whereIn('invoice_id', $invoiceIds)
+                    ->count();
+        return response()->json(['count' => $count]);
     }
 
 }

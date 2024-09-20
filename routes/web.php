@@ -250,6 +250,7 @@ Route::get('/tracking/deleteTracking', [TrackingsController::class, 'deleteTrack
 
 //Supir
 Route::get('/supir', [SupirController::class, 'index'])->name('supir');
+Route::get('/supir/jumlahresi', [SupirController::class, 'jumlahresi'])->name('jumlahresi');
 Route::post('/supir/tambahdata', [SupirController::class, 'tambahdata'])->name('tambahdata');
 });
 

@@ -28,7 +28,6 @@
                             <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
                             <p class="text-muted">Jumlah Resi</p>
                         </div>
-                        <div id="containerResi" class="table-responsive px-3"></div>
                     </div>
                 </div>
             </div>
@@ -71,35 +70,57 @@
             placeholder: 'Pilih No.Invoice',
             allowClear: true
         });
+
+        $('#selectResi').on('change', function() {
+            var selectedInvoices = $(this).val();
+            if (selectedInvoices.length > 0) {
+                $.ajax({
+                    url: '{{ route('jumlahresi') }}',
+                    type: 'GET',
+                    data: {
+                        invoice_ids: selectedInvoices
+                    },
+                    success: function(response) {
+
+                        $('#pointValue').text(response.count);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#pointValue').text(0);
+            }
+        });
     </script>
     <script>
         $(document).ready(function() {
-            // Inisialisasi SignaturePad
+
             let canvas = document.getElementById('signature-pad');
             const signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)'
             });
 
-            // Resize canvas agar sesuai dengan ukuran layar
+
             function resizeCanvas() {
                 var ratio = Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 canvas.getContext('2d').scale(ratio, ratio);
-                signaturePad.clear(); // Kosongkan canvas setelah resize
+                signaturePad.clear();
             }
             resizeCanvas();
             $(window).on('resize', resizeCanvas);
 
-            // Clear canvas untuk hapus tanda tangan
+
             $('#clear').on('click', function() {
                 signaturePad.clear();
-                $('#photo').val(''); // Kosongkan input file jika ada
+                $('#photo').val('');
             });
 
-            // Fungsi untuk menyimpan tanda tangan
+
             $('#save').on('click', function() {
-                // Validasi tanda tangan kosong
+
                 if (signaturePad.isEmpty()) {
                     Swal.fire({
                         icon: 'warning',
@@ -109,7 +130,6 @@
                     return;
                 }
 
-                // Validasi foto yang diupload
                 if ($('#photo').get(0).files.length === 0) {
                     Swal.fire({
                         icon: 'warning',
@@ -119,7 +139,6 @@
                     return;
                 }
 
-                // Validasi pilihan invoice
                 if ($('#selectResi').val() === null || $('#selectResi').val().length === 0) {
                     Swal.fire({
                         icon: 'warning',
@@ -129,16 +148,16 @@
                     return;
                 }
 
-                // Konversi canvas menjadi Blob
+
                 canvas.toBlob(function(blob) {
                     var formData = new FormData();
                     formData.append('signature', blob,
-                    'signature.png'); // Tanda tangan dalam bentuk Blob
-                    formData.append('photo', $('#photo')[0].files[0]); // Foto yang diupload
+                        'signature.png');
+                    formData.append('photo', $('#photo')[0].files[0]);
                     formData.append('selectedValues', $('#selectResi')
-                .val()); // Invoice yang dipilih
+                        .val());
 
-                Swal.fire({
+                    Swal.fire({
                         title: 'Sedang memproses...',
                         text: 'Harap menunggu hingga proses selesai',
                         icon: 'info',
@@ -149,7 +168,7 @@
                     });
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route('tambahdata') }}', // Sesuaikan route sesuai server Anda
+                        url: '{{ route('tambahdata') }}',
                         data: formData,
                         processData: false,
                         contentType: false,
@@ -159,9 +178,9 @@
                         success: function(response) {
                             Swal.close();
                             showMessage("success", "Data berhasil diupdate!").then(
-                        () => {
-                                location.reload();
-                            });
+                                () => {
+                                    location.reload();
+                                });
                         },
                         error: function(xhr, status, error) {
                             Swal.close();

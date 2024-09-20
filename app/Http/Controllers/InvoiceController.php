@@ -249,13 +249,13 @@ class InvoiceController extends Controller
 
             foreach ($data as $item) {
             $statusBadgeClass = '';
-            $btnEditinvoice = '';
+            // $btnEditinvoice = '';
             $btnChangeMethod = '';
 
             switch ($item->status_name) {
             case 'Batam / Sortir':
                 $statusBadgeClass = 'badge-primary';
-                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                // $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
                 break;
             case 'Ready For Pickup':
                 $statusBadgeClass = 'badge-warning';
@@ -276,7 +276,7 @@ class InvoiceController extends Controller
                 break;
             }
 
-            if ($item->metode_pengiriman == 'Pickup') {
+            if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
             $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
             }
 
@@ -298,7 +298,7 @@ class InvoiceController extends Controller
                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
             if ($isNotif != 'true') {
-                $output .= '<td>' . $btnChangeMethod . ' ' . $btnEditinvoice . '
+                $output .= '<td>' . $btnChangeMethod . '
                             <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
                             </td>';
             }
@@ -638,7 +638,7 @@ class InvoiceController extends Controller
         $id = intval($id);
 
         try {
-            // Fetch invoice data berdasarkan id invoice
+
             $q = "SELECT a.id,
                         a.no_invoice,
                         DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
@@ -662,7 +662,7 @@ class InvoiceController extends Controller
 
             $invoice = $invoice[0];
 
-            // Ambil data resi yang terkait dengan invoice
+
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $id)
                 ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
@@ -682,7 +682,6 @@ class InvoiceController extends Controller
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
 
-            // Save PDF to storage
             try {
                 $fileName = 'invoice_' . (string) Str::uuid() . '.pdf';
                 $filePath = storage_path('app/public/invoice/' . $fileName);
@@ -692,12 +691,10 @@ class InvoiceController extends Controller
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
-            // Send PDF URL
             $url = asset('storage/invoice/' . $fileName);
             return response()->json(['url' => $url]);
 
         } catch (\Exception $e) {
-            // Log general error
             Log::error('Error generating invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
@@ -730,13 +727,12 @@ class InvoiceController extends Controller
         $tester = $request->input('namafoto');
 
         try {
-            // Gunakan Storage untuk mendapatkan URL file
+
             $filePath = 'public/bukti_pembayaran/' . $tester;
 
             if (!Storage::exists($filePath)) {
                 return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan'], 404);
             }
-            // Mendapatkan URL dari file
             $url = Storage::url($filePath);
             return response()->json(['status' => 'success', 'url' => $url], 200);
 

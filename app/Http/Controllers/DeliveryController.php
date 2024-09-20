@@ -77,6 +77,13 @@ class DeliveryController extends Controller
             $query->where('a.tanggal_pengantaran', '<=', $endDate);
         }
 
+        $query->orderByRaw("CASE s.status_name
+        WHEN 'Delivering' THEN 1
+        WHEN 'Ready For Pickup' THEN 2
+        WHEN 'Done' THEN 3
+        ELSE 4 END");
+
+
         $query->limit(100);
 
         $data = $query->get();
@@ -110,14 +117,14 @@ class DeliveryController extends Controller
                     break;
                 case 'Delivering':
                     $statusBadgeClass = 'badge-delivering';
-                    $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
+                    // $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
                     break;
                 case 'Debt':
                     $statusBadgeClass = 'badge-danger';
                     break;
                 case 'Done':
                     $statusBadgeClass = 'badge-secondary';
-                    $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    // $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
                     break;
                 default:
                     $statusBadgeClass = 'badge-secondary';
@@ -610,7 +617,6 @@ class DeliveryController extends Controller
     {
         $id = $request->input('id');
 
-        // Mengambil data pengantaran
         try {
             $pengantaran = DB::table('tbl_pengantaran as a')
                 ->select(
@@ -635,7 +641,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to fetch pengantaran data'], 500);
         }
 
-        // Mengambil data invoices
         try {
             $invoiceIds = explode(', ', $pengantaran->list_invoice);
             $invoices = DB::table('tbl_invoice as i')
@@ -648,7 +653,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to fetch invoice data'], 500);
         }
 
-        // Mengambil data resi
         try {
             $invoiceResi = DB::table('tbl_resi as r')
             ->select(
@@ -668,7 +672,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to fetch resi data'], 500);
         }
 
-        // Membuat PDF
         try {
             $pdf = Pdf::loadView('exportPDF.deliverylist', [
                 'pengantaran' => $pengantaran,
@@ -683,7 +686,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to generate PDF'], 500);
         }
 
-        // Menyimpan PDF
         try {
             $fileName = 'Delivery' . (string) Str::uuid() . '.pdf';
             $filePath = storage_path('app/public/delivery/' . $fileName);
@@ -693,7 +695,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to save PDF'], 500);
         }
 
-        // Mengirim URL PDF sebagai respons
         try {
             $url = asset('storage/delivery/' . $fileName);
             return response()->json(['url' => $url]);
