@@ -90,16 +90,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 // wa
-$(function () {
-    // Ambil nomor dari localStorage
-    var savedWaNumber = localStorage.getItem('whatsappNumber');
+    // document.getElementById('whatsappButton').onclick = function() {
+    //     var phoneNumber = '6289636090157';
+    //     var message = 'Halo Admin, saya memiliki masalah website ini';
+    //     var whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
+    //     window.open(whatsappUrl, '_blank');
+    // };
 
-    // Periksa apakah nomor tersimpan di localStorage
-    if (savedWaNumber) {
-        $('#whatsappButton').attr('href', 'https://wa.me/' + savedWaNumber);
-    }
-});
 
+    $(function () {
+        var savedWaNumber = localStorage.getItem('whatsappNumber');
+        var savedWaMessage = localStorage.getItem('whatsappMessage');
+         var whatsappUrl = 'https://wa.me/' + savedWaNumber + '?text=' + encodeURIComponent(savedWaMessage);
+        
+            $('#whatsappButton').attr('href', whatsappUrl);
+            window.open(whatsappUrl, '_blank');
+            
+        }
+    );
+    
 // const Home = document.getElementById("Home");
 
 // Home.addEventListener("click", function (){

@@ -100,10 +100,10 @@
                         Swal.close();
 
                         if (response.status === 'success') {
-                            // Save the WhatsApp number to localStorage
+                            
                             localStorage.setItem('whatsappNumber', formattedNomorWa);
+                            localStorage.setItem('whatsappMessage', pesanWa);
 
-                            // Update the delete button with the new ID
                             $('#destroyWa').data('id', response.data.id);
 
                             Swal.fire({
@@ -180,6 +180,7 @@
                                 $('#pesanWa').val('');
                                 // Remove from localStorage
                                 localStorage.removeItem('whatsappNumber');
+                                localStorage.removeItem('whatsappMessage');
 
                                 // Clear the delete button ID
                                 $('#destroyWa').data('id', null);

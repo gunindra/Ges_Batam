@@ -296,7 +296,7 @@ body {
   width:100%;
   height:auto;
 }
-/* bagian Gallery */
+/* bagian information */
 .wrapperGallery {
   width: 80%;
   padding: 30px 70px;
@@ -324,10 +324,12 @@ body {
 
 .wrapperGallery h1 {
   font-size: 40px;
+  overflow-wrap: break-word;
 }
 
 .contentGallery {
   padding: 10%;
+  overflow-wrap: break-word;
 }
 
 .contentGallery h2 {
@@ -338,12 +340,13 @@ body {
 
 .contentGallery p {
   line-height: 1.5;
+  overflow-wrap: break-word;
 }
 
 .main-content {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   grid-gap: 25px;
   justify-content: center;
 }
@@ -355,6 +358,7 @@ body {
   box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.15);
   height: 250px; 
   overflow: hidden;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -1070,8 +1074,8 @@ a:hover {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   background-color: #25D366;
   border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1179,7 +1183,7 @@ a:hover {
     height:auto;
   }
   
-  /* Gallery */
+  /* information */
   .wrapperGallery{
     width: 80%;
     padding: 30px 0px;
@@ -1354,6 +1358,29 @@ a:hover {
     width: 100%;
     margin: 10px 0;
   }
+  .section-header {
+    font-size: 14px; 
+  }
+
+  .wrapperGallery h1 {
+    font-size: 30px; 
+  }
+
+  .contentGallery h2 {
+    font-size: 18px; 
+  }
+  .contentGallery p {
+    line-height: 1.5;
+    font-size:12px;
+    overflow-wrap: break-word;
+  }
+  .main-content {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .main-content .box-gallery {
+    height: auto;
+  }
   /* Masuk bagian About us */
   .content-container {
     flex-direction: column;
@@ -1513,7 +1540,7 @@ a:hover {
   }
 
   .whatsapp-float i {
-    font-size: 24px;
+    font-size: 44px;
   }
   
 }
@@ -1675,7 +1702,7 @@ a:hover {
   }
 
   .whatsapp-float i {
-    font-size: 20px;
+    font-size: 40px;
   }
   .wrapperGallery{
     width: 80%;

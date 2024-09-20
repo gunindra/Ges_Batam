@@ -1,7 +1,11 @@
 <footer>
-    <a href="{{ is_object($wa) && isset($wa->No_wa) ? '' . $wa->No_wa : '-' }}" class="whatsapp-float" target="_blank" aria-label="Chat with us on WhatsApp" id="whatsappButton">
-        <i class="fa-brands fa-whatsapp fa-2xl" style="color: #f5f5f5;"></i>
-</a>
+@if (is_object($wa) && isset($wa->No_wa) && !empty($wa->No_wa))
+    <a href="https://api.whatsapp.com/send?phone={{ $wa->No_wa }}&text={{ urlencode($wa->pesan_wa ?? '') }}" class="whatsapp-float" target="_blank" aria-label="Chat with us on WhatsApp" id="whatsappButton">
+        <i class="fa-brands fa-whatsapp fa-3x" style="color: #f5f5f5;"></i>
+    </a>
+@endif
+
+
     <div class="containers">
         <div class="footer-content">
             <h3>Contact</h3>

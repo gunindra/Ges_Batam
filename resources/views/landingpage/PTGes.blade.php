@@ -82,15 +82,15 @@
 
   <!-- Main -->
   <div class="main">
-    <!-- Gallery -->
-    <div class="wrapperGallery @if(count($listinformation) == 1) single-gallery @endif">
+<!--information -->
+<div class="wrapperGallery @if(count($listinformation) == 1) single-gallery @endif">
   <h1 class="section-header">Information</h1>
   <div class="main-content">
     @if(count($listinformation) > 0)
       @foreach($listinformation as $info)
         <div class="box-gallery">
           <img src="{{ asset('storage/images/' . $info->image_informations) }}"
-          alt="{{ $info->judul_informations ?? '-'}}">
+          alt="{{ $info->judul_informations ?? '-'}}" class="img-fluid">
           <div class="img-text">
             <div class="contentGallery">
               <h2>{{ $info->judul_informations ?? '-'}}</h2>
@@ -100,9 +100,17 @@
         </div>
       @endforeach
     @else
-    <div class="main-content">
-      <div class="box-gallery" style="width:1200px;">
-        <img src="{{ asset('/img/Noimage.png') }}" alt="No Image Available">
+    <div class="box-gallery text-center no-info">
+        <img src="{{ asset('/img/Noimage.png') }}" alt="No Image Available" class="img-fluid">
+        <div class="img-text">
+          <div class="contentGallery">
+            <h2>No Information Available</h2>
+            <p>There is no information to display.</p>
+          </div>
+        </div>
+      </div>
+      <div class="box-gallery text-center no-info">
+        <img src="{{ asset('/img/Noimage.png') }}" alt="No Image Available" class="img-fluid">
         <div class="img-text">
           <div class="contentGallery">
             <h2>No Information Available</h2>
