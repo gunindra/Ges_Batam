@@ -20,7 +20,7 @@ class PopupController extends Controller
             'judulPopup' => 'required|string|max:255', 
             'parafPopup' => 'required|string', 
             'linkPopup' => 'required|string|max:255',
-            'imagePopup' => 'nullable|mimes:jpg,jpeg,png', 
+            'imagePopup' => $request->hasFile('imagePopup') ? 'nullable|mimes:jpg,jpeg,png' : '',
         ]);
     
         $judulPopup = $request->input('judulPopup');
@@ -33,11 +33,13 @@ class PopupController extends Controller
             $fileName = $existingData ? $existingData->Image_Popup : null;
     
             if ($imagePopup) {
+                  if ($fileName && Storage::exists('public/images/' . $fileName)) {
+                    Storage::delete('public/images/' . $fileName);
+                }
+    
                 $uniqueId = uniqid('Popup_', true);
                 $fileName = $uniqueId . '.' . $imagePopup->getClientOriginalExtension();
                 $imagePopup->storeAs('public/images', $fileName);
-            } else {
-                $fileName = null;
             }
     
             if ($existingData) {
@@ -45,7 +47,7 @@ class PopupController extends Controller
                     'Judul_Popup' => $judulPopup,
                     'Paraf_Popup' => $parafPopup,
                     'Link_Popup' => $linkPopup,
-                    'Image_Popup' => $fileName, // Gunakan gambar lama atau baru
+                    'Image_Popup' => $fileName,  
                     'updated_at' => now(),
                 ]);
                 $id = $existingData->id;
@@ -76,7 +78,6 @@ class PopupController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
-
 
     public function destroyPopup(Request $request)
     {

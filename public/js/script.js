@@ -1,14 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     const welcomeDialog = document.getElementById('welcome-dialog');
-    const goButton = document.querySelector('.btn-Go a');
+    const goButton = document.querySelector('.btn-Go');
+
 
     if (!sessionStorage.getItem('popupDisplayed')) {
         welcomeDialog.showModal();
     }
 
-    goButton.addEventListener('click', function() {
-        sessionStorage.setItem('popupDisplayed', 'true');
-    });
+
+   goButton.addEventListener('click', function(event) {
+    sessionStorage.setItem('popupDisplayed', 'true');
+    welcomeDialog.close();
+});
 
     window.addEventListener('popstate', function() {
         if (sessionStorage.getItem('popupDisplayed') === 'true') {
@@ -18,13 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     window.addEventListener('pageshow', function(event) {
-        if (event.persisted) {
-            if (sessionStorage.getItem('popupDisplayed') === 'true' && welcomeDialog.open) {
+        if (event.persisted || (sessionStorage.getItem('popupDisplayed') === 'true')) {
+            if (welcomeDialog.open) {
                 welcomeDialog.close();
             }
         }
     });
 });
+
 
 
 

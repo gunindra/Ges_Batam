@@ -7,11 +7,11 @@
     @if($dataWhy)
     <div class="content-containerwhy">
       <div class="imageWhy">
-        <img src="{{ asset('storage/images/' . $dataWhy[0]->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
+        <img src="{{ asset('storage/images/' . $dataWhy->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
       </div>
       <div class="contentwhy">
         <h2 id="judulWhy">Why Choose Us</h2>
-        <p id="parafWhy">{{ $dataWhy[0]->Paraf_WhyUs }}</p>
+        <p id="parafWhy">{{ $dataWhy->Paraf_WhyUs }}</p>
       </div>
     </div>
     @else

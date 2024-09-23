@@ -146,7 +146,7 @@ class HeropageController extends Controller
                 }
                 
 
-                $uniqueId = uniqid('Carousel_', true);
+                $uniqueId = uniqid('Heropage_', true);
                 $fileName = $uniqueId . '.' . $imageCarousel->getClientOriginalExtension();
                 $imageCarousel->storeAs('public/images', $fileName);
                 $dataUpdate['image_carousel'] = $fileName; 

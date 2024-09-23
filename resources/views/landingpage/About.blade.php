@@ -11,11 +11,11 @@
       <div class="contentAbout">
         <h2>What they say about us</h2>
         <p id="parafAbout">
-          {{ $dataAbout[0]->Paraf_AboutUs }}
+          {{ $dataAbout->Paraf_AboutUs }}
         </p>
       </div>
       <div class="imageAbout" id="imageAbout">
-        <img src="{{ asset('storage/images/' . $dataAbout[0]->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
+        <img src="{{ asset('storage/images/' . $dataAbout->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
       </div>
     </div>
     @else

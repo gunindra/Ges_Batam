@@ -3,13 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     LandingPage\AboutsController,
-    LandingPage\InformationsController,
     LandingPage\PtgesController,
     LandingPage\ServicesController,
     LandingPage\SlideController,
     LandingPage\TrackingController,
     LandingPage\WhysController,
     Admin\AboutController,
+    Admin\InformationsController,
     Admin\HeropageController,
     Admin\IklanController,
     Admin\ServiceController,

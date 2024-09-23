@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\LandingPage;
+namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,12 +76,12 @@ class InformationsController extends Controller
             }
 
             if ($imageInformations) {
-                $fileName = 'Information_' . $imageInformations->getClientOriginalName();
-                $filePath = $imageInformations->storeAs('public/images', $fileName);
+                $uniqueId = uniqid('Information_', true);
+                $fileName = $uniqueId . '.' . $imageInformations->getClientOriginalExtension();
+                $imageInformations->storeAs('public/images', $fileName);
             } else {
-                $fileName = null; // No image was uploaded
+                $fileName = null;
             }
-
             DB::table('tbl_informations')->insert([
                 'judul_informations' => $judulInformations,
                 'isi_informations' => $isiInformations,
@@ -100,10 +100,19 @@ class InformationsController extends Controller
         $id = $request->input('id');
 
         try {
+            $existingInformation = DB::table('tbl_informations')->where('id', $id)->first();
+
+            if ($existingInformation && $existingInformation->image_informations) {
+                $existingImagePath = 'public/images/' . $existingInformation->image_informations;
+    
+    
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
             DB::table('tbl_informations')
                 ->where('id', $id)
                 ->delete();
-
+            }
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -121,23 +130,31 @@ class InformationsController extends Controller
         $imageInformations = $request->file('imageInformations');
 
         try {
+            $existingInformation = DB::table('tbl_informations')->where('id', $id)->first();
+
             $dataUpdate = [
                 'judul_informations' => $judulInformations,
                 'isi_informations' => $isiInformations,
                 'updated_at' => now(),
             ];
 
-            // Hanya tambahkan file image jika tidak null
             if ($imageInformations) {
-                $fileName = $imageInformations->getClientOriginalName();
-                $imageInformations->storeAs('public/images', $fileName);
-                $dataUpdate['image_informations'] = $fileName;
-            }
 
+                if ($existingInformation && $existingInformation->image_informations) {
+                    $existingImagePath = 'public/images/' . $existingInformation->image_informations;
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
+                }
+                $uniqueId = uniqid('Information_', true);
+                $fileName = $uniqueId . '.' . $imageInformations->getClientOriginalExtension();
+                $imageInformations->storeAs('public/images', $fileName);
+                $dataUpdate['image_informations'] = $fileName; 
+            }
             DB::table('tbl_informations')
                 ->where('id', $id)
                 ->update($dataUpdate);
-
+            
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);

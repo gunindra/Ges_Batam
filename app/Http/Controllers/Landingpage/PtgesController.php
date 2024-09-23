@@ -11,12 +11,12 @@ class PtgesController extends Controller
 
     public function index()
     {
-        $listinformation =  DB::select("SELECT * FROM tbl_informations");
-        $listservices = DB::select("SELECT * FROM tbl_service");
+        $listinformation =  DB::select("SELECT  judul_informations,isi_informations,image_informations FROM tbl_informations");
+        $listservices = DB::select("SELECT  id,judul_service,isi_service,image_service FROM tbl_service");
         foreach ($listservices as $service) {
             $service->isi_service = Str::limit($service->isi_service, 150,'');
         }
-        $listiklan = DB::select("SELECT image_iklan, judul_iklan FROM tbl_iklan");
+        $listiklan = DB::select("SELECT image_iklan,judul_iklan FROM tbl_iklan");
         $aboutus = DB::table('tbl_aboutus')->first();
         if ($aboutus) {
             $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 250, '');
@@ -25,7 +25,7 @@ class PtgesController extends Controller
         if ($whyus) {
             $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 250 ,''); 
         }
-        $listcarousel =  DB::select("SELECT * FROM tbl_carousel");
+        $listcarousel =  DB::select("SELECT  id,judul_carousel,isi_carousel,image_carousel FROM tbl_carousel");
         foreach ($listcarousel as $carousel) {
             $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160,'');
         }
