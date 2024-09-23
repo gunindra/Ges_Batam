@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Content | Iklan')
+@section('title', 'Content | Advertisement')
 
 @section('main')
 
@@ -13,7 +13,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahIklan">Add Iklan</h5>
+                    <h5 class="modal-title" id="modalTambahIklan">Add Advertisement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -44,7 +44,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditIklanTitle">Edit Iklan</h5>
+                    <h5 class="modal-title" id="modalEditIklanTitle">Edit Advertisement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -74,10 +74,10 @@
     </div>
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 px-4">Iklan</h1>
+        <h1 class="h3 mb-0 text-gray-800 px-4">Advertisement</h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Content</li>
-            <li class="breadcrumb-item active" aria-current="page">Iklan</li>
+            <li class="breadcrumb-item active" aria-current="page">Advertisement</li>
         </ol>
     </div>
     <div class="row mb-3">
@@ -87,7 +87,7 @@
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Add Iklan</button>
+                                    class="fas fa-plus"></i></span>Add Advertisement</button>
                     </div>
                     <div id="containerIklan" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
@@ -129,11 +129,11 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        const getlistIklan = () => {
+        const getlistAdvertisement = () => {
             const txtSearch = $('#txSearch').val();
 
             $.ajax({
-                url: "{{ route('getlistIklan') }}",
+                url: "{{ route('getlistAdvertisement') }}",
                 method: "GET",
                 data: {
                     txSearch: txtSearch
@@ -159,7 +159,7 @@
                 })
         }
 
-        getlistIklan();
+        getlistAdvertisement();
 
         $('#saveIklan').click(function () {
             // Ambil nilai input
@@ -218,7 +218,7 @@
                         });
                         $.ajax({
                             type: "POST",
-                            url: "{{ route('addIklan') }}",
+                            url: "{{ route('addAdvertisement') }}",
                             data: formData,
                             contentType: false,
                             processData: false,
@@ -236,7 +236,7 @@
                                 }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data successfully saved");
-                                    getlistIklan();
+                                    getlistAdvertisement();
                                     $('#modalTambahIklan').modal('hide');
                                 } else {
                                     Swal.fire({
@@ -335,7 +335,7 @@
                             });
                             $.ajax({
                                 type: "POST",
-                                url: "{{ route('updateIklan') }}",
+                                url: "{{ route('updateAdvertisement') }}",
                                 data: formData,
                                 contentType: false,
                                 processData: false,
@@ -354,7 +354,7 @@
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data successfully updated");
-                                        getlistIklan();
+                                        getlistAdvertisement();
                                         $('#modalEditIklan').modal(
                                             'hide');
                                     } else {
@@ -425,9 +425,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
-                        url: "{{ route('destroyIklan') }}",
+                        type: "DELETE",
+                        url: "{{ route('destroyAdvertisement') }}",
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {
@@ -444,7 +445,7 @@
                             }
                             if (response.status === 'success') {
                                 showMessage("success", "Successfully deleted");
-                                getlistIklan();
+                                getlistAdvertisement();
                             } else {
                                 showMessage("error", "Failed to delete");
                             }

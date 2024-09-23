@@ -295,9 +295,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
+                        type: "DELETE",
                         url: "{{ route('destroyHeroPage') }}",
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {

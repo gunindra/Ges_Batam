@@ -31,8 +31,8 @@ class HeropageController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableCarousel">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Judul</th>
-                                        <th>Isi Carousel</th>
+                                        <th>Title</th>
+                                        <th>Content</th>
                                         <th>Image</th>
                                         <th>Action</th>
                                     </tr>

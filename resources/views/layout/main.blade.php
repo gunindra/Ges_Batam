@@ -65,7 +65,7 @@
                 </div>
             </li>
             <li
-            class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('heropage') || request()->routeIs('iklan') || request()->routeIs('popup') || request()->routeIs('contact')  ? 'active' : '' }}">
+            class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('heropage') || request()->routeIs('Advertisement') || request()->routeIs('popup') || request()->routeIs('contact')  ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
                     aria-expanded="true" aria-controls="collapseBootstraps">
                     <i class="fas fa-tasks"></i>
@@ -85,8 +85,8 @@
                             href="{{ route('informations') }}">Information</a>
                         <a class="collapse-item {{ request()->routeIs('heropage') ? 'active' : '' }}"
                             href="{{ route('heropage') }}">Hero Page</a>
-                        <a class="collapse-item {{ request()->routeIs('iklan') ? 'active' : '' }}"
-                            href="{{ route('iklan') }}">Iklan</a>
+                        <a class="collapse-item {{ request()->routeIs('advertisement') ? 'active' : '' }}"
+                            href="{{ route('advertisement') }}">Advertisement</a>
                         <a class="collapse-item {{ request()->routeIs('popup') ? 'active' : '' }}"
                             href="{{ route('popup') }}">Popup</a>
                         <a class="collapse-item {{ request()->routeIs('contact') ? 'active' : '' }}"

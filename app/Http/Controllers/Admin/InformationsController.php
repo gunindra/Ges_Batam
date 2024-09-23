@@ -28,9 +28,9 @@ class InformationsController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableInformations">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Judul</th>
+                                        <th>Title</th>
                                         <th>Content</th>
-                                        <th>Gambar</th>
+                                        <th>Image</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>

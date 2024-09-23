@@ -6,14 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Storage;
 
-class IklanController extends Controller
+class AdvertisementController extends Controller
 {
     public function index()
     {
-        return view('content.iklan.indexiklan');
+        return view('content.advertisement.indexAdvertisement');
     }
 
-    public function getlistIklan(Request $request)
+    public function getlistAdvertisement(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
@@ -30,7 +30,7 @@ class IklanController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableIklan">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Judul Iklan</th>
+                                        <th>Title</th>
                                         <th>Image</th>
                                         <th>Action</th>
                                     </tr>
@@ -58,7 +58,7 @@ class IklanController extends Controller
         $output .= '</tbody></table>';
          return $output;
     }
-    public function addIklan(Request $request)
+    public function addAdvertisement(Request $request)
     {
         $request->validate([
             'judulIklan' => 'required|string|max:255', 
@@ -77,7 +77,7 @@ class IklanController extends Controller
             }
            
                 if ($imageIklan) {
-                    $uniqueId = uniqid('Iklan_', true);
+                    $uniqueId = uniqid('Advertisement_', true);
                     $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
                     $imageIklan->storeAs('public/images', $fileName);
                 } else {
@@ -95,7 +95,7 @@ class IklanController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
         }
     }
-    public function destroyIklan(Request $request)
+    public function destroyAdvertisement(Request $request)
     {
         $id = $request->input('id');
 
@@ -118,7 +118,7 @@ class IklanController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-    public function updateIklan(Request $request)
+    public function updateAdvertisement(Request $request)
     {
         $request->validate([
             'judulIklan' => 'required|string|max:255', 
@@ -146,7 +146,7 @@ class IklanController extends Controller
                 }
                 
 
-                $uniqueId = uniqid('Iklan_', true);
+                $uniqueId = uniqid('Advertisement_', true);
                 $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
                 $imageIklan->storeAs('public/images', $fileName);
                 $dataUpdate['image_iklan'] = $fileName; 
