@@ -11,7 +11,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahService">Tambah Service</h5>
+                    <h5 class="modal-title" id="modalTambahService">Add Service</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -19,21 +19,21 @@
                 <div class="modal-body">
                     <form id="serviceForm" enctype="multipart/form-data">
                         <div class="mt-3">
-                            <label for="judulService" class="form-label fw-bold">Judul</label>
+                            <label for="judulService" class="form-label fw-bold">Title</label>
                             <input type="text" class="form-control" id="judulService" value=""
                                 placeholder="Masukkan judul service">
-                            <div id="judulServiceError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                            <div id="judulServiceError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                         </div>
                         <div class="mt-3">
                             <label for="isiService" class="form-label fw-bold">Content</label>
                             <textarea class="form-control" id="isiService" rows="3"
                                 placeholder="Masukkan content"></textarea>
-                            <div id="isiServiceError" class="text-danger mt-1 d-none">Silahkan isi</div>
+                            <div id="isiServiceError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                         </div>
                         <div class="mt-3">
-                            <label for="imageService" class="form-label fw-bold">Gambar</label>
+                            <label for="imageService" class="form-label fw-bold">Image</label>
                             <input type="file" class="form-control" id="imageService" value="">
-                            <div id="imageServiceError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                            <div id="imageServiceError" class="text-danger mt-1 d-none">Please fill in the Image</div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -58,22 +58,22 @@
                 <div class="modal-body">
                     <input type="hidden" id="serviceIdEdit">
                     <div class="mt-3">
-                        <label for="judulService" class="form-label fw-bold">Judul</label>
+                        <label for="judulService" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulServiceEdit" value=""
                             placeholder="Masukkan judul service">
-                        <div id="judulServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
                         <label for="isiService" class="form-label fw-bold">Content</label>
                         <textarea class="form-control" id="isiServiceEdit" rows="3"
                             placeholder="Masukkan content"></textarea>
-                        <div id="isiServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
+                        <div id="isiServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content </div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageService" class="form-label fw-bold">Gambar</label>
-                        <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                        <label for="imageService" class="form-label fw-bold">Image</label>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
                         <input type="file" class="form-control" id="imageServiceEdit" value="">
-                        <div id="imageServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                        <div id="imageServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                         {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahService" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Tambah Service</button>
+                                    class="fas fa-plus"></i></span>Add Service</button>
                     </div>
                     <div id="containerService" class="table-responsive px-3">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableAboutUs">
@@ -199,7 +199,7 @@
             if (imageService) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageService.type)) {
-                    $('#imageServiceError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    $('#imageServiceError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageServiceError').addClass('d-none');
@@ -214,13 +214,13 @@
             // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: "Are you sure?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -256,12 +256,12 @@
                                     });
                                 }
                                 if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
+                                    showMessage("success", "Data successfully saved");
                                     getlistService();
                                     $('#modalTambahService').modal('hide');
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan Data",
+                                        title: "Failed to add data",
                                         text: response
                                             .message,
                                         icon: "error"
@@ -272,7 +272,7 @@
                     }
                 });
             } else {
-                showMessage("error", "Mohon periksa input yang kosong");
+                showMessage("error", "Please check for empty inputs");
             }
         });
 
@@ -316,7 +316,7 @@
                 if (imageService) {
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(imageService.type)) {
-                        $('#imageServiceErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        $('#imageServiceErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                         isValid = false;
                     } else {
                         $('#imageServiceErrorEdit').addClass('d-none');
@@ -330,13 +330,13 @@
 
                 if (isValid) {
                     Swal.fire({
-                        title: "Apakah Kamu Yakin?",
+                        title: "Are you sure?",
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#5D87FF',
                         cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -376,13 +376,13 @@
                                     }
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data Berhasil Diubah");
+                                            "Data successfully updated");
                                         getlistService();
                                         $('#modalEditService').modal(
                                             'hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Gagal Menambahkan",
+                                            title: "Failed to updated",
                                             icon: "error"
                                         });
                                     }
@@ -391,7 +391,7 @@
                         }
                     });
                 } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+                    showMessage("error", "Please check for empty inputs");
                 }
             })
 
@@ -429,13 +429,13 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                title: "Are you sure you want to delete this?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -467,10 +467,10 @@
                             }
                             if (response.status === 'success') {
                                 showMessage("success",
-                                    "Berhasil menghapus");
+                                    "Successfully deleted");
                                 getlistService();
                             } else {
-                                showMessage("error", "Gagal menghapus");
+                                showMessage("error", "Failed to delete");
                             }
                         }
                     });

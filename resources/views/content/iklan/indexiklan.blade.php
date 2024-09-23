@@ -13,22 +13,22 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahIklan">Tambah Iklan</h5>
+                    <h5 class="modal-title" id="modalTambahIklan">Add Iklan</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                        <label for="judulIklan" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulIklan" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="judulIklanError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulIklanError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageIklan" class="form-label fw-bold">Gambar</label>
+                        <label for="imageIklan" class="form-label fw-bold">Image</label>
                         <input type="file" class="form-control" id="imageIklan" value="">
-                        <div id="imageIklanError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <div id="imageIklanError" class="text-danger mt-1 d-none">Please fill in the Image</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -52,16 +52,16 @@
                 <div class="modal-body">
                     <input type="hidden" id="iklanIdEdit">
                     <div class="mt-3">
-                        <label for="judulIklan" class="form-label fw-bold">Judul</label>
+                        <label for="judulIklan" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulIklanEdit" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageIklan" class="form-label fw-bold">Gambar</label>
-                        <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                        <label for="imageIklan" class="form-label fw-bold">Image</label>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
                         <input type="file" class="form-control" id="imageIklanEdit" value="">
-                        <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                        <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Tambah Iklan</button>
+                                    class="fas fa-plus"></i></span>Add Iklan</button>
                     </div>
                     <div id="containerIklan" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
@@ -179,7 +179,7 @@
             if (imageIklan) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
                 if (!validExtensions.includes(imageIklan.type)) {
-                    $('#imageIklanError').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    $('#imageIklanError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageIklanError').addClass('d-none');
@@ -194,13 +194,13 @@
             // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: "Are you sure?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -235,12 +235,12 @@
                                     });
                                 }
                                 if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
+                                    showMessage("success", "Data successfully saved");
                                     getlistIklan();
                                     $('#modalTambahIklan').modal('hide');
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan Data",
+                                        title: "Failed to add data",
                                         text: response
                                             .message,
                                         icon: "error"
@@ -249,7 +249,7 @@
                             },
                             error: function (xhr) {
                                 Swal.fire({
-                                    title: "Gagal Menambahkan Data",
+                                    title: "Failed to add data",
                                     text: xhr.responseJSON
                                         .message,
                                     icon: "error",
@@ -259,7 +259,7 @@
                     }
                 });
             } else {
-                showMessage("error", "Mohon periksa input yang kosong");
+                showMessage("error", "Please check for empty inputs");
             }
         });
 
@@ -294,7 +294,7 @@
                 if (imageIklan) {
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
                     if (!validExtensions.includes(imageIklan.type)) {
-                        $('#imageIklanErrorEdit').text('Hanya file JPG , JPEG ,SVG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        $('#imageIklanErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                         isValid = false;
                     } else {
                         $('#imageIklanErrorEdit').addClass('d-none');
@@ -308,13 +308,13 @@
 
                 if (isValid) {
                     Swal.fire({
-                        title: "Apakah Kamu Yakin?",
+                        title: "Are you sure?",
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#5D87FF',
                         cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -353,13 +353,13 @@
                                     }
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data Berhasil Diubah");
+                                            "Data successfully updated");
                                         getlistIklan();
                                         $('#modalEditIklan').modal(
                                             'hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Gagal Menambahkan",
+                                            title: "Failed to update",
                                             icon: "error"
                                         });
                                     }
@@ -368,7 +368,7 @@
                         }
                     });
                 } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+                    showMessage("error", "Please check for empty inputs");
                 }
             })
 
@@ -406,13 +406,13 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                title: "Are you sure you want to delete this?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -443,10 +443,10 @@
                                 });
                             }
                             if (response.status === 'success') {
-                                showMessage("success", "Berhasil menghapus");
+                                showMessage("success", "Successfully deleted");
                                 getlistIklan();
                             } else {
-                                showMessage("error", "Gagal menghapus");
+                                showMessage("error", "Failed to delete");
                             }
                         }
                     });

@@ -21,28 +21,28 @@
                     <div class="mt-3">
                         <label for="imagePopup" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imagePopup">
-                        <div id="imagePopupError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                        <p>Nama Gambar= <span id="imageName">{{ $popupData->Image_Popup ?? ' -' }}</span></p>
+                        <div id="imagePopupError" class="text-danger mt-1 d-none">Please fill in the Image</div>
+                        <p>Name Image= <span id="imageName">{{ $popupData->Image_Popup ?? ' -' }}</span></p>
                     </div>
                     <div class="mt-3">
-                        <label for="judulPopup" class="form-label fw-bold">Judul</label>
+                        <label for="judulPopup" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulPopup"
                             value="{{ isset($popupData->Judul_Popup) ? $popupData->Judul_Popup : '' }}"
                             placeholder="Masukkan judul Popup">
-                        <div id="judulPopupError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulPopupError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafPopup" class="form-label fw-bold p-3">Content</label>
                         <textarea id="parafPopup" class="form-control" aria-label="With textarea"
                             placeholder="Masukkan content">{{ isset($popupData->Paraf_Popup) ? $popupData->Paraf_Popup : '' }}</textarea>
                     </div>
-                    <div id="parafPopupError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
+                    <div id="parafPopupError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     <div class="mt-3">
                         <label for="linkPopup" class="form-label fw-bold">Link</label>
                         <input type="text" class="form-control" id="linkPopup"
                             value="{{ isset($popupData->Link_Popup) ? $popupData->Link_Popup : '' }}"
                             placeholder="Masukkan link">
-                        <div id="linkPopupError" class="text-danger mt-1 d-none">Silahkan isi Link</div>
+                        <div id="linkPopupError" class="text-danger mt-1 d-none">Please fill in the Link</div>
                     </div>
                     <button type="button" class="btn btn-primary mt-3" id="savePopup">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
@@ -91,7 +91,7 @@
             var parafPopup = $('#parafPopup').val().trim();
             var linkPopup = $('#linkPopup').val().trim();
             var imagePopup = $('#imagePopup')[0].files[0];
-            var existingImage = $('#imageName').text();  // Gambar yang sudah ada
+            var existingImage = $('#imageName').text(); 
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -118,7 +118,7 @@
             if (imagePopup) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imagePopup.type)) {
-                    $('#imagePopupError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau input tidak boleh kosong').removeClass('d-none');
+                    $('#imagePopupError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imagePopupError').addClass('d-none');
@@ -135,7 +135,7 @@
                 formData.append('judulPopup', judulPopup);
                 formData.append('parafPopup', parafPopup);
                 formData.append('linkPopup', linkPopup);
-                formData.append('imagePopup', imagePopup ? imagePopup : existingImage);  // Kirim gambar yang ada jika tidak diubah
+                formData.append('imagePopup', imagePopup ? imagePopup : existingImage);  
                 formData.append('_token', csrfToken);
                 Swal.fire({
                     title: 'Loading...',
@@ -206,20 +206,20 @@
             if (!id) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Peringatan',
-                    text: ' Tidak ada data.'
+                    title: 'Warning',
+                    text: ' there is no data.'
                 });
                 return;
             }
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                title: "Are you sure you want to delete this?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -256,12 +256,12 @@
                                 $('#linkPopup').val('');
                                 $('#imagePopup').val('');
                                 $('#previewContainer').html('<p class="p-3">No content available</p>');
-                                $('#imageName').text('Belum ada gambar');
+                                $('#imageName').text('No pictures yet');
                                 $('#destroyPopup').data('id', '');
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Berhasil',
-                                    text: 'Data berhasil dihapus'
+                                    title: 'Success!',
+                                    text: 'Successfully deleted'
                                 });
                             } else if (response.status === 'info') {
                                 Swal.fire({
@@ -274,8 +274,8 @@
                         error: function (xhr) {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: 'Gagal menghapus data'
+                                title: 'Fail',
+                                text: 'Failed to delete'
                             });
                         }
                     });

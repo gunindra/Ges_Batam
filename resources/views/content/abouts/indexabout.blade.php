@@ -22,8 +22,8 @@
                     <div class="mt-3">
                         <label for="imageAbout" class="form-label fw-bold p-1">Image</label>
                         <input type="file" class="form-control" id="imageAbout" value="">
-                        <div id="imageAboutError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                        <p>Nama Gambar= <span id="imageName">{{ $aboutData->Image_AboutUs ?? ' -' }}</span></p>
+                        <div id="imageAboutError" class="text-danger mt-1 d-none">Please fill in the Image</div>
+                        <p>Name Image = <span id="imageName">{{ $aboutData->Image_AboutUs ?? ' -' }}</span></p>
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
@@ -33,7 +33,7 @@
 
                             </div> -->
                     </div>
-                    <div id="parafAboutError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
+                    <div id="parafAboutError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
@@ -88,7 +88,7 @@
             if (imageAbout) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageAbout.type)) {
-                    $('#imageAboutError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    $('#imageAboutError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageAboutError').addClass('d-none');
@@ -102,13 +102,13 @@
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: "Are you sure?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -147,7 +147,7 @@
                                 if (response.status === 'success') {
 
                                     Swal.fire({
-                                        title: "Berhasil!",
+                                        title: "Success!",
                                         text: response.message,
                                         icon: "success"
                                     }).then(() => {
@@ -164,7 +164,7 @@
                                     });
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan Data",
+                                        title: "Failed to add data.",
                                         text: response.message,
                                         icon: "error"
                                     });
@@ -173,7 +173,7 @@
                             error: function (xhr, status, error) {
                                 Swal.fire({
                                     title: "Error",
-                                    text: "Terjadi kesalahan: " + error,
+                                    text: "An error occurred: " + error,
                                     icon: "error"
                                 });
                             }
@@ -182,8 +182,8 @@
                 });
             } else {
                 Swal.fire({
-                    title: "Periksa Input",
-                    text: "Tolong periksa input yang kosong atau tidak valid",
+                    title: "Check input",
+                    text: "Please check for empty or invalid input",
                     icon: "warning"
                 });
             }

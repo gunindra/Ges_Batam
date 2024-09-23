@@ -18,21 +18,21 @@
                 <div class="card-body">
                     <div id="containerWhatsapp" class="table-responsive px-3"></div>
                     <div class="mt-3">
-                        <label for="nomorWa" class="form-label fw-bold">Nomor Whatsapp</label>
+                        <label for="nomorWa" class="form-label fw-bold">Number Whatsapp</label>
                         <div class="input-group" style="width:auto;">
                             <span class="input-group-text" id="nomor">+62</span>
                             <input type="text" class="form-control" id="nomorWa"
                                 value="{{ isset($waData->No_wa) ? ltrim($waData->No_wa, '62') : '' }}"
                                 placeholder="Masukkan Nomor Whatsapp">
                         </div>
-                        <div id="noWaError" class="text-danger mt-1 d-none">Silahkan isi Nomor Whatsapp
+                        <div id="noWaError" class="text-danger mt-1 d-none">Please fill in the Number
                         </div>
                         <div class="mt-3">
-                            <label for="pesanWa" class="form-label fw-bold">Pesan WhatsApp</label>
+                            <label for="pesanWa" class="form-label fw-bold">Message WhatsApp</label>
                             <input type="text" class="form-control" id="pesanWa"
                                 value="{{ isset($waData->pesan_wa) ? $waData->pesan_wa : '' }}"
                                 placeholder="Masukkan Pesan WhatsApp">
-                            <div id="pesanWaError" class="text-danger mt-1 d-none">Silahkan isi Pesan WhatsApp</div>
+                            <div id="pesanWaError" class="text-danger mt-1 d-none">Please fill in the Message </div>
                         </div>
                         <button type="button" class="btn btn-primary mt-3" id="saveWa">
                             <span class="pr-3"><i class="fas fa-save"></i></span> Save
@@ -56,7 +56,7 @@
 
             var nomorWa = $('#nomorWa').val().trim();
             var pesanWa = $('#pesanWa').val().trim();
-            var formattedNomorWa = '62' + nomorWa;  // Format with country code
+            var formattedNomorWa = '62' + nomorWa;  
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
@@ -101,8 +101,6 @@
 
                         if (response.status === 'success') {
                             
-                            localStorage.setItem('whatsappNumber', formattedNomorWa);
-                            localStorage.setItem('whatsappMessage', pesanWa);
 
                             $('#destroyWa').data('id', response.data.id);
 
@@ -139,20 +137,20 @@
             if (!id) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Peringatan',
-                    text: 'Tidak ada data untuk dihapus.'
+                    title: 'Warning',
+                    text: 'there is no data.'
                 });
                 return;
             }
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                title: "Are you sure you want to delete this?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -179,15 +177,13 @@
                                 $('#nomorWa').val('');
                                 $('#pesanWa').val('');
                                 // Remove from localStorage
-                                localStorage.removeItem('whatsappNumber');
-                                localStorage.removeItem('whatsappMessage');
 
                                 // Clear the delete button ID
                                 $('#destroyWa').data('id', null);
 
                                 Swal.fire({
                                     icon: 'success',
-                                    title: 'Berhasil',
+                                    title: 'Success!',
                                     text: 'Data berhasil dihapus'
                                 });
                             } else if (response.error) {
@@ -201,8 +197,8 @@
                         error: function (xhr) {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal',
-                                text: 'Gagal menghapus data'
+                                title: 'Fail',
+                                text: 'Successfully deleted'
                             });
                         }
                     });

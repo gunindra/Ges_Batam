@@ -11,28 +11,28 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahCarousel">Tambah Carousel</h5>
+                    <h5 class="modal-title" id="modalTambahCarousel">Add Carousel</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="judulCarousel" class="form-label fw-bold">Judul</label>
+                        <label for="judulCarousel" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulCarousel" value=""
                             placeholder="Masukkan judul carousel">
-                        <div id="judulCarouselError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulCarouselError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
                         <label for="isiCarousel" class="form-label fw-bold">Content</label>
                         <textarea class="form-control" id="isiCarousel" rows="3"
                             placeholder="Masukkan content"></textarea>
-                        <div id="isiCarouselError" class="text-danger mt-1 d-none">Silahkan isi </div>
+                        <div id="isiCarouselError" class="text-danger mt-1 d-none">Please fill in the Content </div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
+                        <label for="imageCarousel" class="form-label fw-bold">Image</label>
                         <input type="file" class="form-control" id="imageCarousel" value="">
-                        <div id="imageCarouselError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <div id="imageCarouselError" class="text-danger mt-1 d-none">Please fill in the Image</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -57,22 +57,22 @@
                 <div class="modal-body">
                     <input type="hidden" id="carouselIdEdit">
                     <div class="mt-3">
-                        <label for="judulCarousel" class="form-label fw-bold">Judul</label>
+                        <label for="judulCarousel" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulCarouselEdit" value=""
                             placeholder="Masukkan judul carousel">
-                        <div id="judulCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                        <div id="judulCarouselErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="isiCarousel" class="form-label fw-bold">Isi</label>
+                        <label for="isiCarousel" class="form-label fw-bold">Content</label>
                         <textarea class="form-control" id="isiCarouselEdit" rows="3"
                             placeholder="Masukkan content"></textarea>
-                        <div id="isiCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi </div>
+                        <div id="isiCarouselErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content </div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageCarousel" class="form-label fw-bold">Gambar</label>
-                        <p class="">Nama Gambar : <span id="textNamaEdit"></span></p>
+                        <label for="imageCarousel" class="form-label fw-bold">Image</label>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
                         <input type="file" class="form-control" id="imageCarouselEdit" value="">
-                        <div id="imageCarouselErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
+                        <div id="imageCarouselErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahCarousel" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Tambah Carousel</button>
+                                    class="fas fa-plus"></i></span>Add Carousel</button>
                     </div>
                     <div id="containerCarousel" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
@@ -198,7 +198,7 @@
             if (imageCarousel) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageCarousel.type)) {
-                    $('#imageCarouselError').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                    $('#imageCarouselError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageCarouselError').addClass('d-none');
@@ -213,13 +213,13 @@
             // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: "Are you sure?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -255,12 +255,12 @@
                                     });
                                 }
                                 if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
+                                    showMessage("success", "Data successfully saved");
                                     getlistCarousel();
                                     $('#modalTambahCarousel').modal('hide');
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan Data",
+                                        title: "Failed to add data.",
                                         icon: "error"
                                     });
                                 }
@@ -269,7 +269,7 @@
                     }
                 });
             } else {
-                showMessage("error", "Mohon periksa input yang kosong");
+                showMessage("error", "Please check for empty inputs");
             }
         });
 
@@ -277,13 +277,13 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
+                title: "Are you sure you want to delete this?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -314,10 +314,10 @@
                                 });
                             }
                             if (response.status === 'success') {
-                                showMessage("success", "Berhasil menghapus");
+                                showMessage("success", "Successfully deleted");
                                 getlistCarousel();
                             } else {
-                                showMessage("error", "Gagal menghapus");
+                                showMessage("error", "Failed to delete");
                             }
                         }
                     });
@@ -366,7 +366,7 @@
                 if (imageCarousel) {
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(imageCarousel.type)) {
-                        $('#imageCarouselErrorEdit').text('Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong').removeClass('d-none');
+                        $('#imageCarouselErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                         isValid = false;
                     } else {
                         $('#imageCarouselErrorEdit').addClass('d-none');
@@ -380,13 +380,13 @@
 
                 if (isValid) {
                     Swal.fire({
-                        title: "Apakah Kamu Yakin?",
+                        title: "Are you sure?",
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#5D87FF',
                         cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -426,13 +426,13 @@
                                     }
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data Berhasil Diubah");
+                                            "Data successfully updated");
                                         getlistCarousel();
                                         $('#modalEditCarousel').modal(
                                             'hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Gagal Menambahkan",
+                                            title: "Failed to update",
                                             icon: "error"
                                         });
                                     }
@@ -441,7 +441,7 @@
                         }
                     });
                 } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+                    showMessage("error", "Please check for empty inputs");
                 }
             })
 

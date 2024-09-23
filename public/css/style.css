@@ -49,7 +49,7 @@ body {
 .btn-Go {
   display: inline-block;
   color: white;
-  background-color: #007bff; /* Warna dasar tombol */
+  background-color: #007bff; 
   border: none;
   padding: 10px 20px;
   border-radius: 30px;
@@ -1131,7 +1131,7 @@ a:hover {
   
   /* service */
   .box {
-    max-width: 40%;
+    max-width: 100%;
   }
   
   .triple-service .box-area, .single-service .box-area,
@@ -1276,7 +1276,7 @@ a:hover {
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 70%; 
+    width: 100%; 
     height: auto;
   }
 
@@ -1287,7 +1287,7 @@ a:hover {
     object-fit: cover;
   }
   .box {
-    max-width: 55%;
+    max-width: 100%;
   }
   
 }
@@ -1482,7 +1482,7 @@ a:hover {
     font-size: 12px;
   }
   .box {
-    max-width: 60%;
+    max-width: 80%;
   }
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
@@ -1494,14 +1494,14 @@ a:hover {
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 70%; 
+    width: 80%; 
     height: auto;
   }
 
   .triple-service .box, .single-service .box,
   .double-service .box img{
-    width: 100%;
-    height: auto;
+    width: 80%;
+    height: 50%;
     object-fit: cover;
   }
   /* footer */
@@ -1597,7 +1597,7 @@ a:hover {
  
   /* service */
   .box {
-    max-width: 90%;
+    max-width: 80%;
   }
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
@@ -1633,8 +1633,8 @@ a:hover {
 
   .image-sectionwhy img {
     width: 100%;
-    max-width: none; /* Remove the 120% width */
-    margin-right: 0; /* Remove the right margin */
+    max-width: none; 
+    margin-right: 0;
   }
 
   article {
@@ -1643,21 +1643,21 @@ a:hover {
   }
 
   article h3 {
-    font-size: 20px; /* Slightly smaller font size */
+    font-size: 20px; 
   }
 
   article p {
-    font-size: 16px; /* Slightly smaller font size */
-    margin-top: 15px; /* Adjust margin for smaller screens */
+    font-size: 16px; 
+    margin-top: 15px; 
   }
 
   article .buttonwhy {
-    margin-top: 20px; /* Adjust margin for smaller screens */
+    margin-top: 20px; 
   }
 
   article a {
-    padding: 12px 20px; /* Adjust padding for smaller screens */
-    font-size: 17px; /* Adjust font size for smaller screens */
+    padding: 12px 20px; 
+    font-size: 17px; 
   }
   
 }

@@ -98,17 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // };
 
 
-    $(function () {
-        var savedWaNumber = localStorage.getItem('whatsappNumber');
-        var savedWaMessage = localStorage.getItem('whatsappMessage');
-         var whatsappUrl = 'https://wa.me/' + savedWaNumber + '?text=' + encodeURIComponent(savedWaMessage);
-
-            $('#whatsappButton').attr('href', whatsappUrl);
-            window.open(whatsappUrl, '_blank');
-
-        }
-    );
-
 // const Home = document.getElementById("Home");
 
 // Home.addEventListener("click", function (){

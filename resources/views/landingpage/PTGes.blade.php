@@ -223,30 +223,33 @@
   <div class="title">
     <h1>Our Services</h1>
   </div>
-  <div id="card-area"
-    class="@if(count($listservices) == 1) single-service @elseif(count($listservices) == 2) double-service @elseif(count($listservices) == 3) triple-service @endif">
-    <div class="wrapper">
-      <div class="box-area d-flex justify-content-center align-items-center" style="min-height: 300px;">
+  <div id="card-area" class="wrapper">
+    <div class="container mt-5">
+      <div class="row d-flex justify-content-center align-items-center" style="min-height: 300px;">
         @if(count($listservices) > 0)
           @foreach($listservices as $service)
-            <div class="box">
-              <img src="{{ asset('storage/images/' . $service->image_service) }}"
-                alt="{{ $service->judul_service ?? '-' }}">
-              <div class="overlay">
-                <h3>{{ $service->judul_service ?? '-'}}</h3>
-                <p>{{ $service->isi_service ?? '-'}}</p>
-                <div class="button-container">
-                  <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
+            <div class="col-md-4 mb-4"> 
+              <div class="box">
+                <img src="{{ asset('storage/images/' . $service->image_service) }}"
+                  alt="{{ $service->judul_service ?? '-' }}">
+                <div class="overlay">
+                  <h3>{{ $service->judul_service ?? '-' }}</h3>
+                  <p>{{ $service->isi_service ?? '-' }}</p>
+                  <div class="button-container">
+                    <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
+                  </div>
                 </div>
               </div>
             </div>
           @endforeach
         @else
-          <div class="box d-flex flex-column justify-content-center align-items-center text-center" style="height: 300px; width: 400px;">
-            <img src="{{ asset('/img/default.jpg') }}" alt="No Image Available" class="mb-3">
-            <div class="overlay">
-              <h3>No Services Available</h3>
-              <p>There are currently no services to display.</p>
+          <div class="col-md-4 d-flex flex-column justify-content-center align-items-center text-center">
+            <div class="box" style="height: 300px; width: 400px;">
+              <img src="{{ asset('/img/default.jpg') }}" alt="No Image Available" class="mb-3">
+              <div class="overlay">
+                <h3>No Services Available</h3>
+                <p>There are currently no services to display.</p>
+              </div>
             </div>
           </div>
         @endif
@@ -254,6 +257,7 @@
     </div>
   </div>
 </div>
+
 
 
 

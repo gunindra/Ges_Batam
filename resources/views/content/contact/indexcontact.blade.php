@@ -24,7 +24,7 @@
                         <input type="email" class="form-control" id="emailContact"
                             value="{{ isset($contactData->email) ? $contactData->email : '' }}"
                             placeholder="Masukkan email">
-                        <div id="emailContactError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
+                        <div id="emailContactError" class="text-danger mt-1 d-none">Please fill in the Email</div>
                     </div>
                     <div class="mt-3">
                         <label for="phoneContact" class="form-label fw-bold">Phone (main)</label>
@@ -34,7 +34,7 @@
                                 value="{{ isset($contactData->phone) ? ltrim($contactData->phone, '62') : '' }}"
                                 placeholder="Masukkan phone">
                         </div>
-                        <div id="phoneContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
+                        <div id="phoneContactError" class="text-danger mt-1 d-none">Please fill in the Number</div>
                     </div>
 
                     <div class="mt-3">
@@ -45,7 +45,7 @@
                                 value="{{ isset($contactData->phones) ? ltrim($contactData->phones, '62') : '' }}"
                                 placeholder="Masukkan phone ">
                         </div>
-                        <div id="phonesContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
+                        <div id="phonesContactError" class="text-danger mt-1 d-none">Please fill in the Number</div>
                     </div>
                     <button type="button" class="btn btn-primary mt-3" id="saveContact">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
@@ -91,13 +91,13 @@
             var isValid = true;
 
             if (emailContact === '') {
-                $('#emailContactError').text('Silahkan isi Email').removeClass('d-none');
+                $('#emailContactError').text('Please fill in the Email').removeClass('d-none');
                 isValid = false;
             } else if (!emailRegex.test(emailContact)) {
-                $('#emailContactError').text('Format Email tidak valid').removeClass('d-none');
+                $('#emailContactError').text('Invalid email format').removeClass('d-none');
                 isValid = false;
             } else if (!emailContact.endsWith('@gmail.com')) {
-                $('#emailContactError').text('Email harus menggunakan @gmail.com').removeClass('d-none');
+                $('#emailContactError').text('Email must use @gmail.com').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#emailContactError').addClass('d-none');
@@ -117,20 +117,20 @@
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: "Are you sure?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
                         formData.append('emailContact', emailContact);
-                        formData.append('phoneContact', phoneContact); // No prefix here
-                        formData.append('phonesContact', phonesContact); // No prefix here
+                        formData.append('phoneContact', phoneContact); 
+                        formData.append('phonesContact', phonesContact);
                         formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
@@ -161,7 +161,7 @@
                                 if (response.status === 'success') {
 
                                     Swal.fire({
-                                        title: "Berhasil!",
+                                        title: "Success!",
                                         text: response.message,
                                         icon: "success"
                                     }).then(() => {
@@ -182,7 +182,7 @@
                                     });
                                 } else {
                                     Swal.fire({
-                                        title: "Gagal Menambahkan Data",
+                                        title: "Failed to add data",
                                         text: response.message,
                                         icon: "error"
                                     });
@@ -191,7 +191,7 @@
                             error: function (xhr, status, error) {
                                 Swal.fire({
                                     title: "Error",
-                                    text: "Terjadi kesalahan: " + error,
+                                    text: "An error occurred: " + error,
                                     icon: "error"
                                 });
                             }
@@ -200,8 +200,8 @@
                 });
             } else {
                 Swal.fire({
-                    title: "Periksa Input",
-                    text: "Tolong periksa input yang kosong atau tidak valid",
+                    title: "Check input",
+                    text: "Please check for empty or invalid inputs",
                     icon: "warning"
                 });
             }

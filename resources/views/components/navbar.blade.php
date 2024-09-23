@@ -32,7 +32,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('login') }}" style="text-decoration:none; color:white;">
-                        <button type="button" class="btn btn-outline-primary">Login</button>
+                        <button type="button" class="btn btn-outline-primary text-white"><b>LOGIN</b></button>
                     </a>
                 </li>
             </ul>

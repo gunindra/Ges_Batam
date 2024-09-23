@@ -19,11 +19,11 @@ class PtgesController extends Controller
         $listiklan = DB::select("SELECT image_iklan, judul_iklan FROM tbl_iklan");
         $aboutus = DB::table('tbl_aboutus')->first();
         if ($aboutus) {
-            $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 210, '');
+            $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 250, '');
         }
         $whyus = DB::table('tbl_whyus')->first();
         if ($whyus) {
-            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 209 ,''); 
+            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 250 ,''); 
         }
         $listcarousel =  DB::select("SELECT * FROM tbl_carousel");
         foreach ($listcarousel as $carousel) {

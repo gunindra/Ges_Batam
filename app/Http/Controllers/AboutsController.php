@@ -13,7 +13,8 @@ class AboutsController extends Controller
         $contact = DB::table('tbl_contact')->first(); 
 
  
-        $dataAbout = DB::select("SELECT * FROM tbl_aboutus WHERE id = 1");
+        $dataAbout = DB::select("SELECT * FROM tbl_aboutus WHERE id = 1"); 
+        // ganti tanda * dan kenapa id = 1
 
         return view('landingpage.About', [
             'contact' => $contact,

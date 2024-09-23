@@ -18,9 +18,10 @@ class AboutController extends Controller
     {
         $request->validate([
             'imageAbout' => 'nullable|mimes:jpg,jpeg,png|',
-        ]);
-        $parafAbout = $request->input('parafAbout');
-        $imageAbout = $request->file('imageAbout');
+            'parafAbout' => 'required|string|max:255', 
+    ]);
+    $parafAbout = $request->input('parafAbout');
+    $imageAbout = $request->file('imageAbout');
 
         try {
             $existingData = DB::table('tbl_aboutus')->first();
