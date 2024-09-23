@@ -432,6 +432,10 @@ class InvoiceController extends Controller
                 'created_at' => now(),
             ]);
 
+            if (!$invoiceId) {
+                throw new \Exception("Gagal mendapatkan ID baru dari tbl_invoice");
+            }
+
             foreach ($noResi as $index => $resi) {
 
                 $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
@@ -448,12 +452,6 @@ class InvoiceController extends Controller
                 ]);
 
             }
-
-            if (!$invoiceId) {
-                throw new \Exception("Gagal mendapatkan ID baru dari tbl_invoice");
-            }
-
-
 
             foreach ($noResi as $resi) {
                 $updatedTracking = DB::table('tbl_tracking')

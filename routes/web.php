@@ -120,6 +120,7 @@ Route::post('/invoice/bayarTagihan', [InvoiceController::class, 'bayarTagihan'])
 Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
 Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
 Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
+Route::get('/invoice/cekResiInvoice', [InvoiceController::class, 'cekResiInvoice'])->name('cekResiInvoice');
 
 // Pickup
 Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
