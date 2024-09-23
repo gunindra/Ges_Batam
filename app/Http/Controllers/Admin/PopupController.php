@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +17,9 @@ class PopupController extends Controller
     public function addPopup(Request $request)
     {
         $request->validate([
+            'judulPopup' => 'required|string|max:255', 
+            'parafPopup' => 'required|string', 
+            'linkPopup' => 'required|string|max:255',
             'imagePopup' => 'nullable|mimes:jpg,jpeg,png', 
         ]);
     
@@ -30,8 +33,11 @@ class PopupController extends Controller
             $fileName = $existingData ? $existingData->Image_Popup : null;
     
             if ($imagePopup) {
-                $fileName = 'Popup_' . $imagePopup->getClientOriginalName();
+                $uniqueId = uniqid('Popup_', true);
+                $fileName = $uniqueId . '.' . $imagePopup->getClientOriginalExtension();
                 $imagePopup->storeAs('public/images', $fileName);
+            } else {
+                $fileName = null;
             }
     
             if ($existingData) {
@@ -81,8 +87,17 @@ class PopupController extends Controller
         }
 
         try {
-            $deleted = DB::table('tbl_popup')->where('id', $id)->delete();
+            $existingPopup = DB::table('tbl_popup')->where('id', $id)->first();
 
+            if ($existingPopup && $existingPopup->Image_Popup) {
+                $existingImagePath = 'public/images/' . $existingPopup->Image_Popup;
+    
+    
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
+            $deleted = DB::table('tbl_popup')->where('id', $id)->delete();
+            }
             if ($deleted) {
                 return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
             } else {

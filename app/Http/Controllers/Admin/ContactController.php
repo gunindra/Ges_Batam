@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +14,11 @@ class ContactController extends Controller
     }
 public function addContact(Request $request)
 {
+    $request->validate([
+        'emailContact' => 'required|string|max:255', 
+        'phoneContact' => 'required|string|max:255', 
+        'phonesContact' => 'required|string|max:255', 
+    ]);
     $emailContact = $request->input('emailContact');
     $phoneContact = $request->input('phoneContact');
     $phonesContact = $request->input('phonesContact');

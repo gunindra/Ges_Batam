@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Content | Carousel')
+@section('title', 'Content | Hero page')
 
 @section('main')
 <div class="container-fluid" id="container-wrapper">
@@ -11,7 +11,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahCarousel">Add Carousel</h5>
+                    <h5 class="modal-title" id="modalTambahCarousel">Add Hero page</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -20,7 +20,7 @@
                     <div class="mt-3">
                         <label for="judulCarousel" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulCarousel" value=""
-                            placeholder="Masukkan judul carousel">
+                            placeholder="Masukkan judul Hero page">
                         <div id="judulCarouselError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
@@ -49,7 +49,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditCarouselTitle">Edit Carousel</h5>
+                    <h5 class="modal-title" id="modalEditCarouselTitle">Edit Hero page</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -59,7 +59,7 @@
                     <div class="mt-3">
                         <label for="judulCarousel" class="form-label fw-bold">Title</label>
                         <input type="text" class="form-control" id="judulCarouselEdit" value=""
-                            placeholder="Masukkan judul carousel">
+                            placeholder="Masukkan judul Hero page">
                         <div id="judulCarouselErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
@@ -84,10 +84,10 @@
         </div>
     </div>
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 px-4">Carousel</h1>
+        <h1 class="h3 mb-0 text-gray-800 px-4">Hero page</h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Content</li>
-            <li class="breadcrumb-item active" aria-current="page">Carousel</li>
+            <li class="breadcrumb-item active" aria-current="page">Hero page</li>
         </ol>
     </div>
     <div class="row mb-3">
@@ -97,7 +97,7 @@
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahCarousel" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Add Carousel</button>
+                                    class="fas fa-plus"></i></span>Add Hero page</button>
                     </div>
                     <div id="containerCarousel" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
@@ -140,11 +140,11 @@
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
             </div> `;
 
-        const getlistCarousel = () => {
+        const getlistHeroPage = () => {
             const txtSearch = $('#txSearch').val();
 
             $.ajax({
-                url: "{{ route('getlistCarousel') }}",
+                url: "{{ route('getlistHeroPage') }}",
                 method: "GET",
                 data: {
                     txSearch: txtSearch
@@ -170,7 +170,7 @@
                 })
         }
 
-        getlistCarousel();
+        getlistHeroPage();
 
 
         $('#saveCarousel').click(function () {
@@ -210,7 +210,6 @@
                 $('#imageCarouselError').addClass('d-none');
             }
 
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Are you sure?",
@@ -238,7 +237,7 @@
                         });
                         $.ajax({
                             type: "POST",
-                            url: "{{ route('addCarousel') }}",
+                            url: "{{ route('addHeroPage') }}",
                             data: formData,
                             contentType: false,
                             processData: false,
@@ -256,7 +255,7 @@
                                 }
                                 if (response.status === 'success') {
                                     showMessage("success", "Data successfully saved");
-                                    getlistCarousel();
+                                    getlistHeroPage();
                                     $('#modalTambahCarousel').modal('hide');
                                 } else {
                                     Swal.fire({
@@ -297,7 +296,7 @@
                     });
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyCarousel') }}",
+                        url: "{{ route('destroyHeroPage') }}",
                         data: {
                             id: id,
                         },
@@ -315,7 +314,7 @@
                             }
                             if (response.status === 'success') {
                                 showMessage("success", "Successfully deleted");
-                                getlistCarousel();
+                                getlistHeroPage();
                             } else {
                                 showMessage("error", "Failed to delete");
                             }
@@ -408,7 +407,7 @@
                             });
                             $.ajax({
                                 type: "POST",
-                                url: "{{ route('updateCarousel') }}",
+                                url: "{{ route('updateHeroPage') }}",
                                 data: formData,
                                 contentType: false,
                                 processData: false,
@@ -427,7 +426,7 @@
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data successfully updated");
-                                        getlistCarousel();
+                                            getlistHeroPage();
                                         $('#modalEditCarousel').modal(
                                             'hide');
                                     } else {

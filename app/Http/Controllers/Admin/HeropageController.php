@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Storage;
 
-class CarouselController extends Controller
+class HeropageController extends Controller
 {
     public function index()
     {
-        return view('content.carousel.indexcarousel');
+        return view('content.heropage.indexheropage');
     }
     
-    public function getlistCarousel(Request $request)
+    public function getlistHeroPage(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
@@ -59,9 +59,11 @@ class CarouselController extends Controller
         $output .= '</tbody></table>';
          return $output;
     }
-    public function addCarousel(Request $request)
+    public function addHeroPage(Request $request)
     {
         $request->validate([
+            'judulCarousel' => 'required|string|max:255', 
+            'isiCarousel' => 'required|string|', 
             'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
@@ -71,10 +73,11 @@ class CarouselController extends Controller
 
         try {
             if ($imageCarousel) {
-                $fileName = 'Carousel_' . $imageCarousel->getClientOriginalName();
-                $filePath = $imageCarousel->storeAs('public/images', $fileName);
+                $uniqueId = uniqid('Heropage_', true);
+                $fileName = $uniqueId . '.' . $imageCarousel->getClientOriginalExtension();
+                $imageCarousel->storeAs('public/images', $fileName);
             } else {
-                $fileName = null; // No image was uploaded
+                $fileName = null;
             }
             DB::table('tbl_carousel')->insert([
                 'judul_carousel' => $judulCarousel,
@@ -89,42 +92,64 @@ class CarouselController extends Controller
         }
     }
 
-    public function destroyCarousel(Request $request)
+    public function destroyHeroPage(Request $request)
     {
         $id = $request->input('id');
 
         try {
+            $existingCarousel = DB::table('tbl_carousel')->where('id', $id)->first();
+
+            if ($existingCarousel && $existingCarousel->image_carousel) {
+                $existingImagePath = 'public/images/' . $existingCarousel->image_carousel;
+    
+    
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
             DB::table('tbl_carousel')
                 ->where('id', $id)
                 ->delete();
-
+            }
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-    public function updateCarousel(Request $request)
-    {
+    public function updateHeroPage(Request $request)
+    {  
         $request->validate([
-            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
-        ]);
+        'judulCarousel' => 'required|string|max:255', 
+        'isiCarousel' => 'required|string', 
+        'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
+    ]);
         $id = $request->input('id');
         $judulCarousel = $request->input('judulCarousel');
         $isiCarousel = $request->input('isiCarousel');
         $imageCarousel = $request->file('imageCarousel');
 
         try {
+            $existingCarousel = DB::table('tbl_carousel')->where('id', $id)->first();
+            
             $dataUpdate = [
                 'judul_carousel' => $judulCarousel,
                 'isi_carousel' => $isiCarousel,
                 'updated_at' => now(),
             ];
-
-            // Hanya tambahkan file image jika tidak null
+    
             if ($imageCarousel) {
-                $fileName = $imageCarousel->getClientOriginalName();
+
+                if ($existingCarousel && $existingCarousel->image_carousel) {
+                    $existingImagePath = 'public/images/' . $existingCarousel->image_carousel;
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
+                }
+                
+
+                $uniqueId = uniqid('Carousel_', true);
+                $fileName = $uniqueId . '.' . $imageCarousel->getClientOriginalExtension();
                 $imageCarousel->storeAs('public/images', $fileName);
-                $dataUpdate['image_Carousel'] = $fileName;
+                $dataUpdate['image_carousel'] = $fileName; 
             }
 
             DB::table('tbl_carousel')

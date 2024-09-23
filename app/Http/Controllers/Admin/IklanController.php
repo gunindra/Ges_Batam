@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Storage;
@@ -61,6 +61,7 @@ class IklanController extends Controller
     public function addIklan(Request $request)
     {
         $request->validate([
+            'judulIklan' => 'required|string|max:255', 
             'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
@@ -74,13 +75,14 @@ class IklanController extends Controller
             if ($chekdata >= 7) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
             }
-            if ($imageIklan) {
-                $fileName = 'Iklan_' . $imageIklan->getClientOriginalName();
-                $filePath = $imageIklan->storeAs('public/images', $fileName);
-            } else {
-                $fileName = null; // No image was uploaded
-            }
-
+           
+                if ($imageIklan) {
+                    $uniqueId = uniqid('Iklan_', true);
+                    $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
+                    $imageIklan->storeAs('public/images', $fileName);
+                } else {
+                    $fileName = null;
+                }
 
             DB::table('tbl_iklan')->insert([
                 'judul_iklan' => $judulIklan,
@@ -98,10 +100,19 @@ class IklanController extends Controller
         $id = $request->input('id');
 
         try {
+            $existingIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+
+            if ($existingIklan && $existingIklan->image_iklan) {
+                $existingImagePath = 'public/images/' . $existingIklan->image_iklan;
+    
+    
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
             DB::table('tbl_iklan')
                 ->where('id', $id)
                 ->delete();
-
+            }
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -110,6 +121,7 @@ class IklanController extends Controller
     public function updateIklan(Request $request)
     {
         $request->validate([
+            'judulIklan' => 'required|string|max:255', 
             'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
@@ -118,19 +130,27 @@ class IklanController extends Controller
         $imageIklan = $request->file('imageIklan');
 
         try {
-           
+            $existingIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+
             $dataUpdate = [
                 'judul_iklan' => $judulIklan,
                 'updated_at' => now(),
             ];
-
-            // Hanya tambahkan file image jika tidak null
             if ($imageIklan) {
-                $fileName = $imageIklan->getClientOriginalName();
-                $imageIklan->storeAs('public/images', $fileName);
-                $dataUpdate['image_iklan'] = $fileName;
-            }
 
+                if ($existingIklan && $existingIklan->image_iklan) {
+                    $existingImagePath = 'public/images/' . $existingIklan->image_iklan;
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
+                }
+                
+
+                $uniqueId = uniqid('Iklan_', true);
+                $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
+                $imageIklan->storeAs('public/images', $fileName);
+                $dataUpdate['image_iklan'] = $fileName; 
+            }
             DB::table('tbl_iklan')
                 ->where('id', $id)
                 ->update($dataUpdate);

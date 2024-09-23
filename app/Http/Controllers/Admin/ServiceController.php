@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Storage;
@@ -66,6 +66,8 @@ class ServiceController extends Controller
     public function addService(Request $request)
     {
         $request->validate([
+            'judulService' => 'required|string|max:255', 
+            'isiService' => 'required|string', 
             'imageService' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
@@ -74,13 +76,13 @@ class ServiceController extends Controller
         $imageService = $request->file('imageService');
 
         try {
-            // Cek apakah jumlah data sudah lebih dari atau sama dengan 6
 
             if ($imageService) {
-                $fileName = 'Service_' . $imageService->getClientOriginalName();
-                $filePath = $imageService->storeAs('public/images', $fileName);
+                $uniqueId = uniqid('Service_', true);
+                $fileName = $uniqueId . '.' . $imageService->getClientOriginalExtension();
+                $imageService->storeAs('public/images', $fileName);
             } else {
-                $fileName = null; // No image was uploaded
+                $fileName = null;
             }
 
             DB::table('tbl_service')->insert([
@@ -96,53 +98,80 @@ class ServiceController extends Controller
         }
     }
     public function destroyService(Request $request)
-    {
-        $id = $request->input('id');
+{
+    $id = $request->input('id');
 
-        try {
-            DB::table('tbl_service')
-                ->where('id', $id)
-                ->delete();
+    try {
+       
+        $existingService = DB::table('tbl_service')->where('id', $id)->first();
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        if ($existingService && $existingService->image_service) {
+            $existingImagePath = 'public/images/' . $existingService->image_service;
+
+
+            if (Storage::exists($existingImagePath)) {
+                Storage::delete($existingImagePath);
+            }
         }
+
+        DB::table('tbl_service')
+            ->where('id', $id)
+            ->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
     }
+}
+
 
     public function updateService(Request $request)
     {
         $request->validate([
-            'imageService' => 'nullable|mimes:jpg,jpeg,png|', 
+            'judulService' => 'required|string|max:255', 
+            'isiService' => 'required|string',
+            'imageService' => 'nullable|mimes:jpg,jpeg,png', 
         ]);
+    
         $id = $request->input('id');
-        $judulService= $request->input('judulService');
+        $judulService = $request->input('judulService');
         $isiService = $request->input('isiService');
         $imageService = $request->file('imageService');
-
+    
         try {
+            $existingService = DB::table('tbl_service')->where('id', $id)->first();
             
             $dataUpdate = [
                 'judul_service' => $judulService,
                 'isi_service' => $isiService,
                 'updated_at' => now(),
             ];
-
-            // Hanya tambahkan file image jika tidak null
+    
             if ($imageService) {
-                $fileName = $imageService->getClientOriginalName();
-                $imageService->storeAs('public/images', $fileName);
-                $dataUpdate['image_service'] = $fileName;
-            }
 
+                if ($existingService && $existingService->image_service) {
+                    $existingImagePath = 'public/images/' . $existingService->image_service;
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
+                }
+                
+
+                $uniqueId = uniqid('Service_', true);
+                $fileName = $uniqueId . '.' . $imageService->getClientOriginalExtension();
+                $imageService->storeAs('public/images', $fileName);
+                $dataUpdate['image_service'] = $fileName; 
+            }
+    
             DB::table('tbl_service')
                 ->where('id', $id)
                 ->update($dataUpdate);
-
+    
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }
     }
+    
 
 }
