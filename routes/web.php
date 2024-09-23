@@ -100,6 +100,7 @@ Route::post('/delivery/buatPickup', [DeliveryController::class, 'buatPickup'])->
 Route::get('/delivery/exportPDF', [DeliveryController::class, 'exportPDF'])->name('exportPDFDelivery');
 Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
 Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
+Route::get('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
 Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
 Route::post('/delivery/confirmasiPengantaran', [DeliveryController::class, 'confirmasiPengantaran'])->name('confirmasiPengantaran');
 
@@ -218,7 +219,7 @@ Route::get('/masterdata/pembagirate/destroy', [PembagirateController::class, 'de
 Route::get('/masterdata/rate/list', [PembagirateController::class, 'getlistRate'])->name('getlistRate');
 Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate'])->name('addRate');
 Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
-Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
+Route::get('/masterdata/rate/destroyrate', action: [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
 //user
 Route::get('/masterdata/user', [UserController::class, 'index'])->name('user');

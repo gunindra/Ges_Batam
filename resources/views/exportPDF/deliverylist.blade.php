@@ -174,7 +174,7 @@
     <div class="container">
         <div class="header">
             <div class="logo-container">
-                {{-- <img src="{{asset('/img/logo4.png')}}" alt="logo" class="logo"> --}}
+                {{-- <img src="{{ public_path('img/m3_icon.png') }}" alt="logo" class="logo"> --}}
             </div>
             <div class="company-info">
                 <div class="company-name">PT. GES LOGISTIC</div>

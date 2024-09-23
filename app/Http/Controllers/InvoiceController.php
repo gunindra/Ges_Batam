@@ -202,7 +202,7 @@ class InvoiceController extends Controller
             JOIN tbl_resi AS r ON r.invoice_id = a.id
             WHERE (
                 UPPER(b.nama_pembeli) LIKE '$txSearch'
-                OR UPPER(r.no_resi) LIKE '$txSearch'
+                OR UPPER(a.no_invoice) LIKE '$txSearch'
                 )
             $dateCondition
             $statusCondition
@@ -794,21 +794,6 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
-    public function updateStatus(Request $request)
-    {
-        $id = $request->id;
-
-        try {
-            if ($id) {
-                DB::table('tbl_pembayaran')->where('id', $id)->update(['status_id' => 6]);
-                return response()->json(['success' => true]);
-            }
-            return response()->json(['success' => false, 'message' => 'ID tidak ditemukan.']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
-    }
-
     public function changeMethod(Request $request)
     {
         $invoiceId = $request->input('id');

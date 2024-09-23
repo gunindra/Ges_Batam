@@ -25,7 +25,7 @@ class SupirController extends Controller
 
             foreach ($invoiceIds as $invoiceId) {
                 try {
-                    // Ambil no_invoice dari tbl_invoice berdasarkan invoice_id
+
                     $noInvoice = DB::table('tbl_invoice')
                         ->where('id', $invoiceId)
                         ->value('no_invoice');
@@ -34,17 +34,16 @@ class SupirController extends Controller
                         throw new \Exception("No invoice found for invoice_id {$invoiceId}");
                     }
 
-                    // Proses tanda tangan jika ada (dalam bentuk Blob)
+
                     if ($request->hasFile('signature')) {
                         $signatureFile = $request->file('signature');
-                        // Gabungkan timestamp dan no_invoice sebagai nama file tanda tangan
                         $signatureFilename = time() . '_signature_' . $noInvoice . '.' . $signatureFile->getClientOriginalExtension();
                         $signaturePath = $signatureFile->storeAs('ttd_pengantaran', $signatureFilename, 'public'); // Simpan di folder ttd_pengantaran
                     } else {
                         $signaturePath = null;
                     }
 
-                    // Proses foto jika ada
+
                     if ($request->hasFile('photo')) {
                         $photoFile = $request->file('photo');
                         $photoFilename = time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension();

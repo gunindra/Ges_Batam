@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     window.addEventListener('pageshow', function(event) {
-        if (event.persisted) { 
+        if (event.persisted) {
             if (sessionStorage.getItem('popupDisplayed') === 'true' && welcomeDialog.open) {
                 welcomeDialog.close();
             }
@@ -68,7 +68,7 @@ document.querySelector(".logos").appendChild(copy);
 // warna dari navbar about us,Why us,Services,Slide
 document.addEventListener('DOMContentLoaded', function() {
   const navbar = document.querySelector('.navbar');
-  
+
 
   if (document.body.classList.contains('about-page')) {
       navbar.classList.add('nav-page-navbar');
@@ -102,19 +102,19 @@ document.addEventListener('DOMContentLoaded', function() {
         var savedWaNumber = localStorage.getItem('whatsappNumber');
         var savedWaMessage = localStorage.getItem('whatsappMessage');
          var whatsappUrl = 'https://wa.me/' + savedWaNumber + '?text=' + encodeURIComponent(savedWaMessage);
-        
+
             $('#whatsappButton').attr('href', whatsappUrl);
             window.open(whatsappUrl, '_blank');
-            
+
         }
     );
-    
+
 // const Home = document.getElementById("Home");
 
 // Home.addEventListener("click", function (){
 //   window.location.href= "PTGes.blade.php";
 // });
-  
+
   document.addEventListener("scroll", function() {
     const navbar = document.querySelector('.navbar');
     const carousel = document.querySelector('#carouselExample');
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const navbarLogo = document.querySelector('.navbar-logo');
     const carousel = document.querySelector('.carousel');
     const isHomePage = window.location.pathname === '/';
-  
+
     function handleScroll() {
         if (carousel) {
             if (window.scrollY > (carousel.offsetHeight - navbar.offsetHeight)) {

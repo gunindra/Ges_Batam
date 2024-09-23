@@ -321,17 +321,78 @@
         });
 
 
+        $(document).on('click', '.btnSelesaikanPickup', function(e) {
+            let pengantaranId = $(this).data('id');
+
+            Swal.fire({
+                title: "Apakah Invoice ini Sudah di Pick Up?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process your request.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('updateStatus') }}",
+                        data: {
+                            id: pengantaranId,
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.close();
+
+                            if (response.status === 'error') {
+                                showMessage("error", response.message);
+                            } else {
+                                showMessage("success", response.message);
+                                getlistDelivery();
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.close();
+
+                            let errorMessage = 'Gagal Export Invoice';
+                            if (xhr.responseJSON && xhr.responseJSON.error) {
+                                errorMessage = xhr.responseJSON.error;
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
         $(document).on('click', '.btnExportPDF', function() {
             let pengantaranId = $(this).data('id');
 
             Swal.fire({
-                    title: 'Loading...',
-                    text: 'Please wait while we process your request.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             $.ajax({
                 type: "GET",
@@ -343,31 +404,31 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                        Swal.close();
+                    Swal.close();
 
-                        if (response.url) {
-                            window.open(response.url, '_blank');
-                        } else if (response.error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.error
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.close();
-
-                        let errorMessage = 'Gagal Export Invoice';
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            errorMessage = xhr.responseJSON.error;
-                        }
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: errorMessage
+                            text: response.error
                         });
                     }
+                },
+                error: function(xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export Invoice';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
             });
         });
 

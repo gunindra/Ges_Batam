@@ -30,8 +30,6 @@ class DeliveryController extends Controller
 
     public function getlistDelivery(Request $request)
     {
-
-
         $status = strtoupper(trim($request->status));
 
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
@@ -48,15 +46,16 @@ class DeliveryController extends Controller
                 DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ', ') as list_alamat"),
                 DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) AS tanggal_pengantaran"),
                 's.status_name',
-                DB::raw('COUNT(pd.id) as jumlah_invoice')
+                DB::raw('COUNT(pd.id) as jumlah_invoice'),
+                DB::raw("GROUP_CONCAT(IFNULL(pd.bukti_pengantaran, 'Tidak Ada Bukti') SEPARATOR ', ') as list_bukti_pengantaran"),
+                DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ', ') as list_tanda_tangan")
             )
             ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
             ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
             ->join('tbl_status as s', 'a.status_id', '=', 's.id')
             ->leftjoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name','a.metode_pengiriman');
-
+            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name', 'a.metode_pengiriman');
 
         if ($request->txSearch) {
             $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
@@ -78,11 +77,10 @@ class DeliveryController extends Controller
         }
 
         $query->orderByRaw("CASE s.status_name
-        WHEN 'Delivering' THEN 1
-        WHEN 'Ready For Pickup' THEN 2
-        WHEN 'Done' THEN 3
-        ELSE 4 END");
-
+            WHEN 'Delivering' THEN 1
+            WHEN 'Ready For Pickup' THEN 2
+            WHEN 'Done' THEN 3
+            ELSE 4 END");
 
         $query->limit(100);
 
@@ -104,8 +102,8 @@ class DeliveryController extends Controller
         foreach ($data as $item) {
             $statusBadgeClass = '';
             $btnAcceptPengantaran = '';
-            // $btnBuktiPengantaran = '';
             $btnDetailPengantaran = '';
+            $selesaikanPickup = '';
 
             switch ($item->status_name) {
                 case 'Out For Delivery':
@@ -114,17 +112,19 @@ class DeliveryController extends Controller
                     break;
                 case 'Ready For Pickup':
                     $statusBadgeClass = 'badge-warning';
+                    $selesaikanPickup = '<a class="btn btnSelesaikanPickup btn-success text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-check"></i></a>';
                     break;
                 case 'Delivering':
                     $statusBadgeClass = 'badge-delivering';
-                    // $btnBuktiPengantaran = '<a class="btn btnBuktiPengantaran btn-success text-white" data-id="' . $item->pengantaran_id . '" ><i class="fas fa-camera"></i></a>';
                     break;
                 case 'Debt':
                     $statusBadgeClass = 'badge-danger';
                     break;
                 case 'Done':
                     $statusBadgeClass = 'badge-secondary';
-                    // $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    if (isset($item->list_bukti_pengantaran)) {
+                        $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->list_bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
+                    }
                     break;
                 default:
                     $statusBadgeClass = 'badge-secondary';
@@ -150,6 +150,7 @@ class DeliveryController extends Controller
                     <td>
                         ' . $btnAcceptPengantaran . '
                         ' . $btnDetailPengantaran . '
+                        ' . $selesaikanPickup . '
                         <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
                     </td>
                 </tr>';
@@ -159,6 +160,7 @@ class DeliveryController extends Controller
 
         return $output;
     }
+
 
 
     public function addDelivery()
@@ -701,6 +703,70 @@ class DeliveryController extends Controller
         } catch (\Exception $e) {
             Log::error('Error sending PDF URL: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'Failed to send PDF URL'], 500);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+
+            $invoiceIds = DB::table('tbl_pengantaran_detail')
+                ->where('pengantaran_id', $id)
+                ->pluck('invoice_id');
+
+            if ($invoiceIds->isEmpty()) {
+                return response()->json(['error' => 'Tidak ada invoice yang ditemukan untuk pengantaran ini.'], 404);
+            }
+
+            try {
+                DB::table('tbl_invoice')
+                    ->whereIn('id', $invoiceIds)
+                    ->update([
+                        'status_id' => 6,
+                        'updated_at' => now(),
+                    ]);
+            } catch (\Exception $e) {
+                \Log::error("Error updating tbl_invoice for invoice_ids {$invoiceIds->implode(',')}: " . $e->getMessage());
+                return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data invoice.'], 500);
+            }
+
+
+            $noResiList = DB::table('tbl_resi')
+                ->whereIn('invoice_id', $invoiceIds)
+                ->pluck('no_resi');
+
+            if ($noResiList->isNotEmpty()) {
+                try {
+                    DB::table('tbl_tracking')
+                        ->whereIn('no_resi', $noResiList)
+                        ->update([
+                            'status' => 'Done',
+                            'updated_at' => now(),
+                        ]);
+                } catch (\Exception $e) {
+                    \Log::error("Error updating tbl_tracking for no_resi {$noResiList->implode(',')}: " . $e->getMessage());
+                    return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data tracking.'], 500);
+                }
+            }
+
+            try {
+                DB::table('tbl_pengantaran')
+                    ->where('id', $id)
+                    ->update([
+                        'status_id' => 6,
+                        'updated_at' => now(),
+                    ]);
+            } catch (\Exception $e) {
+                \Log::error("Error updating tbl_pengantaran for pengantaran_id {$id}: " . $e->getMessage());
+                return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data pengantaran.'], 500);
+            }
+
+            return response()->json(['message' => 'Status pengantaran, invoice, dan tracking berhasil diperbarui.'], 200);
+        } catch (\Exception $e) {
+            \Log::error("General error: " . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
     }
 }

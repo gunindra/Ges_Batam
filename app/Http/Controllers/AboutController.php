@@ -17,20 +17,20 @@ class AboutController extends Controller
     public function addAbout(Request $request)
     {
         $request->validate([
-            'imageAbout' => 'nullable|mimes:jpg,jpeg,png|', 
+            'imageAbout' => 'nullable|mimes:jpg,jpeg,png|',
         ]);
         $parafAbout = $request->input('parafAbout');
         $imageAbout = $request->file('imageAbout');
-        
+
         try {
             $existingData = DB::table('tbl_aboutus')->first();
-            $fileName = $existingData ? $existingData->Image_AboutUs : null; 
-    
+            $fileName = $existingData ? $existingData->Image_AboutUs : null;
+
             if ($imageAbout) {
                 $fileName = 'AboutUs_' . $imageAbout->getClientOriginalName();
                 $imageAbout->storeAs('public/images', $fileName);
             }
-    
+
             if ($existingData) {
                 // Update data yang sudah ada
                 DB::table('tbl_aboutus')->update([
@@ -46,15 +46,15 @@ class AboutController extends Controller
                     'created_at' => now(),
                 ]);
             }
-    
+
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'parafAbout' => $parafAbout]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
-    
-    
-    
+
+
+
 }
 
-    
+
