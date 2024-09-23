@@ -2,19 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    AboutController,
-    AboutsController,
-    CarouselController,
-    IklanController,
-    InformationsController,
+    LandingPage\AboutsController,
+    LandingPage\InformationsController,
+    LandingPage\PtgesController,
+    LandingPage\ServicesController,
+    LandingPage\SlideController,
+    LandingPage\TrackingController,
+    LandingPage\WhysController,
+    Admin\AboutController,
+    Admin\HeropageController,
+    Admin\IklanController,
+    Admin\ServiceController,
+    Admin\WhyController,
+    Admin\ContactController,
+    Admin\WhatsappController,
+    Admin\PopupController,
+    Admin\TrackingsController,
     PembagirateController,
-    PtgesController,
-    ServiceController,
-    ServicesController,
-    SlideController,
-    TrackingController,
-    WhyController,
-    WhysController,
     DashboardController,
     LoginController,
     BookingController,
@@ -29,11 +33,7 @@ use App\Http\Controllers\{
     SupplierInvoiceController,
     UserController,
     RoleController,
-    ContactController,
-    WhatsappController,
     SupirController,
-    PopupController,
-    TrackingsController,
     CategoryController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -70,7 +70,7 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->middlew
 Route::middleware(['auth'])->group(function () {
 
 // Dashboard
-Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
 
 // Profile
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -156,12 +156,12 @@ Route::post('/content/services/tambah', [ServiceController::class, 'addService']
 Route::post('/content/services/update', [ServiceController::class, 'updateService'])->name('updateService');
 Route::get('/content/services/destroy', [ServiceController::class, 'destroyService'])->name('destroyService');
 
-// Carousel
-Route::get('/content/carousel', [CarouselController::class, 'index'])->name('carousel');
-Route::get('/content/carousel/getlistCarousel', [CarouselController::class, 'getlistCarousel'])->name('getlistCarousel');
-Route::get('/content/carousel/destroy', [CarouselController::class, 'destroyCarousel'])->name('destroyCarousel');
-Route::post('/content/carousel/tambah', [CarouselController::class, 'addCarousel'])->name('addCarousel');
-Route::post('/content/carousel/update', [CarouselController::class, 'updateCarousel'])->name('updateCarousel');
+// heropage
+Route::get('/content/heropage', [HeropageController::class, 'index'])->name('heropage');
+Route::get('/content/heropage/getlistHeroPage', [HeropageController::class, 'getlistHeroPage'])->name('getlistHeroPage');
+Route::get('/content/heropage/destroy', [HeropageController::class, 'destroyHeroPage'])->name('destroyHeroPage');
+Route::post('/content/heropage/tambah', [HeropageController::class, 'addHeroPage'])->name('addHeroPage');
+Route::post('/content/heropage/update', [HeropageController::class, 'updateHeroPage'])->name('updateHeroPage');
 
 // Informations
 Route::get('/content/informations', [InformationsController::class, 'index'])->name('informations');

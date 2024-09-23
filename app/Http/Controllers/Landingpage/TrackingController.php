@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\LandingPage;
+use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
 

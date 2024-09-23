@@ -29,9 +29,8 @@
                         </div>
                         <div class="mt-3">
                             <label for="pesanWa" class="form-label fw-bold">Message WhatsApp</label>
-                            <input type="text" class="form-control" id="pesanWa"
-                                value="{{ isset($waData->pesan_wa) ? $waData->pesan_wa : '' }}"
-                                placeholder="Masukkan Pesan WhatsApp">
+                                <textarea class="form-control" id="pesanWa" rows="3"
+                                placeholder="Masukkan Pesan WhatsApp" value="{{ isset($waData->pesan_wa) ? $waData->pesan_wa : '' }}"></textarea>
                             <div id="pesanWaError" class="text-danger mt-1 d-none">Please fill in the Message </div>
                         </div>
                         <button type="button" class="btn btn-primary mt-3" id="saveWa">

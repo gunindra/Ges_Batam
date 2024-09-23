@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +14,10 @@ class WhatsappController extends Controller
     }
     public function addWa(Request $request)
     {
+        $request->validate([
+            'nomorWa' => 'required|string|max:255', 
+            'pesanWa' => 'required|string', 
+        ]);
         $nomorWa = $request->input('nomorWa');
         $pesanWa = $request->input('pesanWa');
     
