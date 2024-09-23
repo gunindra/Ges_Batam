@@ -223,7 +223,7 @@
                         <table class="table mt-4">
                             <thead>
                                 <tr>
-                                    <th>No</th>
+                                    <th>No.</th>
                                     <th>No. Resi</th>
                                     <th>Berat/Dimensi</th>
                                     <th>Hitungan</th>
@@ -310,16 +310,22 @@
                         selectAlamat += '</select>';
                         $('#alamatContainer').html(selectAlamat);
                     }
+                    $('#barang-list tr').each(function() {
+                        const row = $(this);
+                        row.find('.beratBarang').val('');
+                        row.find('.panjangVolume').val('');
+                        row.find('.lebarVolume').val('');
+                        row.find('.tinggiVolume').val('');
+                        updateTotalHargaBerat(row);
+                        updateTotalHargaVolume(row);
+                    });
+                    updateDisplayedTotalHarga();
                 } else {
                     $('#pickupDelivery').hide();
                     $('#alamatContainer').empty();
                 }
 
-                setRemoveItemButton();
-                attachInputEvents();
-                attachSelectChangeEvent();
 
-                updateDisplayedTotalHarga();
             });
 
             var today = new Date();
@@ -341,6 +347,8 @@
                 updateDisplayedTotalHarga();
             });
 
+            $('#currencyInvoice').val('1').trigger('change');
+
             $('#rateCurrency').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
                 updateDisplayedTotalHarga();
@@ -352,23 +360,47 @@
                 if (event.key === "Enter" || event.keyCode === 13) {
                     const scannedNoResi = $(this).val().trim();
                     let isAlreadyInTable = false;
+
+                    // Cek apakah sudah ada di tabel
                     $('#barang-list tr').each(function() {
-                        const existingNoResi = $(this).find('td:eq(1)').text()
-                            .trim();
+                        const existingNoResi = $(this).find('td:eq(1)').text().trim();
                         if (existingNoResi === scannedNoResi) {
                             isAlreadyInTable = true;
                         }
                     });
+
                     if (isAlreadyInTable) {
-                        showMessage("error", "Resi ini sudah ada di scan")
+                        showMessage("error", "Resi ini sudah ada di scan");
                         $(this).val('');
                     } else if (scannedNoResi !== '') {
-                        addItemRow(scannedNoResi);
-                        $(this).val('');
+                        $.ajax({
+                            url: "{{ route('cekResiInvoice') }}",
+                            method: 'GET',
+                            data: {
+                                noResi: scannedNoResi
+                            },
+                            success: function(response) {
+                                // Tangani respons dari server
+                                if (response.status ===
+                                    'success') { // Periksa apakah status adalah 'success'
+                                    addItemRow(scannedNoResi);
+                                } else {
+                                    showMessage("error", response.message);
+                                }
+                                $('#scanNoresi').val(
+                                ''); // Reset nilai input setelah berhasil atau gagal
+                            },
+                            error: function(xhr, status, error) {
+                                showMessage("error", "Terjadi kesalahan: " + error);
+                                $('#scanNoresi').val('');
+                            }
+                        });
+
                     }
                     event.preventDefault();
                 }
             });
+
 
             function addItemRow(noResi) {
                 const newRow = `
@@ -422,11 +454,9 @@
             }
 
             function attachInputEvents() {
-
-                $('#barang-list').on('input', '.beratBarang', function() {
+                $('#barang-list').off('input', '.beratBarang').on('input', '.beratBarang', function() {
                     const row = $(this).closest('tr');
                     const beratValue = $(this).val();
-
 
                     if (beratValue.trim() !== "") {
                         row.find('.panjangVolume').val('');
@@ -437,21 +467,23 @@
                     updateTotalHargaBerat(row);
                 });
 
+                $('#barang-list').off('input', '.panjangVolume, .lebarVolume, .tinggiVolume').on('input',
+                    '.panjangVolume, .lebarVolume, .tinggiVolume',
+                    function() {
+                        const row = $(this).closest('tr');
+                        const panjangValue = row.find('.panjangVolume').val();
+                        const lebarValue = row.find('.lebarVolume').val();
+                        const tinggiValue = row.find('.tinggiVolume').val();
 
-                $('#barang-list').on('input', '.panjangVolume, .lebarVolume, .tinggiVolume', function() {
-                    const row = $(this).closest('tr');
-                    const panjangValue = row.find('.panjangVolume').val();
-                    const lebarValue = row.find('.lebarVolume').val();
-                    const tinggiValue = row.find('.tinggiVolume').val();
+                        if (panjangValue.trim() !== "" || lebarValue.trim() !== "" || tinggiValue.trim() !==
+                            "") {
+                            row.find('.beratBarang').val('');
+                        }
 
-                    if (panjangValue.trim() !== "" || lebarValue.trim() !== "" || tinggiValue.trim() !==
-                        "") {
-                        row.find('.beratBarang').val('');
-                    }
-
-                    updateTotalHargaVolume(row);
-                });
+                        updateTotalHargaVolume(row);
+                    });
             }
+
 
 
             function updateTotalHargaBerat(row) {

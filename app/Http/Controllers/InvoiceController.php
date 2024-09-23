@@ -720,24 +720,35 @@ class InvoiceController extends Controller
         }
     }
 
-    public function detailBuktiPembayaran(Request $request)
+    public function cekResiInvoice(Request $request)
     {
-        $tester = $request->input('namafoto');
+        $noResi = $request->input('noResi');
 
         try {
 
-            $filePath = 'public/bukti_pembayaran/' . $tester;
+            $tracking = DB::table('tbl_tracking')->where('no_resi', $noResi)->first();
 
-            if (!Storage::exists($filePath)) {
-                return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan'], 404);
+            // Jika no_resi tidak ditemukan
+            if (!$tracking) {
+                return response()->json(['status' => 'error', 'message' => 'Nomor resi tidak ditemukan'], 404);
             }
-            $url = Storage::url($filePath);
-            return response()->json(['status' => 'success', 'url' => $url], 200);
+
+            // Cek status
+            if ($tracking->status === 'Dalam Perjalanan') {
+                // Jika status "Dalam Perjalanan", kembalikan respons sukses
+                return response()->json(['status' => 'success', 'message' => 'Nomor resi valid untuk diproses'], 200);
+            } else {
+                // Jika status bukan "Dalam Perjalanan", kembalikan respons dengan error
+                return response()->json(['status' => 'error', 'message' => 'Status nomor resi tidak valid'], 400);
+            }
 
         } catch (\Exception $e) {
+            // Menangkap kesalahan dan mengembalikan respons error
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
 
     public function bayarTagihan(Request $request)
     {
