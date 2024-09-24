@@ -240,14 +240,12 @@
                         {{-- <button type="button" class="btn btn-primary" id="addItemBtn"><span class="pr-2"><i
                                     class="fas fa-plus"></i></span>Tambah Barang</button> --}}
                         <div class="row">
-                            <div class="col-12 mt-4 d-none" id="rowDimensi">
+                            <div class="col-12 mt-4" id="totalIdr" style="display: none;">
                                 <div class="col-2 offset-8 me-1">
-                                    <p class="mb-0">Dimensi</p>
+                                    <p class="mb-0">Total Idr</p>
                                     <div class="box bg-light text-dark p-3 mt-2"
                                         style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                        <span id="dimensiValue" style="font-weight: bold; color: #555;">0</span><img
-                                            class="pb-1" style="width: 35px; height: 35px;" src="/img/m3_icon.png"
-                                            alt="m3">
+                                        <span id="idrCurrentCy" style="font-weight: bold; color: #555;">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -340,14 +338,25 @@
 
             $('#currencyInvoice').change(function() {
                 const selectedCurrency = $(this).val();
+
                 if (selectedCurrency !== '1') {
-                    $('#rateCurrencySection').show();
+                    $('#rateCurrencySection').show(); // Tampilkan bagian rate currency
+                    $('#totalIdr').show(); // Tampilkan bagian total IDR
                 } else {
-                    $('#rateCurrencySection').hide();
-                    $('#rateCurrency').val('');
+                    $('#rateCurrencySection').hide(); // Sembunyikan bagian rate currency
+                    $('#totalIdr').hide(); // Sembunyikan bagian total IDR
+                    $('#rateCurrency').val(''); // Reset input custom rate
+                    $('#idrCurrentCy').text('Rp. 0'); // Reset Total IDR ke 0
+                    $('#total-harga').text("Rp. " + parseFloat($('#totalHargaValue').val()).toLocaleString(
+                        'id-ID', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })); // Tampilkan harga dalam Rupiah
                 }
-                updateDisplayedTotalHarga();
+
+                updateDisplayedTotalHarga(); // Update total yang ditampilkan
             });
+
 
             $('#currencyInvoice').val('1').trigger('change');
 
@@ -529,36 +538,41 @@
                     totalHarga += parseFloat(harga) || 0;
                 });
 
-
                 $('#totalHargaValue').val(totalHarga);
-
 
                 const currencyValue = $('#currencyInvoice').val();
                 const totalHargaIDR = totalHarga;
                 const customRate = $('#rateCurrency').val();
                 let convertedTotal = 0;
 
-
+                // Update bagian Total IDR
                 if (!totalHargaIDR || isNaN(totalHargaIDR) || totalHargaIDR === 0) {
+                    $('#idrCurrentCy').text('Rp. 0');
                     $('#total-harga').text('-');
+                    $('#totalIdr').hide(); // Sembunyikan Total IDR jika totalHargaIDR tidak valid
                     return;
                 }
 
+                $('#idrCurrentCy').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
 
+                // Update total yang dikonversi
                 if (!currencyValue) {
                     $('#total-harga').text('-');
-                } else if (currencyValue == 1) {
+                } else if (currencyValue === '1') {
                     $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     }));
                 } else if (customRate && currencyValue !== '1') {
-                    convertedTotal = totalHargaIDR / customRate;
+                    convertedTotal = totalHargaIDR / parseFloat(customRate);
                     let currencySymbol = "";
 
-                    if (currencyValue == 2) {
+                    if (currencyValue === '2') {
                         currencySymbol = "$ ";
-                    } else if (currencyValue == 3) {
+                    } else if (currencyValue === '3') {
                         currencySymbol = "¥ ";
                     }
 
