@@ -192,6 +192,7 @@
                                             {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}</option>
                                     @endforeach
                                 </select>
+                                <div id="pembagiVolumeError" class="text-danger mt-1 d-none">Silahkan Pilih Rate</div>
                             </div>
                         </div>
 
@@ -208,6 +209,7 @@
                                         @endif
                                     @endforeach
                                 </select>
+                                <div id="rateVolumeError" class="text-danger mt-1 d-none">Silahkan Pilih Rate</div>
                             </div>
                         </div>
 
@@ -388,7 +390,7 @@
                                     showMessage("error", response.message);
                                 }
                                 $('#scanNoresi').val(
-                                ''); // Reset nilai input setelah berhasil atau gagal
+                                    ''); // Reset nilai input setelah berhasil atau gagal
                             },
                             error: function(xhr, status, error) {
                                 showMessage("error", "Terjadi kesalahan: " + error);
@@ -587,6 +589,53 @@
                 itemIndex = index;
             }
 
+
+
+
+            function validateForm() {
+                let isValid = true;
+
+                // Loop melalui setiap baris item
+                $('#barang-list tr').each(function() {
+                    const selectedValue = $(this).find('.selectBeratDimensi').val();
+                    const berat = $(this).find('.beratBarang').val();
+                    const panjang = $(this).find('.panjangVolume').val();
+                    const lebar = $(this).find('.lebarVolume').val();
+                    const tinggi = $(this).find('.tinggiVolume').val();
+                    const rateBerat = $('#rateBerat').val();
+                    const rateVolume = $('#rateVolume').val();
+                    const pembagiVolume = $('#pembagiVolume').val();
+
+                    // Validasi untuk berat jika dipilih
+                    if (selectedValue === 'berat' && (!berat || !rateBerat)) {
+                        showMessage("error", 'Pastikan rate berat sudah dipilih.');
+                        isValid = false;
+                        return false;
+                    }
+
+                    // Validasi untuk dimensi jika dipilih
+                    if (selectedValue === 'dimensi' && (panjang || lebar || tinggi) && (!rateVolume || !
+                            pembagiVolume)) {
+                        showMessage("error",
+                            'Pastikan rate volume serta pembagi volume sudah diisi.');
+                        isValid = false;
+                        return false;
+                    }
+
+                    // Pastikan jika salah satu berat atau volume ada yang terisi
+                    if (!berat && (!panjang || !lebar || !tinggi)) {
+                        showMessage("error", 'Silakan masukkan berat atau dimensi yang valid.');
+                        isValid = false;
+                        return false;
+                    }
+                });
+
+                return isValid;
+            }
+
+
+
+
             $('#buatInvoice').click(function() {
                 const noResi = [];
                 const beratBarang = [];
@@ -594,6 +643,9 @@
                 const lebar = [];
                 const tinggi = [];
                 const hargaBarang = [];
+
+
+
 
                 $('#barang-list tr').each(function() {
                     noResi.push($(this).find('[name="noResi[]"]').text());
@@ -659,6 +711,11 @@
                     isValid = false;
                 } else {
                     $('#rateCurrencyError').addClass('d-none');
+                }
+
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
                 }
 
 

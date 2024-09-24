@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\KirimPesanWaPembeliJob;
 use App\Traits\WhatsappTrait;
 use Log;
 use Str;
@@ -179,135 +180,148 @@ class InvoiceController extends Controller
 
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
-        $q ="SELECT a.id,
-                a.no_invoice,
-                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                b.nama_pembeli AS pembeli,
-                a.alamat,
-                a.metode_pengiriman,
-                a.total_harga AS harga,
-                a.matauang_id,
-                a.rate_matauang,
-                GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list,
-                GROUP_CONCAT(r.berat ORDER BY r.no_resi SEPARATOR ', ') AS berat_list,
-                GROUP_CONCAT(r.panjang ORDER BY r.no_resi SEPARATOR ', ') AS panjang_list,
-                GROUP_CONCAT(r.lebar ORDER BY r.no_resi SEPARATOR ', ') AS lebar_list,
-                GROUP_CONCAT(r.tinggi ORDER BY r.no_resi SEPARATOR ', ') AS tinggi_list,
-                GROUP_CONCAT(r.harga ORDER BY r.no_resi SEPARATOR ', ') AS harga_list,
-                d.id AS status_id,
-                d.status_name
-            FROM tbl_invoice AS a
-            JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-            JOIN tbl_status AS d ON a.status_id = d.id
-            JOIN tbl_resi AS r ON r.invoice_id = a.id
-            WHERE (
-                UPPER(b.nama_pembeli) LIKE '$txSearch'
-                OR UPPER(a.no_invoice) LIKE '$txSearch'
-                )
-            $dateCondition
-            $statusCondition
-            GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name
-            ORDER BY CASE d.id
-                        WHEN '1' THEN 1
-                        WHEN '5' THEN 2
-                        WHEN '3' THEN 3
-                        WHEN '2' THEN 4
-                        WHEN '4' THEN 5
-                        ELSE 6
-                    END,
-                    a.id DESC
-            LIMIT 100;";
+        // Updated query to include wa_status only for relevant invoices
+        $q = "SELECT a.id,
+                    a.no_invoice,
+                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                    b.nama_pembeli AS pembeli,
+                    a.alamat,
+                    a.metode_pengiriman,
+                    a.total_harga AS harga,
+                    a.matauang_id,
+                    a.rate_matauang,
+                    GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list,
+                    d.id AS status_id,
+                    d.status_name,
+                    a.wa_status  -- Include the WhatsApp message status
+                FROM tbl_invoice AS a
+                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+                JOIN tbl_status AS d ON a.status_id = d.id
+                LEFT JOIN tbl_resi AS r ON r.invoice_id = a.id
+                WHERE (
+                    UPPER(b.nama_pembeli) LIKE '$txSearch'
+                    OR UPPER(a.no_invoice) LIKE '$txSearch'
+                    )
+                $dateCondition
+                $statusCondition
+                GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
+                ORDER BY CASE d.id
+                            WHEN '1' THEN 1
+                            WHEN '5' THEN 2
+                            WHEN '3' THEN 3
+                            WHEN '2' THEN 4
+                            WHEN '4' THEN 5
+                            ELSE 6
+                        END,
+                        a.id DESC
+                LIMIT 100;";
 
         $data = DB::select($q);
 
+        // Currency symbols array
         $currencySymbols = [
             1 => 'Rp. ',
             2 => '$ ',
             3 => '¥ '
         ];
 
-                    $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
-                    <thead class="thead-light">
-                        <tr>';
-                        if ($isNotif == 'true') {
-                            $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
-                        }
-                $output .= '
-                            <th>No Invoice</th>
-                            <th>Tanggal</th>
-                            <th>Customer</th>
-                            <th>Pengiriman</th>
-                            <th>Alamat</th>
-                            <th>Harga</th>
-                            <th>Status</th>';
-                        if ($isNotif != 'true') {
-                            $output .= '<th>Action</th>';
-                        }
-                $output .= '</tr>
-                    </thead>
-                    <tbody>';
+        // Table generation
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
+                        <thead class="thead-light">
+                            <tr>';
+                            if ($isNotif == 'true') {
+                                $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
+                            }
+        $output .= '
+                                <th>No Invoice</th>
+                                <th>Tanggal</th>
+                                <th>Customer</th>
+                                <th>Pengiriman</th>
+                                <th>Alamat</th>
+                                <th>Harga</th>
+                                <th>Status</th>';
+                            if ($isNotif != 'true') {
+                                $output .= '<th>Action</th>';
+                            }
+        $output .= '</tr>
+                        </thead>
+                        <tbody>';
 
-            foreach ($data as $item) {
+        foreach ($data as $item) {
             $statusBadgeClass = '';
-            // $btnEditinvoice = '';
             $btnChangeMethod = '';
 
+            // Badge classes for invoice status
             switch ($item->status_name) {
-            case 'Batam / Sortir':
-                $statusBadgeClass = 'badge-primary';
-                // $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                break;
-            case 'Ready For Pickup':
-                $statusBadgeClass = 'badge-warning';
-                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                break;
-            case 'Out For Delivery':
-                $statusBadgeClass = 'badge-primary';
-                $btnEditinvoice = '<a class="btn btnEditInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                break;
-            case 'Delivering':
-                $statusBadgeClass = 'badge-delivering';
-                break;
-            case 'Done':
-                $statusBadgeClass = 'badge-secondary';
-                break;
-            default:
-                $statusBadgeClass = 'badge-secondary';
-                break;
+                case 'Batam / Sortir':
+                    $statusBadgeClass = 'badge-primary';
+                    break;
+                case 'Ready For Pickup':
+                    $statusBadgeClass = 'badge-warning';
+                    break;
+                case 'Out For Delivery':
+                    $statusBadgeClass = 'badge-primary';
+                    break;
+                case 'Delivering':
+                    $statusBadgeClass = 'badge-delivering';
+                    break;
+                case 'Done':
+                    $statusBadgeClass = 'badge-secondary';
+                    break;
+                default:
+                    $statusBadgeClass = 'badge-secondary';
+                    break;
             }
 
+            // Change method button for certain conditions
             if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
-            $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
+                $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
             }
 
+            // Convert the price based on currency
             $convertedHarga = $item->harga;
             if ($item->matauang_id != 1) {
-            $convertedHarga = $item->harga / $item->rate_matauang;
+                $convertedHarga = $item->harga / $item->rate_matauang;
             }
 
+            // WhatsApp status icon logic
+            $waStatusIcon = '';
+            if ($item->wa_status == 'pending') {
+                $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;"></i>';
+            } elseif ($item->wa_status == 'sent') {
+                $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;"></i>';
+            } elseif ($item->wa_status == 'failed') {
+                $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;"></i>';
+            }
+
+            // Generating table rows
             $output .= '<tr>';
             if ($isNotif == 'true') {
                 $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
             }
+
             $output .= '
-                <td>' . ($item->no_invoice ?? '-') . '</td>
+                <td>' . ($item->no_invoice ?? '-') . ' ' . $waStatusIcon . '</td>
                 <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                 <td>' . ($item->pembeli ?? '-') . '</td>
                 <td>' . ($item->metode_pengiriman ?? '-') . '</td>
                 <td>' . ($item->alamat ?? '-') . '</td>
                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
+
             if ($isNotif != 'true') {
                 $output .= '<td>' . $btnChangeMethod . '
                             <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
                             </td>';
             }
             $output .= '</tr>';
-            }
-            $output .= '</tbody></table>';
+        }
 
-            return $output;
-                }
+        $output .= '</tbody></table>';
+
+        return $output;
+    }
+
 
     public function getlistHeadCicilan(Request $request)
     {
@@ -491,83 +505,9 @@ class InvoiceController extends Controller
                 throw new \Exception("Tidak ada invoice yang diterima");
             }
 
-            // Loop untuk setiap invoice ID
+            // Dispatch job untuk setiap invoice ID
             foreach ($invoiceIds as $invoiceId) {
-                // Ambil invoice beserta detailnya
-                $invoice = DB::table('tbl_invoice as a')
-                    ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
-                    ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
-                    ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa')
-                    ->where('a.id', $invoiceId)
-                    ->first();
-
-                if (!$invoice) {
-                    throw new \Exception("Invoice tidak ditemukan");
-                }
-
-                // Ambil resi terkait invoice
-                $resiData = DB::table('tbl_resi')
-                    ->where('invoice_id', $invoice->id)
-                    ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi']);
-
-                if ($resiData->isEmpty()) {
-                    throw new \Exception("Tidak ada resi yang terkait dengan invoice ini");
-                }
-
-                // Tentukan pesan berdasarkan metode pengiriman
-                if ($invoice->metode_pengiriman === 'Pickup') {
-                    $pesan ="*List barang* dengan no resi berikut telah siap untuk di pickup";
-                } elseif ($invoice->metode_pengiriman === 'Delivery') {
-                    $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
-                } else {
-                    throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $invoiceId");
-                }
-
-                // Membuat PDF dari data resi dan invoice
-                try {
-                    Log::info('Memulai pembuatan PDF untuk invoice ID: ' . $invoice->id);
-
-                    $pdf = Pdf::loadView('exportPDF.notification', [
-                        'resiData' => $resiData,
-                        'invoice' => $invoice,
-                    ]);
-
-                    Log::info('Berhasil membuat PDF untuk invoice ID: ' . $invoice->id);
-
-                } catch (\Exception $e) {
-                    Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
-                    return response()->json(['error' => 'Failed to generate PDF'], 500);
-                }
-
-                // Menyimpan PDF ke folder storage
-                try {
-                    $pdfFileName = 'list_barang_'.$invoiceId.'_'.time().'.pdf';
-                    $filePath = storage_path('app/public/list_barang/' . $pdfFileName);
-                    $pdf->save($filePath);
-                } catch (\Exception $e) {
-                    Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
-                    return response()->json(['error' => 'Failed to save PDF'], 500);
-                }
-
-                // URL untuk file PDF
-                $fileUrl = str_replace("127.0.0.1:8000", "e836-180-242-196-21.ngrok-free.app", asset('storage/list_barang/' . $pdfFileName));
-                $pesan .=  "\n\n*Download List Barang Anda di sini:* ";
-
-                // Kirim pesan WhatsApp dengan PDF
-                if ($invoice->no_wa) {
-                    $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
-                    $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl); // Kirim pesan dengan file PDF
-                } else {
-                    Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $invoice->id);
-                }
-
-                // Hapus file PDF setelah pesan terkirim
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                    Log::info('PDF berhasil dihapus: ' . $filePath);
-                } else {
-                    Log::warning('PDF tidak ditemukan untuk dihapus: ' . $filePath);
-                }
+                KirimPesanWaPembeliJob::dispatch($invoiceId);
             }
 
             return response()->json(['success' => true, 'message' => 'Pesan WhatsApp berhasil dikirim untuk semua invoice']);

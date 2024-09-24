@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
             $table->decimal('rate_matauang', 15,2)->nullable();
             $table->decimal('total_harga', 15,2);
+            $table->string('wa_status')->default('pending');
             $table->foreignId('status_id')->constrained('tbl_status')->default(1);
             $table->timestamps();
         });
