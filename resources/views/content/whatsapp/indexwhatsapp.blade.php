@@ -18,20 +18,20 @@
                 <div class="card-body">
                     <div id="containerWhatsapp" class="table-responsive px-3"></div>
                     <div class="mt-3">
-                        <label for="nomorWa" class="form-label fw-bold">Number Whatsapp</label>
+                        <label for="numberWa" class="form-label fw-bold">Number Whatsapp</label>
                         <div class="input-group" style="width:auto;">
-                            <span class="input-group-text" id="nomor">+62</span>
-                            <input type="text" class="form-control" id="nomorWa"
+                            <span class="input-group-text" id="number">+62</span>
+                            <input type="text" class="form-control" id="numberWa"
                                 value="{{ isset($waData->No_wa) ? ltrim($waData->No_wa, '62') : '' }}"
                                 placeholder="Masukkan Nomor Whatsapp">
                         </div>
-                        <div id="noWaError" class="text-danger mt-1 d-none">Please fill in the Number
+                        <div id="numberWaError" class="text-danger mt-1 d-none">Please fill in the Number
                         </div>
                         <div class="mt-3">
-                            <label for="pesanWa" class="form-label fw-bold">Message WhatsApp</label>
-                                <textarea class="form-control" id="pesanWa" rows="3"
-                                placeholder="Masukkan Pesan WhatsApp" value="{{ isset($waData->pesan_wa) ? $waData->pesan_wa : '' }}"></textarea>
-                            <div id="pesanWaError" class="text-danger mt-1 d-none">Please fill in the Message </div>
+                            <label for="messageWa" class="form-label fw-bold">Message WhatsApp</label>
+                                <textarea class="form-control" id="messageWa" rows="3"
+                                placeholder="Masukkan Pesan WhatsApp">{{ isset($waData->Message_wa) ? $waData->Message_wa : '' }}</textarea>
+                            <div id="messageWaError" class="text-danger mt-1 d-none">Please fill in the Message </div>
                         </div>
                         <button type="button" class="btn btn-primary mt-3" id="saveWa">
                             <span class="pr-3"><i class="fas fa-save"></i></span> Save
@@ -51,33 +51,34 @@
 <script>
     $(document).ready(function () {
         $(document).on('click', '#saveWa', function (e) {
+            
             e.preventDefault();
 
-            var nomorWa = $('#nomorWa').val().trim();
-            var pesanWa = $('#pesanWa').val().trim();
-            var formattedNomorWa = '62' + nomorWa;  
+            var numberWa = $('#numberWa').val().trim();
+            var messageWa = $('#messageWa').val().trim();
+            var formattedNumberWa = '62' + numberWa; 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
-            if (nomorWa === '') {
-                $('#noWaError').removeClass('d-none');
+            if (numberWa === '') {
+                $('#numberWaError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#noWaError').addClass('d-none');
+                $('#numberWaError').addClass('d-none');
             }
-            if (pesanWa === '') {
-                $('#pesanWaError').removeClass('d-none');
+            if (messageWa === '') {
+                $('#messageWaError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#pesanWaError').addClass('d-none');
+                $('#messageWaError').addClass('d-none');
             }
 
 
             if (isValid) {
                 var formData = new FormData();
-                formData.append('nomorWa', formattedNomorWa);
-                formData.append('pesanWa', pesanWa);
+                formData.append('numberWa', formattedNumberWa);
+                formData.append('messageWa', messageWa);
                 formData.append('_token', csrfToken);
 
                 Swal.fire({
@@ -102,6 +103,7 @@
                             
 
                             $('#destroyWa').data('id', response.data.id);
+                            
 
                             Swal.fire({
                                 icon: 'success',
@@ -171,13 +173,10 @@
                         success: function (response) {
                             Swal.close();
 
-                            if (response.status === 'success') {
-                                // Clear the WhatsApp number input
-                                $('#nomorWa').val('');
-                                $('#pesanWa').val('');
-                                // Remove from localStorage
-
-                                // Clear the delete button ID
+                            if (response.status === 'success') {                       
+                                $('#numberWa').val('');
+                                $('#messageWa').val('');
+                               
                                 $('#destroyWa').data('id', null);
 
                                 Swal.fire({
@@ -205,7 +204,7 @@
             });
         });
 
-        $('#nomorWa').on('input', function () {
+        $('#numberWa').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
     });

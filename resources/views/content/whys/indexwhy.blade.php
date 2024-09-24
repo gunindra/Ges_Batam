@@ -26,11 +26,11 @@
                         <p>Name Image=<span id="imageName">{{ $whyData->Image_WhyUs ?? '-'}}</span> </p>
                     </div>
                     <div class="input-group pt-2 mt-3">
-                        <label for="parafWhy" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafWhy" class="form-control" aria-label="With textarea"
-                            placeholder="Masukkan content">{{ $whyData->Paraf_WhyUs ?? '' }}</textarea>
+                        <label for="contentWhy" class="form-label fw-bold p-3">Content</label>
+                        <textarea id="contentWhy" class="form-control" aria-label="With textarea"
+                            placeholder="Masukkan content">{{ $whyData->Paragraph_WhyUs ?? '' }}</textarea>
                     </div>
-                    <div id="parafWhyError" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                    <div id="contentWhyError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
@@ -47,7 +47,7 @@
                             @if($whyData->Image_WhyUs)
                                 <img src="{{ asset('storage/images/' . $whyData->Image_WhyUs) }}" width="600px"
                                     style="padding:5px 30px;">
-                                <p style="margin-left:30px;">{{ $whyData->Paraf_WhyUs ?? '' }}</p>
+                                <p style="margin-left:30px;">{{ $whyData->Paragraph_WhyUs ?? '' }}</p>
                             @endif
                         @else
                             <p class="p-3">No content available</p>
@@ -68,7 +68,7 @@
             e.preventDefault();
 
             // Ambil nilai input
-            var parafWhy = $('#parafWhy').val().trim();
+            var contentWhy = $('#contentWhy').val().trim();
             var imageWhy = $('#imageWhy')[0].files[0];
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -76,11 +76,11 @@
             var isValid = true;
 
             // Validasi input
-            if (parafWhy === '') {
-                $('#parafWhyError').removeClass('d-none');
+            if (contentWhy === '') {
+                $('#contentWhyError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#parafWhyError').addClass('d-none');
+                $('#contentWhyError').addClass('d-none');
             }
             if (imageWhy) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -110,7 +110,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('parafWhy', parafWhy);
+                        formData.append('contentWhy', contentWhy);
                         if (imageWhy) {
                             formData.append('imageWhy', imageWhy);
                         }
@@ -154,8 +154,8 @@
                                             previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
                                         }
 
-                                        if (response.data.parafWhy) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.parafWhy + '</p>');
+                                        if (response.data.contentWhy) {
+                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.contentWhy + '</p>');
                                         }
                                         $('#imageName').text(response.data.imageWhy || ' -');
                                     });

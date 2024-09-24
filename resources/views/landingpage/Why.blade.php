@@ -11,7 +11,7 @@
       </div>
       <div class="contentwhy">
         <h2 id="judulWhy">Why Choose Us</h2>
-        <p id="parafWhy">{{ $dataWhy->Paraf_WhyUs }}</p>
+        <p id="parafWhy">{{ $dataWhy->Paragraph_WhyUs }}</p>
       </div>
     </div>
     @else

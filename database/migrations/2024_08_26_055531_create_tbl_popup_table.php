@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tbl_popup', function (Blueprint $table) {
             $table->id();
-            $table->string('Judul_Popup');
-            $table->text('Paraf_Popup');
+            $table->string('title_Popup');
+            $table->text('Paragraph_Popup');
             $table->string('Link_Popup');
             $table->string('Image_Popup');
             $table->timestamps();

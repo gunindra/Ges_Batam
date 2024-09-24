@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tbl_wa', function (Blueprint $table) {
             $table->id();
             $table->string('No_wa');
-            $table->text('pesan_wa');
+            $table->text('Message_wa');
             $table->timestamps();
         });
     }

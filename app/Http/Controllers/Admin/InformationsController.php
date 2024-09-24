@@ -17,8 +17,8 @@ class InformationsController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        judul_informations,
-                        isi_informations,
+                        title_informations,
+                        content_informations,
                         image_informations
                 FROM tbl_informations
         ";
@@ -43,11 +43,11 @@ class InformationsController extends Controller
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->judul_informations ?? '-') .'</td>
-                    <td class="">' . ($item->isi_informations ?? '-') .'</td>
+                    <td class="">' . ($item->title_informations ?? '-') .'</td>
+                    <td class="">' . ($item->content_informations ?? '-') .'</td>
                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                     <td>
-                        <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-judul_informations="' .$item->judul_informations .'" data-isi_informations="' .$item->isi_informations .'" data-image_informations="' .$item->image_informations .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-title_informations="' .$item->title_informations .'" data-content_informations="' .$item->content_informations .'" data-image_informations="' .$item->image_informations .'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -63,8 +63,8 @@ class InformationsController extends Controller
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
-        $judulInformations = $request->input('judulInformations');
-        $isiInformations = $request->input('isiInformations');
+        $titleInformations = $request->input('titleInformations');
+        $contentInformations = $request->input('contentInformations');
         $imageInformations = $request->file('imageInformations');
 
         try {
@@ -83,8 +83,8 @@ class InformationsController extends Controller
                 $fileName = null;
             }
             DB::table('tbl_informations')->insert([
-                'judul_informations' => $judulInformations,
-                'isi_informations' => $isiInformations,
+                'title_informations' => $titleInformations,
+                'content_informations' => $contentInformations,
                 'image_informations' => $fileName,
                 'created_at' => now(),
             ]);
@@ -125,16 +125,16 @@ class InformationsController extends Controller
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
         $id = $request->input('id');
-        $judulInformations = $request->input('judulInformations');
-        $isiInformations = $request->input('isiInformations');
+        $titleInformations = $request->input('titleInformations');
+        $contentInformations = $request->input('contentInformations');
         $imageInformations = $request->file('imageInformations');
 
         try {
             $existingInformation = DB::table('tbl_informations')->where('id', $id)->first();
 
             $dataUpdate = [
-                'judul_informations' => $judulInformations,
-                'isi_informations' => $isiInformations,
+                'title_informations' => $titleInformations,
+                'content_informations' => $contentInformations,
                 'updated_at' => now(),
             ];
 

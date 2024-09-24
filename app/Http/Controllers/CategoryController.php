@@ -30,7 +30,7 @@ class CategoryController extends Controller
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableCategory">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Nama</th>
+                                        <th>Name</th>
                                         <th>Minimum Rate</th>
                                         <th>Maximum Rate</th>
                                         <th>Action</th>
@@ -58,13 +58,13 @@ class CategoryController extends Controller
     public function addCategory(Request $request)
     {
 
-        $namaCategory = $request->input('namaCategory');
+        $nameCategory = $request->input('nameCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');
         $maximumRateCategory = $request->input('maximumRateCategory');
         try {
            
             DB::table('tbl_category')->insert([
-                'category_name' => $namaCategory,
+                'category_name' => $nameCategory,
                 'minimum_rate' => $minimumRateCategory,
                 'maximum_rate' => $maximumRateCategory,
                 'created_at' => now(),
@@ -78,13 +78,13 @@ class CategoryController extends Controller
     public function updateCategory(Request $request)
     {
         $id = $request->input('id');
-        $namaCategory = $request->input('namaCategory');
+        $nameCategory = $request->input('nameCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');
         $maximumRateCategory = $request->input('maximumRateCategory');
 
         try {
             $dataUpdate = [
-                'category_name' => $namaCategory,
+                'category_name' => $nameCategory,
                 'minimum_rate' => $minimumRateCategory,
                 'maximum_rate' => $maximumRateCategory,
                 'updated_at' => now(),

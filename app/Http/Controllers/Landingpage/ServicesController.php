@@ -11,7 +11,7 @@ class ServicesController extends Controller
     {
         $id = $request->query('id');
 
-        $dataService = DB::select("SELECT judul_service,isi_service,image_service FROM tbl_service WHERE id = $id");
+        $dataService = DB::select("SELECT title_service,content_service,image_service FROM tbl_service WHERE id = $id");
         $contact = DB::table('tbl_contact')->first(); 
 
         return view('landingpage.Services', ['dataService' => $dataService , 'contact' => $contact]);

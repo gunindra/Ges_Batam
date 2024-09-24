@@ -10,7 +10,7 @@ class AdvertisementController extends Controller
 {
     public function index()
     {
-        return view('content.advertisement.indexAdvertisement');
+        return view('content.advertisement.indexadvertisement');
     }
 
     public function getlistAdvertisement(Request $request)
@@ -18,16 +18,16 @@ class AdvertisementController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        judul_iklan,
-                        image_iklan
-                FROM tbl_iklan
+                        title_Advertisement,
+                        image_Advertisement
+                FROM tbl_advertisement
         ";
 
         // dd($q);
 
         $data = DB::select($q);
 
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableIklan">
+        $output = '  <table class="table align-items-center table-flush table-hover" id="tableAdvertisement">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Title</th>
@@ -38,18 +38,18 @@ class AdvertisementController extends Controller
                                 <tbody>';
         foreach ($data as $item) {
 
-            $image = $item->image_iklan;
+            $image = $item->image_Advertisement;
             $imagepath = Storage::url('images/' . $image);
 
 
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->judul_iklan ?? '-') .'</td>
+                    <td class="">' . ($item->title_Advertisement ?? '-') .'</td>
                      <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                    <td>
-                        <a  class="btn btnUpdateIklan btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_iklan="' .$item->judul_iklan.'" data-image_iklan="' .$item->image_iklan.'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyIklan btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                     <a class="btn btnUpdateAdvertisement btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_Advertisement="' . $item->title_Advertisement . '" data-image_Advertisement="' . $item->image_Advertisement . '"><i class="fas fa-edit"></i></a>
+                    <a class="btn btnDestroyAdvertisement btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -61,32 +61,32 @@ class AdvertisementController extends Controller
     public function addAdvertisement(Request $request)
     {
         $request->validate([
-            'judulIklan' => 'required|string|max:255', 
-            'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|', 
+            'titleAdvertisement' => 'required|string|max:255', 
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
-        $judulIklan = $request->input('judulIklan');
-        $imageIklan = $request->file('imageIklan');
+        $titleAdvertisement = $request->input('titleAdvertisement');
+        $imageAdvertisement = $request->file('imageAdvertisement');
 
 
         try {
-            $chekdata = DB::table('tbl_iklan')->count();
+            $chekdata = DB::table('tbl_advertisement')->count();
 
             if ($chekdata >= 7) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
             }
            
-                if ($imageIklan) {
+                if ($imageAdvertisement) {
                     $uniqueId = uniqid('Advertisement_', true);
-                    $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
-                    $imageIklan->storeAs('public/images', $fileName);
+                    $fileName = $uniqueId . '.' . $imageAdvertisement->getClientOriginalExtension();
+                    $imageAdvertisement->storeAs('public/images', $fileName);
                 } else {
                     $fileName = null;
                 }
 
-            DB::table('tbl_iklan')->insert([
-                'judul_iklan' => $judulIklan,
-                'image_iklan' => $fileName,
+            DB::table('tbl_advertisement')->insert([
+                'title_Advertisement' => $titleAdvertisement,
+                'image_Advertisement' => $fileName,
                 'created_at' => now(),
             ]);
 
@@ -100,16 +100,16 @@ class AdvertisementController extends Controller
         $id = $request->input('id');
 
         try {
-            $existingIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+            $existingAdvertisement = DB::table('tbl_advertisement')->where('id', $id)->first();
 
-            if ($existingIklan && $existingIklan->image_iklan) {
-                $existingImagePath = 'public/images/' . $existingIklan->image_iklan;
+            if ($existingAdvertisement && $existingAdvertisement->image_Advertisement) {
+                $existingImagePath = 'public/images/' . $existingAdvertisement->image_Advertisement;
     
     
                 if (Storage::exists($existingImagePath)) {
                     Storage::delete($existingImagePath);
                 }
-            DB::table('tbl_iklan')
+            DB::table('tbl_advertisement')
                 ->where('id', $id)
                 ->delete();
             }
@@ -121,25 +121,25 @@ class AdvertisementController extends Controller
     public function updateAdvertisement(Request $request)
     {
         $request->validate([
-            'judulIklan' => 'required|string|max:255', 
-            'imageIklan' => 'nullable|mimes:jpg,jpeg,png,svg|', 
+            'titleAdvertisement' => 'required|string|max:255', 
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
         $id = $request->input('id');
-        $judulIklan = $request->input('judulIklan');
-        $imageIklan = $request->file('imageIklan');
+        $titleAdvertisement = $request->input('titleAdvertisement');
+        $imageAdvertisement = $request->file('imageAdvertisement');
 
         try {
-            $existingIklan = DB::table('tbl_iklan')->where('id', $id)->first();
+            $existingAdvertisement = DB::table('tbl_advertisement')->where('id', $id)->first();
 
             $dataUpdate = [
-                'judul_iklan' => $judulIklan,
+                'title_Advertisement' => $titleAdvertisement,
                 'updated_at' => now(),
             ];
-            if ($imageIklan) {
+            if ($imageAdvertisement) {
 
-                if ($existingIklan && $existingIklan->image_iklan) {
-                    $existingImagePath = 'public/images/' . $existingIklan->image_iklan;
+                if ($existingAdvertisement && $existingAdvertisement->image_Advertisement) {
+                    $existingImagePath = 'public/images/' . $existingAdvertisement->image_Advertisement;
                     if (Storage::exists($existingImagePath)) {
                         Storage::delete($existingImagePath);
                     }
@@ -147,11 +147,11 @@ class AdvertisementController extends Controller
                 
 
                 $uniqueId = uniqid('Advertisement_', true);
-                $fileName = $uniqueId . '.' . $imageIklan->getClientOriginalExtension();
-                $imageIklan->storeAs('public/images', $fileName);
-                $dataUpdate['image_iklan'] = $fileName; 
+                $fileName = $uniqueId . '.' . $imageAdvertisement->getClientOriginalExtension();
+                $imageAdvertisement->storeAs('public/images', $fileName);
+                $dataUpdate['image_Advertisement'] = $fileName; 
             }
-            DB::table('tbl_iklan')
+            DB::table('tbl_advertisement')
                 ->where('id', $id)
                 ->update($dataUpdate);
 

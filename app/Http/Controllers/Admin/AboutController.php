@@ -18,10 +18,10 @@ class AboutController extends Controller
     {
         $request->validate([
             'imageAbout' => 'nullable|mimes:jpg,jpeg,png',
-            'parafAbout' => 'required|string',
+            'contentAbout' => 'required|string',
         ]);
         
-        $parafAbout = $request->input('parafAbout');
+        $contentAbout = $request->input('contentAbout');
         $imageAbout = $request->file('imageAbout');
     
         try {
@@ -40,19 +40,19 @@ class AboutController extends Controller
     
             if ($existingData) {
                 DB::table('tbl_aboutus')->update([
-                    'Paraf_AboutUs' => $parafAbout,
+                    'Paragraph_AboutUs' => $contentAbout,
                     'Image_AboutUs' => $fileName,
                     'updated_at' => now(),
                 ]);
             } else {
                 DB::table('tbl_aboutus')->insert([
-                    'Paraf_AboutUs' => $parafAbout,
+                    'Paragraph_AboutUs' => $contentAbout,
                     'Image_AboutUs' => $fileName,
                     'created_at' => now(),
                 ]);
             }
     
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'parafAbout' => $parafAbout]], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'contentAbout' => $contentAbout]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

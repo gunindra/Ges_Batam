@@ -8,66 +8,67 @@
 
 
     <!-- Modal tambah -->
-    <div class="modal fade" id="modalTambahIklan" tabindex="-1" role="dialog" aria-labelledby="modalTambahIklanTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="modalTambahAdvertisement" tabindex="-1" role="dialog"
+        aria-labelledby="modalTambahAdvertisementTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahIklan">Add Advertisement</h5>
+                    <h5 class="modal-title" id="modalTambahAdvertisement">Add Advertisement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="judulIklan" class="form-label fw-bold">Title</label>
-                        <input type="text" class="form-control" id="judulIklan" value=""
+                        <label for="titleAdvertisement" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="titleAdvertisement" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="judulIklanError" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titleAdvertisementError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageIklan" class="form-label fw-bold">Image</label>
-                        <input type="file" class="form-control" id="imageIklan" value="">
-                        <div id="imageIklanError" class="text-danger mt-1 d-none">Please fill in the Image</div>
+                        <label for="imageAdvertisement" class="form-label fw-bold">Image</label>
+                        <input type="file" class="form-control" id="imageAdvertisement" value="">
+                        <div id="imageAdvertisementError" class="text-danger mt-1 d-none">Please fill in the Image</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveIklan" class="btn btn-primary">Save changes</button>
+                        <button type="button" id="saveAdvertisement" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <!-- Modal Edit -->
-    <div class="modal fade" id="modalEditIklan" tabindex="-1" role="dialog" aria-labelledby="modalEditIklanTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="modalEditAdvertisement" tabindex="-1" role="dialog"
+        aria-labelledby="modalEditAdvertisementTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditIklanTitle">Edit Advertisement</h5>
+                    <h5 class="modal-title" id="modalEditAdvertisementTitle">Edit Advertisement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="iklanIdEdit">
+                    <input type="hidden" id="advertisementIdEdit">
                     <div class="mt-3">
-                        <label for="judulIklan" class="form-label fw-bold">Title</label>
-                        <input type="text" class="form-control" id="judulIklanEdit" value=""
+                        <label for="titleAdvertisement" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="titleAdvertisementEdit" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="judulIklanErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titleAdvertisementErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title
+                        </div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageIklan" class="form-label fw-bold">Image</label>
-                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
-                        <input type="file" class="form-control" id="imageIklanEdit" value="">
-                        <div id="imageIklanErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
+                        <label for="imageAdvertisement" class="form-label fw-bold">Image</label>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>  
+                        <input type="file" class="form-control" id="imageAdvertisementEdit" value="">
+                        <div id="imageAdvertisementErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    <button type="button" id="saveEditIklan" class="btn btn-primary">Save changes</button>
+                    <button type="button" id="saveEditAdvertisement" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
@@ -86,10 +87,10 @@
                 <div class="card-body">
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#modalTambahIklan" id="#modalCenter"><span class="pr-2"><i
+                            data-target="#modalTambahAdvertisement" id="#modalCenter"><span class="pr-2"><i
                                     class="fas fa-plus"></i></span>Add Advertisement</button>
                     </div>
-                    <div id="containerIklan" class="table-responsive px-2">
+                    <div id="containerAdvertisement" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
                                 <thead class="thead-light">
                                     <tr>
@@ -139,12 +140,12 @@
                     txSearch: txtSearch
                 },
                 beforeSend: () => {
-                    $('#containerIklan').html(loadSpin)
+                    $('#containerAdvertisement').html(loadSpin)
                 }
             })
                 .done(res => {
-                    $('#containerIklan').html(res)
-                    $('#tableIklan').DataTable({
+                    $('#containerAdvertisement').html(res)
+                    $('#tableAdvertisement').DataTable({
                         searching: false,
                         lengthChange: false,
                         "bSort": true,
@@ -161,34 +162,34 @@
 
         getlistAdvertisement();
 
-        $('#saveIklan').click(function () {
+        $('#saveAdvertisement').click(function () {
             // Ambil nilai input
-            var judulIklan = $('#judulIklan').val().trim();
-            var imageIklan = $('#imageIklan')[0].files[0];
+            var titleAdvertisement = $('#titleAdvertisement').val().trim();
+            var imageAdvertisement = $('#imageAdvertisement')[0].files[0];
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
-            if (judulIklan === '') {
-                $('#judulIklanError').removeClass('d-none');
+            if (titleAdvertisement === '') {
+                $('#titleAdvertisementError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#judulIklanError').addClass('d-none');
+                $('#titleAdvertisementError').addClass('d-none');
             }
-            if (imageIklan) {
+            if (imageAdvertisement) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
-                if (!validExtensions.includes(imageIklan.type)) {
-                    $('#imageIklanError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
+                if (!validExtensions.includes(imageAdvertisement.type)) {
+                    $('#imageAdvertisementError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#imageIklanError').addClass('d-none');
+                    $('#imageAdvertisementError').addClass('d-none');
                 }
-            } else if (!imageIklan) {
-                $('#imageIklanError').removeClass('d-none');
+            } else if (!imageAdvertisement) {
+                $('#imageAdvertisementError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#imageIklanError').addClass('d-none');
+                $('#imageAdvertisementError').addClass('d-none');
             }
 
             // Jika semua input valid, lanjutkan aksi simpan
@@ -205,12 +206,12 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('judulIklan', judulIklan);
-                        formData.append('imageIklan', imageIklan);
+                        formData.append('titleAdvertisement', titleAdvertisement);
+                        formData.append('imageAdvertisement', imageAdvertisement);
                         formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
-                            text: 'Please wait while we process your data iklan.',
+                            text: 'Please wait while we process your data Advertisement.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -237,7 +238,7 @@
                                 if (response.status === 'success') {
                                     showMessage("success", "Data successfully saved");
                                     getlistAdvertisement();
-                                    $('#modalTambahIklan').modal('hide');
+                                    $('#modalTambahAdvertisement').modal('hide');
                                 } else {
                                     Swal.fire({
                                         title: "Failed to add data",
@@ -265,45 +266,45 @@
 
 
 
-        $(document).on('click', '.btnUpdateIklan', function (e) {
+        $(document).on('click', '.btnUpdateAdvertisement', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let judul_iklan = $(this).data('judul_iklan');
-            let image_iklan = $(this).data('image_iklan');
+            let title_Advertisement = $(this).data('title_advertisement');
+            let image_Advertisement  = $(this).data('image_advertisement');
 
-            $('#judulIklanEdit').val(judul_iklan);
-            $('#textNamaEdit').text(image_iklan);
-            $('#iklanIdEdit').val(id);
+            $('#titleAdvertisementEdit').val(title_Advertisement);
+            $('#textNamaEdit').text(image_Advertisement);
+            $('#advertisementIdEdit').val(id);
 
-            $(document).on('click', '#saveEditIklan', function (e) {
+            $(document).on('click', '#saveEditAdvertisement', function (e) {
 
-                let id = $('#iklanIdEdit').val();
-                let judulIklan = $('#judulIklanEdit').val();
-                let imageIklan = $('#imageIklanEdit')[0].files[0];
+                let id = $('#advertisementIdEdit').val();
+                let titleAdvertisement = $('#titleAdvertisementEdit').val();
+                let imageAdvertisement = $('#imageAdvertisementEdit')[0].files[0];
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
 
-                if (judulIklan === '') {
-                    $('#judulIklanErrorEdit').removeClass('d-none');
+                if (titleAdvertisement === '') {
+                    $('#titleAdvertisementErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#judulIklanErrorEdit').addClass('d-none');
+                    $('#titleAdvertisementErrorEdit').addClass('d-none');
                 }
 
-                if (imageIklan) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
-                    if (!validExtensions.includes(imageIklan.type)) {
-                        $('#imageIklanErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
+                if (imageAdvertisement) {
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validExtensions.includes(imageAdvertisement.type)) {
+                        $('#imageAdvertisementErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                         isValid = false;
                     } else {
-                        $('#imageIklanErrorEdit').addClass('d-none');
+                        $('#imageAdvertisementErrorEdit').addClass('d-none');
                     }
-                } else if (imageIklan === 0 && $('#textNamaEdit').text() === '') {
-                    $('#imageIklanErrorEdit').removeClass('d-none');
+                } else if (imageAdvertisement === 0 && $('#textNamaEdit').text() === '') {
+                    $('#imageAdvertisementErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#imageIklanErrorEdit').addClass('d-none');
+                    $('#imageAdvertisementErrorEdit').addClass('d-none');
                 }
 
                 if (isValid) {
@@ -320,14 +321,14 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
-                            formData.append('judulIklan', judulIklan);
-                            if(imageIklan){
-                            formData.append('imageIklan', imageIklan);
+                            formData.append('titleAdvertisement', titleAdvertisement);
+                            if(imageHeroPage){
+                            formData.append('imageAdvertisement', imageAdvertisement);
                             }
                             formData.append('_token', csrfToken);
                             Swal.fire({
                                 title: 'Loading...',
-                                text: 'Please wait while we process update your data iklan.',
+                                text: 'Please wait while we process update your data Heropage.',
                                 allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading();
@@ -354,8 +355,8 @@
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data successfully updated");
-                                        getlistAdvertisement();
-                                        $('#modalEditIklan').modal(
+                                            getlistAdvertisement();
+                                        $('#modalEditAdvertisement').modal(
                                             'hide');
                                     } else {
                                         Swal.fire({
@@ -371,30 +372,27 @@
                     showMessage("error", "Please check for empty inputs");
                 }
             })
-
-            // validateInformationsInput('modalEditInformations');
-            $('#modalEditIklan').modal('show');
+            $('#modalEditAdvertisement').modal('show');
         });
-
-        $('#modalTambahIklan').on('hidden.bs.modal', function () {
-            $('#judulIklan,#imageIklan').val('');
-            if (!$('#judulIklanError').hasClass('d-none')) {
-                $('#judulIklanError').addClass('d-none');
+        $('#modalTambahAdvertisement').on('hidden.bs.modal', function () {
+            $('#titleAdvertisement,#imageAdvertisement').val('');
+            if (!$('#titleAdvertisementError').hasClass('d-none')) {
+                $('#titleAdvertisementError').addClass('d-none');
 
             }
-            if (!$('#imageIklanError').hasClass('d-none')) {
-                $('#imageIklanError').addClass('d-none');
+            if (!$('#imageAdvertisementError').hasClass('d-none')) {
+                $('#imageAdvertisementError').addClass('d-none');
 
             }
         });
-        $('#modalEditIklan').on('hidden.bs.modal', function () {
-            $('#judulIklanEdit,#imageIklanEdit').val('');
-            if (!$('#judulIklanErrorEdit').hasClass('d-none')) {
-                $('#judulIklanErrorEdit').addClass('d-none');
+        $('#modalEditAdvertisement').on('hidden.bs.modal', function () {
+            $('#titleAdvertisementEdit,#imageAdvertisementEdit').val('');
+            if (!$('#titleAdvertisementErrorEdit').hasClass('d-none')) {
+                $('#titleAdvertisementErrorEdit').addClass('d-none');
 
             }
-            if (!$('#imageIklanErrorEdit').hasClass('d-none')) {
-                $('#imageIklanErrorEdit').addClass('d-none');
+            if (!$('#imageAdvertisementErrorEdit').hasClass('d-none')) {
+                $('#imageAdvertisementErrorEdit').addClass('d-none');
 
             }
         });
@@ -402,7 +400,7 @@
 
 
 
-        $(document).on('click', '.btnDestroyIklan', function (e) {
+        $(document).on('click', '.btnDestroyAdvertisement', function (e) {
             let id = $(this).data('id');
 
             Swal.fire({
@@ -418,7 +416,7 @@
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Loading...',
-                        text: 'Please wait while we process delete your data iklan.',
+                        text: 'Please wait while we process delete your data Advertisement.',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();

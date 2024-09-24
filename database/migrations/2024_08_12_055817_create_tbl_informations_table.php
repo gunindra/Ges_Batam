@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('tbl_informations', function (Blueprint $table) {
             $table->id();
             $table->string('image_informations');
-            $table->string('judul_informations');
-            $table->text('isi_informations');
+            $table->string('title_informations');
+            $table->text('content_informations');
             $table->timestamps();
         });
     }

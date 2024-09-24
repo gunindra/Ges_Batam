@@ -25,16 +25,16 @@
                         <p>Name Image= <span id="imageName">{{ $popupData->Image_Popup ?? ' -' }}</span></p>
                     </div>
                     <div class="mt-3">
-                        <label for="judulPopup" class="form-label fw-bold">Title</label>
-                        <input type="text" class="form-control" id="judulPopup"
-                            value="{{ isset($popupData->Judul_Popup) ? $popupData->Judul_Popup : '' }}"
+                        <label for="titlePopup" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="titlePopup"
+                            value="{{ isset($popupData->title_Popup) ? $popupData->title_Popup : '' }}"
                             placeholder="Masukkan judul Popup">
-                        <div id="judulPopupError" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titlePopupError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="input-group pt-2 mt-3">
-                        <label for="parafPopup" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafPopup" class="form-control" aria-label="With textarea"
-                            placeholder="Masukkan content">{{ isset($popupData->Paraf_Popup) ? $popupData->Paraf_Popup : '' }}</textarea>
+                        <label for="paragraphPopup" class="form-label fw-bold p-3">Content</label>
+                        <textarea id="paragraphPopup" class="form-control" aria-label="With textarea"
+                            placeholder="Masukkan content">{{ isset($popupData->Paragraph_Popup) ? $popupData->Paragraph_Popup : '' }}</textarea>
                     </div>
                     <div id="parafPopupError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     <div class="mt-3">
@@ -64,9 +64,9 @@
                             @if($popupData->Image_Popup)
                                 <img src="{{ asset('storage/images/' . $popupData->Image_Popup) }}" width="600px"
                                     style="padding:5px 30px;">
-                                <p style="padding-left:30px;">{{ $popupData->Judul_Popup }}</p>
+                                <p style="padding-left:30px;">{{ $popupData->title_Popup }}</p>
                             @endif
-                            <p style="padding-left:30px;">{{ $popupData->Paraf_Popup }}</p>
+                            <p style="padding-left:30px;">{{ $popupData->Paragraph_Popup }}</p>
                             <p class="text-primary" style="padding-left:30px;">{{ $popupData->Link_Popup }}</p>
                         @else
                             <p class="p-3">No content available</p>
@@ -87,8 +87,8 @@
         $(document).on('click', '#savePopup', function (e) {
             e.preventDefault();
 
-            var judulPopup = $('#judulPopup').val().trim();
-            var parafPopup = $('#parafPopup').val().trim();
+            var titlePopup = $('#titlePopup').val().trim();
+            var paragraphPopup = $('#paragraphPopup').val().trim();
             var linkPopup = $('#linkPopup').val().trim();
             var imagePopup = $('#imagePopup')[0].files[0];
             var existingImage = $('#imageName').text(); 
@@ -97,17 +97,17 @@
 
             var isValid = true;
 
-            if (judulPopup === '') {
-                $('#judulPopupError').removeClass('d-none');
+            if (titlePopup === '') {
+                $('#titlePopupError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#judulPopupError').addClass('d-none');
+                $('#titlePopupError').addClass('d-none');
             }
-            if (parafPopup === '') {
-                $('#parafPopupError').removeClass('d-none');
+            if (paragraphPopup === '') {
+                $('#paragraphPopupError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#parafPopupError').addClass('d-none');
+                $('#paragraphPopupError').addClass('d-none');
             }
             if (linkPopup === '') {
                 $('#linkPopupError').removeClass('d-none');
@@ -132,8 +132,8 @@
 
             if (isValid) {
                 var formData = new FormData();
-                formData.append('judulPopup', judulPopup);
-                formData.append('parafPopup', parafPopup);
+                formData.append('titlePopup', titlePopup);
+                formData.append('paragraphPopup', paragraphPopup);
                 formData.append('linkPopup', linkPopup);
                 formData.append('imagePopup', imagePopup ? imagePopup : existingImage);  
                 formData.append('_token', csrfToken);
@@ -167,8 +167,8 @@
                             $('#imageName').text(response.data.imagePopup);
                             $('#previewContainer').html(`
                     <img src="{{ asset('storage/images/') }}/${response.data.imagePopup}" width="600px" style="padding:5px 30px;">
-                    <p style="padding-left:30px;">${response.data.judulPopup}</p>
-                    <p style="padding-left:30px;">${response.data.parafPopup}</p>
+                    <p style="padding-left:30px;">${response.data.titlePopup}</p>
+                    <p style="padding-left:30px;">${response.data.paragraphPopup}</p>
                     <p class="text-primary" style="padding-left:30px;">${response.data.linkPopup}</p>
                 `);
 
@@ -251,8 +251,8 @@
                                 });
                             }
                             if (response.status === 'success') {
-                                $('#judulPopup').val('');
-                                $('#parafPopup').val('');
+                                $('#titlePopup').val('');
+                                $('#paragraphPopup').val('');
                                 $('#linkPopup').val('');
                                 $('#imagePopup').val('');
                                 $('#previewContainer').html('<p class="p-3">No content available</p>');

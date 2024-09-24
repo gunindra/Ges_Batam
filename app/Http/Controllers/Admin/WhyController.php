@@ -18,9 +18,9 @@ class WhyController extends Controller
     {
         $request->validate([
             'imageWhy' => 'nullable|mimes:jpg,jpeg,png|', 
-            'parafWhy' => 'required|string', 
+            'contentWhy' => 'required|string', 
         ]);
-        $parafWhy = $request->input('parafWhy');
+        $contentWhy = $request->input('contentWhy');
         $imageWhy = $request->file('imageWhy');
     
         try {
@@ -39,19 +39,19 @@ class WhyController extends Controller
     
             if ($existingData) {
                 DB::table('tbl_whyus')->update([
-                    'Paraf_WhyUs' => $parafWhy,
+                    'Paragraph_WhyUs' => $contentWhy,
                     'Image_WhyUs' => $fileName,
                     'updated_at' => now(),
                 ]);
             } else {
                 DB::table('tbl_whyus')->insert([
-                    'Paraf_WhyUs' => $parafWhy,
+                    'Paragraph_WhyUs' => $contentWhy,
                     'Image_WhyUs' => $fileName,
                     'created_at' => now(),
                 ]);
             }
     
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'parafWhy' => $parafWhy]], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'contentWhy' => $contentWhy]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

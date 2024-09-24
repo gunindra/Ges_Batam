@@ -17,14 +17,14 @@ class PopupController extends Controller
     public function addPopup(Request $request)
     {
         $request->validate([
-            'judulPopup' => 'required|string|max:255', 
-            'parafPopup' => 'required|string', 
+            'titlePopup' => 'required|string|max:255', 
+            'paragraphPopup' => 'required|string', 
             'linkPopup' => 'required|string|max:255',
             'imagePopup' => $request->hasFile('imagePopup') ? 'nullable|mimes:jpg,jpeg,png' : '',
         ]);
     
-        $judulPopup = $request->input('judulPopup');
-        $parafPopup = $request->input('parafPopup');
+        $titlePopup = $request->input('titlePopup');
+        $paragraphPopup = $request->input('paragraphPopup');
         $linkPopup = $request->input('linkPopup');
         $imagePopup = $request->file('imagePopup');
     
@@ -44,8 +44,8 @@ class PopupController extends Controller
     
             if ($existingData) {
                 DB::table('tbl_popup')->update([
-                    'Judul_Popup' => $judulPopup,
-                    'Paraf_Popup' => $parafPopup,
+                    'title_Popup' => $titlePopup,
+                    'Paragraph_Popup' => $paragraphPopup,
                     'Link_Popup' => $linkPopup,
                     'Image_Popup' => $fileName,  
                     'updated_at' => now(),
@@ -53,8 +53,8 @@ class PopupController extends Controller
                 $id = $existingData->id;
             } else {
                 $id = DB::table('tbl_popup')->insertGetId([
-                    'Judul_Popup' => $judulPopup,
-                    'Paraf_Popup' => $parafPopup,
+                    'title_Popup' => $titlePopup,
+                    'Paragraph_Popup' => $paragraphPopup,
                     'Link_Popup' => $linkPopup,
                     'Image_Popup' => $fileName,
                     'created_at' => now(),
@@ -69,8 +69,8 @@ class PopupController extends Controller
                 'data' => [
                     'id' => $popupData->id,
                     'imagePopup' => $popupData->Image_Popup,
-                    'judulPopup' => $popupData->Judul_Popup,
-                    'parafPopup' => $popupData->Paraf_Popup,
+                    'titlePopup' => $popupData->title_Popup,
+                    'paragraphPopup' => $popupData->Paragraph_Popup,
                     'linkPopup' => $popupData->Link_Popup
                 ]
             ]);

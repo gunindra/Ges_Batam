@@ -11,7 +11,7 @@ class SlideController extends Controller
     {
         $id = $request->query('id');
 
-        $dataCarousel = DB::select("SELECT id,judul_carousel,isi_carousel,image_carousel FROM tbl_carousel WHERE id = $id");
+        $dataHeropage = DB::select("SELECT id,title_heropage,content_heropage,image_heropage FROM tbl_heropage WHERE id = $id");
 
         return view('landingpage.Slide', ['dataCarousel' => $dataCarousel]);
     }

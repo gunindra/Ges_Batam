@@ -11,7 +11,7 @@
       <div class="contentAbout">
         <h2>What they say about us</h2>
         <p id="parafAbout">
-          {{ $dataAbout->Paraf_AboutUs }}
+          {{ $dataAbout->Paragraph_AboutUs }}
         </p>
       </div>
       <div class="imageAbout" id="imageAbout">

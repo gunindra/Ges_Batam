@@ -18,9 +18,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="namaCategory" class="form-label fw-bold">Nama Category</label>
-                        <input type="text" class="form-control" id="namaCategory" value="" placeholder="Masukkan nama">
-                        <div id="namaCategoryError" class="text-danger mt-1 d-none">Silahkan isi nama</div>
+                        <label for="nameCategory" class="form-label fw-bold">Name Category</label>
+                        <input type="text" class="form-control" id="nameCategory" value="" placeholder="Masukkan nama">
+                        <div id="nameCategoryError" class="text-danger mt-1 d-none">Silahkan isi nama</div>
                     </div>
                     <div class="mt-3">
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
@@ -57,10 +57,10 @@
                 <div class="modal-body">
                     <input type="hidden" id="categoryIdEdit">
                     <div class="mt-3">
-                        <label for="namaCategory" class="form-label fw-bold">Nama Category</label>
-                        <input type="text" class="form-control" id="namaCategoryEdit" value=""
+                        <label for="nameCategory" class="form-label fw-bold">Name Category</label>
+                        <input type="text" class="form-control" id="nameCategoryEdit" value=""
                             placeholder="Masukkan Nama Category">
-                        <div id="namaCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
+                        <div id="nameCategoryErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
                     </div>
                     <div class="mt-3">
                         <label for="minimumRateCategory" class="form-label fw-bold">Minimum Rate</label>
@@ -178,7 +178,7 @@
         });
         $('#saveCategory').click(function () {
             // Ambil nilai input
-            var namaCategory = $('#namaCategory').val().trim();
+            var nameCategory = $('#nameCategory').val().trim();
             var minimumRateCategory = $('#minimumRateCategory').val().trim();
             var maximumRateCategory = $('#maximumRateCategory').val().trim();
 
@@ -186,11 +186,11 @@
 
             var isValid = true;
 
-            if (namaCategory === '') {
-                $('#namaCategoryError').removeClass('d-none');
+            if (nameCategory === '') {
+                $('#nameCategoryError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#namaCategoryError').addClass('d-none');
+                $('#nameCategoryError').addClass('d-none');
             }
 
             if (minimumRateCategory === '') {
@@ -234,7 +234,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('namaCategory', namaCategory);
+                        formData.append('nameCategory', nameCategory);
                         formData.append('minimumRateCategory', minimumRateCategory);
                         formData.append('maximumRateCategory', maximumRateCategory);
                         formData.append('_token', csrfToken);
@@ -298,7 +298,7 @@
             let minimum_rate = $(this).data('minimum_rate');
             let maximum_rate = $(this).data('maximum_rate');
 
-            $('#namaCategoryEdit').val(category_name);
+            $('#nameCategoryEdit').val(category_name);
             $('#minimumRateCategoryEdit').val(minimum_rate);
             $('#maximumRateCategoryEdit').val(maximum_rate);
             $('#categoryIdEdit').val(id);
@@ -306,18 +306,18 @@
             $(document).on('click', '#saveEditCategory', function (e) {
 
                 let id = $('#categoryIdEdit').val();
-                let namaCategory = $('#namaCategoryEdit').val();
+                let nameCategory = $('#nameCategoryEdit').val();
                 let minimumRateCategory = $('#minimumRateCategoryEdit').val();
                 let maximumRateCategory = $('#maximumRateCategoryEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
 
-                if (namaCategory === '') {
-                    $('#namaCategoryErrorEdit').removeClass('d-none');
+                if (nameCategory === '') {
+                    $('#nameCategoryErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#namaCategoryErrorEdit').addClass('d-none');
+                    $('#nameCategoryErrorEdit').addClass('d-none');
                 }
 
                 if (minimumRateCategory === '') {
@@ -360,7 +360,7 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
-                            formData.append('namaCategory', namaCategory);
+                            formData.append('nameCategory', nameCategory);
                             formData.append('minimumRateCategory', minimumRateCategory);
                             formData.append('maximumRateCategory', maximumRateCategory);
                             formData.append('_token', csrfToken);
@@ -413,9 +413,9 @@
             $('#modalEditCategory').modal('show');
         });
         $('#modalTambahCategory').on('hidden.bs.modal', function () {
-            $('#namaCategory,#minimumRateCategory,#maximumRateCategory').val('');
-            if (!$('#namaCategoryError').hasClass('d-none')) {
-                $('#namaCategoryError').addClass('d-none');
+            $('#nameCategory,#minimumRateCategory,#maximumRateCategory').val('');
+            if (!$('#nameCategoryError').hasClass('d-none')) {
+                $('#nameCategoryError').addClass('d-none');
             }
             if (!$('#minimumRateCategoryError').hasClass('d-none')) {
                 $('#minimumRateCategoryError').addClass('d-none');
@@ -425,9 +425,9 @@
             }
         });
         $('#modalEditCategory').on('hidden.bs.modal', function () {
-            $('#namaCategoryEdit,#minimumRateCategoryEdit,#maximumRateCategoryEdit').val('');
-            if (!$('#namaCategoryErrorEdit').hasClass('d-none')) {
-                $('#namaCategoryErrorEdit').addClass('d-none');
+            $('#nameCategoryEdit,#minimumRateCategoryEdit,#maximumRateCategoryEdit').val('');
+            if (!$('#nameCategoryErrorEdit').hasClass('d-none')) {
+                $('#nameCategoryErrorEdit').addClass('d-none');
             }
             if (!$('#minimumRateCategoryErrorEdit').hasClass('d-none')) {
                 $('#minimumRateCategoryErrorEdit').addClass('d-none');

@@ -11,23 +11,23 @@ class PtgesController extends Controller
 
     public function index()
     {
-        $listinformation =  DB::select("SELECT  judul_informations,isi_informations,image_informations FROM tbl_informations");
-        $listservices = DB::select("SELECT  id,judul_service,isi_service,image_service FROM tbl_service");
+        $listinformation =  DB::select("SELECT  title_informations,content_informations,image_informations FROM tbl_informations");
+        $listservices = DB::select("SELECT  id,title_service,content_service,image_service FROM tbl_service");
         foreach ($listservices as $service) {
-            $service->isi_service = Str::limit($service->isi_service, 150,'');
+            $service->content_service = Str::limit($service->content_service, 150,'');
         }
-        $listiklan = DB::select("SELECT image_iklan,judul_iklan FROM tbl_iklan");
+        $listiklan = DB::select("SELECT image_Advertisement,title_Advertisement FROM tbl_Advertisement");
         $aboutus = DB::table('tbl_aboutus')->first();
         if ($aboutus) {
-            $aboutus->Paraf_AboutUs = Str::limit($aboutus->Paraf_AboutUs, 250, '');
+            $aboutus->Paragraph_AboutUs = Str::limit($aboutus->Paragraph_AboutUs, 250, '');
         }
         $whyus = DB::table('tbl_whyus')->first();
         if ($whyus) {
-            $whyus->Paraf_WhyUs = Str::limit($whyus->Paraf_WhyUs, 250 ,''); 
+            $whyus->Paragraph_WhyUs = Str::limit($whyus->Paragraph_WhyUs, 250 ,''); 
         }
-        $listcarousel =  DB::select("SELECT  id,judul_carousel,isi_carousel,image_carousel FROM tbl_carousel");
-        foreach ($listcarousel as $carousel) {
-            $carousel->isi_carousel = Str::limit($carousel->isi_carousel, 160,'');
+        $listheropage =  DB::select("SELECT  id, title_heropage,content_heropage,image_heropage FROM tbl_heropage");
+        foreach ($listheropage as $heropage) {
+            $heropage->content_heropage = Str::limit($heropage->content_heropage, 160,'');
         }
         $popup = DB::table('tbl_popup')->first();
         $contact = DB::table('tbl_contact')->first();
@@ -39,7 +39,7 @@ class PtgesController extends Controller
             'listiklan' => $listiklan,
             'aboutus' => $aboutus,
             'whyus' => $whyus,
-            'listcarousel' => $listcarousel,
+            'listheropage' => $listheropage,
             'popup' => $popup,
             'wa' => $wa,
             'contact' => $contact,

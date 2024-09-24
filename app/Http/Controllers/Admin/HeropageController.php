@@ -18,17 +18,17 @@ class HeropageController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        judul_carousel,
-                        isi_carousel,
-                        image_carousel
-                FROM tbl_carousel
+                        title_heropage,
+                        content_heropage,
+                        image_heropage
+                FROM tbl_heropage
         ";
 
         // dd($q);
 
         $data = DB::select($q);
 
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableCarousel">
+        $output = '  <table class="table align-items-center table-flush table-hover" id="tableHeropage">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Title</th>
@@ -40,17 +40,17 @@ class HeropageController extends Controller
                                 <tbody>';
         foreach ($data as $item) {
 
-            $image = $item->image_carousel;
+            $image = $item->image_heropage;
             $imagepath = Storage::url('images/' . $image);
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->judul_carousel ?? '-') .'</td>
-                    <td class="">' . ($item->isi_carousel ?? '-') .'</td>
-                    <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
+                    <td class="">' . ($item->title_heropage ?? '-') .'</td>
+                    <td class="">' . ($item->content_heropage ?? '-') .'</td>
+                    <td class=""><img src="' . asset($imagepath) . '" alt="Image" width="100px" height="100px"></td>
                    <td>
-                        <a  class="btn btnUpdateCarousel btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_carousel="' .$item->judul_carousel.'" data-isi_carousel="' .$item->isi_carousel.'" data-image_carousel="' .$item->image_carousel.'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyCarousel btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                        <a  class="btn btnUpdateHeroPage btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-title_heropage="' .$item->title_heropage.'" data-content_heropage="' .$item->content_heropage.'" data-image_heropage="' .$item->image_heropage.'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyHeroPage btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
@@ -62,27 +62,27 @@ class HeropageController extends Controller
     public function addHeroPage(Request $request)
     {
         $request->validate([
-            'judulCarousel' => 'required|string|max:255', 
-            'isiCarousel' => 'required|string|', 
-            'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
+            'titleHeroPage' => 'required|string|max:255', 
+            'contentHeroPage' => 'required|string', 
+            'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
-        $judulCarousel = $request->input('judulCarousel');
-        $isiCarousel = $request->input('isiCarousel');
-        $imageCarousel = $request->file('imageCarousel');
+        $titleHeroPage = $request->input('titleHeroPage');
+        $contentHeroPage = $request->input('contentHeroPage');
+        $imageHeroPage = $request->file('imageHeroPage');
 
         try {
-            if ($imageCarousel) {
+            if ($imageHeroPage) {
                 $uniqueId = uniqid('Heropage_', true);
-                $fileName = $uniqueId . '.' . $imageCarousel->getClientOriginalExtension();
-                $imageCarousel->storeAs('public/images', $fileName);
+                $fileName = $uniqueId . '.' . $imageHeroPage->getClientOriginalExtension();
+                $imageHeroPage->storeAs('public/images', $fileName);
             } else {
                 $fileName = null;
             }
-            DB::table('tbl_carousel')->insert([
-                'judul_carousel' => $judulCarousel,
-                'isi_carousel' => $isiCarousel,
-                'image_carousel' => $fileName,
+            DB::table('tbl_heropage')->insert([
+                'title_heropage' => $titleHeroPage,
+                'content_heropage' => $contentHeroPage,
+                'image_heropage' => $fileName,
                 'created_at' => now(),
             ]);
 
@@ -97,16 +97,16 @@ class HeropageController extends Controller
         $id = $request->input('id');
 
         try {
-            $existingCarousel = DB::table('tbl_carousel')->where('id', $id)->first();
+            $existingHeropage = DB::table('tbl_heropage')->where('id', $id)->first();
 
-            if ($existingCarousel && $existingCarousel->image_carousel) {
-                $existingImagePath = 'public/images/' . $existingCarousel->image_carousel;
+            if ($existingHeropage && $existingHeropage->image_heropage) {
+                $existingImagePath = 'public/images/' . $existingHeropage->image_heropage;
     
     
                 if (Storage::exists($existingImagePath)) {
                     Storage::delete($existingImagePath);
                 }
-            DB::table('tbl_carousel')
+            DB::table('tbl_heropage')
                 ->where('id', $id)
                 ->delete();
             }
@@ -118,28 +118,29 @@ class HeropageController extends Controller
     public function updateHeroPage(Request $request)
     {  
         $request->validate([
-        'judulCarousel' => 'required|string|max:255', 
-        'isiCarousel' => 'required|string', 
-        'imageCarousel' => 'nullable|mimes:jpg,jpeg,png|', 
-    ]);
+            'titleHeroPage' => 'required|string|max:255', 
+            'contentHeroPage' => 'required|string', 
+            'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png|', 
+        ]);
+
         $id = $request->input('id');
-        $judulCarousel = $request->input('judulCarousel');
-        $isiCarousel = $request->input('isiCarousel');
-        $imageCarousel = $request->file('imageCarousel');
+        $titleHeroPage = $request->input('titleHeroPage');
+        $contentHeroPage = $request->input('contentHeroPage');
+        $imageHeroPage = $request->file('imageHeroPage');
 
         try {
-            $existingCarousel = DB::table('tbl_carousel')->where('id', $id)->first();
+            $existingHeropage = DB::table('tbl_heropage')->where('id', $id)->first();
             
             $dataUpdate = [
-                'judul_carousel' => $judulCarousel,
-                'isi_carousel' => $isiCarousel,
+                'title_heropage' => $titleHeroPage,
+                'content_heropage' => $contentHeroPage,
                 'updated_at' => now(),
             ];
     
-            if ($imageCarousel) {
+            if ($imageHeroPage) {
 
-                if ($existingCarousel && $existingCarousel->image_carousel) {
-                    $existingImagePath = 'public/images/' . $existingCarousel->image_carousel;
+                if ($existingHeropage && $existingHeropage->image_heropage) {
+                    $existingImagePath = 'public/images/' . $existingHeropage->image_heropage;
                     if (Storage::exists($existingImagePath)) {
                         Storage::delete($existingImagePath);
                     }
@@ -147,12 +148,12 @@ class HeropageController extends Controller
                 
 
                 $uniqueId = uniqid('Heropage_', true);
-                $fileName = $uniqueId . '.' . $imageCarousel->getClientOriginalExtension();
-                $imageCarousel->storeAs('public/images', $fileName);
-                $dataUpdate['image_carousel'] = $fileName; 
+                $fileName = $uniqueId . '.' . $imageHeroPage->getClientOriginalExtension();
+                $imageHeroPage->storeAs('public/images', $fileName);
+                $dataUpdate['image_heropage'] = $fileName; 
             }
 
-            DB::table('tbl_carousel')
+            DB::table('tbl_heropage')
                 ->where('id', $id)
                 ->update($dataUpdate);
 

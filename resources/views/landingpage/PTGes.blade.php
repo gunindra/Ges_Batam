@@ -9,12 +9,12 @@
     <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
   @endif
 
-    @if($popup->Judul_Popup)
-    <h2 class="popup-title">{{ $popup->Judul_Popup }}</h2>
+    @if($popup->title_Popup)
+    <h2 class="popup-title">{{ $popup->title_Popup }}</h2>
   @endif
 
-    @if($popup->Paraf_Popup)
-    <p class="popup-text">{{ $popup->Paraf_Popup }}</p>
+    @if($popup->Paragraph_Popup)
+    <p class="popup-text">{{ $popup->Paragraph_Popup }}</p>
   @endif
 
     @if($popup->Link_Popup)
@@ -28,23 +28,23 @@
   @endif
   <!-- Carousel -->
  <div id="Home">
-    @if(count($listcarousel) > 0)
+    @if(count($listheropage) > 0)
     <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
-        @foreach($listcarousel as $index => $carousel)
+        @foreach($listheropage as $index => $heropage)
         <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $carousel->image_carousel) }}"
-          alt="{{ $carousel->judul_carousel }}">
+          <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
+          alt="{{ $heropage->title_heropage }}">
           <div class="carousel-caption">
-            <h5 id="judulCarousel">{{ $carousel->judul_carousel }}</h5>
-            <p id="parafCarousel">{{ $carousel->isi_carousel }}</p>
-            <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $carousel->id) }}">Learn More</a>
+            <h5 id="judulCarousel">{{ $heropage->title_heropage }}</h5>
+            <p id="parafCarousel">{{ $heropage->content_heropage }}</p>
+            <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
           </div>
         </div>
         @endforeach
       </div>
 
-      @if(count($listcarousel) > 1)
+      @if(count($listheropage) > 1)
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
       data-bs-slide="prev">
       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -56,7 +56,7 @@
       <span class="visually-hidden">Next</span>
       </button>
       <div class="carousel-indicators">
-        @foreach($listcarousel as $index => $carousel)
+        @foreach($listheropage as $index => $heropage)
         <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="{{ $index }}"
         class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
         aria-label="Slide {{ $index + 1 }}"></button>
@@ -90,11 +90,11 @@
       @foreach($listinformation as $info)
         <div class="box-gallery">
           <img src="{{ asset('storage/images/' . $info->image_informations) }}"
-          alt="{{ $info->judul_informations ?? '-'}}" class="img-fluid">
+          alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
           <div class="img-text">
             <div class="contentGallery">
-              <h2>{{ $info->judul_informations ?? '-'}}</h2>
-              <p>{{ $info->isi_informations ?? '-'}}</p>
+              <h2>{{ $info->title_informations ?? '-'}}</h2>
+              <p>{{ $info->content_informations ?? '-'}}</p>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@
           <h1 style="font-size:32px;">About Us</h1>
         </div>
         <h2>What they say about us</h2>
-        <p id="parafAbout">{{ $aboutus->Paraf_AboutUs ?? '-'}}</p>
+        <p id="parafAbout">{{ $aboutus->Paragraph_AboutUs ?? '-'}}</p>
         <a href="/About" class="btn">Learn More</a>
       </div>
       <div class="image" id="imageAbout">
@@ -210,7 +210,7 @@
         </div>
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
-          <p id="parafWhy">{{ $whyus->Paraf_WhyUs ?? '-' }}</p>
+          <p id="parafWhy">{{ $whyus->Paragraph_WhyUs ?? '-' }}</p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>
           </div>
@@ -231,10 +231,10 @@
             <div class="col-md-4 mb-4"> 
               <div class="box">
                 <img src="{{ asset('storage/images/' . $service->image_service) }}"
-                  alt="{{ $service->judul_service ?? '-' }}">
+                  alt="{{ $service->title_service ?? '-' }}">
                 <div class="overlay">
-                  <h3>{{ $service->judul_service ?? '-' }}</h3>
-                  <p>{{ $service->isi_service ?? '-' }}</p>
+                  <h3>{{ $service->title_service ?? '-' }}</h3>
+                  <p>{{ $service->content_service ?? '-' }}</p>
                   <div class="button-container">
                     <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
                   </div>
@@ -265,7 +265,7 @@
   <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}">
   <div class="logos-slide">
     @foreach($listiklan as $iklan)
-      <img src="{{ asset('storage/images/' . $iklan->image_iklan) }}" alt="{{ $iklan->judul_iklan ?? '-' }}">
+      <img src="{{ asset('storage/images/' . $iklan->image_Advertisement) }}" alt="{{ $iklan->title_Advertisement ?? '-' }}">
     @endforeach
   </div>
 </div>

@@ -21,16 +21,16 @@
                 <div class="modal-body">
                     <form id="informationForm" enctype="multipart/form-data">
                         <div class="mt-3">
-                            <label for="judulInformations" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="judulInformations" value=""
+                            <label for="titleInformations" class="form-label fw-bold">Title</label>
+                            <input type="text" class="form-control" id="titleInformations" value=""
                                 placeholder="Masukkan judul information">
-                            <div id="judulInformationsError" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                            <div id="titleInformationsError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiInformations" class="form-label fw-bold">Content</label>
-                            <textarea class="form-control" id="isiInformations" rows="3"
+                            <label for="contentInformations" class="form-label fw-bold">Content</label>
+                            <textarea class="form-control" id="contentInformations" rows="3"
                                 placeholder="Masukkan content"></textarea>
-                            <div id="isiInformationsError" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                            <div id="contentInformationsError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                         </div>
                         <div class="mt-3">
                             <label for="imageInformations" class="form-label fw-bold">Image</label>
@@ -61,16 +61,16 @@
                 <div class="modal-body">
                     <input type="hidden" id="informationsIdEdit">
                     <div class="mt-3">
-                        <label for="judulInformations" class="form-label fw-bold">Title</label>
-                        <input type="text" class="form-control" id="judulInformationsEdit" value=""
+                        <label for="titleInformations" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="titleInformationsEdit" value=""
                             placeholder="Masukkan judul information">
-                        <div id="judulInformationsErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titleInformationsErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="isiInformations" class="form-label fw-bold">Content</label>
-                        <textarea class="form-control" id="isiInformationsEdit" rows="3"
+                        <label for="contentInformations" class="form-label fw-bold">Content</label>
+                        <textarea class="form-control" id="contentInformationsEdit" rows="3"
                             placeholder="Masukkan content"></textarea>
-                        <div id="isiInformationsErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                        <div id="contentInformationsErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     </div>
                     <div class="mt-3">
                         <label for="imageInformations" class="form-label fw-bold">Image</label>
@@ -180,32 +180,32 @@
         }
 
         getlistInformations();
-        $('#judulInformations, #isiInformations', 'imageInformations').on('input', function () {
+        $('#titleInformations, #contentInformations', 'imageInformations').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
 
         $('#saveInformations').click(function () {
             // Ambil nilai input
-            var judulInformations = $('#judulInformations').val().trim();
-            var isiInformations = $('#isiInformations').val().trim();
+            var titleInformations = $('#titleInformations').val().trim();
+            var contentInformations = $('#contentInformations').val().trim();
             var imageInformations = $('#imageInformations')[0].files[0]; // Mendapatkan file
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
-            if (judulInformations === '') {
-                $('#judulInformationsError').removeClass('d-none');
+            if (titleInformations === '') {
+                $('#titleInformationsError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#judulInformationsError').addClass('d-none');
+                $('#titleInformationsError').addClass('d-none');
             }
-            if (isiInformations === '') {
-                $('#isiInformationsError').removeClass('d-none');
+            if (contentInformations === '') {
+                $('#contentInformationsError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#isiInformationsError').addClass('d-none');
+                $('#contentInformationsError').addClass('d-none');
             }
             if (imageInformations) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -236,8 +236,8 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('judulInformations', judulInformations);
-                        formData.append('isiInformations', isiInformations);
+                        formData.append('titleInformations', titleInformations);
+                        formData.append('contentInformations', contentInformations);
                         formData.append('imageInformations', imageInformations);
                         formData.append('_token', csrfToken);
                         Swal.fire({
@@ -299,38 +299,38 @@
         $(document).on('click', '.btnUpdateInformations', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let judul_informations = $(this).data('judul_informations');
-            let isi_informations = $(this).data('isi_informations');
+            let title_informations = $(this).data('title_informations');
+            let content_informations = $(this).data('content_informations');
             let image_informations = $(this).data('image_informations');
 
-            $('#judulInformationsEdit').val(judul_informations);
-            $('#isiInformationsEdit').val(isi_informations);
+            $('#titleInformationsEdit').val(title_informations);
+            $('#contentInformationsEdit').val(content_informations);
             $('#textNamaEdit').text(image_informations);
             $('#informationsIdEdit').val(id);
 
             $(document).on('click', '#saveEditInformations', function (e) {
 
                 let id = $('#informationsIdEdit').val();
-                let judulInformations = $('#judulInformationsEdit').val();
-                let isiInformations = $('#isiInformationsEdit').val();
+                let titleInformations = $('#titleInformationsEdit').val();
+                let contentInformations = $('#contentInformationsEdit').val();
                 let imageInformations = $('#imageInformationsEdit')[0].files[0];
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
 
-                if (judulInformations === '') {
-                    $('#judulInformationsErrorEdit').removeClass('d-none');
+                if (titleInformations === '') {
+                    $('#titleInformationsErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#judulInformationsErrorEdit').addClass('d-none');
+                    $('#titleInformationsErrorEdit').addClass('d-none');
                 }
 
                 // Validasi Content
-                if (isiInformations === '') {
-                    $('#isiInformationsErrorEdit').removeClass('d-none');
+                if (contentInformations === '') {
+                    $('#contentInformationsErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#isiInformationsErrorEdit').addClass('d-none');
+                    $('#contentInformationsErrorEdit').addClass('d-none');
                 }
 
                 if (imageInformations) {
@@ -362,8 +362,8 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
-                            formData.append('judulInformations', judulInformations);
-                            formData.append('isiInformations', isiInformations);
+                            formData.append('titleInformations', titleInformations);
+                            formData.append('contentInformations', contentInformations);
                             if(imageInformations){
                             formData.append('imageInformations', imageInformations);
                             }
@@ -419,24 +419,24 @@
             $('#modalEditInformations').modal('show');
         });
         $('#modalTambahInformations').on('hidden.bs.modal', function () {
-            $('#judulInformations,#isiInformations,#imageInformations').val('');
-            if (!$('#judulInformationsError').hasClass('d-none')) {
-                $('#judulInformationsError').addClass('d-none');
+            $('#titleInformations,#contentInformations,#imageInformations').val('');
+            if (!$('#titleInformationsError').hasClass('d-none')) {
+                $('#titleInformationsError').addClass('d-none');
             }
-            if (!$('#isiInformationsError').hasClass('d-none')) {
-                $('#isiInformationsError').addClass('d-none');
+            if (!$('#contentInformationsError').hasClass('d-none')) {
+                $('#contentInformationsError').addClass('d-none');
             }
             if (!$('#imageInformationsError').hasClass('d-none')) {
                 $('#imageInformationsError').addClass('d-none');
             }
         });
         $('#modalEditInformations').on('hidden.bs.modal', function () {
-            $('#judulInformationsEdit,#isiInformationsEdit,#imageInformationsEdit').val('');
-            if (!$('#judulInformationsErrorEdit').hasClass('d-none')) {
-                $('#judulInformationsErrorEdit').addClass('d-none');
+            $('#titleInformationsEdit,#contentInformationsEdit,#imageInformationsEdit').val('');
+            if (!$('#titleInformationsErrorEdit').hasClass('d-none')) {
+                $('#titleInformationsErrorEdit').addClass('d-none');
             }
-            if (!$('#isiInformationsErrorEdit').hasClass('d-none')) {
-                $('#isiInformationsErrorEdit').addClass('d-none');
+            if (!$('#contentInformationsErrorEdit').hasClass('d-none')) {
+                $('#contentInformationsErrorEdit').addClass('d-none');
             }
             if (!$('#imageInformationsErrorEdit').hasClass('d-none')) {
                 $('#imageInformationsErrorEdit').addClass('d-none');

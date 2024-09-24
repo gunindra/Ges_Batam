@@ -26,14 +26,14 @@
                         <p>Name Image = <span id="imageName">{{ $aboutData->Image_AboutUs ?? ' -' }}</span></p>
                     </div>
                     <div class="input-group pt-2 mt-3">
-                        <label for="parafAbout" class="form-label fw-bold p-3">Content</label>
-                        <textarea id="parafAbout" class="form-control" aria-label="With textarea"
-                            placeholder="Masukkan content">{{ $aboutData->Paraf_AboutUs ?? '' }}</textarea>
+                        <label for="contentAbout" class="form-label fw-bold p-3">Content</label>
+                        <textarea id="contentAbout" class="form-control" aria-label="With textarea"
+                            placeholder="Masukkan content">{{ $aboutData->Paragraph_AboutUs ?? '' }}</textarea>
                         <!-- <div id="editor">
 
                             </div> -->
                     </div>
-                    <div id="parafAboutError" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                    <div id="contentAboutError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
@@ -50,7 +50,7 @@
                             @if($aboutData->Image_AboutUs)
                                 <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px"
                                     style="padding:5px 30px;">
-                                <p style="margin-left:30px;">{{ $aboutData->Paraf_AboutUs ?? '' }}</p>
+                                <p style="margin-left:30px;">{{ $aboutData->Paragraph_AboutUs ?? '' }}</p>
                             @endif
                         @else
                             <p class="p-3">No content available</p>
@@ -71,17 +71,17 @@
         $(document).on('click', '#saveAbout', function (e) {
             e.preventDefault();
 
-            var parafAbout = $('#parafAbout').val().trim();
+            var contentAbout = $('#contentAbout').val().trim();
             var imageAbout = $('#imageAbout')[0].files[0];
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
-            if (parafAbout === '') {
-                $('#parafAboutError').removeClass('d-none');
+            if (contentAbout === '') {
+                $('#contentAboutError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#parafAboutError').addClass('d-none');
+                $('#contentAboutError').addClass('d-none');
             }
 
             // Check if imageAbout is empty or not valid
@@ -113,7 +113,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('parafAbout', parafAbout);
+                        formData.append('contentAbout', contentAbout);
                         if (imageAbout) {
                             formData.append('imageAbout', imageAbout);
                         }
@@ -157,8 +157,8 @@
                                         if (response.data.imageAbout) {
                                             previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageAbout + '" width="600px" style="padding:5px 30px;">');
                                         }
-                                        if (response.data.parafAbout) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.parafAbout + '</p>');
+                                        if (response.data.contentAbout) {
+                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.contentAbout + '</p>');
                                         }
                                         $('#imageName').text(response.data.imageAbout || ' -');
                                     });

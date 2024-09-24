@@ -19,8 +19,8 @@ class ServiceController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $q = "SELECT id,
-                        judul_service,
-                        isi_service,
+                        title_service,
+                        content_service,
                         image_service
                 FROM tbl_service
         ";
@@ -48,11 +48,11 @@ class ServiceController extends Controller
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->judul_service ?? '-') .'</td>
-                    <td class="">' . ($item->isi_service ?? '-') .'</td>
+                    <td class="">' . ($item->title_service ?? '-') .'</td>
+                    <td class="">' . ($item->content_service ?? '-') .'</td>
                      <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
                    <td>
-                        <a  class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-judul_service="' .$item->judul_service.'"data-isi_service="' .$item->isi_service.'" data-image_service="' .$item->image_service.'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-title_service="' .$item->title_service.'"data-content_service="' .$item->content_service.'" data-image_service="' .$item->image_service.'"><i class="fas fa-edit"></i></a>
                         <a  class="btn btnDestroyService btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -66,13 +66,13 @@ class ServiceController extends Controller
     public function addService(Request $request)
     {
         $request->validate([
-            'judulService' => 'required|string|max:255', 
-            'isiService' => 'required|string', 
+            'titleService' => 'required|string|max:255', 
+            'contentService' => 'required|string', 
             'imageService' => 'nullable|mimes:jpg,jpeg,png|', 
         ]);
 
-        $judulService = $request->input('judulService');
-        $isiService = $request->input('isiService');
+        $titleService = $request->input('titleService');
+        $contentService = $request->input('contentService');
         $imageService = $request->file('imageService');
 
         try {
@@ -86,8 +86,8 @@ class ServiceController extends Controller
             }
 
             DB::table('tbl_service')->insert([
-                'judul_service' => $judulService,
-                'isi_service' => $isiService,
+                'title_service' => $titleService,
+                'content_service' => $contentService,
                 'image_service' => $fileName,
                 'created_at' => now(),
             ]);
@@ -128,22 +128,22 @@ class ServiceController extends Controller
     public function updateService(Request $request)
     {
         $request->validate([
-            'judulService' => 'required|string|max:255', 
-            'isiService' => 'required|string',
+            'titleService' => 'required|string|max:255', 
+            'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png', 
         ]);
     
         $id = $request->input('id');
-        $judulService = $request->input('judulService');
-        $isiService = $request->input('isiService');
+        $titleService = $request->input('titleService');
+        $contentService = $request->input('contentService');
         $imageService = $request->file('imageService');
     
         try {
             $existingService = DB::table('tbl_service')->where('id', $id)->first();
             
             $dataUpdate = [
-                'judul_service' => $judulService,
-                'isi_service' => $isiService,
+                'title_service' => $titleService,
+                'content_service' => $contentService,
                 'updated_at' => now(),
             ];
     

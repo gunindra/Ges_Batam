@@ -19,16 +19,16 @@
                 <div class="modal-body">
                     <form id="serviceForm" enctype="multipart/form-data">
                         <div class="mt-3">
-                            <label for="judulService" class="form-label fw-bold">Title</label>
-                            <input type="text" class="form-control" id="judulService" value=""
+                            <label for="titleService" class="form-label fw-bold">Title</label>
+                            <input type="text" class="form-control" id="titleService" value=""
                                 placeholder="Masukkan judul service">
-                            <div id="judulServiceError" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                            <div id="titleServiceError" class="text-danger mt-1 d-none">Please fill in the Title</div>
                         </div>
                         <div class="mt-3">
-                            <label for="isiService" class="form-label fw-bold">Content</label>
-                            <textarea class="form-control" id="isiService" rows="3"
+                            <label for="contentService" class="form-label fw-bold">Content</label>
+                            <textarea class="form-control" id="contentService" rows="3"
                                 placeholder="Masukkan content"></textarea>
-                            <div id="isiServiceError" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                            <div id="contentServiceError" class="text-danger mt-1 d-none">Please fill in the Content</div>
                         </div>
                         <div class="mt-3">
                             <label for="imageService" class="form-label fw-bold">Image</label>
@@ -50,7 +50,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditServiceTitle">Edit Information</h5>
+                    <h5 class="modal-title" id="modalEditServiceTitle">Edit Service</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -58,16 +58,16 @@
                 <div class="modal-body">
                     <input type="hidden" id="serviceIdEdit">
                     <div class="mt-3">
-                        <label for="judulService" class="form-label fw-bold">Title</label>
-                        <input type="text" class="form-control" id="judulServiceEdit" value=""
+                        <label for="titleService" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="titleServiceEdit" value=""
                             placeholder="Masukkan judul service">
-                        <div id="judulServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titleServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title</div>
                     </div>
                     <div class="mt-3">
-                        <label for="isiService" class="form-label fw-bold">Content</label>
-                        <textarea class="form-control" id="isiServiceEdit" rows="3"
+                        <label for="contentService" class="form-label fw-bold">Content</label>
+                        <textarea class="form-control" id="contentServiceEdit" rows="3"
                             placeholder="Masukkan content"></textarea>
-                        <div id="isiServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content </div>
+                        <div id="contentServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Content </div>
                     </div>
                     <div class="mt-3">
                         <label for="imageService" class="form-label fw-bold">Image</label>
@@ -176,25 +176,25 @@
 
         $('#saveService').click(function () {
             // Ambil nilai input
-            var judulService = $('#judulService').val().trim();
-            var isiService = $('#isiService').val().trim();
+            var titleService = $('#titleService').val().trim();
+            var contentService = $('#contentService').val().trim();
             var imageService = $('#imageService')[0].files[0];
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
-            if (judulService === '') {
-                $('#judulServiceError').removeClass('d-none');
+            if (titleService === '') {
+                $('#titleServiceError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#judulServiceError').addClass('d-none');
+                $('#titleServiceError').addClass('d-none');
             }
-            if (isiService === '') {
-                $('#isiServiceError').removeClass('d-none');
+            if (contentService === '') {
+                $('#contentServiceError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#isiServiceError').addClass('d-none');
+                $('#contentServiceError').addClass('d-none');
             }
             if (imageService) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -225,8 +225,8 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('judulService', judulService);
-                        formData.append('isiService', isiService);
+                        formData.append('titleService', titleService);
+                        formData.append('contentService', contentService);
                         formData.append('imageService', imageService);
                         formData.append('_token', csrfToken);
                         Swal.fire({
@@ -279,38 +279,38 @@
         $(document).on('click', '.btnUpdateService', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let judul_service = $(this).data('judul_service');
-            let isi_service = $(this).data('isi_service');
+            let title_service = $(this).data('title_service');
+            let content_service = $(this).data('content_service');
             let image_service = $(this).data('image_service');
 
-            $('#judulServiceEdit').val(judul_service);
-            $('#isiServiceEdit').val(isi_service);
+            $('#titleServiceEdit').val(title_service);
+            $('#contentServiceEdit').val(content_service);
             $('#textNamaEdit').text(image_service);
             $('#serviceIdEdit').val(id);
 
             $(document).on('click', '#saveEditService', function (e) {
 
                 let id = $('#serviceIdEdit').val();
-                let judulService = $('#judulServiceEdit').val();
-                let isiService = $('#isiServiceEdit').val();
+                let titleService = $('#titleServiceEdit').val();
+                let contentService = $('#contentServiceEdit').val();
                 let imageService = $('#imageServiceEdit')[0].files[0];
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
                 let isValid = true;
 
-                if (judulService === '') {
-                    $('#judulServiceErrorEdit').removeClass('d-none');
+                if (titleService === '') {
+                    $('#titleServiceErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#judulServiceErrorEdit').addClass('d-none');
+                    $('#titleServiceErrorEdit').addClass('d-none');
                 }
 
                 // Validasi Content
-                if (isiService === '') {
-                    $('#isiServiceErrorEdit').removeClass('d-none');
+                if (contentService === '') {
+                    $('#contentServiceErrorEdit').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#isiServiceErrorEdit').addClass('d-none');
+                    $('#contentServiceErrorEdit').addClass('d-none');
                 }
 
                 if (imageService) {
@@ -342,8 +342,8 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
-                            formData.append('judulService', judulService);
-                            formData.append('isiService', isiService);
+                            formData.append('titleService', titleService);
+                            formData.append('contentService', contentService);
                             if (imageService) {
                                 formData.append('imageService', imageService);
                             }
@@ -399,24 +399,24 @@
             $('#modalEditService').modal('show');
         });
         $('#modalTambahService').on('hidden.bs.modal', function () {
-            $('#judulService,#isiService,#imageService').val('');
-            if (!$('#judulServiceError').hasClass('d-none')) {
-                $('#judulServiceError').addClass('d-none');
+            $('#titleService,#contentService,#imageService').val('');
+            if (!$('#titleServiceError').hasClass('d-none')) {
+                $('#titleServiceError').addClass('d-none');
             }
-            if (!$('#isiServiceError').hasClass('d-none')) {
-                $('#isiServiceError').addClass('d-none');
+            if (!$('#contentServiceError').hasClass('d-none')) {
+                $('#contentServiceError').addClass('d-none');
             }
             if (!$('#imageServiceError').hasClass('d-none')) {
                 $('#imageServiceError').addClass('d-none');
             }
         });
         $('#modalEditService').on('hidden.bs.modal', function () {
-            $('#judulServiceEdit,#isiServiceEdit,#imageServiceEdit').val('');
-            if (!$('#judulServiceErrorEdit').hasClass('d-none')) {
-                $('#judulServiceErrorEdit').addClass('d-none');
+            $('#titleServiceEdit,#contentServiceEdit,#imageServiceEdit').val('');
+            if (!$('#titleServiceErrorEdit').hasClass('d-none')) {
+                $('#titleServiceErrorEdit').addClass('d-none');
             }
-            if (!$('#isiServiceErrorEdit').hasClass('d-none')) {
-                $('#isiServiceErrorEdit').addClass('d-none');
+            if (!$('#contentServiceErrorEdit').hasClass('d-none')) {
+                $('#contentServiceErrorEdit').addClass('d-none');
             }
             if (!$('#imageServiceErrorEdit').hasClass('d-none')) {
                 $('#imageServiceErrorEdit').addClass('d-none');

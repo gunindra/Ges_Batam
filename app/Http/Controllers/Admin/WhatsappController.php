@@ -15,11 +15,11 @@ class WhatsappController extends Controller
     public function addWa(Request $request)
     {
         $request->validate([
-            'nomorWa' => 'required|string|max:255', 
-            'pesanWa' => 'required|string', 
+            'numberWa' => 'required|string|max:255', 
+            'messageWa' => 'required|string', 
         ]);
-        $nomorWa = $request->input('nomorWa');
-        $pesanWa = $request->input('pesanWa');
+        $numberWa = $request->input('numberWa');
+        $messageWa = $request->input('messageWa');
     
         try {
             $existingData = DB::table('tbl_wa')->first();
@@ -27,16 +27,16 @@ class WhatsappController extends Controller
             if ($existingData) {
                 // Update existing record
                 DB::table('tbl_wa')->update([
-                    'No_wa' => $nomorWa,
-                    'pesan_wa' => $pesanWa,
+                    'No_wa' => $numberWa,
+                    'Message_wa' => $messageWa,
                     'updated_at' => now(),
                 ]);
                 $id = $existingData->id; // Use existing ID
             } else {
                 // Insert new record
-                $id = DB::table('tbl_wa')->insertGetId([
-                    'No_wa' => $nomorWa,
-                    'pesan_wa' => $pesanWa,
+                $id = DB::table( 'tbl_wa')->insertGetId([
+                    'No_wa' => $numberWa,
+                    'Message_wa' => $messageWa,
                     'created_at' => now(),
                 ]);
             }
@@ -48,8 +48,8 @@ class WhatsappController extends Controller
                 'message' => 'Data berhasil disimpan',
                 'data' => [
                     'id' => $waData->id,
-                    'nomorWa' => $waData->No_wa,
-                    'pesanWa' => $waData->pesan_wa
+                    'numberWa' => $waData->No_wa,
+                    'messageWa' => $waData->Message_wa
                 ]
             ]);
         } catch (\Exception $e) {

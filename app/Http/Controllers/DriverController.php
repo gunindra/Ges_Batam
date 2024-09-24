@@ -69,12 +69,12 @@ class DriverController extends Controller
         $simDriver = $request->file('simDriver');
 
         if ($simDriver) {
-            $fileName = 'SIM_' . $simDriver->getClientOriginalName();
-            $filePath = $simDriver->storeAs('public/sim', $fileName);
+            $uniqueId = uniqid('Sim_', true);
+            $fileName = $uniqueId . '.' . $simDriver->getClientOriginalExtension();
+            $simDriver->storeAs('public/images', $fileName);
         } else {
             $fileName = null;
         }
-
         try {
             DB::table('tbl_supir')->insert([
                 'nama_supir' => $namaDriver,
