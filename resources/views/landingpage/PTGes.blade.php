@@ -262,7 +262,7 @@
 
 
   <!-- iklan slide -->
-  <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}">
+  <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}" style="margin-top:50px;">
   <div class="logos-slide">
     @foreach($listiklan as $iklan)
       <img src="{{ asset('storage/images/' . $iklan->image_Advertisement) }}" alt="{{ $iklan->title_Advertisement ?? '-' }}">

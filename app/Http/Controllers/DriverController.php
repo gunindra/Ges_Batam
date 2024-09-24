@@ -102,14 +102,12 @@ class DriverController extends Controller
         $noTelponDriver = $request->input('noTelponDriver');
         $simDriver = $request->file('simDriverEdit');
     
-        // Retrieve the existing driver record
         $driver = DB::table('tbl_supir')->where('id', $id)->first();
         
         if ($simDriver) {
-            $fileName = 'SIM_' . time() . '_' . $simDriver->getClientOriginalName(); // Add a timestamp to avoid filename conflicts
+            $fileName = 'SIM_' . time() . '_' . $simDriver->getClientOriginalName();
             $filePath = $simDriver->storeAs('public/sim', $fileName);
         } else {
-            // Use the existing image if no new image is uploaded
             $fileName = $driver->image_sim;
         }
     
@@ -120,7 +118,7 @@ class DriverController extends Controller
                     'nama_supir' => $namaDriver,
                     'alamat_supir' => $alamatDriver,
                     'no_wa' => $noTelponDriver,
-                    'image_sim' => $fileName, // Update with the new or old image
+                    'image_sim' => $fileName, 
                     'updated_at' => now(),
                 ]);
     

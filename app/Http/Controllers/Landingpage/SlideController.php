@@ -13,7 +13,7 @@ class SlideController extends Controller
 
         $dataHeropage = DB::select("SELECT id,title_heropage,content_heropage,image_heropage FROM tbl_heropage WHERE id = $id");
 
-        return view('landingpage.Slide', ['dataCarousel' => $dataCarousel]);
+        return view('landingpage.Slide', ['dataHeropage' => $dataHeropage]);
     }
 
 }
