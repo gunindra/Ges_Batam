@@ -336,22 +336,35 @@
                 autoclose: true,
             }).datepicker('setDate', today);
 
+            const initialCurrency = $('#currencyInvoice').val();
+
+            // Tampilkan atau sembunyikan elemen berdasarkan mata uang awal
+            if (initialCurrency !== '1') {
+                $('#rateCurrencySection').show();
+                $('#totalIdr').show();
+            } else {
+                $('#rateCurrencySection').hide();
+                $('#totalIdr').hide();
+            }
+
+            updateDisplayedTotalHarga();
+
             $('#currencyInvoice').change(function() {
                 const selectedCurrency = $(this).val();
 
                 if (selectedCurrency !== '1') {
-                    $('#rateCurrencySection').show(); // Tampilkan bagian rate currency
-                    $('#totalIdr').show(); // Tampilkan bagian total IDR
+                    $('#rateCurrencySection').show();
+                    $('#totalIdr').show();
                 } else {
-                    $('#rateCurrencySection').hide(); // Sembunyikan bagian rate currency
-                    $('#totalIdr').hide(); // Sembunyikan bagian total IDR
-                    $('#rateCurrency').val(''); // Reset input custom rate
-                    $('#idrCurrentCy').text('Rp. 0'); // Reset Total IDR ke 0
+                    $('#rateCurrencySection').hide();
+                    $('#totalIdr').hide();
+                    $('#rateCurrency').val('');
+                    $('#idrCurrentCy').text('Rp. 0');
                     $('#total-harga').text("Rp. " + parseFloat($('#totalHargaValue').val()).toLocaleString(
                         'id-ID', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
-                        })); // Tampilkan harga dalam Rupiah
+                        }));
                 }
 
                 updateDisplayedTotalHarga(); // Update total yang ditampilkan
@@ -549,7 +562,6 @@
                 if (!totalHargaIDR || isNaN(totalHargaIDR) || totalHargaIDR === 0) {
                     $('#idrCurrentCy').text('Rp. 0');
                     $('#total-harga').text('-');
-                    $('#totalIdr').hide(); // Sembunyikan Total IDR jika totalHargaIDR tidak valid
                     return;
                 }
 
