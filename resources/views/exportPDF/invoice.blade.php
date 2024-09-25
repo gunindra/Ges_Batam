@@ -132,7 +132,7 @@
         .logo-container {
             flex: 0 0 23%;
             padding-right: 15px;
-            padding-left: 30px;
+            /* padding-left: 30px; */
         }
 
         .logo {
@@ -174,7 +174,18 @@
     <div class="container">
         <div class="header">
             <div class="logo-container">
+                <?php
+                $path = public_path('img/logo4.png');
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                if (file_exists($path)) {
+                    $data = file_get_contents($path);
+                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                } else {
+                    $base64 = '';
+                }
+                ?>
                 {{-- <img src="{{asset('/img/logo4.png')}}" alt="logo" class="logo"> --}}
+                <img src="<?php echo $base64?>" alt="logo" class="logo"/>
             </div>
             <div class="company-info">
                 <div class="company-name">PT. GES LOGISTIC</div>
