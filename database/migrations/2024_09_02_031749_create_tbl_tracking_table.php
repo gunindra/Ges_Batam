@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_tracking', function (Blueprint $table) {
             $table->id();
-            $table->string('no_resi');
+            $table->string('no_resi')->unique();
             $table->string('no_do');
             $table->string('status');
             $table->text('keterangan');
