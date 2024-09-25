@@ -304,7 +304,6 @@
             $('.nav-links').on('click', function(e) {
                 e.preventDefault();
                 var tab = $(this).data('tab');
-
                 $('.tab-pane').removeClass('show active').addClass('d-none');
 
                 $('#' + tab).removeClass('d-none').addClass('show active');
