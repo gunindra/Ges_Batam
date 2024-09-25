@@ -189,6 +189,7 @@
                                             <?php echo e(number_format($pembagi->nilai_pembagi, 0, ',', '.')); ?></option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
+                                <div id="pembagiVolumeError" class="text-danger mt-1 d-none">Silahkan Pilih Rate</div>
                             </div>
                         </div>
 
@@ -206,6 +207,7 @@
                                         <?php endif; ?>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
+                                <div id="rateVolumeError" class="text-danger mt-1 d-none">Silahkan Pilih Rate</div>
                             </div>
                         </div>
 
@@ -235,14 +237,12 @@
                         <!-- Tombol Tambah Barang -->
                         
                         <div class="row">
-                            <div class="col-12 mt-4 d-none" id="rowDimensi">
+                            <div class="col-12 mt-4" id="totalIdr" style="display: none;">
                                 <div class="col-2 offset-8 me-1">
-                                    <p class="mb-0">Dimensi</p>
+                                    <p class="mb-0">Total Idr</p>
                                     <div class="box bg-light text-dark p-3 mt-2"
                                         style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                        <span id="dimensiValue" style="font-weight: bold; color: #555;">0</span><img
-                                            class="pb-1" style="width: 35px; height: 35px;" src="/img/m3_icon.png"
-                                            alt="m3">
+                                        <span id="idrCurrentCy" style="font-weight: bold; color: #555;">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -333,16 +333,40 @@
                 autoclose: true,
             }).datepicker('setDate', today);
 
+            const initialCurrency = $('#currencyInvoice').val();
+
+            // Tampilkan atau sembunyikan elemen berdasarkan mata uang awal
+            if (initialCurrency !== '1') {
+                $('#rateCurrencySection').show();
+                $('#totalIdr').show();
+            } else {
+                $('#rateCurrencySection').hide();
+                $('#totalIdr').hide();
+            }
+
+            updateDisplayedTotalHarga();
+
             $('#currencyInvoice').change(function() {
                 const selectedCurrency = $(this).val();
+
                 if (selectedCurrency !== '1') {
                     $('#rateCurrencySection').show();
+                    $('#totalIdr').show();
                 } else {
                     $('#rateCurrencySection').hide();
+                    $('#totalIdr').hide();
                     $('#rateCurrency').val('');
+                    $('#idrCurrentCy').text('Rp. 0');
+                    $('#total-harga').text("Rp. " + parseFloat($('#totalHargaValue').val()).toLocaleString(
+                        'id-ID', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }));
                 }
-                updateDisplayedTotalHarga();
+
+                updateDisplayedTotalHarga(); // Update total yang ditampilkan
             });
+
 
             $('#currencyInvoice').val('1').trigger('change');
 
@@ -385,7 +409,7 @@
                                     showMessage("error", response.message);
                                 }
                                 $('#scanNoresi').val(
-                                ''); // Reset nilai input setelah berhasil atau gagal
+                                    ''); // Reset nilai input setelah berhasil atau gagal
                             },
                             error: function(xhr, status, error) {
                                 showMessage("error", "Terjadi kesalahan: " + error);
@@ -524,36 +548,40 @@
                     totalHarga += parseFloat(harga) || 0;
                 });
 
-
                 $('#totalHargaValue').val(totalHarga);
-
 
                 const currencyValue = $('#currencyInvoice').val();
                 const totalHargaIDR = totalHarga;
                 const customRate = $('#rateCurrency').val();
                 let convertedTotal = 0;
 
-
+                // Update bagian Total IDR
                 if (!totalHargaIDR || isNaN(totalHargaIDR) || totalHargaIDR === 0) {
+                    $('#idrCurrentCy').text('Rp. 0');
                     $('#total-harga').text('-');
                     return;
                 }
 
+                $('#idrCurrentCy').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
 
+                // Update total yang dikonversi
                 if (!currencyValue) {
                     $('#total-harga').text('-');
-                } else if (currencyValue == 1) {
+                } else if (currencyValue === '1') {
                     $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     }));
                 } else if (customRate && currencyValue !== '1') {
-                    convertedTotal = totalHargaIDR / customRate;
+                    convertedTotal = totalHargaIDR / parseFloat(customRate);
                     let currencySymbol = "";
 
-                    if (currencyValue == 2) {
+                    if (currencyValue === '2') {
                         currencySymbol = "$ ";
-                    } else if (currencyValue == 3) {
+                    } else if (currencyValue === '3') {
                         currencySymbol = "¥ ";
                     }
 
@@ -584,6 +612,53 @@
                 itemIndex = index;
             }
 
+
+
+
+            function validateForm() {
+                let isValid = true;
+
+                // Loop melalui setiap baris item
+                $('#barang-list tr').each(function() {
+                    const selectedValue = $(this).find('.selectBeratDimensi').val();
+                    const berat = $(this).find('.beratBarang').val();
+                    const panjang = $(this).find('.panjangVolume').val();
+                    const lebar = $(this).find('.lebarVolume').val();
+                    const tinggi = $(this).find('.tinggiVolume').val();
+                    const rateBerat = $('#rateBerat').val();
+                    const rateVolume = $('#rateVolume').val();
+                    const pembagiVolume = $('#pembagiVolume').val();
+
+                    // Validasi untuk berat jika dipilih
+                    if (selectedValue === 'berat' && (!berat || !rateBerat)) {
+                        showMessage("error", 'Pastikan rate berat sudah dipilih.');
+                        isValid = false;
+                        return false;
+                    }
+
+                    // Validasi untuk dimensi jika dipilih
+                    if (selectedValue === 'dimensi' && (panjang || lebar || tinggi) && (!rateVolume || !
+                            pembagiVolume)) {
+                        showMessage("error",
+                            'Pastikan rate volume serta pembagi volume sudah diisi.');
+                        isValid = false;
+                        return false;
+                    }
+
+                    // Pastikan jika salah satu berat atau volume ada yang terisi
+                    if (!berat && (!panjang || !lebar || !tinggi)) {
+                        showMessage("error", 'Silakan masukkan berat atau dimensi yang valid.');
+                        isValid = false;
+                        return false;
+                    }
+                });
+
+                return isValid;
+            }
+
+
+
+
             $('#buatInvoice').click(function() {
                 const noResi = [];
                 const beratBarang = [];
@@ -591,6 +666,9 @@
                 const lebar = [];
                 const tinggi = [];
                 const hargaBarang = [];
+
+
+
 
                 $('#barang-list tr').each(function() {
                     noResi.push($(this).find('[name="noResi[]"]').text());
@@ -656,6 +734,11 @@
                     isValid = false;
                 } else {
                     $('#rateCurrencyError').addClass('d-none');
+                }
+
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
                 }
 
 

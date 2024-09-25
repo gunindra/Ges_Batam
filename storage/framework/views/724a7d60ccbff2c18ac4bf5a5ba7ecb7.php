@@ -30,7 +30,7 @@
                         <div class="mt-3">
                             <label for="messageWa" class="form-label fw-bold">Message WhatsApp</label>
                                 <textarea class="form-control" id="messageWa" rows="3"
-                                placeholder="Masukkan Pesan WhatsApp" value="<?php echo e(isset($waData->Message_wa) ? $waData->Message_wa : ''); ?>"></textarea>
+                                placeholder="Masukkan Pesan WhatsApp"><?php echo e(isset($waData->Message_wa) ? $waData->Message_wa : ''); ?></textarea>
                             <div id="messageWaError" class="text-danger mt-1 d-none">Please fill in the Message </div>
                         </div>
                         <button type="button" class="btn btn-primary mt-3" id="saveWa">
@@ -103,6 +103,7 @@
                             
 
                             $('#destroyWa').data('id', response.data.id);
+                            
 
                             Swal.fire({
                                 icon: 'success',

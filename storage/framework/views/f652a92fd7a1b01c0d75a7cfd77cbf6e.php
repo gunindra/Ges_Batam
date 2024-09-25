@@ -222,7 +222,7 @@
 
 
   <!-- iklan slide -->
-  <div class="logos <?php echo e(count($listiklan) > 0 ? '' : 'hidden'); ?>">
+  <div class="logos <?php echo e(count($listiklan) > 0 ? '' : 'hidden'); ?>" style="margin-top:50px;">
   <div class="logos-slide">
     <?php $__currentLoopData = $listiklan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $iklan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
       <img src="<?php echo e(asset('storage/images/' . $iklan->image_Advertisement)); ?>" alt="<?php echo e($iklan->title_Advertisement ?? '-'); ?>">

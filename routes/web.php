@@ -18,23 +18,22 @@ use App\Http\Controllers\{
     Admin\WhatsappController,
     Admin\PopupController,
     Admin\TrackingsController,
-    PembagirateController,
-    DashboardController,
-    LoginController,
-    BookingController,
-    DeliveryController,
-    InvoiceController,
-    CostumerController,
-    DriverController,
-    RekeningController,
-    ProfileController,
-    PickupController,
-    PaymentController,
-    SupplierInvoiceController,
-    UserController,
-    RoleController,
-    SupirController,
-    CategoryController
+    Admin\PembagirateController,
+    Admin\DashboardController,
+    Admin\LoginController,
+    Admin\DeliveryController,
+    Admin\InvoiceController,
+    Admin\CostumerController,
+    Admin\DriverController,
+    Admin\RekeningController,
+    Admin\ProfileController,
+    Admin\PickupController,
+    Admin\PaymentController,
+    Admin\SupplierInvoiceController,
+    Admin\UserController,
+    Admin\RoleController,
+    Admin\SupirController,
+    Admin\CategoryController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -81,12 +80,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/email/verify', [VerifyEmailController::class, '__invoke'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['auth', 'signed'])->name('verification.verify');
     Route::post('/email/verification-notification', [VerifyEmailController::class, 'resendVerification'])->name('verification.send');
-
-
-    // Booking Confirmation
-    Route::get('/booking', [BookingController::class, 'index'])->name('booking');
-    Route::get('/booking/list', [BookingController::class, 'getlistBooking'])->name('getlistBooking');
-    Route::get('/booking/dataBookingForm', [BookingController::class, 'dataBookingForm'])->name('dataBookingForm');
 
     // Delivery
     Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');

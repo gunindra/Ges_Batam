@@ -58,7 +58,7 @@
                     </div>
                     <div class="mt-3">
                         <label for="imageAdvertisement" class="form-label fw-bold">Image</label>
-                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>  
                         <input type="file" class="form-control" id="imageAdvertisementEdit" value="">
                         <div id="imageAdvertisementErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
                         </div>
@@ -267,13 +267,12 @@
         $(document).on('click', '.btnUpdateAdvertisement', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let title_Advertisement = $(this).data('title_Advertisement');
-            let image_Advertisement = $(this).data('image_Advertisement');
+            let title_Advertisement = $(this).data('title_advertisement');
+            let image_Advertisement  = $(this).data('image_advertisement');
 
             $('#titleAdvertisementEdit').val(title_Advertisement);
             $('#textNamaEdit').text(image_Advertisement);
             $('#advertisementIdEdit').val(id);
-
 
             $(document).on('click', '#saveEditAdvertisement', function (e) {
 
@@ -292,7 +291,7 @@
                 }
 
                 if (imageAdvertisement) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
+                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(imageAdvertisement.type)) {
                         $('#imageAdvertisementErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
                         isValid = false;
@@ -321,13 +320,13 @@
                             let formData = new FormData();
                             formData.append('id', id);
                             formData.append('titleAdvertisement', titleAdvertisement);
-                            if (imageAdvertisement) {
-                                formData.append('imageAdvertisement', imageAdvertisement);
+                            if(imageHeroPage){
+                            formData.append('imageAdvertisement', imageAdvertisement);
                             }
                             formData.append('_token', csrfToken);
                             Swal.fire({
                                 title: 'Loading...',
-                                text: 'Please wait while we process update your data Advertisement.',
+                                text: 'Please wait while we process update your data Heropage.',
                                 allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading();
@@ -354,7 +353,7 @@
                                     if (response.status === 'success') {
                                         showMessage("success",
                                             "Data successfully updated");
-                                        getlistAdvertisement();
+                                            getlistAdvertisement();
                                         $('#modalEditAdvertisement').modal(
                                             'hide');
                                     } else {
@@ -371,11 +370,8 @@
                     showMessage("error", "Please check for empty inputs");
                 }
             })
-
-            // validateInformationsInput('modalEditInformations');
             $('#modalEditAdvertisement').modal('show');
         });
-
         $('#modalTambahAdvertisement').on('hidden.bs.modal', function () {
             $('#titleAdvertisement,#imageAdvertisement').val('');
             if (!$('#titleAdvertisementError').hasClass('d-none')) {
