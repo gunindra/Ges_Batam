@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/delivery/getlistTableBuatPickup', [DeliveryController::class, 'getlistTableBuatPickup'])->name('getlistTableBuatPickup');
     Route::post('/delivery/cekResi', [DeliveryController::class, 'cekResi'])->name('cekResi');
     Route::post('/delivery/cekResiBulk', [DeliveryController::class, 'cekResiBulk'])->name('cekResiBulk');
+    Route::post('/delivery/cekResiBulkPickup', [DeliveryController::class, 'cekResiBulkPickup'])->name('cekResiBulkPickup');
     Route::post('/delivery/cekResiPickup', [DeliveryController::class, 'cekResiPickup'])->name('cekResiPickup');
     Route::post('/delivery/buatDelivery', [DeliveryController::class, 'buatDelivery'])->name('buatDelivery');
     Route::post('/delivery/buatPickup', [DeliveryController::class, 'buatPickup'])->name('buatPickup');

@@ -26,6 +26,66 @@
         }
     </style>
 
+
+    <!-- Modal -->
+    <div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi Delivery</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Search Input -->
+                    <input type="text" id="txSearch" class="form-control mb-3"
+                        placeholder="Cari No. Resi atau Nama Pembeli">
+
+                    <input type="text" class="form-control" id="filter_date" placeholder="Pilih tanggal">
+                    <div id="containerBuatDelivery" class="">
+                    </div>
+                    <!-- Table with Checkboxes -->
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelection">Pilih</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="inputResiPickupModal" tabindex="-1" aria-labelledby="inputResiPickupModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inputResiPickupModalLabel">Pilih dari List Resi Pick up</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search Input -->
+                    <input type="text" id="txSearchPickup" class="form-control mb-3"
+                        placeholder="Cari No. Resi atau Nama Pembeli">
+                    <input type="text" class="form-control" id="filter_date_pickup" placeholder="Pilih tanggal">
+                    <div id="containerBuatPickup" class=""></div>
+                    <!-- Table with Checkboxes -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelectionPickup">Pilih</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Modal -->
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -124,42 +184,75 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel"
-                                aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
+        <div id="pickupTab" class="tab-pane d-none">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Tanggal Pickup -->
+                                    <label for="tanggal_pickup" class="form-label fw-bold">Tanggal Pickup</label>
+                                    <input type="text" class="form-control" id="tanggal_pickup"
+                                        placeholder="Pilih tanggal pickup">
+                                    <div id="tanggalPickupError" class="text-danger mt-1 d-none">Tanggal pickup tidak
+                                        boleh kosong</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <!-- Nama Driver (removed for pickup) -->
+                                </div>
+                            </div>
 
-                                            <!-- Search Input -->
-                                            <input type="text" id="txSearch" class="form-control mb-3"
-                                                placeholder="Cari No. Resi atau Nama Pembeli">
+                            <!-- Button to Open Modal -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Input Invoice Menggunakan</label>
+                                    <button class="btn btn-primary" data-toggle="modal"
+                                        data-target="#inputResiPickupModal">
+                                        Pilih dari List
+                                    </button>
+                                </div>
+                            </div>
 
-                                            <input type="text" class="form-control" id="filter_date"
-                                                placeholder="Pilih tanggal">
-                                            <div id="containerBuatDelivery" class="">
-                                            </div>
-                                            <!-- Table with Checkboxes -->
+                            <div class="row mt-3" id="resi_container">
+                                <div class="col-md-6">
+                                    <!-- No. Resi -->
+                                    <label for="no_resi" class="form-label fw-bold">No. Invoice</label>
+                                    <input type="text" class="form-control" id="no_resi_pickup"
+                                        placeholder="Masukan No. Invoice">
+                                </div>
 
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary"
-                                                id="confirmSelection">Pilih</button>
-                                        </div>
+                                <div class="col-md-12 mt-4">
+                                    <button class="btn btn-primary" id="tambah_pickup">Tambah</button>
+                                </div>
+
+                                <div class="col-md-12 mt-4" id="table_resi_container_pickup" style="display: none;">
+                                    <h5 class="fw-bold">Daftar Nomor Invoice yang Dimasukkan:</h5>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>No. invoice</th>
+                                                <th>Nama Pembeli</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_resi_body_pickup">
+                                            <!-- Data resi yang valid akan ditampilkan di sini -->
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button class="btn btn-primary px-5 py-2" id="buatPickup">Buat Pickup</button>
                                     </div>
                                 </div>
                             </div>
-                            <!-- End Modal -->
-
                         </div>
                     </div>
                 </div>
@@ -261,10 +354,10 @@
             locale: {
                 format: 'DD MMMM YYYY' // Format: 'dd MM yyyy'
             },
-            // Opsi lain yang bisa Anda tambahkan, seperti rentang tanggal default
+
             startDate: moment().startOf('month'),
             endDate: moment().endOf('month'),
-            opens: 'left' // Opsi untuk mengatur posisi pembuka date range picker
+            opens: 'left'
         });
 
         $('#txSearch').keyup(function(e) {
@@ -297,7 +390,7 @@
 
         function updateRowNumbers() {
             $('#table_resi_body tr').each(function(index) {
-                $(this).find('td:first').text(index + 1); // Update nomor urut
+                $(this).find('td:first').text(index + 1);
             });
         }
 
@@ -406,7 +499,7 @@
 
                             $('#table_resi_body').append(tableRow);
                             enteredResis.push(String(data
-                            .no_invoice)); // Add the invoice number to the array
+                                .no_invoice)); // Add the invoice number to the array
                         });
 
                         updateRowNumbers(); // Update nomor urut
@@ -510,6 +603,7 @@
         });
 
 
+
         $('#filter_date').on('change', function() {
             getlistTableBuatDelivery();
         });
@@ -603,13 +697,16 @@
 
     <script>
         const getlistTableBuatPickup = () => {
-            const filterDate = $('#filter_date_pickup').val();
+
+            const filterDatePickup = $('#filter_date_pickup').val();
+            const txtSearchPickup = $('#txSearchPickup').val();
 
             $.ajax({
                     url: "{{ route('getlistTableBuatPickup') }}",
                     method: "GET",
                     data: {
-                        filter_date: filterDate
+                        txSearch: txtSearchPickup,
+                        filter_date: filterDatePickup
                     },
                     beforeSend: () => {
                         $('#containerBuatPickup').html(loadSpin)
@@ -636,6 +733,7 @@
 
                     $('#select_all_pickup').on('click', function() {
                         var rows = $('#datatable_resi_pickup tbody tr');
+
                         $('input[type="checkbox"]:visible', rows).prop('checked', this.checked);
                     });
 
@@ -645,51 +743,62 @@
                         var checkedCheckboxes = $(
                                 '#datatable_resi_pickup tbody input[type="checkbox"]:visible:checked')
                             .length;
+
                         $('#select_all_pickup').prop('checked', totalCheckboxes === checkedCheckboxes);
                     });
                 })
         }
 
+        getlistTableBuatPickup();
 
-        var today = new Date();
-        $('#tanggal_pickup, #filter_date_pickup').datepicker({
+        $('#tanggal_pickup').datepicker({
             format: 'dd MM yyyy',
             todayBtn: 'linked',
             todayHighlight: true,
             autoclose: true,
         }).datepicker('setDate', today);
 
-        $('#filter_date_pickup').on('change', function() {
-            getlistTableBuatPickup();
+        $('#filter_date_pickup').daterangepicker({
+            locale: {
+                format: 'DD MMMM YYYY'
+            },
+            startDate: moment().startOf('month'),
+            endDate: moment().endOf('month'),
+            opens: 'left'
         });
 
-        $('#filter_date_pickup').trigger('change');
-
-
-        $('input[name="input_resi_pickup"]').on('change', function() {
-            if ($(this).val() === 'list') {
-                $('#datatable_resi_wrapper_pickup').removeClass('d-none');
-                $('#resi_container_pickup').addClass('d-none');
-            } else {
-                $('#datatable_resi_wrapper_pickup').addClass('d-none');
-                $('#resi_container_pickup').removeClass('d-none');
+        $('#txSearchPickup').keyup(function(e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistTableBuatPickup();
             }
         });
 
+        $('#filter_date_pickup').on('change', function() {
+            getlistTableBuatPickup();
+        });
+        $('#filter_date_pickup').trigger('change');
+
         let enteredResisPickup = [];
+
+        function updateRowNumbersPickup() {
+            $('#table_resi_body_pickup tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        }
 
         $('#tambah_pickup').on('click', function(e) {
             e.preventDefault();
 
-            var noResi = $('#no_resi_pickup').val();
+            var noInvoicePickup = $('#no_resi_pickup').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (noResi === '') {
+            if (noInvoicePickup === '') {
                 showMessage('error', 'Mohon periksa input yang kosong');
                 return;
             }
-            if (enteredResisPickup.includes(noResi)) {
-                showMessage('error', 'Nomor resi sudah ada.');
+            if (enteredResisPickup.includes(noInvoicePickup)) {
+                showMessage('error', 'Nomor invoice sudah ada.');
                 return;
             }
 
@@ -698,46 +807,118 @@
                 method: 'POST',
                 data: {
                     _token: csrfToken,
-                    no_resi: noResi,
+                    no_invoice: noInvoicePickup,
                 },
                 success: function(response) {
                     if (response.success) {
                         showMessage('success', response.message);
                         const data = response.data;
                         $('#table_resi_container_pickup').show();
-                        var rowCount = $('#table_resi_body_pickup tr').length + 1;
                         var tableRow = `
-                <tr>
-                    <td>${rowCount}</td>
-                    <td>${data.no_resi}</td>
-                    <td>${data.nama_pembeli}</td>
-                    <td>${data.status_name}</td>
-                </tr>
-            `;
+                        <tr>
+                            <td></td> <!-- Tempat untuk nomor urut -->
+                            <td>${data.no_invoice}</td>
+                            <td>${data.nama_pembeli}</td>
+                            <td>${data.status_name}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm remove-row-pickup" data-invoice="${noInvoicePickup}">Remove</button>
+                            </td>
+                        </tr>
+                    `;
                         $('#table_resi_body_pickup').append(tableRow);
-                        enteredResisPickup.push(noResi);
+                        enteredResisPickup.push(String(noInvoicePickup));
                         $('#no_resi_pickup').val('');
 
+                        updateRowNumbersPickup();
                     } else {
                         showMessage('error', response.message);
                     }
                 },
                 error: function(xhr, status, error) {
-                    showMessage('error', 'Terjadi kesalahan: ' +
-                        error);
+                    showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
+        });
+
+        $('#confirmSelectionPickup').on('click', function() {
+            var selectedInvoicesPickup = [];
+            $('#datatable_resi_pickup tbody input[type="checkbox"]:checked').each(function() {
+                selectedInvoicesPickup.push($(this).val());
+            });
+
+            if (selectedInvoicesPickup.length === 0) {
+                showMessage('error', 'Tidak ada nomor invoice yang dipilih.');
+                return;
+            }
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            $.ajax({
+                url: "{{ route('cekResiBulkPickup') }}",
+                method: 'POST',
+                data: {
+                    _token: csrfToken,
+                    no_invoices: selectedInvoicesPickup
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('success', response.message);
+                        const invoices = response.data;
+                        $('#table_resi_container_pickup').show();
+                        invoices.forEach(data => {
+                            if (enteredResisPickup.includes(data.no_invoice)) {
+                                showMessage('error', 'Nomor invoice ' + data.no_invoice +
+                                    ' sudah ada.');
+                                return;
+                            }
+                            var tableRow = `
+                            <tr>
+                                <td></td> <!-- Tempat untuk nomor urut -->
+                                <td>${data.no_invoice}</td>
+                                <td>${data.data.nama_pembeli}</td>
+                                <td>${data.data.status_name}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm remove-row-pickup" data-invoice="${data.no_invoice}">Remove</button>
+                                </td>
+                            </tr>
+                        `;
+                            $('#table_resi_body_pickup').append(tableRow);
+                            enteredResisPickup.push(String(data.no_invoice));
+                        });
+
+                        updateRowNumbersPickup();
+                    } else {
+                        showMessage('error', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('error', 'Terjadi kesalahan: ' + error);
+                }
+            });
+
+            $('#inputResiPickupModal').modal('hide');
+        });
+
+        $(document).on('click', '.remove-row-pickup', function() {
+            var noInvoicePickup = String($(this).data('invoice'));
+            var rowIndex = enteredResisPickup.indexOf(noInvoicePickup);
+
+            if (rowIndex !== -1) {
+                enteredResisPickup.splice(rowIndex, 1);
+            }
+
+            $(this).closest('tr').remove();
+            updateRowNumbersPickup();
         });
 
         $('#buatPickup').on('click', function(e) {
             e.preventDefault();
 
-            var noResi = [];
-            var tanggal_pickup = $('#tanggal_pickup').val();
+            var noResiPickup = [];
+            var tanggalPickup = $('#tanggal_pickup').val();
 
-            if (tanggal_pickup === '') {
+            if (tanggalPickup === '') {
                 $('#tanggalPickupError').removeClass('d-none');
-                showMessage('error', 'Tanggal delivery tidak boleh kosong.');
+                showMessage('error', 'Tanggal pickup tidak boleh kosong.');
                 return;
             } else {
                 $('#tanggalPickupError').addClass('d-none');
@@ -745,11 +926,10 @@
 
             $('#table_resi_body_pickup tr').each(function() {
                 var noResiItem = $(this).find('td').eq(1).text();
-                noResi.push(noResiItem);
+                noResiPickup.push(noResiItem);
             });
 
-
-            if (noResi.length === 0) {
+            if (noResiPickup.length === 0) {
                 showMessage('error', 'Tidak ada resi yang dimasukkan.');
                 return;
             }
@@ -769,8 +949,8 @@
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    resi_list: noResi,
-                    tanggal: tanggal_pickup,
+                    resi_list: noResiPickup,
+                    tanggal: tanggalPickup
                 },
                 success: function(response) {
                     Swal.close();
@@ -779,7 +959,7 @@
                             location.reload();
                         });
                     } else {
-                        showMessage('error', 'Gagal membuat Pickup: ' + response.message);
+                        showMessage('error', 'Gagal membuat pickup: ' + response.message);
                     }
                 },
                 error: function(xhr, status, error) {
@@ -788,78 +968,6 @@
                 }
             });
         });
-
-
-        $('#buatPickupTable').on('click', function(e) {
-            var selectedNoResi = [];
-
-            // Ambil nilai dari checkbox yang dicentang
-            $('input.checkbox_resi_pickup:checked').each(function() {
-                selectedNoResi.push($(this).val());
-            });
-
-            var tanggal_pickup = $('#tanggal_pickup').val();
-
-
-            if (tanggal_pickup === '') {
-                $('#tanggalPickupError').removeClass('d-none');
-                showMessage('error', 'Tanggal Pickup tidak boleh kosong.');
-                return;
-            } else {
-                $('#tanggalPickupError').addClass('d-none');
-            }
-
-            if (selectedNoResi.length === 0) {
-                showMessage('error', 'Silakan pilih No Resi yang ingin di-Pickup.');
-                return;
-            }
-
-            Swal.fire({
-                title: 'Apakah kamu yakin ingin Pick Up invoice ini?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#5D87FF',
-                cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Sedang memproses...',
-                        text: 'Harap menunggu hingga proses selesai',
-                        icon: 'info',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    $.ajax({
-                        url: "{{ route('buatPickup') }}",
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            resi_list: selectedNoResi,
-                            tanggal: tanggal_pickup,
-                        },
-                        success: function(response) {
-                            Swal.close();
-                            if (response.success) {
-                                showMessage("success", "Pickup berhasil dibuat!").then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                showMessage('error', 'Gagal membuat Pickup: ' + response
-                                    .message);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            Swal.close();
-                            showMessage('error', 'Terjadi kesalahan: ' + error);
-                        }
-                    });
-                }
-            });
-        });
     </script>
+
 @endsection
