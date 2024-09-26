@@ -5,6 +5,8 @@
 /public/storage
 /storage/*
 !/storage/.gitignore
+/storage/framework/*
+!/storage/framework/.gitignore
 /vendor
 .env
 .env.backup
