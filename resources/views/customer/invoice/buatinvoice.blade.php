@@ -98,11 +98,11 @@
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="noResi" class="form-label fw-bold">No Invoice :</label>
-                                    <h2 class="fw-bold" id="noInvoice">{{ $newNoinvoce }}</h2>
-                                    {{-- <input type="text" class="form-control col-8" id="noResi" value=""
-                                        placeholder="Scan Resi">
-                                    <div id="noResiError" class="text-danger mt-1 d-none">Silahkan Scan No Resi terlebih
-                                        dahulu</div> --}}
+                                    <div class="d-flex">
+                                        <h2 class="fw-bold" id="noInvoice">{{ $newNoinvoice }}</h2>
+                                        <a class="pt-2" id="btnRefreshInvoice" href=""><span
+                                                class="pl-2 text-success"><i class="fas fa-sync-alt"></i></span></a>
+                                    </div>
                                 </div>
                                 <div class="mt-3">
                                     <label for="tanggal" class="form-label fw-bold">Tanggal</label>
@@ -274,6 +274,49 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            $('#btnRefreshInvoice').click(function(e) {
+                e.preventDefault();
+
+                // Define the loading spinner HTML
+                const loadSpin = `<div class="d-flex justify-content-center align-items-center pl-5">
+                          <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+                      </div>`;
+
+                // Hide the refresh button
+                $('#btnRefreshInvoice').addClass('d-none');
+
+                // Insert the loading spinner into the noInvoice element
+                $('#noInvoice').html(loadSpin);
+
+                $.ajax({
+                    url: "{{ route('generateInvoice') }}",
+                    method: 'GET', // Use GET or POST based on your API design
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Update the noInvoice text with the response
+                            $('#noInvoice').text(response.no_invoice);
+                        } else {
+                            console.error(response.message);
+                            // Show error message if the request fails
+                            $('#noInvoice').html(
+                                '<span class="text-danger">Failed to load invoice</span>');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Gagal menghasilkan nomor invoice: ' + xhr.responseJSON
+                            .message);
+                        // Show error message if there's an error
+                        $('#noInvoice').html(
+                            '<span class="text-danger">Gagal menghasilkan nomor invoice</span>'
+                        );
+                    },
+                    complete: function() {
+                        // Show the refresh button again after the request is complete
+                        $('#btnRefreshInvoice').removeClass('d-none');
+                    }
+                });
+            });
+
             $('.select2singgle').select2({
                 width: 'resolve'
             });
@@ -786,8 +829,13 @@
                         }
                     },
                     error: function(xhr, status, error) {
+                        let errorMessage =
+                        "Terjadi Kesalahan membuat invoice";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
                         Swal.fire({
-                            title: "Terjadi Kesalahan membuat invoice",
+                            title: errorMessage,
                             icon: "error"
                         });
                     }

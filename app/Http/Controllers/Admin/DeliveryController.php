@@ -172,51 +172,53 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function getlistTableBuatDelivery (Request $request)
+    public function getlistTableBuatDelivery(Request $request)
     {
-        $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
+        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
+        if ($request->filter_date) {
+
+            [$startDate, $endDate] = explode(' - ', $request->filter_date);
+
+
+            $startDate = date('Y-m-d', strtotime($startDate));
+            $endDate = date('Y-m-d', strtotime($endDate));
+        } else {
+
+            $startDate = null;
+            $endDate = null;
+        }
         $q = "SELECT a.id,
-
-                a.no_invoice,
-
-                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-
-                b.nama_pembeli AS pembeli,
-
-                a.metode_pengiriman,
-
-                a.status_id
-
+                    a.no_invoice,
+                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                    b.nama_pembeli AS pembeli,
+                    a.metode_pengiriman,
+                    a.status_id
                 FROM tbl_invoice AS a
-
                 JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-
                 JOIN tbl_status AS d ON a.status_id = d.id
-
-                WHERE a.status_id = 1
-
+                  WHERE (
+                    UPPER( a.no_invoice) LIKE '$txSearch'
+                    OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+                    )
+                And a.status_id = 1
                 AND a.metode_pengiriman = 'Delivery'
-
-                AND DATE(a.tanggal_invoice) = '$filterDate'
-                        ";
-
+                AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
 
         $data = DB::select($q);
 
-                $output = '<table id="datatable_resi" class="table table-bordered table-hover">
-                <thead>
+        $output = '<table id="datatable_resi" class="table table-bordered table-hover">
+                    <thead>
                         <tr>
                             <th><input type="checkbox" id="select_all"></th>
                             <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
                         </tr>
-                </thead>
-                <tbody>';
-                foreach ($data as $item) {
-                    $output .=
-                        '
+                    </thead>
+                    <tbody>';
+        foreach ($data as $item) {
+            $output .= '
                        <tr>
                             <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
                             <td>' . ($item->no_invoice ?? '-') . '</td>
@@ -224,10 +226,12 @@ class DeliveryController extends Controller
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
                     ';
-                }
+        }
         $output .= '</tbody></table>';
+
         return $output;
     }
+
     public function getlistTableBuatPickup (Request $request)
     {
         $filterDate = $request->filter_date ? date('Y-m-d', strtotime($request->filter_date)) : null;
@@ -278,6 +282,7 @@ class DeliveryController extends Controller
     {
         $noResi = $request->input('no_invoice');
 
+
         $invoice = DB::table('tbl_invoice')
             ->where('no_invoice', $noResi)
             ->first();
@@ -286,7 +291,7 @@ class DeliveryController extends Controller
             if ($invoice->status_id != 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Resi sudah diproses',
+                    'message' => 'Invoice sudah diproses',
                 ]);
             }
 
@@ -298,11 +303,11 @@ class DeliveryController extends Controller
                 ->where('id', $invoice->status_id)
                 ->first();
 
-            if ($pembeli && $status) {
-                if ($pembeli->metode_pengiriman === 'Delivery') {
+            if ($invoice && $status) {
+                if ($invoice->metode_pengiriman === 'Delivery') {
                     return response()->json([
                         'success' => true,
-                        'message' => 'Resi valid untuk pengiriman Delivery',
+                        'message' => 'Invoice untuk pengiriman Delivery',
                         'data' => [
                             'no_invoice' => $invoice->no_invoice,
                             'nama_pembeli' => $pembeli->nama_pembeli,
@@ -320,7 +325,79 @@ class DeliveryController extends Controller
         }
     }
 
+    public function cekResiBulk(Request $request)
+    {
+        $noResis = $request->input('no_invoices');
+        $results = [];
 
+        foreach ($noResis as $noResi) {
+            $invoice = DB::table('tbl_invoice')
+                ->where('no_invoice', $noResi)
+                ->first();
+
+            if ($invoice) {
+                if ($invoice->status_id != 1) {
+                    $results[] = [
+                        'no_invoice' => $noResi,
+                        'success' => false,
+                        'message' => 'Invoice sudah diproses'
+                    ];
+                    continue; // Skip ke iterasi berikutnya
+                }
+
+                $pembeli = DB::table('tbl_pembeli')
+                    ->where('id', $invoice->pembeli_id)
+                    ->first();
+
+                $status = DB::table('tbl_status')
+                    ->where('id', $invoice->status_id)
+                    ->first();
+
+
+
+                if ($invoice && $status) {
+                    if ($invoice->metode_pengiriman === 'Delivery') {
+                        $results[] = [
+                            'no_invoice' => $invoice->no_invoice,
+                            'success' => true,
+                            'message' => 'Invoice untuk pengiriman Delivery',
+                            'data' => [
+                                'no_invoice' => $invoice->no_invoice,
+                                'nama_pembeli' => $pembeli->nama_pembeli,
+                                'status_name' => $status->status_name
+                            ]
+                        ];
+                    } else {
+                        $results[] = [
+                            'no_invoice' => $noResi,
+                            'success' => false,
+                            'message' => 'Resi tidak valid untuk Delivery'
+                        ];
+                    }
+                } else {
+                    $results[] = [
+                        'no_invoice' => $noResi,
+                        'success' => false,
+                        'message' => 'Data pembeli atau status tidak ditemukan'
+                    ];
+                }
+            } else {
+                $results[] = [
+                    'no_invoice' => $noResi,
+                    'success' => false,
+                    'message' => 'Resi tidak ditemukan'
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Proses selesai',
+            'data' => array_filter($results, function($result) {
+                return $result['success'] === true;
+            })
+        ]);
+    }
 
     public function cekResiPickup(Request $request)
     {
