@@ -104,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/getlistCicilan', [InvoiceController::class, 'getlistCicilan'])->name('getlistCicilan');
     Route::get('/invoice/getlistHeadCicilan', [InvoiceController::class, 'getlistHeadCicilan'])->name('getlistHeadCicilan');
     Route::get('/invoice/addinvoice', [InvoiceController::class, 'addinvoice'])->name('addinvoice');
+    Route::get('/invoice/generateInvoice', [InvoiceController::class, 'generateInvoice'])->name('generateInvoice');
     Route::post('/invoice/addinvoice/tambainvoice', [InvoiceController::class, 'tambainvoice'])->name('tambainvoice');
     Route::post('/invoice/completePayment', [InvoiceController::class, 'completePayment'])->name('completePayment');
     Route::get('/invoice/deleteInvoice', [InvoiceController::class, 'deleteInvoice'])->name('deleteInvoice');

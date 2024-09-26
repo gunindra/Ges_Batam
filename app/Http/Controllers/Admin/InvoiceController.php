@@ -33,71 +33,108 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
+        // Mulai transaksi
+        DB::beginTransaction();
+        try {
+            $yearMonth = date('ym');
+            $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
+            $data = DB::select($q);
 
-        $yearMonth = date('ym');
-        $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
-        $data = DB::select($q);
+            if (!empty($data)) {
+                $lastMarking = $data[0]->no_invoice;
+                $lastYearMonth = substr($lastMarking, 0, 4);
 
-        if (!empty($data)) {
-            $lastMarking = $data[0]->no_invoice;
-            $lastYearMonth = substr($lastMarking, 0, 4);
-
-            if ($lastYearMonth === $yearMonth) {
-
-                $lastNumber = (int)substr($lastMarking, 4);
-                $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+                if ($lastYearMonth === $yearMonth) {
+                    $lastNumber = (int)substr($lastMarking, 4);
+                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+                } else {
+                    $newNumber = '00001';
+                }
             } else {
-
                 $newNumber = '00001';
             }
-        } else {
 
-            $newNumber = '00001';
-        }
+            $newNoinvoice = $yearMonth . $newNumber;
 
-
-        $newNoinvoice = $yearMonth . $newNumber;
-
-
-        $listPembeli = DB::select("SELECT a.id,
+            $listPembeli = DB::select("SELECT a.id,
+                                            a.nama_pembeli,
+                                            a.marking,
+                                            a.metode_pengiriman,
+                                            c.id AS category_id,
+                                            c.minimum_rate,
+                                            GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
+                                            COUNT(b.id) AS jumlah_alamat
+                                        FROM tbl_pembeli a
+                                        LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
+                                        JOIN tbl_category c ON a.category_id = c.id
+                                        GROUP BY a.id,
                                         a.nama_pembeli,
-                                        a.marking,
-                                        a.metode_pengiriman,
-                                        c.id AS category_id,
-                                        c.minimum_rate,
-                                        GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
-                                        COUNT(b.id) AS jumlah_alamat
-                                    FROM tbl_pembeli a
-                                    LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
-                                    JOIN tbl_category c ON a.category_id = c.id
-                                    GROUP BY a.id,
-                                    a.nama_pembeli,
-                                     a.marking,
-                                      a.metode_pengiriman,
-                                       c.id,
-                                        c.minimum_rate");
+                                         a.marking,
+                                          a.metode_pengiriman,
+                                           c.id,
+                                            c.minimum_rate");
 
+            $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
-        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+            $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
 
-        $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
+            $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
 
-        $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
+            $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
 
-        $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
+            $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
 
-        $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
+            // Commit transaksi
+            DB::commit();
 
+            return view('customer.invoice.buatinvoice', [
+                'listPembeli' => $listPembeli,
+                'listRekening' => $listRekening,
+                'listTipePembayaran' => $listTipePembayaran,
+                'listRateVolume' => $listRateVolume,
+                'listCurrency' => $listCurrency,
+                'lisPembagi' => $lisPembagi,
+                'newNoinvoice' => $newNoinvoice
+            ]);
+        } catch (\Exception $e) {
+            // Rollback transaksi jika ada error
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat membuat invoice: ' . $e->getMessage());
+        }
+    }
 
-        return view('customer.invoice.buatinvoice', [
-            'listPembeli' => $listPembeli,
-            'listRekening' => $listRekening,
-            'listTipePembayaran' => $listTipePembayaran,
-            'listRateVolume' => $listRateVolume,
-            'listCurrency' => $listCurrency,
-            'lisPembagi' => $lisPembagi,
-            'newNoinvoce' => $newNoinvoice
-        ]);
+    public function generateInvoice()
+    {
+        DB::beginTransaction();
+
+        try {
+            $yearMonth = date('ym');
+            $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
+            $data = DB::select($q);
+
+            if (!empty($data)) {
+                $lastMarking = $data[0]->no_invoice;
+                $lastYearMonth = substr($lastMarking, 0, 4);
+
+                if ($lastYearMonth === $yearMonth) {
+                    $lastNumber = (int)substr($lastMarking, 4);
+                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+                } else {
+                    $newNumber = '00001';
+                }
+            } else {
+                $newNumber = '00001';
+            }
+
+            $newNoinvoice = $yearMonth . $newNumber;
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'No invoice berhasil di-generate', 'no_invoice' => $newNoinvoice], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghasilkan nomor invoice: ' . $e->getMessage()], 500);
+        }
     }
 
     public function editinvoice(Request $request, $id)
@@ -425,6 +462,13 @@ class InvoiceController extends Controller
         $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
 
+        $existingInvoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
+        if ($existingInvoice) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Nomor invoice sudah ada, silakan refresh nomor invoice.'
+            ], 400);
+        }
 
         $date = DateTime::createFromFormat('j F Y', $tanggal);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
