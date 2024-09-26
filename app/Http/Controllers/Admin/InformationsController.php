@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Information; // Import model
+use App\Models\Information; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,11 +29,13 @@ class InformationsController extends Controller
                         </thead>
                         <tbody>';
         foreach ($data as $item) {
+            $imagePath = Storage::url('images/' . $item->image_informations);
+
             $output .= '
                 <tr>
                     <td class="">' . ($item->title_informations ?? '-') . '</td>
                     <td class="">' . ($item->content_informations ?? '-') . '</td>
-                    <td class=""><img src="' . asset($item->image_url) . '" alt="Gambar" width="100px" height="100px"></td>
+                    <td class=""><img src="' . asset($imagePath) . '" alt="Gambar" width="100px" height="100px"></td>
                     <td>
                         <a class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_informations="' . $item->title_informations . '" data-content_informations="' . $item->content_informations . '" data-image_informations="' . $item->image_informations . '"><i class="fas fa-edit"></i></a>
                         <a class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
@@ -48,7 +50,9 @@ class InformationsController extends Controller
     public function addInformations(Request $request)
     {
         $request->validate([
-            'imageInformations' => 'nullable|mimes:jpg,jpeg,png|',
+            'titleInformations' => 'required|string|max:255', 
+            'contentInformations' => 'required|string|max:1000', 
+            'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
         $information = new Information();
@@ -63,14 +67,7 @@ class InformationsController extends Controller
         }
 
         try {
-            $checkData = Information::count();
-
-            if ($checkData >= 6) {
-                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 6 data sudah tercapai.'], 400);
-            }
-
             $information->save();
-
             return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
@@ -82,15 +79,15 @@ class InformationsController extends Controller
         $id = $request->input('id');
 
         try {
-            $existingInformation = Information::find($id);
+            $information = Information::findOrFail($id);
 
-            if ($existingInformation && $existingInformation->image_informations) {
-                $existingImagePath = 'public/images/' . $existingInformation->image_informations;
+            if ($information->image_informations) {
+                $existingImagePath = 'public/images/' . $information->image_informations;
                 if (Storage::exists($existingImagePath)) {
                     Storage::delete($existingImagePath);
                 }
             }
-            $existingInformation->delete();
+            $information->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
@@ -101,11 +98,13 @@ class InformationsController extends Controller
     public function updateInformations(Request $request)
     {
         $request->validate([
-            'imageInformations' => 'nullable|mimes:jpg,jpeg,png|',
+            'titleInformations' => 'required|string|max:255', 
+            'contentInformations' => 'required|string|max:1000', 
+            'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
-        
+
         $id = $request->input('id');
-        $information = Information::find($id);
+        $information = Information::findOrFail($id);
         $information->title_informations = $request->input('titleInformations');
         $information->content_informations = $request->input('contentInformations');
 

@@ -17,17 +17,17 @@ class RekeningController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT id,
-                        pemilik,
-                        nomer_rekening,
-                        nama_bank
-                FROM tbl_rekening
-                WHERE (UPPER(pemilik) LIKE UPPER('$txSearch') OR UPPER(nomer_rekening) LIKE UPPER('$txSearch') OR UPPER(nama_bank) LIKE UPPER('$txSearch'))
-        ";
+        $data = DB::table('tbl_rekening')
+        ->select('id', 'pemilik', 'nomer_rekening', 'nama_bank')
+        ->where(function($q) use ($txSearch) {
+            $q->whereRaw('UPPER(pemilik) LIKE UPPER(?)', [$txSearch])
+                  ->orWhereRaw('UPPER(nomer_rekening) LIKE UPPER(?)', [$txSearch])
+                  ->orWhereRaw('UPPER(nama_bank) LIKE UPPER(?)', [$txSearch]);
+        })
+        ->get();
 
         // dd($q);
 
-        $data = DB::select($q);
 
         $output = ' <table class="table align-items-center table-flush table-hover" id="tableRekening">
                                 <thead class="thead-light">
@@ -59,6 +59,11 @@ class RekeningController extends Controller
 
     public function addRekening(Request $request)
     {
+        $request->validate([
+            'namaRekening' => 'required|string|max:255',
+            'noRekening' => 'required|string|max:255',
+            'bankRekening' => 'required|string|max:255',
+        ]);
 
         $namaRekening = $request->input('namaRekening');
         $noRekening = $request->input('noRekening');
@@ -80,6 +85,11 @@ class RekeningController extends Controller
 
     public function updateRekening(Request $request)
     {
+        $request->validate([
+            'namaRekening' => 'required|string|max:255',
+            'noRekening' => 'required|string|max:255',
+            'bankRekening' => 'required|string|max:255',
+        ]);
         $id = $request->input('id');
         $namaRekening = $request->input('namaRekening');
         $noRekening = $request->input('noRekening');

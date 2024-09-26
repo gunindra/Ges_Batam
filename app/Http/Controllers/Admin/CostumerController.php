@@ -22,41 +22,49 @@ class CostumerController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
 
-        $statusCondition = '';
-            if ($status === '1') {
-                $statusCondition = "AND tp.status = 1";
-            } elseif ($status === '0') {
-                $statusCondition = "AND tp.status = 0";
-            }
+        $query = DB::table('tbl_pembeli')
+                ->select(
+                'tbl_pembeli.id',
+                'tbl_pembeli.marking',
+                'tbl_pembeli.nama_pembeli',
+                DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR ", ") AS alamat'),
+                DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
+                'tbl_pembeli.no_wa',
+                'tbl_pembeli.sisa_poin',
+                'tbl_pembeli.metode_pengiriman',
+                DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
+                'tbl_pembeli.status',
+                'tbl_pembeli.category_id',
+                'tbl_category.category_name'
+            )
+            ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
+            ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
+            ->where(function($q) use ($txSearch) {
+                $q->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', strtoupper($txSearch))
+                  ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch));
+            });
 
-        $q = "SELECT tp.id,
-                tp.marking,
-                tp.nama_pembeli,
-                GROUP_CONCAT(ta.alamat SEPARATOR ', ') AS alamat,
-                COUNT(ta.alamat) AS alamat_count,
-                tp.no_wa,
-                tp.sisa_poin,
-                tp.metode_pengiriman,
-                DATE_FORMAT(tp.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar,
-                tp.status,
-                tp.category_id,
-                tc.category_name
-                FROM tbl_pembeli tp
-                LEFT JOIN tbl_alamat ta ON ta.pembeli_id = tp.id
-                LEFT JOIN tbl_category tc ON tp.category_id = tc.id
-                 WHERE (
-                UPPER(tp.nama_pembeli) LIKE UPPER('$txSearch')
-                OR UPPER(tp.marking) LIKE UPPER('$txSearch')
-                )
-                $statusCondition
+        if ($status === '1') {
+            $query->where('tbl_pembeli.status', 1);
+        } elseif ($status === '0') {
+            $query->where('tbl_pembeli.status', 0);
+        }
 
-                GROUP BY tp.id, tp.marking, tp.nama_pembeli, tp.no_wa, tp.sisa_poin, tp.metode_pengiriman, tp.transaksi_terakhir, tp.status, tp.category_id, tc.category_name
-                ORDER BY tp.status DESC, tp.transaksi_terakhir DESC;
-
-                        ";
-
-        $data = DB::select($q);
-
+        $data = $query->groupBy(
+                'tbl_pembeli.id', 
+                'tbl_pembeli.marking', 
+                'tbl_pembeli.nama_pembeli', 
+                'tbl_pembeli.no_wa', 
+                'tbl_pembeli.sisa_poin', 
+                'tbl_pembeli.metode_pengiriman', 
+                'tbl_pembeli.transaksi_terakhir', 
+                'tbl_pembeli.status', 
+                'tbl_pembeli.category_id', 
+                'tbl_category.category_name'
+            )
+            ->orderBy('tbl_pembeli.status', 'DESC')
+            ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC')
+            ->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
                         <thead class="thead-light">
@@ -102,8 +110,18 @@ class CostumerController extends Controller
         return $output;
     }
 
+
     public function addCostumer(Request $request)
     {
+        $request->validate([
+            'markingCostmer' => 'required|string|max:255',
+            'namaCustomer' => 'required|string|max:255',
+            'noTelpon' => 'required|string|max:15',
+            'categoryCustomer' => 'required|exists:tbl_category,id',
+            'metodePengiriman' => 'required|string|in:Delivery,Pickup',
+            'alamatCustomer' => 'nullable|array', 
+            'alamatCustomer.*' => 'nullable|string|max:255', 
+        ]);
         $markingCostumer = $request->input('markingCostmer');
         $namacostumer = $request->input('namaCustomer');
         $notlponcostumer = $request->input('noTelpon');
@@ -143,6 +161,15 @@ class CostumerController extends Controller
 
     public function updateCostumer(Request $request)
     {
+        $request->validate([
+            'markingCostmer' => 'required|string|max:255',
+            'namaCustomer' => 'required|string|max:255',
+            'noTelpon' => 'required|string|max:15',
+            'categoryCustomer' => 'required|exists:tbl_category,id',
+            'metodePengiriman' => 'required|string|in:Delivery,Pickup',
+            'alamatCustomer' => 'nullable|array', 
+            'alamatCustomer.*' => 'nullable|string|max:255', 
+        ]);
         $id = $request->input('id');
         $namacostumer = $request->input('namaCustomer');
         $notlponcostumer = $request->input('noTelpon');

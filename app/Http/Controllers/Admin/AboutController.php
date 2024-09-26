@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\About;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,17 +21,18 @@ class AboutController extends Controller
             'imageAbout' => 'nullable|mimes:jpg,jpeg,png',
             'contentAbout' => 'required|string',
         ]);
-        
+    
         $contentAbout = $request->input('contentAbout');
         $imageAbout = $request->file('imageAbout');
     
         try {
-            $existingData = DB::table('tbl_aboutus')->first();
+            $existingData = About::first();
             $fileName = $existingData ? $existingData->Image_AboutUs : null;
     
             if ($imageAbout) {
-                if ($fileName && Storage::exists('public/images/' . $fileName)) {
-                    Storage::delete('public/images/' . $fileName);
+                
+                if ($existingData && Storage::exists('public/images/' . $existingData->Image_AboutUs)) {
+                    Storage::delete('public/images/' . $existingData->Image_AboutUs);
                 }
     
                 $uniqueId = uniqid('AboutUs_', true);
@@ -38,19 +40,14 @@ class AboutController extends Controller
                 $imageAbout->storeAs('public/images', $fileName);
             }
     
-            if ($existingData) {
-                DB::table('tbl_aboutus')->update([
+            About::updateOrCreate(
+                [],
+                [
                     'Paragraph_AboutUs' => $contentAbout,
                     'Image_AboutUs' => $fileName,
                     'updated_at' => now(),
-                ]);
-            } else {
-                DB::table('tbl_aboutus')->insert([
-                    'Paragraph_AboutUs' => $contentAbout,
-                    'Image_AboutUs' => $fileName,
-                    'created_at' => now(),
-                ]);
-            }
+                ]
+            );
     
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'contentAbout' => $contentAbout]], 200);
         } catch (\Exception $e) {
@@ -59,8 +56,9 @@ class AboutController extends Controller
     }
     
     
-
-
-}
+    }
+    
+    
+    
 
 

@@ -15,49 +15,52 @@ class CategoryController extends Controller
     public function getlistCategory(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+    
+        $data = DB::table('tbl_category')
+            ->select('id', 'category_name', 'minimum_rate', 'maximum_rate')
+            ->get();
 
-        $q = "SELECT id,
-                        category_name,
-                        minimum_rate,
-                        maximum_rate
-                FROM tbl_category
-        ";
-
-        // dd($q);
-
-        $data = DB::select($q);
-
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableCategory">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Minimum Rate</th>
-                                        <th>Maximum Rate</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
+        $output = '
+            <table class="table align-items-center table-flush table-hover" id="tableCategory">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Minimum Rate</th>
+                        <th>Maximum Rate</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>';
+    
         foreach ($data as $item) {
-
-            $output .=
-                '
+            $output .= '
                 <tr>
-                    <td class="">' . ($item->category_name ?? '-') .'</td>
-                    <td class="">' . (isset($item->minimum_rate) ? ' ' . number_format($item->minimum_rate,0, '.', ',') : '-') . '</td>
-                    <td class="">' . (isset($item->maximum_rate) ? ' ' . number_format($item->maximum_rate,0, '.', ',') : '-') . '</td>
+                    <td>' . ($item->category_name ?? '-') . '</td>
+                    <td>' . ($item->minimum_rate ? number_format((float)$item->minimum_rate, 0, '.', ',') : '-') . '</td>
+                    <td>' . ($item->maximum_rate ? number_format((float)$item->maximum_rate, 0, '.', ',') : '-') . '</td>
                     <td>
-                        <a  class="btn btnUpdateCategory btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-category_name="' .$item->category_name .'" data-minimum_rate="' .$item->minimum_rate .'" data-maximum_rate="' .$item->maximum_rate .'" ><i class="fas fa-edit"></i></a>
+                        <a class="btn btnUpdateCategory btn-sm btn-secondary text-white" 
+                           data-id="' . $item->id . '" 
+                           data-category_name="' . $item->category_name . '" 
+                           data-minimum_rate="' . $item->minimum_rate . '" 
+                           data-maximum_rate="' . $item->maximum_rate . '">
+                           <i class="fas fa-edit"></i>
+                        </a>
                     </td>
-                </tr>
-            ';
+                </tr>';
         }
-
+    
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
+    
     public function addCategory(Request $request)
     {
-
+        $request->validate([
+            'nameCategory' => 'required|string|max:255',
+            'minimumRateCategory' => 'required|numeric|min:0',
+            'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
+        ]);
         $nameCategory = $request->input('nameCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');
         $maximumRateCategory = $request->input('maximumRateCategory');
@@ -77,6 +80,11 @@ class CategoryController extends Controller
     }
     public function updateCategory(Request $request)
     {
+        $request->validate([
+            'nameCategory' => 'required|string|max:255',
+            'minimumRateCategory' => 'required|numeric|min:0',
+            'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
+        ]);
         $id = $request->input('id');
         $nameCategory = $request->input('nameCategory');
         $minimumRateCategory = $request->input('minimumRateCategory');

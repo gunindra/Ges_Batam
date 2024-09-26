@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Popup; 
 use Illuminate\Support\Facades\Storage;
 
 class PopupController extends Controller
@@ -29,39 +30,45 @@ class PopupController extends Controller
         $imagePopup = $request->file('imagePopup');
     
         try {
-            $existingData = DB::table('tbl_popup')->first();
-            $fileName = $existingData ? $existingData->Image_Popup : null;
+            $popup = Popup::first(); // Mendapatkan data popup yang ada
     
+            // Jika ada gambar baru, hapus gambar yang lama
             if ($imagePopup) {
-                  if ($fileName && Storage::exists('public/images/' . $fileName)) {
-                    Storage::delete('public/images/' . $fileName);
+                if ($popup && $popup->Image_Popup) {
+                    $existingImagePath = 'public/images/' . $popup->Image_Popup;
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
                 }
     
                 $uniqueId = uniqid('Popup_', true);
                 $fileName = $uniqueId . '.' . $imagePopup->getClientOriginalExtension();
                 $imagePopup->storeAs('public/images', $fileName);
+            } else {
+                $fileName = $popup ? $popup->Image_Popup : null;
             }
     
-            if ($existingData) {
-                DB::table('tbl_popup')->update([
+            // Update atau insert data
+            if ($popup) {
+                $popup->update([
                     'title_Popup' => $titlePopup,
                     'Paragraph_Popup' => $paragraphPopup,
                     'Link_Popup' => $linkPopup,
                     'Image_Popup' => $fileName,  
                     'updated_at' => now(),
                 ]);
-                $id = $existingData->id;
+                $id = $popup->id;
             } else {
-                $id = DB::table('tbl_popup')->insertGetId([
+                $id = Popup::create([
                     'title_Popup' => $titlePopup,
                     'Paragraph_Popup' => $paragraphPopup,
                     'Link_Popup' => $linkPopup,
                     'Image_Popup' => $fileName,
                     'created_at' => now(),
-                ]);
+                ])->id;
             }
-            
-            $popupData = DB::table('tbl_popup')->where('id', $id)->first();
+    
+            $popupData = Popup::find($id);
     
             return response()->json([
                 'status' => 'success',
@@ -78,6 +85,7 @@ class PopupController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
+    
 
     public function destroyPopup(Request $request)
     {
@@ -88,18 +96,20 @@ class PopupController extends Controller
         }
 
         try {
-            $existingPopup = DB::table('tbl_popup')->where('id', $id)->first();
+            $popup = Popup::find($id); 
 
-            if ($existingPopup && $existingPopup->Image_Popup) {
-                $existingImagePath = 'public/images/' . $existingPopup->Image_Popup;
-    
-    
-                if (Storage::exists($existingImagePath)) {
-                    Storage::delete($existingImagePath);
+            if ($popup) {
+
+                if ($popup->Image_Popup) {
+                    $existingImagePath = 'public/images/' . $popup->Image_Popup;
+
+                    if (Storage::exists($existingImagePath)) {
+                        Storage::delete($existingImagePath);
+                    }
                 }
-            $deleted = DB::table('tbl_popup')->where('id', $id)->delete();
-            }
-            if ($deleted) {
+                
+                $popup->delete();
+
                 return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
             } else {
                 return response()->json(['status' => 'info', 'message' => 'Data tidak ditemukan'], 404);
@@ -108,5 +118,4 @@ class PopupController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
         }
     }
-
 }

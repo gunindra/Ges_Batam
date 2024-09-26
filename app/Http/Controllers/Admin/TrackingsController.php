@@ -19,15 +19,14 @@ class TrackingsController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT * FROM tbl_tracking
-             WHERE (
-                UPPER(no_resi) LIKE UPPER('$txSearch')
-                OR UPPER(no_do) LIKE UPPER('$txSearch')
-                )
-                ORDER BY id Desc
-                LIMIT 100";
-
-        $data = DB::select($q);
+        $data = DB::table('tbl_tracking')
+        ->where(function ($query) use ($txSearch) {
+            $query->whereRaw('UPPER(no_resi) LIKE ?', [$txSearch])
+                  ->orWhereRaw('UPPER(no_do) LIKE ?', [$txSearch]);
+        })
+        ->orderBy('id', 'desc')
+        ->limit(100)
+        ->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableTracking">
                                 <thead class="thead-light">
@@ -62,6 +61,13 @@ class TrackingsController extends Controller
 
     public function addTracking(Request $request)
     {
+        $request->validate([
+            'noResi' => 'required|array|min:1',
+            'noResi.*' => 'required|string|max:20',
+            'noDeliveryOrder' => 'required|string|max:20',
+            'status' => 'required|string|max:50',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
         try {
             foreach ($request->noResi as $resi) {
                 DB::table('tbl_tracking')->insert([
@@ -80,6 +86,11 @@ class TrackingsController extends Controller
 
     public function updateTracking(Request $request)
     {
+       $request->validate([
+            'noDeliveryOrder' => 'required|string|max:20',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+
         try {
 
             $idTracking = $request->input('id');

@@ -16,14 +16,12 @@ class PembagirateController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT id,
-                        nilai_pembagi
-                FROM tbl_pembagi
-        ";
+        $data = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')->get();
+        
 
         // dd($q);
 
-        $data = DB::select($q);
+       
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tablePembagi">
                                 <thead class="thead-light">
@@ -54,7 +52,9 @@ class PembagirateController extends Controller
     }
     public function addPembagi(Request $request)
     {
-
+        $request->validate([
+            'nilaiPembagi' => 'required|numeric',
+        ]);
 
         $nilaiPembagi = $request->input('nilaiPembagi');
 
@@ -85,6 +85,10 @@ class PembagirateController extends Controller
     }
     public function updatePembagi(Request $request)
     {
+        $request->validate([
+            'nilaiPembagi' => 'required|numeric',
+        ]);
+
         $id = $request->input('id');
         $nilaiPembagi = $request->input('nilaiPembagi');
 
@@ -105,48 +109,48 @@ class PembagirateController extends Controller
     public function getlistRate(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-
-        $q = "SELECT id,
-                    nilai_rate,
-                    rate_for
-                FROM tbl_rate
-        ";
-
-        // dd($q);
-
-        $data = DB::select($q);
-
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableRate">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nilai</th>
-                                        <th>For</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
+       
+        $data = DB::table('tbl_rate')
+            ->select('id', 'nilai_rate', 'rate_for')
+            ->get();
+    
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableRate">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nilai</th>
+                                <th>For</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+        
         $no = 1;
         foreach ($data as $item) {
-            $output .=
-                '
+            $output .= '
                 <tr>
-                    <td class="">' . $no++ .'</td>
-                    <td class="">' . (isset($item->nilai_rate) ? '' . number_format($item->nilai_rate,0, '.', ',') : '-') . '</td>
-                    <td class="">' . $item->rate_for .'</td>
-                   <td>
-                        <a  class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_rate="' .$item->nilai_rate.'" data-rate_for="' .$item->rate_for.'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyRate btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                    <td class="">' . $no++ . '</td>
+                    <td class="">' . (isset($item->nilai_rate) ? number_format($item->nilai_rate, 0, '.', ',') : '-') . '</td>
+                    <td class="">' . $item->rate_for . '</td>
+                    <td>
+                        <a class="btn btnUpdateRate btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nilai_rate="' . $item->nilai_rate . '" data-rate_for="' . $item->rate_for . '"><i class="fas fa-edit"></i></a>
+                        <a class="btn btnDestroyRate btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
                     </td>
-                </tr>
-            ';
+                </tr>';
         }
-
+    
         $output .= '</tbody></table>';
-         return $output;
+        
+        return $output;
     }
+    
     public function addRate(Request $request)
     {
+        $request->validate([
+            'nilaiRate' => 'required|numeric',
+            'forRate' => 'required|in:Berat,Volume',
+        ]);
+
         $nilaiRate = $request->input('nilaiRate');
         $forRate = $request->input('forRate');
 
@@ -176,6 +180,11 @@ class PembagirateController extends Controller
     }
     public function updateRate(Request $request)
     {
+        $request->validate([
+            'nilaiRate' => 'required|numeric',
+            'forRate' => 'required|in:Berat,Volume',
+        ]);
+
         $id = $request->input('id');
         $nilaiRate = $request->input('nilaiRate');
         $rateFor = $request->input('rateFor');

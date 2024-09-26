@@ -20,6 +20,10 @@ class SupirController extends Controller
     }
     public function tambahdata(Request $request)
     {
+        $request->validate([
+            'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
+        ]);
+    
         try {
             $invoiceIds = explode(',', $request->input('selectedValues'));
 

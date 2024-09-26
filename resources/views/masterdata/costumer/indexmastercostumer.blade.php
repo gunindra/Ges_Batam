@@ -555,7 +555,7 @@
                             error: function (xhr) {
                                 Swal.fire({
                                     title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON.message,
+                                    // text: xhr.responseJSON.message,
                                     icon: "error",
                                 });
                             }

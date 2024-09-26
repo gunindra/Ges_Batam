@@ -15,17 +15,13 @@ class RoleController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
-        $q = "SELECT id,
-                        role
-                FROM tbl_role
-                 WHERE (
-                UPPER(role) LIKE UPPER('$txSearch')
-                )
-        ";
+        $data = DB::table('tbl_role')
+        ->select('id', 'role')
+        ->where(function($q) use ($txSearch) {
+            $q->whereRaw('UPPER(role) LIKE UPPER(?)', [$txSearch]);
+        })
+        ->get();
 
-        // dd($q);
-
-        $data = DB::select($q);
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableRole">
                                 <thead class="thead-light">
@@ -55,6 +51,9 @@ class RoleController extends Controller
     }
     public function addRole(Request $request)
     {
+        $request->validate([
+            'roleMaster' => 'required|string|max:255',
+        ]);
 
         $roleMaster = $request->input('roleMaster');
 
@@ -72,6 +71,10 @@ class RoleController extends Controller
     }
     public function updateRole(Request $request)
     {
+        $request->validate([
+            'roleMaster' => 'required|string|max:255',
+        ]);
+
         $id = $request->input('id');
         $roleMaster = $request->input('roleMaster');
         try {
@@ -108,15 +111,10 @@ class RoleController extends Controller
     public function getlistMenu(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $data = DB::table('tbl_role')
+        ->select('id', 'role')
+        ->get();
 
-        $q = "SELECT id,
-                        role
-                FROM tbl_role
-        ";
-
-        // dd($q);
-
-        $data = DB::select($q);
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableMenuAkses">
                                 <thead class="thead-light">

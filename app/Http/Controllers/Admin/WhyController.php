@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
+use App\Models\Why; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -10,51 +12,47 @@ class WhyController extends Controller
 {
     public function index()
     {
-        $whyData = DB::table('tbl_whyus')->first();
+        $whyData = Why::first();
         return view('content.whys.indexwhy', compact('whyData'));
     }
 
     public function addWhy(Request $request)
     {
         $request->validate([
-            'imageWhy' => 'nullable|mimes:jpg,jpeg,png|', 
-            'contentWhy' => 'required|string', 
+            'imageWhy' => 'nullable|mimes:jpg,jpeg,png',
+            'contentWhy' => 'required|string',
         ]);
+
         $contentWhy = $request->input('contentWhy');
         $imageWhy = $request->file('imageWhy');
-    
+
         try {
-            $existingData = DB::table('tbl_whyus')->first();
+            $existingData = Why::first();
             $fileName = $existingData ? $existingData->Image_WhyUs : null;
-    
+
             if ($imageWhy) {
-                if ($fileName && Storage::exists('public/images/' . $fileName)) {
-                    Storage::delete('public/images/' . $fileName);
+                if ($existingData && Storage::exists('public/images/' . $existingData->Image_WhyUs)) {
+                    Storage::delete('public/images/' . $existingData->Image_WhyUs);
                 }
-    
+
                 $uniqueId = uniqid('WhyUs_', true);
                 $fileName = $uniqueId . '.' . $imageWhy->getClientOriginalExtension();
                 $imageWhy->storeAs('public/images', $fileName);
             }
-    
-            if ($existingData) {
-                DB::table('tbl_whyus')->update([
+
+           
+            Why::updateOrCreate(
+                [],
+                [
                     'Paragraph_WhyUs' => $contentWhy,
                     'Image_WhyUs' => $fileName,
                     'updated_at' => now(),
-                ]);
-            } else {
-                DB::table('tbl_whyus')->insert([
-                    'Paragraph_WhyUs' => $contentWhy,
-                    'Image_WhyUs' => $fileName,
-                    'created_at' => now(),
-                ]);
-            }
-    
+                ]
+            );
+
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'contentWhy' => $contentWhy]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
-    
 }

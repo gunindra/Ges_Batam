@@ -6,14 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
-class Information extends Model
+class About extends Model
 {
     use HasFactory;
-
-    protected $table = 'tbl_informations'; 
+    protected $table = 'tbl_aboutus'; 
     protected $fillable = [
-        'image_informations',
-        'title_informations',
-        'content_informations',
+        'Paragraph_AboutUs',
+        'Image_AboutUs',
     ];
 }

@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
+use App\Models\Advertisement;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class AdvertisementController extends Controller
 {
@@ -15,49 +16,35 @@ class AdvertisementController extends Controller
 
     public function getlistAdvertisement(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $data = Advertisement::all();
 
-        $q = "SELECT id,
-                        title_Advertisement,
-                        image_Advertisement
-                FROM tbl_advertisement
-        ";
-
-        // dd($q);
-
-        $data = DB::select($q);
-
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableAdvertisement">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Image</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableAdvertisement">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Image</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
         foreach ($data as $item) {
+            $imagePath = Storage::url('images/' . $item->image_Advertisement);
 
-            $image = $item->image_Advertisement;
-            $imagepath = Storage::url('images/' . $image);
-
-
-            $output .=
-                '
+            $output .= '
                 <tr>
-                    <td class="">' . ($item->title_Advertisement ?? '-') .'</td>
-                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
-                   <td>
-                     <a class="btn btnUpdateAdvertisement btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_Advertisement="' . $item->title_Advertisement . '" data-image_Advertisement="' . $item->image_Advertisement . '"><i class="fas fa-edit"></i></a>
-                    <a class="btn btnDestroyAdvertisement btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                    <td class="">' . ($item->title_Advertisement ?? '-') . '</td>
+                    <td class=""><img src="' . asset($imagePath) . '" alt="Gambar" width="100px" height="100px"></td>
+                    <td>
+                        <a class="btn btnUpdateAdvertisement btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_Advertisement="' . $item->title_Advertisement . '" data-image_Advertisement="' . $item->image_Advertisement . '"><i class="fas fa-edit"></i></a>
+                        <a class="btn btnDestroyAdvertisement btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
         }
-
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
+
     public function addAdvertisement(Request $request)
     {
         $request->validate([
@@ -65,59 +52,50 @@ class AdvertisementController extends Controller
             'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg|', 
         ]);
 
-        $titleAdvertisement = $request->input('titleAdvertisement');
-        $imageAdvertisement = $request->file('imageAdvertisement');
+        $checkData = Advertisement::count();
+        if ($checkData >= 7) {
+            return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
+        }
 
+        $advertisement = new Advertisement();
+        $advertisement->title_Advertisement = $request->input('titleAdvertisement');
+
+        if ($request->hasFile('imageAdvertisement')) {
+            $uniqueId = uniqid('Advertisement_', true);
+            $fileName = $uniqueId . '.' . $request->file('imageAdvertisement')->getClientOriginalExtension();
+            $request->file('imageAdvertisement')->storeAs('public/images', $fileName);
+            $advertisement->image_Advertisement = $fileName;
+        }
 
         try {
-            $chekdata = DB::table('tbl_advertisement')->count();
-
-            if ($chekdata >= 7) {
-                return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
-            }
-           
-                if ($imageAdvertisement) {
-                    $uniqueId = uniqid('Advertisement_', true);
-                    $fileName = $uniqueId . '.' . $imageAdvertisement->getClientOriginalExtension();
-                    $imageAdvertisement->storeAs('public/images', $fileName);
-                } else {
-                    $fileName = null;
-                }
-
-            DB::table('tbl_advertisement')->insert([
-                'title_Advertisement' => $titleAdvertisement,
-                'image_Advertisement' => $fileName,
-                'created_at' => now(),
-            ]);
-
-            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+            $advertisement->save();
+            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
         }
     }
+
     public function destroyAdvertisement(Request $request)
     {
         $id = $request->input('id');
 
         try {
-            $existingAdvertisement = DB::table('tbl_advertisement')->where('id', $id)->first();
+            $advertisement = Advertisement::findOrFail($id);
 
-            if ($existingAdvertisement && $existingAdvertisement->image_Advertisement) {
-                $existingImagePath = 'public/images/' . $existingAdvertisement->image_Advertisement;
-    
-    
+            if ($advertisement->image_Advertisement) {
+                $existingImagePath = 'public/images/' . $advertisement->image_Advertisement;
                 if (Storage::exists($existingImagePath)) {
                     Storage::delete($existingImagePath);
                 }
-            DB::table('tbl_advertisement')
-                ->where('id', $id)
-                ->delete();
             }
+            $advertisement->delete();
+
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
     public function updateAdvertisement(Request $request)
     {
         $request->validate([
@@ -126,34 +104,24 @@ class AdvertisementController extends Controller
         ]);
 
         $id = $request->input('id');
-        $titleAdvertisement = $request->input('titleAdvertisement');
-        $imageAdvertisement = $request->file('imageAdvertisement');
+        $advertisement = Advertisement::findOrFail($id);
+        $advertisement->title_Advertisement = $request->input('titleAdvertisement');
 
         try {
-            $existingAdvertisement = DB::table('tbl_advertisement')->where('id', $id)->first();
-
-            $dataUpdate = [
-                'title_Advertisement' => $titleAdvertisement,
-                'updated_at' => now(),
-            ];
-            if ($imageAdvertisement) {
-
-                if ($existingAdvertisement && $existingAdvertisement->image_Advertisement) {
-                    $existingImagePath = 'public/images/' . $existingAdvertisement->image_Advertisement;
+            if ($request->hasFile('imageAdvertisement')) {
+                if ($advertisement->image_Advertisement) {
+                    $existingImagePath = 'public/images/' . $advertisement->image_Advertisement;
                     if (Storage::exists($existingImagePath)) {
                         Storage::delete($existingImagePath);
                     }
                 }
-                
-
                 $uniqueId = uniqid('Advertisement_', true);
-                $fileName = $uniqueId . '.' . $imageAdvertisement->getClientOriginalExtension();
-                $imageAdvertisement->storeAs('public/images', $fileName);
-                $dataUpdate['image_Advertisement'] = $fileName; 
+                $fileName = $uniqueId . '.' . $request->file('imageAdvertisement')->getClientOriginalExtension();
+                $request->file('imageAdvertisement')->storeAs('public/images', $fileName);
+                $advertisement->image_Advertisement = $fileName;
             }
-            DB::table('tbl_advertisement')
-                ->where('id', $id)
-                ->update($dataUpdate);
+
+            $advertisement->save();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {

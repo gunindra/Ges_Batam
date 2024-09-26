@@ -240,7 +240,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
     Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
     Route::post('/tracking/addTracking', [TrackingsController::class, 'addTracking'])->name('addTracking');
-    Route::patch('/tracking/updateTracking', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
+    Route::post('/tracking/updateTracking', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
     Route::delete('/tracking/deleteTracking', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');
 
     //Supir

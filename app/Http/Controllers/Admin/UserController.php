@@ -20,24 +20,17 @@ class UserController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $role = $request->role;
-
-        $roles = $role ? "AND role LIKE '$role'" : "";
-
-        $q = "SELECT id,
-		            name, 
-		            email, 
-		            role 
-		FROM tbl_users 
-         WHERE (
-                UPPER(name) LIKE UPPER('$txSearch')
-                OR UPPER(email) LIKE UPPER('$txSearch')
-                )
-                $roles
-        ";
-
-        // dd($q);
-
-        $data = DB::select($q);
+        
+        $data = DB::table('tbl_users')
+            ->select('id', 'name', 'email', 'role')
+            ->where(function ($q) use ($txSearch) {
+                $q->whereRaw('UPPER(name) LIKE ?', [$txSearch])
+                  ->orWhereRaw('UPPER(email) LIKE ?', [$txSearch]);
+            })
+            ->when($role, function ($q) use ($role) {
+                return $q->where('role', $role);
+            })
+            ->get();
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tableUser">
                                 <thead class="thead-light">
@@ -72,6 +65,11 @@ class UserController extends Controller
 
     public function addUsers(Request $request)
     {
+        $request->validate([
+            'nameUsers' => 'required|string|max:255',
+            'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
+            'roleUsers' => 'required|string|max:50',
+        ]);
         $nameUsers = $request->input('nameUsers');
         $emailUsers = $request->input('emailUsers');
         $roleUsers = $request->input('roleUsers');
@@ -93,6 +91,11 @@ class UserController extends Controller
     }
      public function updateUsers(Request $request)
     {
+        $request->validate([
+            'nameUsers' => 'required|string|max:255',
+            'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
+            'roleUsers' => 'required|string|max:50',
+        ]);
         $id = $request->input('id');
         $nameUsers = $request->input('nameUsers');
         $emailUsers = $request->input('emailUsers');

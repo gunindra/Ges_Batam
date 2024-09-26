@@ -1,177 +1,134 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
+use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
     public function index()
     {
-      
         return view('content.services.indexservice');
     }
 
     public function getlistService(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        // Utilize Eloquent to get the data
+        $services = Service::all();
 
-        $q = "SELECT id,
-                        title_service,
-                        content_service,
-                        image_service
-                FROM tbl_service
-        ";
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableService">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Content</th>
+                                <th>Image</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
 
-        // dd($q);
-
-        $data = DB::select($q);
-
-        $output = '  <table class="table align-items-center table-flush table-hover" id="tableService">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Content</th>
-                                        <th>Image</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-        foreach ($data as $item) {
-
-            $image = $item->image_service;
-            $imagepath = Storage::url('images/' . $image);
-            
-
-            $output .=
-                '
+        foreach ($services as $service) {
+            $imagePath = Storage::url('images/' . $service->image_service);
+            $output .= '
                 <tr>
-                    <td class="">' . ($item->title_service ?? '-') .'</td>
-                    <td class="">' . ($item->content_service ?? '-') .'</td>
-                     <td class=""><img src="' . asset($imagepath) . '" alt="Gambar" width="100px" height="100px"></td>
-                   <td>
-                        <a  class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-title_service="' .$item->title_service.'"data-content_service="' .$item->content_service.'" data-image_service="' .$item->image_service.'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyService btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                    <td>' . ($service->title_service ?? '-') . '</td>
+                    <td>' . ($service->content_service ?? '-') . '</td>
+                    <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
+                    <td>
+                        <a class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' . $service->id . '" data-title_service="' . $service->title_service . '" data-content_service="' . $service->content_service . '" data-image_service="' . $service->image_service . '"><i class="fas fa-edit"></i></a>
+                        <a class="btn btnDestroyService btn-sm btn-danger text-white" data-id="' . $service->id . '"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
         }
 
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
 
     public function addService(Request $request)
     {
         $request->validate([
-            'titleService' => 'required|string|max:255', 
-            'contentService' => 'required|string', 
-            'imageService' => 'nullable|mimes:jpg,jpeg,png|', 
+            'titleService' => 'required|string|max:255',
+            'contentService' => 'required|string',
+            'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
-        $titleService = $request->input('titleService');
-        $contentService = $request->input('contentService');
-        $imageService = $request->file('imageService');
+        $service = new Service();
+        $service->title_service = $request->input('titleService');
+        $service->content_service = $request->input('contentService');
+
+        if ($request->hasFile('imageService')) {
+            $uniqueId = uniqid('Service_', true);
+            $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
+            $request->file('imageService')->storeAs('public/images', $fileName);
+            $service->image_service = $fileName;
+        }
 
         try {
-
-            if ($imageService) {
-                $uniqueId = uniqid('Service_', true);
-                $fileName = $uniqueId . '.' . $imageService->getClientOriginalExtension();
-                $imageService->storeAs('public/images', $fileName);
-            } else {
-                $fileName = null;
-            }
-
-            DB::table('tbl_service')->insert([
-                'title_service' => $titleService,
-                'content_service' => $contentService,
-                'image_service' => $fileName,
-                'created_at' => now(),
-            ]);
-
+            $service->save();
             return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
         }
     }
+
     public function destroyService(Request $request)
-{
-    $id = $request->input('id');
+    {
+        $id = $request->input('id');
 
-    try {
-       
-        $existingService = DB::table('tbl_service')->where('id', $id)->first();
+        try {
+            $service = Service::findOrFail($id);
 
-        if ($existingService && $existingService->image_service) {
-            $existingImagePath = 'public/images/' . $existingService->image_service;
-
-
-            if (Storage::exists($existingImagePath)) {
-                Storage::delete($existingImagePath);
+            if ($service->image_service) {
+                $existingImagePath = 'public/images/' . $service->image_service;
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
             }
+            $service->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
         }
-
-        DB::table('tbl_service')
-            ->where('id', $id)
-            ->delete();
-
-        return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
     }
-}
-
 
     public function updateService(Request $request)
     {
         $request->validate([
-            'titleService' => 'required|string|max:255', 
+            'titleService' => 'required|string|max:255',
             'contentService' => 'required|string',
-            'imageService' => 'nullable|mimes:jpg,jpeg,png', 
+            'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-    
-        $id = $request->input('id');
-        $titleService = $request->input('titleService');
-        $contentService = $request->input('contentService');
-        $imageService = $request->file('imageService');
-    
-        try {
-            $existingService = DB::table('tbl_service')->where('id', $id)->first();
-            
-            $dataUpdate = [
-                'title_service' => $titleService,
-                'content_service' => $contentService,
-                'updated_at' => now(),
-            ];
-    
-            if ($imageService) {
 
-                if ($existingService && $existingService->image_service) {
-                    $existingImagePath = 'public/images/' . $existingService->image_service;
+        $id = $request->input('id');
+        $service = Service::findOrFail($id);
+        $service->title_service = $request->input('titleService');
+        $service->content_service = $request->input('contentService');
+
+        try {
+            if ($request->hasFile('imageService')) {
+                if ($service->image_service) {
+                    $existingImagePath = 'public/images/' . $service->image_service;
                     if (Storage::exists($existingImagePath)) {
                         Storage::delete($existingImagePath);
                     }
                 }
-                
-
                 $uniqueId = uniqid('Service_', true);
-                $fileName = $uniqueId . '.' . $imageService->getClientOriginalExtension();
-                $imageService->storeAs('public/images', $fileName);
-                $dataUpdate['image_service'] = $fileName; 
+                $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
+                $request->file('imageService')->storeAs('public/images', $fileName);
+                $service->image_service = $fileName;
             }
-    
-            DB::table('tbl_service')
-                ->where('id', $id)
-                ->update($dataUpdate);
-    
+
+            $service->save();
+
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal mengupdate data: ' . $e->getMessage()], 500);
         }
     }
-    
-
 }

@@ -84,7 +84,6 @@
                 $('#contentAboutError').addClass('d-none');
             }
 
-            // Check if imageAbout is empty or not valid
             if (imageAbout) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageAbout.type)) {
