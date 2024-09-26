@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{ asset('css/flatpickr.css') }}">
     <link rel="stylesheet" href="{{ asset('css/monthSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/inputTags.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daterangepicker.css') }}">
     @stack('styles')
 
 </head>
@@ -50,6 +51,8 @@
     <script type="text/javascript" src="{{ asset('js/sweetalert2.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/flatpickr.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/monthSelect.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/moment.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/daterangepicker.js') }}"></script>
     <script src="{{ asset('js/index.js') }}"></script>
     <script src="js/signature_pad.umd.min.js"></script>
     <script src="js/app.js"></script>

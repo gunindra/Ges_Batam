@@ -184,7 +184,6 @@
                     $base64 = '';
                 }
                 ?>
-                {{-- <img src="{{asset('/img/logo4.png')}}" alt="logo" class="logo"> --}}
                 <img src="<?php echo $base64?>" alt="logo" class="logo"/>
             </div>
             <div class="company-info">

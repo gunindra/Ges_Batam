@@ -31,7 +31,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Buat Delivery</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item">Costumer</li>
+                <li class="breadcrumb-item">Customer</li>
                 <li class="breadcrumb-item"><a href="{{ route('delivery') }}">Delivery</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Buat Delivery</li>
             </ol>
@@ -42,7 +42,6 @@
             Back
         </a>
 
-
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-links nav-link active" aria-current="page" href="#" data-tab="deliveryTab">Delivery</a>
@@ -51,6 +50,7 @@
                 <a class="nav-links nav-link" href="#" data-tab="pickupTab">Pick Up</a>
             </li>
         </ul>
+
         <div id="deliveryTab" class="tab-pane fade show active">
             <div class="row">
                 <div class="col-lg-12">
@@ -60,11 +60,10 @@
                                 <div class="col-md-6">
                                     <!-- Tanggal Delivery -->
                                     <label for="tanggal_delivery" class="form-label fw-bold">Tanggal Delivery</label>
-                                    <input type="text" class="form-control" id="tanggal_delivery" value=""
+                                    <input type="text" class="form-control" id="tanggal_delivery"
                                         placeholder="Pilih tanggal delivery">
                                     <div id="tanggalPickupError" class="text-danger mt-1 d-none">Tanggal delivery tidak
-                                        boleh
-                                        kosong</div>
+                                        boleh kosong</div>
                                 </div>
 
                                 <div class="col-md-6">
@@ -82,32 +81,22 @@
                                 </div>
                             </div>
 
+                            <!-- Button to Open Modal -->
                             <div class="row mt-3">
                                 <div class="col-md-6">
-                                    <!-- Input Resi -->
-                                    <label class="form-label fw-bold">Input Resi Menggunakan</label>
-                                    <div class="d-flex">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="input_resi" id="scan_resi"
-                                                value="scan" checked>
-                                            <label class="form-check-label" for="scan_resi">Scan Resi</label>
-                                        </div>
-                                        <div class="form-check ml-3">
-                                            <input class="form-check-input" type="radio" name="input_resi"
-                                                id="list_batam_sortir" value="list">
-                                            <label class="form-check-label" for="list_batam_sortir">List Batam /
-                                                Sortir</label>
-                                        </div>
-                                    </div>
+                                    <label class="form-label fw-bold">Input Invoice Menggunakan</label>
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#inputResiModal">
+                                        Pilih dari List
+                                    </button>
                                 </div>
                             </div>
 
                             <div class="row mt-3" id="resi_container">
                                 <div class="col-md-6">
                                     <!-- No. Resi -->
-                                    <label for="no_resi" class="form-label fw-bold">No. Resi</label>
+                                    <label for="no_resi" class="form-label fw-bold">No. Invoice</label>
                                     <input type="text" class="form-control" id="no_resi"
-                                        placeholder="Masukan atau Scan No. Resi">
+                                        placeholder="Masukan No. Invoice">
                                 </div>
 
                                 <div class="col-md-12 mt-4">
@@ -115,14 +104,15 @@
                                 </div>
 
                                 <div class="col-md-12 mt-4" id="table_resi_container" style="display: none;">
-                                    <h5 class="fw-bold">Daftar Nomor Resi yang Dimasukkan:</h5>
+                                    <h5 class="fw-bold">Daftar Nomor Invoice yang Dimasukkan:</h5>
                                     <table class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
-                                                <th>No. Resi</th>
+                                                <th>No. invoice</th>
                                                 <th>Nama Pembeli</th>
                                                 <th>Status</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="table_resi_body">
@@ -134,159 +124,41 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- DataTable for List Batam / Sortir -->
-                            <div class="row mt-3" id="datatable_resi_wrapper">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="filter_date">Filter by Date:</label>
-                                            <input type="input" id="filter_date" class="form-control">
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div id="containerBuatDelivery">
-                                        {{-- <table id="datatable_resi" class="table table-bordered table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th><input type="checkbox" id="select_all"></th>
-                                                    <th>No Resi</th>
-                                                    <th>Tanggal</th>
-                                                    <th>Customer</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($listdataTable as $data)
-                                                    <tr>
-                                                        <td><input type="checkbox" class="checkbox_resi"
-                                                                value="{{ $data->no_resi }}"></td>
-                                                        <td>{{ $data->no_resi }}</td>
-                                                        <td>{{ $data->tanggal_bayar }}</td>
-                                                        <td>{{ $data->pembeli }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table> --}}
-                                    </div>
+                                        <div class="modal-body">
 
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button class="btn btn-primary px-5 py-2" id="buatDeliveryTable">Buat
-                                            Delivery</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                            <!-- Search Input -->
+                                            <input type="text" id="txSearch" class="form-control mb-3"
+                                                placeholder="Cari No. Resi atau Nama Pembeli">
 
+                                            <input type="text" class="form-control" id="filter_date"
+                                                placeholder="Pilih tanggal">
+                                            <div id="containerBuatDelivery" class="">
+                                            </div>
+                                            <!-- Table with Checkboxes -->
 
-        <div id="pickupTab" class="tab-pane fade">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="tanggal_pickup" class="form-label fw-bold">Tanggal Pickup</label>
-                                    <input type="text" class="form-control" id="tanggal_pickup" value=""
-                                        placeholder="Pilih tanggal pickup">
-                                    <div id="tanggalPickupError" class="text-danger mt-1 d-none">Tanggal pickup tidak
-                                        boleh kosong</div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-
-                                    <label class="form-label fw-bold">Input Resi Menggunakan</label>
-                                    <div class="d-flex">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="input_resi_pickup"
-                                                id="scan_resi_pickup" value="scan" checked>
-                                            <label class="form-check-label" for="scan_resi_pickup">Scan Resi</label>
                                         </div>
-                                        <div class="form-check ml-3">
-                                            <input class="form-check-input" type="radio" name="input_resi_pickup"
-                                                id="list_batam_sortir_pickup" value="list">
-                                            <label class="form-check-label" for="list_batam_sortir_pickup">List Batam /
-                                                Sortir</label>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary"
+                                                id="confirmSelection">Pilih</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row mt-3" id="resi_container_pickup">
-                                <div class="col-md-6">
-
-                                    <label for="no_resi_pickup" class="form-label fw-bold">No. Resi</label>
-                                    <input type="text" class="form-control" id="no_resi_pickup"
-                                        placeholder="Masukan atau Scan No. Resi">
-                                </div>
-
-                                <div class="col-md-12 mt-4">
-                                    <button class="btn btn-primary" id="tambah_pickup">Tambah</button>
-                                </div>
-
-                                <div class="col-md-12 mt-4" id="table_resi_container_pickup" style="display: none;">
-                                    <h5 class="fw-bold">Daftar Nomor Resi yang Dimasukkan:</h5>
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>No.</th>
-                                                <th>No. Resi</th>
-                                                <th>Nama Pembeli</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="table_resi_body_pickup">
-
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button class="btn btn-primary px-5 py-2" id="buatPickup">Buat Pickup</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- DataTable for List Batam / Sortir (Pickup) -->
-                            <div class="row mt-3" id="datatable_resi_wrapper_pickup">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="filter_date_pickup">Filter by Date:</label>
-                                            <input type="input" id="filter_date_pickup" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div id="containerBuatPickup">
-                                        {{-- <table id="datatable_resi_pickup" class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="select_all_pickup"></th>
-                        <th>No Resi</th>
-                        <th>Tanggal</th>
-                        <th>Customer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($listdataTable as $data)
-                        <tr>
-                            <td><input type="checkbox" class="checkbox_resi_pickup"
-                                    value="{{ $data->no_resi }}"></td>
-                            <td>{{ $data->no_resi }}</td>
-                            <td>{{ $data->tanggal_bayar }}</td>
-                            <td>{{ $data->pembeli }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table> --}}
-                                    </div>
-
-                                    <div class="d-flex justify-content-end mt-3">
-                                        <button class="btn btn-primary px-5 py-2" id="buatPickupTable">Buat
-                                            Pickup</button>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- End Modal -->
 
                         </div>
                     </div>
@@ -321,11 +193,13 @@
         const getlistTableBuatDelivery = () => {
 
             const filterDate = $('#filter_date').val();
+            const txtSearch = $('#txSearch').val();
 
             $.ajax({
                     url: "{{ route('getlistTableBuatDelivery') }}",
                     method: "GET",
                     data: {
+                        txSearch: txtSearch,
                         filter_date: filterDate
                     },
                     beforeSend: () => {
@@ -376,12 +250,29 @@
         });
 
         var today = new Date();
-        $('#tanggal_delivery, #filter_date').datepicker({
+        $('#tanggal_delivery').datepicker({
             format: 'dd MM yyyy',
             todayBtn: 'linked',
             todayHighlight: true,
             autoclose: true,
         }).datepicker('setDate', today);
+
+        $('input[id="filter_date"]').daterangepicker({
+            locale: {
+                format: 'DD MMMM YYYY' // Format: 'dd MM yyyy'
+            },
+            // Opsi lain yang bisa Anda tambahkan, seperti rentang tanggal default
+            startDate: moment().startOf('month'),
+            endDate: moment().endOf('month'),
+            opens: 'left' // Opsi untuk mengatur posisi pembuka date range picker
+        });
+
+        $('#txSearch').keyup(function(e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistTableBuatDelivery();
+            }
+        })
 
 
         $('input[name="input_resi"]').on('change', function() {
@@ -404,18 +295,25 @@
         });
         let enteredResis = [];
 
+        function updateRowNumbers() {
+            $('#table_resi_body tr').each(function(index) {
+                $(this).find('td:first').text(index + 1); // Update nomor urut
+            });
+        }
+
+        // Event listener untuk tombol "Tambah"
         $('#tambah').on('click', function(e) {
             e.preventDefault();
 
-            var noResi = $('#no_resi').val();
+            var noInvoice = $('#no_resi').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            if (noResi === '') {
+            if (noInvoice === '') {
                 showMessage('error', 'Mohon periksa input yang kosong');
                 return;
             }
-            if (enteredResis.includes(noResi)) {
-                showMessage('error', 'Nomor resi sudah ada.');
+            if (enteredResis.includes(noInvoice)) {
+                showMessage('error', 'Nomor invoice sudah ada.');
                 return;
             }
 
@@ -424,28 +322,30 @@
                 method: 'POST',
                 data: {
                     _token: csrfToken,
-                    no_resi: noResi,
+                    no_invoice: noInvoice,
                 },
                 success: function(response) {
                     if (response.success) {
                         showMessage('success', response.message);
                         const data = response.data;
                         $('#table_resi_container').show();
-                        var rowCount = $('#table_resi_body tr').length + 1;
                         var tableRow = `
-                <tr>
-                    <td>${rowCount}</td>
-                    <td>${data.no_resi}</td>
-                    <td>${data.nama_pembeli}</td>
-                    <td>${data.status_name}</td>
-                </tr>
-            `;
+                    <tr>
+                        <td></td> <!-- Tempat untuk nomor urut -->
+                        <td>${data.no_invoice}</td>
+                        <td>${data.nama_pembeli}</td>
+                        <td>${data.status_name}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm remove-row" data-invoice="${noInvoice}">Remove</button>
+                        </td>
+                    </tr>
+                `;
                         $('#table_resi_body').append(tableRow);
-                        enteredResis.push(noResi);
+                        enteredResis.push(String(noInvoice));
                         $('#no_resi').val('');
 
-
-
+                        // Update nomor urut setelah menambah baris baru
+                        updateRowNumbers();
                     } else {
                         showMessage('error', response.message);
                     }
@@ -454,6 +354,88 @@
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
+        });
+
+        $('#confirmSelection').on('click', function() {
+            var selectedInvoices = [];
+            $('#datatable_resi tbody input[type="checkbox"]:checked').each(function() {
+                selectedInvoices.push($(this).val());
+            });
+
+            if (selectedInvoices.length === 0) {
+                showMessage('error', 'Tidak ada nomor invoice yang dipilih.');
+                return;
+            }
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Mengirimkan array nomor invoice ke controller
+            $.ajax({
+                url: "{{ route('cekResiBulk') }}",
+                method: 'POST',
+                data: {
+                    _token: csrfToken,
+                    no_invoices: selectedInvoices
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('success', response.message);
+
+                        const invoices = response.data;
+                        $('#table_resi_container').show();
+
+                        invoices.forEach(data => {
+                            // Check if the invoice is already in the enteredResis array
+                            if (enteredResis.includes(data.no_invoice)) {
+                                showMessage('error', 'Nomor invoice ' + data.no_invoice +
+                                    ' sudah ada.');
+                                return; // Skip this iteration if invoice is already added
+                            }
+
+                            var tableRow = `
+                        <tr>
+                            <td></td> <!-- Tempat untuk nomor urut -->
+                            <td>${data.no_invoice}</td>
+                            <td>${data.data.nama_pembeli}</td>
+                            <td>${data.data.status_name}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm remove-row" data-invoice="${data.no_invoice}">Remove</button>
+                            </td>
+                        </tr>
+                    `;
+
+                            $('#table_resi_body').append(tableRow);
+                            enteredResis.push(String(data
+                            .no_invoice)); // Add the invoice number to the array
+                        });
+
+                        updateRowNumbers(); // Update nomor urut
+                    } else {
+                        showMessage('error', response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('error', 'Terjadi kesalahan: ' + error);
+                }
+            });
+
+            $('#inputResiModal').modal('hide');
+        });
+
+
+
+        // Event listener untuk tombol "Remove"
+        $(document).on('click', '.remove-row', function() {
+            var noInvoice = String($(this).data('invoice')); // Konversi ke string
+            var rowIndex = enteredResis.indexOf(noInvoice);
+
+            if (rowIndex !== -1) {
+                enteredResis.splice(rowIndex, 1);
+            }
+
+            $(this).closest('tr').remove();
+            updateRowNumbers();
+            console.log(enteredResis);
         });
 
         $('#buatDelivery').on('click', function(e) {
