@@ -32,21 +32,18 @@ trait WhatsappTrait
         Log::info('Data yang dikirim: ' . json_encode($data));
 
         try {
-            // Kirim request ke API dan cek respons
             $response = Http::timeout(30)->post($url, $data);
 
             if ($response->successful()) {
                 Log::info('Pesan WhatsApp berhasil dikirim ke ' . $noWa);
-                return response()->json(['success' => true, 'message' => 'Pesan berhasil dikirim'], 200);
+                return true; // Mengembalikan true jika sukses
             } else {
-                // Log error dari API jika pengiriman gagal
                 Log::error('WhatsApp API Error: ' . $response->body());
-                return response()->json(['success' => false, 'message' => 'Gagal mengirim pesan'], 500);
+                return false; // Mengembalikan false jika gagal
             }
         } catch (\Exception $e) {
-            // Log error koneksi atau timeout
             Log::error('Error saat mengirim pesan WhatsApp: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Error mengirim pesan'], 500);
+            return false; // Mengembalikan false jika ada exception
         }
     }
 

@@ -130,6 +130,42 @@ class SupirController extends Controller
     }
 
 
+    public function batalAntar(Request $request)
+    {
+        $request->validate([
+            'alasan' => 'required|string|max:255', // Validate the reason
+        ]);
+
+        $invoiceIds = explode(',', $request->input('selectedValues'));
+
+        DB::beginTransaction(); // Start a transaction to ensure atomicity
+
+        try {
+            foreach ($invoiceIds as $invoiceId) {
+                try {
+                    DB::table('tbl_pengantaran_detail')
+                        ->where('invoice_id', $invoiceId)
+                        ->update([
+                            'keterangan' => $request->alasan,
+                            'updated_at' => now(),
+                        ]);
+                } catch (\Exception $e) {
+                    DB::rollBack(); // Rollback if there's an error
+                    \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
+                    return response()->json(['error' => 'Terjadi kesalahan saat memproses penghapusan.'], 500);
+                }
+            }
+
+            DB::commit(); // Commit if all updates are successful
+            return response()->json(['message' => 'Data berhasil diperbarui.'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback if a general error occurs
+            \Log::error('General error: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan saat memperbarui data.'], 500);
+        }
+    }
+
+
 
     public function jumlahresi(Request $request)
     {
