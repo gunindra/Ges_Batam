@@ -13,22 +13,22 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahAdvertisement">Add Advertisement</h5>
+                    <h5 class="modal-title" id="modalTambahAdvertisement">Tambah Advertisement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="mt-3">
-                        <label for="titleAdvertisement" class="form-label fw-bold">Title</label>
+                        <label for="titleAdvertisement" class="form-label fw-bold">Judul</label>
                         <input type="text" class="form-control" id="titleAdvertisement" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="titleAdvertisementError" class="text-danger mt-1 d-none">Please fill in the Title</div>
+                        <div id="titleAdvertisementError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageAdvertisement" class="form-label fw-bold">Image</label>
+                        <label for="imageAdvertisement" class="form-label fw-bold">Gambar</label>
                         <input type="file" class="form-control" id="imageAdvertisement" value="">
-                        <div id="imageAdvertisementError" class="text-danger mt-1 d-none">Please fill in the Image</div>
+                        <div id="imageAdvertisementError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -52,17 +52,17 @@
                 <div class="modal-body">
                     <input type="hidden" id="advertisementIdEdit">
                     <div class="mt-3">
-                        <label for="titleAdvertisement" class="form-label fw-bold">Title</label>
+                        <label for="titleAdvertisement" class="form-label fw-bold">Judul</label>
                         <input type="text" class="form-control" id="titleAdvertisementEdit" value=""
                             placeholder="Masukkan judul iklan">
-                        <div id="titleAdvertisementErrorEdit" class="text-danger mt-1 d-none">Please fill in the Title
+                        <div id="titleAdvertisementErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul
                         </div>
                     </div>
                     <div class="mt-3">
-                        <label for="imageAdvertisement" class="form-label fw-bold">Image</label>
-                        <p class="">Name Image : <span id="textNamaEdit"></span></p>  
+                        <label for="imageAdvertisement" class="form-label fw-bold">Gambar</label>
+                        <p class="">Name Image : <span id="textNamaEdit"></span></p>
                         <input type="file" class="form-control" id="imageAdvertisementEdit" value="">
-                        <div id="imageAdvertisementErrorEdit" class="text-danger mt-1 d-none">Please fill in the Image
+                        <div id="imageAdvertisementErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Gambar
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal"
                             data-target="#modalTambahAdvertisement" id="#modalCenter"><span class="pr-2"><i
-                                    class="fas fa-plus"></i></span>Add Advertisement</button>
+                                    class="fas fa-plus"></i></span>Tambah Advertisement</button>
                     </div>
                     <div id="containerAdvertisement" class="table-responsive px-2">
                         <!-- <table class="table align-items-center table-flush table-hover" id="tableIklan">
@@ -163,7 +163,6 @@
         getlistAdvertisement();
 
         $('#saveAdvertisement').click(function () {
-            // Ambil nilai input
             var titleAdvertisement = $('#titleAdvertisement').val().trim();
             var imageAdvertisement = $('#imageAdvertisement')[0].files[0];
 
@@ -180,7 +179,7 @@
             if (imageAdvertisement) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
                 if (!validExtensions.includes(imageAdvertisement.type)) {
-                    $('#imageAdvertisementError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
+                    $('#imageAdvertisementError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageAdvertisementError').addClass('d-none');
@@ -192,16 +191,16 @@
                 $('#imageAdvertisementError').addClass('d-none');
             }
 
-            // Jika semua input valid, lanjutkan aksi simpan
+
             if (isValid) {
                 Swal.fire({
-                    title: "Are you sure?",
+                    title: "Apakah Anda yakin?",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
                     cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'No',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -211,7 +210,7 @@
                         formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
-                            text: 'Please wait while we process your data Advertisement.',
+                            text: 'Please wait while we process save your data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -231,28 +230,26 @@
                                 } else if (response.error) {
                                     Swal.fire({
                                         icon: 'error',
-                                        title: 'Error',
+                                        title: 'Kesalahan',
                                         text: response.error
                                     });
                                 }
                                 if (response.status === 'success') {
-                                    showMessage("success", "Data successfully saved");
+                                    showMessage("success", "Data berhasil disimpan");
                                     getlistAdvertisement();
                                     $('#modalTambahAdvertisement').modal('hide');
                                 } else {
                                     Swal.fire({
-                                        title: "Failed to add data",
-                                        text: response
-                                            .message,
+                                        title: "Gagal menambahkan data",
+                                        text: response.message,
                                         icon: "error"
                                     });
                                 }
                             },
                             error: function (xhr) {
                                 Swal.fire({
-                                    title: "Failed to add data",
-                                    text: xhr.responseJSON
-                                        .message,
+                                    title: "Gagal menambahkan data",
+                                    text: xhr.responseJSON.message,
                                     icon: "error",
                                 });
                             }
@@ -260,7 +257,7 @@
                     }
                 });
             } else {
-                showMessage("error", "Please check for empty inputs");
+                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
 
@@ -270,7 +267,7 @@
             e.preventDefault();
             let id = $(this).data('id');
             let title_Advertisement = $(this).data('title_advertisement');
-            let image_Advertisement  = $(this).data('image_advertisement');
+            let image_Advertisement = $(this).data('image_advertisement');
 
             $('#titleAdvertisementEdit').val(title_Advertisement);
             $('#textNamaEdit').text(image_Advertisement);
@@ -295,7 +292,7 @@
                 if (imageAdvertisement) {
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(imageAdvertisement.type)) {
-                        $('#imageAdvertisementErrorEdit').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
+                        $('#imageAdvertisementErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan.').removeClass('d-none');
                         isValid = false;
                     } else {
                         $('#imageAdvertisementErrorEdit').addClass('d-none');
@@ -309,26 +306,26 @@
 
                 if (isValid) {
                     Swal.fire({
-                        title: "Are you sure?",
+                        title: "Apakah Anda yakin?",
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#5D87FF',
                         cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Yes',
-                        cancelButtonText: 'No',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
                             formData.append('titleAdvertisement', titleAdvertisement);
-                            if(imageHeroPage){
-                            formData.append('imageAdvertisement', imageAdvertisement);
+                            if (imageAdvertisement) {
+                                formData.append('imageAdvertisement', imageAdvertisement);
                             }
                             formData.append('_token', csrfToken);
                             Swal.fire({
                                 title: 'Loading...',
-                                text: 'Please wait while we process update your data Heropage.',
+                                text: 'Please wait while we process update your data.',
                                 allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading();
@@ -348,19 +345,18 @@
                                     } else if (response.error) {
                                         Swal.fire({
                                             icon: 'error',
-                                            title: 'Error',
+                                            title: 'Kesalahan',
                                             text: response.error
                                         });
                                     }
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                            "Data successfully updated");
-                                            getlistAdvertisement();
-                                        $('#modalEditAdvertisement').modal(
-                                            'hide');
+                                            "Data berhasil Diubah");
+                                        getlistAdvertisement();
+                                        $('#modalEditAdvertisement').modal('hide');
                                     } else {
                                         Swal.fire({
-                                            title: "Failed to update",
+                                            title: "Gagal Diubah",
                                             icon: "error"
                                         });
                                     }
@@ -369,9 +365,9 @@
                         }
                     });
                 } else {
-                    showMessage("error", "Please check for empty inputs");
+                    showMessage("error", "Silakan periksa input yang kosong");
                 }
-            })
+            });
             $('#modalEditAdvertisement').modal('show');
         });
         $('#modalTambahAdvertisement').on('hidden.bs.modal', function () {
@@ -404,13 +400,13 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: "Are you sure you want to delete this?",
+                title: "Apakah Anda yakin?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
                 cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'No',
+                confirmButtonText: 'Iya',
+                cancelButtonText: 'Tidak',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -442,10 +438,10 @@
                                 });
                             }
                             if (response.status === 'success') {
-                                showMessage("success", "Successfully deleted");
+                                showMessage("success", "Berhasil Menghapus Data");
                                 getlistAdvertisement();
                             } else {
-                                showMessage("error", "Failed to delete");
+                                showMessage("error", "Gagal Menghapus Data");
                             }
                         }
                     });

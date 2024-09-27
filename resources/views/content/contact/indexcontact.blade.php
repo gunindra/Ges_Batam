@@ -24,7 +24,7 @@
                         <input type="email" class="form-control" id="emailContact"
                             value="{{ isset($contactData->email) ? $contactData->email : '' }}"
                             placeholder="Masukkan email">
-                        <div id="emailContactError" class="text-danger mt-1 d-none">Please fill in the Email</div>
+                        <div id="emailContactError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
                     </div>
                     <div class="mt-3">
                         <label for="phoneContact" class="form-label fw-bold">Phone (main)</label>
@@ -34,7 +34,7 @@
                                 value="{{ isset($contactData->phone) ? ltrim($contactData->phone, '62') : '' }}"
                                 placeholder="Masukkan phone">
                         </div>
-                        <div id="phoneContactError" class="text-danger mt-1 d-none">Please fill in the Number</div>
+                        <div id="phoneContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
                     </div>
 
                     <div class="mt-3">
@@ -45,7 +45,7 @@
                                 value="{{ isset($contactData->phones) ? ltrim($contactData->phones, '62') : '' }}"
                                 placeholder="Masukkan phone ">
                         </div>
-                        <div id="phonesContactError" class="text-danger mt-1 d-none">Please fill in the Number</div>
+                        <div id="phonesContactError" class="text-danger mt-1 d-none">Silahkan isi Nomor</div>
                     </div>
                     <button type="button" class="btn btn-primary mt-3" id="saveContact">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
@@ -78,139 +78,138 @@
 @endsection
 @section('script')
 <script>
-    $(document).ready(function () {
-        $(document).on('click', '#saveContact', function (e) {
-            e.preventDefault();
+  $(document).ready(function () {
+    $(document).on('click', '#saveContact', function (e) {
+        e.preventDefault();
 
-            var emailContact = $('#emailContact').val().trim();
-            var phoneContact = $('#phoneContact').val().trim();
-            var phonesContact = $('#phonesContact').val().trim();
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        var emailContact = $('#emailContact').val().trim();
+        var phoneContact = $('#phoneContact').val().trim();
+        var phonesContact = $('#phonesContact').val().trim();
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            var isValid = true;
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var isValid = true;
 
-            if (emailContact === '') {
-                $('#emailContactError').text('Please fill in the Email').removeClass('d-none');
-                isValid = false;
-            } else if (!emailRegex.test(emailContact)) {
-                $('#emailContactError').text('Invalid email format').removeClass('d-none');
-                isValid = false;
-            } else if (!emailContact.endsWith('@gmail.com')) {
-                $('#emailContactError').text('Email must use @gmail.com').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#emailContactError').addClass('d-none');
-            }
-            if (phoneContact === '') {
-                $('#phoneContactError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#phoneContactError').addClass('d-none');
-            }
-            if (phonesContact === '') {
-                $('#phonesContactError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#phonesContactError').addClass('d-none');
-            }
+        if (emailContact === '') {
+            $('#emailContactError').text('Silakan isi Email').removeClass('d-none');
+            isValid = false;
+        } else if (!emailRegex.test(emailContact)) {
+            $('#emailContactError').text('Format email tidak valid').removeClass('d-none');
+            isValid = false;
+        } else if (!emailContact.endsWith('@gmail.com')) {
+            $('#emailContactError').text('Email harus menggunakan @gmail.com').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#emailContactError').addClass('d-none');
+        }
+        if (phoneContact === '') {
+            $('#phoneContactError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#phoneContactError').addClass('d-none');
+        }
+        if (phonesContact === '') {
+            $('#phonesContactError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#phonesContactError').addClass('d-none');
+        }
 
-            if (isValid) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'No',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('emailContact', emailContact);
-                        formData.append('phoneContact', phoneContact); 
-                        formData.append('phonesContact', phonesContact);
-                        formData.append('_token', csrfToken);
-                        Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we process your data contact.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addContact') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                Swal.close();
+        if (isValid) {
+            Swal.fire({
+                title: "Apakah Anda yakin?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('emailContact', emailContact);
+                    formData.append('phoneContact', phoneContact); 
+                    formData.append('phonesContact', phonesContact);
+                    formData.append('_token', csrfToken);
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process save your data.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('addContact') }}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            Swal.close();
 
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-
-                                    Swal.fire({
-                                        title: "Success!",
-                                        text: response.message,
-                                        icon: "success"
-                                    }).then(() => {
-                                        var previewContainer = $('#previewContainer');
-                                        previewContainer.html('');
-                                        if (response.data.emailContact) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.emailContact + '</p>');
-                                        }
-
-                                        if (response.data.phoneContact) {
-                                            previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phoneContact + '</p>');
-                                        }
-
-                                        if (response.data.phonesContact) {
-                                            previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phonesContact + '</p>');
-                                        }
-
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Failed to add data",
-                                        text: response.message,
-                                        icon: "error"
-                                    });
-                                }
-                            },
-                            error: function (xhr, status, error) {
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
                                 Swal.fire({
-                                    title: "Error",
-                                    text: "An error occurred: " + error,
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
+                            }
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: "Berhasil!",
+                                    text: response.message,
+                                    icon: "success"
+                                }).then(() => {
+                                    var previewContainer = $('#previewContainer');
+                                    previewContainer.html('');
+                                    if (response.data.emailContact) {
+                                        previewContainer.append('<p style="margin-left:30px;">' + response.data.emailContact + '</p>');
+                                    }
+
+                                    if (response.data.phoneContact) {
+                                        previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phoneContact + '</p>');
+                                    }
+
+                                    if (response.data.phonesContact) {
+                                        previewContainer.append('<p style="margin-left:30px;">+62' + response.data.phonesContact + '</p>');
+                                    }
+
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal menambahkan data",
+                                    text: response.message,
                                     icon: "error"
                                 });
                             }
-                        });
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: "Check input",
-                    text: "Please check for empty or invalid inputs",
-                    icon: "warning"
-                });
-            }
-        });
-
-        // Remove non-numeric characters from phone input
-        $('#phoneContact, #phonesContact').on('input', function () {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Terjadi kesalahan: " + error,
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "Periksa input",
+                text: "Silakan periksa input yang kosong atau tidak valid",
+                icon: "warning"
+            });
+        }
     });
+
+    $('#phoneContact, #phonesContact').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+});
+
 </script>
 @endsection

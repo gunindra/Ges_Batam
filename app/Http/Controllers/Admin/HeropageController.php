@@ -21,9 +21,9 @@ class HeropageController extends Controller
         $output = '<table class="table align-items-center table-flush table-hover" id="tableHeropage">
                         <thead class="thead-light">
                             <tr>
-                                <th>Title</th>
+                                <th>Judul</th>
                                 <th>Content</th>
-                                <th>Image</th>
+                                <th>Gambar</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

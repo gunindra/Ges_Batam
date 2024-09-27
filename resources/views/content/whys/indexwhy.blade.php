@@ -20,17 +20,17 @@
                     <div id="containerWhy" class="table-responsive px-3">
                     </div>
                     <div class="mt-3">
-                        <label for="imageWhy" class="form-label fw-bold p-1">Image</label>
+                        <label for="imageWhy" class="form-label fw-bold p-1">Gambar</label>
                         <input type="file" class="form-control" id="imageWhy">
-                        <div id="imageWhyError" class="text-danger mt-1 d-none">Please fill in the Image</div>
-                        <p>Name Image=<span id="imageName">{{ $whyData->Image_WhyUs ?? '-'}}</span> </p>
+                        <div id="imageWhyError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <p>Nama Image=<span id="imageName">{{ $whyData->Image_WhyUs ?? '-'}}</span> </p>
                     </div>
                     <div class="input-group pt-2 mt-3">
                         <label for="contentWhy" class="form-label fw-bold p-3">Content</label>
                         <textarea id="contentWhy" class="form-control" aria-label="With textarea"
                             placeholder="Masukkan content">{{ $whyData->Paragraph_WhyUs ?? '' }}</textarea>
                     </div>
-                    <div id="contentWhyError" class="text-danger mt-1 d-none">Please fill in the Content</div>
+                    <div id="contentWhyError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveWhy">
                         <span class="pr-3"><i class="fas fa-save"></i></span> Save
                     </button>
@@ -63,128 +63,127 @@
 
 @section('script')
 <script>
-    $(document).ready(function () {
-        $(document).on('click', '#saveWhy', function (e) {
-            e.preventDefault();
+ $(document).ready(function () {
+    $(document).on('click', '#saveWhy', function (e) {
+        e.preventDefault();
 
-            // Ambil nilai input
-            var contentWhy = $('#contentWhy').val().trim();
-            var imageWhy = $('#imageWhy')[0].files[0];
+        var contentWhy = $('#contentWhy').val().trim();
+        var imageWhy = $('#imageWhy')[0].files[0];
 
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            var isValid = true;
+        var isValid = true;
 
-            // Validasi input
-            if (contentWhy === '') {
-                $('#contentWhyError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#contentWhyError').addClass('d-none');
-            }
-            if (imageWhy) {
-                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                if (!validExtensions.includes(imageWhy.type)) {
-                    $('#imageWhyError').text('Only JPG, JPEG, or PNG files are allowed, and the image cannot be empty.').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#imageWhyError').addClass('d-none');
-                }
-            } else if (!$('#previewContainer img').length) {
-                $('#imageWhyError').removeClass('d-none');
+        if (contentWhy === '') {
+            $('#contentWhyError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#contentWhyError').addClass('d-none');
+        }
+        if (imageWhy) {
+            var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validExtensions.includes(imageWhy.type)) {
+                $('#imageWhyError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh kosong.').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#imageWhyError').addClass('d-none');
             }
+        } else if (!$('#previewContainer img').length) {
+            $('#imageWhyError').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#imageWhyError').addClass('d-none');
+        }
 
-            if (isValid) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'No',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('contentWhy', contentWhy);
-                        if (imageWhy) {
-                            formData.append('imageWhy', imageWhy);
+        if (isValid) {
+            Swal.fire({
+                title: "Apakah Anda yakin?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('contentWhy', contentWhy);
+                    if (imageWhy) {
+                        formData.append('imageWhy', imageWhy);
+                    }
+                    formData.append('_token', csrfToken);
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we process save your data.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
                         }
-                        formData.append('_token', csrfToken);
-                        Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we process your data why.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addWhy') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                Swal.close();
+                    });
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('addWhy') }}",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            Swal.close();
 
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    Swal.fire({
-                                        title: "Berhasil!",
-                                        text: response.message,
-                                        icon: "success"
-                                    }).then(() => {
-                                        var previewContainer = $('#previewContainer');
-                                        previewContainer.html('');
-
-                                        if (response.data.imageWhy) {
-                                            previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
-                                        }
-
-                                        if (response.data.contentWhy) {
-                                            previewContainer.append('<p style="margin-left:30px;">' + response.data.contentWhy + '</p>');
-                                        }
-                                        $('#imageName').text(response.data.imageWhy || ' -');
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Failed to add data",
-                                        text: response.message,
-                                        icon: "error"
-                                    });
-                                }
-                            },
-                            error: function (xhr, status, error) {
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
                                 Swal.fire({
-                                    title: "Error",
-                                    text: "An error occurred: " + error,
+                                    icon: 'error',
+                                    title: 'Kesalahan',
+                                    text: response.error
+                                });
+                            }
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    title: "Berhasil!",
+                                    text: response.message,
+                                    icon: "success"
+                                }).then(() => {
+                                    var previewContainer = $('#previewContainer');
+                                    previewContainer.html('');
+
+                                    if (response.data.imageWhy) {
+                                        previewContainer.append('<img src="{{ asset("storage/images/") }}/' + response.data.imageWhy + '" width="600px" style="padding:5px 30px;">');
+                                    }
+
+                                    if (response.data.contentWhy) {
+                                        previewContainer.append('<p style="margin-left:30px;">' + response.data.contentWhy + '</p>');
+                                    }
+                                    $('#imageName').text(response.data.imageWhy || ' -');
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Gagal menambahkan data",
+                                    text: response.message,
                                     icon: "error"
                                 });
                             }
-                        });
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: "Check input",
-                    text: "Please check for empty or invalid input",
-                    icon: "warning"
-                });
-            }
-        });
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "Kesalahan",
+                                text: "Terjadi kesalahan: " + error,
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                title: "Periksa input",
+                text: "Silakan periksa apakah ada input yang kosong atau tidak valid",
+                icon: "warning"
+            });
+        }
     });
+});
+
 </script>
 @endsection

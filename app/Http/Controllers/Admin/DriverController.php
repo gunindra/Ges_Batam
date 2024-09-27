@@ -61,7 +61,7 @@ class DriverController extends Controller
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
             'noTelponDriver' => 'required|string|max:15', 
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png|max:2048', 
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png', 
         ]);
     
 
@@ -73,7 +73,7 @@ class DriverController extends Controller
         $fileName = $simDriver ? uniqid('Sim_', true) . '.' . $simDriver->getClientOriginalExtension() : null;
 
         if ($simDriver) {
-            $simDriver->storeAs('public/images', $fileName);
+            $simDriver->storeAs('public/sim', $fileName);
         }
 
         try {

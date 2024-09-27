@@ -208,7 +208,7 @@ class InvoiceController extends Controller
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-        $isNotif = $request->isNotif;
+        // $isNotif = $request->isNotif;
 
         $dateCondition = '';
         if ($startDate && $endDate) {
@@ -266,9 +266,9 @@ class InvoiceController extends Controller
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
                         <thead class="thead-light">
                             <tr>';
-                            if ($isNotif == 'true') {
+                            // if ($isNotif == 'true') {
                                 $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
-                            }
+                            // }
         $output .= '
                                 <th>No Invoice</th>
                                 <th>Tanggal</th>
@@ -277,9 +277,9 @@ class InvoiceController extends Controller
                                 <th>Alamat</th>
                                 <th>Harga</th>
                                 <th>Status</th>';
-                            if ($isNotif != 'true') {
+                            // if ($isNotif = 'true') {
                                 $output .= '<th>Action</th>';
-                            }
+                            // }
         $output .= '</tr>
                         </thead>
                         <tbody>';
@@ -288,7 +288,6 @@ class InvoiceController extends Controller
             $statusBadgeClass = '';
             $btnChangeMethod = '';
 
-            // Badge classes for invoice status
             switch ($item->status_name) {
                 case 'Batam / Sortir':
                     $statusBadgeClass = 'badge-primary';
@@ -333,9 +332,9 @@ class InvoiceController extends Controller
 
             // Generating table rows
             $output .= '<tr>';
-            if ($isNotif == 'true') {
+            // if ($isNotif == 'true') {
                 $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
-            }
+            // }
 
             $output .= '
                 <td>' . ($item->no_invoice ?? '-') . ' ' . $waStatusIcon . '</td>
@@ -346,11 +345,11 @@ class InvoiceController extends Controller
                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
 
-            if ($isNotif != 'true') {
+            // if ($isNotif = 'true') {
                 $output .= '<td>' . $btnChangeMethod . '
                             <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
                             </td>';
-            }
+            // }
             $output .= '</tr>';
         }
 

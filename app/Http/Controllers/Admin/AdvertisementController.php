@@ -21,8 +21,8 @@ class AdvertisementController extends Controller
         $output = '<table class="table align-items-center table-flush table-hover" id="tableAdvertisement">
                         <thead class="thead-light">
                             <tr>
-                                <th>Title</th>
-                                <th>Image</th>
+                                <th>Judul</th>
+                                <th>Gambar</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
