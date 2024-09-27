@@ -50,7 +50,7 @@ class WhyController extends Controller
                 ]
             );
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'contentWhy' => $contentWhy]], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'contentWhy' => nl2br( e($contentWhy))]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

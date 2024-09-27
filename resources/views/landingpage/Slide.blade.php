@@ -6,7 +6,7 @@
 </div>
     <div class="mb-5 mt-3 ms-5">
         <p>
-        {{ $dataHeropage[0]->content_heropage }}
+        {!! nl2br( e($dataHeropage[0]->content_heropage)) !!}
         </p>
     </div>
 </body>

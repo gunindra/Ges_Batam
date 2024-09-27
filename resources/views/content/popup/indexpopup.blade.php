@@ -66,7 +66,7 @@
                                     style="padding:5px 30px;">
                                 <p style="padding-left:30px;">{{ $popupData->title_Popup }}</p>
                             @endif
-                            <p style="padding-left:30px;">{{ $popupData->Paragraph_Popup }}</p>
+                            <p style="padding-left:30px;">{!! nl2br( e( $popupData->Paragraph_Popup )) !!}</p>
                             <p class="text-primary" style="padding-left:30px;">{{ $popupData->Link_Popup }}</p>
                         @else
                             <p class="p-3">No content available</p>

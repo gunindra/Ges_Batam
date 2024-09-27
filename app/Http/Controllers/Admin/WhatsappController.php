@@ -63,10 +63,10 @@ public function destroyWa(Request $request)
     }
 
     try {
-        $waData = Whatsapp::find($id); // Use the Wa model to find the record by ID
+        $waData = Whatsapp::find($id); 
 
         if ($waData) {
-            $waData->delete(); // Delete the record using the model
+            $waData->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } else {

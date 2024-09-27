@@ -70,17 +70,7 @@ class PopupController extends Controller
     
             $popupData = Popup::find($id);
     
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => [
-                    'id' => $popupData->id,
-                    'imagePopup' => $popupData->Image_Popup,
-                    'titlePopup' => $popupData->title_Popup,
-                    'paragraphPopup' => $popupData->Paragraph_Popup,
-                    'linkPopup' => $popupData->Link_Popup
-                ]
-            ]);
+            return response()->json(['status' => 'success','message' => 'Data berhasil disimpan','data' => ['id' => $popupData->id,'imagePopup' => $popupData->Image_Popup,'titlePopup' => $popupData->title_Popup,'paragraphPopup' => nl2br(e($popupData->Paragraph_Popup)),'linkPopup' => $popupData->Link_Popup]]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

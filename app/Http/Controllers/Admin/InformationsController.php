@@ -17,7 +17,7 @@ class InformationsController extends Controller
     public function getlistInformations(Request $request)
     {
         $data = Information::all();
-
+    
         $output = '<table class="table align-items-center table-flush table-hover" id="tableInformations">
                         <thead class="thead-light">
                             <tr>
@@ -30,14 +30,14 @@ class InformationsController extends Controller
                         <tbody>';
         foreach ($data as $item) {
             $imagePath = Storage::url('images/' . $item->image_informations);
-
+    
             $output .= '
                 <tr>
                     <td class="">' . ($item->title_informations ?? '-') . '</td>
-                    <td class="">' . ($item->content_informations ?? '-') . '</td>
+                    <td class="">' . nl2br(e($item->content_informations ?? '-')) . '</td>
                     <td class=""><img src="' . asset($imagePath) . '" alt="Gambar" width="100px" height="100px"></td>
                     <td>
-                        <a class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_informations="' . $item->title_informations . '" data-content_informations="' . $item->content_informations . '" data-image_informations="' . $item->image_informations . '"><i class="fas fa-edit"></i></a>
+                        <a class="btn btnUpdateInformations btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_informations="' . e($item->title_informations) . '" data-content_informations="' . e($item->content_informations) . '" data-image_informations="' . $item->image_informations . '"><i class="fas fa-edit"></i></a>
                         <a class="btn btnDestroyInformations btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -46,7 +46,7 @@ class InformationsController extends Controller
         $output .= '</tbody></table>';
         return $output;
     }
-
+    
     public function addInformations(Request $request)
     {
         $request->validate([

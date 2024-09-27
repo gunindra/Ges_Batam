@@ -47,7 +47,7 @@
                             @if($whyData->Image_WhyUs)
                                 <img src="{{ asset('storage/images/' . $whyData->Image_WhyUs) }}" width="600px"
                                     style="padding:5px 30px;">
-                                <p style="margin-left:30px;">{{ $whyData->Paragraph_WhyUs ?? '' }}</p>
+                                <p style="margin-left:30px;">{!! nl2br( e( $whyData->Paragraph_WhyUs ?? '' )) !!}</p>
                             @endif
                         @else
                             <p class="p-3">No content available</p>

@@ -10,6 +10,32 @@
             <li class="breadcrumb-item active" aria-current="page">Driver</li>
         </ol>
     </div>
+    <!-- Modal Batal Kirim -->
+    <div class="modal fade" id="batalModal" tabindex="-1" aria-labelledby="batalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="batalModalLabel">Alasan Pembatalan Kirim</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="batalForm">
+                        <div class="mb-3">
+                            <label for="alasanBatal" class="form-label">Masukkan alasan pembatalan:</label>
+                            <textarea class="form-control" id="alasanBatal" rows="3"
+                                placeholder="Tuliskan alasan di sini..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-danger" id="submitBatal">Batalkan Kirim</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row mb-3 px-3">
         <div class="col-xl-12 px-2">
@@ -53,6 +79,8 @@
                     <div class="mt-3">
                         <button id="clear" class="btn btn-danger">Hapus</button>
                         <button id="save" class="btn btn-success">Simpan</button>
+                        <button id="batal" class="btn btn-secondary" data-bs-toggle="modal"
+                            data-bs-target="#batalModal">Batal Kirim</button>
                         <input type="hidden" name="signature" id="signatureData" value="">
                         <div id="imageSupirError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
                     </div>
@@ -94,15 +122,17 @@
     });
 </script>
 <script>
-   $(document).ready(function() {
-
+    $(document).ready(function () {
+        $('#batal').on('click', function () {
+            $('#batalModal').modal('show');
+        });
 
         $('#selectResi').select2({
             placeholder: 'Pilih No.Invoice',
             allowClear: true
         });
 
-        $('#selectResi').on('change', function() {
+        $('#selectResi').on('change', function () {
             var selectedInvoices = $(this).val();
             if (selectedInvoices.length > 0) {
                 $.ajax({
@@ -111,10 +141,10 @@
                     data: {
                         invoice_ids: selectedInvoices
                     },
-                    success: function(response) {
+                    success: function (response) {
                         $('#pointValue').text(response.count);
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.log(error);
                     }
                 });
@@ -138,12 +168,12 @@
         resizeCanvas();
         $(window).on('resize', resizeCanvas);
 
-        $('#clear').on('click', function() {
+        $('#clear').on('click', function () {
             signaturePad.clear();
             $('#photo').val('');
         });
 
-        $('#save').on('click', function() {
+        $('#save').on('click', function () {
             if (signaturePad.isEmpty()) {
                 Swal.fire({
                     icon: 'warning',
@@ -153,10 +183,10 @@
                 return;
             }
 
-            var photo = $('#photo').get(0).files[0]; 
+            var photo = $('#photo').get(0).files[0];
             var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
 
-          
+
             if (!photo) {
                 Swal.fire({
                     icon: 'warning',
@@ -180,7 +210,8 @@
                 return;
             }
 
-            canvas.toBlob(function(blob) {
+
+            canvas.toBlob(function (blob) {
                 var formData = new FormData();
                 formData.append('signature', blob, 'signature.png');
                 formData.append('photo', photo);
@@ -205,13 +236,13 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.close();
                         showMessage("success", "Data berhasil diupdate!").then(() => {
                             location.reload();
                         });
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         Swal.close();
                         Swal.fire({
                             icon: 'error',

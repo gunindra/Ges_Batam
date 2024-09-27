@@ -29,9 +29,6 @@
                         <label for="contentAbout" class="form-label fw-bold p-3">Content</label>
                         <textarea id="contentAbout" class="form-control" aria-label="With textarea"
                             placeholder="Masukkan content">{{ $aboutData->Paragraph_AboutUs ?? '' }}</textarea>
-                        <!-- <div id="editor">
-
-                            </div> -->
                     </div>
                     <div id="contentAboutError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     <button type="button" class="btn btn-primary mt-3" id="saveAbout">
@@ -50,7 +47,7 @@
                             @if($aboutData->Image_AboutUs)
                                 <img src="{{ asset('storage/images/' . $aboutData->Image_AboutUs) }}" width="600px"
                                     style="padding:5px 30px;">
-                                <p style="margin-left:30px;">{{ $aboutData->Paragraph_AboutUs ?? '' }}</p>
+                                <p style="margin-left:30px;">{!! nl2br( e( $aboutData->Paragraph_AboutUs ?? '' )) !!}</p>
                             @endif
                         @else
                             <p class="p-3">No content available</p>
@@ -189,15 +186,6 @@ $(document).ready(function () {
     });
 
 });
-
-document.addEventListener("DOMContentLoaded", function () {
-    ClassicEditor
-        .create(document.querySelector('#editor'))
-        .catch(error => {
-            console.error(error);
-        });
-});
-
 
 
 

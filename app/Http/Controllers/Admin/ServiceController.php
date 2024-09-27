@@ -35,7 +35,7 @@ class ServiceController extends Controller
             $output .= '
                 <tr>
                     <td>' . ($service->title_service ?? '-') . '</td>
-                    <td>' . ($service->content_service ?? '-') . '</td>
+                    <td>' . nl2br( e($service->content_service ?? '-')) . '</td>
                     <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
                     <td>
                         <a class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' . $service->id . '" data-title_service="' . $service->title_service . '" data-content_service="' . $service->content_service . '" data-image_service="' . $service->image_service . '"><i class="fas fa-edit"></i></a>

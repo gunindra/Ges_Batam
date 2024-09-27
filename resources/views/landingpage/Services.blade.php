@@ -9,7 +9,7 @@
                     </div>
                     <div class="col-12">
                         <h3 class="text-primary">{{ $dataService[0]->title_service }}</h3>
-                        <p>{{ $dataService[0]->content_service }}</p>
+                        <p>{!! nl2br( e( $dataService[0]->content_service )) !!}</p>
                     </div>
                 </div>
             </div>

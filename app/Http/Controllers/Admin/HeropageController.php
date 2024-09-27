@@ -33,8 +33,8 @@ class HeropageController extends Controller
 
             $output .= '
                 <tr>
-                    <td>' . ($item->title_heropage ?? '-') . '</td>
-                    <td>' . ($item->content_heropage ?? '-') . '</td>
+                    <td>' .  ($item->title_heropage ?? '-') . '</td>
+                    <td>' . nl2br(e($item->content_heropage ?? '-')) . '</td>
                     <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
                     <td>
                         <a class="btn btnUpdateHeroPage btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_heropage="' . $item->title_heropage . '" data-content_heropage="' . $item->content_heropage . '" data-image_heropage="' . $item->image_heropage . '"><i class="fas fa-edit"></i></a>

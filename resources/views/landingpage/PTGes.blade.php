@@ -10,11 +10,12 @@
   @endif
 
     @if($popup->title_Popup)
-    <h2 class="popup-title">{{ $popup->title_Popup }}</h2>
+    <h2 class="popup-title">{{$popup->title_Popup}}
+    </h2>
   @endif
 
     @if($popup->Paragraph_Popup)
-    <p class="popup-text">{{ $popup->Paragraph_Popup }}</p>
+    <p class="popup-text">{!! nl2br(e( $popup->Paragraph_Popup)) !!}</p>
   @endif
 
     @if($popup->Link_Popup)
@@ -36,8 +37,8 @@
           <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
           alt="{{ $heropage->title_heropage }}">
           <div class="carousel-caption">
-            <h5 id="judulCarousel">{{ $heropage->title_heropage }}</h5>
-            <p id="parafCarousel">{{ $heropage->content_heropage }}</p>
+            <h5 id="judulCarousel">{{$heropage->title_heropage}}</h5>
+            <p id="parafCarousel">{!! nl2br(e($heropage->content_heropage)) !!}</p>
             <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
           </div>
         </div>
@@ -94,7 +95,7 @@
           <div class="img-text">
             <div class="contentGallery">
               <h2>{{ $info->title_informations ?? '-'}}</h2>
-              <p>{{ $info->content_informations ?? '-'}}</p>
+              <p>{!! nl2br( e($info->content_informations ?? '-')) !!}</p>
             </div>
           </div>
         </div>
@@ -183,7 +184,7 @@
           <h1 style="font-size:32px;">About Us</h1>
         </div>
         <h2>What they say about us</h2>
-        <p id="parafAbout">{{ $aboutus->Paragraph_AboutUs ?? '-'}}</p>
+        <p id="parafAbout">{!! nl2br( e( $aboutus->Paragraph_AboutUs ?? '-')) !!}</p>
         <a href="/About" class="btn">Learn More</a>
       </div>
       <div class="image" id="imageAbout">
@@ -210,7 +211,7 @@
         </div>
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
-          <p id="parafWhy">{{ $whyus->Paragraph_WhyUs ?? '-' }}</p>
+          <p id="parafWhy">{!! nl2br( e( $whyus->Paragraph_WhyUs ?? '-' )) !!}</p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>
           </div>
@@ -233,8 +234,8 @@
                 <img src="{{ asset('storage/images/' . $service->image_service) }}"
                   alt="{{ $service->title_service ?? '-' }}">
                 <div class="overlay">
-                  <h3>{{ $service->title_service ?? '-' }}</h3>
-                  <p>{{ $service->content_service ?? '-' }}</p>
+                  <h3>{{$service->title_service ?? '-' }}</h3>
+                  <p>{!! nl2br( e( $service->content_service ?? '-')) !!}</p>
                   <div class="button-container">
                     <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
                   </div>
