@@ -44,7 +44,7 @@
             </div>
         </div>
     </div>
-</div>
+
 <!-- Modal Edit -->
 <div class="modal fade" id="modalEditService" tabindex="-1" role="dialog" aria-labelledby="modalEditServiceTitle"
     aria-hidden="true">
@@ -175,6 +175,7 @@
         getlistService();
 
         $('#saveService').click(function () {
+
             var titleService = $('#titleService').val().trim();
             var contentService = $('#contentService').val().trim();
             var imageService = $('#imageService')[0].files[0];
