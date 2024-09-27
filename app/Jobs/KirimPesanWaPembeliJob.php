@@ -95,13 +95,21 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             // URL untuk file PDF
             $fileUrl = asset('storage/list_barang/' . $pdfFileName);
-            $pesan .= "\n\n*Download List Barang Anda di sini:* $fileUrl";
+            $pesan .= "\n\n*Download List Barang Anda di sini:";
 
             // Kirim pesan WhatsApp dengan PDF
             if ($invoice->no_wa) {
-                // $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
-                $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl); // Kirim pesan dengan file PDF
-                DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'sent']);
+                $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan); // Kirim pesan tanpa file PDF
+                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl); // Kirim pesan dengan file PDF
+
+                // Cek status pengiriman pesan
+                if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
+                    // Jika gagal mengirim pesan
+                    Log::error("Gagal mengirim pesan WhatsApp ke " . $invoice->no_wa);
+                    DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
+                } else {
+                    DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'sent']);
+                }
             } else {
                 Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $invoice->id);
             }

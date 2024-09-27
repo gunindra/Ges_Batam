@@ -438,7 +438,8 @@
             var addresses = $(this).data('alamat');
             var buktiPengantaran = $(this).data('bukti');
             var tandaTangan = $(this).data('tanda');
-            var metodePengiriman = $(this).data('metode'); // Get the delivery method
+            var metodePengiriman = $(this).data('metode');
+            var keterangan = $(this).data('keterangan'); // Keterangan data
 
             // Normalize invoice numbers
             if (typeof invoiceNumbers !== 'string') {
@@ -455,6 +456,7 @@
             addresses = addresses ? addresses.split(', ') : [];
             buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(', ') : [];
             tandaTangan = tandaTangan ? tandaTangan.split(', ') : [];
+            keterangan = keterangan ? keterangan.split(', ') : []; // Split keterangan
 
             // Start building the modal content
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
@@ -465,7 +467,9 @@
                 modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
             }
 
+            modalContent += '<th>Keterangan</th>'; // Add Keterangan column
             modalContent += '</tr></thead><tbody>';
+
             for (var i = 0; i < invoiceNumbers.length; i++) {
                 modalContent += '<tr>';
                 modalContent += '<td>' + invoiceNumbers[i] + '</td>';
@@ -481,7 +485,7 @@
                         modalContent += '<td>Tidak Ada Bukti</td>';
                     }
 
-                    // Tampilkan Tanda Tangan
+                    // Show Tanda Tangan
                     if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
                         modalContent += '<td><a href="/storage/' + tandaTangan[i] +
                             '" target="_blank">Lihat Tanda Tangan</a></td>';
@@ -490,8 +494,12 @@
                     }
                 }
 
+                // Add Keterangan
+                modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
+
                 modalContent += '</tr>';
             }
+
             modalContent += '</tbody></table>';
 
             $('#modalContent').html(modalContent);
@@ -507,6 +515,7 @@
                 pageLength: 5
             });
         });
+
 
         $(document).on('click', '.btnBuktiPengantaran', function(e) {
             let id = $(this).data('id');

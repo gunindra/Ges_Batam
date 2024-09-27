@@ -48,7 +48,8 @@ class DeliveryController extends Controller
                 's.status_name',
                 DB::raw('COUNT(pd.id) as jumlah_invoice'),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.bukti_pengantaran, 'Tidak Ada Bukti') SEPARATOR ', ') as list_bukti_pengantaran"),
-                DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ', ') as list_tanda_tangan")
+                DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ', ') as list_tanda_tangan"),
+                DB::raw("GROUP_CONCAT(IFNULL(pd.keterangan, 'Belum ada keterangan') SEPARATOR ', ') as list_keterangan")
             )
             ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
             ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
@@ -129,15 +130,17 @@ class DeliveryController extends Controller
                             }
 
                             $btnInvoice = '
-                                    <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                                   <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
                                         data-invoices="' . htmlentities($item->list_no_resi) . '"
                                         data-customers="' . htmlentities($item->list_nama_pembeli) . '"
                                         data-alamat="' . htmlentities($item->list_alamat) . '"
                                         data-bukti="' . htmlentities($item->list_bukti_pengantaran) . '"
                                         data-tanda="' . htmlentities($item->list_tanda_tangan) . '"
-                                        data-metode="' . htmlentities($item->metode_pengiriman) . '">
+                                        data-metode="' . htmlentities($item->metode_pengiriman) . '"
+                                        data-keterangan="' . htmlentities($item->list_keterangan) . '"> <!-- Correct placement -->
                                         Invoice (' . $item->jumlah_invoice . ')
-                                    </button>';
+                                    </button>
+                                    ';
                             $output .= '
                                 <tr>
                                     <td>' . ($item->metode_pengiriman ?? '-') . '</td>

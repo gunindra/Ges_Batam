@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('invoice_id')->constrained('tbl_invoice')->onDelete('cascade');
             $table->text('bukti_pengantaran')->nullable();
             $table->text('tanda_tangan')->nullable();
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

@@ -10,6 +10,8 @@
             <li class="breadcrumb-item active" aria-current="page">Driver</li>
         </ol>
     </div>
+
+
     <!-- Modal Batal Kirim -->
     <div class="modal fade" id="batalModal" tabindex="-1" aria-labelledby="batalModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -253,6 +255,53 @@
                 });
             });
         });
+
+
+
+        $('#submitBatal').on('click', function () {
+
+            const alasanBatal = $('#alasanBatal').val();
+
+            var formData = new FormData();
+
+            formData.append('selectedValues', $('#selectResi').val());
+            formData.append('alasan', alasanBatal);
+
+            Swal.fire({
+                    title: 'Sedang memproses...',
+                    text: 'Harap menunggu hingga proses selesai',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('batalAntar') }}',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        Swal.close();
+                        showMessage("success", "Data berhasil diupdate!").then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan saat menyimpan data.'
+                        });
+                    }
+                });
+        })
     });
 </script>
 @endsection

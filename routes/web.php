@@ -250,6 +250,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/supir', [SupirController::class, 'index'])->name('supir');
     Route::get('/supir/jumlahresi', [SupirController::class, 'jumlahresi'])->name('jumlahresi');
     Route::post('/supir/tambahdata', [SupirController::class, 'tambahdata'])->name('tambahdata');
+    Route::post('/supir/batalAntar', [SupirController::class, 'batalAntar'])->name('batalAntar');
     });
 
 

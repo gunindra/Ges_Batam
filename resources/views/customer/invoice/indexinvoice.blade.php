@@ -389,7 +389,7 @@
         getlistInvoice();
         $('#modalFilterTanggal').modal('hide');
     });
-});
+
     $(document).on('click', '.btnExportInvoice', function (e) {
         let id = $(this).data('id');
 
@@ -682,7 +682,7 @@
         })
     });
 
-
+});
 
 </script>
 @endsection
