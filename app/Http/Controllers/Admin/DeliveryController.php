@@ -92,73 +92,72 @@ class DeliveryController extends Controller
                                 <th>Pengiriman</th>
                                 <th>Supir</th>
                                 <th>Jumlah Invoice</th>
-                                <th>Tanggal Pengantaran</th>
+                                <th>Tanggal</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>';
 
-        foreach ($data as $item) {
-            $statusBadgeClass = '';
-            $btnAcceptPengantaran = '';
-            $btnDetailPengantaran = '';
-            $selesaikanPickup = '';
+                        foreach ($data as $item) {
+                            $statusBadgeClass = '';
+                            $btnAcceptPengantaran = '';
+                            $btnDetailPengantaran = '';
+                            $selesaikanPickup = '';
 
-            switch ($item->status_name) {
-                case 'Out For Delivery':
-                    $statusBadgeClass = 'badge-out-for-delivery';
-                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-truck-moving"></i></a>';
-                    break;
-                case 'Ready For Pickup':
-                    $statusBadgeClass = 'badge-warning';
-                    $selesaikanPickup = '<a class="btn btnSelesaikanPickup btn-success text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-check"></i></a>';
-                    break;
-                case 'Delivering':
-                    $statusBadgeClass = 'badge-delivering';
-                    break;
-                case 'Debt':
-                    $statusBadgeClass = 'badge-danger';
-                    break;
-                case 'Done':
-                    $statusBadgeClass = 'badge-secondary';
-                    if (isset($item->list_bukti_pengantaran)) {
-                        $btnDetailPengantaran = '<a class="btn btnDetailPengantaran btn-secondary text-white" data-id="' . $item->pengantaran_id . '" data-bukti="' . $item->list_bukti_pengantaran . '"><i class="fas fa-eye"></i></a>';
-                    }
-                    break;
-                default:
-                    $statusBadgeClass = 'badge-secondary';
-                    break;
-            }
+                            switch ($item->status_name) {
+                                case 'Out For Delivery':
+                                    $statusBadgeClass = 'badge-out-for-delivery';
+                                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-truck-moving"></i></a>';
+                                    break;
+                                case 'Ready For Pickup':
+                                    $statusBadgeClass = 'badge-warning';
+                                    $selesaikanPickup = '<a class="btn btnSelesaikanPickup btn-success text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-check"></i></a>';
+                                    break;
+                                case 'Delivering':
+                                    $statusBadgeClass = 'badge-delivering';
+                                    break;
+                                case 'Debt':
+                                    $statusBadgeClass = 'badge-danger';
+                                    break;
+                                case 'Done':
+                                    $statusBadgeClass = 'badge-secondary';
+                                    break;
+                                default:
+                                    $statusBadgeClass = 'badge-secondary';
+                                    break;
+                            }
 
-            $btnInvoice = '
-                <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
-                    data-supir="' . $item->nama_supir . '"
-                    data-invoices="' . htmlentities($item->list_no_resi) . '"
-                    data-customers="' . htmlentities($item->list_nama_pembeli) . '"
-                    data-alamat="' . htmlentities($item->list_alamat) . '">
-                    Invoice (' . $item->jumlah_invoice . ')
-                </button>';
+                            $btnInvoice = '
+                                    <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                                        data-invoices="' . htmlentities($item->list_no_resi) . '"
+                                        data-customers="' . htmlentities($item->list_nama_pembeli) . '"
+                                        data-alamat="' . htmlentities($item->list_alamat) . '"
+                                        data-bukti="' . htmlentities($item->list_bukti_pengantaran) . '"
+                                        data-tanda="' . htmlentities($item->list_tanda_tangan) . '"
+                                        data-metode="' . htmlentities($item->metode_pengiriman) . '">
+                                        Invoice (' . $item->jumlah_invoice . ')
+                                    </button>';
+                            $output .= '
+                                <tr>
+                                    <td>' . ($item->metode_pengiriman ?? '-') . '</td>
+                                    <td>' . ($item->nama_supir ?? '-') . '</td>
+                                    <td>' . $btnInvoice . '</td>
+                                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
+                                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
+                                    <td>
+                                        ' . $btnAcceptPengantaran . '
+                                        ' . $btnDetailPengantaran . '
+                                        ' . $selesaikanPickup . '
+                                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
+                                    </td>
+                                </tr>';
+                        }
 
-            $output .= '
-                <tr>
-                    <td>' . ($item->metode_pengiriman ?? '-') . '</td>
-                    <td>' . ($item->nama_supir ?? '-') . '</td>
-                    <td>' . $btnInvoice . '</td>
-                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
-                    <td>
-                        ' . $btnAcceptPengantaran . '
-                        ' . $btnDetailPengantaran . '
-                        ' . $selesaikanPickup . '
-                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
-                    </td>
-                </tr>';
-        }
+                        $output .= '</tbody></table>';
 
-        $output .= '</tbody></table>';
+                        return $output;
 
-        return $output;
     }
 
 

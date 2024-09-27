@@ -394,7 +394,6 @@
             });
         }
 
-        // Event listener untuk tombol "Tambah"
         $('#tambah').on('click', function(e) {
             e.preventDefault();
 
@@ -461,8 +460,6 @@
             }
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            // Mengirimkan array nomor invoice ke controller
             $.ajax({
                 url: "{{ route('cekResiBulk') }}",
                 method: 'POST',
@@ -478,11 +475,10 @@
                         $('#table_resi_container').show();
 
                         invoices.forEach(data => {
-                            // Check if the invoice is already in the enteredResis array
                             if (enteredResis.includes(data.no_invoice)) {
                                 showMessage('error', 'Nomor invoice ' + data.no_invoice +
                                     ' sudah ada.');
-                                return; // Skip this iteration if invoice is already added
+                                return;
                             }
 
                             var tableRow = `

@@ -145,7 +145,7 @@
                                 </button>
                             </div>
                             <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span
-                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Pengantaran</a>
+                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
@@ -433,12 +433,14 @@
         });
 
         $(document).on('click', '.show-invoice-modal', function() {
-            var supirName = $(this).data('supir');
             var invoiceNumbers = $(this).data('invoices');
             var customerNames = $(this).data('customers');
             var addresses = $(this).data('alamat');
+            var buktiPengantaran = $(this).data('bukti');
+            var tandaTangan = $(this).data('tanda');
+            var metodePengiriman = $(this).data('metode'); // Get the delivery method
 
-
+            // Normalize invoice numbers
             if (typeof invoiceNumbers !== 'string') {
                 invoiceNumbers = String(invoiceNumbers);
             }
@@ -451,27 +453,51 @@
 
             customerNames = customerNames ? customerNames.split(', ') : [];
             addresses = addresses ? addresses.split(', ') : [];
+            buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(', ') : [];
+            tandaTangan = tandaTangan ? tandaTangan.split(', ') : [];
 
-            console.log('After split - Invoices:', invoiceNumbers);
-            console.log('After split - Customers:', customerNames);
-            console.log('After split - Addresses:', addresses);
-
+            // Start building the modal content
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent +=
-                '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th><th>Action</th></tr></thead><tbody>';
+            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th>';
+
+            // Add additional columns based on delivery method
+            if (metodePengiriman !== 'Pickup') {
+                modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
+            }
+
+            modalContent += '</tr></thead><tbody>';
             for (var i = 0; i < invoiceNumbers.length; i++) {
                 modalContent += '<tr>';
                 modalContent += '<td>' + invoiceNumbers[i] + '</td>';
                 modalContent += '<td>' + customerNames[i] + '</td>';
                 modalContent += '<td>' + addresses[i] + '</td>';
-                modalContent +=
-                    '<td><button type="button" class="btn btn-warning btnBuktiPengantaran" data-invoice="' +
-                    invoiceNumbers[i] + '">Accept Pengantaran</button></td>';
+
+                // Only show 'Bukti' and 'Tanda Tangan' if not Pick-Up
+                if (metodePengiriman !== 'Pickup') {
+                    if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
+                        modalContent += '<td><a href="/storage/' + buktiPengantaran[i] +
+                            '" target="_blank">Lihat Bukti</a></td>';
+                    } else {
+                        modalContent += '<td>Tidak Ada Bukti</td>';
+                    }
+
+                    // Tampilkan Tanda Tangan
+                    if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
+                        modalContent += '<td><a href="/storage/' + tandaTangan[i] +
+                            '" target="_blank">Lihat Tanda Tangan</a></td>';
+                    } else {
+                        modalContent += '<td>Tidak Ada Tanda Tangan</td>';
+                    }
+                }
+
                 modalContent += '</tr>';
             }
             modalContent += '</tbody></table>';
+
             $('#modalContent').html(modalContent);
             $('#invoiceModal').modal('show');
+
+            // Initialize DataTable
             $('#invoiceTable').DataTable({
                 paging: true,
                 searching: true,
@@ -481,47 +507,6 @@
                 pageLength: 5
             });
         });
-
-        // $(document).on('click', '.btnBuktiPengantaran', function(e) {
-        //     let id = $(this).data('id');
-
-        //     Swal.fire({
-        //         title: "Apakah Barang Dengan Resi Ini Siap Diatarkan?",
-        //         icon: 'question',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#5D87FF',
-        //         cancelButtonColor: '#49BEFF',
-        //         confirmButtonText: 'Ya',
-        //         cancelButtonText: 'Tidak',
-        //         reverseButtons: true
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             $.ajax({
-        //                 type: "GET",
-        //                 url: "{{ route('acceptPengantaran') }}",
-        //                 data: {
-        //                     id: id,
-        //                 },
-        //                 headers: {
-        //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //                 },
-        //                 success: function(response) {
-        //                     if (response.status === 'error') {
-        //                         showMessage("error", response.message);
-        //                     } else {
-        //                         showMessage("success", response.message);
-        //                         getlistDelivery();
-        //                     }
-        //                 },
-        //                 error: function() {
-        //                     showMessage("error", "Terjadi kesalahan pada server.");
-        //                 }
-        //             });
-        //         }
-        //     });
-        // });
-
-
 
         $(document).on('click', '.btnBuktiPengantaran', function(e) {
             let id = $(this).data('id');
@@ -604,6 +589,7 @@
 
             $('#modalConfirmasiPengantaran').modal('show');
         });
+
         $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function() {
             $('#pengantaranStatus').val('');
             if (!$('#err-pengantaranStatus').hasClass('d-none')) {

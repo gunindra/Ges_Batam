@@ -57,10 +57,6 @@
             text-transform: uppercase;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
         .text-right {
             text-align: right;
         }
@@ -331,8 +327,8 @@
                 @endforeach
             </tr>
         </table>
-         <!-- Section Tanda Tangan -->
-         <table class="signature-section">
+        <!-- Section Tanda Tangan -->
+        <table class="signature-section">
             <tr>
                 <td>
                     <div class="signature-line"></div>
