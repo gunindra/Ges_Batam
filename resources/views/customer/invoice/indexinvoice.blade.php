@@ -194,7 +194,7 @@
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
     <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
 </div> `;
-        // isNotif = false
+
         const getlistInvoice = () => {
             const txtSearch = $('#txSearch').val();
             const filterStatus = $('#filterStatus').val();
@@ -209,7 +209,6 @@
                     status: filterStatus,
                     startDate: startDate,
                     endDate: endDate,
-                    // isNotif: isNotif
                 },
                 beforeSend: () => {
                     $('#containerInvoice').html(loadSpin)
@@ -262,18 +261,6 @@
                     $('#kirimNot').hide();
                 }
             });
-
-    // let isNotifEnabled = true;
-
-    // $('#isNotif').click(function() {
-    //     getlistInvoice(isNotifEnabled);
-    //     !isNotifEnabled = isNotifEnabled;
-
-    //     if (isNotifEnabled) {
-    //         $('#kirimNot').removeClass('d-none');
-    //     } else {
-    //         $('#kirimNot').addClass('d-none');
-    //     }
 
     $(document).on('change', '.selectAll', function () {
         var isChecked = $(this).is(':checked');

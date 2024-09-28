@@ -51,15 +51,15 @@ class CostumerController extends Controller
         }
 
         $data = $query->groupBy(
-                'tbl_pembeli.id', 
-                'tbl_pembeli.marking', 
-                'tbl_pembeli.nama_pembeli', 
-                'tbl_pembeli.no_wa', 
-                'tbl_pembeli.sisa_poin', 
-                'tbl_pembeli.metode_pengiriman', 
-                'tbl_pembeli.transaksi_terakhir', 
-                'tbl_pembeli.status', 
-                'tbl_pembeli.category_id', 
+                'tbl_pembeli.id',
+                'tbl_pembeli.marking',
+                'tbl_pembeli.nama_pembeli',
+                'tbl_pembeli.no_wa',
+                'tbl_pembeli.sisa_poin',
+                'tbl_pembeli.metode_pengiriman',
+                'tbl_pembeli.transaksi_terakhir',
+                'tbl_pembeli.status',
+                'tbl_pembeli.category_id',
                 'tbl_category.category_name'
             )
             ->orderBy('tbl_pembeli.status', 'DESC')
@@ -119,8 +119,8 @@ class CostumerController extends Controller
             'noTelpon' => 'required|string|max:15',
             'categoryCustomer' => 'required|exists:tbl_category,id',
             'metodePengiriman' => 'required|string|in:Delivery,Pickup',
-            'alamatCustomer' => 'nullable|array', 
-            'alamatCustomer.*' => 'nullable|string|max:255', 
+            'alamatCustomer' => 'nullable|array',
+            'alamatCustomer.*' => 'nullable|string|max:255',
         ]);
         $markingCostumer = $request->input('markingCostmer');
         $namacostumer = $request->input('namaCustomer');
@@ -162,13 +162,12 @@ class CostumerController extends Controller
     public function updateCostumer(Request $request)
     {
         $request->validate([
-            'markingCostmer' => 'required|string|max:255',
             'namaCustomer' => 'required|string|max:255',
             'noTelpon' => 'required|string|max:15',
             'categoryCustomer' => 'required|exists:tbl_category,id',
             'metodePengiriman' => 'required|string|in:Delivery,Pickup',
-            'alamatCustomer' => 'nullable|array', 
-            'alamatCustomer.*' => 'nullable|string|max:255', 
+            'alamatCustomer' => 'nullable|array',
+            'alamatCustomer.*' => 'nullable|string|max:255',
         ]);
         $id = $request->input('id');
         $namacostumer = $request->input('namaCustomer');
