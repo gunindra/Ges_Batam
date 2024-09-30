@@ -33,7 +33,10 @@ use App\Http\Controllers\{
     Admin\UserController,
     Admin\RoleController,
     Admin\SupirController,
-    Admin\CategoryController
+    Admin\CategoryController,
+    Admin\CoaController,
+    Admin\AccountingSettingController,
+    Admin\JournalController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -251,6 +254,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/supir/jumlahresi', [SupirController::class, 'jumlahresi'])->name('jumlahresi');
     Route::post('/supir/tambahdata', [SupirController::class, 'tambahdata'])->name('tambahdata');
     Route::post('/supir/batalAntar', [SupirController::class, 'batalAntar'])->name('batalAntar');
-    });
+
+    //COA
+    Route::get('/coa', [CoaController::class, 'index'])->name('coa');
+
+    //Journal
+    Route::get('/journal', action: [JournalController::class, 'index'])->name('journal');
+
+    //Acoounting Setting
+    Route::get('/accountingSetting', action: [AccountingSettingController::class, 'index'])->name('accountingSetting');
+});
 
 

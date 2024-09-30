@@ -95,6 +95,28 @@
             </div>
         </li>
         <li
+            class="nav-item {{ request()->routeIs('coa') || request()->routeIs('journal') || request()->routeIs('accountingSetting') }}">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listMenuAccounting"
+                aria-expanded="true" aria-controls="listMenuAccounting">
+                <i class="fas fa-money-bill-wave-alt"></i>
+                <span>Accounting</span>
+            </a>
+            <div id="listMenuAccounting" class="collapse" aria-labelledby="headingBootstrap"
+                data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Accounting</h6>
+                    {{-- <a class="collapse-item {{ request()->routeIs('costumer') ? 'active' : '' }}"
+                        href="{{ route('costumer') }}">COA</a> --}}
+                    <a class="collapse-item"
+                        href="{{ route('coa') }}">COA</a>
+                    <a class="collapse-item"
+                        href="{{ route('journal') }}">Journal</a>
+                    <a class="collapse-item"
+                        href="{{ route('accountingSetting') }}">Accounting Setting</a>
+                </div>
+            </div>
+        </li>
+        <li
             class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') ? 'active' : '' }}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                 aria-expanded="true" aria-controls="collapseBootstrap">
@@ -123,7 +145,7 @@
                 </div>
             </div>
         </li>
-        <hr class="sidebar-divider">
+        {{-- <hr class="sidebar-divider"> --}}
     </ul>
     <!-- Sidebar -->
 
