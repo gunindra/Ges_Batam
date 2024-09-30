@@ -137,70 +137,6 @@ class InvoiceController extends Controller
         }
     }
 
-    public function editinvoice(Request $request, $id)
-    {
-        $data = DB::table('tbl_pembayaran as a')
-        ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
-        ->leftJoin('tbl_pengantaran as c', 'a.id', '=', 'c.pembayaran_id')
-        ->leftJoin('tbl_supir as d', 'c.supir_id', '=', 'd.id')
-        ->where('a.id', $id)
-        ->select(
-            'a.id',
-            'a.no_resi',
-            DB::raw("DATE_FORMAT(a.tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar"),
-            'b.marking',
-            'b.nama_pembeli',
-            'a.berat',
-            'a.panjang',
-            'a.lebar',
-            'a.tinggi',
-            'a.pengiriman',
-            'd.nama_supir',
-            'c.alamat',
-            'c.provinsi',
-            'c.kotakab',
-            'c.kecamatan',
-            'c.kelurahan',
-            'a.pembayaran_id',
-            'a.rekening_id',
-            'a.rate_matauang',
-            'a.matauang_id'
-        )
-        ->first();
-
-
-        $listPembeli = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli");
-
-        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-
-        $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
-
-        $listRekening = DB::select("SELECT id, pemilik, nomer_rekening, nama_bank FROM tbl_rekening");
-
-        $listTipePembayaran = DB::select("SELECT id, tipe_pembayaran FROM tbl_tipe_pembayaran");
-
-        $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
-
-        $lisPembagi = DB::select("SELECT id, nilai_pembagi FROM tbl_pembagi");
-
-
-        return view('customer.invoice.deleteoreditinvoice', [
-            'listPembeli' => $listPembeli,
-            'listSupir' => $listSopir,
-            'listRekening' => $listRekening,
-            'listTipePembayaran' => $listTipePembayaran,
-            'listRateVolume' => $listRateVolume,
-            'listCurrency' => $listCurrency,
-            'lisPembagi' => $lisPembagi,
-            'data' => $data
-        ]);
-    }
-
-    public function cicilanInvoice(Request $request, $id)
-    {
-        return view('customer.invoice.cicilaninvoice');
-    }
-
 
     public function getlistInvoice(Request $request)
     {
@@ -323,11 +259,11 @@ class InvoiceController extends Controller
             // WhatsApp status icon logic
             $waStatusIcon = '';
             if ($item->wa_status == 'pending') {
-                $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;"></i>';
+                $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;" title="Mengirimkan pesan WhatsApp"></i>';
             } elseif ($item->wa_status == 'sent') {
-                $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;"></i>';
+                $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;" title="Pesan WhatsApp terkirim"></i>';
             } elseif ($item->wa_status == 'failed') {
-                $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;"></i>';
+                $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;" title="Pesan WhatsApp gagal"></i>';
             }
 
             // Generating table rows
@@ -356,91 +292,6 @@ class InvoiceController extends Controller
         $output .= '</tbody></table>';
 
         return $output;
-    }
-
-
-    public function getlistHeadCicilan(Request $request)
-    {
-        $id = $request->input('id');
-
-
-        $data = DB::table('tbl_pembayaran')
-            ->join('tbl_pembeli', 'tbl_pembayaran.pembeli_id', '=', 'tbl_pembeli.id')
-            ->select('tbl_pembayaran.no_resi', 'tbl_pembeli.nama_pembeli', 'tbl_pembayaran.status_pembayaran', 'tbl_pembayaran.cicilan')
-            ->where('tbl_pembayaran.id', $id)
-            ->first();
-
-        return response()->json($data);
-    }
-
-    public function getlistCicilan(Request $request)
-    {
-        $id = $request->input('id');
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
-        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-
-        $dateCondition = '';
-        if ($startDate && $endDate) {
-            $dateCondition = "AND tanggal_pembayaran BETWEEN '$startDate' AND '$endDate'";
-        }
-
-        $q = " SELECT   id,
-                        userlogin,
-                        jumlah_cicilan,
-                        DATE_FORMAT(tanggal_pembayaran, '%d %M %Y') AS tanggal_bayar,
-                        metode_pembayaran,
-                        bukti_pembayaran
-                FROM tbl_cicilan
-                WHERE pembayaran_id = $id
-                and (
-                UPPER(userlogin) LIKE UPPER('$txSearch')
-                OR UPPER(metode_pembayaran) LIKE UPPER('$txSearch')
-                )
-                $dateCondition
-                ORDER BY id DESC
-                LIMIT 100
-                ";
-
-                    $data = DB::select($q);
-
-
-
-                    $output = '  <table class="table align-items-center table-flush table-hover" id="tableCicilan">
-                                 <thead class="thead-light">
-                                    <tr>
-                                        <th>Admin</th>
-                                        <th>Tanggal Pembayaran</th>
-                                        <th>Jumlah Pembayaran</th>
-                                        <th>Metode Pembayaran</th>
-                                        <th>Bukti Pembayaran</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-                    foreach ($data as $item) {
-
-                        $btnDetailBukti = '-';
-                        if ($item->bukti_pembayaran)
-                        {
-                            $btnDetailBukti = '<a  class="btn btnDetailCicilan btn-sm btn-primary text-white" data-id="' . $item->id . '" data-bukti="' . $item->bukti_pembayaran . '"><i class="fas fa-eye"></i></a>';
-                        }
-
-                        $output .=
-                            '
-                            <tr>
-                                <td class="">' . ($item->userlogin ?? '-') .'</td>
-                                <td class="">' . ($item->tanggal_bayar ?? '-') .'</td>
-                                <td class="">' . (isset($item->jumlah_cicilan) ? '' . number_format($item->jumlah_cicilan,0, '.', ',') : '-') . '</td>
-                                <td class="">' . ($item->metode_pembayaran ?? '-') .'</td>
-                                <td>
-                                 ' . $btnDetailBukti . '
-                                </td>
-                            </tr>
-                        ';
-                    }
-
-                    $output .= '</tbody></table>';
-                    return $output;
     }
 
 
@@ -559,59 +410,6 @@ class InvoiceController extends Controller
         }
     }
 
-    public function completePayment(Request $request)
-    {
-        try {
-            $id = $request->input('id');
-            $file = $request->file('file');
-
-            try {
-                $payment = DB::table('tbl_pembayaran')->where('id', $id)->first(['pengiriman', 'status_id', 'pembayaran_id']);
-            } catch (\Exception $e) {
-                return response()->json(['error' => true, 'message' => 'Failed to retrieve payment record.'], 500);
-            }
-
-            if ($payment) {
-                if ($payment->pembayaran_id === 2) {
-                    if ($file) {
-                        try {
-                            $fileName = $file->getClientOriginalName();
-                            $filePath = $file->storeAs('public/bukti_pembayaran', $fileName);
-
-                            DB::table('tbl_pembayaran')->where('id', $id)->update(['bukti_pembayaran' => $fileName]);
-                        } catch (\Exception $e) {
-                            return response()->json(['error' => true, 'message' => 'File upload or database update failed.'], 500);
-                        }
-                    } else {
-                        return response()->json(['error' => true, 'message' => 'File not uploaded.'], 400);
-                    }
-                }
-
-                // Update status based on pengiriman
-                try {
-                    if ($payment->pengiriman === 'Delivery') {
-                        DB::table('tbl_pembayaran')->where('id', $id)->update([
-                            'status_id' => 3,
-                            'status_pembayaran' => 'Lunas'
-                        ]);
-                    } elseif ($payment->pengiriman === 'Pickup') {
-                        DB::table('tbl_pembayaran')->where('id', $id)->update([
-                            'status_id' => 2,
-                            'status_pembayaran' => 'Lunas'
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    return response()->json(['error' => true, 'message' => 'Failed to update payment status.'], 500);
-                }
-
-                return response()->json(['success' => true, 'message' => 'Status updated successfully.'], 200);
-            }
-
-            return response()->json(['error' => true, 'message' => 'Payment not found.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => true, 'message' => 'An unexpected error occurred.'], 500);
-        }
-    }
 
     public function exportPdf(Request $request)
     {
@@ -682,26 +480,6 @@ class InvoiceController extends Controller
     }
 
 
-    public function deleteInvoice(Request $request)
-    {
-        $id = $request->input('id');
-
-        try {
-
-            $relatedRecords = DB::table('tbl_pengantaran')->where('pembayaran_id', $id)->get();
-
-            if ($relatedRecords->count() > 0) {
-
-                DB::table('tbl_pengantaran')->where('pembayaran_id', $id)->delete();
-            }
-
-            DB::table('tbl_pembayaran')->where('id', $id)->delete();
-
-            return response()->json(['status' => 'success', 'message' => 'Data Invoice berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
 
     public function cekResiInvoice(Request $request)
     {
@@ -710,13 +488,10 @@ class InvoiceController extends Controller
         try {
 
             $tracking = DB::table('tbl_tracking')->where('no_resi', $noResi)->first();
-
-            // Jika no_resi tidak ditemukan
             if (!$tracking) {
                 return response()->json(['status' => 'error', 'message' => 'Nomor resi tidak ditemukan'], 404);
             }
 
-            // Cek status
             if ($tracking->status === 'Dalam Perjalanan') {
                 // Jika status "Dalam Perjalanan", kembalikan respons sukses
                 return response()->json(['status' => 'success', 'message' => 'Nomor resi valid untuk diproses'], 200);
@@ -731,61 +506,6 @@ class InvoiceController extends Controller
         }
     }
 
-
-
-    public function bayarTagihan(Request $request)
-    {
-        try {
-            $id = $request->id;
-            $jumlahCicilan = $request->jumlahPembayaran;
-            $metodePembayaran = $request->metodePembayaran;
-            $buktiPembayaran = $request->file('buktiPembayaran');
-
-            $pembayaran = DB::table('tbl_pembayaran')->where('id', $id)->first();
-
-            if (!$pembayaran) {
-                return response()->json(['status' => 'error', 'message' => 'Data pembayaran tidak ditemukan']);
-            }
-
-            if ($jumlahCicilan > $pembayaran->cicilan) {
-                return response()->json(['status' => 'error', 'message' => 'Jumlah pembayaran melebihi sisa cicilan yang ada']);
-            }
-
-            $cicilanBaru = $pembayaran->cicilan - $jumlahCicilan;
-            $statusPembayaranBaru = $cicilanBaru <= 0 ? 'Lunas' : 'Belum Lunas';
-
-            DB::table('tbl_pembayaran')->where('id', $id)->update([
-                'cicilan' => $cicilanBaru,
-                'status_pembayaran' => $statusPembayaranBaru,
-                'updated_at' => now()
-            ]);
-
-            $fileName = null;
-
-            if ($buktiPembayaran) {
-                try {
-                    $fileName = time() . '_' . $buktiPembayaran->getClientOriginalName();
-                    $filePath = $buktiPembayaran->storeAs('public/bukti_pembayaran_cicilan/', $fileName);
-                } catch (\Exception $e) {
-                    return response()->json(['error' => true, 'message' => 'File upload failed.'], 500);
-                }
-            }
-
-            DB::table('tbl_cicilan')->insert([
-                'pembayaran_id' => $id,
-                'userlogin' => auth()->user()->name,
-                'jumlah_cicilan' => $jumlahCicilan,
-                'tanggal_pembayaran' => now(),
-                'metode_pembayaran' => $metodePembayaran,
-                'bukti_pembayaran' => $fileName,
-                'created_at' => now()
-            ]);
-
-            return response()->json(['status' => 'success', 'message' => 'Pembayaran berhasil disimpan']);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
-    }
     public function changeMethod(Request $request)
     {
         $invoiceId = $request->input('id');

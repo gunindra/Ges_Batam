@@ -391,12 +391,12 @@
         var metodePengiriman = $(this).val();
         if (metodePengiriman === 'Delivery') {
             $('#alamatSection').show();
-            $('#addAlamatButton').show(); 
+            $('#addAlamatButton').show();
         } else if (metodePengiriman === 'Pickup') {
             $('#alamatSection').show();
-            $('#addAlamatButton').hide();  
+            $('#addAlamatButton').hide();
             $('#alamatContainer').find('textarea').val('');
-            $('#alamatContainer').children('.alamat-item:gt(0)').remove(); 
+            $('#alamatContainer').children('.alamat-item:gt(0)').remove();
         } else {
             $('#alamatSection').hide();
             $('#alamatContainer').find('textarea').val('');
@@ -408,7 +408,7 @@
 
         $('#addAlamatButton').click(function () {
             let alamatContainer = $('#alamatContainer');
-            
+
             let newAlamat = `<div class="mt-3 alamat-item">
                             <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
                             <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
@@ -427,7 +427,7 @@
         $('#saveCostumer').click(function () {
             var markingCostmer = $('#markingCustomer').val();
             var namaCustomer = $('#namaCustomer').val();
-            var nomorTelpon = $('#noTelpon').val().trim(); 
+            var nomorTelpon = $('#noTelpon').val().trim();
             var categoryCustomer = $('#categoryCustomer').val();
             var metodePengiriman = $('#metodePengiriman').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -728,7 +728,7 @@
 
     let id = $('#customerIdEdit').val();
     let namaCustomerEdit = $('#namaCustomerEdit').val();
-    let noTelponInput = $('#noTelponEdit').val().trim(); 
+    let noTelponInput = $('#noTelponEdit').val().trim();
     let noTelponCustomer = '62' + noTelponInput;
     let metodePengiriman = $('#metodePengirimanEdit').val();
     let categoryCustomer = $('#categoryCustomerEdit').val();
