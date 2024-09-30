@@ -36,17 +36,17 @@
                                 <label for="" class="form-label fw-bold">Tipe Kode</label>
                                 <div class="input-container">
                                     <input type="radio" id="type1" name="code_type" value="BKM" onchange="">
-                                    <label for="type1" class="input-label me-3">BKM</label>
+                                    <label for="type1" class="input-label mr-3">BKM</label>
                                     <input type="radio" id="type2" name="code_type" value="BKK" onchange="">
-                                    <label for="type2" class="input-label me-3">BKK</label>
+                                    <label for="type2" class="input-label mr-3">BKK</label>
                                     <input type="radio" id="type3" name="code_type" value="JU" onchange="">
-                                    <label for="type3" class="input-label me-3">JU</label>
+                                    <label for="type3" class="input-label mr-3">JU</label>
                                     <input type="radio" id="type1" name="code_type" value="AP" onchange="">
-                                    <label for="type1" class="input-label me-3">AP</label>
+                                    <label for="type1" class="input-label mr-3">AP</label>
                                     <input type="radio" id="type2" name="code_type" value="AR" onchange="">
-                                    <label for="type2" class="input-label me-3">AR</label>
+                                    <label for="type2" class="input-label mr-3">AR</label>
                                     <input type="radio" id="type3" name="code_type" value="CN" onchange="">
-                                    <label for="type3" class="input-label me-3">CN</label>
+                                    <label for="type3" class="input-label mr-3">CN</label>
                                     <input type="radio" id="type3" name="code_type" value="DN" onchange="">
                                     <label for="type3" class="input-label">DN</label>
                                 </div>
@@ -148,7 +148,59 @@
                                                 </button>
                                             </td>
                                         </tr>
-                                        <!-- Additional rows can be added here -->
+                                        <tr>
+                                            <td>
+                                                <select class="form-control" name="account[]" required>
+                                                    <option value="" hidden>Select Account</option>
+                                                    <option value="1">1.0.00 ASET</option>
+                                                    <option value="7">1.1.00 ASET LANCAR</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="item_desc[]"
+                                                    placeholder="Input Description" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" name="debit[]" value="0"
+                                                    placeholder="0.00" required>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" name="credit[]" value="0"
+                                                    placeholder="0.00" required>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="memo[]" placeholder="">
+                                            </td>
+                                            <td>
+                                                <select class=" form-control" name="list_invoice[]"
+                                                    onchange="updateCustomerInvoiceTotal()">
+                                                    <option value="" hidden>Select Invoice</option>
+                                                    <option data-total="100000.00" value="76">INV240001</option>
+                                                    <option data-total="1000000.00" value="77">INV240002</option>
+                                                    <option data-total="90.00" value="78">INV240003</option>
+                                                    <option data-total="12750000.00" value="79">INV240004</option>
+                                                    <option data-total="50000.00" value="80">INV240005</option>
+                                                    <option data-total="50000.00" value="81">INV240006</option>
+                                                    <option data-total="5000.00" value="82">INV240007</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-sm btn-danger removeItemButton mt-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icon-tabler-trash-x">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                        <path d="M4 7h16"></path>
+                                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                                        <path d="M10 12l4 4m0 -4l-4 4"></path>
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                     <tfoot>
                                         <tr>
