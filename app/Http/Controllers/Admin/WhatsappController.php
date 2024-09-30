@@ -26,10 +26,9 @@ class WhatsappController extends Controller
     $messageWa = $request->input('messageWa');
 
     try {
-        // Get existing data
+
         $existingData = Whatsapp::first();
 
-        // Update or create the record using the Wa model
         Whatsapp::updateOrCreate(
             [],
             [
@@ -40,7 +39,7 @@ class WhatsappController extends Controller
             ]
         );
 
-        $waData = Whatsapp::first(); // Fetch the updated data
+        $waData = Whatsapp::first(); 
 
         return response()->json([
             'status' => 'success',

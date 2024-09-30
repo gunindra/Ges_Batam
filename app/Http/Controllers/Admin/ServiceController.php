@@ -16,7 +16,6 @@ class ServiceController extends Controller
 
     public function getlistService(Request $request)
     {
-        // Utilize Eloquent to get the data
         $services = Service::all();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableService">

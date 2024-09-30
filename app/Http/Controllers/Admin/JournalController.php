@@ -7,10 +7,13 @@ class JournalController extends Controller
 {
     public function index()
     {
-
-
         return view('accounting.journal.indexjournal');
     }
+    public function addjournal()
+    {
+        return view('accounting.journal.indexbuatjournal');
+    }
+
 
 
 }

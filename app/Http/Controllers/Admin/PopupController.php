@@ -30,9 +30,8 @@ class PopupController extends Controller
         $imagePopup = $request->file('imagePopup');
     
         try {
-            $popup = Popup::first(); // Mendapatkan data popup yang ada
-    
-            // Jika ada gambar baru, hapus gambar yang lama
+            $popup = Popup::first(); 
+
             if ($imagePopup) {
                 if ($popup && $popup->Image_Popup) {
                     $existingImagePath = 'public/images/' . $popup->Image_Popup;
