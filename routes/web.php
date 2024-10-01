@@ -36,7 +36,8 @@ use App\Http\Controllers\{
     Admin\CategoryController,
     Admin\CoaController,
     Admin\AccountingSettingController,
-    Admin\JournalController
+    Admin\JournalController,
+    Admin\PurchasePaymentController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -238,9 +239,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 
     // Vendor
+    //Invoice
     Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
-
+    //Purchase Payment
+    Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
+    Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');

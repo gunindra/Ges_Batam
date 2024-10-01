@@ -225,9 +225,9 @@
                                 </table>
                                 <div class="col-12 mt-4">
                                     <div class="col-4 float-right">
-                                        <button id="buatInvoice" class="btn btn-success p-3 float-right mt-3"
+                                        <button id="approveJournal" class="btn btn-success p-3 float-right mt-3"
                                             style="width: 80%;">Approve</button>
-                                        <button id="buatInvoice" class="btn btn-primary p-3 float-right mt-3"
+                                        <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
                                             style="width: 80%;">Buat Journal</button>
 
                                     </div>

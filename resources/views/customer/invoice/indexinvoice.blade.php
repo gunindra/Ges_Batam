@@ -357,7 +357,7 @@
             var startDate = new Date($('#startDate').val());
             var endDate = new Date(dateStr);
             if (endDate < startDate) {
-                showwMassage(error,
+                showMessage(error,
                     "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
                 $('#endDate').val('');
             }

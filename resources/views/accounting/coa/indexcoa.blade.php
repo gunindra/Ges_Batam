@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'COA')
+@section('title', '| Acoounting | COA')
 
 @section('main')
 
@@ -24,20 +24,23 @@
                             <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
                             <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
                                 required>
-                            <div id="errCodeAccountID" class="text-danger mt-1">This field is required</div>
+                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="groupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="groupAccount" required>
                                 <option value="" disabled selected>Select Group Account</option>
-                                <!-- Add options dynamically or manually here -->
+                                @foreach ($groupAccounts as $coa)
+                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
                             </select>
-                            <div id="errGroupAccount" class="text-danger mt-1">Please select a group account</div>
+                            <div id="errGroupAccount" class="text-danger mt-1 d-none">Please select a group account</div>
                         </div>
                         <div class="mt-3">
                             <label for="nameAccount" class="form-label fw-bold">Name*</label>
                             <input type="text" class="form-control" id="nameAccount" placeholder="Input Name" required>
-                            <div id="errNameAccount" class="text-danger mt-1">This field is required</div>
+                            <div id="errNameAccount" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="descriptionAccount" class="form-label fw-bold">Description</label>
@@ -52,9 +55,12 @@
                         </div>
                         <div class="mt-3">
                             <label for="defaultPosisi" class="form-label fw-bold">Default Posisi*</label>
-                            <input type="text" class="form-control" id="defaultPosisi" placeholder="Input Default Posisi"
-                                required>
-                            <div id="errDefaultPosisi" class="text-danger mt-1">This field is required</div>
+                            <select class="form-control" id="defaultPosisi" required>
+                                <option value="" disabled selected>Select Default Position</option>
+                                <option value="debit">Debit</option>
+                                <option value="credit">Credit</option>
+                            </select>
+                            <div id="errDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -65,6 +71,73 @@
             </div>
         </div>
         <!-- End Modal tambah COA -->
+
+        <!-- Modal Update COA -->
+        <div class="modal fade" id="modalUpdateCOA" tabindex="-1" role="dialog" aria-labelledby="modalUpdateCOATitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalUpdateCOATitle">Update Account</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mt-3">
+                            <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
+                            <input type="text" class="form-control" id="editCodeAccountID"
+                                placeholder="Input Account ID" required>
+                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editGroupAccount" class="form-label fw-bold">Group Account</label>
+                            <select class="form-control" id="editGroupAccount" required>
+                                <option value="" disabled selected>Select Group Account</option>
+                                @foreach ($groupAccounts as $coa)
+                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div id="errEditGroupAccount" class="text-danger mt-1 d-none">Please select a group account
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editNameAccount" class="form-label fw-bold">Name*</label>
+                            <input type="text" class="form-control" id="editNameAccount" placeholder="Input Name"
+                                required>
+                            <div id="errEditNameAccount" class="text-danger mt-1 d-none">This field is required</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editDescriptionAccount" class="form-label fw-bold">Description</label>
+                            <input type="text" class="form-control" id="editDescriptionAccount"
+                                placeholder="Input Description">
+                        </div>
+                        <div class="mt-3">
+                            <label for="editSetGroup" class="form-label fw-bold">Set as Group</label>
+                            <div>
+                                <input type="checkbox" id="editSetGroup" name="editSetGroup"> Yes
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editDefaultPosisi" class="form-label fw-bold">Default Posisi*</label>
+                            <select class="form-control" id="editDefaultPosisi" required>
+                                <option value="" disabled selected>Select Default Position</option>
+                                <option value="debit">Debit</option>
+                                <option value="credit">Credit</option>
+                            </select>
+                            <div id="errEditDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="updateCOA" class="btn btn-primary">Update COA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Modal Update COA -->
+
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">COA</h1>
@@ -84,8 +157,10 @@
                                 data-target="#modalTambahCOA" id="modalTambahBook"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah</button>
                         </div>
-                        <div id="containerBooking" class="table-responsive px-3">
-                            <ul>
+
+                        <h5 class="pt-5">Daftar Account</h5>
+                        <div id="containerListCOA">
+                            {{-- <ul>
                                 <li>
                                     <a href="">1.0.00 - ASET</a>
                                     <button class="btn-danger" style="font-size: 12px;" onclick="removeItem(this)"><i
@@ -117,47 +192,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                            </ul>
-
-                            {{-- <table class="table align-items-center table-flush table-hover" id="tableBooking">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Booking Code</th>
-                                        <th>Booking Date</th>
-                                        <th>Costumer</th>
-                                        <th>Nama Barang</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>B0230123</td>
-                                        <td>24 Juli 2024</td>
-                                        <td>Tandrio</td>
-                                        <td>Botol, Pelastik, Gorengan</td>
-                                        <td><span class="badge badge-warning">Booking</span></td>
-                                        <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                    class="fas fa-edit"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>B0234043</td>
-                                        <td>28 Juli 2024</td>
-                                        <td>Tandrio</td>
-                                        <td>Kacamata, Tas, Sepatu</td>
-                                        <td><span class="badge badge-warning">Booking</span></td>
-                                        <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                    class="fas fa-edit"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table> --}}
+                            </ul> --}}
                         </div>
                     </div>
                 </div>
@@ -170,10 +205,245 @@
 @endsection
 @section('script')
     <script>
-        function removeItem(button) {
-            // Menghapus elemen li dari DOM
-            var listItem = button.parentElement;
-            listItem.remove();
-        }
+        $(document).ready(function() {
+            // Load COA List dengan spinner saat data di-load
+            function loadCOAList() {
+                const loadSpin = `
+            <div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        `;
+
+                $('#containerListCOA').html(loadSpin);
+
+                $.ajax({
+                    url: "{{ route('getlistcoa') }}",
+                    method: 'GET',
+                    success: function(response) {
+                        $('#containerListCOA').html(response.html);
+                    },
+                    error: function() {
+                        $('#containerListCOA').html('<p>Error loading data</p>');
+                    }
+                });
+            }
+
+            loadCOAList();
+
+            // Tambah COA
+            $('#saveCOA').on('click', function() {
+                var codeAccountID = $('#codeAccountID').val();
+                var groupAccount = $('#groupAccount').val();
+                var nameAccount = $('#nameAccount').val();
+                var descriptionAccount = $('#descriptionAccount').val();
+                var setGroup = $('#setGroup').is(':checked') ? 1 : 0;
+                var defaultPosisi = $('#defaultPosisi').val();
+
+                // Validasi input
+                if (!codeAccountID || !nameAccount || !defaultPosisi) {
+                    if (!codeAccountID) $('#errCodeAccountID').removeClass('d-none');
+                    if (!nameAccount) $('#errNameAccount').removeClass('d-none');
+                    if (!defaultPosisi) $('#errDefaultPosisi').removeClass('d-none');
+                    return;
+                }
+
+                // Tampilkan konfirmasi sebelum eksekusi
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to add a new COA",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan SweetAlert2 loading spinner
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we are saving the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Kirim data dengan AJAX
+                        $.ajax({
+                            url: '/coa/store',
+                            method: 'POST',
+                            data: {
+                                code_account_id: codeAccountID,
+                                group_account: groupAccount,
+                                name: nameAccount,
+                                description: descriptionAccount,
+                                set_group: setGroup,
+                                default_position: defaultPosisi,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.close(); // Tutup spinner
+                                if (response.success) {
+                                    showMessage("success", "COA berhasil ditambahkan");
+                                    location.reload(); // Refresh halaman
+                                }
+                            },
+                            error: function(response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Edit COA
+            $(document).on('click', '.editCOA', function(e) {
+                var coaId = $(this).data('id');
+                $.ajax({
+                    url: '/coa/' + coaId,
+                    method: 'GET',
+                    success: function(response) {
+                        $('#editCodeAccountID').val(response.code_account_id);
+                        $('#editGroupAccount').val(response.parent_id);
+                        $('#editNameAccount').val(response.name);
+                        $('#editDescriptionAccount').val(response.description);
+                        $('#editSetGroup').prop('checked', response.set_as_group);
+                        $('#editDefaultPosisi').val(response.default_posisi);
+                        $('#modalUpdateCOA').modal('show');
+                        $('#updateCOA').data('id', coaId);
+                    },
+                    error: function() {
+                        showMessage("error", "Terjadi kesalahan saat mengambil data COA");
+                    }
+                });
+            });
+
+            // Konfirmasi untuk Update COA
+            $('#updateCOA').on('click', function() {
+                var coaId = $(this).data('id');
+                var codeAccountID = $('#editCodeAccountID').val();
+                var groupAccount = $('#editGroupAccount').val();
+                var nameAccount = $('#editNameAccount').val();
+                var descriptionAccount = $('#editDescriptionAccount').val();
+                var setGroup = $('#editSetGroup').is(':checked') ? 1 : 0;
+                var defaultPosisi = $('#editDefaultPosisi').val();
+
+                // Validasi sederhana di frontend
+                if (!codeAccountID || !nameAccount || !defaultPosisi) {
+                    if (!codeAccountID) $('#errEditCodeAccountID').removeClass('d-none');
+                    if (!nameAccount) $('#errEditNameAccount').removeClass('d-none');
+                    if (!defaultPosisi) $('#errEditDefaultPosisi').removeClass('d-none');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to update this COA",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan SweetAlert2 loading spinner
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Kirim data dengan AJAX
+                        $.ajax({
+                            url: '/coa/update/' + coaId,
+                            method: 'PUT',
+                            data: {
+                                code_account_id: codeAccountID,
+                                group_account: groupAccount,
+                                name: nameAccount,
+                                description: descriptionAccount,
+                                set_as_group: setGroup,
+                                default_posisi: defaultPosisi,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.close(); // Tutup spinner
+                                if (response.success) {
+                                    showMessage("success", "COA berhasil di-update");
+                                    $('#modalUpdateCOA').modal('hide');
+                                    location.reload(); // Refresh halaman
+                                }
+                            },
+                            error: function(response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Konfirmasi untuk Delete COA
+            $(document).on('click', '.btndeleteCOA', function(e) {
+                e.preventDefault(); // Mencegah event bawaan
+                var coaId = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan SweetAlert2 loading spinner
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we are deleting the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Kirim data dengan AJAX
+                        $.ajax({
+                            url: '/coa/delete/' + coaId,
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.close(); // Tutup spinner
+                                if (response.success) {
+                                    showMessage("success", "COA berhasil dihapus");
+                                    location.reload(); // Refresh halaman
+                                } else {
+                                    showMessage("error", "Gagal menghapus COA");
+                                }
+                            },
+                            error: function() {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan saat menghapus COA");
+                            }
+                        });
+                    }
+                });
+            });
+        });
     </script>
 @endsection

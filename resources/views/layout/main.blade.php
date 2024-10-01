@@ -59,6 +59,10 @@
                     <h6 class="collapse-header">Vendor</h6>
                     <a class="collapse-item {{ request()->routeIs('supplierInvoice') ? 'active' : '' }}"
                         href="{{ route('supplierInvoice') }}">Invoice</a>
+                    <a class="collapse-item {{ request()->routeIs('purchasePayment') ? 'active' : '' }}"
+                        href="{{ route('purchasePayment') }}">Purchase Payment</a>
+                    <a class="collapse-item {{ request()->routeIs('debitnote') ? 'active' : '' }}"
+                        href="{{ route('debitnote') }}">Debit Note</a>
                 </div>
             </div>
         </li>
@@ -107,12 +111,9 @@
                     <h6 class="collapse-header">Accounting</h6>
                     {{-- <a class="collapse-item {{ request()->routeIs('costumer') ? 'active' : '' }}"
                         href="{{ route('costumer') }}">COA</a> --}}
-                    <a class="collapse-item"
-                        href="{{ route('coa') }}">COA</a>
-                    <a class="collapse-item"
-                        href="{{ route('journal') }}">Journal</a>
-                    <a class="collapse-item"
-                        href="{{ route('accountingSetting') }}">Accounting Setting</a>
+                    <a class="collapse-item" href="{{ route('coa') }}">COA</a>
+                    <a class="collapse-item" href="{{ route('journal') }}">Journal</a>
+                    <a class="collapse-item" href="{{ route('accountingSetting') }}">Accounting Setting</a>
                 </div>
             </div>
         </li>
@@ -145,7 +146,8 @@
                 </div>
             </div>
         </li>
-        {{-- <hr class="sidebar-divider"> --}}
+        {{--
+        <hr class="sidebar-divider"> --}}
     </ul>
     <!-- Sidebar -->
 
