@@ -257,6 +257,14 @@ Route::middleware(['auth'])->group(function () {
 
     //COA
     Route::get('/coa', [CoaController::class, 'index'])->name('coa');
+    Route::get('/coa/getlistcoa', [CoaController::class, 'getlistcoa'])->name('getlistcoa');
+    Route::post('/coa/store', [CoaController::class, 'store'])->name('coa.store');
+    Route::delete('/coa/delete/{id}', [COAController::class, 'destroy'])->name('coa.destroy');
+    Route::get('/coa/{id}', [COAController::class, 'show'])->name('coa.show');
+    Route::put('/coa/update/{id}', [COAController::class, 'update'])->name('coa.update');
+
+
+
 
     //Journal
     Route::get('/journal', action: [JournalController::class, 'index'])->name('journal');
