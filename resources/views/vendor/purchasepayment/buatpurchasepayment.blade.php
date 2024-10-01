@@ -62,7 +62,7 @@
                 <div class="col-12 mt-4 mb-5">
                     <div class="col-4 float-right">
                         <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3" style="width: 100%;">Buat
-                            Purchase Payment</button>
+                            Payment</button>
                     </div>
                 </div>
             </div>
