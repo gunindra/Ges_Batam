@@ -62,7 +62,7 @@
                     <a class="collapse-item {{ request()->routeIs('supplierInvoice') ? 'active' : '' }}"
                         href="{{ route('supplierInvoice') }}">Invoice</a>
                     <a class="collapse-item {{ request()->routeIs('purchasePayment') ? 'active' : '' }}"
-                        href="{{ route('purchasePayment') }}">Purchase Payment</a>
+                        href="{{ route('purchasePayment') }}">Payment</a>
                     <a class="collapse-item {{ request()->routeIs('debitnote') ? 'active' : '' }}"
                         href="{{ route('debitnote') }}">Debit Note</a>
                 </div>
