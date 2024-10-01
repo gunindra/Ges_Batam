@@ -277,7 +277,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Journal
     Route::get('/journal', action: [JournalController::class, 'index'])->name('journal');
-    Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal'); 
+    Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
 
     //Acoounting Setting
     Route::get('/accountingSetting', action: [AccountingSettingController::class, 'index'])->name('accountingSetting');

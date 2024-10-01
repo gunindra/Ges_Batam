@@ -10,7 +10,9 @@ class CoaController extends Controller
 {
     public function index()
     {
-        $groupAccounts = COA::select('id', 'code_account_id', 'name')->get();
+        $groupAccounts = COA::select('id', 'code_account_id', 'name')
+        ->where('set_as_group', 1)
+        ->get();
 
         return view('accounting.coa.indexcoa', compact('groupAccounts'));
     }
