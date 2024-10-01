@@ -44,6 +44,8 @@
                         href="{{ route('delivery') }}">Delivery / Pickup</a>
                     <a class="collapse-item {{ request()->routeIs('payment') ? 'active' : '' }}"
                         href="{{ route('payment') }}">Payment</a>
+                    <a class="collapse-item {{ request()->routeIs('creditnote') ? 'active' : '' }}"
+                        href="{{ route('creditnote') }}">Credit Note</a>
                 </div>
             </div>
         </li>

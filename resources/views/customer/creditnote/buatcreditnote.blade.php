@@ -1,19 +1,19 @@
 @extends('layout.main')
 
-@section('title', 'Vendor | Debit Note')
+@section('title', 'Customer | Credit Note')
 
 @section('main')
 
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Buat Debit Note</h1>
+        <h1 class="h3 mb-0 text-gray-800">Buat Credit Note</h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Vendor</li>
-            <li class="breadcrumb-item"><a href="{{ route('debitnote') }}">Debit Note</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Buat Debit Note</li>
+            <li class="breadcrumb-item">Customer</li>
+            <li class="breadcrumb-item"><a href="{{ route('creditnote') }}">Credit Note</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Buat Credit Note</li>
         </ol>
     </div>
-    <a class="btn btn-primary mb-3" href="{{ route('debitnote') }}">
+    <a class="btn btn-primary mb-3" href="{{ route('creditnote') }}">
         <i class="fas fa-arrow-left"></i>
         Back
     </a>
@@ -24,48 +24,48 @@
                     <div class="d-flex flex-row">
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="supplierDebit" class="form-label fw-bold">Supplier</label>
-                                <select class="form-control col-8" name="" id="supplierDebit">
+                                <label for="supplierCredit" class="form-label fw-bold">Supplier</label>
+                                <select class="form-control col-8" name="" id="supplierCredit">
                                     <option value="" selected disabled>Pilih Supplier</option>
                                     <option value="">PT cahaya</option>
                                     <option value="">PT Bang</option>
                                 </select>
-                                <div id="supplierDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Supplier
+                                <div id="supplierCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Supplier
                                     terlebih dahulu</div>
                             </div>
                             <div class="mt-3">
-                                <label for="accountDebit" class="form-label fw-bold">Account</label>
-                                <select class="form-control col-8" name="" id="accountDebit">
+                                <label for="accountCredit" class="form-label fw-bold">Account</label>
+                                <select class="form-control col-8" name="" id="accountCredit">
                                     <option value="" selected disabled>Pilih Account</option>
                                     <option value="">1.0.000 ASET</option>
                                     <option value="">1.1.000 ASET LANCAR</option>
 
                                 </select>
-                                <div id="accountDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Account
+                                <div id="accountCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Account
                                     terlebih dahulu</div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="invoiceDebit" class="form-label fw-bold">Invoice</label>
-                                <select class="form-control col-8" name="" id="invoiceDebit">
+                                <label for="invoiceCredit" class="form-label fw-bold">Invoice</label>
+                                <select class="form-control col-8" name="" id="invoiceCredit">
                                     <option value="" selected disabled>Pilih Invoice</option>
                                     <option value="">001</option>
                                     <option value="">002</option>
 
                                 </select>
-                                <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
+                                <div id="invoiceCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
                                     terlebih dahulu</div>
                             </div>
                             <div class="mt-3">
-                                <label for="currencyDebit" class="form-label fw-bold">Currency</label>
-                                <select class="form-control col-8" name="" id="currencyDebit">
+                                <label for="currencyCredit" class="form-label fw-bold">Currency</label>
+                                <select class="form-control col-8" name="" id="currencyCredit">
                                     <option value="" selected disabled>Pilih Currency</option>
                                     <option value="">IDR</option>
                                     <option value="">RM</option>
 
                                 </select>
-                                <div id="currencyDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
+                                <div id="currencyCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
                                     terlebih dahulu</div>
                             </div>
                         </div>
@@ -124,9 +124,9 @@
                     <div class="row">
                         <div class="col-5 mr-5">
                             <div class="input-group pt-2 mt-3">
-                                <label for="noteDebit" class="form-label fw-bold p-1">Note</label>
+                                <label for="noteCredit" class="form-label fw-bold p-1">Note</label>
                             </div>
-                            <textarea id="noteDebit" class="form-control" aria-label="With textarea"
+                            <textarea id="noteCredit" class="form-control" aria-label="With textarea"
                                 placeholder="Masukkan content" rows="4"></textarea>
                         </div>
                         <div class="col-4 ms-5 mt-5 ml-5">
@@ -150,12 +150,12 @@
                                     name="grand_total" placeholder="0" fdprocessedid="d2ujtj">
                             </div>
                         </div>
-                        <div id="noteDebitError" class="text-danger mt-1 d-none">Silahkan isi Note</div>
+                        <div id="noteCreditError" class="text-danger mt-1 d-none">Silahkan isi Note</div>
                         <div class="col-12 mt-4">
                             <div class="col-4 float-right">
-                                <button id="buatDebit" class="btn btn-primary p-3 float-right mt-3"
+                                <button id="buatCredit" class="btn btn-primary p-3 float-right mt-3"
                                     style="width: 100%;">Buat
-                                    Debit</button>
+                                    Credit</button>
                             </div>
                         </div>
                     </div>

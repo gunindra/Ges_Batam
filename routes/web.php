@@ -37,7 +37,9 @@ use App\Http\Controllers\{
     Admin\CoaController,
     Admin\AccountingSettingController,
     Admin\JournalController,
-    Admin\PurchasePaymentController
+    Admin\PurchasePaymentController,
+    Admin\DebitNoteController,
+    Admin\CreditNoteController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -245,7 +247,12 @@ Route::middleware(['auth'])->group(function () {
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
     Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
-
+    //Debit Note
+    Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
+    Route::get('/vendor/debitnote/addDebitNote', [DebitNoteController::class, 'addDebitNote'])->name('addDebitNote');
+    //Credit Note
+    Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
+    Route::get('/customer/creditnote/addCreditNote', [CreditNoteController::class, 'addCreditNote'])->name('addCreditNote');
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
     Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
@@ -261,6 +268,12 @@ Route::middleware(['auth'])->group(function () {
 
     //COA
     Route::get('/coa', [CoaController::class, 'index'])->name('coa');
+    Route::get('/coa', [CoaController::class, 'index'])->name('coa');
+    Route::get('/coa/getlistcoa', [CoaController::class, 'getlistcoa'])->name('getlistcoa');
+    Route::post('/coa/store', [CoaController::class, 'store'])->name('coa.store');
+    Route::delete('/coa/delete/{id}', [COAController::class, 'destroy'])->name('coa.destroy');
+    Route::get('/coa/{id}', [COAController::class, 'show'])->name('coa.show');
+    Route::put('/coa/update/{id}', [COAController::class, 'update'])->name('coa.update');
 
     //Journal
     Route::get('/journal', action: [JournalController::class, 'index'])->name('journal');
