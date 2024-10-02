@@ -4,14 +4,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 class SupirController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     // Get the currently logged-in user's name
+    //     $userName = Auth::user()->name;
+
+    //     $listInvoice = DB::select("
+    //         SELECT a.invoice_id, b.metode_pengiriman,
+    //                b.no_invoice,
+    //                d.nama_supir
+    //         FROM tbl_pengantaran_detail AS a
+    //         JOIN tbl_invoice AS b ON b.id = a.invoice_id
+    //         JOIN tbl_pengantaran AS c ON c.id = a.pengantaran_id
+    //         JOIN tbl_supir AS d ON d.id = c.supir_id
+    //         WHERE a.bukti_pengantaran IS NULL
+    //           AND a.tanda_tangan IS NULL
+    //           AND b.metode_pengiriman = 'Delivery'
+    //           AND d.nama_supir = ?
+    //     ", [$userName]);
+
+    //     return view('supir.indexsupir', [
+    //         'listInvoice' => $listInvoice
+    //     ]);
+    // }
+
     public function index(Request $request)
     {
+
     $listInvoice = DB::select("SELECT a.invoice_id, b.metode_pengiriman,
-                                             b.no_invoice
+                                             b.no_invoice,
+                                             d.nama_supir
                                         FROM tbl_pengantaran_detail AS a
                                         JOIN tbl_invoice AS b ON b.id = a.invoice_id
+                                        JOIN tbl_pengantaran AS c ON c.id = a.pengantaran_id
+                                        JOIN tbl_supir AS d ON d.id = c.supir_id
                                         WHERE a.bukti_pengantaran IS NULL AND a.tanda_tangan IS NULL AND b.metode_pengiriman = 'Delivery'");
 
         return view('supir.indexsupir', [

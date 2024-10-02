@@ -158,8 +158,8 @@
                                         class="fas fa-plus"></i></span>Tambah</button>
                         </div>
 
-                        <h5 class="pt-5">Daftar Account</h5>
-                        <div id="containerListCOA">
+                        <h4 class="pt-5 ml-3">Daftar Account</h4>
+                        <div class="ml-3" id="containerListCOA">
                             {{-- <ul>
                                 <li>
                                     <a href="">1.0.00 - ASET</a>
@@ -206,13 +206,13 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            // Load COA List dengan spinner saat data di-load
+            // Load daftar COA dengan spinner saat data di-load
             function loadCOAList() {
                 const loadSpin = `
-            <div class="d-flex justify-content-center align-items-center mt-5">
-                <div class="spinner-border text-primary" role="status"></div>
-            </div>
-        `;
+        <div class="d-flex justify-content-center align-items-center mt-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+    `;
 
                 $('#containerListCOA').html(loadSpin);
 
@@ -223,7 +223,7 @@
                         $('#containerListCOA').html(response.html);
                     },
                     error: function() {
-                        $('#containerListCOA').html('<p>Error loading data</p>');
+                        $('#containerListCOA').html('<p>Gagal memuat data</p>');
                     }
                 });
             }
@@ -249,8 +249,8 @@
 
                 // Tampilkan konfirmasi sebelum eksekusi
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You are about to add a new COA",
+                    title: 'Apakah kamu yakin?',
+                    text: "Anda akan menambahkan COA baru",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -260,10 +260,9 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Tampilkan SweetAlert2 loading spinner
                         Swal.fire({
-                            title: 'Processing...',
-                            text: 'Please wait while we are saving the data.',
+                            title: 'Memproses...',
+                            text: 'Harap tunggu, sedang menyimpan data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -284,10 +283,13 @@
                                 _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
-                                Swal.close(); // Tutup spinner
+                                Swal.close();
                                 if (response.success) {
-                                    showMessage("success", "COA berhasil ditambahkan");
-                                    location.reload(); // Refresh halaman
+                                    showMessage("success", "COA berhasil ditambahkan")
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
                                 }
                             },
                             error: function(response) {
@@ -341,8 +343,8 @@
                 }
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You are about to update this COA",
+                    title: 'Apakah kamu yakin?',
+                    text: "Anda akan memperbarui COA ini",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -354,8 +356,8 @@
                     if (result.isConfirmed) {
                         // Tampilkan SweetAlert2 loading spinner
                         Swal.fire({
-                            title: 'Processing...',
-                            text: 'Please wait while we are updating the data.',
+                            title: 'Memproses...',
+                            text: 'Harap tunggu, sedang memperbarui data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -378,9 +380,11 @@
                             success: function(response) {
                                 Swal.close(); // Tutup spinner
                                 if (response.success) {
-                                    showMessage("success", "COA berhasil di-update");
-                                    $('#modalUpdateCOA').modal('hide');
-                                    location.reload(); // Refresh halaman
+                                    showMessage("success", "COA berhasil diperbarui")
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
                                 }
                             },
                             error: function(response) {
@@ -393,13 +397,13 @@
                 });
             });
 
-            // Konfirmasi untuk Delete COA
+            // Konfirmasi untuk Hapus COA
             $(document).on('click', '.btndeleteCOA', function(e) {
                 e.preventDefault(); // Mencegah event bawaan
                 var coaId = $(this).data('id');
 
                 Swal.fire({
-                    title: 'Are you sure?',
+                    title: 'Apakah kamu yakin?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -411,8 +415,8 @@
                     if (result.isConfirmed) {
                         // Tampilkan SweetAlert2 loading spinner
                         Swal.fire({
-                            title: 'Processing...',
-                            text: 'Please wait while we are deleting the data.',
+                            title: 'Memproses...',
+                            text: 'Harap tunggu, sedang menghapus data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
@@ -429,8 +433,10 @@
                             success: function(response) {
                                 Swal.close(); // Tutup spinner
                                 if (response.success) {
-                                    showMessage("success", "COA berhasil dihapus");
-                                    location.reload(); // Refresh halaman
+                                    showMessage("success", "COA berhasil dihapus").then(
+                                        () => {
+                                            location.reload();
+                                        });
                                 } else {
                                     showMessage("error", "Gagal menghapus COA");
                                 }

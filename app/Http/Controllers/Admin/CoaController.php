@@ -19,12 +19,12 @@ class CoaController extends Controller
 
     public function getlistcoa()
     {
-        // Ambil parent utama yang tidak punya parent (parent_id is NULL)
+
         $data = COA::with('children')->whereNull('parent_id')->get();
 
-        // Fungsi untuk membangun HTML dari list COA
+
         $buildList = function($items) use (&$buildList) {
-            $html = '<ul>';
+            $html = '<ul style="font-size: 20px;">';
             foreach ($items as $item) {
                 $html .= '<li class="pt-2">';
                 $html .= '<a href="#" class="editCOA" data-id="' . $item->id . '">' . $item->code_account_id . ' - ' . $item->name . '</a>';
@@ -37,11 +37,7 @@ class CoaController extends Controller
             $html .= '</ul>';
             return $html;
         };
-
-        // Bangun HTML dari list COA
         $output = $buildList($data);
-
-        // Mengembalikan HTML sebagai respons JSON
         return response()->json(['html' => $output]);
     }
 
@@ -49,25 +45,21 @@ class CoaController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'code_account_id' => 'required|unique:tbl_coa,code_account_id',
             'name' => 'required',
             'default_position' => 'required',
         ]);
 
-        // Tentukan apakah ini Parent atau Child
         $parent_id = $request->input('group_account');
 
-        // Buat data COA baru
         $coa = new COA();
         $coa->code_account_id = $request->input('code_account_id');
         $coa->name = $request->input('name');
         $coa->description = $request->input('description');
-        $coa->set_as_group = $request->has('setGroup') ? true : false;  // Cek apakah set sebagai grup
+        $coa->set_as_group = $request->has('setGroup') ? true : false;
         $coa->default_posisi = $request->input('default_position');
 
-        // Jika ini child, set parent_id
         if ($parent_id) {
             $coa->parent_id = $parent_id;
         }
