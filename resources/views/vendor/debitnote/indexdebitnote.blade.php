@@ -18,9 +18,24 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex mb-2 mr-3 float-right">
-                        {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                         <a class="btn btn-primary" href="{{ route('addDebitNote') }}" id=""><span class="pr-2"><i
                                     class="fas fa-plus"></i></span>Buat Debit Note</a>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                            class="form-control rounded-3" placeholder="Search">
+                        <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                            <option value="" selected disabled>Pilih Filter</option>
+                            <option value="Ready For Pickup">Ready For Pickup</option>
+                            <option value="Out For Delivery">Out For Delivery</option>
+                            <option value="Delivering">Delivering</option>
+                            <option value="Done">Done</option>
+                        </select>
+                        <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
+                        <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                            onclick="window.location.reload()">
+                            Reset
+                        </button>
                     </div>
                     <div id="containerDebitNote" class="table-responsive px-3">
                         <table class="table align-items-center table-flush table-hover" id="tableDebitNote">

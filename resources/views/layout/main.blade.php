@@ -119,6 +119,28 @@
                 </div>
             </div>
         </li>
+        <li class="nav-item {{ request()->routeIs('vendor') ? 'active' : '' }}">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport" aria-expanded="true"
+                aria-controls="listreport">
+                <i class="fas fa-file-alt fa-lg"></i>
+                <span>Report</span>
+            </a>
+            <div id="listreport" class="collapse" aria-labelledby="headingBootstrap" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Report</h6>
+                    <a class="collapse-item {{ request()->routeIs('profitloss') ? 'active' : '' }}"
+                        href="{{ route('profitloss') }}">Profit/Loss</a>
+                    <a class="collapse-item {{ request()->routeIs('ledger') ? 'active' : '' }}"
+                        href="{{ route('ledger') }}">Ledger</a>
+                    <a class="collapse-item {{ request()->routeIs('equity') ? 'active' : '' }}"
+                        href="{{ route('equity') }}">Equity</a>
+                    <a class="collapse-item {{ request()->routeIs('balance') ? 'active' : '' }}"
+                        href="{{ route('balance') }}">Balance</a>
+                    <a class="collapse-item {{ request()->routeIs('cashflow') ? 'active' : '' }}"
+                        href="{{ route('cashflow') }}">CashFlow</a>
+                </div>
+            </div>
+        </li>
         <li
             class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') ? 'active' : '' }}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
