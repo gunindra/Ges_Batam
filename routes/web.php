@@ -284,6 +284,8 @@ Route::middleware(['auth'])->group(function () {
     //Journal
     Route::get('/journal', [JournalController::class, 'index'])->name('journal');
     Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
+    Route::get('/invoice/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
+
 
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
