@@ -185,13 +185,10 @@
         $('#titleInformations, #contentInformations', 'imageInformations').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
-
         $('#saveInformations').click(function () {
             var titleInformations = $('#titleInformations').val().trim();
             var contentInformations = $('#contentInformations').val().trim();
             var imageInformations = $('#imageInformations')[0].files[0];
-
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
@@ -210,7 +207,7 @@
             if (imageInformations) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageInformations.type)) {
-                    $('#imageInformationsError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh kosong.').removeClass('d-none');
+                    $('#imageInformationsError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageInformationsError').addClass('d-none');
@@ -222,7 +219,8 @@
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Anda yakin?",
+                    title: 'Are you sure?',
+                    text: "You are about to add a new Information",
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -232,182 +230,151 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('titleInformations', titleInformations);
-                        formData.append('contentInformations', contentInformations);
-                        formData.append('imageInformations', imageInformations);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we process save your data.',
+                            title: 'Processing...',
+                            text: 'Please wait while we are saving the data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
                             }
                         });
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('addInformations') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    Swal.close();
 
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    showMessage("success", "Data berhasil disimpan");
-                                    getlistInformations();
-                                    $('#modalTambahInformations').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal menambahkan data.",
-                                        text: response.message,
-                                        icon: "error",
-                                    });
+                        // Menggunakan FormData untuk menyimpan data
+                        var formData = new FormData();
+                        formData.append('titleInformations', titleInformations);
+                        formData.append('contentInformations', contentInformations);
+                        formData.append('imageInformations', imageInformations);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        $.ajax({
+                            url: '/content/informations/store',
+                            method: 'POST',
+                            data: formData,
+                            processData: false, // Penting agar data tidak diproses ke string
+                            contentType: false, // Penting agar header multipart/form-data ditangani dengan benar
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "Information berhasil ditambahkan");
+                                    location.reload();
                                 }
                             },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal menambahkan data.",
-                                    text: xhr.responseJSON.message,
-                                    icon: "error",
-                                });
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Silakan periksa input yang kosong");
             }
         });
 
         $(document).on('click', '.btnUpdateInformations', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let title_informations = $(this).data('title_informations');
-            let content_informations = $(this).data('content_informations');
-            let image_informations = $(this).data('image_informations');
-
-            $('#titleInformationsEdit').val(title_informations);
-            $('#contentInformationsEdit').val(content_informations);
-            $('#textNamaEdit').text(image_informations);
-            $('#informationsIdEdit').val(id);
-
-            $(document).on('click', '#saveEditInformations', function (e) {
-
-                let id = $('#informationsIdEdit').val();
-                let titleInformations = $('#titleInformationsEdit').val();
-                let contentInformations = $('#contentInformationsEdit').val();
-                let imageInformations = $('#imageInformationsEdit')[0].files[0];
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                if (titleInformations === '') {
-                    $('#titleInformationsErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#titleInformationsErrorEdit').addClass('d-none');
+            var informationid = $(this).data('id');
+            $.ajax({
+                url: '/content/informations/' + informationid,
+                method: 'GET',
+                success: function (response) {
+                    $('#titleInformationsEdit').val(response.title_informations);
+                    $('#contentInformationsEdit').val(response.content_informations);
+                    $('#textNamaEdit').text(response.image_informations);
+                    console.log(response.image_informations);
+                    $('#modalEditInformations').modal('show');
+                    $('#saveEditInformations').data('id', informationid);
+                },
+                error: function () {
+                    showMessage("error", "Terjadi kesalahan saat mengambil data COA");
                 }
+            });
+        });
+        $('#saveEditInformations').on('click', function () {
+            var informationid = $(this).data('id');
+            var titleInformations = $('#titleInformationsEdit').val();
+            var contentInformations = $('#contentInformationsEdit').val();
+            var imageInformations = $('#imageInformations')[0].files[0];
 
-                if (contentInformations === '') {
-                    $('#contentInformationsErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#contentInformationsErrorEdit').addClass('d-none');
-                }
+            let isValid = true;
 
-                if (imageInformations) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                    if (!validExtensions.includes(imageInformations.type)) {
-                        $('#imageInformationsErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh kosong.').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#imageInformationsErrorEdit').addClass('d-none');
-                    }
-                } else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
-                    $('#imageInformationsErrorEdit').removeClass('d-none');
+            if (titleInformations === '') {
+                $('#titleInformationsErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#titleInformationsErrorEdit').addClass('d-none');
+            }
+
+            if (contentInformations === '') {
+                $('#contentInformationsErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#contentInformationsErrorEdit').addClass('d-none');
+            }
+
+            if (imageInformations) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(imageInformations.type)) {
+                    $('#imageInformationsErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh kosong.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageInformationsErrorEdit').addClass('d-none');
                 }
-
-                if (isValid) {
+            } else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
+                $('#imageInformationsErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageInformationsErrorEdit').addClass('d-none');
+            }
+            if (isValid) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You are about to update this Information",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
                     Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('titleInformations', titleInformations);
-                            formData.append('contentInformations', contentInformations);
-                            if (imageInformations) {
-                                formData.append('imageInformations', imageInformations);
-                            }
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateInformations') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success", "Data berhasil diperbarui");
-                                        getlistInformations();
-                                        $('#modalEditInformations').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal memperbarui",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
+                        title: 'Processing...',
+                        text: 'Please wait while we are updating the data.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
                         }
                     });
-                } else {
-                    showMessage("error", "Silakan periksa input yang kosong");
+                    $.ajax({
+                        url: '/content/informations/update/' + informationid,
+                        method: 'PUT',
+                        data: {
+                            title_informations: titleInformations,
+                            content_informations: contentInformations,
+                            image_informations: imageInformations,
+                            _token: '{{ csrf_token() }}',
+                        },
+                        success: function (response) {
+                            Swal.close();
+                            if (response.success) {
+                                showMessage("success", "berhasil diupdate");
+                                $('#modalEditInformations').modal('hide');
+                                location.reload();
+                            }
+                        },
+                        error: function (response) {
+                            Swal.close();
+                            showMessage("error",
+                                "Terjadi kesalahan, coba lagi nanti");
+                        }
+                    });
                 }
             });
-
-            $('#modalEditInformations').modal('show');
+        }
         });
+
+
+
+
         $('#modalTambahInformations').on('hidden.bs.modal', function () {
             $('#titleInformations,#contentInformations,#imageInformations').val('');
             if (!$('#titleInformationsError').hasClass('d-none')) {
@@ -460,7 +427,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url: "{{ route('destroyInformations') }}",
+                        url: '/content/informations/destroy/' + id,
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
@@ -495,3 +462,128 @@
 </script>
 
 @endsection
+
+<!-- $(document).on('click', '.btnUpdateInformations', function (e) {
+//e.preventDefault();
+let id = $(this).data('id');
+let title_informations = $(this).data('title_informations');
+let content_informations = $(this).data('content_informations');
+let image_informations = $(this).data('image_informations');
+
+$('#titleInformationsEdit').val(title_informations);
+$('#contentInformationsEdit').val(content_informations);
+$('#textNamaEdit').text(image_informations);
+$('#informationsIdEdit').val(id);
+
+$(document).on('click', '#saveEditInformations', function (e) {
+
+let id = $('#informationsIdEdit').val();
+let titleInformations = $('#titleInformationsEdit').val();
+let contentInformations = $('#contentInformationsEdit').val();
+let imageInformations = $('#imageInformationsEdit')[0].files[0];
+const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+let isValid = true;
+
+if (titleInformations === '') {
+$('#titleInformationsErrorEdit').removeClass('d-none');
+isValid = false;
+} else {
+$('#titleInformationsErrorEdit').addClass('d-none');
+}
+
+if (contentInformations === '') {
+$('#contentInformationsErrorEdit').removeClass('d-none');
+isValid = false;
+} else {
+$('#contentInformationsErrorEdit').addClass('d-none');
+}
+
+if (imageInformations) {
+var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+if (!validExtensions.includes(imageInformations.type)) {
+$('#imageInformationsErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh
+kosong.').removeClass('d-none');
+isValid = false;
+} else {
+$('#imageInformationsErrorEdit').addClass('d-none');
+}
+} else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
+$('#imageInformationsErrorEdit').removeClass('d-none');
+isValid = false;
+} else {
+$('#imageInformationsErrorEdit').addClass('d-none');
+}
+
+if (isValid) {
+Swal.fire({
+title: "Apakah Anda yakin?",
+icon: 'question',
+showCancelButton: true,
+confirmButtonColor: '#5D87FF',
+cancelButtonColor: '#49BEFF',
+confirmButtonText: 'Ya',
+cancelButtonText: 'Tidak',
+reverseButtons: true
+}).then((result) => {
+if (result.isConfirmed) {
+let formData = new FormData();
+formData.append('id', id);
+formData.append('titleInformations', titleInformations);
+formData.append('contentInformations', contentInformations);
+if (imageInformations) {
+formData.append('imageInformations', imageInformations);
+}
+formData.append('_token', csrfToken);
+Swal.fire({
+title: 'Loading...',
+text: 'Please wait while we process update your data.',
+allowOutsideClick: false,
+didOpen: () => {
+Swal.showLoading();
+}
+});
+$.ajax({
+type: 'PUT',
+url: '/content/informations/update/' + id,
+data: {
+titleInformations: $('#titleInformations').val(),
+contentInformations: $('#contentInformations').val(),
+imageInformations: $('#imageInformations').val(),
+_token: '{{ csrf_token() }}',
+},
+contentType: false,
+processData: false,
+success: function (response) {
+Swal.close();
+
+if (response.url) {
+window.open(response.url, '_blank');
+} else if (response.error) {
+Swal.fire({
+icon: 'error',
+title: 'Error',
+text: response.error
+});
+}
+if (response.status === 'success') {
+showMessage("success", "Data berhasil diperbarui");
+getlistInformations();
+$('#modalEditInformations').modal('hide');
+} else {
+Swal.fire({
+title: "Gagal memperbarui",
+icon: "error"
+});
+}
+}
+});
+}
+});
+} else {
+showMessage("error", "Silakan periksa input yang kosong");
+}
+});
+
+$('#modalEditInformations').modal('show');
+}); -->

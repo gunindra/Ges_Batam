@@ -121,7 +121,7 @@
 @endsection
 @section('script')
 <script>
-    flatpickr("#startDate", {
+      flatpickr("#startDate", {
         dateFormat: "d M Y",
         onChange: function (selectedDates, dateStr, instance) {
 
