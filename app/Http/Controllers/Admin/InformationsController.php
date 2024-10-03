@@ -94,7 +94,6 @@ class InformationsController extends Controller
 
     public function updateInformations(Request $request, $id)
     {
-        dd($request->all());
         $validated = $request->validate([
             'titleInformations' => 'required|string|max:255',
             'contentInformations' => 'required|string|max:1000',
@@ -120,7 +119,7 @@ class InformationsController extends Controller
 
             $information->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+            return response()->json(['success' => true, 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }

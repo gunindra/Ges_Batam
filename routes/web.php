@@ -172,11 +172,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Informations
     Route::get('/content/informations', [InformationsController::class, 'index'])->name('informations');
-    Route::get('/content/informations', [InformationsController::class, 'index'])->name('informations');
     Route::get('/content/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
     Route::delete('/content/informations/destroy/{id}', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
     Route::post('content/informations/store', [InformationsController::class, 'store'])->name('informations.store');
-    Route::put('/content/informations/update/{id}', [InformationsController::class, 'updateInformations'])->name('updateInformations');
+    Route::post('/content/informations/update/{id}', [InformationsController::class, 'updateInformations'])->name('updateInformations');
     Route::get('/content/informations/{id}', [InformationsController::class, 'show']);
 
     // whatsapp
