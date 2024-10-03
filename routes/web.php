@@ -39,7 +39,12 @@ use App\Http\Controllers\{
     Admin\JournalController,
     Admin\PurchasePaymentController,
     Admin\DebitNoteController,
-    Admin\CreditNoteController
+    Admin\CreditNoteController,
+    Admin\ProfitLossController,
+    Admin\LedgerController,
+    Admin\EquityController,
+    Admin\BalanceController,
+    Admin\CashFlowController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -280,10 +285,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/journal', [JournalController::class, 'index'])->name('journal');
     Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
 
-    //Accounting Setting
+    //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
     Route::post('/account-settings/update/{id}', [AccountingSettingController::class, 'update'])->name('account-settings.update');
+
+
+     //Report
+    //ProfitLoss
+    Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+    //Equity
+     Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
+    //Cashflow
+    Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
+    //Ledger
+    Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
+    //Balance
+    Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
 });
 
 

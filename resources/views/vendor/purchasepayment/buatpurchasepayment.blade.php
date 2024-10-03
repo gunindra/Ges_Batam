@@ -1,17 +1,17 @@
 @extends('layout.main')
 
-@section('title', 'Buat Purchase Payment')
+@section('title', 'Buat Payment')
 
 @section('main')
 
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Buat Purchase Payment</h1>
+        <h1 class="h3 mb-0 text-gray-800">Buat Payment</h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Vendor</li>
-            <li class="breadcrumb-item"><a href="{{ route('purchasePayment') }}">Purchase Payment</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Buat Purchase Payment</li>
+            <li class="breadcrumb-item"><a href="{{ route('purchasePayment') }}">Payment</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Buat Payment</li>
         </ol>
     </div>
 
@@ -36,7 +36,7 @@
                             </div>
                             <div class="mt-3">
                                 <label for="" class="form-label fw-bold">Tanggal Payment</label>
-                                <input type="date" class="form-control" id="TanggalPayment" value="">
+                                <input type="input" class="form-control" id="tanggalPayment" value="">
                                 <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                 <div class="col-12 mt-4 mb-5">
                     <div class="col-4 float-right">
                         <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3" style="width: 100%;">Buat
-                            Purchase Payment</button>
+                            Payment</button>
                     </div>
                 </div>
             </div>
@@ -75,5 +75,14 @@
 @endsection
 @section('script')
 <script>
+    
+    var today = new Date();
+            $('#tanggalPayment').datepicker({
+                format: 'dd MM yyyy',
+                todayBtn: 'linked',
+                todayHighlight: true,
+                autoclose: true,
+            }).datepicker('setDate', today);
+
 </script>
 @endsection
