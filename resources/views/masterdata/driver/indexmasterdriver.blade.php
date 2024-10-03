@@ -269,7 +269,7 @@
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             let nomors = $('#nomor').text();
-            
+
             let clearplus = nomors.replace('+', '')
             let valueNotlep = clearplus + noTelponDriver;
             console.log(valueNotlep)
@@ -426,7 +426,7 @@ $(document).on('click', '.btnUpdateDriver', function (e) {
     no_wa = String(no_wa);
     let noWaWithoutCode = no_wa.slice(2);
     let sim = $(this).data('sim');
-    
+
     $('#namaDriverEdit').val(nama_supir);
     $('#alamatDriverEdit').val(alamat_supir);
     $('#noTelponDriverEdit').val(noWaWithoutCode);

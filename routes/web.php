@@ -222,7 +222,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/rate/list', [PembagirateController::class, 'getlistRate'])->name('getlistRate');
     Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate'])->name('addRate');
     Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
-    Route::get('/masterdata/rate/destroyrate', action: [PembagirateController::class, 'destroyRate'])->name('destroyRate');
+    Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
 
     //user
     Route::get('/masterdata/user', [UserController::class, 'index'])->name('user');
@@ -241,6 +241,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 
     // Vendor
+
     //Invoice
     Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
@@ -276,11 +277,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/coa/update/{id}', [COAController::class, 'update'])->name('coa.update');
 
     //Journal
-    Route::get('/journal', action: [JournalController::class, 'index'])->name('journal');
+    Route::get('/journal', [JournalController::class, 'index'])->name('journal');
     Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
 
-    //Acoounting Setting
-    Route::get('/accountingSetting', action: [AccountingSettingController::class, 'index'])->name('accountingSetting');
+    //Accounting Setting
+    Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
+    Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
+    Route::post('/account-settings/update/{id}', [AccountingSettingController::class, 'update'])->name('account-settings.update');
 });
 
 
