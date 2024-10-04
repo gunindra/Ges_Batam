@@ -23,7 +23,16 @@ use Illuminate\Support\Facades\DB;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
 
         $data = DB::table('tbl_jurnal')
-            ->select('id', 'no_journal', 'tipe_kode', 'tanggal', 'no_ref','status','description')
+        ->select(
+            'id',
+            'no_journal',
+            'tipe_kode',
+            DB::raw("DATE_FORMAT(tanggal, '%d %M %Y') AS tanggal"),
+            'no_ref',
+            'totalcredit',
+            'status',
+            'description'
+        )
             ->where(function ($query) use ($txSearch) {
                 $query->where(DB::raw('UPPER(no_journal)'), 'LIKE', $txSearch)
                       ->orWhere(DB::raw('UPPER(tipe_kode)'), 'LIKE', $txSearch)
@@ -33,6 +42,7 @@ use Illuminate\Support\Facades\DB;
                 return $query->whereBetween('tanggal', [$startDate, $endDate]);
             })
             ->get();
+        // dd($data);
 
         $output = '
             <table class="table align-items-center table-flush table-hover" id="tableJournal">
@@ -41,6 +51,7 @@ use Illuminate\Support\Facades\DB;
                         <th>No. Journal</th>
                         <th>Deskripsi</th>
                         <th>Tanggal</th>
+                        <th>Total</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -48,12 +59,29 @@ use Illuminate\Support\Facades\DB;
                 <tbody>';
 
         foreach ($data as $item) {
+
+            $statusBadgeClass = '';
+
+
+            switch ($item->status) {
+                case 'Approve':
+                    $statusBadgeClass = 'badge-success';
+                    break;
+                case 'Draft':
+                    $statusBadgeClass = 'badge-primary';
+                    break;
+                default:
+                    $statusBadgeClass = 'badge-secondary';
+                    break;
+            }
+
             $output .= '
                 <tr>
                     <td>' . ($item->no_journal ?? '-') . '</td>
                     <td>' . ($item->description ?? '-') . '</td>
                     <td>' . ($item->tanggal ?? '-') . '</td>
-                     <td>' . ($item->status ?? '-') . '</td>
+                  <td>' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td>
+                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
                     <td>
                        <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-no_journal="' . $item->no_journal . '" data-description="' . $item->description . '" data-tanggal="' . $item->tanggal . '" data-status="' . $item->status . '"><i class="fas fa-edit"></i></a>
                          <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
