@@ -13,7 +13,14 @@ use Illuminate\Support\Facades\DB;
     {
         public function index()
     {
-        return view('accounting.journal.indexjournal');
+        $uniqueStatuses = DB::table('tbl_jurnal')
+        ->select('status')
+        ->distinct()
+        ->get();
+
+
+
+        return view('accounting.journal.indexjournal', compact('uniqueStatuses'));
     }
     public function getlistJournal(Request $request)
     {
@@ -38,11 +45,13 @@ use Illuminate\Support\Facades\DB;
                       ->orWhere(DB::raw('UPPER(tipe_kode)'), 'LIKE', $txSearch)
                       ->orWhere(DB::raw('UPPER(description)'), 'LIKE', $txSearch);
             })
+            ->when($status, function ($query) use ($status) {
+                return $query->where('status', $status);
+            })
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 return $query->whereBetween('tanggal', [$startDate, $endDate]);
             })
             ->get();
-        // dd($data);
 
         $output = '
             <table class="table align-items-center table-flush table-hover" id="tableJournal">
