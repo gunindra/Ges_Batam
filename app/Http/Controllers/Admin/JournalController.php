@@ -6,7 +6,6 @@ use App\Models\COA;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +21,7 @@ use Illuminate\Support\Facades\DB;
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-    
+
         $data = DB::table('tbl_jurnal')
             ->select('id', 'no_journal', 'tipe_kode', 'tanggal', 'no_ref','status','description')
             ->where(function ($query) use ($txSearch) {
@@ -34,7 +33,7 @@ use Illuminate\Support\Facades\DB;
                 return $query->whereBetween('tanggal', [$startDate, $endDate]);
             })
             ->get();
-    
+
         $output = '
             <table class="table align-items-center table-flush table-hover" id="tableJournal">
                 <thead class="thead-light">
@@ -47,7 +46,7 @@ use Illuminate\Support\Facades\DB;
                     </tr>
                 </thead>
                 <tbody>';
-    
+
         foreach ($data as $item) {
             $output .= '
                 <tr>
@@ -61,11 +60,11 @@ use Illuminate\Support\Facades\DB;
                     </td>
                 </tr>';
         }
-    
+
         $output .= '</tbody></table>';
         return $output;
     }
-    
+
 
     public function addjournal()
     {
