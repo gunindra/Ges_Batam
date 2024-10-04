@@ -232,7 +232,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url: "{{ route('destroyPopup') }}",
+                        url: '/content/popup/destroy/'+ id,
                         data: {
                             id: id,
                             _token: $('meta[name="csrf-token"]').attr('content')

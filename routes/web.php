@@ -138,11 +138,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
 
-
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
     Route::post('/content/popup/tambah', [PopupController::class, 'addPopup'])->name('addPopup');
-    Route::delete('/content/popup/destroy', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
+    Route::delete('/content/popup/destroy/{id}', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
 
     // Contact
     Route::get('/content/contact', [ContactController::class, 'index'])->name('contact');
@@ -183,7 +182,8 @@ Route::middleware(['auth'])->group(function () {
     // whatsapp
     Route::get('/content/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp');
     Route::post('/content/whatsapp/tambah', [WhatsappController::class, 'addWa'])->name('addWa');
-    Route::delete('/content/whatsapp/destroy', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
+    Route::delete('/content/whatsapp/destroy/{id}', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
+    
     // Advertisement
     Route::get('/content/Advertisement', [AdvertisementController::class, 'index'])->name('advertisement');
     Route::get('/content/Advertisement/getlistAdvertisement', [AdvertisementController::class, 'getlistAdvertisement'])->name('getlistAdvertisement');

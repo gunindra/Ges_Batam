@@ -54,41 +54,47 @@ class InformationsController extends Controller
             'contentInformations' => 'required|string|max:1000',
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
+        try {
+            $information = new Information();
+            $information->title_informations = $request->input('titleInformations');
+            $information->content_informations = $request->input('contentInformations');
 
-        $information = new Information();
-        $information->title_informations = $request->input('titleInformations');
-        $information->content_informations = $request->input('contentInformations');
+            if ($request->hasFile('imageInformations')) {
+                $uniqueId = uniqid('Information_', true);
+                $fileName = $uniqueId . '.' . $request->file('imageInformations')->getClientOriginalExtension();
+                $request->file('imageInformations')->storeAs('public/images', $fileName);
+                $information->image_informations = $fileName;
+            }
 
-        if ($request->hasFile('imageInformations')) {
-            $uniqueId = uniqid('Information_', true);
-            $fileName = $uniqueId . '.' . $request->file('imageInformations')->getClientOriginalExtension();
-            $request->file('imageInformations')->storeAs('public/images', $fileName);
-            $information->image_informations = $fileName;
+
+            $information->save();
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
-
-
-        $information->save();
-
-        return response()->json(['success' => 'Information berhasil ditambahkan']);
     }
 
     public function destroyInformations($id)
     {
+        try {
+            $information = Information::findOrFail($id);
 
-        $information = Information::findOrFail($id);
 
-
-        if ($information->image_informations) {
-            $existingImagePath = 'public/images/' . $information->image_informations;
-            if (Storage::exists($existingImagePath)) {
-                Storage::delete($existingImagePath);
+            if ($information->image_informations) {
+                $existingImagePath = 'public/images/' . $information->image_informations;
+                if (Storage::exists($existingImagePath)) {
+                    Storage::delete($existingImagePath);
+                }
             }
+
+            $information->delete();
+
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        $information->delete();
-
-
-        return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
     }
 
 
@@ -99,9 +105,10 @@ class InformationsController extends Controller
             'contentInformations' => 'required|string|max:1000',
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
-        $information = Information::findOrFail($id);
-        $information->title_informations = $request->input('titleInformations');
-        $information->content_informations = $request->input('contentInformations');
+        try {
+            $information = Information::findOrFail($id);
+            $information->title_informations = $request->input('titleInformations');
+            $information->content_informations = $request->input('contentInformations');
 
             if ($request->hasFile('imageInformations')) {
                 if ($information->image_informations) {
@@ -119,6 +126,9 @@ class InformationsController extends Controller
             $information->update($validated);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
+        }
 
     }
     public function show($id)

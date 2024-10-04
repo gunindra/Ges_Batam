@@ -34,7 +34,7 @@ class ServiceController extends Controller
             $output .= '
                 <tr>
                     <td>' . ($service->title_service ?? '-') . '</td>
-                    <td>' . nl2br( e($service->content_service ?? '-')) . '</td>
+                    <td>' . nl2br(e($service->content_service ?? '-')) . '</td>
                     <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
                     <td>
                         <a class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' . $service->id . '" data-title_service="' . $service->title_service . '" data-content_service="' . $service->content_service . '" data-image_service="' . $service->image_service . '"><i class="fas fa-edit"></i></a>
@@ -55,25 +55,29 @@ class ServiceController extends Controller
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
+        try {
+            $service = new Service();
+            $service->title_service = $request->input('titleService');
+            $service->content_service = $request->input('contentService');
 
-        $service = new Service();
-        $service->title_service = $request->input('titleService');
-        $service->content_service = $request->input('contentService');
-
-        if ($request->hasFile('imageService')) {
-            $uniqueId = uniqid('Service_', true);
-            $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
-            $request->file('imageService')->storeAs('public/images', $fileName);
-            $service->image_service = $fileName;
-        }
+            if ($request->hasFile('imageService')) {
+                $uniqueId = uniqid('Service_', true);
+                $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
+                $request->file('imageService')->storeAs('public/images', $fileName);
+                $service->image_service = $fileName;
+            }
 
             $service->save();
-         
+
             return response()->json(['success' => 'berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menambahkan']);
+        }
     }
 
     public function destroyService($id)
     {
+        try {
             $service = Service::findOrFail($id);
 
             if ($service->image_service) {
@@ -85,7 +89,10 @@ class ServiceController extends Controller
             $service->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
 
     public function updateService(Request $request, $id)
     {
@@ -94,10 +101,10 @@ class ServiceController extends Controller
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-
-        $service = Service::findOrFail($id);
-        $service->title_service = $request->input('titleService');
-        $service->content_service = $request->input('contentService');
+        try {
+            $service = Service::findOrFail($id);
+            $service->title_service = $request->input('titleService');
+            $service->content_service = $request->input('contentService');
 
             if ($request->hasFile('imageService')) {
                 if ($service->image_service) {
@@ -112,9 +119,12 @@ class ServiceController extends Controller
                 $service->image_service = $fileName;
             }
 
-            $service->save($validated);
+            $service->update($validated);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
+        }
     }
     public function show($id)
     {

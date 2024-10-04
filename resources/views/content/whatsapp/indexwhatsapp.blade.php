@@ -160,7 +160,7 @@
                 });
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ route('destroyWa') }}",
+                    url: '/content/whatsapp/destroy/'+ id,
                     data: {
                         id: id,
                         _token: $('meta[name="csrf-token"]').attr('content')

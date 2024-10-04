@@ -48,33 +48,37 @@ class AdvertisementController extends Controller
     public function addAdvertisement(Request $request)
     {
         $request->validate([
-            'titleAdvertisement' => 'required|string|max:255', 
-            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg', 
+            'titleAdvertisement' => 'required|string|max:255',
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
 
         $checkData = Advertisement::count();
         if ($checkData >= 7) {
             return response()->json(['status' => 'error', 'message' => 'Data tidak bisa ditambahkan lagi, jumlah maksimal 7 data sudah tercapai.'], 400);
         }
+        try {
+            $advertisement = new Advertisement();
+            $advertisement->title_Advertisement = $request->input('titleAdvertisement');
 
-        $advertisement = new Advertisement();
-        $advertisement->title_Advertisement = $request->input('titleAdvertisement');
+            if ($request->hasFile('imageAdvertisement')) {
+                $uniqueId = uniqid('Advertisement_', true);
+                $fileName = $uniqueId . '.' . $request->file('imageAdvertisement')->getClientOriginalExtension();
+                $request->file('imageAdvertisement')->storeAs('public/images', $fileName);
+                $advertisement->image_Advertisement = $fileName;
+            }
 
-        if ($request->hasFile('imageAdvertisement')) {
-            $uniqueId = uniqid('Advertisement_', true);
-            $fileName = $uniqueId . '.' . $request->file('imageAdvertisement')->getClientOriginalExtension();
-            $request->file('imageAdvertisement')->storeAs('public/images', $fileName);
-            $advertisement->image_Advertisement = $fileName;
-        }
 
-       
+
             $advertisement->save();
             return response()->json(['success' => 'berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menambahkan']);
+        }
     }
 
     public function destroyAdvertisement($id)
     {
-     
+        try {
             $advertisement = Advertisement::findOrFail($id);
 
             if ($advertisement->image_Advertisement) {
@@ -86,20 +90,22 @@ class AdvertisementController extends Controller
             $advertisement->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
-    
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function updateAdvertisement(Request $request, $id)
     {
         $validated = $request->validate([
-            'titleAdvertisement' => 'required|string|max:255', 
-            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg', 
+            'titleAdvertisement' => 'required|string|max:255',
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
+        try {
+            $advertisement = Advertisement::findOrFail($id);
+            $advertisement->title_Advertisement = $request->input('titleAdvertisement');
 
-        $advertisement = Advertisement::findOrFail($id);
-        $advertisement->title_Advertisement = $request->input('titleAdvertisement');
 
-      
             if ($request->hasFile('imageAdvertisement')) {
                 if ($advertisement->image_Advertisement) {
                     $existingImagePath = 'public/images/' . $advertisement->image_Advertisement;
@@ -113,10 +119,12 @@ class AdvertisementController extends Controller
                 $advertisement->image_Advertisement = $fileName;
             }
 
-            $advertisement->save($validated);
+            $advertisement->update($validated);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
-
+        } catch (\Exception $e) {
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
+        }
     }
     public function show($id)
     {
