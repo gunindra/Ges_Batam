@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('no_ref');
             $table->string('status');
             $table->text('description');
+            $table->decimal('totalcredit', 15, 2)->default(0);
+            $table->decimal('totaldebit', 15, 2)->default(0);
             $table->timestamps();
         });
     }

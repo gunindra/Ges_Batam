@@ -19,6 +19,8 @@ class Jurnal extends Model
         'no_ref',
         'status',
         'description',
+        'totalcredit',
+        'totaldebit',
     ];
 
     // Relasi ke JurnalItem

@@ -105,7 +105,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="items-container">
-                                        <!-- Baris default yang akan ditampilkan saat halaman dimuat -->
+                                        <!-- Two default rows without the "Remove" button initially -->
                                         <tr>
                                             <td>
                                                 <select class="form-control select2singgle" name="account"
@@ -128,24 +128,21 @@
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" name="credit" value="0"
-                                                    placeholder="0.00" required>
+                                                    placeholder="" required>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control" name="memo"
                                                     placeholder="">
                                             </td>
                                             <td>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-danger removeItemButton mt-1">
-                                                    <!-- Icon for delete -->
-                                                    Remove
-                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
+                                                    style="display:none;">Remove</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <select class="form-control select2singgle" style="width: 15vw;"
-                                                    name="account" required>
+                                                <select class="form-control select2singgle" name="account"
+                                                    style="width: 15vw;" required>
                                                     <option value="">Pilih Akun</option>
                                                     @foreach ($coas as $coa)
                                                         <option value="{{ $coa->id }}">
@@ -160,21 +157,19 @@
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" name="debit" value="0"
-                                                    placeholder="0.00" required>
+                                                    placeholder="" required>
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control" name="credit" value="0"
-                                                    placeholder="0.00" required>
+                                                    placeholder="" required>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control" name="memo"
                                                     placeholder="">
                                             </td>
                                             <td>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-danger removeItemButton mt-1">
-                                                    Remove
-                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
+                                                    style="display:none;">Remove</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -188,12 +183,12 @@
                                             <td>
                                                 <label>Total:</label>
                                                 <input type="text" class="form-control-flush" id="total_debit"
-                                                    name="total_debit" value="0.00" disabled>
+                                                    name="total_debit" value="" disabled>
                                             </td>
                                             <td>
                                                 <label>Total:</label>
                                                 <input type="text" class="form-control-flush" id="total_credit"
-                                                    name="total_credit" value="0.00" disabled>
+                                                    name="total_credit" value="" disabled>
                                             </td>
                                             <td colspan="3"></td>
                                         </tr>
@@ -204,7 +199,7 @@
                                         <button id="approveJournal" class="btn btn-success p-3 float-right mt-3"
                                             style="width: 80%;">Approve</button>
                                         <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
-                                            style="width: 80%;">Buat Journal</button>
+                                            style="width: 80%;">Simpan Draft</button>
                                     </div>
                                 </div>
                             </div>
@@ -252,66 +247,170 @@
                 }
             });
 
+            // Function to calculate and update the total debit and credit
+            function updateTotals() {
+                var totalDebit = 0;
+                var totalCredit = 0;
+
+                // Loop through each row in the table to sum the debit and credit values
+                $('#items-container tr').each(function() {
+                    var debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                    var creditValue = parseFloat($(this).find('input[name="credit"]').val()) || 0;
+
+                    totalDebit += debitValue;
+                    totalCredit += creditValue;
+                });
+
+                // Update the total fields
+                $('#total_debit').val(totalDebit.toFixed(0));
+                $('#total_credit').val(totalCredit.toFixed(0));
+            }
+
+            // Initialize select2 on page load
             $('.select2singgle').select2();
 
+            // Add a new row with the remove button when the "Add Item" button is clicked
             $('#add-item-button').click(function() {
                 var newRow = `
-            <tr>
-                <td>
-                    <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
-                        <option value="">Pilih Akun</option>
-                        @foreach ($coas as $coa)
-                            <option value="{{ $coa->id }}">
-                                {{ $coa->code_account_id }} - {{ $coa->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="credit" value="0" placeholder="0.00" required>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="memo" placeholder="">
-                </td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-                </td>
-            </tr>
-        `;
+    <tr>
+        <td>
+            <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
+                <option value="">Pilih Akun</option>
+                @foreach ($coas as $coa)
+                    <option value="{{ $coa->id }}">
+                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                    </option>
+                @endforeach
+            </select>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+        </td>
+        <td>
+            <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+        </td>
+        <td>
+            <input type="number" class="form-control" name="credit" value="0" placeholder="0.00" required>
+        </td>
+        <td>
+            <input type="text" class="form-control" name="memo" placeholder="">
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+        </td>
+    </tr>
+    `;
                 $('#items-container').append(newRow);
-
-
                 $('.select2singgle').last().select2();
+                if ($('#items-container tr').length > 2) {
+                    $('.removeItemButton').show();
+                }
+                updateTotals();
             });
 
-            // Function to remove item
             $(document).on('click', '.removeItemButton', function() {
-
                 var rowCount = $('#items-container tr').length;
                 if (rowCount > 2) {
                     $(this).closest('tr').remove();
-                } else {
-                  showMessage("error", "Harus ada minimal 2 baris")
                 }
+
+                rowCount = $('#items-container tr').length;
+
+                if (rowCount === 2) {
+                    $('.removeItemButton').hide();
+                }
+
+                updateTotals();
             });
 
-            function valueJournal() {
+            $(document).on('input', 'input[name="debit"], input[name="credit"]', function() {
+                updateTotals();
+            });
 
+            function valueJournal(status) {
+                var journalData = {
+                    tanggalJournal: $('#tanggalJournal').val(),
+                    codeType: $('input[name="code_type"]:checked').val(),
+                    noJournal: $('#noJournal').val(),
+                    noRef: $('#noRef').val(),
+                    descriptionJournal: $('#descriptionJournal').val(),
+                    items: [],
+                    status: status
+                };
 
+                $('#items-container tr').each(function() {
+                    var rowData = {
+                        account: $(this).find('select[name="account"]').val(),
+                        item_desc: $(this).find('input[name="item_desc"]').val(),
+                        debit: $(this).find('input[name="debit"]').val(),
+                        credit: $(this).find('input[name="credit"]').val(),
+                        memo: $(this).find('input[name="memo"]').val()
+                    };
+                    journalData.items.push(rowData);
+                });
+
+                journalData.totalDebit = $('#total_debit').val();
+                journalData.totalCredit = $('#total_credit').val();
+                return journalData;
             }
 
 
-            $('#buatJournal').click(function() {
-                valueJournal();
+            $('#approveJournal').click(function() {
+                var journal = valueJournal('Approve');
+
+                console.log(journal);
+
+                $.ajax({
+                    url: "{{ route('storeJurnal') }}",
+                    type: 'POST',
+                    data: journal,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        console.log('Journal approved successfully:', response);
+                        showMessage("success", response.message)
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error approving journal:', error);
+                        var errorMessage = xhr.responseJSON.error ||
+                            'Terjadi kesalahan saat menyetujui jurnal.';
+                        showMessage("error", errorMessage);
+                    }
+                });
             });
 
+            $('#buatJournal').click(function() {
+                var journal = valueJournal('Draft');
 
+                $.ajax({
+                    url: "{{ route('storeJurnal') }}",
+                    type: 'POST',
+                    data: journal,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // console.log('Journal saved as draft successfully:', response);
+                        // showMessage("success", response.message);
+                        showMessage("success", response.message)
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error saving draft:', error);
+                        var errorMessage = xhr.responseJSON.error ||
+                            'Terjadi kesalahan saat menyimpan draft.';
+                        showMessage("error", errorMessage);
+                    }
+                });
+            });
         });
     </script>
 @endsection

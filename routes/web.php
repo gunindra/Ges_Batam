@@ -286,6 +286,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/journal', [JournalController::class, 'index'])->name('journal');
     Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
     Route::get('/invoice/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
+    Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');
 
 
     //Acoounting Setting
