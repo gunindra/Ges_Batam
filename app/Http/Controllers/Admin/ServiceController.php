@@ -14,7 +14,7 @@ class ServiceController extends Controller
         return view('content.services.indexservice');
     }
 
-    public function getlistService(Request $request)
+    public function getlistService()
     {
         $services = Service::all();
 
@@ -34,7 +34,7 @@ class ServiceController extends Controller
             $output .= '
                 <tr>
                     <td>' . ($service->title_service ?? '-') . '</td>
-                    <td>' . nl2br( e($service->content_service ?? '-')) . '</td>
+                    <td>' . nl2br(e($service->content_service ?? '-')) . '</td>
                     <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
                     <td>
                         <a class="btn btnUpdateService btn-sm btn-secondary text-white" data-id="' . $service->id . '" data-title_service="' . $service->title_service . '" data-content_service="' . $service->content_service . '" data-image_service="' . $service->image_service . '"><i class="fas fa-edit"></i></a>
@@ -55,30 +55,28 @@ class ServiceController extends Controller
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-
-        $service = new Service();
-        $service->title_service = $request->input('titleService');
-        $service->content_service = $request->input('contentService');
-
-        if ($request->hasFile('imageService')) {
-            $uniqueId = uniqid('Service_', true);
-            $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
-            $request->file('imageService')->storeAs('public/images', $fileName);
-            $service->image_service = $fileName;
-        }
-
         try {
+            $service = new Service();
+            $service->title_service = $request->input('titleService');
+            $service->content_service = $request->input('contentService');
+
+            if ($request->hasFile('imageService')) {
+                $uniqueId = uniqid('Service_', true);
+                $fileName = $uniqueId . '.' . $request->file('imageService')->getClientOriginalExtension();
+                $request->file('imageService')->storeAs('public/images', $fileName);
+                $service->image_service = $fileName;
+            }
+
             $service->save();
-            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
-    public function destroyService(Request $request)
+    public function destroyService($id)
     {
-        $id = $request->input('id');
-
         try {
             $service = Service::findOrFail($id);
 
@@ -92,24 +90,22 @@ class ServiceController extends Controller
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    public function updateService(Request $request)
+    public function updateService(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'titleService' => 'required|string|max:255',
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-
-        $id = $request->input('id');
-        $service = Service::findOrFail($id);
-        $service->title_service = $request->input('titleService');
-        $service->content_service = $request->input('contentService');
-
         try {
+            $service = Service::findOrFail($id);
+            $service->title_service = $request->input('titleService');
+            $service->content_service = $request->input('contentService');
+
             if ($request->hasFile('imageService')) {
                 if ($service->image_service) {
                     $existingImagePath = 'public/images/' . $service->image_service;
@@ -123,11 +119,16 @@ class ServiceController extends Controller
                 $service->image_service = $fileName;
             }
 
-            $service->save();
+            $service->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengupdate data: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
+    }
+    public function show($id)
+    {
+        $service = Service::findOrFail($id);
+        return response()->json($service);
     }
 }

@@ -138,11 +138,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
 
-
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
     Route::post('/content/popup/tambah', [PopupController::class, 'addPopup'])->name('addPopup');
-    Route::delete('/content/popup/destroy', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
+    Route::delete('/content/popup/destroy/{id}', [PopupController::class, 'destroyPopup'])->name('destroyPopup');
 
     // Contact
     Route::get('/content/contact', [ContactController::class, 'index'])->name('contact');
@@ -159,35 +158,39 @@ Route::middleware(['auth'])->group(function () {
     // Services
     Route::get('/content/services', [ServiceController::class, 'index'])->name('services');
     Route::get('/content/services/getlistService', [ServiceController::class, 'getlistService'])->name('getlistService');
-    Route::post('/content/services/tambah', [ServiceController::class, 'addService'])->name('addService');
-    Route::post('/content/services/update', [ServiceController::class, 'updateService'])->name('updateService');
-    Route::delete('/content/services/destroy', [ServiceController::class, 'destroyService'])->name('destroyService');
+    Route::post('/content/services/store', [ServiceController::class, 'addService'])->name('addService');
+    Route::post('/content/services/update/{id}', [ServiceController::class, 'updateService'])->name('updateService');
+    Route::delete('/content/services/destroy/{id}', [ServiceController::class, 'destroyService'])->name('destroyService');
+    Route::get('/content/services/{id}', [ServiceController::class, 'show']);
 
     // heropage
     Route::get('/content/heropage', [HeropageController::class, 'index'])->name('heropage');
     Route::get('/content/heropage/getlistHeroPage', [HeropageController::class, 'getlistHeroPage'])->name('getlistHeroPage');
-    Route::delete('/content/heropage/destroy', [HeropageController::class, 'destroyHeroPage'])->name('destroyHeroPage');
-    Route::post('/content/heropage/tambah', [HeropageController::class, 'addHeroPage'])->name('addHeroPage');
-    Route::post('/content/heropage/update', [HeropageController::class, 'updateHeroPage'])->name('updateHeroPage');
+    Route::delete('/content/heropage/destroy/{id}', [HeropageController::class, 'destroyHeroPage'])->name('destroyHeroPage');
+    Route::post('/content/heropage/store', [HeropageController::class, 'addHeroPage'])->name('addHeroPage');
+    Route::post('/content/heropage/update/{id}', [HeropageController::class, 'updateHeroPage'])->name('updateHeroPage');
+    Route::get('/content/heropage/{id}', [HeropageController::class, 'show']);
 
     // Informations
     Route::get('/content/informations', [InformationsController::class, 'index'])->name('informations');
     Route::get('/content/informations/getlistInformations', [InformationsController::class, 'getlistInformations'])->name('getlistInformations');
     Route::delete('/content/informations/destroy/{id}', [InformationsController::class, 'destroyInformations'])->name('destroyInformations');
-    Route::post('content/informations/store', [InformationsController::class, 'store'])->name('informations.store');
+    Route::post('content/informations/store', [InformationsController::class, 'addInformations'])->name('addInformations');
     Route::post('/content/informations/update/{id}', [InformationsController::class, 'updateInformations'])->name('updateInformations');
     Route::get('/content/informations/{id}', [InformationsController::class, 'show']);
 
     // whatsapp
     Route::get('/content/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp');
     Route::post('/content/whatsapp/tambah', [WhatsappController::class, 'addWa'])->name('addWa');
-    Route::delete('/content/whatsapp/destroy', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
+    Route::delete('/content/whatsapp/destroy/{id}', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
+
     // Advertisement
     Route::get('/content/Advertisement', [AdvertisementController::class, 'index'])->name('advertisement');
     Route::get('/content/Advertisement/getlistAdvertisement', [AdvertisementController::class, 'getlistAdvertisement'])->name('getlistAdvertisement');
-    Route::delete('/content/Advertisement/destroy', [AdvertisementController::class, 'destroyAdvertisement'])->name('destroyAdvertisement');
-    Route::post('/content/Advertisement/tambah', [AdvertisementController::class, 'addAdvertisement'])->name('addAdvertisement');
-    Route::post('/content/Advertisement/update', [AdvertisementController::class, 'updateAdvertisement'])->name('updateAdvertisement');
+    Route::delete('/content/Advertisement/destroy/{id}', [AdvertisementController::class, 'destroyAdvertisement'])->name('destroyAdvertisement');
+    Route::post('/content/Advertisement/store', [AdvertisementController::class, 'addAdvertisement'])->name('addAdvertisement');
+    Route::post('/content/Advertisement/update/{id}', [AdvertisementController::class, 'updateAdvertisement'])->name('updateAdvertisement');
+    Route::get('/content/Advertisement/{id}', [AdvertisementController::class, 'show']);
 
     // Costumer
     Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
@@ -284,8 +287,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Journal
     Route::get('/journal', [JournalController::class, 'index'])->name('journal');
-    Route::get('/invoice/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
-    Route::get('/invoice/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
+    Route::get('/journal/getlistJournal', [JournalController::class, 'getlistJournal'])->name('getlistJournal');
+    Route::get('/journal/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
+    Route::get('/journal/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
     Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');
 
 

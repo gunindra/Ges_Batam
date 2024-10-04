@@ -50,7 +50,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="advertisementIdEdit">
                     <div class="mt-3">
                         <label for="titleAdvertisement" class="form-label fw-bold">Judul</label>
                         <input type="text" class="form-control" id="titleAdvertisementEdit" value=""
@@ -166,8 +165,6 @@
             var titleAdvertisement = $('#titleAdvertisement').val().trim();
             var imageAdvertisement = $('#imageAdvertisement')[0].files[0];
 
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
             var isValid = true;
 
             if (titleAdvertisement === '') {
@@ -179,22 +176,20 @@
             if (imageAdvertisement) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
                 if (!validExtensions.includes(imageAdvertisement.type)) {
-                    $('#imageAdvertisementError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
+                    $('#imageAdvertisementError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.')
+                        .removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageAdvertisementError').addClass('d-none');
                 }
-            } else if (!imageAdvertisement) {
+            } else {
                 $('#imageAdvertisementError').removeClass('d-none');
                 isValid = false;
-            } else {
-                $('#imageAdvertisementError').addClass('d-none');
             }
-
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Anda yakin?",
+                    title: 'Apakah Anda yakin?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -204,171 +199,150 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('titleAdvertisement', titleAdvertisement);
-                        formData.append('imageAdvertisement', imageAdvertisement);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
-                            text: 'Please wait while we process save your data.',
+                            text: 'Please wait while we are saving the data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
                             }
                         });
+
+                        var formData = new FormData();
+                        formData.append('titleAdvertisement', titleAdvertisement);
+                        formData.append('imageAdvertisement', imageAdvertisement);
+                        formData.append('_token', '{{ csrf_token() }}');
+
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addAdvertisement') }}",
+                            url: '/content/Advertisement/store',
+                            method: 'POST',
                             data: formData,
-                            contentType: false,
                             processData: false,
+                            contentType: false,
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Kesalahan',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data berhasil disimpan");
-                                    getlistAdvertisement();
-                                    $('#modalTambahAdvertisement').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal menambahkan data",
-                                        text: response.message,
-                                        icon: "error"
-                                    });
+                                if (response.success) {
+                                    showMessage("success",
+                                        "berhasil ditambahkan");
+                                        $('#modalTambahAdvertisement').modal('hide');
+                                        getlistAdvertisement();
                                 }
                             },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal menambahkan data",
-                                    text: xhr.responseJSON.message,
-                                    icon: "error",
-                                });
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
 
 
-
         $(document).on('click', '.btnUpdateAdvertisement', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let title_Advertisement = $(this).data('title_advertisement');
-            let image_Advertisement = $(this).data('image_advertisement');
-
-            $('#titleAdvertisementEdit').val(title_Advertisement);
-            $('#textNamaEdit').text(image_Advertisement);
-            $('#advertisementIdEdit').val(id);
-
-            $(document).on('click', '#saveEditAdvertisement', function (e) {
-
-                let id = $('#advertisementIdEdit').val();
-                let titleAdvertisement = $('#titleAdvertisementEdit').val();
-                let imageAdvertisement = $('#imageAdvertisementEdit')[0].files[0];
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                if (titleAdvertisement === '') {
-                    $('#titleAdvertisementErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#titleAdvertisementErrorEdit').addClass('d-none');
+            var advertisementid = $(this).data('id');
+            $.ajax({
+                url: '/content/Advertisement/' + advertisementid,
+                method: 'GET',
+                success: function (response) {
+                    $('#titleAdvertisementEdit').val(response.title_Advertisement);
+                    $('#textNamaEdit').text(response.image_Advertisement);
+                    $('#modalEditAdvertisement').modal('show');
+                    $('#saveEditAdvertisement').data('id', advertisementid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
                 }
+            });
+        });
+        $('#saveEditAdvertisement').on('click', function () {
+            var advertisementid = $(this).data('id');
+            var titleAdvertisement = $('#titleAdvertisementEdit').val();
+            var imageAdvertisement = $('#imageAdvertisementEdit')[0].files[0];
 
-                if (imageAdvertisement) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                    if (!validExtensions.includes(imageAdvertisement.type)) {
-                        $('#imageAdvertisementErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan.').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#imageAdvertisementErrorEdit').addClass('d-none');
-                    }
-                } else if (imageAdvertisement === 0 && $('#textNamaEdit').text() === '') {
-                    $('#imageAdvertisementErrorEdit').removeClass('d-none');
+            let isValid = true;
+
+            if (titleAdvertisement === '') {
+                $('#titleAdvertisementErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#titleAdvertisementErrorEdit').addClass('d-none');
+            }
+
+            if (imageAdvertisement) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png' , 'image/svg+xml'];
+                if (!validExtensions.includes(imageAdvertisement.type)) {
+                    $('#imageAdvertisementErrorEdit').text(
+                        'Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageAdvertisementErrorEdit').addClass('d-none');
                 }
+            } else if ($('#textNamaEdit').text() === '') {
+                $('#imageAdvertisementErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageAdvertisementErrorEdit').addClass('d-none');
+            }
 
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('titleAdvertisement', titleAdvertisement);
-                            if (imageAdvertisement) {
-                                formData.append('imageAdvertisement', imageAdvertisement);
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateAdvertisement') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Kesalahan',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data berhasil Diubah");
-                                        getlistAdvertisement();
-                                        $('#modalEditAdvertisement').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Diubah",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
+                        });
+                        var formData = new FormData();
+                        formData.append('titleAdvertisement', titleAdvertisement);
+                        if (imageAdvertisement) {
+                            formData.append('imageAdvertisement', imageAdvertisement);
                         }
-                    });
-                } else {
-                    showMessage("error", "Silakan periksa input yang kosong");
-                }
-            });
-            $('#modalEditAdvertisement').modal('show');
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/content/Advertisement/update/' + advertisementid,
+                            method: 'POST',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
+                                    $('#modalEditAdvertisement').modal('hide');
+                                    getlistAdvertisement();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
         $('#modalTambahAdvertisement').on('hidden.bs.modal', function () {
             $('#titleAdvertisement,#imageAdvertisement').val('');
@@ -420,7 +394,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url: "{{ route('destroyAdvertisement') }}",
+                        url:'/content/Advertisement/destroy/'+id,
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,

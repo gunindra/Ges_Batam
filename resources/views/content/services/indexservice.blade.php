@@ -17,93 +17,93 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="serviceForm" enctype="multipart/form-data">
-                        <div class="mt-3">
-                            <label for="titleService" class="form-label fw-bold">Judul</label>
-                            <input type="text" class="form-control" id="titleService" value=""
-                                placeholder="Masukkan judul service">
-                            <Silahkan id="titleServiceError" class="text-danger mt-1 d-none">Silahkan isi Judul
+                    <div class="mt-3">
+                        <label for="titleService" class="form-label fw-bold">Judul</label>
+                        <input type="text" class="form-control" id="titleService" value=""
+                            placeholder="Masukkan judul service">
+                        <div id="titleServiceError" class="text-danger mt-1 d-none">Silahkan isi Judul
                         </div>
-                </div>
-                <div class="mt-3">
-                    <label for="contentService" class="form-label fw-bold">Content</label>
-                    <textarea class="form-control" id="contentService" rows="3"
-                        placeholder="Masukkan content"></textarea>
-                    <div id="contentServiceError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
-                </div>
-                <div class="mt-3">
-                    <label for="imageService" class="form-label fw-bold">Gambar</label>
-                    <input type="file" class="form-control" id="imageService" value="">
-                    <div id="imageServiceError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    <button type="button" id="saveService" class="btn btn-primary">Save changes</button>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-<!-- Modal Edit -->
-<div class="modal fade" id="modalEditService" tabindex="-1" role="dialog" aria-labelledby="modalEditServiceTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEditServiceTitle">Edit Service</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="serviceIdEdit">
-                <div class="mt-3">
-                    <label for="titleService" class="form-label fw-bold">Judul</label>
-                    <input type="text" class="form-control" id="titleServiceEdit" value=""
-                        placeholder="Masukkan judul service">
-                    <div id="titleServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
-                </div>
-                <div class="mt-3">
-                    <label for="contentService" class="form-label fw-bold">Content</label>
-                    <textarea class="form-control" id="contentServiceEdit" rows="3"
-                        placeholder="Masukkan content"></textarea>
-                    <div id="contentServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Content </div>
-                </div>
-                <div class="mt-3">
-                    <label for="imageService" class="form-label fw-bold">Gambar</label>
-                    <p class="">Nama Image : <span id="textNamaEdit"></span></p>
-                    <input type="file" class="form-control" id="imageServiceEdit" value="">
-                    <div id="imageServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Gambar
+                    </div>
+                    <div class="mt-3">
+                        <label for="contentService" class="form-label fw-bold">Content</label>
+                        <textarea class="form-control" id="contentService" rows="3"
+                            placeholder="Masukkan content"></textarea>
+                        <div id="contentServiceError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="imageService" class="form-label fw-bold">Gambar</label>
+                        <input type="file" class="form-control" id="imageService" value="">
+                        <div id="imageServiceError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                        <button type="button" id="saveService" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                <button type="button" id="saveEditService" class="btn btn-primary">Save changes</button>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div class="modal fade" id="modalEditService" tabindex="-1" role="dialog" aria-labelledby="modalEditServiceTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditServiceTitle">Edit Service</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-3">
+                        <label for="titleService" class="form-label fw-bold">Judul</label>
+                        <input type="text" class="form-control" id="titleServiceEdit" value=""
+                            placeholder="Masukkan judul service">
+                        <div id="titleServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="contentService" class="form-label fw-bold">Content</label>
+                        <textarea class="form-control" id="contentServiceEdit" rows="3"
+                            placeholder="Masukkan content"></textarea>
+                        <div id="contentServiceErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Content
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="imageService" class="form-label fw-bold">Gambar</label>
+                        <p class="">Nama Image : <span id="textNamaEdit"></span></p>
+                        <input type="file" class="form-control" id="imageServiceEdit" value="">
+                        <div id="imageServiceErrorEdit" class="text-danger mt-1 d-none">Please fill in the Gambar
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveEditService" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Service</h1>
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Content</li>
-        <li class="breadcrumb-item active" aria-current="page">Service</li>
-    </ol>
-</div>
-<div class="row mb-3">
-    <div class="col-xl-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex mb-2 mr-3 float-right">
-                    {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahService"
-                        id="#modalCenter"><span class="pr-2"><i class="fas fa-plus"></i></span>Tambah Service</button>
-                </div>
-                <div id="containerService" class="table-responsive px-3">
-                    <!-- <table class="table align-items-center table-flush table-hover" id="tableAboutUs">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Service</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Content</li>
+            <li class="breadcrumb-item active" aria-current="page">Service</li>
+        </ol>
+    </div>
+    <div class="row mb-3">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex mb-2 mr-3 float-right">
+                        {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
+                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalTambahService" id="#modalCenter"><span class="pr-2"><i
+                                    class="fas fa-plus"></i></span>Tambah Service</button>
+                    </div>
+                    <div id="containerService" class="table-responsive px-3">
+                        <!-- <table class="table align-items-center table-flush table-hover" id="tableAboutUs">
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No.</th>
@@ -127,11 +127,11 @@
                                     
                                 </tbody>
                             </table> -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 @endsection
@@ -175,12 +175,9 @@
         getlistService();
 
         $('#saveService').click(function () {
-
             var titleService = $('#titleService').val().trim();
             var contentService = $('#contentService').val().trim();
             var imageService = $('#imageService')[0].files[0];
-
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
 
@@ -197,23 +194,22 @@
                 $('#contentServiceError').addClass('d-none');
             }
             if (imageService) {
-                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'];
                 if (!validExtensions.includes(imageService.type)) {
-                    $('#imageServiceError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
+                    $('#imageServiceError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.')
+                        .removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageServiceError').addClass('d-none');
                 }
-            } else if (!imageService) {
+            } else {
                 $('#imageServiceError').removeClass('d-none');
                 isValid = false;
-            } else {
-                $('#imageServiceError').addClass('d-none');
             }
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Anda yakin?",
+                    title: 'Apakah Anda yakin?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -223,176 +219,161 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('titleService', titleService);
-                        formData.append('contentService', contentService);
-                        formData.append('imageService', imageService);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
-                            text: 'Please wait while we process save your data.',
+                            text: 'Please wait while we are saving the data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
                             }
                         });
+
+                        var formData = new FormData();
+                        formData.append('titleService', titleService);
+                        formData.append('contentService', contentService);
+                        formData.append('imageService', imageService);
+                        formData.append('_token', '{{ csrf_token() }}');
+
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addService') }}",
+                            url: '/content/services/store',
+                            method: 'POST',
                             data: formData,
-                            contentType: false,
                             processData: false,
+                            contentType: false,
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data berhasil disimpan");
-                                    getlistService();
+                                if (response.success) {
+                                    showMessage("success",
+                                        "berhasil ditambahkan");
                                     $('#modalTambahService').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal menambahkan data",
-                                        text: response.message,
-                                        icon: "error"
-                                    });
+                                    getlistService();
                                 }
                             },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Silakan periksa input yang kosong");
             }
         });
-
         $(document).on('click', '.btnUpdateService', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let title_service = $(this).data('title_service');
-            let content_service = $(this).data('content_service');
-            let image_service = $(this).data('image_service');
-
-            $('#titleServiceEdit').val(title_service);
-            $('#contentServiceEdit').val(content_service);
-            $('#textNamaEdit').text(image_service);
-            $('#serviceIdEdit').val(id);
-
-            $(document).on('click', '#saveEditService', function (e) {
-
-                let id = $('#serviceIdEdit').val();
-                let titleService = $('#titleServiceEdit').val();
-                let contentService = $('#contentServiceEdit').val();
-                let imageService = $('#imageServiceEdit')[0].files[0];
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                if (titleService === '') {
-                    $('#titleServiceErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#titleServiceErrorEdit').addClass('d-none');
+            var serviceid = $(this).data('id');
+            $.ajax({
+                url: '/content/services/' + serviceid,
+                method: 'GET',
+                success: function (response) {
+                    $('#titleServiceEdit').val(response.title_service);
+                    $('#contentServiceEdit').val(response.content_service);
+                    $('#textNamaEdit').text(response.image_service);
+                    $('#modalEditService').modal('show');
+                    $('#saveEditService').data('id', serviceid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
                 }
+            });
+        });
+        $('#saveEditService').on('click', function () {
+            var serviceid = $(this).data('id');
+            var titleService = $('#titleServiceEdit').val();
+            var contentService = $('#contentServiceEdit').val();
+            var imageService = $('#imageServiceEdit')[0].files[0];
 
-                if (contentService === '') {
-                    $('#contentServiceErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#contentServiceErrorEdit').addClass('d-none');
-                }
+            let isValid = true;
 
-                if (imageService) {
-                    var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-                    if (!validExtensions.includes(imageService.type)) {
-                        $('#imageServiceErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
-                        isValid = false;
-                    } else {
-                        $('#imageServiceErrorEdit').addClass('d-none');
-                    }
-                } else if (imageService === 0 && $('#textNamaEdit').text() === '') {
-                    $('#imageServiceErrorEdit').removeClass('d-none');
+            if (titleService === '') {
+                $('#titleServiceErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#titleServiceErrorEdit').addClass('d-none');
+            }
+
+            if (contentService === '') {
+                $('#contentServiceErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#contentServiceErrorEdit').addClass('d-none');
+            }
+
+
+            if (imageService) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(imageService.type)) {
+                    $('#imageServiceErrorEdit').text(
+                        'Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageServiceErrorEdit').addClass('d-none');
                 }
+            } else if ($('#textNamaEdit').text() === '') {
+                $('#imageServiceErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#imageServiceErrorEdit').addClass('d-none');
+            }
 
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('titleService', titleService);
-                            formData.append('contentService', contentService);
-                            if (imageService) {
-                                formData.append('imageService', imageService);
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateService') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success", "Data berhasil diperbarui");
-                                        getlistService();
-                                        $('#modalEditService').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal memperbarui",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
+                        });
+                        var formData = new FormData();
+                        formData.append('titleService', titleService);
+                        formData.append('contentService', contentService);
+                        if (imageService) {
+                            formData.append('imageService', imageService);
                         }
-                    });
-                } else {
-                    showMessage("error", "Silakan periksa input yang kosong");
-                }
-            })
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            }
+                        });
 
-            $('#modalEditService').modal('show');
+                        $.ajax({
+                            url: '/content/services/update/' + serviceid,
+                            method: 'POST',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
+                                    $('#modalEditService').modal('hide');
+                                    getlistService();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
-
 
         $('#modalTambahService').on('hidden.bs.modal', function () {
             $('#titleService,#contentService,#imageService').val('');
@@ -445,7 +426,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url: "{{ route('destroyService') }}",
+                        url: '/content/services/destroy/' + id,
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
