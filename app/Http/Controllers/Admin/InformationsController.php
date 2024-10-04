@@ -47,7 +47,7 @@ class InformationsController extends Controller
         return $output;
     }
 
-    public function store(Request $request)
+    public function addInformations(Request $request)
     {
         $request->validate([
             'titleInformations' => 'required|string|max:255',
@@ -103,7 +103,6 @@ class InformationsController extends Controller
         $information->title_informations = $request->input('titleInformations');
         $information->content_informations = $request->input('contentInformations');
 
-        try {
             if ($request->hasFile('imageInformations')) {
                 if ($information->image_informations) {
                     $existingImagePath = 'public/images/' . $information->image_informations;
@@ -119,10 +118,8 @@ class InformationsController extends Controller
 
             $information->update($validated);
 
-            return response()->json(['success' => true, 'message' => 'Data berhasil diupdate'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
-        }
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+
     }
     public function show($id)
     {

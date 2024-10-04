@@ -14,7 +14,7 @@ class HeropageController extends Controller
         return view('content.heropage.indexheropage');
     }
 
-    public function getlistHeroPage(Request $request)
+    public function getlistHeroPage()
     {
         $data = HeroPage::all();
 
@@ -65,20 +65,13 @@ class HeropageController extends Controller
             $request->file('imageHeroPage')->storeAs('public/images', $fileName);
             $heroPage->image_heropage = $fileName;
         }
-
-        try {
             $heroPage->save();
-            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
-        }
+            return response()->json(['success' => 'HeroPage berhasil ditambahkan']);
     }
 
-    public function destroyHeroPage(Request $request)
+    public function destroyHeroPage($id)
     {
-        $id = $request->input('id');
-
-        try {
+   
             $heroPage = HeroPage::findOrFail($id);
 
             if ($heroPage->image_heropage) {
@@ -90,25 +83,20 @@ class HeropageController extends Controller
             $heroPage->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
     }
 
-    public function updateHeroPage(Request $request)
+    public function updateHeroPage(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'titleHeroPage' => 'required|string|max:255',
             'contentHeroPage' => 'required|string',
-            'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png|',
+            'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
-        $id = $request->input('id');
         $heroPage = HeroPage::findOrFail($id);
         $heroPage->title_heropage = $request->input('titleHeroPage');
         $heroPage->content_heropage = $request->input('contentHeroPage');
 
-        try {
             if ($request->hasFile('imageHeroPage')) {
                 if ($heroPage->image_heropage) {
                     $existingImagePath = 'public/images/' . $heroPage->image_heropage;
@@ -122,11 +110,14 @@ class HeropageController extends Controller
                 $heroPage->image_heropage = $fileName;
             }
 
-            $heroPage->save();
+            $heroPage->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengupdate data: ' . $e->getMessage()], 500);
-        }
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+
+    }
+    public function show($id)
+    {
+        $heroPage = HeroPage::findOrFail($id);
+        return response()->json($heroPage);
     }
 }

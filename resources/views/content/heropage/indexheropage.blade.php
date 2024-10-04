@@ -55,7 +55,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="heropageIdEdit">
                     <div class="mt-3">
                         <label for="titleHeroPage" class="form-label fw-bold">Judul</label>
                         <input type="text" class="form-control" id="titleHeroPageEdit" value=""
@@ -135,82 +134,135 @@
 @endsection
 @section('script')
 <script>
-$(document).ready(function () {
-    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div> `;
 
-    const getlistHeroPage = () => {
-        const txtSearch = $('#txSearch').val();
+        const getlistHeroPage = () => {
+            const txtSearch = $('#txSearch').val();
 
-        $.ajax({
-            url: "{{ route('getlistHeroPage') }}",
-            method: "GET",
-            data: {
-                txSearch: txtSearch
-            },
-            beforeSend: () => {
-                $('#containerHeropage').html(loadSpin)
-            }
-        })
-            .done(res => {
-                $('#containerHeropage').html(res)
-                $('#tableHeropage').DataTable({
-                    searching: false,
-                    lengthChange: false,
-                    "bSort": true,
-                    "aaSorting": [],
-                    pageLength: 7,
-                    "lengthChange": false,
-                    responsive: true,
-                    language: {
-                        search: ""
-                    }
-                });
+            $.ajax({
+                url: "{{ route('getlistHeroPage') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch
+                },
+                beforeSend: () => {
+                    $('#containerHeropage').html(loadSpin)
+                }
             })
-    }
-
-    getlistHeroPage();
-
-    $('#saveHeroPage').click(function () {
-        var titleHeroPage = $('#titleHeroPage').val().trim();
-        var contentHeroPage = $('#contentHeroPage').val().trim();
-        var imageHeroPage = $('#imageHeroPage')[0].files[0];
-
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        var isValid = true;
-
-        if (titleHeroPage === '') {
-            $('#titleHeroPageError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#titleHeroPageError').addClass('d-none');
+                .done(res => {
+                    $('#containerHeropage').html(res)
+                    $('#tableHeropage').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
         }
-        if (contentHeroPage === '') {
-            $('#contentHeroPageError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#contentHeroPageError').addClass('d-none');
-        }
-        if (imageHeroPage) {
-            var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validExtensions.includes(imageHeroPage.type)) {
-                $('#imageHeroPageError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
+
+        getlistHeroPage();
+
+        $('#saveHeroPage').click(function () {
+            var titleHeroPage = $('#titleHeroPage').val().trim();
+            var contentHeroPage = $('#contentHeroPage').val().trim();
+            var imageHeroPage = $('#imageHeroPage')[0].files[0];
+
+            var isValid = true;
+
+            if (titleHeroPage === '') {
+                $('#titleHeroPageError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#imageHeroPageError').addClass('d-none');
+                $('#titleHeroPageError').addClass('d-none');
             }
-        } else if (!imageHeroPage) {
-            $('#imageHeroPageError').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#imageHeroPageError').addClass('d-none');
-        }
+            if (contentHeroPage === '') {
+                $('#contentHeroPageError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#contentHeroPageError').addClass('d-none');
+            }
+            if (imageHeroPage) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(imageHeroPage.type)) {
+                    $('#imageHeroPageError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.')
+                        .removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#imageHeroPageError').addClass('d-none');
+                }
+            } else {
+                $('#imageHeroPageError').removeClass('d-none');
+                isValid = false;
+            }
 
-        if (isValid) {
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are saving the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        var formData = new FormData();
+                        formData.append('titleHeroPage', titleHeroPage);
+                        formData.append('contentHeroPage', contentHeroPage);
+                        formData.append('imageHeroPage', imageHeroPage);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        $.ajax({
+                            url: '/content/heropage/store',
+                            method: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success",
+                                        "HeroPage berhasil ditambahkan");
+                                    $('#modalTambahHeropage').modal('hide');
+                                    getlistHeroPage();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+
+        $(document).on('click', '.btnDestroyHeroPage', function (e) {
+            let id = $(this).data('id');
+
             Swal.fire({
-                title: "Apakah Anda yakin?",
+                title: "Apakah Anda yakin ingin menghapus ini?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
@@ -220,25 +272,21 @@ $(document).ready(function () {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    var formData = new FormData();
-                    formData.append('titleHeroPage', titleHeroPage);
-                    formData.append('contentHeroPage', contentHeroPage);
-                    formData.append('imageHeroPage', imageHeroPage);
-                    formData.append('_token', csrfToken);
                     Swal.fire({
                         title: 'Loading...',
-                        text: 'Please wait while we process save your data.',
+                        text: 'Please wait while we process Delete your data.',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
                         }
                     });
                     $.ajax({
-                        type: "POST",
-                        url: "{{ route('addHeroPage') }}",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
+                        type: "DELETE",
+                        url: '/content/heropage/destroy/' + id,
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            id: id,
+                        },
                         success: function (response) {
                             Swal.close();
 
@@ -252,97 +300,41 @@ $(document).ready(function () {
                                 });
                             }
                             if (response.status === 'success') {
-                                showMessage("success", "Data berhasil disimpan");
+                                showMessage("success", "Berhasil dihapus");
                                 getlistHeroPage();
-                                $('#modalTambahHeropage').modal('hide');
                             } else {
-                                Swal.fire({
-                                    title: "Gagal menambahkan data.",
-                                    icon: "error"
-                                });
+                                showMessage("error", "Gagal menghapus");
                             }
                         }
                     });
                 }
             });
-        } else {
-            showMessage("error", "Silakan periksa input yang kosong");
-        }
-    });
 
-    $(document).on('click', '.btnDestroyHeroPage', function (e) {
-        let id = $(this).data('id');
-
-        Swal.fire({
-            title: "Apakah Anda yakin ingin menghapus ini?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#5D87FF',
-            cancelButtonColor: '#49BEFF',
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Tidak',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Loading...',
-                    text: 'Please wait while we process Delete your data.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                $.ajax({
-                    type: "DELETE",
-                    url: "{{ route('destroyHeroPage') }}",
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        id: id,
-                    },
-                    success: function (response) {
-                        Swal.close();
-
-                        if (response.url) {
-                            window.open(response.url, '_blank');
-                        } else if (response.error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.error
-                            });
-                        }
-                        if (response.status === 'success') {
-                            showMessage("success", "Berhasil dihapus");
-                            getlistHeroPage();
-                        } else {
-                            showMessage("error", "Gagal menghapus");
-                        }
-                    }
-                });
-            }
         });
 
-    });
-
-    $(document).on('click', '.btnUpdateHeroPage', function (e) {
-        e.preventDefault();
-        let id = $(this).data('id');
-        let title_heropage = $(this).data('title_heropage');
-        let content_heropage = $(this).data('content_heropage');
-        let image_heropage = $(this).data('image_heropage');
-
-        $('#titleHeroPageEdit').val(title_heropage);
-        $('#contentHeroPageEdit').val(content_heropage);
-        $('#textNamaEdit').text(image_heropage);
-        $('#heropageIdEdit').val(id);
-
-        $(document).on('click', '#saveEditHeroPage', function (e) {
-
-            let id = $('#heropageIdEdit').val();
-            let titleHeroPage = $('#titleHeroPageEdit').val();
-            let contentHeroPage = $('#contentHeroPageEdit').val();
-            let imageHeroPage = $('#imageHeroPageEdit')[0].files[0];
-            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        $(document).on('click', '.btnUpdateHeroPage', function (e) {
+            var heropageid = $(this).data('id');
+            $.ajax({
+                url: '/content/heropage/' + heropageid,
+                method: 'GET',
+                success: function (response) {
+                    $('#titleHeroPageEdit').val(response.title_heropage);
+                    $('#contentHeroPageEdit').val(response.content_heropage);
+                    $('#textNamaEdit').text(response.image_heropage);
+                    $('#modalEditHeropage').modal('show');
+                    $('#saveEditHeroPage').data('id', heropageid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data HeroPage");
+                }
+            });
+        });
+        $('#saveEditHeroPage').on('click', function () {
+            var heropageid = $(this).data('id');
+            var titleHeroPage = $('#titleHeroPageEdit').val();
+            var contentHeroPage = $('#contentHeroPageEdit').val();
+            var imageHeroPage = $('#imageHeroPageEdit')[0].files[0];
 
             let isValid = true;
 
@@ -363,12 +355,13 @@ $(document).ready(function () {
             if (imageHeroPage) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageHeroPage.type)) {
-                    $('#imageHeroPageErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan, dan gambar tidak boleh kosong.').removeClass('d-none');
+                    $('#imageHeroPageErrorEdit').text(
+                        'Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageHeroPageErrorEdit').addClass('d-none');
                 }
-            } else if (imageHeroPage === 0 && $('#textNamaEdit').text() === '') {
+            } else if ($('#textNamaEdit').text() === '') {
                 $('#imageHeroPageErrorEdit').removeClass('d-none');
                 isValid = false;
             } else {
@@ -377,7 +370,7 @@ $(document).ready(function () {
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Anda yakin?",
+                    title: 'Apakah Anda yakin?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -387,59 +380,51 @@ $(document).ready(function () {
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        let formData = new FormData();
-                        formData.append('id', id);
-                        formData.append('titleHeroPage', titleHeroPage);
-                        formData.append('contentHeroPage', contentHeroPage);
-                        if (imageHeroPage) {
-                            formData.append('imageHeroPage', imageHeroPage);
-                        }
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
-                            text: 'Please wait while we process update your data.',
+                            text: 'Please wait while we are updating the data.',
                             allowOutsideClick: false,
                             didOpen: () => {
                                 Swal.showLoading();
                             }
                         });
+                        var formData = new FormData();
+                        formData.append('titleHeroPage', titleHeroPage);
+                        formData.append('contentHeroPage', contentHeroPage);
+                        if (imageHeroPage) {
+                            formData.append('imageHeroPage', imageHeroPage);
+                        }
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            }
+                        });
+
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('updateHeroPage') }}",
-                            data: formData,
-                            contentType: false,
+                            url: '/content/heropage/update/' + heropageid,
+                            method: 'POST',
                             processData: false,
+                            contentType: false,
+                            data: formData,
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data berhasil diperbarui");
-                                    getlistHeroPage();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
                                     $('#modalEditHeropage').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal memperbarui data.",
-                                        icon: "error"
-                                    });
+                                    getlistHeroPage();
                                 }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Silakan periksa input yang kosong");
             }
-        })
-            $('#modalEditHeropage').modal('show');
         });
         $('#modalTambahHeropage').on('hidden.bs.modal', function () {
             $('#titleHeroPage,#contentHeroPage,#imageHeroPage').val('');

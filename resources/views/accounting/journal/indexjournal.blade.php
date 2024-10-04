@@ -14,7 +14,39 @@
             <li class="breadcrumb-item active" aria-current="page">Journal</li>
         </ol>
     </div>
-
+    <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
+        aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFilterTanggalTitle">Filter Tanggal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mt-3">
+                                <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal:</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="date" id="startDate" class="form-control"
+                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
+                                    <span class="mx-2">sampai</span>
+                                    <input type="date" id="endDate" class="form-control"
+                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveFilterTanggal" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-lg-12">
             <div class="card mb-4">
@@ -43,7 +75,7 @@
                         </button>
                     </div>
                     <div id="containerJournal" class="table-responsive px-3">
-                        <table class="table align-items-center table-flush table-hover" id="tableJournal">
+                        <!-- <table class="table align-items-center table-flush table-hover" id="tableJournal">
                             <thead class="thead-light">
                                 <tr>
                                     <th>Journal</th>
@@ -81,7 +113,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table> -->
                     </div>
                 </div>
             </div>
@@ -91,4 +123,94 @@
 </div>
 <!---Container Fluid-->
 
+@endsection
+@section('script')
+<script>
+    $(document).ready(function () {
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+        </div> `;
+
+        const getlistJournal = () => {
+            const txtSearch = $('#txSearch').val();
+            const filterStatus = $('#filterStatus').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+
+
+            $.ajax({
+                url: "{{ route('getlistJournal') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch,
+                    status: filterStatus,
+                    startDate: startDate,
+                    endDate: endDate,
+                },
+                beforeSend: () => {
+                    $('#containerJournal').html(loadSpin)
+                }
+            })
+                .done(res => {
+                    $('#containerJournal').html(res)
+                    $('#tableJournal').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        "bSort": true,
+                        "aaSorting": [],
+                        pageLength: 7,
+                        "lengthChange": false,
+                        responsive: true,
+                        language: {
+                            search: ""
+                        }
+                    });
+                })
+        }
+
+        getlistJournal();
+
+         flatpickr("#startDate", {
+            dateFormat: "d M Y",
+            onChange: function (selectedDates, dateStr, instance) {
+
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
+            }
+        });
+
+          flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function (selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    $('#endDate').val('');
+                }
+            }
+        });
+
+        $(document).on('click', '#filterTanggal', function (e) {
+            $('#modalFilterTanggal').modal('show');
+        });
+
+        $('#saveFilterTanggal').click(function () {
+        getlistJournal();
+        $('#modalFilterTanggal').modal('hide');
+    });
+
+
+        $('#txSearch').keyup(function (e) {
+            var inputText = $(this).val();
+            if (inputText.length >= 1 || inputText.length == 0) {
+                getlistJournal();
+            }
+        });
+
+    });
+
+</script>
 @endsection

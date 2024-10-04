@@ -14,7 +14,7 @@ class AdvertisementController extends Controller
         return view('content.advertisement.indexadvertisement');
     }
 
-    public function getlistAdvertisement(Request $request)
+    public function getlistAdvertisement()
     {
         $data = Advertisement::all();
 
@@ -49,7 +49,7 @@ class AdvertisementController extends Controller
     {
         $request->validate([
             'titleAdvertisement' => 'required|string|max:255', 
-            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg|', 
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg', 
         ]);
 
         $checkData = Advertisement::count();
@@ -67,19 +67,14 @@ class AdvertisementController extends Controller
             $advertisement->image_Advertisement = $fileName;
         }
 
-        try {
+       
             $advertisement->save();
-            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
-        }
+            return response()->json(['success' => 'berhasil ditambahkan']);
     }
 
-    public function destroyAdvertisement(Request $request)
+    public function destroyAdvertisement($id)
     {
-        $id = $request->input('id');
-
-        try {
+     
             $advertisement = Advertisement::findOrFail($id);
 
             if ($advertisement->image_Advertisement) {
@@ -91,23 +86,20 @@ class AdvertisementController extends Controller
             $advertisement->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+    
     }
 
-    public function updateAdvertisement(Request $request)
+    public function updateAdvertisement(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'titleAdvertisement' => 'required|string|max:255', 
-            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg|', 
+            'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg', 
         ]);
 
-        $id = $request->input('id');
         $advertisement = Advertisement::findOrFail($id);
         $advertisement->title_Advertisement = $request->input('titleAdvertisement');
 
-        try {
+      
             if ($request->hasFile('imageAdvertisement')) {
                 if ($advertisement->image_Advertisement) {
                     $existingImagePath = 'public/images/' . $advertisement->image_Advertisement;
@@ -121,11 +113,14 @@ class AdvertisementController extends Controller
                 $advertisement->image_Advertisement = $fileName;
             }
 
-            $advertisement->save();
+            $advertisement->save($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
-        }
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+
+    }
+    public function show($id)
+    {
+        $advertisement = Advertisement::findOrFail($id);
+        return response()->json($advertisement);
     }
 }
