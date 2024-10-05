@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pembagi;
+use App\Models\Rate;
 class PembagirateController extends Controller
 {
 
@@ -148,57 +149,53 @@ class PembagirateController extends Controller
             'nilaiRate' => 'required|numeric',
             'forRate' => 'required|in:Berat,Volume',
         ]);
-
-        $nilaiRate = $request->input('nilaiRate');
-        $forRate = $request->input('forRate');
-
         try {
-            DB::table('tbl_rate')->insert([
-                'nilai_rate' => $nilaiRate,
-                'rate_for' => $forRate,
-                'created_at' => now(),
-            ]);
-            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+            $Rate = new Rate();
+            $Rate->nilai_rate = $request->input('nilaiRate');
+            $Rate->rate_for = $request->input('forRate');
+
+            $Rate->save();
+            
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-    public function destroyRate(Request $request)
+    public function destroyRate($id)
     {
-        $id = $request->input('id');
-
         try {
-            DB::table('tbl_rate')
-                ->where('id', $id)
-                ->delete();
+            $Rate = Rate::findOrFail($id);
+
+            $Rate->delete();
+
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-    public function updateRate(Request $request)
+    public function updateRate(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nilaiRate' => 'required|numeric',
             'forRate' => 'required|in:Berat,Volume',
         ]);
-
-        $id = $request->input('id');
-        $nilaiRate = $request->input('nilaiRate');
-        $rateFor = $request->input('rateFor');
-
         try {
-            DB::table('tbl_rate')
-                ->where('id', $id)
-                ->update([
-                    'nilai_rate' => $nilaiRate,
-                    'rate_for' => $rateFor,
-                    'updated_at' => now(),
-                ]);
+        $Rate = Rate::findOrFail($id);
+        $Rate->nilai_rate = $request->input('nilaiRate');
+        $Rate->rate_for = $request->input('rateFor');
+
+       
+        $Rate->update($validated);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
         }
     }
+    public function showRate($id)
+    {
+        $Rate = Rate::findOrFail($id);
+        return response()->json($Rate);
+    }
+
 }

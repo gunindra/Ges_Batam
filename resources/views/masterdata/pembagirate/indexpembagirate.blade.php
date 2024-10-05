@@ -566,7 +566,6 @@
                 $('#forRateError').addClass('d-none');
             }
 
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -592,39 +591,28 @@
                             }
                         });
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addRate') }}",
+                            url: '/masterdata/rate/store',
+                            method: 'POST',
                             data: formData,
-                            contentType: false,
                             processData: false,
+                            contentType: false,
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
+                                if (response.success) {
+                                    showMessage("success",
+                                        "berhasil ditambahkan");
+                                        $('#modalTambahRate').modal('hide');
+                                        getlistRate();
                                 }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistRate();
-                                    $('#modalTambahRate').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        icon: "error"
-                                    });
-                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
         $('#modalTambahRate').on('hidden.bs.modal', function () {
@@ -639,98 +627,98 @@
         });
 
         $(document).on('click', '.btnUpdateRate', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let nilai_rate = $(this).data('nilai_rate');
-            let rate_for = $(this).data('rate_for');
-
-            $('#nilaiRateEdit').val(nilai_rate);
-            $('#forRateEdit').val(rate_for);
-            $('#rateIdEdit').val(id);
-
-            $(document).on('click', '#saveEditRate', function (e) {
-                e.preventDefault();
-
-                let id = $('#rateIdEdit').val();
-                let nilaiRate = $('#nilaiRateEdit').val();
-                let rateFor = $('#forRateEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                // Validasi Nilai Pembagi
-                if (nilaiRate === '') {
-                    $('#nilaiRateErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#nilaiRateErrorEdit').addClass('d-none');
-                }
-
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('nilaiRate', nilaiRate);
-                            formData.append('rateFor', rateFor);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data rate.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateRate') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success", "Data Berhasil Diubah");
-                                        getlistRate();
-                                        $('#modalEditRate').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+            var rateid = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/rate/' + rateid,
+                method: 'GET',
+                success: function (response) {
+                    $('#nilaiRateEdit').val(response.nilai_rate);
+                    $('#forRateEdit').val(response.rate_for);
+                    $('#modalEditRate').modal('show');
+                    $('#saveEditRate').data('id', rateid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
                 }
             });
-
-            $('#modalEditRate').modal('show');
         });
+        $('#saveEditRate').on('click', function () {
+            var rateid = $(this).data('id');
+            var nilaiRate = $('#nilaiRateEdit').val();
+            var forRate = $('#forRateEdit').val();
 
+            let isValid = true;
+
+            if (nilaiRate === '') {
+                $('#nilaiRateErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#nilaiRateErrorEdit').addClass('d-none');
+            }
+
+            if (forRate === '') {
+                $('#forRateEditError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#forRateEditError').addClass('d-none');
+            }
+
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        var formData = new FormData();
+                        formData.append('nilaiRate', nilaiRate);
+                        formData.append('forRate', forRate);
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/rate/update/' + rateid,
+                            method: 'POST',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
+                                    $('#modalEditRate').modal('hide');
+                                    getlistRate();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
+        });
         $('#modalEditRate').on('hidden.bs.modal', function () {
             $('#nilaiRateEdit').val('');
             if (!$('#nilaiRateErrorEdit').hasClass('d-none')) {
@@ -764,7 +752,7 @@
                     });
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyRate') }}",
+                        url: '/masterdata/rate/destroyrate/'+ id,
                         data: {
                             id: id,
                         },

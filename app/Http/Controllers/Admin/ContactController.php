@@ -11,7 +11,7 @@ class ContactController extends Controller
 {
     public function index()
     {
-        $contactData = DB::table('tbl_contact')->first();
+        $contactData = Contact::first();
         return view('content.contact.indexcontact', compact('contactData'));
     }
 

@@ -11,7 +11,7 @@ class PopupController extends Controller
 {
     public function index()
     {
-        $popupData = DB::table('tbl_popup')->first();
+        $popupData = Popup::first();
         return view('content.popup.indexpopup', compact('popupData'));
     }
 

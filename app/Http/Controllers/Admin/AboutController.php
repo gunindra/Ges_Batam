@@ -11,7 +11,7 @@ class AboutController extends Controller
 {
     public function index()
     {
-        $aboutData = DB::table('tbl_aboutus')->first();
+        $aboutData = About::first();
         return view('content.abouts.indexabout', compact('aboutData'));
     }
 
