@@ -203,9 +203,10 @@ Route::middleware(['auth'])->group(function () {
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
     Route::get('/masterdata/driver/list', [DriverController::class, 'getlistDriver'])->name('getlistDriver');
-    Route::post('/masterdata/driver/tambah', [DriverController::class, 'addDriver'])->name('addDriver');
-    Route::post('/masterdata/driver/update', [DriverController::class, 'updateDriver'])->name('updateDriver');
-    Route::get('/masterdata/driver/destroy', [DriverController::class, 'destroyDriver'])->name('destroyDriver');
+    Route::post('/masterdata/driver/store', [DriverController::class, 'addDriver'])->name('addDriver');
+    Route::post('/masterdata/driver/update/{id}', [DriverController::class, 'updateDriver'])->name('updateDriver');
+    Route::get('/masterdata/driver/destroy/{id}', [DriverController::class, 'destroyDriver'])->name('destroyDriver');
+    Route::get('/masterdata/driver/{id}', [DriverController::class, 'show']);
 
     // Category
     Route::get('/masterdata/category', [CategoryController::class, 'index'])->name('category');
@@ -224,9 +225,10 @@ Route::middleware(['auth'])->group(function () {
     // Pembagi dan Rate
     Route::get('/masterdata/pembagirate', [PembagirateController::class, 'index'])->name('pembagirate');
     Route::get('/masterdata/pembagirate/list', [PembagirateController::class, 'getlistPembagi'])->name('getlistPembagi');
-    Route::post('/masterdata/pembagirate/tambah', [PembagirateController::class, 'addPembagi'])->name('addPembagi');
-    Route::post('/masterdata/pembagirate/update', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
-    Route::get('/masterdata/pembagirate/destroy', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
+    Route::post('/masterdata/pembagirate/store', [PembagirateController::class, 'addPembagi'])->name('addPembagi');
+    Route::post('/masterdata/pembagirate/update/{id}', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
+    Route::get('/masterdata/pembagirate/destroy/{id}', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
+    Route::get('/masterdata/pembagirate/{id}', [PembagirateController::class, 'show']);
 
     Route::get('/masterdata/rate/list', [PembagirateController::class, 'getlistRate'])->name('getlistRate');
     Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate'])->name('addRate');
@@ -291,8 +293,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/journal/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
     Route::get('/journal/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
     Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');
-
-
+    Route::get('/journal/updatejournal', [JournalController::class, 'updatejournal'])->name('updatejournal');
+    Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
+    
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');

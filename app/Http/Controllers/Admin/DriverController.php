@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Driver;
 
 class DriverController extends Controller
 {
-    public function index() 
+    public function index()
     {
         return view('masterdata.driver.indexmasterdriver');
     }
@@ -21,8 +22,8 @@ class DriverController extends Controller
             ->select('id', 'nama_supir', 'alamat_supir', 'no_wa', 'image_sim')
             ->where(function ($query) use ($txSearch) {
                 $query->where(DB::raw('UPPER(nama_supir)'), 'LIKE', $txSearch)
-                      ->orWhere(DB::raw('UPPER(alamat_supir)'), 'LIKE', $txSearch)
-                      ->orWhere(DB::raw('UPPER(no_wa)'), 'LIKE', $txSearch);
+                    ->orWhere(DB::raw('UPPER(alamat_supir)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('UPPER(no_wa)'), 'LIKE', $txSearch);
             })
             ->get();
 
@@ -60,74 +61,67 @@ class DriverController extends Controller
         $request->validate([
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
-            'noTelponDriver' => 'required|string|max:15', 
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png', 
+            'noTelponDriver' => 'required|string|max:15',
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png',
         ]);
-    
-
-        $namaDriver = $request->input('namaDriver');
-        $alamatDriver = $request->input('alamatDriver');
-        $noTelponDriver = $request->input('noTelponDriver');
-        $simDriver = $request->file('simDriver');
-
-        $fileName = $simDriver ? uniqid('Sim_', true) . '.' . $simDriver->getClientOriginalExtension() : null;
-
-        if ($simDriver) {
-            $simDriver->storeAs('public/sim', $fileName);
-        }
 
         try {
-            DB::table('tbl_supir')->insert([
-                'nama_supir' => $namaDriver,
-                'alamat_supir' => $alamatDriver,
-                'no_wa' => $noTelponDriver,
-                'image_sim' => $fileName,
-                'created_at' => now(),
-            ]);
+            $Driver = new Driver();
+            $Driver->nama_supir = $request->input('namaDriver');
+            $Driver->alamat_supir = $request->input('alamatDriver');
+            $Driver->no_wa = $request->input('noTelponDriver');
+            $simDriver = $request->file('simDriver');
 
-            return response()->json(['status' => 'success', 'message' => 'Driver berhasil ditambahkan'], 200);
+            if ($simDriver) {
+                $fileName = uniqid('Sim_', true) . '.' . $simDriver->getClientOriginalExtension();
+                $simDriver->storeAs('public/sim', $fileName);
+                $Driver->image_sim = $fileName;
+            }
+
+
+            $Driver->save();
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Driver: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
-    public function updateDriver(Request $request)
+    public function updateDriver(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
             'noTelponDriver' => 'required|string|max:15',
             'simDriverEdit' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
-        $id = $request->input('id');
-        $namaDriver = $request->input('namaDriver');
-        $alamatDriver = $request->input('alamatDriver');
-        $noTelponDriver = $request->input('noTelponDriver');
-        $simDriver = $request->file('simDriverEdit');
-
-        $driver = DB::table('tbl_supir')->where('id', $id)->first();
-        
-        $fileName = $simDriver ? 'SIM_' . time() . '_' . $simDriver->getClientOriginalName() : $driver->image_sim;
-
-        if ($simDriver) {
-            $simDriver->storeAs('public/sim', $fileName);
-        }
-
         try {
-            DB::table('tbl_supir')
-                ->where('id', $id)
-                ->update([
-                    'nama_supir' => $namaDriver,
-                    'alamat_supir' => $alamatDriver,
-                    'no_wa' => $noTelponDriver,
-                    'image_sim' => $fileName,
-                    'updated_at' => now(),
-                ]);
 
-            return response()->json(['status' => 'success', 'message' => 'Data Driver berhasil diupdate'], 200);
+            $Driver = Driver::findOrFail($id);
+
+            $Driver->nama_supir = $request->input('namaDriver');
+            $Driver->alamat_supir = $request->input('alamatDriver');
+            $Driver->no_wa = $request->input('noTelponDriver');
+
+            if ($request->hasFile('simDriverEdit')) {
+                $simDriver = $request->file('simDriverEdit');
+                $fileName = 'SIM_' . time() . '_' . $simDriver->getClientOriginalName();
+                $simDriver->storeAs('public/sim', $fileName);
+                $Driver->image_sim = $fileName;
+            }
+
+            $Driver->save();
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Driver: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
+    }
+
+    public function show($id)
+    {
+        $Driver = Driver::findOrFail($id);
+        return response()->json($Driver);
     }
 }

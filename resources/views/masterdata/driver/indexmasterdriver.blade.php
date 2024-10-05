@@ -314,7 +314,6 @@
             }
 
 
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
 
 
@@ -346,56 +345,31 @@
                         });
 
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addDriver') }}",
+                            url: '/masterdata/driver/store',
+                            method: 'POST',
                             data: formData,
-                            contentType: false,
                             processData: false,
+                            contentType: false,
                             success: function (response) {
-
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-
-                                if (response.status === 'success') {
+                                if (response.success) {
                                     showMessage("success",
-                                        "Data Berhasil Disimpan");
-                                    getListDriver();
+                                        "berhasil ditambahkan");
                                     $('#modalTambahDriver').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: response
-                                            .message,
-                                        icon: "error",
-                                    });
+                                    getListDriver();
                                 }
                             },
-                            error: function (xhr) {
+                            error: function (response) {
                                 Swal.close();
-
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON
-                                        .message,
-                                    icon: "error",
-                                });
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+
         $('#modalTambahDriver').on('hidden.bs.modal', function () {
             $('#namaDriver, #alamatDriver, #noTelponDriver, #simDriver').val('');
             if (!$('#err-namaDriver').hasClass('d-none')) {
@@ -417,155 +391,147 @@
         });
 
 
-$(document).on('click', '.btnUpdateDriver', function (e) {
-    e.preventDefault();
-    let id = $(this).data('id');
-    let nama_supir = $(this).data('nama_supir');
-    let alamat_supir = $(this).data('alamat_supir');
-    let no_wa = $(this).data('no_wa');
-    no_wa = String(no_wa);
-    let noWaWithoutCode = no_wa.slice(2);
-    let sim = $(this).data('sim');
+        $(document).on('click', '.btnUpdateDriver', function (e) {
+            var driverid = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/driver/' + driverid,
+                method: 'GET',
+                success: function (response) {
+                    $('#namaDriverEdit').val(response.nama_supir);
+                    $('#alamatDriverEdit').val(response.alamat_supir);
+                    let noWaWithoutCode = response.no_wa.slice(2);
+                    $('#noTelponDriverEdit').val(noWaWithoutCode);
+                    $('#textSimEdit').text(response.image_sim);
+                    $('#modalEditDriver').modal('show');
+                    $('#saveEditDriver').data('id', driverid);
+                },
+                error: function () {
+                    showMessage("error", "Terjadi kesalahan saat mengambil data");
+                }
+            });
+        });
 
-    $('#namaDriverEdit').val(nama_supir);
-    $('#alamatDriverEdit').val(alamat_supir);
-    $('#noTelponDriverEdit').val(noWaWithoutCode);
-    $('#textSimEdit').text(sim); // Display the current SIM
-    $('#driverIdEdit').val(id);
-    $('#currentSim').val(sim); // Store current SIM name or URL
+        $('#saveEditDriver').on('click', function () {
+            var driverid = $(this).data('id');
+            var namaDriver = $('#namaDriverEdit').val();
+            var alamatDriver = $('#alamatDriverEdit').val();
+            var noTelponDrivers = $('#noTelponDriverEdit').val();
+            var noTelpon = '62' + noTelponDrivers;
+            var simDriver = $('#simDriverEdit')[0].files[0];
+            var currentSim = $('#currentSim').val();
 
-    $(document).on('click', '#saveEditDriver', function (e) {
-        e.preventDefault();
-        let id = $('#driverIdEdit').val();
-        let namaDriver = $('#namaDriverEdit').val();
-        let alamatDriver = $('#alamatDriverEdit').val();
-        let noTelponDrivers = $('#noTelponDriverEdit').val();
-        let noTelpon = '62' + noTelponDrivers;
-        console.log(noTelpon)
-        let simDriverEdit = $('#simDriverEdit')[0].files[0];
-        let currentSim = $('#currentSim').val(); // Get current SIM name
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            let isValid = true;
 
-        let isValid = true;
+            if (namaDriver === '') {
+                $('#err-namaDriverEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-namaDriverEdit').addClass('d-none');
+            }
 
-        if (namaDriver === '') {
-            $('#err-namaDriverEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#err-namaDriverEdit').addClass('d-none');
-        }
+            if (alamatDriver === '') {
+                $('#err-alamatDriverEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-alamatDriverEdit').addClass('d-none');
+            }
 
-        if (alamatDriver === '') {
-            $('#err-alamatDriverEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#err-alamatDriverEdit').addClass('d-none');
-        }
+            if (noTelponDrivers === '') {
+                $('#err-noTelponDriverEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-noTelponDriverEdit').addClass('d-none');
+            }
 
-        if (noTelponDrivers === '') {
-            $('#err-noTelponDriverEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#err-noTelponDriverEdit').addClass('d-none');
-        }
-
-        if (simDriverEdit && simDriverEdit !== '') {
-            var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validExtensions.includes(simDriverEdit.type)) {
-                $('#simDriverEditError').text('Hanya file JPG, JPEG, atau PNG yang diperbolehkan').removeClass('d-none');
+            if (simDriver) {
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validExtensions.includes(simDriver.type)) {
+                    $('#simDriverEditError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#simDriverEditError').addClass('d-none');
+                }
+            } else if ($('#textSimEdit').text() === '') {
+                $('#simDriverEditError').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#simDriverEditError').addClass('d-none');
             }
-        }
 
-        if (isValid) {
-            Swal.fire({
-                title: "Apakah Kamu Yakin?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#5D87FF',
-                cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let formData = new FormData();
-                    formData.append('id', id);
-                    formData.append('namaDriver', namaDriver);
-                    formData.append('alamatDriver', alamatDriver);
-                    formData.append('noTelponDriver', noTelpon);
-                    if(simDriverEdit){
-                    formData.append('simDriverEdit', simDriverEdit ? simDriverEdit : currentSim); // Use current SIM if no new image
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        var formData = new FormData();
+                        formData.append('namaDriver', namaDriver);
+                        formData.append('alamatDriver', alamatDriver);
+                        formData.append('noTelponDriver', noTelpon);
+                        if (simDriver) {
+                            formData.append('simDriver', simDriver);
+                        }
+
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/driver/update/' + driverid,
+                            method: 'POST',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response.message);
+                                    $('#modalEditDriver').modal('hide');
+                                    getlistDriver();
+                                }
+                            },
+                            error: function () {
+                                Swal.close();
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
                     }
-                    formData.append('_token', csrfToken);
+                });
+            }
+        });
 
-                    Swal.fire({
-                        title: 'Checking...',
-                        html: 'Please wait while we process your driver data update.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
 
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('updateDriver') }}",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            Swal.close();
-
-                            if (response.url) {
-                                window.open(response.url, '_blank');
-                            } else if (response.error) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.error
-                                });
-                            }
-
-                            if (response.status === 'success') {
-                                showMessage("success", "Data Berhasil Diubah");
-                                getListDriver();
-                                $('#modalEditDriver').modal('hide');
-                            } else {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan",
-                                    icon: "error"
-                                });
-                            }
-                        }
-                    });
-                }
-            });
-        } else {
-            showMessage("error", "Mohon periksa input yang kosong");
-        }
-    });
-
-    $('#modalEditDriver').modal('show');
-});
-
-$('#modalEditDriver').on('hidden.bs.modal', function () {
-    $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit, #simDriverEdit').val('');
-    if (!$('#err-namaDriverEdit').hasClass('d-none')) {
-        $('#err-namaDriverEdit').addClass('d-none');
-    }
-    if (!$('#err-alamatDriverEdit').hasClass('d-none')) {
-        $('#err-alamatDriverEdit').addClass('d-none');
-    }
-    if (!$('#err-noTelponDriverEdit').hasClass('d-none')) {
-        $('#err-noTelponDriverEdit').addClass('d-none');
-    }
-    if (!$('#simDriverEditError').hasClass('d-none')) {
-        $('#simDriverEditError').addClass('d-none');
-    }
-});
+        $('#modalEditDriver').on('hidden.bs.modal', function () {
+            $('#namaDriverEdit, #alamatDriverEdit, #noTelponDriverEdit, #simDriverEdit').val('');
+            if (!$('#err-namaDriverEdit').hasClass('d-none')) {
+                $('#err-namaDriverEdit').addClass('d-none');
+            }
+            if (!$('#err-alamatDriverEdit').hasClass('d-none')) {
+                $('#err-alamatDriverEdit').addClass('d-none');
+            }
+            if (!$('#err-noTelponDriverEdit').hasClass('d-none')) {
+                $('#err-noTelponDriverEdit').addClass('d-none');
+            }
+            if (!$('#simDriverEditError').hasClass('d-none')) {
+                $('#simDriverEditError').addClass('d-none');
+            }
+        });
 
 
         $(document).on('click', '.btnDestroyDriver', function (e) {
@@ -592,7 +558,7 @@ $('#modalEditDriver').on('hidden.bs.modal', function () {
                     });
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyDriver') }}",
+                        url: '/masterdata/driver/destroy/' + id,
                         data: {
                             id: id,
                         },

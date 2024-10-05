@@ -292,7 +292,6 @@
 
             var isValid = true;
 
-            // Validasi Nilai Pembagi
             if (nilaiPembagi === '') {
                 $('#nilaiPembagiError').removeClass('d-none');
                 isValid = false;
@@ -300,7 +299,6 @@
                 $('#nilaiPembagiError').addClass('d-none');
             }
 
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -325,131 +323,114 @@
                             }
                         });
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addPembagi') }}",
+                            url: '/masterdata/pembagirate/store',
+                            method: 'POST',
                             data: formData,
-                            contentType: false,
                             processData: false,
+                            contentType: false,
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
+                                if (response.success) {
+                                    showMessage("success",
+                                        "berhasil ditambahkan");
+                                        $('#modalTambahPembagi').modal('hide');
+                                        getlistPembagi();
                                 }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistPembagi();
-                                    $('#modalTambahPembagi').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        icon: "error"
-                                    });
-                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
 
         $(document).on('click', '.btnUpdatePembagi', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let nilai_pembagi = $(this).data('nilai_pembagi');
-
-            $('#nilaiPembagiEdit').val(nilai_pembagi);
-            $('#pembagiIdEdit').val(id);
-
-            $(document).on('click', '#saveEditPembagi', function (e) {
-                e.preventDefault();
-
-                let id = $('#pembagiIdEdit').val();
-                let nilaiPembagi = $('#nilaiPembagiEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                // Validasi Nilai Pembagi
-                if (nilaiPembagi === '') {
-                    $('#nilaiPembagiErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#nilaiPembagiErrorEdit').addClass('d-none');
-                }
-
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('nilaiPembagi', nilaiPembagi);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data pembagi.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updatePembagi') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success", "Data Berhasil Diubah");
-                                        getlistPembagi();
-                                        $('#modalEditPembagi').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
+            var pembagiid = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/pembagirate/' + pembagiid,
+                method: 'GET',
+                success: function (response) {
+                    $('#nilaiPembagiEdit').val(response.nilai_pembagi);
+                    $('#modalEditPembagi').modal('show');
+                    $('#saveEditPembagi').data('id', pembagiid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
                 }
             });
-
-            $('#modalEditPembagi').modal('show');
         });
+        $('#saveEditPembagi').on('click', function () {
+            var pembagiid = $(this).data('id');
+            var nilaiPembagi = $('#nilaiPembagiEdit').val();
 
+            let isValid = true;
+
+            if (nilaiPembagi === '') {
+                $('#nilaiPembagiErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#nilaiPembagiErrorEdit').addClass('d-none');
+            }
+
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        var formData = new FormData();
+                        formData.append('nilaiPembagi', nilaiPembagi);
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/pembagirate/update/' + pembagiid,
+                            method: 'POST',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
+                                    $('#modalEditPembagi').modal('hide');
+                                    getlistPembagi();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
+        });
         $('#modalTambahPembagi').on('hidden.bs.modal', function () {
             $('#nilaiPembagi').val('');
             if (!$('#nilaiPembagiError').hasClass('d-none')) {
@@ -489,7 +470,7 @@
                     });
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyPembagi') }}",
+                        url:'/masterdata/pembagirate/destroy/' + id,
                         data: {
                             id: id,
                         },

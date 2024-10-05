@@ -214,6 +214,14 @@
                 getlistJournal();
             });
 
+            $(document).on('click', '.btnUpdateJournal', function (e) {
+        let id = $(this).data('id');
+        var url = "{{ route('updatejournal', ':id') }}";
+        url = url.replace(':id', id);
+        window.location.href = url;
+    });
+
+
         });
     </script>
 @endsection

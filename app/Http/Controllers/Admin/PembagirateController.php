@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Pembagi;
 class PembagirateController extends Controller
 {
 
@@ -17,11 +17,11 @@ class PembagirateController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $data = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')->get();
-        
+
 
         // dd($q);
 
-       
+
 
         $output = '  <table class="table align-items-center table-flush table-hover" id="tablePembagi">
                                 <thead class="thead-light">
@@ -37,83 +37,81 @@ class PembagirateController extends Controller
             $output .=
                 '
                 <tr>
-                    <td class="">' . $no++ .'</td>
-                     <td class="">' . (isset($item->nilai_pembagi) ? ' ' . number_format($item->nilai_pembagi,0, '.', ',') : '-') . '</td>
+                    <td class="">' . $no++ . '</td>
+                     <td class="">' . (isset($item->nilai_pembagi) ? ' ' . number_format($item->nilai_pembagi, 0, '.', ',') : '-') . '</td>
                    <td>
-                        <a  class="btn btnUpdatePembagi btn-sm btn-secondary text-white" data-id="' .$item->id.'" data-nilai_pembagi="' .$item->nilai_pembagi.'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyPembagi btn-sm btn-danger text-white" data-id="' .$item->id.'" ><i class="fas fa-trash"></i></a>
+                        <a  class="btn btnUpdatePembagi btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nilai_pembagi="' . $item->nilai_pembagi . '"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyPembagi btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
             ';
         }
 
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
     public function addPembagi(Request $request)
     {
         $request->validate([
             'nilaiPembagi' => 'required|numeric',
         ]);
-
-        $nilaiPembagi = $request->input('nilaiPembagi');
-
         try {
-            DB::table('tbl_pembagi')->insert([
-                'nilai_pembagi' => $nilaiPembagi,
-                'created_at' => now(),
-            ]);
+            $Pembagi = new Pembagi();
+            $Pembagi->nilai_pembagi = $request->input('nilaiPembagi');
 
-            return response()->json(['status' => 'success', 'message' => 'berhasil ditambahkan'], 200);
+
+            $Pembagi->save();
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan : ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-    public function destroyPembagi(Request $request)
+    public function destroyPembagi($id)
     {
-        $id = $request->input('id');
+        $Pembagi = Pembagi::findOrFail($id);
 
         try {
-            DB::table('tbl_pembagi')
-                ->where('id', $id)
-                ->delete();
+
+            $Pembagi->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-    public function updatePembagi(Request $request)
+    public function updatePembagi(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nilaiPembagi' => 'required|numeric',
         ]);
-
-        $id = $request->input('id');
-        $nilaiPembagi = $request->input('nilaiPembagi');
-
         try {
-            DB::table('tbl_pembagi')
-            ->where('id', $id)
-            ->update([
-                'nilai_pembagi' => $nilaiPembagi,
-                'updated_at' => now(),
-            ]);
+            $Pembagi = Pembagi::findOrFail($id);
+            $Pembagi->nilai_pembagi = $request->input('nilaiPembagi');
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+
+            $Pembagi->update($validated);
+
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
 
+    public function show($id)
+    {
+        $Pembagi = Pembagi::findOrFail($id);
+        return response()->json($Pembagi);
+    }
     public function getlistRate(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-       
+
         $data = DB::table('tbl_rate')
             ->select('id', 'nilai_rate', 'rate_for')
             ->get();
-    
+
         $output = '<table class="table align-items-center table-flush table-hover" id="tableRate">
                         <thead class="thead-light">
                             <tr>
@@ -124,7 +122,7 @@ class PembagirateController extends Controller
                             </tr>
                         </thead>
                         <tbody>';
-        
+
         $no = 1;
         foreach ($data as $item) {
             $output .= '
@@ -138,12 +136,12 @@ class PembagirateController extends Controller
                     </td>
                 </tr>';
         }
-    
+
         $output .= '</tbody></table>';
-        
+
         return $output;
     }
-    
+
     public function addRate(Request $request)
     {
         $request->validate([
@@ -191,12 +189,12 @@ class PembagirateController extends Controller
 
         try {
             DB::table('tbl_rate')
-            ->where('id', $id)
-            ->update([
-                'nilai_rate' => $nilaiRate,
-                'rate_for' => $rateFor,
-                'updated_at' => now(),
-            ]);
+                ->where('id', $id)
+                ->update([
+                    'nilai_rate' => $nilaiRate,
+                    'rate_for' => $rateFor,
+                    'updated_at' => now(),
+                ]);
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
         } catch (\Exception $e) {
