@@ -49,7 +49,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 throw new \Exception("Invoice tidak ditemukan");
             }
 
-            // Ambil resi terkait invoice
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $invoice->id)
                 ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi']);
@@ -58,7 +57,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 throw new \Exception("Tidak ada resi yang terkait dengan invoice ini");
             }
 
-            // Tentukan pesan berdasarkan metode pengiriman
             if ($invoice->metode_pengiriman === 'Pickup') {
                 $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
             } elseif ($invoice->metode_pengiriman === 'Delivery') {
@@ -67,7 +65,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
             }
 
-            // Membuat PDF dari data resi dan invoice
             try {
                 Log::info('Memulai pembuatan PDF untuk invoice ID: ' . $invoice->id);
 
@@ -83,7 +80,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
 
-            // Menyimpan PDF ke folder storage
             try {
                 $pdfFileName = 'list_barang_'.$this->invoiceId.'_'.time().'.pdf';
                 $filePath = storage_path('app/public/list_barang/' . $pdfFileName);
@@ -93,18 +89,16 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
-            // URL untuk file PDF
             $fileUrl = asset('storage/list_barang/' . $pdfFileName);
             $pesan .= "\n\n*Download List Barang Anda di sini:";
 
-            // Kirim pesan WhatsApp dengan PDF
-            if ($invoice->no_wa) {
-                $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan); // Kirim pesan tanpa file PDF
-                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl); // Kirim pesan dengan file PDF
 
-                // Cek status pengiriman pesan
+            if ($invoice->no_wa) {
+                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl);
+                $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
+
                 if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
-                    // Jika gagal mengirim pesan
+
                     Log::error("Gagal mengirim pesan WhatsApp ke " . $invoice->no_wa);
                     DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
                 } else {
@@ -114,7 +108,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $invoice->id);
             }
 
-            // Hapus file PDF setelah pesan terkirim
             if (file_exists($filePath)) {
                 unlink($filePath);
                 Log::info('PDF berhasil dihapus: ' . $filePath);
@@ -123,8 +116,6 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             }
         } catch (\Exception $e) {
             Log::error('Error: ' . $e->getMessage());
-
-            // Update invoice status to 'failed' if an error occurs
             DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
         }
     }

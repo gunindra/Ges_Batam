@@ -75,44 +75,44 @@
                         </div>
                         <div id="containerJournal" class="table-responsive px-3">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableJournal">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>Journal</th>
-                                            <th>Deskripsi</th>
-                                            <th>Total</th>
-                                            <th>Total Kurs</th>
-                                            <th>Tanggal</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>B0230123</td>
-                                            <td>Dingin Tapi tidak kejam</td>
-                                            <td>IDR 100.000.000</td>
-                                            <td>RP 100.000.000</td>
-                                            <td>24-Juli-2024</td>
-                                            <td><span class="badge badge-success">Approve</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                                <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>B0230123</td>
-                                            <td>Dingin Tapi tidak kejam</td>
-                                            <td>IDR 100.000.000</td>
-                                            <td>RP 100.000.000</td>
-                                            <td>24-Juli-2024</td>
-                                            <td><span class="badge badge-success">Approve</span></td>
-                                            <td>
-                                                <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                                <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table> -->
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Journal</th>
+                                                        <th>Deskripsi</th>
+                                                        <th>Total</th>
+                                                        <th>Total Kurs</th>
+                                                        <th>Tanggal</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>B0230123</td>
+                                                        <td>Dingin Tapi tidak kejam</td>
+                                                        <td>IDR 100.000.000</td>
+                                                        <td>RP 100.000.000</td>
+                                                        <td>24-Juli-2024</td>
+                                                        <td><span class="badge badge-success">Approve</span></td>
+                                                        <td>
+                                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
+                                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>B0230123</td>
+                                                        <td>Dingin Tapi tidak kejam</td>
+                                                        <td>IDR 100.000.000</td>
+                                                        <td>RP 100.000.000</td>
+                                                        <td>24-Juli-2024</td>
+                                                        <td><span class="badge badge-success">Approve</span></td>
+                                                        <td>
+                                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
+                                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -126,102 +126,142 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div> `;
 
-            const getlistJournal = () => {
-                const txtSearch = $('#txSearch').val();
-                const filterStatus = $('#filterStatus').val();
-                const startDate = $('#startDate').val();
-                const endDate = $('#endDate').val();
+                    const getlistJournal = () => {
+                        const txtSearch = $('#txSearch').val();
+                        const filterStatus = $('#filterStatus').val();
+                        const startDate = $('#startDate').val();
+                        const endDate = $('#endDate').val();
 
 
-                $.ajax({
-                        url: "{{ route('getlistJournal') }}",
-                        method: "GET",
-                        data: {
-                            txSearch: txtSearch,
-                            status: filterStatus,
-                            startDate: startDate,
-                            endDate: endDate,
-                        },
-                        beforeSend: () => {
-                            $('#containerJournal').html(loadSpin)
+                        $.ajax({
+                                url: "{{ route('getlistJournal') }}",
+                                method: "GET",
+                                data: {
+                                    txSearch: txtSearch,
+                                    status: filterStatus,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                },
+                                beforeSend: () => {
+                                    $('#containerJournal').html(loadSpin)
+                                }
+                            })
+                            .done(res => {
+                                $('#containerJournal').html(res)
+                                $('#tableJournal').DataTable({
+                                    searching: false,
+                                    lengthChange: false,
+                                    "bSort": true,
+                                    "aaSorting": [],
+                                    pageLength: 7,
+                                    "lengthChange": false,
+                                    responsive: true,
+                                    language: {
+                                        search: ""
+                                    }
+                                });
+                            })
+                    }
+
+                    getlistJournal();
+
+                    flatpickr("#startDate", {
+                        dateFormat: "d M Y",
+                        onChange: function(selectedDates, dateStr, instance) {
+
+                            $("#endDate").flatpickr({
+                                dateFormat: "d M Y",
+                                minDate: dateStr
+                            });
                         }
-                    })
-                    .done(res => {
-                        $('#containerJournal').html(res)
-                        $('#tableJournal').DataTable({
-                            searching: false,
-                            lengthChange: false,
-                            "bSort": true,
-                            "aaSorting": [],
-                            pageLength: 7,
-                            "lengthChange": false,
-                            responsive: true,
-                            language: {
-                                search: ""
+                    });
+
+                    flatpickr("#endDate", {
+                        dateFormat: "d MM Y",
+                        onChange: function(selectedDates, dateStr, instance) {
+                            var startDate = new Date($('#startDate').val());
+                            var endDate = new Date(dateStr);
+                            if (endDate < startDate) {
+                                showwMassage(error,
+                                    "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                                $('#endDate').val('');
+                            }
+                        }
+                    });
+
+                    $(document).on('click', '#filterTanggal', function(e) {
+                        $('#modalFilterTanggal').modal('show');
+                    });
+
+                    $('#saveFilterTanggal').click(function() {
+                        getlistJournal();
+                        $('#modalFilterTanggal').modal('hide');
+                    });
+
+
+                    $('#txSearch').keyup(function(e) {
+                        var inputText = $(this).val();
+                        if (inputText.length >= 1 || inputText.length == 0) {
+                            getlistJournal();
+                        }
+                    });
+
+                    $('#filterStatus').change(function() {
+                        getlistJournal();
+                    });
+                    $(document).on('click', '.btnUpdateJournal', function(e) {
+                        e.preventDefault();
+
+                        let id = $(this).data('id');
+                        var url = "{{ route('updatejournal', ':id') }}";
+
+                        url = url.replace(':id', id);
+
+                        window.location.href = url;
+                    });
+
+                    $(document).on('click', '.btnDestroyJournal', function() {
+                        var id = $(this).data('id');
+
+                        Swal.fire({
+                            title: 'Apakah kamu yakin?',
+                            text: "Jurnal ini akan dihapus secara permanen!",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#5D87FF',
+                            cancelButtonColor: '#49BEFF',
+                            confirmButtonText: 'Ya',
+                            cancelButtonText: 'Tidak',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{{ route('destroyJurnal', ':id') }}".replace(':id', id),
+                                    type: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    success: function(response) {
+                                        showMessage("success", response.message)
+                                        .then(
+                                            () => {
+                                                getlistJournal();
+                                            });
+                                    },
+                                    error: function(xhr, status, error) {
+                                        var errorMessage = xhr.responseJSON.error ||
+                                        'Gagal menghapus jurnal.';
+                                    showMessage("error", errorMessage);
+                                    }
+                                });
                             }
                         });
-                    })
-            }
 
-            getlistJournal();
-
-            flatpickr("#startDate", {
-                dateFormat: "d M Y",
-                onChange: function(selectedDates, dateStr, instance) {
-
-                    $("#endDate").flatpickr({
-                        dateFormat: "d M Y",
-                        minDate: dateStr
                     });
-                }
-            });
-
-            flatpickr("#endDate", {
-                dateFormat: "d MM Y",
-                onChange: function(selectedDates, dateStr, instance) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date(dateStr);
-                    if (endDate < startDate) {
-                        showwMassage(error,
-                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                        $('#endDate').val('');
-                    }
-                }
-            });
-
-            $(document).on('click', '#filterTanggal', function(e) {
-                $('#modalFilterTanggal').modal('show');
-            });
-
-            $('#saveFilterTanggal').click(function() {
-                getlistJournal();
-                $('#modalFilterTanggal').modal('hide');
-            });
-
-
-            $('#txSearch').keyup(function(e) {
-                var inputText = $(this).val();
-                if (inputText.length >= 1 || inputText.length == 0) {
-                    getlistJournal();
-                }
-            });
-
-            $('#filterStatus').change(function() {
-                getlistJournal();
-            });
-
-            $(document).on('click', '.btnUpdateJournal', function (e) {
-        let id = $(this).data('id');
-        var url = "{{ route('updatejournal', ':id') }}";
-        url = url.replace(':id', id);
-        window.location.href = url;
-    });
-
-
-        });
+                });
     </script>
 @endsection

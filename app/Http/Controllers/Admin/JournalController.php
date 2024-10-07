@@ -53,7 +53,7 @@ class JournalController extends Controller
             })
             ->get();
 
-        $output = '
+            $output = '
             <table class="table align-items-center table-flush table-hover" id="tableJournal">
                 <thead class="thead-light">
                     <tr>
@@ -68,9 +68,7 @@ class JournalController extends Controller
                 <tbody>';
 
         foreach ($data as $item) {
-
             $statusBadgeClass = '';
-
 
             switch ($item->status) {
                 case 'Approve':
@@ -85,20 +83,34 @@ class JournalController extends Controller
             }
 
             $output .= '
-                <tr>
-                    <td>' . ($item->no_journal ?? '-') . '</td>
-                    <td>' . ($item->description ?? '-') . '</td>
-                    <td>' . ($item->tanggal ?? '-') . '</td>
-                  <td>' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td>
-                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
-                    <td>
-                       <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>
-                         <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
-                    </td>
-                </tr>';
+            <tr>
+                <td>' . ($item->no_journal ?? '-') . '</td>
+                <td>' . ($item->description ?? '-') . '</td>
+                <td>' . ($item->tanggal ?? '-') . '</td>
+                <td>' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td>
+                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
+                <td>';
+
+        if ($item->status === 'Draft') {
+            $output .= '
+                    <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '">
+                        <i class="fas fa-edit"></i>
+                    </a>';
+        }
+
+        $output .= '
+                    <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
+                        <i class="fas fa-trash"></i>
+                    </a>';
+
+        $output .= '
+                </td>
+            </tr>';
+
         }
 
         $output .= '</tbody></table>';
+
         return $output;
     }
 
@@ -115,30 +127,18 @@ class JournalController extends Controller
     public function generateNoJurnal(Request $request)
     {
         $kodetype = $request->code_type;
-
-
         $currentYear = date('y');
-
-
         $lastJournal = Jurnal::where('tipe_kode', $kodetype)
             ->where('no_journal', 'like', $kodetype . $currentYear . '%')
             ->orderBy('no_journal', 'desc')
             ->first();
-
-
         if ($lastJournal) {
-
             $lastNoJournal = $lastJournal->no_journal;
-
-
             $lastSequence = intval(substr($lastNoJournal, -4));
             $newSequence = $lastSequence + 1;
         } else {
-
             $newSequence = 1;
         }
-
-
         $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
         return response()->json([
@@ -149,8 +149,6 @@ class JournalController extends Controller
 
     public function store(Request $request)
     {
-
-        // Validasi jika diperlukan
         $validatedData = $request->validate([
             'tanggalJournal' => 'required|date',
             'codeType' => 'required|string|max:10',
@@ -165,15 +163,9 @@ class JournalController extends Controller
             'totalDebit' => 'required|numeric',
             'totalCredit' => 'required|numeric',
         ]);
-
-
         $tanggal = Carbon::createFromFormat('d F Y', $request->tanggalJournal)->format('Y-m-d');
-
-
         DB::beginTransaction();
-
         try {
-            // Simpan data ke tbl_jurnal
             $jurnal = new Jurnal();
             $jurnal->no_journal = $request->noJournal;
             $jurnal->tipe_kode = $request->codeType;
@@ -184,8 +176,6 @@ class JournalController extends Controller
             $jurnal->totaldebit = $request->totalDebit;
             $jurnal->totalcredit = $request->totalCredit;
             $jurnal->save();
-
-            // Simpan setiap item ke tbl_jurnal_items
             foreach ($request->items as $item) {
                 $jurnalItem = new JurnalItem();
                 $jurnalItem->jurnal_id = $jurnal->id;
@@ -196,21 +186,84 @@ class JournalController extends Controller
                 $jurnalItem->memo = $item['memo'];
                 $jurnalItem->save();
             }
-
-
             DB::commit();
-
             return response()->json(['message' => 'Journal saved successfully!'], 200);
         } catch (\Exception $e) {
-
             DB::rollback();
             return response()->json(['error' => 'Failed to save journal: ' . $e->getMessage()], 500);
         }
     }
-    public function updatejournal()
+    public function updatejournal($id)
     {
-        return view('accounting.journal.indexupdatejournal');
+        $journal = Jurnal::with('items')->find($id);
+        $coas = COA::all();
+        return view('accounting.journal.indexupdatejournal', compact('journal', 'coas'));
     }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'tanggalJournal' => 'required|date',
+            'codeType' => 'required|string|max:10',
+            'noJournal' => 'required|string|max:20',
+            'noRef' => 'required|string|max:20',
+            'descriptionJournal' => 'nullable|string',
+            'items' => 'required|array',
+            'items.*.account' => 'required|integer',
+            'items.*.item_desc' => 'required|string',
+            'items.*.debit' => 'required|numeric',
+            'items.*.credit' => 'required|numeric',
+            'totalDebit' => 'required|numeric',
+            'totalCredit' => 'required|numeric',
+        ]);
+        $tanggal = Carbon::createFromFormat('d F Y', $request->tanggalJournal)->format('Y-m-d');
+        DB::beginTransaction();
+        try {
+            $jurnal = Jurnal::findOrFail($id);
+            $jurnal->no_journal = $request->noJournal;
+            $jurnal->tipe_kode = $request->codeType;
+            $jurnal->tanggal = $tanggal;
+            $jurnal->no_ref = $request->noRef;
+            $jurnal->status = $request->status;
+            $jurnal->description = $request->descriptionJournal;
+            $jurnal->totaldebit = $request->totalDebit;
+            $jurnal->totalcredit = $request->totalCredit;
+            $jurnal->save();
+            $jurnal->items()->delete();
+            foreach ($request->items as $item) {
+                $jurnalItem = new JurnalItem();
+                $jurnalItem->jurnal_id = $jurnal->id;
+                $jurnalItem->code_account = $item['account'];
+                $jurnalItem->description = $item['item_desc'];
+                $jurnalItem->debit = $item['debit'];
+                $jurnalItem->credit = $item['credit'];
+                $jurnalItem->memo = $item['memo'];
+                $jurnalItem->save();
+            }
+            DB::commit();
+            return response()->json(['message' => 'Journal updated successfully!'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Failed to update journal: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $jurnal = Jurnal::findOrFail($id);
+            JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+            $jurnal->delete();
+            DB::commit();
+            return response()->json(['message' => 'Journal deleted successfully!'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Failed to delete journal: ' . $e->getMessage()], 500);
+        }
+    }
+
 
 
 }

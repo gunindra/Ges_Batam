@@ -10,13 +10,13 @@ class TrackingController extends Controller
     public function index(Request $request){
 
         $id = $request->query('id');
-    
-            $contact = DB::table('tbl_contact')->first(); 
-    
+
+            $contact = DB::table('tbl_contact')->first();
+
             return view('landingpage.Tracking', [
                 'contact' => $contact,
             ]);
-        
+
     }
 
     public function lacakResi(Request $request)

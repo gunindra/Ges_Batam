@@ -293,9 +293,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/journal/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
     Route::get('/journal/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
     Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');
-    Route::get('/journal/updatejournal', [JournalController::class, 'updatejournal'])->name('updatejournal');
-    Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
-    
+    Route::get('/journal/updatejournal/{id}', [JournalController::class, 'updateJournal'])->name('updatejournal');
+    Route::post('/journal/updatejournal/update', action: [JournalController::class, 'updatejurnal'])->name('updatejurnal');
+    Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
+    Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
+
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
