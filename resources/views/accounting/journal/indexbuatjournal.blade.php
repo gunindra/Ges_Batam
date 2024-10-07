@@ -395,8 +395,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        // console.log('Journal saved as draft successfully:', response);
-                        // showMessage("success", response.message);
                         showMessage("success", response.message)
                                         .then(
                                             () => {

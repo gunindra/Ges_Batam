@@ -42,11 +42,12 @@ class WhyController extends Controller
 
            
             Why::updateOrCreate(
-                [],
+                ['id' => $existingData ? $existingData->id : null],
                 [
                     'Paragraph_WhyUs' => $contentWhy,
                     'Image_WhyUs' => $fileName,
                     'updated_at' => now(),
+                    'created_at' => now(),
                 ]
             );
 

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Rekening;
 
 class RekeningController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 
 
         return view('masterdata.rekening.indexmasterrekening');
@@ -18,13 +20,13 @@ class RekeningController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $data = DB::table('tbl_rekening')
-        ->select('id', 'pemilik', 'nomer_rekening', 'nama_bank')
-        ->where(function($q) use ($txSearch) {
-            $q->whereRaw('UPPER(pemilik) LIKE UPPER(?)', [$txSearch])
-                  ->orWhereRaw('UPPER(nomer_rekening) LIKE UPPER(?)', [$txSearch])
-                  ->orWhereRaw('UPPER(nama_bank) LIKE UPPER(?)', [$txSearch]);
-        })
-        ->get();
+            ->select('id', 'pemilik', 'nomer_rekening', 'nama_bank')
+            ->where(function ($q) use ($txSearch) {
+                $q->whereRaw('UPPER(pemilik) LIKE UPPER(?)', [$txSearch])
+                    ->orWhereRaw('UPPER(nomer_rekening) LIKE UPPER(?)', [$txSearch])
+                    ->orWhereRaw('UPPER(nama_bank) LIKE UPPER(?)', [$txSearch]);
+            })
+            ->get();
 
         // dd($q);
 
@@ -43,18 +45,18 @@ class RekeningController extends Controller
             $output .=
                 '
                 <tr>
-                    <td class="">' . ($item->pemilik ?? '-') .'</td>
-                    <td class="">' . ($item->nomer_rekening ?? '-') .'</td>
-                    <td class="">' . ($item->nama_bank ?? '-') .'</td>
+                    <td class="">' . ($item->pemilik ?? '-') . '</td>
+                    <td class="">' . ($item->nomer_rekening ?? '-') . '</td>
+                    <td class="">' . ($item->nama_bank ?? '-') . '</td>
                    <td>
-                        <a  class="btn btnUpdateRekening btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-pemilik="' .$item->pemilik .'" data-nomer_rekening="' .$item->nomer_rekening .'" data-nama_bank="' .$item->nama_bank .'"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateRekening btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-pemilik="' . $item->pemilik . '" data-nomer_rekening="' . $item->nomer_rekening . '" data-nama_bank="' . $item->nama_bank . '"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
         }
 
         $output .= '</tbody></table>';
-         return $output;
+        return $output;
     }
 
     public function addRekening(Request $request)
@@ -64,50 +66,44 @@ class RekeningController extends Controller
             'noRekening' => 'required|string|max:255',
             'bankRekening' => 'required|string|max:255',
         ]);
-
-        $namaRekening = $request->input('namaRekening');
-        $noRekening = $request->input('noRekening');
-        $bankRekening = $request->input('bankRekening');
-
         try {
-            DB::table('tbl_rekening')->insert([
-                'pemilik' => $namaRekening,
-                'nomer_rekening' => $noRekening,
-                'nama_bank' => $bankRekening,
-                'created_at' => now(),
-            ]);
+            $Rekening = new Rekening();
+            $Rekening->pemilik = $request->input('namaRekening');
+            $Rekening->nomer_rekening = $request->input('noRekening');
+            $Rekening->nama_bank = $request->input('bankRekening');
 
-            return response()->json(['status' => 'success', 'message' => 'Rekening berhasil ditambahkan'], 200);
+            $Rekening->save();
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Rekening: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
-    public function updateRekening(Request $request)
+    public function updateRekening(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'namaRekening' => 'required|string|max:255',
             'noRekening' => 'required|string|max:255',
             'bankRekening' => 'required|string|max:255',
         ]);
-        $id = $request->input('id');
-        $namaRekening = $request->input('namaRekening');
-        $noRekening = $request->input('noRekening');
-        $bankRekening = $request->input('bankRekening');
-
         try {
-            DB::table('tbl_rekening')
-            ->where('id', $id)
-            ->update([
-                'pemilik' => $namaRekening,
-                'nomer_rekening' => $noRekening,
-                'nama_bank' => $bankRekening,
-                'updated_at' => now(),
-            ]);
+            $Rekening = Rekening::findOrFail($id);
+            $Rekening->pemilik = $request->input('namaRekening');
+            $Rekening->nomer_rekening = $request->input('noRekening');
+            $Rekening->nama_bank = $request->input('bankRekening');
 
-            return response()->json(['status' => 'success', 'message' => 'Data Rekening berhasil diupdate'], 200);
+
+            $Rekening->update($validated);
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Rekening: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
+    }
+    public function show($id)
+    {
+        $Rekening = Rekening::findOrFail($id);
+        return response()->json($Rekening);
     }
 }

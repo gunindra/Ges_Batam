@@ -23,20 +23,23 @@ class ContactController extends Controller
             'phonesContact' => 'required|string|max:255',
         ]);
 
+        $emailContact = $request->input('emailContact');
+        $phoneContact = $request->input('phoneContact');
+        $phonesContact = $request->input('phonesContact');
+
         try {
-            $existingData = Contact::first();
+            $contact = Contact::first();
             
             Contact::updateOrCreate(
-                [],
+                ['id' => $contact ? $contact->id : null],
                 [
-                    'email' => $request->input('emailContact'),
-                    'phone' => $request->input('phoneContact'),
-                    'phones' => $request->input('phonesContact'),
-                    'updated_at' => now(),
+                    'email' =>$emailContact ,
+                    'phone' =>$phoneContact,
+                    'phones' => $phonesContact,
                 ]
             );
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => $request->only('emailContact', 'phoneContact', 'phonesContact')], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['emailContact' => $emailContact, 'phoneContact' => $phoneContact,'phonesContact' => $phonesContact,],200]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

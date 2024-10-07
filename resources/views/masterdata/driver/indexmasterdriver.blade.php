@@ -95,7 +95,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="driverIdEdit">
                     <div class="mt-3">
                         <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
                         <input type="text" class="form-control" id="namaDriverEdit" value=""

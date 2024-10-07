@@ -47,7 +47,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="pembagiIdEdit">
                     <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiPembagiEdit" value="">
@@ -112,7 +111,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="rateIdEdit">
                     <div class="mt-3">
                         <label for="nilaiRate" class="form-label fw-bold">Nilai</label>
                         <input type="text" class="form-control" id="nilaiRateEdit" value="">
@@ -311,9 +309,6 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('nilaiPembagi', nilaiPembagi);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
                             text: 'Please wait while we process your data pembagi.',
@@ -325,7 +320,10 @@
                         $.ajax({
                             url: '/masterdata/pembagirate/store',
                             method: 'POST',
-                            data: formData,
+                            data: {
+                                nilaiPembagi: nilaiPembagi,
+                                _token: '{{ csrf_token() }}'
+                            },
                             processData: false,
                             contentType: false,
                             success: function (response) {
@@ -397,8 +395,6 @@
                                 Swal.showLoading();
                             }
                         });
-                        var formData = new FormData();
-                        formData.append('nilaiPembagi', nilaiPembagi);
                         $.ajaxSetup({
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
@@ -408,10 +404,13 @@
 
                         $.ajax({
                             url: '/masterdata/pembagirate/update/' + pembagiid,
-                            method: 'POST',
+                            method: 'PUT',
                             processData: false,
                             contentType: false,
-                            data: formData,
+                            data: {
+                                nilaiPembagi: nilaiPembagi,
+                                _token: '{{ csrf_token() }}'
+                            },
                             success: function (response) {
                                 Swal.close();
                                 if (response.success) {

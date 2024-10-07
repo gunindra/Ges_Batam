@@ -50,7 +50,7 @@ class InformationsController extends Controller
     public function addInformations(Request $request)
     {
         $request->validate([
-            'titleInformations' => 'required|string|max:255',
+            'titleInformations' => 'required|string|max:255|unique:tbl_informations,title_informations',
             'contentInformations' => 'required|string|max:1000',
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
@@ -101,7 +101,7 @@ class InformationsController extends Controller
     public function updateInformations(Request $request, $id)
     {
         $validated = $request->validate([
-            'titleInformations' => 'required|string|max:255',
+            'titleInformations' => 'required|string|max:255|unique:tbl_informations,title_informations',
             'contentInformations' => 'required|string|max:1000',
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
