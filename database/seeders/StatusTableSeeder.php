@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class StatusTableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $statuses = [
             ['status_name' => 'Batam / Sortir'],
@@ -18,6 +18,11 @@ class StatusTableSeeder extends Seeder
             ['status_name' => 'Done'],
         ];
 
-        DB::table('tbl_status')->insert($statuses);
+        foreach ($statuses as $status) {
+            DB::table('tbl_status')->updateOrInsert(
+                ['status_name' => $status['status_name']],
+                $status
+            );
+        }
     }
 }

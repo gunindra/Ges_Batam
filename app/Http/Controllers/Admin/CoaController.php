@@ -57,7 +57,7 @@ class CoaController extends Controller
         $coa->code_account_id = $request->input('code_account_id');
         $coa->name = $request->input('name');
         $coa->description = $request->input('description');
-        $coa->set_as_group = $request->has('setGroup') ? true : false;
+        $coa->set_as_group = $request->input('set_group') == 1;
         $coa->default_posisi = $request->input('default_position');
 
         if ($parent_id) {
@@ -90,13 +90,22 @@ class CoaController extends Controller
             'description'     => 'nullable|string',
             'set_as_group'    => 'required|boolean',
             'default_posisi'  => 'nullable|string',
-            'parent_id'       => 'nullable|exists:tbl_coa,id',
+            'group_account'   => 'nullable|exists:tbl_coa,id',
         ]);
 
         $coa = COA::findOrFail($id);
-        $coa->update($validated);
+        $coa->code_account_id = $validated['code_account_id'];
+        $coa->name = $validated['name'];
+        $coa->description = $validated['description'];
+        $coa->set_as_group = $validated['set_as_group'];
+        $coa->default_posisi = $validated['default_posisi'];
+        $coa->parent_id = $validated['group_account'];
+
+        $coa->save();
+
         return response()->json(['success' => true]);
     }
+
 
 
 }

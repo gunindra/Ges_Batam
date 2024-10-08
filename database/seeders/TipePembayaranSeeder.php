@@ -17,6 +17,11 @@ class TipePembayaranSeeder extends Seeder
             ['tipe_pembayaran' => 'Cicilan'],
         ];
 
-        DB::table('tbl_tipe_pembayaran')->insert($statuses);
+        foreach ($statuses as $status) {
+            DB::table('tbl_tipe_pembayaran')->updateOrInsert(
+                ['tipe_pembayaran' => $status['tipe_pembayaran']],
+                $status
+            );
+        }
     }
 }
