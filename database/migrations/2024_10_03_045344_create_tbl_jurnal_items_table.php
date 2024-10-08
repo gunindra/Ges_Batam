@@ -17,7 +17,8 @@ return new class extends Migration
             $table->decimal('credit', 15, 2)->default(0);
             $table->string('memo')->nullable(); // Kolom memo opsional
             // $table->foreignId('customer_invoice_id')->nullable()->constrained('tbl_customer_invoices')->onDelete('set null'); // Referensi opsional ke faktur pelanggan
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 
