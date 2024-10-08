@@ -261,16 +261,21 @@ Route::middleware(['auth'])->group(function () {
 
     //Invoice
     Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
+    Route::get('/vendor/supplierInvoice/addsupplierInvoice', [SupplierInvoiceController::class, 'addSupplierInvoice'])->name('addSupplierInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
+    
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
     Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
+    
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
     Route::get('/vendor/debitnote/addDebitNote', [DebitNoteController::class, 'addDebitNote'])->name('addDebitNote');
+    
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
     Route::get('/customer/creditnote/addCreditNote', [CreditNoteController::class, 'addCreditNote'])->name('addCreditNote');
+    
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
     Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
@@ -313,12 +318,16 @@ Route::middleware(['auth'])->group(function () {
      //Report
     //ProfitLoss
     Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+    
     //Equity
      Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
-    //Cashflow
+    
+     //Cashflow
     Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
+    
     //Ledger
     Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
+    
     //Balance
     Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
 });

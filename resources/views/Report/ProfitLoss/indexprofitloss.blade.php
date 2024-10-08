@@ -5,10 +5,10 @@
 @section('main')
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">ProfitLoss</h1>
+        <h1 class="h3 mb-0 text-gray-800">Profit/Loss</h1>
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Report</li>
-            <li class="breadcrumb-item active" aria-current="page">ProfitLoss</li>
+            <li class="breadcrumb-item active" aria-current="page">Profit / Loss</li>
         </ol>
     </div>
     <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
