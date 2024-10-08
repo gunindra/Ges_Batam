@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             StatusTableSeeder::class,
             TipePembayaranSeeder::class,
             UserSeeder::class,
+            COASeeder::class,
         ]);
     }
 }

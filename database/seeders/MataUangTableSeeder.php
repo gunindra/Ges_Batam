@@ -19,6 +19,11 @@ class MataUangTableSeeder extends Seeder
             ['nama_matauang' => 'Yuan Tiongkok', 'singkatan_matauang' => 'RMB'],
         ];
 
-        DB::table('tbl_matauang')->insert($matauang);
+        foreach ($matauang as $m) {
+            DB::table('tbl_matauang')->updateOrInsert(
+                ['singkatan_matauang' => $m['singkatan_matauang']],
+                ['nama_matauang' => $m['nama_matauang']]
+            );
+        }
     }
 }
