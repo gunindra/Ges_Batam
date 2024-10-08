@@ -17,7 +17,8 @@ return new class extends Migration
             $table->text('Paragraph_Popup');
             $table->string('Link_Popup');
             $table->string('Image_Popup');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 

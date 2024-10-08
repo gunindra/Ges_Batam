@@ -12,7 +12,7 @@ class WhatsappController extends Controller
 {
     public function index()
     {
-        $waData = DB::table('tbl_wa')->first();
+        $waData = Whatsapp::first();
         return view('content.whatsapp.indexwhatsapp', compact('waData'));
     }
     public function addWa(Request $request)
@@ -27,19 +27,17 @@ class WhatsappController extends Controller
 
         try {
 
-            $existingData = Whatsapp::first();
+            $Whatsapp = Whatsapp::first();
 
-            $waData = Whatsapp::updateOrCreate(
-                ['id' => $existingData ? $existingData->id : null],
+             Whatsapp::updateOrCreate(
+                ['id' => $Whatsapp ? $Whatsapp->id : null],
                 [
                     'No_wa' => $numberWa,
                     'Message_wa' => $messageWa,
-                    'updated_at' => now(),
-                    'created_at' => $existingData ? $existingData->created_at : now(),
                 ]
             );
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['id' => $waData->id, 'numberWa' => $waData->No_wa, 'messageWa' => $waData->Message_wa,]], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['numberWa' => $numberWa, 'messageWa' => $messageWa,]], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }

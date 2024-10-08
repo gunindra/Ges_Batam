@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('title_heropage');
             $table->text('content_heropage');
             $table->string('image_heropage');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 

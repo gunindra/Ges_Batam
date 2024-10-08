@@ -248,8 +248,11 @@
                             },
                             error: function (response) {
                                 Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti");
+                                if (response.status === 422) {
+                                    showMessage("error", "Judul yang dimasukkan sudah ada. Silakan masukkan judul yang berbeda.");
+                                } else {
+                                showMessage("error","Terjadi kesalahan, coba lagi nanti");
+                                }
                             }
                         });
                     }

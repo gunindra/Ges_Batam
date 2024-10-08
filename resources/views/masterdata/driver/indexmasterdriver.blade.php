@@ -95,7 +95,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="driverIdEdit">
                     <div class="mt-3">
                         <label for="namaDriver" class="form-label fw-bold">Nama Driver</label>
                         <input type="text" class="form-control" id="namaDriverEdit" value=""
@@ -557,9 +556,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
+                        type: "DELETE",
                         url: '/masterdata/driver/destroy/' + id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {

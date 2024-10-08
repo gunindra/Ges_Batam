@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function getlistCategory(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-    
+
         $data = DB::table('tbl_category')
             ->select('id', 'category_name', 'minimum_rate', 'maximum_rate')
             ->get();
@@ -31,13 +31,13 @@ class CategoryController extends Controller
                     </tr>
                 </thead>
                 <tbody>';
-    
+
         foreach ($data as $item) {
             $output .= '
                 <tr>
                     <td>' . ($item->category_name ?? '-') . '</td>
-                    <td>' . ($item->minimum_rate ? number_format((float)$item->minimum_rate, 0, '.', ',') : '-') . '</td>
-                    <td>' . ($item->maximum_rate ? number_format((float)$item->maximum_rate, 0, '.', ',') : '-') . '</td>
+                    <td>' . ($item->minimum_rate ? number_format((float) $item->minimum_rate, 0, '.', ',') : '-') . '</td>
+                    <td>' . ($item->maximum_rate ? number_format((float) $item->maximum_rate, 0, '.', ',') : '-') . '</td>
                     <td>
                         <a class="btn btnUpdateCategory btn-sm btn-secondary text-white" 
                            data-id="' . $item->id . '" 
@@ -49,11 +49,11 @@ class CategoryController extends Controller
                     </td>
                 </tr>';
         }
-    
+
         $output .= '</tbody></table>';
         return $output;
     }
-    
+
     public function addCategory(Request $request)
     {
         $request->validate([
@@ -61,66 +61,58 @@ class CategoryController extends Controller
             'minimumRateCategory' => 'required|numeric|min:0',
             'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
         ]);
-        $nameCategory = $request->input('nameCategory');
-        $minimumRateCategory = $request->input('minimumRateCategory');
-        $maximumRateCategory = $request->input('maximumRateCategory');
         try {
-           
-            DB::table('tbl_category')->insert([
-                'category_name' => $nameCategory,
-                'minimum_rate' => $minimumRateCategory,
-                'maximum_rate' => $maximumRateCategory,
-                'created_at' => now(),
-            ]);
+            $Category = new Category();
+            $Category->category_name = $request->input('nameCategory');
+            $Category->minimum_rate = $request->input('minimumRateCategory');
+            $Category->maximum_rate = $request->input('maximumRateCategory');
 
-            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
+            $Category->save();
+
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-    public function updateCategory(Request $request)
+    public function updateCategory(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
             'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
         ]);
-        $id = $request->input('id');
-        $nameCategory = $request->input('nameCategory');
-        $minimumRateCategory = $request->input('minimumRateCategory');
-        $maximumRateCategory = $request->input('maximumRateCategory');
-
         try {
-            $dataUpdate = [
-                'category_name' => $nameCategory,
-                'minimum_rate' => $minimumRateCategory,
-                'maximum_rate' => $maximumRateCategory,
-                'updated_at' => now(),
-            ];
+        $Category = Category::findOrFail($id);
+        $Category->category_name = $request->input('nameCategory');
+        $Category->minimum_rate = $request->input('minimumRateCategory');
+        $Category->maximum_rate = $request->input('maximumRateCategory');
 
-            DB::table('tbl_category')
-                ->where('id', $id)
-                ->update($dataUpdate);
+      
+            $Category->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
 
-    public function destroyCategory(Request $request)
+    public function destroyCategory($id)
     {
-        $id = $request->input('id');
 
         try {
-            DB::table('tbl_category')
-                ->where('id', $id)
-                ->delete();
+            $Category = Category::findOrFail($id);
+
+            $Category->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+    public function show($id)
+    {
+        $Category = Category::findOrFail($id);
+        return response()->json($Category);
     }
 
 }

@@ -195,59 +195,65 @@ Route::middleware(['auth'])->group(function () {
     // Costumer
     Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
     Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
-    Route::post('/masterdata/costumer/tambah', [CostumerController::class, 'addCostumer'])->name('addCostumer');
+    Route::post('/masterdata/costumer/store', [CostumerController::class, 'addCostumer'])->name('addCostumer');
     Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
     Route::get('/masterdata/costumer/destroy', [CostumerController::class, 'destroyCostumer'])->name('destroyCostumer');
     Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
-
+    // Route::get('/masterdata/costumer', [CostumerController::class, 'show']);
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
     Route::get('/masterdata/driver/list', [DriverController::class, 'getlistDriver'])->name('getlistDriver');
     Route::post('/masterdata/driver/store', [DriverController::class, 'addDriver'])->name('addDriver');
     Route::post('/masterdata/driver/update/{id}', [DriverController::class, 'updateDriver'])->name('updateDriver');
-    Route::get('/masterdata/driver/destroy/{id}', [DriverController::class, 'destroyDriver'])->name('destroyDriver');
+    Route::delete('/masterdata/driver/destroy/{id}', [DriverController::class, 'destroyDriver'])->name('destroyDriver');
     Route::get('/masterdata/driver/{id}', [DriverController::class, 'show']);
 
     // Category
     Route::get('/masterdata/category', [CategoryController::class, 'index'])->name('category');
     Route::get('/masterdata/category/getlistCategory', [CategoryController::class, 'getlistCategory'])->name('getlistCategory');
-    Route::post('/masterdata/category/tambah', [CategoryController::class, 'addCategory'])->name('addCategory');
-    Route::post('/masterdata/category/update', [CategoryController::class, 'updateCategory'])->name('updateCategory');
-    Route::get('/masterdata/category/destroy', [CategoryController::class, 'destroyCategory'])->name('destroyCategory');
+    Route::post('/masterdata/category/store', [CategoryController::class, 'addCategory'])->name('addCategory');
+    Route::put('/masterdata/category/update/{id}', [CategoryController::class, 'updateCategory'])->name('updateCategory');
+    Route::delete('/masterdata/category/destroy/{id}', [CategoryController::class, 'destroyCategory'])->name('destroyCategory');
+    Route::get('/masterdata/category/{id}', [CategoryController::class, 'show']);
 
     // Rekening
     Route::get('/masterdata/rekening', [RekeningController::class, 'index'])->name('rekening');
     Route::get('/masterdata/rekening/list', [RekeningController::class, 'getlistRekening'])->name('getlistRekening');
-    Route::post('/masterdata/rekening/tambah', [RekeningController::class, 'addRekening'])->name('addRekening');
-    Route::post('/masterdata/rekening/update', [RekeningController::class, 'updateRekening'])->name('updateRekening');
-    Route::get('/masterdata/rekening/destroy', [RekeningController::class, 'destroyRekening'])->name('destroyRekening');
+    Route::post('/masterdata/rekening/store', [RekeningController::class, 'addRekening'])->name('addRekening');
+    Route::put('/masterdata/rekening/update/{id}', [RekeningController::class, 'updateRekening'])->name('updateRekening');
+    Route::delete('/masterdata/rekening/destroy/{id}', [RekeningController::class, 'destroyRekening'])->name('destroyRekening');
+    Route::get('/masterdata/rekening/{id}', [RekeningController::class, 'show']);
 
     // Pembagi dan Rate
     Route::get('/masterdata/pembagirate', [PembagirateController::class, 'index'])->name('pembagirate');
     Route::get('/masterdata/pembagirate/list', [PembagirateController::class, 'getlistPembagi'])->name('getlistPembagi');
     Route::post('/masterdata/pembagirate/store', [PembagirateController::class, 'addPembagi'])->name('addPembagi');
-    Route::post('/masterdata/pembagirate/update/{id}', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
-    Route::get('/masterdata/pembagirate/destroy/{id}', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
+    Route::put('/masterdata/pembagirate/update/{id}', [PembagirateController::class, 'updatePembagi'])->name('updatePembagi');
+    Route::delete('/masterdata/pembagirate/destroy/{id}', [PembagirateController::class, 'destroyPembagi'])->name('destroyPembagi');
     Route::get('/masterdata/pembagirate/{id}', [PembagirateController::class, 'show']);
 
     Route::get('/masterdata/rate/list', [PembagirateController::class, 'getlistRate'])->name('getlistRate');
-    Route::post('/masterdata/rate/tambah', [PembagirateController::class, 'addRate'])->name('addRate');
-    Route::post('/masterdata/rate/update', [PembagirateController::class, 'updateRate'])->name('updateRate');
-    Route::get('/masterdata/rate/destroyrate', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
+    Route::post('/masterdata/rate/store', [PembagirateController::class, 'addRate'])->name('addRate');
+    Route::put('/masterdata/rate/update/{id}', [PembagirateController::class, 'updateRate'])->name('updateRate');
+    Route::delete('/masterdata/rate/destroyrate/{id}', [PembagirateController::class, 'destroyRate'])->name('destroyRate');
+    Route::get('/masterdata/rate/{id}', [PembagirateController::class, 'showRate']);
 
     //user
     Route::get('/masterdata/user', [UserController::class, 'index'])->name('user');
     Route::get('/masterdata/user/list', [UserController::class, 'getlistUser'])->name('getlistUser');
-    Route::post('/masterdata/user/tambah', [UserController::class, 'addUsers'])->name('addUsers');
-    Route::post('/masterdata/user/update', [UserController::class, 'updateUsers'])->name('updateUsers');
-    Route::get('/masterdata/user/destroy', [UserController::class, 'destroyUsers'])->name('destroyUsers');
-
+    Route::post('/masterdata/user/store', [UserController::class, 'addUsers'])->name('addUsers');
+    Route::put('/masterdata/user/update/{id}', [UserController::class, 'updateUsers'])->name('updateUsers');
+    Route::delete('/masterdata/user/destroy/{id}', [UserController::class, 'destroyUsers'])->name('destroyUsers');
+    Route::get('/masterdata/user/{id}', [UserController::class, 'show']);
+    
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
     Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');
-    Route::post('/masterdata/role/tambah', [RoleController::class, 'addRole'])->name('addRole');
-    Route::post('/masterdata/role/update', [RoleController::class, 'updateRole'])->name('updateRole');
-    Route::get('/masterdata/role/destroy', [RoleController::class, 'destroyRole'])->name('destroyRole');
+    Route::post('/masterdata/role/store', [RoleController::class, 'addRole'])->name('addRole');
+    Route::put('/masterdata/role/update/{id}', [RoleController::class, 'updateRole'])->name('updateRole');
+    Route::delete('/masterdata/role/destroy/{id}', [RoleController::class, 'destroyRole'])->name('destroyRole');
+    Route::get('/masterdata/role/{id}', [RoleController::class, 'show']);
+    
     //Menu
     Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 
@@ -294,7 +300,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/journal/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
     Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');
     Route::get('/journal/updatejournal/{id}', [JournalController::class, 'updateJournal'])->name('updatejournal');
-    Route::post('/journal/updatejournal/update', action: [JournalController::class, 'updatejurnal'])->name('updatejurnal');
+    Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
     Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
     Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
 

@@ -11,7 +11,7 @@ class AboutController extends Controller
 {
     public function index()
     {
-        $aboutData = DB::table('tbl_aboutus')->first();
+        $aboutData = About::first();
         return view('content.abouts.indexabout', compact('aboutData'));
     }
 
@@ -41,11 +41,10 @@ class AboutController extends Controller
             }
     
             About::updateOrCreate(
-                [],
+                ['id' => $existingData ? $existingData->id : null],
                 [
                     'Paragraph_AboutUs' => $contentAbout,
                     'Image_AboutUs' => $fileName,
-                    'updated_at' => now(),
                 ]
             );
     
