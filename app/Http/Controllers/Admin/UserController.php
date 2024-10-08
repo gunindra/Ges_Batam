@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
@@ -20,12 +21,12 @@ class UserController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $role = $request->role;
-        
+
         $data = DB::table('tbl_users')
             ->select('id', 'name', 'email', 'role')
             ->where(function ($q) use ($txSearch) {
                 $q->whereRaw('UPPER(name) LIKE ?', [$txSearch])
-                  ->orWhereRaw('UPPER(email) LIKE ?', [$txSearch]);
+                    ->orWhereRaw('UPPER(email) LIKE ?', [$txSearch]);
             })
             ->when($role, function ($q) use ($role) {
                 return $q->where('role', $role);
@@ -52,8 +53,8 @@ class UserController extends Controller
                     <td class="">' . ($item->role ?? '-') . '</td>
                 
                  <td>
-                        <a  class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-name="' .$item->name .'" data-email="' .$item->email .'"  data-role="' .$item->role .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a> 
+                        <a  class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-name="' . $item->name . '" data-email="' . $item->email . '"  data-role="' . $item->role . '"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a> 
                 </td>
                 </tr>
             ';
@@ -70,67 +71,56 @@ class UserController extends Controller
             'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
             'roleUsers' => 'required|string|max:50',
         ]);
-        $nameUsers = $request->input('nameUsers');
-        $emailUsers = $request->input('emailUsers');
-        $roleUsers = $request->input('roleUsers');
-
         try {
+            $User = new User();
+            $User->name = $request->input('nameUsers');
+            $User->email = $request->input('emailUsers');
+            $User->password = $request->input('roleUsers');
 
-            DB::table('tbl_users')->insert([
-                'name' => $nameUsers,
-                'email' => $emailUsers,
-                'role' => $roleUsers,
-                'password' => Hash::make('password'),
-                'created_at' => now(),
-            ]);
+            $User->save();
 
-            return response()->json(['status' => 'success', 'message' => 'Berhasil ditambahkan'], 200);
+            return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-     public function updateUsers(Request $request)
+    public function updateUsers(Request $request, $id)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nameUsers' => 'required|string|max:255',
-            'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
+            'emailUsers' => 'required|email|max:255',
             'roleUsers' => 'required|string|max:50',
         ]);
-        $id = $request->input('id');
-        $nameUsers = $request->input('nameUsers');
-        $emailUsers = $request->input('emailUsers');
-        $roleUsers = $request->input('roleUsers');
-
         try {
-            $dataUpdate = [
-                'name' => $nameUsers,
-                'email' => $emailUsers,
-                'role' => $roleUsers,
-                'updated_at' => now(),
-            ];
+            $User = User::findOrFail($id);
+            $User->name = $request->input('nameUsers');
+            $User->email = $request->input('emailUsers');
+            $User->password = $request->input('roleUsers');
 
-            DB::table('tbl_users')
-                ->where('id', $id)
-                ->update($dataUpdate);
+            $User->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
-    public function destroyUsers(Request $request)
+    public function destroyUsers($id)
     {
-        $id = $request->input('id');
-
         try {
-            DB::table('tbl_users')
-                ->where('id', $id)
-                ->delete();
+            $User = User::findOrFail($id);
+
+            $User->delete();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+    public function show($id)
+    {
+        $User = User::findOrFail($id);
+        return response()->json($User);
     }
 
 }

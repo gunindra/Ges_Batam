@@ -285,7 +285,6 @@
         $('#savePembagi').click(function () {
 
             var nilaiPembagi = $('#nilaiPembagi').val().trim();
-
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
             var isValid = true;
@@ -322,10 +321,8 @@
                             method: 'POST',
                             data: {
                                 nilaiPembagi: nilaiPembagi,
-                                _token: '{{ csrf_token() }}'
+                                _token: '{{ csrf_token() }}',
                             },
-                            processData: false,
-                            contentType: false,
                             success: function (response) {
                                 Swal.close();
                                 if (response.success) {
@@ -395,21 +392,12 @@
                                 Swal.showLoading();
                             }
                         });
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                    'content')
-                            }
-                        });
-
                         $.ajax({
                             url: '/masterdata/pembagirate/update/' + pembagiid,
                             method: 'PUT',
-                            processData: false,
-                            contentType: false,
                             data: {
                                 nilaiPembagi: nilaiPembagi,
-                                _token: '{{ csrf_token() }}'
+                                _token: '{{ csrf_token() }}',
                             },
                             success: function (response) {
                                 Swal.close();
@@ -468,9 +456,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
+                        type: "DELETE",
                         url:'/masterdata/pembagirate/destroy/' + id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {
@@ -545,7 +534,7 @@
         $('#saveRate').click(function () {
 
             var nilaiRate = $('#nilaiRate').val().trim();
-            var forRate = $('#forRate').val();
+            var forRate = $('#forRate').val().trim();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -577,10 +566,6 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('nilaiRate', nilaiRate);
-                        formData.append('forRate', forRate);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
                             text: 'Please wait while we process your data rate.',
@@ -592,9 +577,11 @@
                         $.ajax({
                             url: '/masterdata/rate/store',
                             method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
+                            data: {
+                                nilaiRate: nilaiRate,
+                                forRate: forRate,
+                                _token: '{{ csrf_token() }}',
+                            },
                             success: function (response) {
                                 Swal.close();
                                 if (response.success) {
@@ -644,8 +631,9 @@
         });
         $('#saveEditRate').on('click', function () {
             var rateid = $(this).data('id');
-            var nilaiRate = $('#nilaiRateEdit').val();
+            var nilaiRate = $('#nilaiRateEdit').val().trim();
             var forRate = $('#forRateEdit').val();
+
 
             let isValid = true;
 
@@ -683,22 +671,15 @@
                                 Swal.showLoading();
                             }
                         });
-                        var formData = new FormData();
-                        formData.append('nilaiRate', nilaiRate);
-                        formData.append('forRate', forRate);
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                    'content')
-                            }
-                        });
 
                         $.ajax({
                             url: '/masterdata/rate/update/' + rateid,
-                            method: 'POST',
-                            processData: false,
-                            contentType: false,
-                            data: formData,
+                            method: 'PUT',
+                            data: {
+                                nilaiRate: nilaiRate,
+                                forRate: forRate,
+                                _token: '{{ csrf_token() }}',
+                            },
                             success: function (response) {
                                 Swal.close();
                                 if (response.success) {
@@ -750,7 +731,7 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
+                        type: "DELETE",
                         url: '/masterdata/rate/destroyrate/'+ id,
                         data: {
                             id: id,

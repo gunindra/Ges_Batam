@@ -155,7 +155,7 @@ class PembagirateController extends Controller
             $Rate->rate_for = $request->input('forRate');
 
             $Rate->save();
-            
+
             return response()->json(['success' => 'berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
@@ -180,16 +180,16 @@ class PembagirateController extends Controller
             'forRate' => 'required|in:Berat,Volume',
         ]);
         try {
-        $Rate = Rate::findOrFail($id);
-        $Rate->nilai_rate = $request->input('nilaiRate');
-        $Rate->rate_for = $request->input('rateFor');
+            $Rate = Rate::findOrFail($id);
+            $Rate->nilai_rate = $request->input('nilaiRate');
+            $Rate->rate_for = $request->input('forRate');
 
-       
-        $Rate->update($validated);
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil diupdate'], 200);
+            $Rate->update($validated);
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data: ' . $e->getMessage()], 500);
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
     public function showRate($id)

@@ -62,7 +62,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="usersIdEdit">
                     <div class="mt-3">
                         <label for="nameUsersEdit" class="form-label fw-bold">Nama</label>
                         <input type="text" class="form-control" id="nameUsersEdit" value=""
@@ -135,36 +134,6 @@
                                     class="fas fa-plus"></i></span>Tambah User</button>
                     </div>
                     <div id="containerUser" class="table-responsive px-3 ">
-                        <!-- <table class="table align-items-center table-flush table-hover" id="tableUser">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Pemilik</th>
-                                    <th>No. Rekening</th>
-                                    <th>Bank</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Ilham</td>
-                                    <td>291037292</td>
-                                    <td>BCA</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Tio</td>
-                                    <td>1192837432</td>
-                                    <td>Mandiri</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> -->
                     </div>
                 </div>
             </div>
@@ -226,10 +195,9 @@
         });
 
         $('#saveUsers').click(function () {
-            // Ambil nilai input
             var nameUsers = $('#nameUsers').val().trim();
             var emailUsers = $('#emailUsers').val().trim();
-            var roleUsers = $('#roleUsers').val();
+            var roleUsers = $('#roleUsers').val().trim();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -261,7 +229,6 @@
                 $('#roleUsersError').addClass('d-none');
             }
 
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -274,11 +241,6 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('nameUsers', nameUsers);
-                        formData.append('emailUsers', emailUsers);
-                        formData.append('roleUsers', roleUsers);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
                             text: 'Please wait while we process your user.',
@@ -289,53 +251,33 @@
                         });
 
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addUsers') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
+                            url: '/masterdata/user/store',
+                            method: 'POST',
+                            data: {
+                                nameUsers: nameUsers,
+                                emailUsers: emailUsers,
+                                roleUsers: roleUsers,
+                                _token: '{{ csrf_token() }}',
+                            },
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
+                                if (response.success) {
                                     showMessage("success",
-                                        "Data Berhasil Disimpan");
-                                    getListUser();
+                                        "berhasil ditambahkan");
                                     $('#modalTambahUsers').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: response
-                                            .message,
-                                        icon: "error",
-                                    });
+                                    getListUser();
                                 }
                             },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON
-                                        .message,
-                                    icon: "error",
-                                });
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong atau tidak valid");
             }
         });
-
         $('#modalTambahUsers').on('hidden.bs.modal', function () {
             $('#nameUsers,#emailUsers,#roleUsers').val('');
             if (!$('#nameUsersError').hasClass('d-none')) {
@@ -349,123 +291,103 @@
             }
         });
         $(document).on('click', '.btnUpdateUsers', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let name = $(this).data('name');
-            let email = $(this).data('email');
-            let role = $(this).data('role');
-
-            $('#nameUsersEdit').val(name);
-            $('#emailUsersEdit').val(email);
-            $('#roleUsersEdit').val(role);
-            $('#usersIdEdit').val(id);
-
-            $(document).on('click', '#saveEditUsers', function (e) {
-
-                let id = $('#usersIdEdit').val();
-                let nameUsers = $('#nameUsersEdit').val();
-                let emailUsers = $('#emailUsersEdit').val();
-                let roleUsers = $('#roleUsersEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                if (nameUsers === '') {
-                    $('#nameUsersErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#nameUsersErrorEdit').addClass('d-none');
+            var userid = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/user/' + userid,
+                method: 'GET',
+                success: function (response) {
+                    $('#nameUsersEdit').val(response.name);
+                    $('#emailUsersEdit').val(response.email);
+                    $('#roleUsersEdit').val(response.role);
+                    $('#modalEditUsers').modal('show');
+                    $('#saveEditUsers').data('id', userid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
                 }
-                if (emailUsers === '') {
-                    $('#emailUsersErrorEdit').text('Silahkan isi Email').removeClass('d-none');
-                    isValid = false;
-                } else if (!emailRegex.test(emailUsers)) {
-                    $('#emailUsersErrorEdit').text('Format Email tidak valid').removeClass('d-none');
-                    isValid = false;
-                } else if (!emailUsers.endsWith('@gmail.com')) {
-                    $('#emailUsersErrorEdit').text('Email harus menggunakan @gmail.com').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#emailUsersErrorEdit').addClass('d-none');
-                }
+            });
+        });
+        $('#saveEditUsers').on('click', function () {
+            var userid = $(this).data('id');
+            var nameUsers = $('#nameUsersEdit').val();
+            var emailUsers = $('#emailUsersEdit').val();
+            var roleUsers = $('#roleUsersEdit').val();
 
-                if (!roleUsers || roleUsers === '' || roleUsers === '0') {
-                    $('#roleUsersErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#roleUsersErrorEdit').addClass('d-none');
-                }
+            var isValid = true;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (nameUsers === '') {
+                $('#nameUsersErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#nameUsersErrorEdit').addClass('d-none');
+            }
+            if (emailUsers === '') {
+                $('#emailUsersErrorEdit').text('Silahkan isi Email').removeClass('d-none');
+                isValid = false;
+            } else if (!emailRegex.test(emailUsers)) {
+                $('#emailUsersErrorEdit').text('Format Email tidak valid').removeClass('d-none');
+                isValid = false;
+            } else if (!emailUsers.endsWith('@gmail.com')) {
+                $('#emailUsersErrorEdit').text('Email harus menggunakan @gmail.com').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (!roleUsers || roleUsers === '' || roleUsers === '0') {
+                $('#roleUsersErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#roleUsersErrorEdit').addClass('d-none');
+            }
 
 
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('nameUsers', nameUsers);
-                            formData.append('emailUsers', emailUsers);
-                            formData.append('roleUsers', roleUsers);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your user.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            url: '/masterdata/user/update/' + userid,
+                            method: 'PUT',
+                            data: {
+                                nameUsers: nameUsers,
+                                emailUsers: emailUsers,
+                                roleUsers: roleUsers,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "Berhasil diperbarui");
+                                    $('#modalEditUsers').modal('hide');
+                                    getListUser();
                                 }
-                            });
-
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateUsers') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getListUser();
-                                        $('#modalEditUsers').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            })
-
-            // validateInformationsInput('modalEditInformations');
-            $('#modalEditUsers').modal('show');
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
         $('#modalEditUsers').on('hidden.bs.modal', function () {
             $('#nameUsersEdit,#emailUsersEdit,#roleUsersEdit').val('');
@@ -502,9 +424,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
-                        url: "{{ route('destroyUsers') }}",
+                        type: "DELETE",
+                        url: '/masterdata/user/destroy/' + id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {

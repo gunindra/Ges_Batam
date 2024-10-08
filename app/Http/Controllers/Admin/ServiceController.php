@@ -97,7 +97,7 @@ class ServiceController extends Controller
     public function updateService(Request $request, $id)
     {
         $validated = $request->validate([
-            'titleService' => 'required|string|max:255|unique:tbl_service,title_service',
+            'titleService' => 'required|string|max:255',
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);

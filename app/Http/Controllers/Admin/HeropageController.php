@@ -95,7 +95,7 @@ class HeropageController extends Controller
     public function updateHeroPage(Request $request, $id)
     {
         $validated = $request->validate([
-            'titleHeroPage' => 'required|string|max:255|unique:tbl_heropage,title_heropage',
+            'titleHeroPage' => 'required|string|max:255',
             'contentHeroPage' => 'required|string',
             'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png',
         ]);

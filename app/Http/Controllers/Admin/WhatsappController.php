@@ -34,8 +34,6 @@ class WhatsappController extends Controller
                 [
                     'No_wa' => $numberWa,
                     'Message_wa' => $messageWa,
-                    'updated_at' => now(),
-                    'created_at' => now(),
                 ]
             );
 

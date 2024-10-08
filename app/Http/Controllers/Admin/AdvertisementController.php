@@ -98,7 +98,7 @@ class AdvertisementController extends Controller
     public function updateAdvertisement(Request $request, $id)
     {
         $validated = $request->validate([
-            'titleAdvertisement' => 'required|string|max:255|unique:tbl_advertisement,title_Advertisement',
+            'titleAdvertisement' => 'required|string|max:255',
             'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
         try {

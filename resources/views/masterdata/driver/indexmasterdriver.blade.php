@@ -556,9 +556,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
+                        type: "DELETE",
                         url: '/masterdata/driver/destroy/' + id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {

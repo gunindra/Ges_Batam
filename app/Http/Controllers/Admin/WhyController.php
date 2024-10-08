@@ -46,8 +46,6 @@ class WhyController extends Controller
                 [
                     'Paragraph_WhyUs' => $contentWhy,
                     'Image_WhyUs' => $fileName,
-                    'updated_at' => now(),
-                    'created_at' => now(),
                 ]
             );
 

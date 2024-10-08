@@ -234,10 +234,6 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         var formData = new FormData();
-                        formData.append('nameCategory', nameCategory);
-                        formData.append('minimumRateCategory', minimumRateCategory);
-                        formData.append('maximumRateCategory', maximumRateCategory);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
                             text: 'Please wait while we process save your data.',
@@ -247,69 +243,55 @@
                             }
                         });
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addCategory') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
+                            url: '/masterdata/category/store',
+                            method: 'POST',
+                            data: {
+                                nameCategory: nameCategory,
+                                minimumRateCategory: minimumRateCategory,
+                                maximumRateCategory: maximumRateCategory,
+                                _token: '{{ csrf_token() }}',
+                            },
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Data Berhasil Disimpan");
-                                    getlistCategory();
+                                if (response.success) {
+                                    showMessage("success",
+                                        "berhasil ditambahkan");
                                     $('#modalTambahCategory').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: response.message,
-                                        icon: "error",
-                                    });
+                                    getlistCategory();
                                 }
                             },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON.message,
-                                    icon: "error",
-                                });
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Silakan periksa input kosong atau tidak valid");
             }
         });
-
         $(document).on('click', '.btnUpdateCategory', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let category_name = $(this).data('category_name');
-            let minimum_rate = $(this).data('minimum_rate');
-            let maximum_rate = $(this).data('maximum_rate');
-
-            $('#nameCategoryEdit').val(category_name);
-            $('#minimumRateCategoryEdit').val(minimum_rate);
-            $('#maximumRateCategoryEdit').val(maximum_rate);
-            $('#categoryIdEdit').val(id);
-
-            $(document).on('click', '#saveEditCategory', function (e) {
-
-                let id = $('#categoryIdEdit').val();
-                let nameCategory = $('#nameCategoryEdit').val();
-                let minimumRateCategory = $('#minimumRateCategoryEdit').val();
-                let maximumRateCategory = $('#maximumRateCategoryEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
+            var categoryid = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/category/' + categoryid,
+                method: 'GET',
+                success: function (response) {
+                    $('#nameCategoryEdit').val(response.category_name);
+                    $('#minimumRateCategoryEdit').val(response.minimum_rate);
+                    $('#maximumRateCategoryEdit').val(response.maximum_rate);
+                    $('#modalEditCategory').modal('show');
+                    $('#saveEditCategory').data('id', categoryid);
+                },
+                error: function () {
+                    showMessage("error", "Terjadi kesalahan saat mengambil data");
+                }
+            });
+        });
+            $('#saveEditCategory').on('click', function () {
+                var categoryid = $(this).data('id');
+                var nameCategory = $('#nameCategoryEdit').val();
+                var minimumRateCategory = $('#minimumRateCategoryEdit').val();
+                var maximumRateCategory = $('#maximumRateCategoryEdit').val();
 
                 let isValid = true;
 
@@ -345,78 +327,60 @@
                 } else {
                     $('#maximumRateCategoryErrorEdit').addClass('d-none');
                 }
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('nameCategory', nameCategory);
-                            formData.append('minimumRateCategory', minimumRateCategory);
-                            formData.append('maximumRateCategory', maximumRateCategory);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your data.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateCategory') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
+               if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
 
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success", "Data Berhasil Diperbarui");
-                                        getlistCategory();
-                                        $('#modalEditCategory').modal('hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Memperbarui Data",
-                                            text: response.message,
-                                            icon: "error",
-                                        });
-                                    }
-                                },
-                                error: function (xhr) {
-                                    Swal.fire({
-                                        title: "Gagal Memperbarui Data",
-                                        text: xhr.responseJSON.message,
-                                        icon: "error",
-                                    });
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/category/update/' + categoryid,
+                            method: 'PUT',
+                            data: {
+                                nameCategory: nameCategory,
+                                minimumRateCategory: minimumRateCategory,
+                                maximumRateCategory: maximumRateCategory,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response.message);
+                                    $('#modalEditCategory').modal('hide');
+                                    modalEditCategory();
                                 }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Silakan periksa input kosong atau tidak valid");
-                }
-            })
-            $('#modalEditCategory').modal('show');
+                            },
+                            error: function () {
+                                Swal.close();
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
+
         $('#modalTambahCategory').on('hidden.bs.modal', function () {
             $('#nameCategory,#minimumRateCategory,#maximumRateCategory').val('');
             if (!$('#nameCategoryError').hasClass('d-none')) {
@@ -466,7 +430,7 @@
                     });
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('destroyCategory') }}",
+                        url: '/masterdata/category/destroy/'+ id,
                         data: {
                             id: id,
                         },
