@@ -14,6 +14,8 @@ class PaymentController extends Controller
 
     public function addPayment()
     {
+
+
         return view('customer.payment.buatpayment');
     }
 

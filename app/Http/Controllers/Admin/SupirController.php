@@ -91,6 +91,7 @@ class SupirController extends Controller
                         ->update([
                             'bukti_pengantaran' => $photoPath,
                             'tanda_tangan' => $signaturePath,
+                            'keterangan' => 'Barang Telah Selesai Di antarkan',
                             'updated_at' => now(),
                         ]);
 
