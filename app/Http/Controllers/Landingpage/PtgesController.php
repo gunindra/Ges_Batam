@@ -11,26 +11,22 @@ class PtgesController extends Controller
 
     public function index()
     {
-        $listinformation =  DB::select("SELECT  title_informations,content_informations,image_informations FROM tbl_informations");
-        $listservices = DB::select("SELECT  id,title_service,content_service,image_service FROM tbl_service");
-        foreach ($listservices as $service) {
-            $service->content_service = Str::limit($service->content_service, 150,'');
-        }
-        $listiklan = DB::select("SELECT image_Advertisement,title_Advertisement FROM tbl_Advertisement");
-        $aboutus = DB::table('tbl_aboutus')->first();
-        if ($aboutus) {
-            $aboutus->Paragraph_AboutUs = Str::limit($aboutus->Paragraph_AboutUs, 250, '');
-        }
-        $whyus = DB::table('tbl_whyus')->first();
-        if ($whyus) {
-            $whyus->Paragraph_WhyUs = Str::limit($whyus->Paragraph_WhyUs, 250 ,''); 
-        }
-        $listheropage =  DB::select("SELECT  id, title_heropage,content_heropage,image_heropage FROM tbl_heropage");
-        foreach ($listheropage as $heropage) {
-            $heropage->content_heropage = Str::limit($heropage->content_heropage, 160,'');
-        }
+        $listinformation = DB::select("SELECT title_informations, content_informations, image_informations FROM tbl_informations");
+
+        $listservices = DB::select("SELECT id, title_service, LEFT(content_service, 150) AS content_service, image_service FROM tbl_service");
+
+        $listiklan = DB::select("SELECT image_Advertisement, title_Advertisement FROM tbl_Advertisement");
+
+        $aboutus = DB::table('tbl_aboutus')->select('Paragraph_AboutUs', DB::raw('LEFT(Paragraph_AboutUs, 250) AS Paragraph_AboutUs'))->first();
+
+        $whyus = DB::table('tbl_whyus')->select('Paragraph_WhyUs', DB::raw('LEFT(Paragraph_WhyUs, 250) AS Paragraph_WhyUs'))->first();
+
+        $listheropage = DB::select("SELECT id, title_heropage, LEFT(content_heropage, 160) AS content_heropage, image_heropage FROM tbl_heropage");
+
         $popup = DB::table('tbl_popup')->first();
+
         $contact = DB::table('tbl_contact')->first();
+        
         $wa = DB::table('tbl_wa')->first();
 
         return view('landingpage.PTGes ', [

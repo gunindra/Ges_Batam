@@ -11,11 +11,23 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\KirimPesanWaPembeliJob;
 use App\Traits\WhatsappTrait;
+use App\Http\Controllers\Admin\JournalController;
+use App\Models\Jurnal;
+use App\Models\JurnalItem;
 use Log;
 use Str;
 
 class InvoiceController extends Controller
 {
+
+    protected $jurnalController;
+
+    public function __construct(JournalController $jurnalController)
+    {
+        $this->jurnalController = $jurnalController;
+    }
+
+
     use WhatsappTrait;
 
     public function sendInvoiceNotification($noWa, $message)
@@ -312,6 +324,12 @@ class InvoiceController extends Controller
         $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
 
+         // Ambil kode akun dari tabel tbl_account_settings
+        $accountSettings = DB::table('tbl_account_settings')->first();
+
+        $salesAccountId = $accountSettings->sales_account_id; // ID untuk kredit
+        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id; // ID untuk debit
+
         $existingInvoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
         if ($existingInvoice) {
             return response()->json([
@@ -379,6 +397,40 @@ class InvoiceController extends Controller
                 throw new \Exception("Gagal memperbarui transaksi terakhir di tbl_pembeli");
             }
 
+                 // Menambahkan Jurnal
+            try {
+                $noJournal = 'AR' . $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+                $jurnal = new Jurnal();
+                $jurnal->no_journal = $noJournal;
+                $jurnal->tipe_kode = 'AR';
+                $jurnal->tanggal = $formattedDate;
+                $jurnal->no_ref = $noInvoice;
+                $jurnal->status = 'Approve';
+                $jurnal->description = "Jurnal untuk Invoice {$noInvoice}";
+                $jurnal->totaldebit = $totalharga;
+                $jurnal->totalcredit = $totalharga;
+                $jurnal->save();
+
+                // Menyimpan Jurnal Item untuk Debit
+                $jurnalItemDebit = new JurnalItem();
+                $jurnalItemDebit->jurnal_id = $jurnal->id;
+                $jurnalItemDebit->code_account = $receivableSalesAccountId;
+                $jurnalItemDebit->description = "Debit untuk Invoice {$noInvoice}";
+                $jurnalItemDebit->debit = $totalharga;
+                $jurnalItemDebit->credit = 0;
+                $jurnalItemDebit->save();
+
+                // Menyimpan Jurnal Item untuk Kredit
+                $jurnalItemCredit = new JurnalItem();
+                $jurnalItemCredit->jurnal_id = $jurnal->id;
+                $jurnalItemCredit->code_account = $salesAccountId;
+                $jurnalItemCredit->description = "Kredit untuk Invoice {$noInvoice}";
+                $jurnalItemCredit->debit = 0;
+                $jurnalItemCredit->credit = $totalharga;
+                $jurnalItemCredit->save();
+            } catch (\Exception $e) {
+                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
+            }
 
             DB::commit();
 

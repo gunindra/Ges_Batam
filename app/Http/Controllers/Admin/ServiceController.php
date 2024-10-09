@@ -51,7 +51,7 @@ class ServiceController extends Controller
     public function addService(Request $request)
     {
         $request->validate([
-            'titleService' => 'required|string|max:255',
+            'titleService' => 'required|string|max:255|unique:tbl_service,title_service',
             'contentService' => 'required|string',
             'imageService' => 'nullable|mimes:jpg,jpeg,png',
         ]);

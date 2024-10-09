@@ -14,7 +14,6 @@ class AboutsController extends Controller
 
  
         $dataAbout = DB::table('tbl_aboutus')->first();
-        // ganti tanda * dan kenapa id = 1
 
         return view('landingpage.About', [
             'contact' => $contact,

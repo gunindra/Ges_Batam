@@ -43,7 +43,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="roleIdEdit">
                     <div class="mt-3">
                         <label for="roleMaster" class="form-label fw-bold">Role</label>
                         <input type="text" class="form-control" id="roleMasterEdit" value=""
@@ -440,7 +439,6 @@
         });
 
         $('#saveRoleMaster').click(function () {
-            // Ambil nilai input
             var roleMaster = $('#roleMaster').val().trim();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -453,7 +451,6 @@
             } else {
                 $('#roleMasterError').addClass('d-none');
             }
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -466,9 +463,6 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        var formData = new FormData();
-                        formData.append('roleMaster', roleMaster);
-                        formData.append('_token', csrfToken);
                         Swal.fire({
                             title: 'Loading...',
                             text: 'Please wait while we process your role.',
@@ -478,51 +472,32 @@
                             }
                         });
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addRole') }}",
-                            data: formData,
-                            contentType: false,
-                            processData: false,
+                            url: '/masterdata/role/store',
+                            method: 'POST',
+                            data: {
+                                roleMaster: roleMaster,
+                                _token: '{{ csrf_token() }}',
+                            },
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
+                                if (response.success) {
                                     showMessage("success",
-                                        "Data Berhasil Disimpan");
-                                    getlistRole();
-                                    getlistMenu();
-                                    $('#modalTambahRole').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: response
-                                            .message,
-                                        icon: "error"
-                                    });
+                                        "berhasil ditambahkan");
+                                        $('#modalTambahRole').modal('hide');
+                                        getlistRole();
                                 }
                             },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Gagal Menambahkan Data",
-                                    text: xhr.responseJSON
-                                        .message,
-                                    icon: "error",
-                                });
+                            error: function (response) {
+                                Swal.close();
+                                if (response.status === 500) {
+                                    showMessage("error", "Role yang dimasukkan sudah ada. Silakan masukkan role yang berbeda.");
+                                } else {
+                                showMessage("error","Terjadi kesalahan, coba lagi nanti");
+                                }
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
         $('#modalTambahRole').on('hidden.bs.modal', function () {
@@ -537,94 +512,82 @@
             }
         });
         $(document).on('click', '.btnUpdateRole', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let role = $(this).data('role');
-
-            $('#roleMasterEdit').val(role);
-            $('#roleIdEdit').val(id);
-
-            $(document).on('click', '#saveEditRole', function (e) {
-
-                let id = $('#roleIdEdit').val();
-                let roleMaster = $('#roleMasterEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                if (roleMaster === '') {
-                    $('#roleMasterErrorEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#roleMasterErrorEdit').addClass('d-none');
+            var RoleId = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/role/' + RoleId,
+                method: 'GET',
+                success: function (response) {
+                    $('#roleMasterEdit').val(response.role);
+                    $('#modalEditRole').modal('show');
+                    $('#saveEditRole').data('id', RoleId);
+                },
+                error: function () {
+                    showMessage("error", "Terjadi kesalahan saat mengambil data");
                 }
+            });
+        });
 
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('roleMaster', roleMaster);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your role.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
+        $('#saveEditRole').on('click', function () {
+            var RoleId = $(this).data('id');
+            var roleMaster = $('#roleMasterEdit').val();
+
+            let isValid = true;
+
+            if (roleMaster === '') {
+                $('roleMasterErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('roleMasterErrorEdit').addClass('d-none');
+            }
+
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah kamu yakin?',
+                    text: "Anda akan memperbarui ini",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Harap tunggu, sedang memperbarui data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/role/update/' + RoleId,
+                            method: 'PUT',
+                            data: {
+                                roleMaster: roleMaster,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "berhasil diperbarui")
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
                                 }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateRole') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getlistRole();
-                                        getlistMenu();
-                                        $('#modalEditRole').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            })
-
-            // validateInformationsInput('modalEditInformations');
-            $('#modalEditRole').modal('show');
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
         $('#modalEditRole').on('hidden.bs.modal', function () {
             $('#roleMasterEdit').val('');
@@ -660,9 +623,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
-                        url: "{{ route('destroyRole') }}",
+                        type: "DELETE",
+                        url: '/masterdata/role/destroy/'+ id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {

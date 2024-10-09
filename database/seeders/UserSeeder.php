@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('tbl_users')->insert([
+        $users = [
             [
                 'name' => 'Admin User',
                 'email' => 'admin@example.com',
@@ -28,6 +28,13 @@ class UserSeeder extends Seeder
             //     'password' => Hash::make('password'),
             //     'role' => 'user',
             // ],
-        ]);
+        ];
+
+        foreach ($users as $user) {
+            DB::table('tbl_users')->updateOrInsert(
+                ['email' => $user['email']],
+                $user
+            );
+        }
     }
 }

@@ -58,7 +58,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="rekeningIdEdit">
                     <div class="mt-3">
                         <label for="namaRekening" class="form-label fw-bold">Pemilik</label>
                         <input type="text" class="form-control" id="namaRekeningEdit" value=""
@@ -250,16 +249,13 @@
 
 
         $('#saveRekening').click(function () {
-            // Ambil nilai input
             var namaRekening = $('#namaRekening').val().trim();
             var noRekening = $('#noRekening').val().trim();
             var bankRekening = $('#bankRekening').val();
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-
             var isValid = true;
 
-            // Validasi Nama Pemilik
             if (namaRekening === '') {
                 $('#err-NamaRekening').removeClass('d-none');
                 isValid = false;
@@ -267,7 +263,6 @@
                 $('#err-NamaRekening').addClass('d-none');
             }
 
-            // Validasi No. Rekening
             if (noRekening === '') {
                 $('#err-noRekening').removeClass('d-none');
                 isValid = false;
@@ -275,8 +270,6 @@
                 $('#err-noRekening').addClass('d-none');
             }
 
-
-            // Validasi Bank
             if ($('#bankRekening').val() === '' || $('#bankRekening').val() === null) {
                 $('#err-bankRekening').removeClass('d-none');
                 isValid = false;
@@ -284,8 +277,6 @@
                 $('#err-bankRekening').addClass('d-none');
             }
 
-
-            // Jika semua input valid, lanjutkan aksi simpan
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -307,46 +298,35 @@
                             }
                         });
                         $.ajax({
-                            type: "POST",
-                            url: "{{ route('addRekening') }}",
+                            url: '/masterdata/rekening/store',
+                            method: 'POST',
                             data: {
                                 namaRekening: namaRekening,
                                 noRekening: noRekening,
                                 bankRekening: bankRekening,
-                                _token: csrfToken
+                                _token: '{{ csrf_token() }}',
                             },
                             success: function (response) {
                                 Swal.close();
-
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
+                                if (response.success) {
+                                    showMessage("success", "berhasil ditambahkan")
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
                                 }
-
-                                if (response.status === 'success') {
-                                    showMessage("success",
-                                        "Data Berhasil Disimpan");
-                                    getListRekening();
-                                    $('#modalTambahRekening').modal('hide');
-                                } else {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Rekening",
-                                        icon: "error"
-                                    });
-                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
                             }
                         });
                     }
                 });
-            } else {
-                showMessage("error", "Mohon periksa input yang kosong");
             }
         });
+
         $('#modalTambahRekening').on('hidden.bs.modal', function () {
             $('#namaRekening, #noRekening, #bankRekening').val('');
             if (!$('#err-NamaRekening').hasClass('d-none')) {
@@ -364,118 +344,101 @@
         });
 
         $(document).on('click', '.btnUpdateRekening', function (e) {
-            e.preventDefault();
-            let id = $(this).data('id');
-            let pemilik = $(this).data('pemilik');
-            let nomer_rekening = $(this).data('nomer_rekening');
-            let nama_bank = $(this).data('nama_bank');
-
-            $('#namaRekeningEdit').val(pemilik);
-            $('#noRekeningEdit').val(nomer_rekening);
-            $('#bankRekeningEdit').val(nama_bank);
-            $('#rekeningIdEdit').val(id);
-
-            $(document).on('click', '#saveEditRekening', function (e) {
-
-                let id = $('#rekeningIdEdit').val();
-                let namaRekening = $('#namaRekeningEdit').val();
-                let noRekening = $('#noRekeningEdit').val();
-                let bankRekening = $('#bankRekeningEdit').val();
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-                let isValid = true;
-
-                if (namaRekening === '') {
-                    $('#err-NamaRekeningEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-NamaRekeningEdit').addClass('d-none');
+            var RekeningId = $(this).data('id');
+            $.ajax({
+                url: '/masterdata/rekening/' + RekeningId,
+                method: 'GET',
+                success: function (response) {
+                    $('#namaRekeningEdit').val(response.pemilik);
+                    $('#noRekeningEdit').val(response.nomer_rekening);
+                    $('#bankRekeningEdit').val(response.nama_bank);
+                    $('#modalEditRekening').modal('show');
+                    $('#saveEditRekening').data('id', RekeningId);
+                },
+                error: function () {
+                    showMessage("error", "Terjadi kesalahan saat mengambil data");
                 }
+            });
+        });
 
-                // Validasi Content
-                if (noRekening === '') {
-                    $('#err-noRekeningEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-noRekeningEdit').addClass('d-none');
-                }
+        $('#saveEditRekening').on('click', function () {
+            var RekeningId = $(this).data('id');
+            var namaRekening = $('#namaRekeningEdit').val();
+            var noRekening = $('#noRekeningEdit').val();
+            var bankRekening = $('#bankRekeningEdit').val();
 
-                if (bankRekening === '') {
-                    $('#err-bankRekeningEdit').removeClass('d-none');
-                    isValid = false;
-                } else {
-                    $('#err-bankRekeningEdit').addClass('d-none');
-                }
+            let isValid = true;
 
+            if (namaRekening === '') {
+                $('#err-NamaRekeningEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-NamaRekeningEdit').addClass('d-none');
+            }
 
+            if (noRekening === '') {
+                $('#err-noRekeningEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-noRekeningEdit').addClass('d-none');
+            }
 
-                if (isValid) {
-                    Swal.fire({
-                        title: "Apakah Kamu Yakin?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#5D87FF',
-                        cancelButtonColor: '#49BEFF',
-                        confirmButtonText: 'Ya',
-                        cancelButtonText: 'Tidak',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            let formData = new FormData();
-                            formData.append('id', id);
-                            formData.append('namaRekening', namaRekening);
-                            formData.append('noRekening', noRekening);
-                            formData.append('bankRekening', bankRekening);
-                            formData.append('_token', csrfToken);
-                            Swal.fire({
-                                title: 'Loading...',
-                                text: 'Please wait while we process update your rekening.',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
+            if (bankRekening === '') {
+                $('#err-bankRekeningEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#err-bankRekeningEdit').addClass('d-none');
+            }
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah kamu yakin?',
+                    text: "Anda akan memperbarui ini",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Harap tunggu, sedang memperbarui data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: '/masterdata/rekening/update/' + RekeningId,
+                            method: 'PUT',
+                            data: {
+                                namaRekening: namaRekening,
+                                noRekening: noRekening,
+                                bankRekening: bankRekening,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "berhasil diperbarui")
+                                        .then(
+                                            () => {
+                                                location.reload();
+                                            });
                                 }
-                            });
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('updateRekening') }}",
-                                data: formData,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                    Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-                                    if (response.status === 'success') {
-                                        showMessage("success",
-                                            "Data Berhasil Diubah");
-                                        getListRekening();
-                                        $('#modalEditRekening').modal(
-                                            'hide');
-                                    } else {
-                                        Swal.fire({
-                                            title: "Gagal Menambahkan",
-                                            icon: "error"
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    showMessage("error", "Mohon periksa input yang kosong");
-                }
-            })
-
-            // validateInformationsInput('modalEditInformations');
-            $('#modalEditRekening').modal('show');
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
         });
         $('#modalEditRekening').on('hidden.bs.modal', function () {
             $('#namaRekeningEdit, #noRekeningEdit, #bankRekeningEdit').val('');
@@ -517,9 +480,10 @@
                         }
                     });
                     $.ajax({
-                        type: "GET",
-                        url: "{{ route('destroyRekening') }}",
+                        type: "DELETE",
+                        url: '/masterdata/pembagirate/destroy/' + id,
                         data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
                         },
                         success: function (response) {
