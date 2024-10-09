@@ -428,6 +428,7 @@ class InvoiceController extends Controller
                 $jurnalItemCredit->debit = 0;
                 $jurnalItemCredit->credit = $totalharga;
                 $jurnalItemCredit->save();
+
             } catch (\Exception $e) {
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
