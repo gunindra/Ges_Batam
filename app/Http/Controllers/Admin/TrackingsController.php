@@ -103,7 +103,6 @@ class TrackingsController extends Controller
             $Tracking->keterangan = $request->input('keterangan');
 
             $Tracking->update($validated);
-
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
