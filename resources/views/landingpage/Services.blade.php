@@ -1,4 +1,4 @@
-<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
+<x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
     @section('title', 'PT. GES | Services')
     <body class="navigasi-page">
         <div class="container d-flex justify-content-center mb-5">

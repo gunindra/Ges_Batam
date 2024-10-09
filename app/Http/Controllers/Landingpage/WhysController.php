@@ -12,13 +12,11 @@ class WhysController extends Controller
         {
             
             $id = $request->query('id');
-    
-            $dataWhy = DB::table('tbl_whyus')->first();
-            $contact = DB::table('tbl_contact')->first(); 
+
+            $dataPtges = DB::table('tbl_ptges')->first(); 
     
             return view('landingpage.Why', [
-                'dataWhy' => $dataWhy,
-                'contact' => $contact,
+                'dataPtges' => $dataPtges,
             ]);
         }
       

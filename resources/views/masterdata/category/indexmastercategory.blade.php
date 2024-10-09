@@ -213,7 +213,7 @@
             } else if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
                 $('#maximumRateCategoryError').removeClass('d-none').text("Maximum Rate Category harus berupa angka positif");
                 isValid = false;
-            } else if (parseFloat(maximumRateCategory) > 100000000000000000) {
+            } else if (parseFloat(maximumRateCategory) > 1000000000000000) {
                 $('#maximumRateCategoryError').removeClass('d-none').text("Karakter maksimum tidak boleh melebihi 15 ");
                 isValid = false;
             } else {

@@ -1,4 +1,4 @@
-<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
+<x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
 
   
   @section('title', 'PT. GES')
@@ -184,12 +184,12 @@
           <h1 style="font-size:32px;">About Us</h1>
         </div>
         <h2>What they say about us</h2>
-        <p id="parafAbout">{!! nl2br( e( $aboutus->Paragraph_AboutUs ?? '-')) !!}</p>
+        <p id="parafAbout">{!! nl2br( e( $dataPtges->Paragraph_AboutUs ?? '-')) !!}</p>
         <a href="/About" class="btn">Learn More</a>
       </div>
       <div class="image" id="imageAbout">
-        @if (!empty($aboutus->Image_AboutUs))
-          <img src="{{ asset('storage/images/' . $aboutus->Image_AboutUs) }}" style="border-radius:30px;">
+        @if (!empty($dataPtges->Image_AboutUs))
+          <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;">
         @else
           <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
         @endif
@@ -203,15 +203,15 @@
     <div class="wrapperwhy" id="Why">
       <div class="why">
         <div class="image-sectionwhy">
-        @if (!empty($whyus->Image_WhyUs))
-          <img src="{{ asset('storage/images/' . $whyus->Image_WhyUs) }}" id="imageWhy">
+        @if (!empty($dataPtges->Image_WhyUs))
+          <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy">
           @else
           <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
         @endif
         </div>
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
-          <p id="parafWhy">{!! nl2br( e( $whyus->Paragraph_WhyUs ?? '-' )) !!}</p>
+          <p id="parafWhy">{!! nl2br( e( $dataPtges->Paragraph_WhyUs ?? '-' )) !!}</p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>
           </div>
@@ -287,9 +287,9 @@
           <p class="pt-3" style="color:#1679AB; font-size: 20px; font-family: sans-serif;">42Q2+6PH, Unnamed Road,
             Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
           <div class="Contact-Us" style="font-size:17px; color:#1679AB;">
-            <p><i class="ph ph-envelope fa-xl"></i> {{ $contact->email ?? '-'}}</p>
-            <p><i class="ph ph-phone fa-xl"></i> {{ is_object($contact) && isset($contact->phone) ? '+62' . $contact->phone : '-' }}</p>
-            <p><i class="ph ph-phone-plus fa-xl"></i> {{ is_object($contact) && isset($contact->phones) ? '+62' . $contact->phones : '-' }}</p>
+            <p><i class="ph ph-envelope fa-xl"></i> {{ $dataPtges->email ?? '-'}}</p>
+            <p><i class="ph ph-phone fa-xl"></i> {{ is_object($dataPtges) && isset($dataPtges->phone) ? '+62' . $dataPtges->phone : '-' }}</p>
+            <p><i class="ph ph-phone-plus fa-xl"></i> {{ is_object($dataPtges) && isset($dataPtges->phones) ? '+62' . $dataPtges->phones : '-' }}</p>
           </div>
         </div>
       </div>

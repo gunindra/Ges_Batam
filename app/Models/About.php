@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class About extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_aboutus'; 
+    protected $table = 'tbl_ptges'; 
     protected $fillable = [
         'Paragraph_AboutUs',
         'Image_AboutUs',

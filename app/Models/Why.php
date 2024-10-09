@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Why extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_whyus'; 
+    protected $table = 'tbl_ptges'; 
     protected $fillable = [
         'Image_WhyUs',
         'Paragraph_WhyUs',
