@@ -137,6 +137,8 @@ Route::middleware(['auth'])->group(function () {
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
+    Route::get('/payment/getInvoiceAmount', [PaymentController::class, 'getInvoiceAmount'])->name('getInvoiceAmount');
+    Route::post('/payment/store', [PaymentController::class, 'store'])->name('buatpembayaran');
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -245,7 +247,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/masterdata/user/update/{id}', [UserController::class, 'updateUsers'])->name('updateUsers');
     Route::delete('/masterdata/user/destroy/{id}', [UserController::class, 'destroyUsers'])->name('destroyUsers');
     Route::get('/masterdata/user/{id}', [UserController::class, 'show']);
-    
+
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
     Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');
@@ -253,7 +255,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/masterdata/role/update/{id}', [RoleController::class, 'updateRole'])->name('updateRole');
     Route::delete('/masterdata/role/destroy/{id}', [RoleController::class, 'destroyRole'])->name('destroyRole');
     Route::get('/masterdata/role/{id}', [RoleController::class, 'show']);
-    
+
     //Menu
     Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 

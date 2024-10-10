@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_coa', function (Blueprint $table) {
+        Schema::create('tbl_payment_customer', function (Blueprint $table) {
             $table->id();
-            $table->string('code_account_id')->unique();
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->boolean('set_as_group')->default(false);
-            $table->string('default_posisi');
-            $table->timestamps();
-            $table->foreign('parent_id')->references('id')->on('tbl_coa')->onDelete('cascade');
+            $table->string('kode_pembayaran');
+            $table->string('invoice_number');
+            $table->date('payment_date');
+            $table->decimal('amount', 15, 2);
+            $table->string('payment_method');
+            // $table->text('description')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_coa');
+        Schema::dropIfExists('tbl_payment_customer');
     }
 };
