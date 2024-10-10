@@ -11,10 +11,10 @@ class TrackingController extends Controller
 
         $id = $request->query('id');
 
-            $contact = DB::table('tbl_contact')->first();
+            $dataPtges = DB::table('tbl_ptges')->first();
 
             return view('landingpage.Tracking', [
-                'contact' => $contact,
+                'dataPtges' => $dataPtges,
             ]);
 
     }

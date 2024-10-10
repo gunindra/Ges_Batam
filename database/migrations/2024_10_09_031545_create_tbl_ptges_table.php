@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_pengantaran', function (Blueprint $table) {
+        Schema::create('tbl_ptges', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supir_id')->nullable()->constrained('tbl_supir');
-            $table->date('tanggal_pengantaran');
-            $table->enum('metode_pengiriman', ['Pickup', 'Delivery']);
-            $table->foreignId('status_id')->constrained('tbl_status')->default(3);
-            $table->text('bukti_pengantaran')->nullable();
+            $table->text('Paragraph_AboutUs')->nullable();
+            $table->string('Image_AboutUs')->nullable();
+            $table->text('Paragraph_WhyUs')->nullable();
+            $table->string('Image_WhyUs')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('phones')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 
     /**
-     * Reverse the migrations.fe
+     * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_pengantaran');
+        Schema::dropIfExists('tbl_ptges');
     }
 };

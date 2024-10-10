@@ -1239,6 +1239,7 @@ a:hover {
   .image-sectionwhy img {
     width: 100%;
     max-width: none; 
+    
   }
 
   article {
@@ -1265,6 +1266,29 @@ a:hover {
     padding: 14px 22px; 
     font-size: 18px; 
   }
+  /* Masuk bagian Why */
+  .content-containerwhy {
+    flex-direction: column; 
+    align-items: center; 
+  }
+  
+  .image-sectionwhy {
+    margin-right: 0;
+    margin-bottom: 20px; 
+  }
+  .image-sectionwhy img{
+    width:250%;
+    height:auto;
+  }
+
+  .contentwhy {
+    margin-left: 0;
+  }
+
+  .contentwhy h2 {
+    margin-left: 0; 
+    font-size: 20px; 
+  }
   /* service */
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
@@ -1289,8 +1313,10 @@ a:hover {
   .box {
     max-width: 100%;
   }
+
   
 }
+
 @media only screen and (max-width: 776px) {
   /* navbar */
   .navbar-nav {

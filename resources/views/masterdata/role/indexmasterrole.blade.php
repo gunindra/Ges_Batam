@@ -12,7 +12,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahRole">Tambah Iklan</h5>
+                    <h5 class="modal-title" id="modalTambahRole">Tambah Role</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -489,7 +489,7 @@
                             },
                             error: function (response) {
                                 Swal.close();
-                                if (response.status === 500) {
+                                if (response.status === 422) {
                                     showMessage("error", "Role yang dimasukkan sudah ada. Silakan masukkan role yang berbeda.");
                                 } else {
                                 showMessage("error","Terjadi kesalahan, coba lagi nanti");

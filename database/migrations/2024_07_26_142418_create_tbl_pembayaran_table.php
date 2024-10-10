@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('bukti_pembayaran', 100)->nullable();
             $table->foreignId('status_id')->constrained('tbl_status');
             $table->enum('status_pembayaran', ['Lunas', 'Belum lunas']);
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
 
     }

@@ -19,7 +19,8 @@ class CreateTblCustomerTable extends Migration
             $table->tinyInteger('status');
             $table->timestamp('non_active_at')->nullable();
             $table->string('metode_pengiriman', 50);
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
 
     }

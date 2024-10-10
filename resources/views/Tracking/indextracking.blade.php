@@ -63,7 +63,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <input type="hidden" name="idTracking" id="idTrackingEdit">
                 <div class="mt-3">
                     <label for="noDeliveryOrderEdit" class="form-label fw-bold">No. Delivery Order</label>
                     <input type="text" class="form-control" id="noDeliveryOrderEdit" value=""
@@ -275,87 +274,89 @@
                         }
                     });
                     $.ajax({
-                        url: "{{ route('addTracking') }}",
+                        url: '/tracking/store',
                         method: 'POST',
                         data: {
-                            _token: csrfToken,
                             noDeliveryOrder: noDeliveryOrder,
                             status: status,
                             keterangan: keterangan,
                             noResi: noResi,
+                            _token: '{{ csrf_token() }}',
                         },
                         success: function (response) {
                             Swal.close();
-                            showMessage("success", "Data Berhasil Disimpan");
-                            $('#modalTambahTracking').modal('hide');
-                            getlistTracking();
+                            if (response.success) {
+                                showMessage("success",
+                                    "berhasil ditambahkan");
+                                $('#modalTambahTracking').modal('hide');
+                                getlistTracking();
+                            }
                         },
-                        error: function (xhr, status, error) {
+                        error: function (response) {
                             Swal.close();
-                            showMessage('error', 'Terjadi kesalahan: ' + error);
+                            showMessage("error",
+                                "Terjadi kesalahan, coba lagi nanti");
                         }
                     });
                 }
             });
-        } else {
-            showMessage("error", "Mohon periksa input yang kosong");
         }
     });
     $('#modalTambahTracking').on('hidden.bs.modal', function () {
-            $('#noDeliveryOrder,#keterangan,#noResi').val('');
-            if (!$('#noDeliveryOrderError').hasClass('d-none')) {
-                $('#noDeliveryOrderError').addClass('d-none');
+        $('#noDeliveryOrder,#keterangan,#noResi').val('');
+        $('#tags').inputTags('reset');
+        if (!$('#noDeliveryOrderError').hasClass('d-none')) {
+            $('#noDeliveryOrderError').addClass('d-none');
 
-            }
-            if (!$('#noResiError').hasClass('d-none')) {
-                $('#noResiError').addClass('d-none');
+        }
+        if (!$('#noResiError').hasClass('d-none')) {
+            $('#noResiError').addClass('d-none');
 
-            }
-            if (!$('#keteranganError').hasClass('d-none')) {
-                $('#keteranganError').addClass('d-none');
+        }
+        if (!$('#keteranganError').hasClass('d-none')) {
+            $('#keteranganError').addClass('d-none');
 
-            }
-        });
-        $('#modalEditTracking').on('hidden.bs.modal', function () {
-            $('#noDeliveryOrderEdit,#keteranganEdit').val('');
-            if (!$('#noDeliveryOrderErrorEdit').hasClass('d-none')) {
-                $('#noDeliveryOrderErrorEdit').addClass('d-none');
+        }
+    });
+    $('#modalEditTracking').on('hidden.bs.modal', function () {
+        $('#noDeliveryOrderEdit,#keteranganEdit').val('');
+        if (!$('#noDeliveryOrderErrorEdit').hasClass('d-none')) {
+            $('#noDeliveryOrderErrorEdit').addClass('d-none');
 
-            }
-            if (!$('#keteranganErrorEdit').hasClass('d-none')) {
-                $('#keteranganErrorEdit').addClass('d-none');
+        }
+        if (!$('#keteranganErrorEdit').hasClass('d-none')) {
+            $('#keteranganErrorEdit').addClass('d-none');
 
-            }
-        });
-
+        }
+    });
+    
 
     $(document).on('click', '.btnUpdateTracking', function (e) {
-        let id = $(this).data('id')
-        let no_do = $(this).data('no_do')
-        let keterangan = $(this).data('keterangan');
-        let no_resi = $(this).data('no_resi');
+            var trackingid = $(this).data('id');
+            $.ajax({
+                url: '/tracking/' + trackingid,
+                method: 'GET',
+                success: function (response) {
+                    $('#noDeliveryOrderEdit').val(response.no_do);
+                    $('#keteranganEdit').val(response.keterangan);
+                    $('#noResiEdit').text(response.no_resi);
+                    $('#modalEditTracking').modal('show');
+                    $('#saveUpdateTracking').data('id', trackingid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data");
+                }
+            });
+        });
+        $('#saveUpdateTracking').on('click', function () {
+            var trackingid = $(this).data('id');
+            var noDeliveryOrder = $('#noDeliveryOrderEdit').val().trim();
+            var keterangan = $('#keteranganEdit').val();
 
 
-        $('#noDeliveryOrderEdit').val(no_do);
-        $('#keteranganEdit').val(keterangan);
-        $('#idTrackingEdit').val(id)
-        $('#noResiEdit').text(no_resi)
-        $('#modalEditTracking').modal('show');
-    })
+            var isValid = true;
 
-
-
-    $('#saveUpdateTracking').click(function () {
-
-        // Ambil nilai dari input
-        var idTracking = $('#idTrackingEdit').val();
-        var noDeliveryOrder = $('#noDeliveryOrderEdit').val().trim();
-        var keterangan = $('#keteranganEdit').val();
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        var isValid = true;
-
-        // Validasi No. Delivery Order
         if (noDeliveryOrder === '') {
             $('#noDeliveryOrderErrorEdit').removeClass('d-none');
             isValid = false;
@@ -363,7 +364,6 @@
             $('#noDeliveryOrderErrorEdit').addClass('d-none');
         }
 
-        // Validasi Keterangan
         if (keterangan === '') {
             $('#keteranganErrorEdit').removeClass('d-none');
             isValid = false;
@@ -371,62 +371,55 @@
             $('#keteranganErrorEdit').addClass('d-none');
         }
 
-        if (isValid) {
-            Swal.fire({
-                title: "Apakah Kamu Yakin?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#5D87FF',
-                cancelButtonColor: '#49BEFF',
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Sedang memproses...',
-                        text: 'Harap menunggu hingga proses update selesai',
-                        icon: 'info',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    $.ajax({
-                        url: "{{ route('updateTracking') }}",
-                        method: 'POST',
-                        data: {
-                            _token: csrfToken,
-                            id: idTracking,
-                            noDeliveryOrder: noDeliveryOrder,
-                            keterangan: keterangan,
-                        },
-                        success: function (response) {
-                            Swal.close();
-
-                            if (response.url) {
-                                window.open(response.url, '_blank');
-                            } else if (response.error) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.error
-                                });
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
                             }
-                            showMessage("success", "Data Berhasil Diperbarui");
-                            $('#modalEditTracking').modal('hide');
-                            getlistTracking();
-                        },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
-                        }
-                    });
-                }
-            });
-        }
-    });
+                        });
 
-
+                        $.ajax({
+                            url: '/tracking/updateTracking/' + trackingid,
+                            method: 'PUT',
+                            data: {
+                                noDeliveryOrder: noDeliveryOrder,
+                                keterangan: keterangan,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", response
+                                        .message);
+                                    $('#modalEditTracking').modal('hide');
+                                    getlistTracking();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        
     $(document).on('click', '.btnDestroyTracking', function (e) {
         let id = $(this).data('id');
 
@@ -451,10 +444,11 @@
                     }
                 });
                 $.ajax({
-                    type: "GET",
-                    url: "{{ route('deleteTracking') }}",
+                    type: "DELETE",
+                    url: '/tracking/deleteTracking/' + id,
                     data: {
                         id: id,
+                        _token: $('meta[name="csrf-token"]').attr('content'),
                     },
                     success: function (response) {
                         Swal.close();

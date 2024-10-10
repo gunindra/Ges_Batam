@@ -34,14 +34,15 @@ class SupirController extends Controller
     public function index(Request $request)
     {
 
-    $listInvoice = DB::select("SELECT a.invoice_id, b.metode_pengiriman,
-                                             b.no_invoice,
-                                             d.nama_supir
-                                        FROM tbl_pengantaran_detail AS a
-                                        JOIN tbl_invoice AS b ON b.id = a.invoice_id
-                                        JOIN tbl_pengantaran AS c ON c.id = a.pengantaran_id
-                                        JOIN tbl_supir AS d ON d.id = c.supir_id
-                                        WHERE a.bukti_pengantaran IS NULL AND a.tanda_tangan IS NULL AND b.metode_pengiriman = 'Delivery'");
+        $listInvoice = DB::table('tbl_pengantaran_detail as a')
+            ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
+            ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
+            ->join('tbl_supir as d', 'd.id', '=', 'c.supir_id')
+            ->select('a.invoice_id', 'b.metode_pengiriman', 'b.no_invoice', 'd.nama_supir')
+            ->whereNull('a.bukti_pengantaran')
+            ->whereNull('a.tanda_tangan')
+            ->where('b.metode_pengiriman', 'Delivery')
+            ->get();
 
         return view('supir.indexsupir', [
             'listInvoice' => $listInvoice
@@ -200,8 +201,8 @@ class SupirController extends Controller
     {
         $invoiceIds = $request->input('invoice_ids');
         $count = DB::table('tbl_resi')
-                    ->whereIn('invoice_id', $invoiceIds)
-                    ->count();
+            ->whereIn('invoice_id', $invoiceIds)
+            ->count();
         return response()->json(['count' => $count]);
     }
 

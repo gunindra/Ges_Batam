@@ -6,6 +6,7 @@ use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Storage;
+use App\Models\Tracking;
 
 class TrackingsController extends Controller
 {
@@ -63,70 +64,69 @@ class TrackingsController extends Controller
     {
         $request->validate([
             'noResi' => 'required|array|min:1',
-            'noResi.*' => 'required|string|max:20',
             'noDeliveryOrder' => 'required|string|max:20',
             'status' => 'required|string|max:50',
             'keterangan' => 'nullable|string|max:255',
         ]);
+    
         try {
-            foreach ($request->noResi as $resi) {
-                DB::table('tbl_tracking')->insert([
-                    'no_resi' => $resi,
-                    'no_do' => $request->noDeliveryOrder,
-                    'status' => $request->status,
-                    'keterangan' => $request->keterangan,
-                    'created_at' => now(),
-                ]);
+            foreach ($request->input('noResi') as $resi) {
+                $Tracking = new Tracking();
+                $Tracking->no_resi = $resi;
+                $Tracking->no_do = $request->input('noDeliveryOrder');
+                $Tracking->status = $request->input('status');
+                $Tracking->keterangan = $request->input('keterangan');
+                $Tracking->save();
             }
-            return response()->json(['message' => 'Tracking berhasil ditambahkan'], 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+    
+            return response()->json(['success' => 'Data berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
+    
 
-    public function updateTracking(Request $request)
+    public function updateTracking(Request $request, $id)
     {
-       $request->validate([
+       $validated = $request->validate([
             'noDeliveryOrder' => 'required|string|max:20',
             'keterangan' => 'nullable|string|max:255',
         ]);
 
         try {
+            $Tracking = Tracking::findOrFail($id);
 
-            $idTracking = $request->input('id');
-
-            if (!$idTracking) {
+            if (!$Tracking) {
                 return response()->json(['message' => 'ID Tracking tidak ditemukan'], 400);
             }
-            DB::table('tbl_tracking')
-                ->where('id', $idTracking)
-                ->update([
-                    'no_do' => $request->input('noDeliveryOrder'),
-                    // 'status' => $request->input('status'),
-                    'keterangan' => $request->input('keterangan'),
-                    'updated_at' => now(),
-                ]);
+            $Tracking->no_do = $request->input('noDeliveryOrder');
+            $Tracking->keterangan = $request->input('keterangan');
 
-            return response()->json(['message' => 'Tracking berhasil diperbarui'], 200);
-        } catch (Exception $e) {
-            // Tangani pengecualian jika terjadi kesalahan
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            $Tracking->update($validated);
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
 
     }
 
 
-    public function deleteTracking(Request $request)
+    public function deleteTracking($id)
     {
-        $id = $request->input('id');
+        $Tracking = Tracking::findOrFail($id);
 
         try {
 
-            DB::table('tbl_tracking')->where('id', $id)->delete();
+            $Tracking->delete();
 
-            return response()->json(['status' => 'success', 'message' => 'Data Invoice berhasil dihapus'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+    public function show($id)
+    {
+        $Tracking = Tracking::findOrFail( $id);
+        return response()->json($Tracking);
     }
 }

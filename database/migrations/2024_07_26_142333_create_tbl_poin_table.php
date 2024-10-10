@@ -13,7 +13,8 @@ class CreateTblPoinTable extends Migration
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
             $table->date('tanggal_pembelianpoin');
             $table->integer('poin');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 

@@ -23,7 +23,8 @@ return new class extends Migration
             $table->decimal('total_harga', 15,2);
             $table->string('wa_status', 50)->nullable();
             $table->foreignId('status_id')->constrained('tbl_status')->default(1);
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
 
     }

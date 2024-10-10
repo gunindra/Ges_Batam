@@ -1,4 +1,4 @@
-<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
+<x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
   @section('title', 'PT. GES | About Us')
 
   <body class="navigasi-page">
@@ -6,16 +6,16 @@
       <h2>About Us</h2>
     </div>
 
-    @if($dataAbout)
+    @if($dataPtges)
     <div class="content-container">
       <div class="contentAbout">
         <h2>What they say about us</h2>
         <p id="parafAbout">
-          {!! nl2br(e($dataAbout->Paragraph_AboutUs)) !!}
+          {!! nl2br(e($dataPtges->Paragraph_AboutUs)) !!}
         </p>
       </div>
       <div class="imageAbout" id="imageAbout">
-        <img src="{{ asset('storage/images/' . $dataAbout->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
       </div>
     </div>
     @else

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->date('tanggal_pembayaran');
             $table->enum('metode_pembayaran', ['Transfer', 'Tunai']);
             $table->string('bukti_pembayaran')->nullable();
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 
