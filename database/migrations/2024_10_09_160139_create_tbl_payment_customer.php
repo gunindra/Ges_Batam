@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('tbl_payment_customer', function (Blueprint $table) {
             $table->id();
             $table->string('kode_pembayaran');
-            $table->string('invoice_number');
+            $table->unsignedBigInteger('invoice_id');
+            $table->foreign('invoice_id')->references('id')->on('tbl_invoice')->onDelete('cascade');
             $table->date('payment_date');
             $table->decimal('amount', 15, 2);
             $table->string('payment_method');

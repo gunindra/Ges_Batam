@@ -21,9 +21,9 @@ return new class extends Migration
             $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
             $table->decimal('rate_matauang', 15,2)->nullable();
             $table->decimal('total_harga', 15,2);
-            $table->decimal('total_bayar', 15,2);
+            $table->decimal('total_bayar', 15,2)->nullable();
             $table->string('wa_status', 50)->nullable();
-            $table->string('status_bayar', 50)->nullable();
+            $table->string('status_bayar', 50)->nullable()->default('Belum lunas');
             $table->foreignId('status_id')->constrained('tbl_status')->default(1);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
