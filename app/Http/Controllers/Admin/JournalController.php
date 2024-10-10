@@ -51,21 +51,22 @@ class JournalController extends Controller
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 return $query->whereBetween('tanggal', [$startDate, $endDate]);
             })
+            ->orderBy('id', 'desc') // Add this line to order by ID in descending order
             ->get();
 
-            $output = '
-            <table class="table align-items-center table-flush table-hover" id="tableJournal">
-                <thead class="thead-light">
-                    <tr>
-                        <th>No. Journal</th>
-                        <th>Deskripsi</th>
-                        <th>Tanggal</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>';
+        $output = '
+        <table class="table align-items-center table-flush table-hover" id="tableJournal">
+            <thead class="thead-light">
+                <tr>
+                    <th>No. Journal</th>
+                    <th>Deskripsi</th>
+                    <th>Tanggal</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>';
 
         foreach ($data as $item) {
             $statusBadgeClass = '';
@@ -87,26 +88,25 @@ class JournalController extends Controller
                 <td>' . ($item->no_journal ?? '-') . '</td>
                 <td>' . ($item->description ?? '-') . '</td>
                 <td>' . ($item->tanggal ?? '-') . '</td>
-                <td>' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td>
+                <td>Rp ' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td> <!-- Format total with Rp -->
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
                 <td>';
 
-        if ($item->status === 'Draft') {
-            $output .= '
+            if ($item->status === 'Draft') {
+                $output .= '
                     <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '">
                         <i class="fas fa-edit"></i>
                     </a>';
-        }
+            }
 
-        $output .= '
+            $output .= '
                     <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
                         <i class="fas fa-trash"></i>
                     </a>';
 
-        $output .= '
+            $output .= '
                 </td>
             </tr>';
-
         }
 
         $output .= '</tbody></table>';
