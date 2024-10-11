@@ -8,12 +8,29 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\Admin\JournalController;
+use App\Models\Jurnal;
+use App\Models\JurnalItem;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PaymentExport;
 
 class PaymentController extends Controller
 {
+    protected $jurnalController;
+
+    public function __construct(JournalController $jurnalController)
+    {
+        $this->jurnalController = $jurnalController;
+    }
+
     public function index()
     {
-        return view('customer.payment.indexpayment');
+        $listpayment = DB::table('tbl_payment_customer')
+            ->select('payment_method')
+            ->groupBy('payment_method')
+            ->get();
+
+        return view('customer.payment.indexpayment', ['listpayment' => $listpayment]);
     }
 
     public function addPayment()
@@ -44,7 +61,7 @@ class PaymentController extends Controller
             ]);
 
         if (!empty($request->status)) {
-            $query->where('b.status_bayar', $request->status);
+            $query->where('a.payment_method', $request->status);
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
@@ -59,11 +76,11 @@ class PaymentController extends Controller
             ->editColumn('tanggal_bayar', function ($row) {
                 return $row->tanggal_bayar;
             })
-            ->addColumn('action', function ($row) {
-                return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
-                       '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
-            })
-            ->rawColumns(['action'])
+            // ->addColumn('action', function ($row) {
+            //     return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
+            //            '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
+            // })
+            // ->rawColumns(['action'])
             ->make(true);
     }
 
@@ -108,6 +125,11 @@ class PaymentController extends Controller
 
         DB::beginTransaction();
 
+        $accountSettings = DB::table('tbl_account_settings')->first();
+
+        $salesAccountId = $accountSettings->sales_account_id;
+        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
+
         try {
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
             $codeType = "BO";
@@ -141,12 +163,57 @@ class PaymentController extends Controller
             $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
             $invoice->save();
 
+            try {
+                $request->merge(['code_type' => 'BKM']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+                $jurnal = new Jurnal();
+                $jurnal->no_journal = $noJournal;
+                $jurnal->tipe_kode = 'BKM';
+                $jurnal->tanggal = $tanggalPayment;
+                $jurnal->no_ref = $request->invoice;
+                $jurnal->status = 'Approve';
+                $jurnal->description = "Jurnal untuk Invoice {$request->invoice}";
+                $jurnal->totaldebit = $request->paymentAmount;
+                $jurnal->totalcredit = $request->paymentAmount;
+                $jurnal->save();
+
+                $jurnalItemDebit = new JurnalItem();
+                $jurnalItemDebit->jurnal_id = $jurnal->id;
+                $jurnalItemDebit->code_account = $receivableSalesAccountId;
+                $jurnalItemDebit->description = "Debit untuk Invoice {$request->invoice}";
+                $jurnalItemDebit->debit = 0;
+                $jurnalItemDebit->credit = $request->paymentAmount;
+                $jurnalItemDebit->save();
+
+                $jurnalItemCredit = new JurnalItem();
+                $jurnalItemCredit->jurnal_id = $jurnal->id;
+                $jurnalItemCredit->code_account = $salesAccountId;
+                $jurnalItemCredit->description = "Kredit untuk Invoice {$request->invoice}";
+                $jurnalItemCredit->debit = $request->paymentAmount;
+                $jurnalItemCredit->credit = 0;
+                $jurnalItemCredit->save();
+
+            } catch (\Exception $e) {
+                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
+            }
+
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Payment successfully created and invoice updated']);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
+    }
+
+
+
+    public function export(Request $request)
+    {
+        return Excel::download(new PaymentExport(
+            $request->status,
+            $request->startDate,
+            $request->endDate
+        ), 'Payment Customers.xlsx');
     }
 
 

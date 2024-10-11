@@ -15,7 +15,7 @@ class AboutsController extends Controller
             'dataPtges' => $dataPtges,
         ]);
     }
-   
+
 
 
 }

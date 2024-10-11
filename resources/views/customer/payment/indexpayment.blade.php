@@ -58,7 +58,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
-                            {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
+                            <button class="btn btn-primary mr-3" id="exportBtn">Export</button>
                             <a class="btn btn-primary" href="{{ route('addPayment') }}" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Payment</a>
                         </div>
@@ -68,7 +68,9 @@
                                 class="form-control rounded-3" placeholder="Search">
                             <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                 <option value="" selected disabled>Pilih Filter</option>
-
+                                @foreach ($listpayment as $payment)
+                                    <option value="{{ $payment->payment_method }}">{{ $payment->payment_method }}</option>
+                                @endforeach
                             </select>
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                             <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -86,7 +88,7 @@
                                         <th>Metode Pembayaran</th>
                                         <th>Status</th>
                                         <th>Tanggal Payment</th>
-                                        <th>Action</th>
+                                        {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -172,12 +174,12 @@
                     name: 'tanggal_bayar',
                     searchable: false
                 },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                // {
+                //     data: 'action',
+                //     name: 'action',
+                //     orderable: false,
+                //     searchable: false
+                // }
             ],
             lengthChange: false,
             language: {
@@ -230,6 +232,42 @@
 
         $('#filterStatus').change(function() {
             table.ajax.reload();
+        });
+
+
+
+        $('#exportBtn').on('click', function() {
+            var status = $('#filterStatus').val();
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            $.ajax({
+                url: "{{ route('exportPayment') }}",
+                type: 'GET',
+                data: {
+                    status: status,
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(data) {
+                    var blob = new Blob([data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = "Payment Customers.xlsx";
+                    link.click();
+                },
+                error: function() {
+                    Swal.fire({
+                        title: "Export failed!",
+                        icon: "error"
+                    });
+                }
+            });
         });
     </script>
 @endsection
