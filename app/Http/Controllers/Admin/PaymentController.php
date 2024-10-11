@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use App\Models\COA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Facades\DataTables; 
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
@@ -236,6 +236,7 @@ class PaymentController extends Controller
             $request->endDate
         ), 'Payment Customers.xlsx');
     }
+
 
 
 

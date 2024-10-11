@@ -3,6 +3,12 @@
 @section('title', 'Tracking')
 
 @section('main')
+<style>
+    .dataTables_length,
+    .dataTables_filter {
+        display: none;
+    }
+</style>
 
 <!-- Modal Tambah Tracking -->
 <div class="modal fade" id="modalTambahTracking" tabindex="-1" role="dialog" aria-labelledby="modalTambahTrackingTitle"
@@ -107,7 +113,7 @@
                             class="form-control rounded-3" placeholder="Search">
                     </div>
                     <div id="containerTracking" class="table-responsive px-2">
-                        {{-- <table class="table align-items-center table-flush table-hover" id="tableVendor">
+                         <table class="table align-items-center table-flush table-hover" id="tableTracking">
                             <thead class="thead-light">
                                 <tr>
                                     <th>No. Resi</th>
@@ -118,7 +124,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                {{--<tr>
                                     <td>GES293492384</td>
                                     <td>08339248</td>
                                     <td>Sedang Perjalanan</td>
@@ -129,16 +135,17 @@
                                         <a href="#" class="btn btn-sm btn-primary btnGambar"><i
                                                 class="fas fa-eye"></i></a>
                                     </td>
-                                </tr>
-
-                            </tbody>
-                        </table> --}}
+                                </tr> --}}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+
 
 @endsection
 @section('script')
@@ -173,48 +180,51 @@
         $('span', '#autocomplete').text(autocomplete.values.join(', '));
     });
 
-    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-        </div> `;
-
-    const getlistTracking = () => {
-        const txtSearch = $('#txSearch').val();
-
-        $.ajax({
-            url: "{{ route('getlistTracking') }}",
-            method: "GET",
-            data: {
-                txSearch: txtSearch
-            },
-            beforeSend: () => {
-                $('#containerTracking').html(loadSpin)
-            }
-        })
-            .done(res => {
-                $('#containerTracking').html(res)
-                $('#tableTracking').DataTable({
-                    searching: false,
-                    lengthChange: false,
-                    "bSort": true,
-                    "aaSorting": [],
-                    pageLength: 7,
-                    "lengthChange": false,
-                    responsive: true,
-                    language: {
-                        search: ""
-                    }
-                });
-            })
-    }
-
-    getlistTracking();
-
-    $('#txSearch').keyup(function (e) {
-        var inputText = $(this).val();
-        if (inputText.length >= 1 || inputText.length == 0) {
-            getlistTracking();
+    var table = $('#tableTracking').DataTable({
+        serverSide: true,
+        ajax: {
+            url: "{{ route('tracking.data') }}",
+            method: 'GET',
+        },
+        columns: [{
+            data: 'no_resi',
+            name: 'a.no_resi',
+        },
+        {
+            data: 'no_do',
+            name: 'a.no_do',
+        },
+        {
+            data: 'status',
+            name: 'a.status',
+        },
+        {
+            data: 'keterangan',
+            name: 'a.keterangan',
+            
+        },
+        {
+            data: 'action',
+            name: 'action',
+            orderable: false,
+            searchable: false,
+        }
+        ],
+        lengthChange: false,
+        language: {
+            info: "_START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "Showing 0 to 0 of 0 entries",
+            emptyTable: "No data available in table",
+            loadingRecords: "Loading...",
+            zeroRecords: "No matching records found"
         }
     });
+
+
+    $('#txSearch').keyup(function() {
+            var searchValue = $(this).val();
+            table.search(searchValue).draw();
+        });
 
     $('#saveTracking').click(function () {
 
@@ -289,7 +299,7 @@
                                 showMessage("success",
                                     "berhasil ditambahkan");
                                 $('#modalTambahTracking').modal('hide');
-                                getlistTracking();
+                                table.ajax.reload();
                             }
                         },
                         error: function (response) {
@@ -329,33 +339,33 @@
 
         }
     });
-    
+
 
     $(document).on('click', '.btnUpdateTracking', function (e) {
-            var trackingid = $(this).data('id');
-            $.ajax({
-                url: '/tracking/' + trackingid,
-                method: 'GET',
-                success: function (response) {
-                    $('#noDeliveryOrderEdit').val(response.no_do);
-                    $('#keteranganEdit').val(response.keterangan);
-                    $('#noResiEdit').text(response.no_resi);
-                    $('#modalEditTracking').modal('show');
-                    $('#saveUpdateTracking').data('id', trackingid);
-                },
-                error: function () {
-                    showMessage("error",
-                        "Terjadi kesalahan saat mengambil data");
-                }
-            });
+        var trackingid = $(this).data('id');
+        $.ajax({
+            url: '/tracking/' + trackingid,
+            method: 'GET',
+            success: function (response) {
+                $('#noDeliveryOrderEdit').val(response.no_do);
+                $('#keteranganEdit').val(response.keterangan);
+                $('#noResiEdit').text(response.no_resi);
+                $('#modalEditTracking').modal('show');
+                $('#saveUpdateTracking').data('id', trackingid);
+            },
+            error: function () {
+                showMessage("error",
+                    "Terjadi kesalahan saat mengambil data");
+            }
         });
-        $('#saveUpdateTracking').on('click', function () {
-            var trackingid = $(this).data('id');
-            var noDeliveryOrder = $('#noDeliveryOrderEdit').val().trim();
-            var keterangan = $('#keteranganEdit').val();
+    });
+    $('#saveUpdateTracking').on('click', function () {
+        var trackingid = $(this).data('id');
+        var noDeliveryOrder = $('#noDeliveryOrderEdit').val().trim();
+        var keterangan = $('#keteranganEdit').val();
 
 
-            var isValid = true;
+        var isValid = true;
 
         if (noDeliveryOrder === '') {
             $('#noDeliveryOrderErrorEdit').removeClass('d-none');
@@ -371,57 +381,59 @@
             $('#keteranganErrorEdit').addClass('d-none');
         }
 
-            if (isValid) {
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we are updating the data.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
+        if (isValid) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we are updating the data.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-                        $.ajax({
-                            url: '/tracking/updateTracking/' + trackingid,
-                            method: 'PUT',
-                            data: {
-                                noDeliveryOrder: noDeliveryOrder,
-                                keterangan: keterangan,
-                                _token: '{{ csrf_token() }}',
-                            },
-                            success: function (response) {
-                                Swal.close();
-                                if (response.success) {
-                                    showMessage("success", response
-                                        .message);
-                                    $('#modalEditTracking').modal('hide');
-                                    getlistTracking();
-                                }
-                            },
-                            error: function (response) {
-                                Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti");
+                    $.ajax({
+                        url: '/tracking/updateTracking/' + trackingid,
+                        method: 'PUT',
+                        data: {
+                            noDeliveryOrder: noDeliveryOrder,
+                            keterangan: keterangan,
+                            _token: '{{ csrf_token() }}',
+                        },
+                        success: function (response) {
+                            Swal.close();
+                            if (response.success) {
+                                showMessage("success", response
+                                    .message);
+                                $('#modalEditTracking').modal('hide');
+                                table.ajax.reload();
                             }
-                        });
-                    }
-                });
-            }
-        });
-        
+                        },
+                        error: function (response) {
+                            Swal.close();
+                            showMessage("error",
+                                "Terjadi kesalahan, coba lagi nanti");
+                        }
+                    });
+                }
+            });
+        }
+    });
+
     $(document).on('click', '.btnDestroyTracking', function (e) {
+
         let id = $(this).data('id');
+        
 
         Swal.fire({
             title: "Apakah Kamu Yakin Ingin Hapus Tracking Ini?",
@@ -466,7 +478,7 @@
 
                             showMessage("success",
                                 "Berhasil menghapus");
-                            getlistTracking();
+                                table.ajax.reload();
                         } else {
                             showMessage("error", "Gagal menghapus");
                         }

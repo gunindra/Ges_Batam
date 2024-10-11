@@ -283,7 +283,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
-    Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
+    Route::get('/tracking-data', [TrackingsController::class, 'getTrackingData'])->name('tracking.data');
     Route::post('/tracking/store', [TrackingsController::class, 'addTracking'])->name('addTracking');
     Route::put('/tracking/updateTracking/{id}', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
     Route::delete('/tracking/deleteTracking/{id}', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');

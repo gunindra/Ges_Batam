@@ -190,7 +190,7 @@ class InvoiceController extends Controller
                     )
                 $dateCondition
                 $statusCondition
-                GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
+                GROUP BY a.id, a.no_invoice, a.tanggal_invoice,a.status_bayar, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
                 ORDER BY CASE d.id
                             WHEN '1' THEN 1
                             WHEN '5' THEN 2
