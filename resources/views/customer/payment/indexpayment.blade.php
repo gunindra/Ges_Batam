@@ -140,6 +140,14 @@
                     d.startDate = $('#startDate').val();
                     d.endDate = $('#endDate').val();
                     d.status = $('#filterStatus').val();
+                },
+                error: function(xhr, error, thrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load payment data. Please try again!',
+                        confirmButtonText: 'OK'
+                    });
                 }
             },
             columns: [{
@@ -163,7 +171,7 @@
                 },
                 {
                     data: 'payment_method',
-                    name: 'a.payment_method'
+                    name: 'c.name'
                 },
                 {
                     data: 'status_bayar',
@@ -173,13 +181,7 @@
                     data: 'tanggal_bayar',
                     name: 'tanggal_bayar',
                     searchable: false
-                },
-                // {
-                //     data: 'action',
-                //     name: 'action',
-                //     orderable: false,
-                //     searchable: false
-                // }
+                }
             ],
             lengthChange: false,
             pageLength: 7,

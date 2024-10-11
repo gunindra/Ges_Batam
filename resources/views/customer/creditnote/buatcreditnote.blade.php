@@ -4,6 +4,29 @@
 
 @section('main')
 
+
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+</style>
+
 <div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Buat Credit Note</h1>
@@ -23,7 +46,7 @@
                 <div class="card-body">
                     <div class="d-flex flex-row">
                         <div class="col-6">
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label for="supplierCredit" class="form-label fw-bold">Supplier</label>
                                 <select class="form-control col-8" name="" id="supplierCredit">
                                     <option value="" selected disabled>Pilih Supplier</option>
@@ -32,45 +55,47 @@
                                 </select>
                                 <div id="supplierCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Supplier
                                     terlebih dahulu</div>
-                            </div>
+                            </div> --}}
                             <div class="mt-3">
-                                <label for="accountCredit" class="form-label fw-bold">Account</label>
-                                <select class="form-control col-8" name="" id="accountCredit">
-                                    <option value="" selected disabled>Pilih Account</option>
-                                    <option value="">1.0.000 ASET</option>
-                                    <option value="">1.1.000 ASET LANCAR</option>
-
+                                <label for="invoiceCredit" class="form-label fw-bold">Invoice</label>
+                                <select class="form-control select2" name="" id="invoiceCredit">
+                                    <option value="" selected disabled>Pilih Invoice</option>
+                                    @foreach ($listInvoice as $invoice)
+                                        <option value="{{ $invoice->id }}">{{ $invoice->no_invoice }}</option>
+                                    @endforeach
                                 </select>
-                                <div id="accountCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Account
+                                <div id="invoiceCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
                                     terlebih dahulu</div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="invoiceCredit" class="form-label fw-bold">Invoice</label>
-                                <select class="form-control col-8" name="" id="invoiceCredit">
-                                    <option value="" selected disabled>Pilih Invoice</option>
-                                    <option value="">001</option>
-                                    <option value="">002</option>
-
+                                <label for="accountCredit" class="form-label fw-bold">Account</label>
+                                <select class="form-control select2" name="" id="accountCredit" style="">
+                                    <option value="" selected disabled>Pilih Account</option>
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
+                                            {{ $coa->name }}</option>
+                                    @endforeach
                                 </select>
-                                <div id="invoiceCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
+                                <div id="accountCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Account
                                     terlebih dahulu</div>
                             </div>
                             <div class="mt-3">
                                 <label for="currencyCredit" class="form-label fw-bold">Currency</label>
                                 <select class="form-control col-8" name="" id="currencyCredit">
-                                    <option value="" selected disabled>Pilih Currency</option>
-                                    <option value="">IDR</option>
-                                    <option value="">RM</option>
-
+                                    @foreach ($listCurrency as $currency)
+                                        <option value="{{ $currency->id }}">
+                                            {{ $currency->nama_matauang }} ({{ $currency->singkatan_matauang }})
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div id="currencyCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
                                     terlebih dahulu</div>
                             </div>
                         </div>
                     </div>
-                    <div class="form-label ms-5 mt-5 mb-3">Item List</div>
+                    <div class="form-label ml-3 mt-5 mb-3">Item List</div>
                     <div class="table-responsive col-12 ms-5">
                         <table class="table mb-0" style="border-bottom : 1px solid black;">
                             <thead>
@@ -89,12 +114,7 @@
 
                                 <tr class="tr">
                                     <td>
-                                        <select class="form-control select2singgle" id="selectInvoice"
-                                            style="width:120%;">
-                                            <option value="" selected disabled>Pilih Item</option>
-                                            <option value="">001</option>
-                                            <option value="">002</option>
-                                        </select>
+                                        <input required="" type="text" class="form-control" name="noresi">
                                     </td>
                                     <td>
                                         <input required="" type="text" class="form-control" name="item_desc[]">
@@ -168,16 +188,13 @@
     @endsection
     @section('script')
     <script>
+
+$('.select2').select2();
         $('#add-item-button').click(function () {
             var newRow = `
               <tr>
                                     <td>
-                                        <select class="form-control select2singgle" id="selectInvoice"
-                                            style="width:120%;">
-                                            <option value="" selected disabled>Pilih Item</option>
-                                            <option value="">001</option>
-                                            <option value="">002</option>
-                                        </select>
+                                        <input required="" type="text" class="form-control" name="noresi">
                                     </td>
                                     <td>
                                         <input required="" type="text" class="form-control" name="item_desc[]">

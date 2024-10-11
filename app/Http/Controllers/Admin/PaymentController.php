@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use App\Models\COA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables; 
+use Yajra\DataTables\Facades\DataTables;
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
@@ -61,13 +61,13 @@ class PaymentController extends Controller
                 'b.no_invoice',
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
                 'a.amount',
-                'c.name as payment_method',
+                'c.name as payment_method', // Mengubah 'a.payment_method' menjadi 'c.name'
                 'b.status_bayar',
                 'a.id'
             ]);
 
         if (!empty($request->status)) {
-            $query->where('c.name', $request->status);
+            $query->where('c.name', $request->status); // Mengubah kriteria untuk menggunakan 'c.name'
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
@@ -90,6 +90,7 @@ class PaymentController extends Controller
             // ->rawColumns(['action'])
             ->make(true);
     }
+
 
 
     public function getInvoiceAmount(Request $request)

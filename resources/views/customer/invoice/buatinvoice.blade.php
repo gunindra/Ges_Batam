@@ -337,18 +337,18 @@
             $('#alamatError').addClass('d-none');
 
             if (selectedCustomer) {
-                $('#pickupDelivery').show(); 
+                $('#pickupDelivery').show();
 
                 if (metodePengiriman === 'Pickup') {
-                    $('#pickupDelivery h2').text('Pick Up'); 
-                    $('#alamatContainer').empty(); 
+                    $('#pickupDelivery h2').text('Pick Up');
+                    $('#alamatContainer').empty();
                     $('#alamatError').addClass('d-none');
                 } else if (metodePengiriman === 'Delivery') {
-                    $('#pickupDelivery h2').text('Delivery'); 
+                    $('#pickupDelivery h2').text('Delivery');
 
                     if (jumlahAlamat == 1) {
-                        $('#alamatContainer').html('<p>' + alamat + '</p>'); 
-                        $('#alamatError').addClass('d-none'); 
+                        $('#alamatContainer').html('<p>' + alamat + '</p>');
+                        $('#alamatError').addClass('d-none');
                     } else if (jumlahAlamat > 1) {
                         var alamatList = alamat.split(', ');
                         var selectAlamat = '<label for="alamatSelect" class="form-label">Alamat</label>';
@@ -358,8 +358,8 @@
                             selectAlamat += '<option value="' + alamatItem + '">' + alamatItem + '</option>';
                         });
                         selectAlamat += '</select>';
-                        $('#alamatContainer').html(selectAlamat); 
-                        $('#alamatError').addClass('d-none'); 
+                        $('#alamatContainer').html(selectAlamat);
+                        $('#alamatError').addClass('d-none');
                     }
                 }
 
@@ -375,9 +375,9 @@
                 });
                 updateDisplayedTotalHarga();
             } else {
-                $('#pickupDelivery').hide(); 
+                $('#pickupDelivery').hide();
                 $('#alamatContainer').empty();
-                $('#alamatError').addClass('d-none'); 
+                $('#alamatError').addClass('d-none');
             }
         });
 
