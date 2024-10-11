@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_contact', function (Blueprint $table) {
+        Schema::create('tbl_payment_customer', function (Blueprint $table) {
             $table->id();
-            $table->string('email');
-            $table->string('phone');
-            $table->string('phones');
+            $table->string('kode_pembayaran');
+            $table->unsignedBigInteger('invoice_id');
+            $table->foreign('invoice_id')->references('id')->on('tbl_invoice')->onDelete('cascade');
+            $table->date('payment_date');
+            $table->decimal('amount', 15, 2);
+            $table->string('payment_method');
+            // $table->text('description')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_contact');
+        Schema::dropIfExists('tbl_payment_customer');
     }
 };

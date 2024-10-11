@@ -4,9 +4,7 @@
 /public/hot
 /public/storage
 /storage/*
-!/storage/.gitignore
-/storage/framework/*
-!/storage/framework/.gitignore
+/storage/*.key
 /vendor
 .env
 .env.backup

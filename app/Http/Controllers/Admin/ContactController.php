@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
+use App\Models\PTges;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +11,7 @@ class ContactController extends Controller
 {
     public function index()
     {
-        $contactData = Contact::first();
+        $contactData = PTges::first();
         return view('content.contact.indexcontact', compact('contactData'));
     }
 
@@ -28,9 +28,9 @@ class ContactController extends Controller
         $phonesContact = $request->input('phonesContact');
 
         try {
-            $contact = Contact::first();
+            $contact = PTges::first();
             
-            Contact::updateOrCreate(
+            PTges::updateOrCreate(
                 ['id' => $contact ? $contact->id : null],
                 [
                     'email' =>$emailContact ,

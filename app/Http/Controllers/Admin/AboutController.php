@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
-use App\Models\About;
+use App\Models\PTges;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +11,7 @@ class AboutController extends Controller
 {
     public function index()
     {
-        $aboutData = About::first();
+        $aboutData = PTges::first();
         return view('content.abouts.indexabout', compact('aboutData'));
     }
 
@@ -26,7 +26,7 @@ class AboutController extends Controller
         $imageAbout = $request->file('imageAbout');
     
         try {
-            $existingData = About::first();
+            $existingData = PTges::first();
             $fileName = $existingData ? $existingData->Image_AboutUs : null;
     
             if ($imageAbout) {
@@ -40,7 +40,7 @@ class AboutController extends Controller
                 $imageAbout->storeAs('public/images', $fileName);
             }
     
-            About::updateOrCreate(
+            PTges::updateOrCreate(
                 ['id' => $existingData ? $existingData->id : null],
                 [
                     'Paragraph_AboutUs' => $contentAbout,

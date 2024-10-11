@@ -123,8 +123,8 @@
                             <label for="editDefaultPosisi" class="form-label fw-bold">Default Posisi*</label>
                             <select class="form-control" id="editDefaultPosisi" required>
                                 <option value="" disabled selected>Select Default Position</option>
-                                <option value="debit">Debit</option>
-                                <option value="credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                                <option value="Credit">Credit</option>
                             </select>
                             <div id="errEditDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
