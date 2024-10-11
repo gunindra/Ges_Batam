@@ -141,12 +141,12 @@ class JournalController extends Controller
                 $newSequence = $lastJournal ? intval(substr($lastJournal->no_journal, -4)) + 1 + $attempt : 1 + $attempt;
                 $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
-                // Cek apakah nomor jurnal sudah ada
+
                 $exists = Jurnal::where('no_journal', $newNoJournal)->exists();
                 if (!$exists) {
                     $foundDuplicate = false;
                 } else {
-                    $attempt++;  // Increment attempt if duplicate found
+                    $attempt++;
                 }
             }
 
