@@ -110,14 +110,15 @@
                                         <input disabled="" type="text" class="form-control" name="item-subtotal[]">
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
+                                            style="display:none;">Remove</button>
                                     </td>
                                 </tr>
                             </tbody>
 
                         </table>
                         <br>
-                        <button type="button" class="btn btn-primary" onclick="addItem()" fdprocessedid="9gjeh">Add
+                        <button type="button" class="btn btn-primary" id="add-item-button">Add
                             Item</button>
 
                     </div>
@@ -137,12 +138,11 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Tax : </label>
-                                <select class="form-control w-100" id="selectInvoice"
-                                            style="width:120%;">
-                                            <option value="" selected disabled>Pilih Item</option>
-                                            <option value="">001</option>
-                                            <option value="">002</option>
-                                        </select>
+                                <select class="form-control w-100" id="selectInvoice" style="width:120%;">
+                                    <option value="" selected disabled>Pilih Item</option>
+                                    <option value="">001</option>
+                                    <option value="">002</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="inline-label">Grand Total</label>
@@ -168,6 +168,57 @@
     @endsection
     @section('script')
     <script>
+        $('#add-item-button').click(function () {
+            var newRow = `
+              <tr>
+                                    <td>
+                                        <select class="form-control select2singgle" id="selectInvoice"
+                                            style="width:120%;">
+                                            <option value="" selected disabled>Pilih Item</option>
+                                            <option value="">001</option>
+                                            <option value="">002</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input required="" type="text" class="form-control" name="item_desc[]">
+                                    </td>
+                                    <td>
+                                        <input required="" type="number" step="any" class="form-control" name="price[]">
+                                    </td>
+                                    <td>
+                                        <input required="" value="1" type="number" step="any" class="form-control"
+                                            name="qty[]">
+                                    </td>
+                                    <td>
+                                        <input disabled="" type="text" class="form-control" name="item-subtotal[]">
+                                    </td>
+                                    <td>
+                                         <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                                    </td>
+                                </tr>
+             `;
+            $('#items-container').append(newRow);
+            $('.select2singgle').last().select2();
+            if ($('#items-container tr').length > 1) {
+                $('.removeItemButton').show();
+            }
+            updateTotals();
+
+        });
+        $(document).on('click', '.removeItemButton', function () {
+            var rowCount = $('#items-container tr').length;
+            if (rowCount > 1) {
+                $(this).closest('tr').remove();
+            }
+
+            rowCount = $('#items-container tr').length;
+
+            if (rowCount === 1) {
+                $('.removeItemButton').hide();
+            }
+
+            updateTotals();
+        });
 
 
 
