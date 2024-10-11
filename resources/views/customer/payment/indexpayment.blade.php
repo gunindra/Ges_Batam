@@ -86,7 +86,7 @@
                                         <th>Metode Pembayaran</th>
                                         <th>Status</th>
                                         <th>Tanggal Payment</th>
-                                        <th>Action</th>
+                                        {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -172,12 +172,12 @@
                     name: 'tanggal_bayar',
                     searchable: false
                 },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                // {
+                //     data: 'action',
+                //     name: 'action',
+                //     orderable: false,
+                //     searchable: false
+                // }
             ],
             lengthChange: false,
             language: {
