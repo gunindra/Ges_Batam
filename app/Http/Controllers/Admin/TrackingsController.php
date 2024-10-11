@@ -16,34 +16,32 @@ class TrackingsController extends Controller
 
         return view('Tracking.indextracking');
     }
-    public function getPaymentData(Request $request)
+    public function getTrackingData(Request $request)
     {
+        // Build the query
         $query = DB::table('tbl_tracking as a')
-        ->select([
-            'a.no_resi',
-            'a.no_do',
-            'a.status',
-            'a.keterangan',
-            'a.id'
-        ])
-        ->limit(100)
-        ->get();
-
-
-        if (!empty($request->status)) {
-            $query->where('a.status', $request->status);
-        }
-
+            ->select([
+                'a.no_resi',
+                'a.no_do',
+                'a.status',
+                'a.keterangan',
+                'a.id'
+            ])
+            ->limit(100);
+    
         $query->orderBy('a.id', 'desc');
+    
+        $data = $query->get();
 
-        return DataTables::of($query)
+        return DataTables::of($data)
             ->addColumn('action', function ($row) {
-                return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
-                       '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
+                return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' .
+                       '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
             })
             ->rawColumns(['action'])
             ->make(true);
     }
+    
     public function addTracking(Request $request)
     {
         $request->validate([
