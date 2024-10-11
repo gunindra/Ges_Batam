@@ -71,13 +71,14 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <label for="paymentMethod" class="form-label fw-bold">Payment Method</label>
-                                    <select class="form-control select2singgle" id="selectMethod">
-                                        <option value="" selected disabled>Pilih Method</option>
-                                        <option value="BCA">BCA</option>
-                                        <option value="Cash">Cash</option>
+                                    <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
+                                    <select class="form-control select2" id="selectMethod">
+                                        <option value="" selected disabled>Pilih Metode Pembayaran</option>
+                                        @foreach ($coas as $coa)
+                                            <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
+                                        @endforeach
                                     </select>
-                                    <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Method</div>
+                                    <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Metode</div>
                                 </div>
                             </div>
                             <div class="col-6">

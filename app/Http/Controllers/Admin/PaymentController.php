@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Invoice;
 use Carbon\Carbon;
+use App\Models\COA;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -30,18 +31,22 @@ class PaymentController extends Controller
             ->groupBy('payment_method')
             ->get();
 
-        return view('customer.payment.indexpayment', ['listpayment' => $listpayment]);
+        return view('customer.payment.indexpayment', [
+            'listpayment' => $listpayment,
+
+        ]);
     }
 
     public function addPayment()
     {
-
+        $coas = COA::all();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum Lunas'");
 
         return view('customer.payment.buatpayment', [
-            'listInvoice' => $listInvoice
+            'listInvoice' => $listInvoice,
+            'coas' => $coas
         ]);
     }
 

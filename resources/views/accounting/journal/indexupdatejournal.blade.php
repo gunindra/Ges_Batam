@@ -30,11 +30,11 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Edit Journal</h1>
+            <h1 class="h3 mb-0 text-gray-800"><span class="tittlepage">Edit Journal</span></h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Accounting</li>
                 <li class="breadcrumb-item"><a href="{{ route('journal') }}">Journal</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit Journal</li>
+                <li class="breadcrumb-item active" aria-current="page"><span class="tittlepage">Edit Journal</span></li>
             </ol>
         </div>
         <a class="btn btn-primary mb-3" href="{{ route('journal') }}">
@@ -147,14 +147,6 @@
 
 @endsection
 @section('script')
-
-    <script>
-        $(document).ready(function() {
-
-
-        });
-    </script>
-
     <script>
         $(document).ready(function() {
 
@@ -174,6 +166,11 @@
                 $('#descriptionJournal').val(journalData.description);
                 $('#buatJournal').data('id', journalData.id);
                 $('#approveJournal').data('id', journalData.id);
+
+                if (journalData.status === "Approve") {
+                    $('#approveJournal, #buatJournal').remove();
+                    $('.tittlepage').text('Show Detail Journal');
+                }
 
                 let totalDebit = 0;
                 let totalCredit = 0;
@@ -219,6 +216,8 @@
 
                 $('#total_debit').val(totalDebit.toFixed(2));
                 $('#total_credit').val(totalCredit.toFixed(2));
+
+
             }
 
             $('#tanggalJournal').datepicker({

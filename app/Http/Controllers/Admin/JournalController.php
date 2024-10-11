@@ -101,10 +101,10 @@ class JournalController extends Controller
             //         ';
             // }
 
-            $output .= '
-                    <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
-                        <i class="fas fa-trash"></i>
-                    </a>';
+            // $output .= '
+            //         <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
+            //             <i class="fas fa-trash"></i>
+            //         </a>';
 
             $output .= '
                 </td>
