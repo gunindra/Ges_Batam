@@ -90,14 +90,16 @@ class JournalController extends Controller
                 <td>' . ($item->tanggal ?? '-') . '</td>
                 <td>Rp ' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td> <!-- Format total with Rp -->
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
-                <td>';
-
-            if ($item->status === 'Draft') {
-                $output .= '
+                <td>
                     <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '">
                         <i class="fas fa-edit"></i>
-                    </a>';
-            }
+                    </a>
+                ';
+
+            // if ($item->status === '') {
+            //     $output .= '
+            //         ';
+            // }
 
             $output .= '
                     <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">

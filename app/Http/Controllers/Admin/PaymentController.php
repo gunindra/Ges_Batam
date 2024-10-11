@@ -11,6 +11,8 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PaymentExport;
 
 class PaymentController extends Controller
 {
@@ -23,7 +25,12 @@ class PaymentController extends Controller
 
     public function index()
     {
-        return view('customer.payment.indexpayment');
+        $listpayment = DB::table('tbl_payment_customer')
+            ->select('payment_method')
+            ->groupBy('payment_method')
+            ->get();
+
+        return view('customer.payment.indexpayment', ['listpayment' => $listpayment]);
     }
 
     public function addPayment()
@@ -54,7 +61,7 @@ class PaymentController extends Controller
             ]);
 
         if (!empty($request->status)) {
-            $query->where('b.status_bayar', $request->status);
+            $query->where('a.payment_method', $request->status);
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
@@ -196,6 +203,17 @@ class PaymentController extends Controller
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
+    }
+
+
+
+    public function export(Request $request)
+    {
+        return Excel::download(new PaymentExport(
+            $request->status,
+            $request->startDate,
+            $request->endDate
+        ), 'Payment Customers.xlsx');
     }
 
 
