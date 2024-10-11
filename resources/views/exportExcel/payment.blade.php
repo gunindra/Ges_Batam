@@ -6,13 +6,13 @@
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">Tanggal Mulai:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
-                {{ $startDate ? date('d M Y', strtotime($startDate)) : 'Semua tanggal' }}
+                {{ $startDate ? date('d M Y', strtotime($startDate)) : '-' }}
             </td>
         </tr>
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">Tanggal Akhir:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
-                {{ $endDate ? date('d M Y', strtotime($endDate)) : 'Semua tanggal' }}
+                {{ $endDate ? date('d M Y', strtotime($endDate)) : '-' }}
             </td>
         </tr>
         <tr>

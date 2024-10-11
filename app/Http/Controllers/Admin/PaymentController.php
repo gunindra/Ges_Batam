@@ -26,13 +26,14 @@ class PaymentController extends Controller
 
     public function index()
     {
-        $listpayment = DB::table('tbl_payment_customer')
-            ->select('payment_method')
-            ->groupBy('payment_method')
-            ->get();
+        $listPayment = DB::table('tbl_payment_customer as pc')
+        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id') // Menambahkan join dengan tbl_coa
+        ->select('coa.name as payment_method') // Menggunakan nama dari coa sebagai payment method
+        ->groupBy('coa.name') // Grouping berdasarkan nama
+        ->get();
 
         return view('customer.payment.indexpayment', [
-            'listpayment' => $listpayment,
+            'listpayment' => $listPayment,
 
         ]);
     }
@@ -50,23 +51,23 @@ class PaymentController extends Controller
         ]);
     }
 
-
     public function getPaymentData(Request $request)
     {
         $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
+            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id') // Menambahkan join ke tbl_coa
             ->select([
                 'a.kode_pembayaran',
                 'b.no_invoice',
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
                 'a.amount',
-                'a.payment_method',
+                'c.name as payment_method',
                 'b.status_bayar',
                 'a.id'
             ]);
 
         if (!empty($request->status)) {
-            $query->where('a.payment_method', $request->status);
+            $query->where('c.name', $request->status);
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
@@ -81,6 +82,7 @@ class PaymentController extends Controller
             ->editColumn('tanggal_bayar', function ($row) {
                 return $row->tanggal_bayar;
             })
+            // Uncomment and modify if you need action buttons
             // ->addColumn('action', function ($row) {
             //     return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
             //            '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
@@ -88,6 +90,7 @@ class PaymentController extends Controller
             // ->rawColumns(['action'])
             ->make(true);
     }
+
 
     public function getInvoiceAmount(Request $request)
     {
@@ -125,15 +128,28 @@ class PaymentController extends Controller
             'invoice' => 'required|string',
             'tanggalPayment' => 'required|date',
             'paymentAmount' => 'required|numeric',
-            'paymentMethod' => 'required|string',
+            'paymentMethod' => 'required|integer',
         ]);
+
 
         DB::beginTransaction();
 
         $accountSettings = DB::table('tbl_account_settings')->first();
 
         $salesAccountId = $accountSettings->sales_account_id;
-        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
+        $paymentMethodId = $request->paymentMethod;
+        $receivableSalesAccount = COA::find($paymentMethodId);
+
+        if (!$receivableSalesAccount) {
+
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun dengan ID yang diberikan tidak ditemukan.'
+            ], 404);
+        }
+
+        $receivableSalesAccountId = $receivableSalesAccount->id;
 
         try {
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
@@ -160,7 +176,7 @@ class PaymentController extends Controller
             $payment->invoice_id = $invoice_id;
             $payment->payment_date = $tanggalPayment;
             $payment->amount = $request->paymentAmount;
-            $payment->payment_method = $request->paymentMethod;
+            $payment->payment_method_id = $paymentMethodId;
             $payment->kode_pembayaran = $newKodePembayaran;
             $payment->save();
 

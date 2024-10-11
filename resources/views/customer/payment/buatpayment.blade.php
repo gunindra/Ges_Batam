@@ -70,7 +70,7 @@
                                     <div id="errAmountPayment" class="text-danger mt-1 d-none">Silahkan isi Amount
                                     </div>
                                 </div>
-                                <div class="mt-3">k
+                                <div class="mt-3">
                                     <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
                                     <select class="form-control select2" id="selectMethod">
                                         <option value="" selected disabled>Pilih Metode Pembayaran</option>
@@ -212,7 +212,6 @@
                                 location.reload();
                             });
                             } else {
-                                // SweetAlert untuk gagal (dari server)
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal!',
@@ -221,7 +220,6 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                            // SweetAlert untuk error dari server (misalnya format tanggal atau lainnya)
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Terjadi Kesalahan!',
@@ -232,9 +230,6 @@
                     });
                 }
             });
-
-
-
         });
     </script>
 @endsection

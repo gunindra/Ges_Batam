@@ -58,7 +58,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
-                            <button class="btn btn-primary mr-2" id="exportBtn">Export</button>
+                            <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
                             <a class="btn btn-primary" href="{{ route('addPayment') }}" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Payment</a>
                         </div>
