@@ -70,7 +70,7 @@
                                     <div id="errAmountPayment" class="text-danger mt-1 d-none">Silahkan isi Amount
                                     </div>
                                 </div>
-                                <div class="mt-3">
+                                <div class="mt-3">k
                                     <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
                                     <select class="form-control select2" id="selectMethod">
                                         <option value="" selected disabled>Pilih Metode Pembayaran</option>
