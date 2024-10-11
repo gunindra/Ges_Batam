@@ -123,30 +123,38 @@ class JournalController extends Controller
         return view('accounting.journal.indexbuatjournal', compact('coas'));
     }
 
-
     public function generateNoJurnal(Request $request)
     {
-        $kodetype = $request->code_type;
-        $currentYear = date('y');
-        $lastJournal = Jurnal::where('tipe_kode', $kodetype)
-            ->where('no_journal', 'like', $kodetype . $currentYear . '%')
-            ->orderBy('no_journal', 'desc')
-            ->first();
-        if ($lastJournal) {
-            $lastNoJournal = $lastJournal->no_journal;
-            $lastSequence = intval(substr($lastNoJournal, -4));
-            $newSequence = $lastSequence + 1;
-        } else {
-            $newSequence = 1;
-        }
-        $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+        return DB::transaction(function () use ($request) {
+            $kodetype = $request->code_type;
+            $currentYear = date('y');
+            $foundDuplicate = true;
+            $attempt = 0;
 
-        return response()->json([
-            'no_journal' => $newNoJournal
-        ]);
+            while ($foundDuplicate) {
+                $lastJournal = Jurnal::where('tipe_kode', $kodetype)
+                    ->where('no_journal', 'like', $kodetype . $currentYear . '%')
+                    ->lockForUpdate()
+                    ->orderBy('no_journal', 'desc')
+                    ->first();
+
+                $newSequence = $lastJournal ? intval(substr($lastJournal->no_journal, -4)) + 1 + $attempt : 1 + $attempt;
+                $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+                // Cek apakah nomor jurnal sudah ada
+                $exists = Jurnal::where('no_journal', $newNoJournal)->exists();
+                if (!$exists) {
+                    $foundDuplicate = false;
+                } else {
+                    $attempt++;  // Increment attempt if duplicate found
+                }
+            }
+
+            return response()->json([
+                'no_journal' => $newNoJournal
+            ]);
+        });
     }
-
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([
