@@ -107,7 +107,7 @@
                             class="form-control rounded-3" placeholder="Search">
                     </div>
                     <div id="containerTracking" class="table-responsive px-2">
-                        {{-- <table class="table align-items-center table-flush table-hover" id="tableVendor">
+                         <table class="table align-items-center table-flush table-hover" id="tableTracking">
                             <thead class="thead-light">
                                 <tr>
                                     <th>No. Resi</th>
@@ -118,7 +118,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                {{--<tr>
                                     <td>GES293492384</td>
                                     <td>08339248</td>
                                     <td>Sedang Perjalanan</td>
@@ -129,10 +129,10 @@
                                         <a href="#" class="btn btn-sm btn-primary btnGambar"><i
                                                 class="fas fa-eye"></i></a>
                                     </td>
-                                </tr>
+                                </tr> --}}
 
                             </tbody>
-                        </table> --}}
+                        </table>
                     </div>
                 </div>
             </div>
@@ -173,48 +173,55 @@
         $('span', '#autocomplete').text(autocomplete.values.join(', '));
     });
 
-    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-        </div> `;
-
-    const getlistTracking = () => {
-        const txtSearch = $('#txSearch').val();
-
-        $.ajax({
-            url: "{{ route('getlistTracking') }}",
-            method: "GET",
-            data: {
-                txSearch: txtSearch
+    var table = $('#tableTracking').DataTable({
+            serverSide: true,
+            ajax: {
+                url: "{{ route('tracking.data') }}",
+                method: 'GET',
+                data: function(d) {
+                    d.startDate = $('#startDate').val();
+                    d.endDate = $('#endDate').val();
+                    d.status = $('#filterStatus').val();
+                }
             },
-            beforeSend: () => {
-                $('#containerTracking').html(loadSpin)
+            columns: [{
+                    data: 'no_resi',
+                    name: 'a.no_resi'
+                },
+                {
+                    data: 'no_do',
+                    name: 'a.no_do'
+                },
+                {
+                    data: 'status',
+                    name: 'a.status',
+                },
+                {
+                    data: 'keterangan',
+                    name: 'a.keterangan'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+            ],
+            lengthChange: false,
+            language: {
+                info: "_START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "Showing 0 to 0 of 0 entries",
+                emptyTable: "No data available in table",
+                loadingRecords: "Loading...",
+                zeroRecords: "No matching records found"
             }
-        })
-            .done(res => {
-                $('#containerTracking').html(res)
-                $('#tableTracking').DataTable({
-                    searching: false,
-                    lengthChange: false,
-                    "bSort": true,
-                    "aaSorting": [],
-                    pageLength: 7,
-                    "lengthChange": false,
-                    responsive: true,
-                    language: {
-                        search: ""
-                    }
-                });
-            })
-    }
+        });
 
-    getlistTracking();
 
-    $('#txSearch').keyup(function (e) {
-        var inputText = $(this).val();
-        if (inputText.length >= 1 || inputText.length == 0) {
-            getlistTracking();
-        }
-    });
+        $('#txSearch').keyup(function() {
+            var searchValue = $(this).val();
+            table.search(searchValue).draw();
+        });
 
     $('#saveTracking').click(function () {
 

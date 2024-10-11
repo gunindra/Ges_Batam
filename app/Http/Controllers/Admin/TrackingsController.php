@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Storage;
 use App\Models\Tracking;
+use Yajra\DataTables\Facades\DataTables;
 
 class TrackingsController extends Controller
 {
@@ -15,51 +16,34 @@ class TrackingsController extends Controller
 
         return view('Tracking.indextracking');
     }
-
-    public function getlistTracking (Request $request)
+    public function getPaymentData(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-
-        $data = DB::table('tbl_tracking')
-        ->where(function ($query) use ($txSearch) {
-            $query->whereRaw('UPPER(no_resi) LIKE ?', [$txSearch])
-                  ->orWhereRaw('UPPER(no_do) LIKE ?', [$txSearch]);
-        })
-        ->orderBy('id', 'desc')
+        $query = DB::table('tbl_tracking as a')
+        ->select([
+            'a.no_resi',
+            'a.no_do',
+            'a.status',
+            'a.keterangan',
+            'a.id'
+        ])
         ->limit(100)
         ->get();
 
-        $output = '<table class="table align-items-center table-flush table-hover" id="tableTracking">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No. Resi</th>
-                                        <th>No. DO</th>
-                                        <th>Status</th>
-                                        <th>Keterangan</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>';
-        foreach ($data as $item) {
-            $output .=
-                '
-                <tr>
-                    <td class="">' . ($item->no_resi ?? '-') .'</td>
-                    <td class="">' . ($item->no_do ?? '-') .'</td>
-                    <td class="">' . ($item->status ?? '-') .'</td>
-                    <td class="">' . ($item->keterangan ?? '-') .'</td>
-                    <td>
-                        <a  class="btn btnUpdateTracking btn-sm btn-secondary text-white" data-id="' .$item->id .'" data-no_resi="' .$item->no_resi .'" data-no_do="' .$item->no_do .'" data-status="' .$item->status .'" data-keterangan="' .$item->keterangan .'"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyTracking btn-sm btn-danger text-white" data-id="' .$item->id .'" ><i class="fas fa-trash"></i></a>
-                    </td>
-                </tr>
-            ';
+
+        if (!empty($request->status)) {
+            $query->where('a.status', $request->status);
         }
 
-        $output .= '</tbody></table>';
-         return $output;
-    }
+        $query->orderBy('a.id', 'desc');
 
+        return DataTables::of($query)
+            ->addColumn('action', function ($row) {
+                return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
+                       '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
     public function addTracking(Request $request)
     {
         $request->validate([
