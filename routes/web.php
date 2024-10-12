@@ -280,6 +280,7 @@ Route::middleware(['auth'])->group(function () {
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
     Route::get('/customer/creditnote/addCreditNote', [CreditNoteController::class, 'addCreditNote'])->name('addCreditNote');
+    Route::post('/customer/creditnote/store', [CreditNoteController::class, 'store'])->name('credit-note.store');
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
