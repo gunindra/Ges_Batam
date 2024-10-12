@@ -137,6 +137,11 @@ Route::middleware(['auth'])->group(function () {
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
+    Route::get('/payment/getInvoiceAmount', [PaymentController::class, 'getInvoiceAmount'])->name('getInvoiceAmount');
+    Route::post('/payment/store', [PaymentController::class, 'store'])->name('buatpembayaran');
+    Route::get('/payment-data', [PaymentController::class, 'getPaymentData'])->name('payment.data');
+    Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
+
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -245,7 +250,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/masterdata/user/update/{id}', [UserController::class, 'updateUsers'])->name('updateUsers');
     Route::delete('/masterdata/user/destroy/{id}', [UserController::class, 'destroyUsers'])->name('destroyUsers');
     Route::get('/masterdata/user/{id}', [UserController::class, 'show']);
-    
+
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
     Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');
@@ -253,7 +258,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/masterdata/role/update/{id}', [RoleController::class, 'updateRole'])->name('updateRole');
     Route::delete('/masterdata/role/destroy/{id}', [RoleController::class, 'destroyRole'])->name('destroyRole');
     Route::get('/masterdata/role/{id}', [RoleController::class, 'show']);
-    
+
     //Menu
     Route::get('/masterdata/menu/list', [RoleController::class, 'getlistMenu'])->name('getlistMenu');
 
@@ -261,22 +266,28 @@ Route::middleware(['auth'])->group(function () {
 
     //Invoice
     Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
+    Route::get('/vendor/supplierInvoice/addsupplierInvoice', [SupplierInvoiceController::class, 'addSupplierInvoice'])->name('addSupplierInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
+
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
     Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
+
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
     Route::get('/vendor/debitnote/addDebitNote', [DebitNoteController::class, 'addDebitNote'])->name('addDebitNote');
+
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
     Route::get('/customer/creditnote/addCreditNote', [CreditNoteController::class, 'addCreditNote'])->name('addCreditNote');
+
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
-    Route::get('/tracking/getlistTracking', [TrackingsController::class, 'getlistTracking'])->name('getlistTracking');
-    Route::post('/tracking/addTracking', [TrackingsController::class, 'addTracking'])->name('addTracking');
-    Route::post('/tracking/updateTracking', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
-    Route::delete('/tracking/deleteTracking', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');
+    Route::get('/tracking-data', [TrackingsController::class, 'getTrackingData'])->name('tracking.data');
+    Route::post('/tracking/store', [TrackingsController::class, 'addTracking'])->name('addTracking');
+    Route::put('/tracking/updateTracking/{id}', [TrackingsController::class, 'updateTracking'])->name('updateTracking');
+    Route::delete('/tracking/deleteTracking/{id}', [TrackingsController::class, 'deleteTracking'])->name('deleteTracking');
+    Route::get('/tracking/{id}', [TrackingsController::class, 'show']);
 
     //Supir
     Route::get('/supir', [SupirController::class, 'index'])->name('supir');
@@ -313,12 +324,16 @@ Route::middleware(['auth'])->group(function () {
      //Report
     //ProfitLoss
     Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+
     //Equity
      Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
-    //Cashflow
+
+     //Cashflow
     Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
+
     //Ledger
     Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
+
     //Balance
     Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
 });

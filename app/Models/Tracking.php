@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Why extends Model
+class Tracking extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_whyus'; 
+    protected $table = 'tbl_tracking'; 
     protected $fillable = [
-        'Image_WhyUs',
-        'Paragraph_WhyUs',
-       
+        'no_resi',
+        'no_do',
+        'status',
+        'keterangan',
     ];
 }

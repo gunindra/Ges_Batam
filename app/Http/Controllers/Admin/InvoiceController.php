@@ -178,7 +178,8 @@ class InvoiceController extends Controller
                     GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list,
                     d.id AS status_id,
                     d.status_name,
-                    a.wa_status  -- Include the WhatsApp message status
+                    a.wa_status,
+                    a.status_bayar
                 FROM tbl_invoice AS a
                 JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
                 JOIN tbl_status AS d ON a.status_id = d.id
@@ -189,7 +190,7 @@ class InvoiceController extends Controller
                     )
                 $dateCondition
                 $statusCondition
-                GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
+                GROUP BY a.id, a.no_invoice, a.tanggal_invoice,a.status_bayar, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
                 ORDER BY CASE d.id
                             WHEN '1' THEN 1
                             WHEN '5' THEN 2
@@ -223,6 +224,7 @@ class InvoiceController extends Controller
                                 <th>Customer</th>
                                 <th>Pengiriman</th>
                                 <th>Alamat</th>
+                                <th>Status Pembayaran </th>
                                 <th>Harga</th>
                                 <th>Status</th>';
                             // if ($isNotif = 'true') {
@@ -290,6 +292,7 @@ class InvoiceController extends Controller
                 <td>' . ($item->pembeli ?? '-') . '</td>
                 <td>' . ($item->metode_pengiriman ?? '-') . '</td>
                 <td>' . ($item->alamat ?? '-') . '</td>
+                <td>' . ($item->status_bayar ?? '-') . '</td>
                 <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
 
@@ -324,11 +327,10 @@ class InvoiceController extends Controller
         $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
 
-         // Ambil kode akun dari tabel tbl_account_settings
         $accountSettings = DB::table('tbl_account_settings')->first();
 
-        $salesAccountId = $accountSettings->sales_account_id; // ID untuk kredit
-        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id; // ID untuk debit
+        $salesAccountId = $accountSettings->sales_account_id;
+        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
 
         $existingInvoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
         if ($existingInvoice) {
@@ -397,9 +399,9 @@ class InvoiceController extends Controller
                 throw new \Exception("Gagal memperbarui transaksi terakhir di tbl_pembeli");
             }
 
-                 // Menambahkan Jurnal
             try {
-                $noJournal = 'AR' . $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+                $request->merge(['code_type' => 'AR']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
                 $jurnal->tipe_kode = 'AR';
@@ -411,7 +413,6 @@ class InvoiceController extends Controller
                 $jurnal->totalcredit = $totalharga;
                 $jurnal->save();
 
-                // Menyimpan Jurnal Item untuk Debit
                 $jurnalItemDebit = new JurnalItem();
                 $jurnalItemDebit->jurnal_id = $jurnal->id;
                 $jurnalItemDebit->code_account = $receivableSalesAccountId;
@@ -420,7 +421,6 @@ class InvoiceController extends Controller
                 $jurnalItemDebit->credit = 0;
                 $jurnalItemDebit->save();
 
-                // Menyimpan Jurnal Item untuk Kredit
                 $jurnalItemCredit = new JurnalItem();
                 $jurnalItemCredit->jurnal_id = $jurnal->id;
                 $jurnalItemCredit->code_account = $salesAccountId;
@@ -428,10 +428,10 @@ class InvoiceController extends Controller
                 $jurnalItemCredit->debit = 0;
                 $jurnalItemCredit->credit = $totalharga;
                 $jurnalItemCredit->save();
+
             } catch (\Exception $e) {
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
-
             DB::commit();
 
             return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);

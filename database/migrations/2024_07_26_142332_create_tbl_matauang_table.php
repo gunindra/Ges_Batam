@@ -12,7 +12,8 @@ class CreateTblMatauangTable extends Migration
             $table->id();
             $table->string('nama_matauang', 100);
             $table->string('singkatan_matauang', 10);
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 

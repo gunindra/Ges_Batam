@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Why; 
+use App\Models\PTges; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +12,7 @@ class WhyController extends Controller
 {
     public function index()
     {
-        $whyData = Why::first();
+        $whyData = PTges::first();
         return view('content.whys.indexwhy', compact('whyData'));
     }
 
@@ -27,7 +27,7 @@ class WhyController extends Controller
         $imageWhy = $request->file('imageWhy');
 
         try {
-            $existingData = Why::first();
+            $existingData = PTges::first();
             $fileName = $existingData ? $existingData->Image_WhyUs : null;
 
             if ($imageWhy) {
@@ -41,7 +41,7 @@ class WhyController extends Controller
             }
 
            
-            Why::updateOrCreate(
+            PTges::updateOrCreate(
                 ['id' => $existingData ? $existingData->id : null],
                 [
                     'Paragraph_WhyUs' => $contentWhy,

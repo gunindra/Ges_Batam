@@ -9,18 +9,13 @@ class AboutsController extends Controller
 {
     public function index(Request $request)
     {
-       
-        $contact = DB::table('tbl_contact')->first(); 
-
- 
-        $dataAbout = DB::table('tbl_aboutus')->first();
+        $dataPtges = DB::table('tbl_ptges')->first();
 
         return view('landingpage.About', [
-            'contact' => $contact,
-            'dataAbout' => $dataAbout
+            'dataPtges' => $dataPtges,
         ]);
     }
-   
+
 
 
 }

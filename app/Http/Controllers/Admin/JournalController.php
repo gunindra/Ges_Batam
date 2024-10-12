@@ -51,21 +51,22 @@ class JournalController extends Controller
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 return $query->whereBetween('tanggal', [$startDate, $endDate]);
             })
+            ->orderBy('id', 'desc') // Add this line to order by ID in descending order
             ->get();
 
-            $output = '
-            <table class="table align-items-center table-flush table-hover" id="tableJournal">
-                <thead class="thead-light">
-                    <tr>
-                        <th>No. Journal</th>
-                        <th>Deskripsi</th>
-                        <th>Tanggal</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>';
+        $output = '
+        <table class="table align-items-center table-flush table-hover" id="tableJournal">
+            <thead class="thead-light">
+                <tr>
+                    <th>No. Journal</th>
+                    <th>Deskripsi</th>
+                    <th>Tanggal</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>';
 
         foreach ($data as $item) {
             $statusBadgeClass = '';
@@ -87,26 +88,27 @@ class JournalController extends Controller
                 <td>' . ($item->no_journal ?? '-') . '</td>
                 <td>' . ($item->description ?? '-') . '</td>
                 <td>' . ($item->tanggal ?? '-') . '</td>
-                <td>' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td>
+                <td>Rp ' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td> <!-- Format total with Rp -->
                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
-                <td>';
-
-        if ($item->status === 'Draft') {
-            $output .= '
+                <td>
                     <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '">
                         <i class="fas fa-edit"></i>
-                    </a>';
-        }
+                    </a>
+                ';
 
-        $output .= '
+            // if ($item->status === '') {
+            //     $output .= '
+            //         ';
+            // }
+
+            $output .= '
                     <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
                         <i class="fas fa-trash"></i>
                     </a>';
 
-        $output .= '
+            $output .= '
                 </td>
             </tr>';
-
         }
 
         $output .= '</tbody></table>';
@@ -123,30 +125,38 @@ class JournalController extends Controller
         return view('accounting.journal.indexbuatjournal', compact('coas'));
     }
 
-
     public function generateNoJurnal(Request $request)
     {
-        $kodetype = $request->code_type;
-        $currentYear = date('y');
-        $lastJournal = Jurnal::where('tipe_kode', $kodetype)
-            ->where('no_journal', 'like', $kodetype . $currentYear . '%')
-            ->orderBy('no_journal', 'desc')
-            ->first();
-        if ($lastJournal) {
-            $lastNoJournal = $lastJournal->no_journal;
-            $lastSequence = intval(substr($lastNoJournal, -4));
-            $newSequence = $lastSequence + 1;
-        } else {
-            $newSequence = 1;
-        }
-        $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+        return DB::transaction(function () use ($request) {
+            $kodetype = $request->code_type;
+            $currentYear = date('y');
+            $foundDuplicate = true;
+            $attempt = 0;
 
-        return response()->json([
-            'no_journal' => $newNoJournal
-        ]);
+            while ($foundDuplicate) {
+                $lastJournal = Jurnal::where('tipe_kode', $kodetype)
+                    ->where('no_journal', 'like', $kodetype . $currentYear . '%')
+                    ->lockForUpdate()
+                    ->orderBy('no_journal', 'desc')
+                    ->first();
+
+                $newSequence = $lastJournal ? intval(substr($lastJournal->no_journal, -4)) + 1 + $attempt : 1 + $attempt;
+                $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+
+                $exists = Jurnal::where('no_journal', $newNoJournal)->exists();
+                if (!$exists) {
+                    $foundDuplicate = false;
+                } else {
+                    $attempt++;
+                }
+            }
+
+            return response()->json([
+                'no_journal' => $newNoJournal
+            ]);
+        });
     }
-
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([

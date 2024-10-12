@@ -1,17 +1,17 @@
-<x-layout :contact="$contact ?? ''" :wa="$wa ?? ''">
+<x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
   @section('title', 'PT. GES | Why Us')
   <body class="navigasi-page">
     <div class="Judulwhy">
       <h2>Why Us</h2>
     </div>
-    @if($dataWhy)
+    @if($dataPtges)
     <div class="content-containerwhy">
       <div class="imageWhy">
-        <img src="{{ asset('storage/images/' . $dataWhy->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
       </div>
       <div class="contentwhy">
         <h2 id="judulWhy">Why Choose Us</h2>
-        <p id="parafWhy">{!! nl2br( e( $dataWhy->Paragraph_WhyUs )) !!}</p>
+        <p id="parafWhy">{!! nl2br( e( $dataPtges->Paragraph_WhyUs )) !!}</p>
       </div>
     </div>
     @else

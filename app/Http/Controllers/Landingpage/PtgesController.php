@@ -17,15 +17,11 @@ class PtgesController extends Controller
 
         $listiklan = DB::select("SELECT image_Advertisement, title_Advertisement FROM tbl_Advertisement");
 
-        $aboutus = DB::table('tbl_aboutus')->select('Paragraph_AboutUs', DB::raw('LEFT(Paragraph_AboutUs, 250) AS Paragraph_AboutUs'))->first();
-
-        $whyus = DB::table('tbl_whyus')->select('Paragraph_WhyUs', DB::raw('LEFT(Paragraph_WhyUs, 250) AS Paragraph_WhyUs'))->first();
+        $dataPtges = DB::table('tbl_ptges')->select('Image_AboutUs','Paragraph_AboutUs', DB::raw('LEFT(Paragraph_AboutUs, 250) AS Paragraph_AboutUs'),'Image_WhyUs','Paragraph_WhyUs', DB::raw('LEFT(Paragraph_WhyUs, 250) AS Paragraph_WhyUs'),'email','phone','phones')->first();
 
         $listheropage = DB::select("SELECT id, title_heropage, LEFT(content_heropage, 160) AS content_heropage, image_heropage FROM tbl_heropage");
 
         $popup = DB::table('tbl_popup')->first();
-
-        $contact = DB::table('tbl_contact')->first();
         
         $wa = DB::table('tbl_wa')->first();
 
@@ -33,12 +29,10 @@ class PtgesController extends Controller
             'listinformation' => $listinformation,
             'listservices' => $listservices,
             'listiklan' => $listiklan,
-            'aboutus' => $aboutus,
-            'whyus' => $whyus,
+            'dataPtges' => $dataPtges,
             'listheropage' => $listheropage,
             'popup' => $popup,
             'wa' => $wa,
-            'contact' => $contact,
         ]);
     }
 }

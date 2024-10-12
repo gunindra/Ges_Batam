@@ -90,12 +90,13 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             }
 
             $fileUrl = asset('storage/list_barang/' . $pdfFileName);
-            $pesan .= "\n\n*Download List Barang Anda di sini:";
+            $pesan .= "\n\n*Download list barang diatas";
 
 
             if ($invoice->no_wa) {
                 $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl);
                 $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
+
 
                 if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
 

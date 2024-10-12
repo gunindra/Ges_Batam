@@ -9,9 +9,9 @@
     <div class="containers">
         <div class="footer-content">
             <h3>Contact</h3>
-            <p>Email: {{ $contact->email ?? '-' }}</p>
-            <p>Phone (main): {{ is_object($contact) && isset($contact->phone) ? '+62' . $contact->phone : '-'  }}</p>
-            <p>Phone (Second): {{ is_object($contact) && isset($contact->phones) ? '+62' . $contact->phones : '-' }}</p>
+            <p>Email: {{ $dataPtges->email ?? '-' }}</p>
+            <p>Phone (main): {{ is_object($dataPtges) && isset($dataPtges->phone) ? '+62' . $dataPtges->phone : '-'  }}</p>
+            <p>Phone (Second): {{ is_object($dataPtges) && isset($dataPtges->phones) ? '+62' . $dataPtges->phones : '-' }}</p>
         </div>
         <div class="footer-content">
             <h3>Quick Links</h3>

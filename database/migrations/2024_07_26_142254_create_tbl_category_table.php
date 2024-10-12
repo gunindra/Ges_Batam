@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('tbl_category', function (Blueprint $table) {
             $table->id();
             $table->string('category_name', 50);
-            $table->decimal('minimum_rate', 15,2)->nullable();
-            $table->decimal('maximum_rate', 15,2)->nullable();
-            $table->timestamps();
+            $table->decimal('minimum_rate', 17,2)->nullable();
+            $table->decimal('maximum_rate', 17,2)->nullable();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });
     }
 

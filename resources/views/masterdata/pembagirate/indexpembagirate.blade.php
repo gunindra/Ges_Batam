@@ -533,8 +533,8 @@
 
         $('#saveRate').click(function () {
 
-            var nilaiRate = $('#nilaiRate').val().trim();
-            var forRate = $('#forRate').val().trim();
+            var nilaiRate = $('#nilaiRate').val();
+            var forRate = $('#forRate').val();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -735,6 +735,7 @@
                         url: '/masterdata/rate/destroyrate/'+ id,
                         data: {
                             id: id,
+                            _token: $('meta[name="csrf-token"]').attr('content'),
                         },
                         success: function (response) {
                             Swal.close();

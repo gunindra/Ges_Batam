@@ -11,8 +11,8 @@ class SupplierInvoiceController extends Controller
     public function index()
     {
         $listStatus = DB::select("SELECT status_name FROM tbl_status");
-      
-        return view ('vendor.supplierinvoice.indexsupplierInvoice', [
+
+        return view('vendor.supplierinvoice.indexsupplierInvoice', [
             'listStatus' => $listStatus
         ]);
     }
@@ -27,7 +27,7 @@ class SupplierInvoiceController extends Controller
         if ($startDate && $endDate) {
             $dateCondition = "AND a.tanggal_invoice BETWEEN '$startDate' AND '$endDate'";
         }
-        
+
         $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
 
         $q = "SELECT a.id,
@@ -86,42 +86,42 @@ class SupplierInvoiceController extends Controller
                         </tr>
                     </thead>
                     <tbody>';
-                    foreach ($data as $item) {
+        foreach ($data as $item) {
 
-                        $statusBadgeClass = '';
-                        $btnEditSupplierinvoice = '';
+            $statusBadgeClass = '';
+            $btnEditSupplierinvoice = '';
 
-                        switch ($item->status_name) {
-                            case 'Batam / Sortir':
-                                $statusBadgeClass = 'badge-warning';
-                                $ $btnEditSupplierinvoice  = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Ready For Pickup':
-                                $statusBadgeClass = 'badge-success';
-                                $ $btnEditSupplierinvoice  = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Out For Delivery':
-                                $statusBadgeClass = 'badge-primary';
-                                $ $btnEditSupplierinvoice  = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
-                                break;
-                            case 'Delivering':
-                                $statusBadgeClass = 'badge-delivering';
-                                break;
-                            case 'Done':
-                                $statusBadgeClass = 'badge-secondary';
-                                break;
-                            default:
-                                $statusBadgeClass = 'badge-secondary';
-                                break;
-                        }
+            switch ($item->status_name) {
+                case 'Batam / Sortir':
+                    $statusBadgeClass = 'badge-warning';
+                    $$btnEditSupplierinvoice = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                    break;
+                case 'Ready For Pickup':
+                    $statusBadgeClass = 'badge-success';
+                    $$btnEditSupplierinvoice = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                    break;
+                case 'Out For Delivery':
+                    $statusBadgeClass = 'badge-primary';
+                    $$btnEditSupplierinvoice = '<a class="btn  $btnEditSupplierinvoice  btn-sm btn-primary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>';
+                    break;
+                case 'Delivering':
+                    $statusBadgeClass = 'badge-delivering';
+                    break;
+                case 'Done':
+                    $statusBadgeClass = 'badge-secondary';
+                    break;
+                default:
+                    $statusBadgeClass = 'badge-secondary';
+                    break;
+            }
 
-                        $convertedHarga = $item->harga;
-                        if ($item->matauang_id != 1) {
-                            $convertedHarga = $item->harga / $item->rate_matauang;
-                        }
+            $convertedHarga = $item->harga;
+            if ($item->matauang_id != 1) {
+                $convertedHarga = $item->harga / $item->rate_matauang;
+            }
 
-                        $output .=
-                            '
+            $output .=
+                '
                             <tr>
                                 <td>' . ($item->no_resi ?? '-') . '</td>
                                 <td>' . ($item->tanggal_bayar ?? '-') . '</td>
@@ -136,8 +136,13 @@ class SupplierInvoiceController extends Controller
                                 </td>
                             </tr>
                         ';
-                    }
+        }
         $output .= '</tbody></table>';
         return $output;
+    }
+    public function addSupplierInvoice()
+    {
+        return view('vendor.supplierinvoice.buatsupplierinvoice');
+
     }
 }
