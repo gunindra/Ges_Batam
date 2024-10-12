@@ -63,54 +63,7 @@
                         </button>
                     </div>
                     <div id="containerequity" class="table-responsive px-3">
-                        <table width="100%" class="table table-vcenter card-table">
-                            <thead>
-                                <tr>
-                                    <th width="30%">Description</th>
-                                    <th width="30%"></th>
-                                    <th width="20%" class="text-right"></th>
-                                    <th width="20%" class="text-right">Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Opening Balance of Owner's Equity</td>
-                                    <td></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right">0.00</td>
-                                </tr>
-                                <tr>
-                                    <td>Additional Capital</td>
-                                    <td></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right">0.00</td>
-                                </tr>
-                                <tr>
-                                    <td>Retained Earning</td>
-                                    <td></td>
-                                    <td class="text-right">0.00</td>
-                                    <td class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <td>Current Year Earning</td>
-                                    <td></td>
-                                    <td class="text-right">0.00</td>
-                                    <td class="text-right"></td>
-                                </tr>
-                                <tr>
-                                    <td>Prive or Dividend</td>
-                                    <td></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right" style="border-bottom:3px solid black;">0.00</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Prive or Dividend</b></td>
-                                    <td></td>
-                                    <td class="text-right"></td>
-                                    <td class="text-right"><b>0.00</b></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                       
                     </div>
                 </div>
             </div>
@@ -121,33 +74,70 @@
 @endsection
 @section('script')
 <script>
-      flatpickr("#startDate", {
-        dateFormat: "d M Y",
-        onChange: function (selectedDates, dateStr, instance) {
+     $(document).ready(function() {
+                    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+        </div> `;
 
-            $("#endDate").flatpickr({
-                dateFormat: "d M Y",
-                minDate: dateStr
-            });
+        const getEquity = () => {
+            const txtSearch = $('#txSearch').val();
+            const filterStatus = $('#filterStatus').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+
+            $.ajax({
+                    url: "{{ route('getEquity') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch,
+                        status: filterStatus,
+                        startDate: startDate,
+                        endDate: endDate,
+                    },
+                    beforeSend: () => {
+                        $('#containerequity').html(loadSpin)
+                    }
+                })
+                .done(res => {
+                    $('#containerequity').html(res)
+                   
+                })
         }
-    });
 
-    flatpickr("#endDate", {
-        dateFormat: "d MM Y",
-        onChange: function (selectedDates, dateStr, instance) {
-            var startDate = new Date($('#startDate').val());
-            var endDate = new Date(dateStr);
-            if (endDate < startDate) {
-                showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                $('#endDate').val('');
+        getEquity();
+
+        flatpickr("#startDate", {
+            dateFormat: "d M Y",
+            onChange: function (selectedDates, dateStr, instance) {
+
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
             }
-        }
-    });
+        });
 
-    $(document).on('click', '#filterTanggal', function (e) {
-        $('#modalFilterTanggal').modal('show');
-    });
+        flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function (selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    $('#endDate').val('');
+                }
+            }
+        });
 
+        $(document).on('click', '#filterTanggal', function (e) {
+            $('#modalFilterTanggal').modal('show');
+        });
+
+        $('#saveFilterTanggal').click(function() {
+            getEquity();
+            $('#modalFilterTanggal').modal('hide');
+        });
+    });
 
 </script>
 @endsection

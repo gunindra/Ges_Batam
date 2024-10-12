@@ -324,18 +324,23 @@ Route::middleware(['auth'])->group(function () {
      //Report
     //ProfitLoss
     Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+    Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
 
     //Equity
-     Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
+    Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
+    Route::get('/report/getEquity', [EquityController::class, 'getEquity'])->name('getEquity');
 
      //Cashflow
     Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
+    Route::get('/report/getCashFlow',  [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
 
     //Ledger
     Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
+    Route::get('/report/getLedger',  [LedgerController::class, 'getLedger'])->name('getLedger');
 
     //Balance
     Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
+    Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
 });
 
 

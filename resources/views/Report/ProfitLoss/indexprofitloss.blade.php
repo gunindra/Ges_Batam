@@ -63,385 +63,7 @@
                         </button>
                     </div>
                     <div id="containerProfitLoss" class="table-responsive px-3">
-                        <div class="card-header">
-                            <h2 class="card-title">Operating Revenues</h2>
-                        </div>
-                        <div class="card-body">
-                            <table class="table" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 80%;">Account</th>
-                                        <th style="width: 20%;" class="text-right">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-left">PENJUALAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">DISKON PENJUALAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">RETUR PENJUALAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BIAYA ANGKUT PENJUALAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b> TOTAL OPEARTING REVENUE </b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-header">
-                            <h2 class="card-title">Operating Expenses</h2>
-                        </div>
-                        <div class="card-body">
-                            <table class="table" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 80%;">Account</th>
-                                        <th style="width: 20%;" class="text-right">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-left">HARGA POKOK PENJUALAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">PEMBELIAN</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">DISKON PEMBELIAN </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">RETUR PEMBELIAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BIAYA ANGKUT PEMBELIAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN IKLAN DAN PROMOSI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN KOMISI PENJUALAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN TRANSPORTASI MARKETING</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN ENTERTAINMENT</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN LEGALITAS DOKUMEN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN GST PENGIRIMAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN OPERASIONAL EKSPEDISI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENGIRIMAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN GAJI DAN UPAH</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PPH 21</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN BPJS KETENAGAKERJAAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN BPJS KESEHATAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN TUNJANGAN HARI RAYA</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN BONUS DAN INSENTIF</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN TUNJANGAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN LEMBUR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PERIJINAN DAN LISENSI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN SEWA</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN LISTRIK DAN AIR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN TELEPON DAN INTERNET</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN KEBERSIHAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN KEAMANAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PERLENGKAPAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN ATK DAN FOTOKOPI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENGIRIMAN DOKUMEN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PERBAIKAN DAN PEMELIHARAAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN TRANSPORTASI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PERJALANAN DINAS</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN REKRUITMEN DAN PELATIHAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN ASURANSI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN SUMBANGAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN JASA PROFESIONAL</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN RUMAH TANGGA KANTOR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PERCETAKKAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN KENDARAAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN BBM DAN PARKIR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN KEPERLUAN KANTOR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENYUSUTAN GEDUNG</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENYUSUTAN MESIN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENYUSUTAN PERALATAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENYUSUTAN INVENTARIS KANTOR</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PENYUSUTAN SARANA DAN PRASARANA</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN AMORTISASI GOODWILL</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN AMORTISASI FRANCHISE</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN AMORTISASI LISENSI</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN AMORTISASI HAK CIPTA</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b> TOTAL OPEARTING EXPENSE</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b> TOTAL OPERATING PROFIT</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-header">
-                            <h2 class="card-title">NON-BUSINESS REVENUE</h2>
-                        </div>
-                        <div class="card-body">
-                            <table class="table" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 80%;">Account</th>
-                                        <th style="width: 20%;" class="text-right">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-left">PENDAPATAN BUNGA BANK DAN JASA GIRO </td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">LABA ATAS SELISIH KURS</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">LABA PELEPASAN ASET</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">PENDAPATAN DI LUAR USAHA LAINNYA</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b>TOTAL NON BUSINESS REVENUE</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-header">
-                            <h2 class="card-title">NON BUSINESS EXPENSES</h2>
-                        </div>
-                        <div class="card-body">
-                            <table class="table" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 80%;">Account</th>
-                                        <th style="width: 20%;" class="text-right">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-left">BEBAN BUNGA PINJAMAN</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN ADMINISTRASI DAN PAJAK GIRO</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PROVISI</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">RUGI ATAS SELISIH KURS</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">RUGI PELEPASAN ASET</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN SANKSI PAJAK</td>
-                                        <td class="text-right">0.00</td>
-
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN PAJAK PENGHASILAN</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left">BEBAN DI LUAR USAHA LAINNYA</td>
-                                        <td class="text-right">0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b>TOTAL NON BUSINESS EXPENSE</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left"><b>TOTAL NON OPERATING PROFIT</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-body">
-                            <table class="table" width="100%">
-                                <thead>
-                                    <tr>
-                                        <td class="text-left"><b>NET PROFIT BEFORE TAX</b></td>
-                                        <td class="text-right"><b>0.00</b></td>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -453,34 +75,70 @@
 @endsection
 @section('script')
 <script>
+     $(document).ready(function() {
+                    const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+        </div> `;
 
-    flatpickr("#startDate", {
-        dateFormat: "d M Y",
-        onChange: function (selectedDates, dateStr, instance) {
+        const getProfitOrLoss = () => {
+            const txtSearch = $('#txSearch').val();
+            const filterStatus = $('#filterStatus').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
 
-            $("#endDate").flatpickr({
-                dateFormat: "d M Y",
-                minDate: dateStr
-            });
+            $.ajax({
+                    url: "{{ route('getProfitOrLoss') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch,
+                        status: filterStatus,
+                        startDate: startDate,
+                        endDate: endDate,
+                    },
+                    beforeSend: () => {
+                        $('#containerProfitLoss').html(loadSpin)
+                    }
+                })
+                .done(res => {
+                    $('#containerProfitLoss').html(res)
+                   
+                })
         }
-    });
 
-    flatpickr("#endDate", {
-        dateFormat: "d MM Y",
-        onChange: function (selectedDates, dateStr, instance) {
-            var startDate = new Date($('#startDate').val());
-            var endDate = new Date(dateStr);
-            if (endDate < startDate) {
-                showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                $('#endDate').val('');
+        getProfitOrLoss();
+
+        flatpickr("#startDate", {
+            dateFormat: "d M Y",
+            onChange: function (selectedDates, dateStr, instance) {
+
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
             }
-        }
-    });
+        });
 
-    $(document).on('click', '#filterTanggal', function (e) {
-        $('#modalFilterTanggal').modal('show');
-    });
+        flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function (selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    $('#endDate').val('');
+                }
+            }
+        });
 
+        $(document).on('click', '#filterTanggal', function (e) {
+            $('#modalFilterTanggal').modal('show');
+        });
+
+        $('#saveFilterTanggal').click(function() {
+            getProfitOrLoss();
+            $('#modalFilterTanggal').modal('hide');
+        });
+    });
 
 </script>
 @endsection
