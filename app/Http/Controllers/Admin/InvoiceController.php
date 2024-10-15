@@ -5,10 +5,7 @@ use App\Http\Controllers\Controller;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
 use App\Jobs\KirimPesanWaPembeliJob;
 use App\Traits\WhatsappTrait;
 use App\Http\Controllers\Admin\JournalController;
@@ -16,6 +13,7 @@ use App\Models\Jurnal;
 use App\Models\JurnalItem;
 use Log;
 use Str;
+
 
 class InvoiceController extends Controller
 {
@@ -42,6 +40,7 @@ class InvoiceController extends Controller
             'listStatus' => $listStatus
         ]);
     }
+
 
     public function addinvoice()
     {
@@ -444,18 +443,13 @@ class InvoiceController extends Controller
     public function kirimPesanWaPembeli(Request $request)
     {
         try {
-            // Ambil invoice IDs dari request
             $invoiceIds = $request->input('id');
-
             if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
                 throw new \Exception("Tidak ada invoice yang diterima");
             }
-
-            // Dispatch job untuk setiap invoice ID
             foreach ($invoiceIds as $invoiceId) {
                 KirimPesanWaPembeliJob::dispatch($invoiceId);
             }
-
             return response()->json(['success' => true, 'message' => 'Pesan WhatsApp berhasil dikirim untuk semua invoice']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);

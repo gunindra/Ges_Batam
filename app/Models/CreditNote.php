@@ -12,12 +12,14 @@ class CreditNote extends Model
     protected $table = 'tbl_credit_note';
 
     protected $fillable = [
+        'no_creditnote',
         'invoice_id',
         'account_id',
         'matauang_id',
         'rate_currency',
         'note',
-        'total_keseluruhan'
+        'total_keseluruhan',
+        'status_bayar'
     ];
 
     public function items()

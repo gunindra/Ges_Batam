@@ -27,7 +27,6 @@
 </style>
 
 
-<<<<<<< HEAD
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -42,22 +41,6 @@
             <i class="fas fa-arrow-left"></i>
             Back
         </a>
-=======
-<!---Container Fluid-->
-<div class="container-fluid" id="container-wrapper">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Journal</h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Accounting</li>
-            <li class="breadcrumb-item"><a href="{{ route('journal') }}">Journal</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit Journal</li>
-        </ol>
-    </div>
-    <a class="btn btn-primary mb-3" href="{{ route('journal') }}">
-        <i class="fas fa-arrow-left"></i>
-        Back
-    </a>
->>>>>>> cde864c5f95c9dfbd64cd4310648a622df01ee5a
 
     <div class="row">
         <div class="col-lg-12">
@@ -165,20 +148,10 @@
 
 @endsection
 @section('script')
-<<<<<<< HEAD
-    <script>
-        $(document).ready(function() {
-=======
-
-
-
 <script>
     $(document).ready(function () {
-
-        let journalData = @json($journal);
-        let coas = @json($coas);
->>>>>>> cde864c5f95c9dfbd64cd4310648a622df01ee5a
-
+        var journalData = @json($journal);
+        var coas = @json($coas);
         if (journalData) {
             var dateParts = journalData.tanggal.split('-');
             var formattedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
@@ -186,6 +159,7 @@
                 format: 'dd MM yyyy',
                 autoclose: true,
             }).datepicker('setDate', formattedDate);
+
             $('#noJournal').val(journalData.no_journal);
             $('#noRef').val(journalData.no_ref);
             $('input[name="code_type"][value="' + journalData.tipe_kode + '"]').prop('checked', true);
@@ -196,94 +170,44 @@
             let totalDebit = 0;
             let totalCredit = 0;
 
-<<<<<<< HEAD
-                if (journalData.status === "Approve") {
-                    $('#approveJournal, #buatJournal').remove();
-                    $('.tittlepage').text('Show Detail Journal');
-                }
-
-                let totalDebit = 0;
-                let totalCredit = 0;
-
-                journalData.items.forEach(function(item) {
-                    // Map coas based on `code_account`
-                    let coaOptions = coas.map(coa => `
-=======
-            journalData.items.forEach(function (item) {
-                // Map coas based on `code_account`
-                let coaOptions = coas.map(coa => `
->>>>>>> cde864c5f95c9dfbd64cd4310648a622df01ee5a
-                <option value="${coa.id}" ${coa.id == item.code_account ? 'selected' : ''}>
-                    ${coa.code_account_id} - ${coa.name}
-                </option>
-            `).join('');
-
-                let newRow = `
-            <tr>
-                <td>
-                    <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
-                        <option value="">Pilih Akun</option>
-                        ${coaOptions}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="item_desc" value="${item.description}" placeholder="Input Description" required>
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="debit" value="${item.debit}" placeholder="0.00" required>
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="credit" value="${item.credit}" placeholder="0.00" required>
-                </td>
-                <td>
-                     <input type="text" class="form-control" name="memo" value="${item.memo ? item.memo : ''}" placeholder="">
-                </td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-                </td>
-            </tr>
-            `;
-<<<<<<< HEAD
-                    $('#items-container').append(newRow);
-
-                    totalDebit += parseFloat(item.debit) || 0;
-                    totalCredit += parseFloat(item.credit) || 0;
-                });
-
-                $('#total_debit').val(totalDebit.toFixed(2));
-                $('#total_credit').val(totalCredit.toFixed(2));
-
-
+            if (journalData.status === "Approve") {
+                $('#approveJournal, #buatJournal').remove();
+                $('.tittlepage').text('Show Detail Journal');
             }
 
-            $('#tanggalJournal').datepicker({
-                format: 'dd MM yyyy',
-                autoclose: true,
-            }).datepicker();
+            journalData.items.forEach(function (item) {
+                let coaOptions = coas.map(coa => `
+                    <option value="${coa.id}" ${coa.id == item.code_account ? 'selected' : ''}>
+                        ${coa.code_account_id} - ${coa.name}
+                    </option>
+                `).join('');
 
-            $('input[name="code_type"]').change(function() {
-                const selectedType = $('input[name="code_type"]:checked').val();
-
-                if (selectedType) {
-                    $.ajax({
-                        url: "{{ route('generateNoJurnal') }}",
-                        method: 'GET',
-                        data: {
-                            code_type: selectedType,
-                        },
-                        success: function(response) {
-                            $('#noJournal').val(response.no_journal);
-                        },
-                        error: function(xhr) {
-                            console.error('Error fetching no jurnal:', xhr);
-                        }
-                    });
-                } else {
-                    $('#errMessage').removeClass('d-none');
-                }
-=======
+                let newRow = `
+                    <tr>
+                        <td>
+                            <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
+                                <option value="">Pilih Akun</option>
+                                ${coaOptions}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="item_desc" value="${item.description}" placeholder="Input Description" required>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="debit" value="${item.debit}" placeholder="0.00" required>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="credit" value="${item.credit}" placeholder="0.00" required>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="memo" value="${item.memo ? item.memo : ''}" placeholder="">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                        </td>
+                    </tr>
+                `;
                 $('#items-container').append(newRow);
->>>>>>> cde864c5f95c9dfbd64cd4310648a622df01ee5a
 
                 totalDebit += parseFloat(item.debit) || 0;
                 totalCredit += parseFloat(item.credit) || 0;
@@ -296,7 +220,7 @@
         $('#tanggalJournal').datepicker({
             format: 'dd MM yyyy',
             autoclose: true,
-        }).datepicker();
+        });
 
         $('input[name="code_type"]').change(function () {
             const selectedType = $('input[name="code_type"]:checked').val();
@@ -318,7 +242,6 @@
             } else {
                 $('#errMessage').removeClass('d-none');
             }
-
         });
 
         function updateTotals() {
@@ -341,34 +264,34 @@
 
         $('#add-item-button').click(function () {
             let newRow = `
-    <tr>
-        <td>
-            <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
-                <option value="">Pilih Akun</option>
-                @foreach ($coas as $coa)
-                    <option value="{{ $coa->id }}">
-                        {{ $coa->code_account_id }} - {{ $coa->name }}
-                    </option>
-                @endforeach
-            </select>
-        </td>
-        <td>
-            <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-        </td>
-        <td>
-            <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
-        </td>
-        <td>
-            <input type="number" class="form-control" name="credit" value="0" placeholder="0.00" required>
-        </td>
-        <td>
-            <input type="text" class="form-control" name="memo" placeholder="">
-        </td>
-        <td>
-            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-        </td>
-    </tr>
-    `;
+                <tr>
+                    <td>
+                        <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
+                            <option value="">Pilih Akun</option>
+                            @foreach ($coas as $coa)
+                                <option value="{{ $coa->id }}">
+                                    {{ $coa->code_account_id }} - {{ $coa->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="credit" value="0" placeholder="0.00" required>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="memo" placeholder="">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                    </td>
+                </tr>
+            `;
             $('#items-container').append(newRow);
             $('.select2singgle').last().select2();
             if ($('#items-container tr').length > 2) {
@@ -413,8 +336,7 @@
                     item_desc: $(this).find('input[name="item_desc"]').val(),
                     debit: $(this).find('input[name="debit"]').val(),
                     credit: $(this).find('input[name="credit"]').val(),
-                    memo: $(this).find('input[name="memo"]').val() ||
-                        ""
+                    memo: $(this).find('input[name="memo"]').val() || ""
                 };
                 journalData.items.push(rowData);
             });
@@ -460,33 +382,36 @@
 
             var isValid = true;
 
-
-            if (tanggalJournal === '' || tanggalJournal === null) {
+            if (!tanggalJournal) {
                 $('#errTanggalJournal').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#errTanggalJournal').addClass('d-none');
             }
+
             var selectedCodeType = $('input[name="code_type"]:checked').val();
-            if (selectedCodeType === undefined) {
+            if (!selectedCodeType) {
                 $('#errCodeType').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#errCodeType').addClass('d-none');
             }
-            if (noJournal === '' || noJournal === null) {
+
+            if (!noJournal) {
                 $('#noJournalError').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#noJournalError').addClass('d-none');
             }
-            if (noRef === '' || noRef === null) {
+
+            if (!noRef) {
                 $('#noRefError').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#noRefError').addClass('d-none');
             }
-            if (descriptionJournal === '' || descriptionJournal === null) {
+
+            if (!descriptionJournal) {
                 $('#descriptionJournalError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -521,4 +446,5 @@
         });
     });
 </script>
+
 @endsection

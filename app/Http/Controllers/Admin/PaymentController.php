@@ -27,9 +27,9 @@ class PaymentController extends Controller
     public function index()
     {
         $listPayment = DB::table('tbl_payment_customer as pc')
-        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id') // Menambahkan join dengan tbl_coa
-        ->select('coa.name as payment_method') // Menggunakan nama dari coa sebagai payment method
-        ->groupBy('coa.name') // Grouping berdasarkan nama
+        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
+        ->select('coa.name as payment_method')
+        ->groupBy('coa.name')
         ->get();
 
         return view('customer.payment.indexpayment', [
@@ -55,19 +55,19 @@ class PaymentController extends Controller
     {
         $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
-            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id') // Menambahkan join ke tbl_coa
+            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
             ->select([
                 'a.kode_pembayaran',
                 'b.no_invoice',
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
                 'a.amount',
-                'c.name as payment_method', // Mengubah 'a.payment_method' menjadi 'c.name'
+                'c.name as payment_method',
                 'b.status_bayar',
                 'a.id'
             ]);
 
         if (!empty($request->status)) {
-            $query->where('c.name', $request->status); // Mengubah kriteria untuk menggunakan 'c.name'
+            $query->where('c.name', $request->status);
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
@@ -82,12 +82,6 @@ class PaymentController extends Controller
             ->editColumn('tanggal_bayar', function ($row) {
                 return $row->tanggal_bayar;
             })
-            // Uncomment and modify if you need action buttons
-            // ->addColumn('action', function ($row) {
-            //     return '<a href="#" class="btn btn-sm btn-secondary" id="edit-' . $row->id . '"><i class="fas fa-edit"></i></a>' .
-            //            '<a href="#" class="btn btn-sm btn-danger ml-2" id="delete-' . $row->id . '"><i class="fas fa-trash"></i></a>';
-            // })
-            // ->rawColumns(['action'])
             ->make(true);
     }
 
