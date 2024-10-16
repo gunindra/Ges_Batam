@@ -82,7 +82,6 @@
                                         <th>No. Invoice</th>
                                         <th>Nama Account</th>
                                         <th>Currency</th>
-                                        <th>Status</th>
                                         <th>Tanggal</th>
                                         <th>Action</th>
                                     </tr>
@@ -134,10 +133,6 @@
                     {
                         data: 'currency',
                         name: 'mu.singkatan_matauang'
-                    },
-                    {
-                        data: 'status_bayar',
-                        name: 'cn.status_bayar'
                     },
                     {
                         data: 'tanggal',
@@ -207,6 +202,16 @@
             $('#filterStatus').change(function() {
                 table.ajax.reload();
             });
+
+
+            $(document).on('click', '.btnedit', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                var url = "{{ route('updatepage', ':id') }}";
+                url = url.replace(':id', id);
+                window.location.href = url;
+            });
+
         })
     </script>
 @endsection

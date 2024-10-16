@@ -282,6 +282,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/creditnote/addCreditNote', [CreditNoteController::class, 'addCreditNote'])->name('addCreditNote');
     Route::get('/customer/creditnote/getCreditNotes', [CreditNoteController::class, 'getCreditNotes'])->name('getCreditNotes');
     Route::post('/customer/creditnote/store', [CreditNoteController::class, 'store'])->name('credit-note.store');
+    Route::get('/customer/creditnote/updatepage/{id}', [CreditNoteController::class, 'updatepage'])->name('updatepage');
+    Route::put('/customer/creditnote/update/{id}', [CreditNoteController::class, 'update'])->name('update');
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');

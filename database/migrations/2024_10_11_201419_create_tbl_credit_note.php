@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->text('note')->nullable();
             $table->decimal('total_keseluruhan', 15, 2)->default(0);
             $table->decimal('rate_currency', 15, 2)->nullable();
-            $table->string('status_bayar')->default("Belum bayar");
+            // $table->string('status_bayar')->default("Draft");
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

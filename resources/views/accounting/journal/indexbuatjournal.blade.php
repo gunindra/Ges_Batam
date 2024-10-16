@@ -245,13 +245,9 @@
                 $('#errMessage').removeClass('d-none');
             }
         });
-
-        // Function to calculate and update the total debit and credit
         function updateTotals() {
             var totalDebit = 0;
             var totalCredit = 0;
-
-            // Loop through each row in the table to sum the debit and credit values
             $('#items-container tr').each(function () {
                 var debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
                 var creditValue = parseFloat($(this).find('input[name="credit"]').val()) || 0;
@@ -260,15 +256,10 @@
                 totalCredit += creditValue;
             });
 
-            // Update the total fields
             $('#total_debit').val(totalDebit.toFixed(0));
             $('#total_credit').val(totalCredit.toFixed(0));
         }
-
-        // Initialize select2 on page load
         $('.select2singgle').select2();
-
-        // Add a new row with the remove button when the "Add Item" button is clicked
         $('#add-item-button').click(function () {
             var newRow = `
     <tr>
@@ -404,7 +395,7 @@
                 $('#errCodeType').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#errCodeType').addClass('d-none'); 
+                $('#errCodeType').addClass('d-none');
             }
             if (noJournal === '' || noJournal === null) {
                 $('#noJournalError').removeClass('d-none');

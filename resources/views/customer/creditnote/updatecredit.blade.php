@@ -1,6 +1,6 @@
 @extends('layout.main')
 
-@section('title', 'Customer | Credit Note')
+@section('title', 'Customer | Edit Credit Note')
 
 @section('main')
 
@@ -29,11 +29,11 @@
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Buat Credit Note</h1>
+            <h1 class="h3 mb-0 text-gray-800">Edit Credit Note</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Customer</li>
                 <li class="breadcrumb-item"><a href="{{ route('creditnote') }}">Credit Note</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Buat Credit Note</li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Credit Note</li>
             </ol>
         </div>
         <a class="btn btn-primary mb-3" href="{{ route('creditnote') }}">
@@ -120,9 +120,7 @@
                                 </thead>
 
                                 <tbody id="items-container">
-
-
-                                    <tr class="tr">
+                                    {{-- <tr class="tr">
                                         <td>
                                             <input required="" type="text" class="form-control" name="noresi">
                                         </td>
@@ -143,7 +141,7 @@
                                             <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
                                                 style="display:none;">Remove</button>
                                         </td>
-                                    </tr>
+                                    </tr> --}}
                                 </tbody>
 
                             </table>
@@ -157,8 +155,7 @@
                                 <div class="input-group pt-2 mt-3">
                                     <label for="noteCredit" class="form-label fw-bold p-1">Note</label>
                                 </div>
-                                <textarea id="noteCredit" class="form-control" aria-label="With textarea" placeholder="Masukkan content"
-                                    rows="4"></textarea>
+                                <textarea id="noteCredit" class="form-control" aria-label="With textarea" placeholder="Masukkan content" rows="4"></textarea>
                             </div>
                             <div class="col-4 ms-5 mt-5 ml-5">
                                 <div class="mb-3" style="border-bottom:1px solid black;">
@@ -171,9 +168,11 @@
                             <div id="noteCreditError" class="text-danger mt-1 d-none">Silahkan isi Note</div>
                             <div class="col-12 mt-4">
                                 <div class="col-4 float-right">
+                                    {{-- <button id="publish" class="btn btn-success p-3 float-right mt-3"
+                                        style="width: 100%;">Publish</button> --}}
                                     <button id="buatCredit" class="btn btn-primary p-3 float-right mt-3"
-                                        style="width: 100%;">Buat
-                                        Credit</button>
+                                        style="width: 100%;">Simpan
+                                        Draft</button>
                                 </div>
                             </div>
                         </div>
@@ -181,27 +180,21 @@
                 </div>
             </div>
         </div>
-
-
     @endsection
     @section('script')
         <script>
             $(document).ready(function() {
+
+                var creditNote = @json($creditNote);
+                var coas = @json($coas);
+
+                console.log("isi credit note", creditNote);
+                console.log("isi coas note", coas);
+
                 // Inisialisasi select2
                 $('.select2').select2();
 
-                $('#currencyCredit').change(function() {
-                    const selectedCurrency = $(this).val();
-
-                    if (selectedCurrency !== '1') {
-                        $('#rateCurrencySection').show();
-                        // $('#totalIdr').show();
-                    } else {
-                        $('#rateCurrencySection').hide();
-                    }
-                    updateTotals();
-                });
-
+                // Update total function - Moved this block to the top
                 const updateTotals = () => {
                     let totalKeseluruhan = 0;
 
@@ -217,37 +210,61 @@
                     $('#Total').val(totalKeseluruhan.toFixed(2));
                 };
 
+                // Prefill data credit note
+                if (creditNote) {
+                    $('#invoiceCredit').val(creditNote.invoice_id).trigger('change');
+                    $('#accountCredit').val(creditNote.account_id).trigger('change');
+                    $('#currencyCredit').val(creditNote.matauang_id).trigger('change');
+                    $('#rateCurrency').val(creditNote.rate_currency);
+                    $('#noteCredit').val(creditNote.note);
+
+                    // Isi item ke dalam tabel
+                    creditNote.items.forEach(function(item) {
+                        const newRow = `
+            <tr>
+                <td><input required type="text" class="form-control" name="noresi" value="${item.no_resi}"></td>
+                <td><input required type="text" class="form-control" name="deskripsi" value="${item.deskripsi}"></td>
+                <td><input required type="number" class="form-control" name="harga" value="${item.harga}"></td>
+                <td><input required value="${item.jumlah}" type="number" class="form-control" name="jumlah"></td>
+                <td><input disabled type="text" class="form-control" name="item-subtotal" value="${item.total}"></td>
+                <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
+            </tr>
+        `;
+                        $('#items-container').append(newRow);
+                    });
+
+                    // Hitung ulang total keseluruhan
+                    updateTotals();
+                }
+
+                $('#currencyCredit').change(function() {
+                    const selectedCurrency = $(this).val();
+                    if (selectedCurrency !== '1') {
+                        $('#rateCurrencySection').show();
+                    } else {
+                        $('#rateCurrencySection').hide();
+                    }
+                    updateTotals();
+                });
+
                 // Fungsi untuk menambah baris baru
                 $('#add-item-button').click(function() {
                     const newRow = `
-                <tr>
-                    <td><input required type="text" class="form-control" name="noresi"></td>
-                    <td><input required type="text" class="form-control" name="deskripsi"></td>
-                    <td><input required type="number" class="form-control" name="harga"></td>
-                    <td><input required value="1" type="number" class="form-control" name="jumlah"></td>
-                    <td><input disabled type="text" class="form-control" name="item-subtotal"></td>
-                    <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
-                </tr>
-            `;
-
+        <tr>
+            <td><input required type="text" class="form-control" name="noresi"></td>
+            <td><input required type="text" class="form-control" name="deskripsi"></td>
+            <td><input required type="number" class="form-control" name="harga"></td>
+            <td><input required value="1" type="number" class="form-control" name="jumlah"></td>
+            <td><input disabled type="text" class="form-control" name="item-subtotal"></td>
+            <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
+        </tr>
+    `;
                     $('#items-container').append(newRow);
-
-                    if ($('#items-container tr').length > 1) {
-                        $('.removeItemButton').show();
-                    }
-
                     updateTotals();
                 });
 
                 $(document).on('click', '.removeItemButton', function() {
-                    if ($('#items-container tr').length > 1) {
-                        $(this).closest('tr').remove();
-                    }
-
-                    if ($('#items-container tr').length === 1) {
-                        $('.removeItemButton').hide();
-                    }
-
+                    $(this).closest('tr').remove();
                     updateTotals();
                 });
 
@@ -280,6 +297,7 @@
                     });
 
                     const creditNoteData = {
+                        creditNoteId: creditNote ? creditNote.id : null, // Mengirim creditNoteId jika ada
                         invoiceCredit: invoiceCredit,
                         accountCredit: accountCredit,
                         currencyCredit: currencyCredit,
@@ -300,9 +318,8 @@
                         },
                         dataType: 'json',
                         success: function(response) {
-                            showMessage('success', 'Credit Note berhasil disimpan!');
-                            .then(
-                                () => {
+                            showMessage('success', 'Credit Note berhasil disimpan!')
+                                .then(() => {
                                     location.reload();
                                 });
                         },
@@ -313,4 +330,5 @@
                 });
             });
         </script>
+
     @endsection
