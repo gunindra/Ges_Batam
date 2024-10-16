@@ -23,10 +23,16 @@ class CreditNoteController extends Controller
         $this->jurnalController = $jurnalController;
     }
 
-    public function index() {
+    public function index()
+    {
+            $listStatus = DB::select("     SELECT b.name
+        FROM tbl_credit_note AS a
+        JOIN tbl_coa AS b ON b.id = a.account_id
+        GROUP BY a.account_id, b.name") ;
 
 
-        return view('customer.creditnote.indexcreditnote');
+        return view('customer.creditnote.indexcreditnote',  [
+            'listStatus' => $listStatus]);
     }
 
 

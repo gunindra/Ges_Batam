@@ -67,6 +67,11 @@
                                 class="form-control rounded-3" placeholder="Search">
                             <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                 <option value="" selected disabled>Pilih Filter</option>
+                                @foreach ($listStatus as $status)
+                                    <option value="{{ $status->name }}">
+                                        {{ $status->name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                             <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
