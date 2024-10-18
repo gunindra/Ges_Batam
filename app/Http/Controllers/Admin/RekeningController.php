@@ -61,6 +61,7 @@ class RekeningController extends Controller
 
     public function addRekening(Request $request)
     {
+
         $request->validate([
             'namaRekening' => 'required|string|max:255',
             'noRekening' => 'required|string|max:255',

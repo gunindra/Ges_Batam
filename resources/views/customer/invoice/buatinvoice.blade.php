@@ -454,33 +454,57 @@
                         showMessage("error", "Resi ini sudah ada di scan");
                         $(this).val('');
                     } else if (scannedNoResi !== '') {
-                        addItemRow(scannedNoResi);
-                        console.log('Menunggu data berat dari timbangan...');
-                        const ws = new WebSocket('ws://127.0.0.1:8080');
-                        ws.onopen = function() {
-                            console.log('Terhubung ke WebSocket server');
-                        };
-                        ws.onerror = function(error) {
-                            console.error('Error WebSocket:', error.message);
-                        };
-                        ws.onmessage = function(event) {
-                            try {
-                                const data = JSON.parse(event.data);
-                                const weight = data.weight;
-                                const lastWeightInput = $('input.beratBarang:last');
-                                if (lastWeightInput) {
-                                    lastWeightInput.val(weight);
-                                    const row = lastWeightInput.closest('tr');
-                                    updateTotalHargaBerat(row);
+                        // Cek resi ke database
+                        $.ajax({
+                            url: "{{ route('cekResiInvoice') }}",
+                            method: 'GET',
+                            data: {
+                                noResi: scannedNoResi
+                            },
+                            success: function(response) {
+                                // Tangani respons dari server
+                                if (response.status === 'success') {
+                                    addItemRow(scannedNoResi);
+                                    console.log('Menunggu data berat dari timbangan...');
+                                    const ws = new WebSocket('ws://127.0.0.1:8080');
+                                    ws.onopen = function() {
+                                        console.log('Terhubung ke Aplikasi Timbangan');
+                                    };
+                                    ws.onerror = function(error) {
+                                        console.error('Error WebSocket:', error.message);
+                                    };
+                                    ws.onmessage = function(event) {
+                                        try {
+                                            const data = JSON.parse(event.data);
+
+                                            const weight = data.weight;
+                                            const lastWeightInput = $(
+                                                'input.beratBarang:last');
+                                            if (lastWeightInput) {
+                                                lastWeightInput.val(weight);
+                                                const row = lastWeightInput.closest('tr');
+                                                updateTotalHargaBerat(row);
+                                            }
+                                        } catch (e) {
+                                            console.error('Error parsing data:', e);
+                                        }
+                                    };
+                                } else {
+                                    showMessage("error", response.message);
                                 }
-                            } catch (e) {
-                                console.error('Error parsing data:', e);
+                                $('#scanNoresi').val(
+                                '');
+                            },
+                            error: function(xhr, status, error) {
+                                showMessage("error", "Terjadi kesalahan: " + error);
+                                $('#scanNoresi').val('');
                             }
-                        };
+                        });
                     }
                     event.preventDefault();
                 }
             });
+
 
             function addItemRow(noResi) {
                 const newRow = `
