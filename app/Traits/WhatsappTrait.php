@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use DB;
 use Illuminate\Support\Facades\Http;
 use Log;
 
@@ -11,13 +12,16 @@ trait WhatsappTrait
     {
         $url = $fileUrl ? 'https://wa.aplikasiajp.com/send-media' : 'https://wa.aplikasiajp.com/send-message';
 
+        $apiKey =  DB::table('tbl_ptges')->value('api_key');
+
+        $sender = '62' . DB::table('tbl_ptges')->value('phone');
+
         $data = [
-            'api_key' => 'qpWaNfN8vSQ7I8m1JiqzqfyyLWG9uT',
-            'sender' => '6285183058668',
+            'api_key' => $apiKey,
+            'sender' => $sender,
             'number' => $noWa
         ];
 
-        // Jika ada file PDF, masukkan teks ke dalam 'caption'
         if ($fileUrl) {
             $data['media_type'] = 'pdf';
             $data['caption'] = $message;
@@ -36,14 +40,14 @@ trait WhatsappTrait
 
             if ($response->successful()) {
                 Log::info('Pesan WhatsApp berhasil dikirim ke ' . $noWa);
-                return true; // Mengembalikan true jika sukses
+                return true;
             } else {
                 Log::error('WhatsApp API Error: ' . $response->body());
-                return false; // Mengembalikan false jika gagal
+                return false;
             }
         } catch (\Exception $e) {
             Log::error('Error saat mengirim pesan WhatsApp: ' . $e->getMessage());
-            return false; // Mengembalikan false jika ada exception
+            return false;
         }
     }
 

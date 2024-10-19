@@ -439,9 +439,9 @@
             var buktiPengantaran = $(this).data('bukti');
             var tandaTangan = $(this).data('tanda');
             var metodePengiriman = $(this).data('metode');
-            var keterangan = $(this).data('keterangan'); // Keterangan data
+            var keterangan = $(this).data('keterangan');
+            var statusInvoice = $(this).data('status');
 
-            // Normalize invoice numbers
             if (typeof invoiceNumbers !== 'string') {
                 invoiceNumbers = String(invoiceNumbers);
             }
@@ -456,27 +456,33 @@
             addresses = addresses ? addresses.split(', ') : [];
             buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(', ') : [];
             tandaTangan = tandaTangan ? tandaTangan.split(', ') : [];
-            keterangan = keterangan ? keterangan.split(', ') : []; // Split keterangan
+            keterangan = keterangan ? keterangan.split(', ') : [];
+            statusInvoice = statusInvoice ? statusInvoice.split(', ') : [];
 
-            // Start building the modal content
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th><th>Alamat</th>';
+            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th>';
 
-            // Add additional columns based on delivery method
+            if (metodePengiriman !== 'Pickup') {
+                modalContent += '<th>Alamat</th>';
+            }
+
             if (metodePengiriman !== 'Pickup') {
                 modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
             }
 
-            modalContent += '<th>Keterangan</th>'; // Add Keterangan column
+            modalContent += '<th>Status</th>';
+            modalContent += '<th>Keterangan</th>';
             modalContent += '</tr></thead><tbody>';
 
             for (var i = 0; i < invoiceNumbers.length; i++) {
                 modalContent += '<tr>';
                 modalContent += '<td>' + invoiceNumbers[i] + '</td>';
                 modalContent += '<td>' + customerNames[i] + '</td>';
-                modalContent += '<td>' + addresses[i] + '</td>';
 
-                // Only show 'Bukti' and 'Tanda Tangan' if not Pick-Up
+                if (metodePengiriman !== 'Pickup') {
+                    modalContent += '<td>' + addresses[i] + '</td>';
+                }
+
                 if (metodePengiriman !== 'Pickup') {
                     if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
                         modalContent += '<td><a href="/storage/' + buktiPengantaran[i] +
@@ -484,8 +490,6 @@
                     } else {
                         modalContent += '<td>Tidak Ada Bukti</td>';
                     }
-
-                    // Show Tanda Tangan
                     if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
                         modalContent += '<td><a href="/storage/' + tandaTangan[i] +
                             '" target="_blank">Lihat Tanda Tangan</a></td>';
@@ -494,8 +498,45 @@
                     }
                 }
 
-                // Add Keterangan
-                modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
+                // Add Status with Color
+                var statusBadgeClass = '';
+                switch (statusInvoice[i]) {
+                    case 'Out For Delivery':
+                        statusBadgeClass = 'badge-out-for-delivery';
+                        break;
+                    case 'Ready For Pickup':
+                        statusBadgeClass = 'badge-warning';
+                        break;
+                    case 'Delivering':
+                        statusBadgeClass = 'badge-delivering';
+                        break;
+                    case 'Debt':
+                        statusBadgeClass = 'badge-danger';
+                        break;
+                    case 'Done':
+                        statusBadgeClass = 'badge-secondary';
+                        break;
+                    default:
+                        statusBadgeClass = 'badge-secondary';
+                        break;
+                }
+
+                modalContent += '<td><span class="badge ' + statusBadgeClass + '">' + statusInvoice[i] +
+                    '</span></td>';
+
+                // Keterangan & Confirmation Button
+                if (statusInvoice[i] === 'Done') {
+                    modalContent += '<td>Barang sudah diambil</td>';
+                } else if (metodePengiriman === 'Pickup') {
+                    // Tampilkan tombol hanya jika metode pengiriman adalah "Pickup"
+                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') +
+                        ' <button type="button" class="btn btn-success btn-sm confirm-pickup" data-invoice-id="' +
+                        invoiceNumbers[i] + '">Confirm Pickup</button></td>';
+                } else {
+                    // Jika bukan pickup, hanya tampilkan keterangan
+                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
+                }
+
 
                 modalContent += '</tr>';
             }
@@ -504,8 +545,6 @@
 
             $('#modalContent').html(modalContent);
             $('#invoiceModal').modal('show');
-
-            // Initialize DataTable
             $('#invoiceTable').DataTable({
                 paging: true,
                 searching: true,

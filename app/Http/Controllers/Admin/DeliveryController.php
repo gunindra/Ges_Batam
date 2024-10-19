@@ -44,19 +44,20 @@ class DeliveryController extends Controller
                 DB::raw("GROUP_CONCAT(b.no_invoice SEPARATOR ', ') as list_no_resi"),
                 DB::raw("GROUP_CONCAT(c.nama_pembeli SEPARATOR ', ') as list_nama_pembeli"),
                 DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ', ') as list_alamat"),
-                DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) AS tanggal_pengantaran"),
-                's.status_name',
-                DB::raw('COUNT(pd.id) as jumlah_invoice'),
+                DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) as tanggal_pengantaran"),
+                DB::raw("COUNT(pd.id) as jumlah_invoice"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.bukti_pengantaran, 'Tidak Ada Bukti') SEPARATOR ', ') as list_bukti_pengantaran"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ', ') as list_tanda_tangan"),
+                DB::raw("GROUP_CONCAT(CONCAT(s.status_name) SEPARATOR ', ') as list_status_per_invoice"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.keterangan, 'Belum ada keterangan') SEPARATOR ', ') as list_keterangan")
             )
             ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
             ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
-            ->join('tbl_status as s', 'a.status_id', '=', 's.id')
-            ->leftjoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.id', 'a.supir_id', 'e.nama_supir', 's.status_name', 'a.metode_pengiriman');
+            ->join('tbl_status as s', 'b.status_id', '=', 's.id')
+            ->leftJoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
+            ->groupBy('a.id')
+            ->orderBy('a.id', 'desc');
 
         if ($request->txSearch) {
             $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
@@ -77,89 +78,53 @@ class DeliveryController extends Controller
             $query->where('a.tanggal_pengantaran', '<=', $endDate);
         }
 
-        $query->orderByRaw("CASE s.status_name
-            WHEN 'Delivering' THEN 1
-            WHEN 'Ready For Pickup' THEN 2
-            WHEN 'Done' THEN 3
-            ELSE 4 END");
-
         $query->limit(100);
 
         $data = $query->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Pengiriman</th>
-                                <th>Supir</th>
-                                <th>Jumlah Invoice</th>
-                                <th>Tanggal</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>';
+            <thead class="thead-light">
+                <tr>
+                    <th>Pengiriman</th>
+                    <th>Supir</th>
+                    <th>Jumlah Invoice</th>
+                    <th>Tanggal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>';
 
-                        foreach ($data as $item) {
-                            $statusBadgeClass = '';
-                            $btnAcceptPengantaran = '';
-                            $btnDetailPengantaran = '';
-                            $selesaikanPickup = '';
+        foreach ($data as $item) {
+            $btnInvoice = '
+                <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                    data-invoices="' . htmlentities($item->list_no_resi) . '"
+                    data-customers="' . htmlentities($item->list_nama_pembeli) . '"
+                    data-alamat="' . htmlentities($item->list_alamat) . '"
+                    data-bukti="' . htmlentities($item->list_bukti_pengantaran) . '"
+                    data-tanda="' . htmlentities($item->list_tanda_tangan) . '"
+                    data-metode="' . htmlentities($item->metode_pengiriman) . '"
+                    data-keterangan="' . htmlentities($item->list_keterangan) . '"
+                    data-status="' . htmlentities($item->list_status_per_invoice) . '">
+                    Invoice (' . $item->jumlah_invoice . ')
+                </button>
+            ';
 
-                            switch ($item->status_name) {
-                                case 'Out For Delivery':
-                                    $statusBadgeClass = 'badge-out-for-delivery';
-                                    $btnAcceptPengantaran = '<a class="btn btnAcceptPengantaran btn-warning text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-truck-moving"></i></a>';
-                                    break;
-                                case 'Ready For Pickup':
-                                    $statusBadgeClass = 'badge-warning';
-                                    $selesaikanPickup = '<a class="btn btnSelesaikanPickup btn-success text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-check"></i></a>';
-                                    break;
-                                case 'Delivering':
-                                    $statusBadgeClass = 'badge-delivering';
-                                    break;
-                                case 'Debt':
-                                    $statusBadgeClass = 'badge-danger';
-                                    break;
-                                case 'Done':
-                                    $statusBadgeClass = 'badge-secondary';
-                                    break;
-                                default:
-                                    $statusBadgeClass = 'badge-secondary';
-                                    break;
-                            }
+            $output .= '
+                <tr>
+                    <td>' . ($item->metode_pengiriman ?? '-') . '</td>
+                    <td>' . ($item->nama_supir ?? '-') . '</td>
+                    <td>' . $btnInvoice . '</td>
+                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
+                    <td>
+                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
+                    </td>
+                </tr>';
+        }
 
-                            $btnInvoice = '
-                                   <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
-                                        data-invoices="' . htmlentities($item->list_no_resi) . '"
-                                        data-customers="' . htmlentities($item->list_nama_pembeli) . '"
-                                        data-alamat="' . htmlentities($item->list_alamat) . '"
-                                        data-bukti="' . htmlentities($item->list_bukti_pengantaran) . '"
-                                        data-tanda="' . htmlentities($item->list_tanda_tangan) . '"
-                                        data-metode="' . htmlentities($item->metode_pengiriman) . '"
-                                        data-keterangan="' . htmlentities($item->list_keterangan) . '"> <!-- Correct placement -->
-                                        Invoice (' . $item->jumlah_invoice . ')
-                                    </button>
-                                    ';
-                            $output .= '
-                                <tr>
-                                    <td>' . ($item->metode_pengiriman ?? '-') . '</td>
-                                    <td>' . ($item->nama_supir ?? '-') . '</td>
-                                    <td>' . $btnInvoice . '</td>
-                                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                                    <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
-                                    <td>
-                                        ' . $btnAcceptPengantaran . '
-                                        ' . $btnDetailPengantaran . '
-                                        ' . $selesaikanPickup . '
-                                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
-                                    </td>
-                                </tr>';
-                        }
+        $output .= '</tbody></table>';
 
-                        $output .= '</tbody></table>';
 
-                        return $output;
+    return $output;
 
     }
 
