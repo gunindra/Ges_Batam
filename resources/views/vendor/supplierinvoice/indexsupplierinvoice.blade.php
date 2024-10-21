@@ -7,7 +7,7 @@
 
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Supplier Invoice</h1>
+            <h1 class="h3 mb-0 text-gray-800">Vendor Invoice</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Vendor</li>
                 <li class="breadcrumb-item active" aria-current="page">Supplier Invoice</li>
@@ -54,7 +54,7 @@
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
                             <a class="btn btn-primary" id="" href="{{ route('addSupplierInvoice') }}"><span class="pr-2"><i
-                                        class="fas fa-plus" ></i></span>Tambah Supplier Invoice</a>
+                                        class="fas fa-plus" ></i></span>Tambah Vendor Invoice</a>
                         </div>
                         <div class="float-left">
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"

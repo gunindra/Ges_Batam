@@ -166,6 +166,8 @@
                         href="{{ route('role') }}">Role</a>
                     <a class="collapse-item {{ request()->routeIs('user') ? 'active' : '' }}"
                         href="{{ route('user') }}">User</a>
+                    <a class="collapse-item {{ request()->routeIs('vendor') ? 'active' : '' }}"
+                        href="{{ route('vendor') }}">Vendor</a>
 
                 </div>
             </div>

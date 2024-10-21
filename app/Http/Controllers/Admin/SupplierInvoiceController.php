@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\COA;
+use App\Models\SupInvoice;
+use App\Models\SupInvoiceItem;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -132,7 +137,7 @@ class SupplierInvoiceController extends Controller
                                 <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>
                                 <td>
 
-                            
+
                                 </td>
                             </tr>
                         ';
@@ -142,7 +147,115 @@ class SupplierInvoiceController extends Controller
     }
     public function addSupplierInvoice()
     {
-        return view('vendor.supplierinvoice.buatsupplierinvoice');
+
+        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+        $coas = COA::all();
+        $listVendor = Vendor::pluck('name');
+
+        return view('vendor.supplierinvoice.buatsupplierinvoice', [
+                'listCurrency' => $listCurrency,
+                'coas' => $coas,
+                'listVendor' => $listVendor,
+            ]);
 
     }
+
+
+    public function generateSupInvoice()
+    {
+        DB::beginTransaction();
+
+        try {
+            $yearMonth = date('ym');
+
+            $lastInvoice = DB::table('tbl_sup_invoice')
+                ->select('invoice_no')
+                ->orderBy('invoice_no', 'desc')
+                ->first();
+
+            if ($lastInvoice) {
+                $lastMarking = $lastInvoice->no_invoice;
+                $lastYearMonth = substr($lastMarking, 0, 4);
+
+                if ($lastYearMonth === $yearMonth) {
+                    $lastNumber = (int)substr($lastMarking, 4);
+                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+                } else {
+                    $newNumber = '0001';
+                }
+            } else {
+                $newNumber = '0001';
+            }
+
+            $newNoinvoice = 'VO' . $yearMonth . $newNumber;
+
+            DB::commit();
+
+            // Return response sukses
+            return response()->json([
+                'status' => 'success',
+                'message' => 'No invoice berhasil di-generate',
+                'no_invoice' => $newNoinvoice
+            ], 200);
+        } catch (\Exception $e) {
+            // Rollback jika ada error
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghasilkan nomor invoice: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'invoice_no' => 'required|unique:tbl_sup_invoice,invoice_no',
+            'tanggal' => 'required|date',
+            'vendor' => 'required',
+            'matauang_id' => 'required',
+            'items' => 'required|array',
+            'items.*.account' => 'required',
+            'items.*.itemDesc' => 'required',
+            'items.*.debit' => 'nullable|numeric',
+            'items.*.credit' => 'nullable|numeric',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
+            // Simpan invoice ke tbl_sup_invoice
+            $supInvoice = SupInvoice::create([
+                'invoice_no' => $request->invoice_no,
+                'tanggal' => $formattedDate,
+                'vendor' => $request->vendor,
+                'matauang_id' => $request->matauang_id,
+            ]);
+
+            // Simpan items ke tbl_sup_invoice_items
+            foreach ($request->items as $item) {
+                SupInvoiceItem::create([
+                    'invoice_id' => $supInvoice->id,
+                    'coa_id' => $item['account'],
+                    'description' => $item['itemDesc'],
+                    'debit' => $item['debit'] ?? 0,
+                    'credit' => $item['credit'] ?? 0,
+                    'memo' => $item['memo'] ?? '',
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil disimpan!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan invoice: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+
 }

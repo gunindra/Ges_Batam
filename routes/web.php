@@ -44,7 +44,8 @@ use App\Http\Controllers\{
     Admin\LedgerController,
     Admin\EquityController,
     Admin\BalanceController,
-    Admin\CashFlowController
+    Admin\CashFlowController,
+    Admin\VendorController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -267,7 +268,9 @@ Route::middleware(['auth'])->group(function () {
     //Invoice
     Route::get('/vendor/supplierInvoice', [SupplierInvoiceController::class, 'index'])->name('supplierInvoice');
     Route::get('/vendor/supplierInvoice/addsupplierInvoice', [SupplierInvoiceController::class, 'addSupplierInvoice'])->name('addSupplierInvoice');
+    Route::get('/vendor/supplierInvoice/generateSupInvoice', [SupplierInvoiceController::class, 'generateSupInvoice'])->name('generateSupInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
+    Route::post('/vendor/supplierInvoice/store', [SupplierInvoiceController::class, 'store'])->name('supInvoice.store');
 
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
@@ -298,6 +301,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/supir/jumlahresi', [SupirController::class, 'jumlahresi'])->name('jumlahresi');
     Route::post('/supir/tambahdata', [SupirController::class, 'tambahdata'])->name('tambahdata');
     Route::post('/supir/batalAntar', [SupirController::class, 'batalAntar'])->name('batalAntar');
+
+    //Vendor
+    Route::get('/vendors', [VendorController::class, 'index'])->name('vendor');
+    Route::get('/get-vendors', [VendorController::class, 'getVendors'])->name('vendors.getVendors');
+    Route::post('/vendors/store', [VendorController::class, 'store'])->name('vendors.store');
+    Route::put('/vendors/edit/{id}', [VendorController::class, 'edit'])->name('vendors.edit');
+
 
     //COA
     Route::get('/coa', [CoaController::class, 'index'])->name('coa');
