@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\COA;
+use App\Models\Jurnal;
+use App\Models\JurnalItem;
 use App\Models\SupInvoice;
 use App\Models\SupInvoiceItem;
 use App\Models\Vendor;
@@ -11,9 +13,20 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\Admin\JournalController;
 
 class SupplierInvoiceController extends Controller
 {
+
+
+    protected $jurnalController;
+
+    public function __construct(JournalController $jurnalController)
+    {
+        $this->jurnalController = $jurnalController;
+    }
+
+
     public function index()
     {
         $listStatus = DB::select("SELECT status_name FROM tbl_status");
@@ -153,9 +166,8 @@ class SupplierInvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-
             $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
-            // Simpan invoice ke tbl_sup_invoice
+
             $supInvoice = SupInvoice::create([
                 'invoice_no' => $request->invoice_no,
                 'tanggal' => $formattedDate,
@@ -163,7 +175,10 @@ class SupplierInvoiceController extends Controller
                 'matauang_id' => $request->matauang_id,
             ]);
 
-            // Simpan items ke tbl_sup_invoice_items
+            $totalDebit = 0;
+            $totalCredit = 0;
+
+
             foreach ($request->items as $item) {
                 SupInvoiceItem::create([
                     'invoice_id' => $supInvoice->id,
@@ -173,16 +188,67 @@ class SupplierInvoiceController extends Controller
                     'credit' => $item['credit'] ?? 0,
                     'memo' => $item['memo'] ?? '',
                 ]);
+
+
+                $totalDebit += $item['debit'] ?? 0;
+                $totalCredit += $item['credit'] ?? 0;
+            }
+
+            if ($totalDebit !== $totalCredit) {
+                throw new \Exception('Total debit dan credit tidak seimbang.');
+            }
+
+            try {
+                $request->merge(['code_type' => 'AP']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+
+                $jurnal = Jurnal::create([
+                    'no_journal' => $noJournal,
+                    'tipe_kode' => 'AP',
+                    'tanggal' => $formattedDate,
+                    'no_ref' => $request->invoice_no,
+                    'status' => 'Approve',
+                    'description' => "Jurnal untuk Invoice {$request->invoice_no}",
+                    'totaldebit' => $totalDebit,
+                    'totalcredit' => $totalCredit,
+                ]);
+
+                foreach ($request->items as $item) {
+                    if ($item['debit'] > 0) {
+                        JurnalItem::create([
+                            'jurnal_id' => $jurnal->id,
+                            'code_account' => $item['account'],
+                            'description' => "Debit untuk Invoice {$request->invoice_no}",
+                            'debit' => $item['debit'],
+                            'credit' => 0,
+                        ]);
+                    }
+
+
+                    if ($item['credit'] > 0) {
+                        JurnalItem::create([
+                            'jurnal_id' => $jurnal->id,
+                            'code_account' => $item['account'],
+                            'description' => "Credit untuk Invoice {$request->invoice_no}",
+                            'debit' => 0,
+                            'credit' => $item['credit'],
+                        ]);
+                    }
+                }
+
+            } catch (\Exception $e) {
+                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
 
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil disimpan!']);
+            return response()->json(['status' => 'success', 'message' => 'Invoice dan Jurnal berhasil disimpan!']);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan invoice: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 
