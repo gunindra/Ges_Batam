@@ -84,30 +84,15 @@
                             </div>
                         </div>
 
-                        <div class="mt-3">
-                            <label for="metodePengirimanEdit" class="form-label fw-bold">Metode Pengiriman</label>
-                            <select class="form-control" id="metodePengirimanEdit">
-                                <option value="" selected disabled>Pilih Metode Pengiriman</option>
-                                <option value="Pickup">Pickup</option>
-                                <option value="Delivery">Delivery</option>
-                            </select>
-                            <div id="metodePengirimanErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih metode
-                                pengiriman
-                            </div>
-                        </div>
-
                         <div id="alamatSectionEdit">
                             <div id="alamatContainerEdit">
                                 <div class="mt-3 alamat-item">
                                     <label for="alamatVendorEdit" class="form-label fw-bold">Alamat</label>
-                                    <textarea class="form-control" name="alamatVendorEdit[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                                    <textarea class="form-control" id="alamatVendorEdit" name="alamatVendorEdit" placeholder="Masukkan alamat"
+                                        rows="3"></textarea>
                                     <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat Vendor</div>
-                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
-                                        style="display: none;"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </div>
-                            <button type="button" id="addAlamatButtonEdit" class="btn btn-secondary mt-3"><i
-                                    class="fas fa-plus"></i></button>
                         </div>
 
                         <div class="mt-3">
@@ -119,17 +104,6 @@
                             </div>
                             <div id="notelponVendorErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
                                 Vendor
-                            </div>
-                        </div>
-
-                        <div class="mt-3">
-                            <label for="categoryVendorEdit" class="form-label fw-bold">Category</label>
-                            <select class="form-control" id="categoryVendorEdit">
-                                <option value="" selected disabled>Pilih Category Vendor</option>
-
-                            </select>
-                            <div id="categoryVendorErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih category
-                                customer
                             </div>
                         </div>
                     </div>
@@ -161,8 +135,8 @@
                                 <p class="text-muted">Poin</p>
                             </div>
                             <!-- <div>
-                                                                    <p id="statusValue" class="h5"></p>
-                                                                </div> -->
+                                                                                        <p id="statusValue" class="h5"></p>
+                                                                                    </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -280,6 +254,39 @@
                 table.search(searchValue).draw();
             });
 
+            // Event ketika tombol edit diklik
+            $('body').on('click', '.editVendor', function() {
+                let vendorId = $(this).data('id'); // Ambil ID dari tombol edit
+
+                // Lakukan AJAX untuk mendapatkan data vendor berdasarkan ID
+                $.ajax({
+                    url: "{{ route('vendors.getVendorById') }}", // Route yang akan dibuat untuk mengambil data vendor
+                    type: "GET",
+                    data: {
+                        id: vendorId
+                    }, // Kirim ID vendor
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Isi form modal dengan data yang diterima
+                            $('#VendorIdEdit').val(response.data.id);
+                            $('#namaVendorEdit').val(response.data.name);
+                            $('#noTelponEdit').val(response.data.phone);
+                            $('#alamatContainerEdit textarea').val(response.data.address);
+
+                            // Simpan ID vendor di data attribute tombol Save Edit
+                            $('#saveEditCostumer').data('vendor-id', response.data.id);
+
+                            $('#modalEditVendor').modal('show');
+                        } else {
+                            showMessage('error', 'Gagal mengambil data vendor');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Terjadi kesalahan:', error);
+                        showMessage('error', 'Gagal mengambil data vendor');
+                    }
+                });
+            });
 
 
             $('#saveVendor').click(function(e) {
@@ -336,7 +343,6 @@
                             }
                         });
 
-                        // Lanjutkan dengan AJAX jika konfirmasi disetujui
                         $.ajax({
                             url: "{{ route('vendors.store') }}",
                             type: "POST",
@@ -360,6 +366,97 @@
                     }
                 });
             });
+
+            $('#saveEditCostumer').click(function(e) {
+                e.preventDefault();
+
+                // Ambil ID vendor dari data attribute di tombol Save Edit
+                let vendorId = $(this).data('vendor-id');
+
+                // Ambil nilai input dari form edit
+                let nama = $('#namaVendorEdit').val();
+                let alamat = $('#alamatVendorEdit').val();
+
+                console.log(alamat);
+
+                let phone = $('#noTelponEdit').val();
+
+                // Reset error messages
+                $('.text-danger').addClass('d-none');
+                let valid = true;
+
+                // Validasi input
+                if (nama === "") {
+                    $('#namaVendorErrorEdit').removeClass('d-none');
+                    valid = false;
+                }
+
+                if (alamat === "") {
+                    $('#alamatVendorErrorEdit').removeClass('d-none');
+                    valid = false;
+                }
+
+                if (phone === "") {
+                    $('#notelponVendorErrorEdit').removeClass('d-none');
+                    valid = false;
+                }
+
+                if (!valid) {
+                    showMessage('error', 'Harap isi semua field yang diperlukan.');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Mohon tunggu, sedang memperbarui data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        $.ajax({
+                            url: "/vendors/edit/" + vendorId,
+                            type: "PUT",
+                            data: {
+                                name: nama,
+                                address: alamat,
+                                phone: phone,
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(response) {
+                                if (response.status ===
+                                    'success') {
+                                    showMessage('success', response
+                                    .message);
+                                    $('#modalEditVendor').modal('hide');
+                                    table.ajax.reload();
+                                } else {
+                                    showMessage('error', response
+                                    .message);
+                                }
+                            },
+                            error: function(error) {
+                                showMessage('error',
+                                    'Terjadi kesalahan, silahkan coba lagi.');
+                            }
+                        });
+                    }
+                });
+            });
+
         });
     </script>
 @endsection

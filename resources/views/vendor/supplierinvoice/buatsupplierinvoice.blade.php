@@ -264,7 +264,6 @@
                     type: 'GET',
                     dataType: 'json',
                     beforeSend: function() {
-
                         $('#noInvoice').html(loadSpin);
                     },
                     success: function(response) {
@@ -447,7 +446,9 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            showMessage('success','Invoice berhasil disimpan!');
+                            showMessage("success", "Invoice berhasil dibuat").then(() => {
+                                location.reload();
+                            });
                         } else {
                             showMessage('error','Gagal menyimpan invoice');
                         }

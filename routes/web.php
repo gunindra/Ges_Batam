@@ -306,7 +306,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendors', [VendorController::class, 'index'])->name('vendor');
     Route::get('/get-vendors', [VendorController::class, 'getVendors'])->name('vendors.getVendors');
     Route::post('/vendors/store', [VendorController::class, 'store'])->name('vendors.store');
-    Route::put('/vendors/edit/{id}', [VendorController::class, 'edit'])->name('vendors.edit');
+    Route::put('/vendors/edit/{id}', [VendorController::class, 'update'])->name('vendors.edit');
+    Route::get('/vendors/getVendorById', [VendorController::class, 'getVendorById'])->name('vendors.getVendorById');
 
 
     //COA

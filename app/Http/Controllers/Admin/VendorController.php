@@ -66,10 +66,31 @@ class VendorController extends Controller
                 'phone' => $request->phone,
             ]);
 
-            return response()->json(['success' => 'Vendor berhasil diperbarui!']);
+            return response()->json(['status' => 'success', 'message' => 'Vendor berhasil diperbarui!']);
         } else {
-            return response()->json(['error' => 'Vendor tidak ditemukan.'], 404);
+            return response()->json(['status' => 'error', 'message' => 'Vendor tidak ditemukan.'], 404);
         }
     }
+
+
+    public function getVendorById(Request $request)
+{
+    if ($request->ajax()) {
+        // Ambil data vendor berdasarkan ID
+        $vendor = Vendor::find($request->id);
+
+        if ($vendor) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $vendor
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vendor tidak ditemukan'
+            ]);
+        }
+    }
+}
 
 }
