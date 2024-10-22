@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\PaymentSupExport;
 use App\Http\Controllers\Controller;
 use App\Models\COA;
 use App\Models\Jurnal;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Admin\JournalController;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 
 class PurchasePaymentController extends Controller
@@ -240,6 +242,17 @@ class PurchasePaymentController extends Controller
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
+    }
+
+
+
+    public function export(Request $request)
+    {
+        return Excel::download(new PaymentSupExport(
+            $request->status,
+            $request->startDate,
+            $request->endDate
+        ), 'Payment_Suppiler.xlsx');
     }
 
 

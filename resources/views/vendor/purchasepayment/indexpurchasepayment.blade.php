@@ -188,6 +188,41 @@ aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
         });
 
 
+        $('#exportBtn').on('click', function() {
+            var status = $('#filterStatus').val();
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            $.ajax({
+                url: "{{ route('getSupInvoiceExport') }}",
+                type: 'GET',
+                data: {
+                    status: status,
+                    startDate: startDate,
+                    endDate: endDate
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(data) {
+                    var blob = new Blob([data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = "Payment Customers.xlsx";
+                    link.click();
+                },
+                error: function() {
+                    Swal.fire({
+                        title: "Export failed!",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+
 });
 
 
