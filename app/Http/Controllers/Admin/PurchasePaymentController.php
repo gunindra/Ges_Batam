@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Admin\JournalController;
+use Yajra\DataTables\DataTables;
 
 class PurchasePaymentController extends Controller
 {
@@ -28,6 +29,61 @@ class PurchasePaymentController extends Controller
 
         return view('vendor.purchasepayment.indexpurchasepayment');
     }
+
+
+    public function getPaymentSupData(Request $request)
+    {
+        // Query untuk mendapatkan data pembayaran supplier
+        $query = DB::table('tbl_payment_sup as a')
+            ->join('tbl_sup_invoice as b', 'a.invoice_id', '=', 'b.id')
+            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
+            ->select([
+                'a.kode_pembayaran',
+                'b.invoice_no',
+                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
+                'a.amount',
+                'c.name as payment_method',
+                'b.status_bayar',
+                'a.id'
+            ]);
+
+        // Filter berdasarkan metode pembayaran (status)
+        if (!empty($request->status)) {
+            $query->where('c.name', $request->status);
+        }
+
+        // Filter berdasarkan rentang tanggal pembayaran
+        if (!empty($request->startDate) && !empty($request->endDate)) {
+            $startDate = date('Y-m-d', strtotime($request->startDate));
+            $endDate = date('Y-m-d', strtotime($request->endDate));
+            $query->whereBetween('a.payment_date', [$startDate, $endDate]);
+        }
+
+        // Urutkan berdasarkan ID terbaru
+        $query->orderBy('a.id', 'desc');
+
+        return DataTables::of($query)
+            ->filter(function ($query) use ($request) {
+                // Filter pencarian global
+                if ($request->has('search') && $request->search['value'] != '') {
+                    $searchValue = $request->search['value'];
+                    $query->where(function($q) use ($searchValue) {
+                        $q->where('a.kode_pembayaran', 'like', "%{$searchValue}%")
+                          ->orWhere('b.invoice_no', 'like', "%{$searchValue}%")
+                          ->orWhere('c.name', 'like', "%{$searchValue}%")
+                          ->orWhere('b.status_bayar', 'like', "%{$searchValue}%");
+                    });
+                }
+            })
+            ->editColumn('tanggal_bayar', function ($row) {
+                return $row->tanggal_bayar;
+            })
+            ->make(true);
+    }
+
+
+
+
     public function addPurchasePayment()
     {
 

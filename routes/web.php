@@ -275,6 +275,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
+    Route::get('/vendor/purchasePayment/getPaymentSupData', [PurchasePaymentController::class, 'getPaymentSupData'])->name('getPaymentSupData');
     Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
     Route::get('/vendor/purchasePayment/getSupInvoiceAmount', [PurchasePaymentController::class, 'getSupInvoiceAmount'])->name('getSupInvoiceAmount');
     Route::post('/vendor/purchasePayment/payment', [PurchasePaymentController::class, 'store'])->name('paymentSup');
