@@ -9,6 +9,26 @@
         .dataTables_filter {
             display: none;
         }
+
+        .select2-container--default .select2-selection--single {
+            height: 40px;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.25rem;
+            padding: 6px 12px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 27px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
     </style>
     </style>
 
@@ -53,6 +73,20 @@
                             <div id="notelponVendorError" class="text-danger mt-1 d-none">Silahkan isi no. telepon Vendor
                             </div>
                         </div>
+
+                        <!-- Akun COA -->
+                        <div class="mt-3">
+                            <label for="coaAccount" class="form-label fw-bold">Akun COA</label>
+                            <select class="form-control select2singgle" id="coaAccount" name="account_id"
+                                style="width: 100%">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div id="coaAccountError" class="text-danger mt-1 d-none">Silahkan pilih akun COA</div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Tutup</button>
@@ -62,8 +96,7 @@
             </div>
         </div>
 
-
-        <!-- Modal Edit -->
+        <!-- Modal Edit Vendor -->
         <div class="modal fade" id="modalEditVendor" tabindex="-1" role="dialog" aria-labelledby="modalEditVendorTitle"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -80,8 +113,7 @@
                             <label for="namaVendorEdit" class="form-label fw-bold">Nama Vendor</label>
                             <input type="text" class="form-control" id="namaVendorEdit" value=""
                                 placeholder="Masukkan nama Vendor">
-                            <div id="namaVendorErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama Vendor
-                            </div>
+                            <div id="namaVendorErrorEdit" class="text-danger mt-1 d-none">Silahkan isi nama Vendor</div>
                         </div>
 
                         <div id="alamatSectionEdit">
@@ -103,8 +135,21 @@
                                     value="">
                             </div>
                             <div id="notelponVendorErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no. telepon
-                                Vendor
-                            </div>
+                                Vendor</div>
+                        </div>
+
+                        <!-- Akun COA -->
+                        <div class="mt-3">
+                            <label for="coaAccountEdit" class="form-label fw-bold">Akun COA</label>
+                            <select class="form-control select2singgle" id="coaAccountEdit" name="account_id"
+                                style="width: 100%">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div id="coaAccountErrorEdit" class="text-danger mt-1 d-none">Silahkan pilih akun COA</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -114,7 +159,7 @@
                 </div>
             </div>
         </div>
-        <!--End Modal Edit -->
+
 
 
         <!-- Modal Detail -->
@@ -135,8 +180,8 @@
                                 <p class="text-muted">Poin</p>
                             </div>
                             <!-- <div>
-                                                                                        <p id="statusValue" class="h5"></p>
-                                                                                    </div> -->
+                                                                                                            <p id="statusValue" class="h5"></p>
+                                                                                                        </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -192,6 +237,7 @@
                                         <th>Nama</th>
                                         <th>Alamat</th>
                                         <th>Telepon</th>
+                                        <th>Account</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -231,6 +277,10 @@
                         name: 'phone'
                     },
                     {
+                        data: 'coa_account',
+                        name: 'coa_account'
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -252,6 +302,10 @@
             $('#txSearch').keyup(function() {
                 var searchValue = $(this).val();
                 table.search(searchValue).draw();
+            });
+
+            $('.select2singgle').select2({
+                width: 'resolve'
             });
 
             // Event ketika tombol edit diklik
@@ -292,10 +346,10 @@
             $('#saveVendor').click(function(e) {
                 e.preventDefault();
 
-                // Ambil nilai input
                 let nama = $('#namaVendor').val();
                 let alamat = $('#alamatVendor').val();
                 let phone = $('#noTelpon').val();
+                let account_id = $('#coaAccount').val(); // Ambil akun COA
 
                 // Reset error messages
                 $('.text-danger').addClass('d-none');
@@ -314,6 +368,11 @@
 
                 if (phone === "") {
                     $('#notelponVendorError').removeClass('d-none');
+                    valid = false;
+                }
+
+                if (account_id === "") {
+                    $('#coaAccountError').removeClass('d-none');
                     valid = false;
                 }
 
@@ -350,13 +409,13 @@
                                 name: nama,
                                 address: alamat,
                                 phone: phone,
+                                account_id: account_id, // Kirim akun COA
                                 _token: "{{ csrf_token() }}"
                             },
                             success: function(response) {
                                 showMessage('success', 'Vendor berhasil disimpan!');
                                 $('#modalTambahVendor').modal('hide');
                                 table.ajax.reload();
-
                             },
                             error: function(error) {
                                 showMessage('error',
@@ -370,16 +429,11 @@
             $('#saveEditCostumer').click(function(e) {
                 e.preventDefault();
 
-                // Ambil ID vendor dari data attribute di tombol Save Edit
                 let vendorId = $(this).data('vendor-id');
-
-                // Ambil nilai input dari form edit
                 let nama = $('#namaVendorEdit').val();
                 let alamat = $('#alamatVendorEdit').val();
-
-                console.log(alamat);
-
                 let phone = $('#noTelponEdit').val();
+                let account_id = $('#coaAccountEdit').val(); // Ambil akun COA untuk edit
 
                 // Reset error messages
                 $('.text-danger').addClass('d-none');
@@ -398,6 +452,11 @@
 
                 if (phone === "") {
                     $('#notelponVendorErrorEdit').removeClass('d-none');
+                    valid = false;
+                }
+
+                if (account_id === "") {
+                    $('#coaAccountErrorEdit').removeClass('d-none');
                     valid = false;
                 }
 
@@ -434,18 +493,16 @@
                                 name: nama,
                                 address: alamat,
                                 phone: phone,
+                                account_id: account_id, // Kirim akun COA
                                 _token: "{{ csrf_token() }}"
                             },
                             success: function(response) {
-                                if (response.status ===
-                                    'success') {
-                                    showMessage('success', response
-                                    .message);
+                                if (response.status === 'success') {
+                                    showMessage('success', response.message);
                                     $('#modalEditVendor').modal('hide');
                                     table.ajax.reload();
                                 } else {
-                                    showMessage('error', response
-                                    .message);
+                                    showMessage('error', response.message);
                                 }
                             },
                             error: function(error) {
@@ -456,7 +513,6 @@
                     }
                 });
             });
-
         });
     </script>
 @endsection

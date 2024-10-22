@@ -14,8 +14,12 @@ class SupInvoice extends Model
     protected $fillable = [
         'invoice_no',
         'tanggal',
-        'vendor',
+        'vendor_id',
         'matauang_id',
+        'rate_matauang',
+        'status_bayar',
+        'total_bayar',
+        'total_harga',
         'created_at',
         'updated_at',
     ];
@@ -24,5 +28,11 @@ class SupInvoice extends Model
     public function items()
     {
         return $this->hasMany(SupInvoiceItem::class, 'invoice_id');
+    }
+
+    // Relasi dengan model Vendor
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 }

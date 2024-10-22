@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\COA;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -10,18 +11,26 @@ class VendorController extends Controller
 {
     public function index()
     {
-        return view('masterdata.vendor.indexvendor');
+        $coas = COA::all();
+        return view('masterdata.vendor.indexvendor', [
+            'coas' => $coas
+        ]);
     }
 
     public function getVendors(Request $request)
     {
         if ($request->ajax()) {
-            $data = Vendor::orderBy('id', 'desc')->get();
+            // Mengambil data vendor beserta nama akun COA terkait
+            $data = Vendor::with('account')->orderBy('id', 'desc')->get();
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('phone', function ($row) {
-
                     return '+62' . ltrim($row->phone, '0');
+                })
+                ->addColumn('coa_account', function ($row) {
+                    // Menampilkan nama akun COA terkait, jika ada
+                    return $row->account ? $row->account->name : 'Tidak ada akun';
                 })
                 ->addColumn('action', function ($row) {
                     $editBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-primary btn-sm editVendor"><i class="fas fa-edit"></i></a>';
@@ -33,22 +42,26 @@ class VendorController extends Controller
     }
 
 
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'address' => 'required',
             'phone' => 'required',
+            'account_id' => 'required|exists:tbl_coa,id',
         ]);
 
         Vendor::create([
             'name' => $request->name,
             'address' => $request->address,
             'phone' => $request->phone,
+            'account_id' => $request->account_id,
         ]);
 
         return response()->json(['success' => 'Vendor berhasil ditambahkan!']);
     }
+
 
     public function update(Request $request, $id)
     {
@@ -56,6 +69,7 @@ class VendorController extends Controller
             'name' => 'required',
             'address' => 'required',
             'phone' => 'required',
+            'account_id' => 'required|exists:tbl_coa,id',
         ]);
 
         $vendor = Vendor::find($id);
@@ -64,6 +78,7 @@ class VendorController extends Controller
                 'name' => $request->name,
                 'address' => $request->address,
                 'phone' => $request->phone,
+                'account_id' => $request->account_id,
             ]);
 
             return response()->json(['status' => 'success', 'message' => 'Vendor berhasil diperbarui!']);
@@ -73,24 +88,24 @@ class VendorController extends Controller
     }
 
 
-    public function getVendorById(Request $request)
-{
-    if ($request->ajax()) {
-        // Ambil data vendor berdasarkan ID
-        $vendor = Vendor::find($request->id);
 
-        if ($vendor) {
-            return response()->json([
-                'status' => 'success',
-                'data' => $vendor
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Vendor tidak ditemukan'
-            ]);
+    public function getVendorById(Request $request)
+    {
+        if ($request->ajax()) {
+            $vendor = Vendor::find($request->id);
+
+            if ($vendor) {
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $vendor
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Vendor tidak ditemukan'
+                ]);
+            }
         }
     }
-}
 
 }

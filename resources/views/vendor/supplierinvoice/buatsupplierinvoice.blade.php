@@ -120,9 +120,9 @@
                                     <label for="customer" class="form-label fw-bold col-12">Vendor</label>
                                     <select class="form-control select2singgle" id="selectVendor" style="width: 67%">
                                         <option value="" selected disabled>Pilih Vendor</option>
-                                        @foreach ($listVendor as $vendor)
-                                            <option value="{{ $vendor }}">{{ $vendor }}</option>
-                                        @endforeach
+                                        @foreach ($listVendor as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
+                                    @endforeach
                                     </select>
                                     <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
                                 </div>
@@ -410,14 +410,14 @@
                     });
                 });
 
-                console.log({
-                    invoiceNumber: invoiceNumber,
-                    tanggal: tanggal,
-                    currency: currency,
-                    rateCurrency: rateCurrency,
-                    vendor: vendor,
-                    items: items
-                });
+                // console.log({
+                //     invoiceNumber: invoiceNumber,
+                //     tanggal: tanggal,
+                //     currency: currency,
+                //     rateCurrency: rateCurrency,
+                //     vendor: vendor,
+                //     items: items
+                // });
 
                 return {
                     invoiceNumber: invoiceNumber,

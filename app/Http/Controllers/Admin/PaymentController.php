@@ -196,7 +196,7 @@ class PaymentController extends Controller
                 $jurnalItemDebit = new JurnalItem();
                 $jurnalItemDebit->jurnal_id = $jurnal->id;
                 $jurnalItemDebit->code_account = $receivableSalesAccountId;
-                $jurnalItemDebit->description = "Debit untuk Invoice {$request->invoice}";
+                $jurnalItemDebit->description = "Kredit untuk Invoice {$request->invoice}";
                 $jurnalItemDebit->debit = 0;
                 $jurnalItemDebit->credit = $request->paymentAmount;
                 $jurnalItemDebit->save();
@@ -204,7 +204,7 @@ class PaymentController extends Controller
                 $jurnalItemCredit = new JurnalItem();
                 $jurnalItemCredit->jurnal_id = $jurnal->id;
                 $jurnalItemCredit->code_account = $salesAccountId;
-                $jurnalItemCredit->description = "Kredit untuk Invoice {$request->invoice}";
+                $jurnalItemCredit->description = "Debit untuk Invoice {$request->invoice}";
                 $jurnalItemCredit->debit = $request->paymentAmount;
                 $jurnalItemCredit->credit = 0;
                 $jurnalItemCredit->save();

@@ -40,8 +40,10 @@ class SupplierInvoiceController extends Controller
     {
         if ($request->ajax()) {
 
+            // Tambahkan join dengan tabel tbl_vendors untuk mendapatkan nama vendor
             $data = SupInvoice::join('tbl_matauang', 'tbl_sup_invoice.matauang_id', '=', 'tbl_matauang.id')
-                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang')
+                ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id') // Join ke tabel tbl_vendors
+                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Pilih nama vendor
                 ->with('items');
 
             // Filter tanggal jika ada startDate dan endDate
@@ -57,7 +59,7 @@ class SupplierInvoiceController extends Controller
                     return $row->invoice_no;
                 })
                 ->addColumn('vendor', function($row) {
-                    return $row->vendor;
+                    return $row->vendor_name; // Tampilkan nama vendor
                 })
                 ->addColumn('tanggal', function($row) {
                     return Carbon::parse($row->tanggal)->format('d F Y');
@@ -75,16 +77,14 @@ class SupplierInvoiceController extends Controller
                 })
                 ->addColumn('action', function($row) {
                     $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
-                    // $btn .= ' <a href="javascript:void(0)" data-id="'.$row->id.'" class="delete btn btn-danger btn-sm">Delete</a>';
                     return $btn;
                 })
-
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $searchValue = $request->search['value'];
                         $query->where(function($q) use ($searchValue) {
                             $q->where('tbl_sup_invoice.invoice_no', 'like', "%{$searchValue}%")
-                              ->orWhere('tbl_sup_invoice.vendor', 'like', "%{$searchValue}%")
+                              ->orWhere('tbl_vendors.name', 'like', "%{$searchValue}%") // Tambahkan pencarian nama vendor
                               ->orWhere('tbl_matauang.singkatan_matauang', 'like', "%{$searchValue}%");
                         });
                     }
@@ -92,6 +92,7 @@ class SupplierInvoiceController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
     }
 
     public function addSupplierInvoice()
@@ -99,7 +100,7 @@ class SupplierInvoiceController extends Controller
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $coas = COA::all();
-        $listVendor = Vendor::pluck('name');
+        $listVendor = Vendor::pluck('name', 'id');
 
         return view('vendor.supplierinvoice.buatsupplierinvoice', [
                 'listCurrency' => $listCurrency,
@@ -176,16 +177,26 @@ class SupplierInvoiceController extends Controller
         try {
             $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
 
-            $supInvoice = SupInvoice::create([
-                'invoice_no' => $request->invoice_no,
-                'tanggal' => $formattedDate,
-                'vendor' => $request->vendor,
-                'matauang_id' => $request->matauang_id,
-            ]);
-
             $totalDebit = 0;
             $totalCredit = 0;
 
+            foreach ($request->items as $item) {
+                $totalDebit += $item['debit'] ?? 0;
+                $totalCredit += $item['credit'] ?? 0;
+            }
+
+            if ($totalDebit !== $totalCredit) {
+                throw new \Exception('Total debit dan credit tidak seimbang.');
+            }
+
+            $supInvoice = SupInvoice::create([
+                'invoice_no' => $request->invoice_no,
+                'tanggal' => $formattedDate,
+                'vendor_id' => $request->vendor,
+                'matauang_id' => $request->matauang_id,
+                'total_harga' => $totalDebit,
+                'total_bayar' => 0,
+            ]);
 
             foreach ($request->items as $item) {
                 SupInvoiceItem::create([
@@ -196,14 +207,6 @@ class SupplierInvoiceController extends Controller
                     'credit' => $item['credit'] ?? 0,
                     'memo' => $item['memo'] ?? '',
                 ]);
-
-
-                $totalDebit += $item['debit'] ?? 0;
-                $totalCredit += $item['credit'] ?? 0;
-            }
-
-            if ($totalDebit !== $totalCredit) {
-                throw new \Exception('Total debit dan credit tidak seimbang.');
             }
 
             try {
@@ -232,7 +235,6 @@ class SupplierInvoiceController extends Controller
                         ]);
                     }
 
-
                     if ($item['credit'] > 0) {
                         JurnalItem::create([
                             'jurnal_id' => $jurnal->id,
@@ -256,6 +258,7 @@ class SupplierInvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan invoice: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function showDetail(Request $request)
     {

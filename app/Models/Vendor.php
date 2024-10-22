@@ -11,6 +11,12 @@ class Vendor extends Model
 
     protected $table = 'tbl_vendors';
 
-    protected $fillable = ['name', 'address', 'phone'];
+    protected $fillable = ['name', 'address', 'phone', 'account_id'];
+
+    public function account()
+    {
+        return $this->belongsTo(COA::class, 'account_id');
+    }
 }
+
 
