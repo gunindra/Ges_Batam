@@ -97,6 +97,18 @@ class PurchasePaymentController extends Controller
                 throw new \Exception('Akun vendor tidak ditemukan.');
             }
 
+
+            // Hitung total bayar baru jika pembayaran ditambahkan
+            $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
+
+            // Validasi apakah total bayar baru melebihi total harga
+            if ($totalBayarBaru > $invoice->total_harga) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Total pembayaran melebihi total harga invoice.'
+                ], 400);
+            }
+
             // Format tanggal pembayaran
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
             $codeType = "SP"; // Ganti dengan "SP"

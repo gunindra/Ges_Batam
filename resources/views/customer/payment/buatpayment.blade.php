@@ -75,7 +75,8 @@
                                     <select class="form-control select2" id="selectMethod">
                                         <option value="" selected disabled>Pilih Metode Pembayaran</option>
                                         @foreach ($coas as $coa)
-                                            <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
+                                            <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
+                                                {{ $coa->name }}</option>
                                         @endforeach
                                     </select>
                                     <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Metode</div>
@@ -119,7 +120,6 @@
 @endsection
 @section('script')
     <script>
-
         $('.select2').select2();
 
         var today = new Date();
@@ -209,23 +209,34 @@
                         success: function(response) {
                             if (response.success) {
                                 showMessage("success", "Payment berhasil dibuat").then(() => {
-                                location.reload();
-                            });
+                                    location.reload();
+                                });
                             } else {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal!',
-                                    text: response.message
+                                    text: response
+                                        .message // Menampilkan pesan error dari response
                                 });
                             }
                         },
                         error: function(xhr, status, error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan!',
-                                text: xhr.responseJSON.error ||
-                                    'Error tidak diketahui terjadi'
-                            });
+                            let responseJSON = xhr.responseJSON;
+                            if (responseJSON && responseJSON.message) {
+                                // Menampilkan pesan error jika ada
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Terjadi Kesalahan!',
+                                    text: responseJSON
+                                        .message // Pesan error dari backend
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Terjadi Kesalahan!',
+                                    text: 'Error tidak diketahui terjadi'
+                                });
+                            }
                         }
                     });
                 }

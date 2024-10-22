@@ -155,6 +155,16 @@ class PaymentController extends Controller
             $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
             $invoice_id = $invoice->id;
 
+            // Hitung total bayar baru jika pembayaran ditambahkan
+            $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
+
+            // Validasi apakah total bayar baru melebihi total harga
+            if ($totalBayarBaru > $invoice->total_harga) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Total pembayaran melebihi total harga invoice.'
+                ], 400);
+            }
 
             $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
                 ->orderBy('kode_pembayaran', 'desc')
