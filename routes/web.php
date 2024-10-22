@@ -270,6 +270,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/supplierInvoice/addsupplierInvoice', [SupplierInvoiceController::class, 'addSupplierInvoice'])->name('addSupplierInvoice');
     Route::get('/vendor/supplierInvoice/generateSupInvoice', [SupplierInvoiceController::class, 'generateSupInvoice'])->name('generateSupInvoice');
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
+    Route::get('/vendor/supplierInvoice/showDetail', [SupplierInvoiceController::class, 'showDetail'])->name('showDetail');
     Route::post('/vendor/supplierInvoice/store', [SupplierInvoiceController::class, 'store'])->name('supInvoice.store');
 
     //Purchase Payment

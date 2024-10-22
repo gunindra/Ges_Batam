@@ -44,6 +44,13 @@ class SupplierInvoiceController extends Controller
                 ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang')
                 ->with('items');
 
+            // Filter tanggal jika ada startDate dan endDate
+            if (!empty($request->startDate) && !empty($request->endDate)) {
+                $startDate = date('Y-m-d', strtotime($request->startDate));
+                $endDate = date('Y-m-d', strtotime($request->endDate));
+                $data->whereBetween('tbl_sup_invoice.tanggal', [$startDate, $endDate]);
+            }
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('invoice_no', function($row) {
@@ -67,10 +74,11 @@ class SupplierInvoiceController extends Controller
                     return number_format($totalCredit, 2);
                 })
                 ->addColumn('action', function($row) {
-                    $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-primary btn-sm">Edit</a>';
-                    $btn .= ' <a href="javascript:void(0)" data-id="'.$row->id.'" class="delete btn btn-danger btn-sm">Delete</a>';
+                    $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
+                    // $btn .= ' <a href="javascript:void(0)" data-id="'.$row->id.'" class="delete btn btn-danger btn-sm">Delete</a>';
                     return $btn;
                 })
+
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $searchValue = $request->search['value'];
@@ -247,6 +255,19 @@ class SupplierInvoiceController extends Controller
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan invoice: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function showDetail(Request $request)
+    {
+
+        $id = $request->input('id');
+        $invoice = SupInvoice::with(['items.coa'])->find($id);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+        $invoice->tanggal = Carbon::parse($invoice->tanggal)->translatedFormat('d F Y');
+        return response()->json($invoice);
     }
 
 
