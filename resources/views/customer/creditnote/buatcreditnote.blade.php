@@ -290,9 +290,8 @@
                     };
 
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
                     $.ajax({
-                        url: '{{ route('credit-note.store') }}',
+                        url: "{{ route('credit-note.store' )}}",
                         type: 'POST',
                         data: creditNoteData,
                         headers: {
@@ -300,9 +299,8 @@
                         },
                         dataType: 'json',
                         success: function(response) {
-                            showMessage('success', 'Credit Note berhasil disimpan!');
-                            .then(
-                                () => {
+                            showMessage('success', 'Credit Note berhasil disimpan!')
+                                .then(() => {
                                     location.reload();
                                 });
                         },
@@ -310,6 +308,7 @@
                             showMessage('error', 'Terjadi kesalahan saat menyimpan data.');
                         }
                     });
+
                 });
             });
         </script>

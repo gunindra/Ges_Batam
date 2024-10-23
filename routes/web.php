@@ -284,6 +284,11 @@ Route::middleware(['auth'])->group(function () {
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
     Route::get('/vendor/debitnote/addDebitNote', [DebitNoteController::class, 'addDebitNote'])->name('addDebitNote');
+    Route::get('/vendor/debitnote/getDebitNotes', [DebitNoteController::class, 'getDebitNotes'])->name('getDebitNotes');
+    Route::post('/vendor/debitnote/store', [DebitNoteController::class, 'store'])->name('debit-note.store');
+    Route::get('/vendor/debitnote/updatepage/{id}', [DebitNoteController::class, 'updatepage'])->name('debitnote.updatepage');
+    Route::put('/vendor/debitnote/update/{id}', [DebitNoteController::class, 'update'])->name('debitnote.update');
+
 
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');

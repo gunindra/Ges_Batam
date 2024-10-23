@@ -1,9 +1,8 @@
 @extends('layout.main')
 
-@section('title', 'Customer | Edit Credit Note')
+@section('title', 'Vendor | Edit Debit Note')
 
 @section('main')
-
 
     <style>
         .select2-container--default .select2-selection--single {
@@ -29,14 +28,14 @@
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Edit Credit Note</h1>
+            <h1 class="h3 mb-0 text-gray-800">Edit Debit Note</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item">Customer</li>
-                <li class="breadcrumb-item"><a href="{{ route('creditnote') }}">Credit Note</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit Credit Note</li>
+                <li class="breadcrumb-item">Vendor</li>
+                <li class="breadcrumb-item"><a href="{{ route('debitnote') }}">Debit Note</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Debit Note</li>
             </ol>
         </div>
-        <a class="btn btn-primary mb-3" href="{{ route('creditnote') }}">
+        <a class="btn btn-primary mb-3" href="{{ route('debitnote') }}">
             <i class="fas fa-arrow-left"></i>
             Back
         </a>
@@ -46,61 +45,49 @@
                     <div class="card-body">
                         <div class="d-flex flex-row">
                             <div class="col-6">
-                                {{-- <div class="mt-3">
-                                <label for="supplierCredit" class="form-label fw-bold">Supplier</label>
-                                <select class="form-control col-8" name="" id="supplierCredit">
-                                    <option value="" selected disabled>Pilih Supplier</option>
-                                    <option value="">PT cahaya</option>
-                                    <option value="">PT Bang</option>
-                                </select>
-                                <div id="supplierCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Supplier
-                                    terlebih dahulu</div>
-                            </div> --}}
                                 <div class="mt-3">
-                                    <label for="invoiceCredit" class="form-label fw-bold">Invoice</label>
-                                    <select class="form-control select2" name="" id="invoiceCredit">
+                                    <label for="invoiceDebit" class="form-label fw-bold">Invoice</label>
+                                    <select class="form-control select2" name="invoiceDebit" id="invoiceDebit">
                                         <option value="" selected disabled>Pilih Invoice</option>
                                         @foreach ($listInvoice as $invoice)
-                                            <option value="{{ $invoice->id }}">{{ $invoice->no_invoice }}</option>
+                                            <option value="{{ $invoice->id }}">{{ $invoice->invoice_no }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="invoiceCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
+                                    <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
                                         terlebih dahulu</div>
                                 </div>
 
                                 <div class="mt-3">
-                                    <label for="currencyCredit" class="form-label fw-bold">Currency</label>
-                                    <select class="form-control col-8" name="" id="currencyCredit">
+                                    <label for="currencyDebit" class="form-label fw-bold">Currency</label>
+                                    <select class="form-control col-8" name="currencyDebit" id="currencyDebit">
                                         @foreach ($listCurrency as $currency)
                                             <option value="{{ $currency->id }}">
                                                 {{ $currency->nama_matauang }} ({{ $currency->singkatan_matauang }})
                                             </option>
                                         @endforeach
                                     </select>
-                                    <div id="currencyCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
+                                    <div id="currencyDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
                                         terlebih dahulu</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
-                                    <label for="accountCredit" class="form-label fw-bold">Account</label>
-                                    <select class="form-control select2" name="" id="accountCredit" style="">
+                                    <label for="accountDebit" class="form-label fw-bold">Account</label>
+                                    <select class="form-control select2" name="accountDebit" id="accountDebit" style="">
                                         <option value="" selected disabled>Pilih Account</option>
                                         @foreach ($coas as $coa)
                                             <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
                                                 {{ $coa->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="accountCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Account
+                                    <div id="accountDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Account
                                         terlebih dahulu</div>
                                 </div>
-                                <div class="mt-3">
-                                    <div class="mt-3" id="rateCurrencySection" style="display: none;">
-                                        <label for="rateCurrency" class="form-label fw-bold">Rate Currency</label>
-                                        <input type="text" class="form-control col-8" id="rateCurrency" value=""
-                                            placeholder="Masukkan rate">
-                                        <div id="rateCurrencyError" class="text-danger mt-1 d-none">Rate tidak boleh kosong
-                                        </div>
+                                <div class="mt-3" id="rateCurrencySection" style="display: none;">
+                                    <label for="rateCurrency" class="form-label fw-bold">Rate Currency</label>
+                                    <input type="text" class="form-control col-8" id="rateCurrency" value=""
+                                        placeholder="Masukkan rate">
+                                    <div id="rateCurrencyError" class="text-danger mt-1 d-none">Rate tidak boleh kosong
                                     </div>
                                 </div>
                             </div>
@@ -113,64 +100,40 @@
                                         <th>No Resi</th>
                                         <th>Deskripsi</th>
                                         <th>Harga</th>
-                                        <th>Jumblah</th>
+                                        <th>Jumlah</th>
                                         <th>Total</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
 
                                 <tbody id="items-container">
-                                    {{-- <tr class="tr">
-                                        <td>
-                                            <input required="" type="text" class="form-control" name="noresi">
-                                        </td>
-                                        <td>
-                                            <input required="" type="text" class="form-control" name="deskripsi">
-                                        </td>
-                                        <td>
-                                            <input required="" type="number" class="form-control" name="harga">
-                                        </td>
-                                        <td>
-                                            <input required="" value="1" type="number" class="form-control"
-                                                name="jumlah">
-                                        </td>
-                                        <td>
-                                            <input disabled="" type="text" class="form-control" name="item-subtotal">
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
-                                                style="display:none;">Remove</button>
-                                        </td>
-                                    </tr> --}}
+                                    {{-- Isi item dari debit note --}}
                                 </tbody>
 
                             </table>
                             <br>
-                            <button type="button" class="btn btn-primary" id="add-item-button">Add
-                                Item</button>
+                            <button type="button" class="btn btn-primary" id="add-item-button">Add Item</button>
 
                         </div>
                         <div class="row">
                             <div class="col-5 mr-5">
                                 <div class="input-group pt-2 mt-3">
-                                    <label for="noteCredit" class="form-label fw-bold p-1">Note</label>
+                                    <label for="noteDebit" class="form-label fw-bold p-1">Note</label>
                                 </div>
-                                <textarea id="noteCredit" class="form-control" aria-label="With textarea" placeholder="Masukkan content" rows="4"></textarea>
+                                <textarea id="noteDebit" class="form-control" aria-label="With textarea" placeholder="Masukkan content"
+                                    rows="4"></textarea>
                             </div>
                             <div class="col-4 ms-5 mt-5 ml-5">
                                 <div class="mb-3" style="border-bottom:1px solid black;">
                                     <label class="inline-label">Total keseluruhan : </label>
                                     <input disabled="" type="text" id="Total"
-                                        class="form-control-flush inline-input" name="subtotal" placeholder="0"
-                                        fdprocessedid="nox2">
+                                        class="form-control-flush inline-input" name="subtotal" placeholder="0">
                                 </div>
                             </div>
-                            <div id="noteCreditError" class="text-danger mt-1 d-none">Silahkan isi Note</div>
+                            <div id="noteDebitError" class="text-danger mt-1 d-none">Silahkan isi Note</div>
                             <div class="col-12 mt-4">
                                 <div class="col-4 float-right">
-                                    {{-- <button id="publish" class="btn btn-success p-3 float-right mt-3"
-                                        style="width: 100%;">Publish</button> --}}
-                                    <button id="buatCredit" class="btn btn-primary p-3 float-right mt-3"
+                                    <button id="updateDebit" class="btn btn-primary p-3 float-right mt-3"
                                         style="width: 100%;">Update</button>
                                 </div>
                             </div>
@@ -180,20 +143,18 @@
             </div>
         </div>
     @endsection
+
     @section('script')
         <script>
             $(document).ready(function() {
-
-                var creditNote = @json($creditNote);
+                var debitNote = @json($debitNote);
                 var coas = @json($coas);
 
-                console.log("isi credit note", creditNote);
-                console.log("isi coas note", coas);
+                console.log("Isi debit note", debitNote);
 
                 // Inisialisasi select2
                 $('.select2').select2();
 
-                // Update total function - Moved this block to the top
                 const updateTotals = () => {
                     let totalKeseluruhan = 0;
 
@@ -209,34 +170,33 @@
                     $('#Total').val(totalKeseluruhan.toFixed(2));
                 };
 
-                // Prefill data credit note
-                if (creditNote) {
-                    $('#invoiceCredit').val(creditNote.invoice_id).trigger('change');
-                    $('#accountCredit').val(creditNote.account_id).trigger('change');
-                    $('#currencyCredit').val(creditNote.matauang_id).trigger('change');
-                    $('#rateCurrency').val(creditNote.rate_currency);
-                    $('#noteCredit').val(creditNote.note);
+                // Prefill data debit note
+                if (debitNote) {
+                    $('#invoiceDebit').val(debitNote.invoice_id).trigger('change');
+                    $('#accountDebit').val(debitNote.account_id).trigger('change');
+                    $('#currencyDebit').val(debitNote.matauang_id).trigger('change');
+                    $('#rateCurrency').val(debitNote.rate_currency);
+                    $('#noteDebit').val(debitNote.note);
 
                     // Isi item ke dalam tabel
-                    creditNote.items.forEach(function(item) {
+                    debitNote.items.forEach(function(item) {
                         const newRow = `
-            <tr>
-                <td><input required type="text" class="form-control" name="noresi" value="${item.no_resi}"></td>
-                <td><input required type="text" class="form-control" name="deskripsi" value="${item.deskripsi}"></td>
-                <td><input required type="number" class="form-control" name="harga" value="${item.harga}"></td>
-                <td><input required value="${item.jumlah}" type="number" class="form-control" name="jumlah"></td>
-                <td><input disabled type="text" class="form-control" name="item-subtotal" value="${item.total}"></td>
-                <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
-            </tr>
-        `;
+                        <tr>
+                            <td><input required type="text" class="form-control" name="noresi" value="${item.no_resi}"></td>
+                            <td><input required type="text" class="form-control" name="deskripsi" value="${item.deskripsi}"></td>
+                            <td><input required type="number" class="form-control" name="harga" value="${item.harga}"></td>
+                            <td><input required value="${item.jumlah}" type="number" class="form-control" name="jumlah"></td>
+                            <td><input disabled type="text" class="form-control" name="item-subtotal" value="${item.total}"></td>
+                            <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
+                        </tr>
+                        `;
                         $('#items-container').append(newRow);
                     });
 
-                    // Hitung ulang total keseluruhan
                     updateTotals();
                 }
 
-                $('#currencyCredit').change(function() {
+                $('#currencyDebit').change(function() {
                     const selectedCurrency = $(this).val();
                     if (selectedCurrency !== '1') {
                         $('#rateCurrencySection').show();
@@ -249,15 +209,15 @@
                 // Fungsi untuk menambah baris baru
                 $('#add-item-button').click(function() {
                     const newRow = `
-        <tr>
-            <td><input required type="text" class="form-control" name="noresi"></td>
-            <td><input required type="text" class="form-control" name="deskripsi"></td>
-            <td><input required type="number" class="form-control" name="harga"></td>
-            <td><input required value="1" type="number" class="form-control" name="jumlah"></td>
-            <td><input disabled type="text" class="form-control" name="item-subtotal"></td>
-            <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
-        </tr>
-    `;
+                    <tr>
+                        <td><input required type="text" class="form-control" name="noresi"></td>
+                        <td><input required type="text" class="form-control" name="deskripsi"></td>
+                        <td><input required type="number" class="form-control" name="harga"></td>
+                        <td><input required value="1" type="number" class="form-control" name="jumlah"></td>
+                        <td><input disabled type="text" class="form-control" name="item-subtotal"></td>
+                        <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
+                    </tr>
+                    `;
                     $('#items-container').append(newRow);
                     updateTotals();
                 });
@@ -271,11 +231,11 @@
                     updateTotals();
                 });
 
-                $('#buatCredit').click(function() {
-                    const invoiceCredit = $('#invoiceCredit').val();
-                    const accountCredit = $('#accountCredit').val();
-                    const currencyCredit = $('#currencyCredit').val();
-                    const noteCredit = $('#noteCredit').val();
+                $('#updateDebit').click(function() {
+                    const invoiceDebit = $('#invoiceDebit').val();
+                    const accountDebit = $('#accountDebit').val();
+                    const currencyDebit = $('#currencyDebit').val();
+                    const noteDebit = $('#noteDebit').val();
                     const rateCurrency = $('#rateCurrency').val();
                     const items = [];
 
@@ -295,35 +255,34 @@
                         });
                     });
 
-                    const creditNoteData = {
-                        creditNoteId: creditNote ? creditNote.id : null, // Mengirim creditNoteId jika ada
-                        invoiceCredit: invoiceCredit,
-                        accountCredit: accountCredit,
-                        currencyCredit: currencyCredit,
+                    const debitNoteData = {
+                        debitNoteId: debitNote ? debitNote.id : null,
+                        invoiceDebit: invoiceDebit,
+                        accountDebit: accountDebit,
+                        currencyDebit: currencyDebit,
                         rateCurrency: rateCurrency,
-                        noteCredit: noteCredit,
+                        noteDebit: noteDebit,
                         items: items,
                         totalKeseluruhan: $('#Total').val()
                     };
 
                     const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
                     $.ajax({
-                        url: '{{ route('credit-note.store') }}',
+                        url: "{{ route('debit-note.store') }}",
                         type: 'POST',
-                        data: creditNoteData,
+                        data: debitNoteData,
                         headers: {
                             'X-CSRF-TOKEN': csrfToken
                         },
                         dataType: 'json',
                         success: function(response) {
-                            showMessage('success', 'Credit Note berhasil disimpan!')
+                            showMessage('success', 'Debit Note berhasil diupdate!')
                                 .then(() => {
-                                    location.reload();
+                                    window.location.reload();
                                 });
                         },
                         error: function(xhr, status, error) {
-                            showMessage('error', 'Terjadi kesalahan saat menyimpan data.');
+                            showMessage('error', 'Terjadi kesalahan saat mengupdate data.');
                         }
                     });
                 });

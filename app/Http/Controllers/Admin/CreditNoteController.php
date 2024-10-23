@@ -134,7 +134,10 @@ class CreditNoteController extends Controller
 
             // Jika creditNoteId ada, lakukan update; jika tidak ada, buat credit note baru
             if ($request->has('creditNoteId')) {
-                $creditNote = CreditNote::findOrFail($request->creditNoteId);  // Ambil data yang ada
+                $creditNote = CreditNote::findOrFail($request->creditNoteId);
+
+                // Cek apakah jurnal sudah ada untuk invoice ini
+                $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
             } else {
                 // Membuat no_creditnote baru jika creditNoteId tidak ada
                 $lastCreditNote = CreditNote::where('no_creditnote', 'like', $codeType . $currentYear . '%')
@@ -150,6 +153,14 @@ class CreditNoteController extends Controller
 
                 $creditNote = new CreditNote();  // Inisialisasi objek baru
                 $creditNote->no_creditnote = $newNoCreditNote;  // Buat nomor credit note baru
+
+                // Generate nomor jurnal baru untuk create
+                $request->merge(['code_type' => 'CN']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+
+                // Buat jurnal baru
+                $jurnal = new Jurnal();
+                $jurnal->no_journal = $noJournal;
             }
 
             // Update atau buat data credit note
@@ -161,7 +172,37 @@ class CreditNoteController extends Controller
             $creditNote->total_keseluruhan = $request->totalKeseluruhan;
             $creditNote->save();
 
-            // Update or create credit note items
+            // Simpan atau update jurnal jika perlu
+            $jurnal->tipe_kode = 'CN';
+            $jurnal->tanggal = now();
+            $jurnal->no_ref = $invoice_id;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Jurnal untuk Invoice {$invoice_id}";
+            $jurnal->totaldebit = $request->totalKeseluruhan;
+            $jurnal->totalcredit = $request->totalKeseluruhan;
+            $jurnal->save();
+
+            // Simpan item jurnal (kredit)
+            JurnalItem::updateOrCreate(
+                ['jurnal_id' => $jurnal->id, 'code_account' => $receivableSalesAccountId],
+                [
+                    'description' => "Kredit untuk Invoice {$invoice_id}",
+                    'debit' => 0,
+                    'credit' => $request->totalKeseluruhan,
+                ]
+            );
+
+            // Simpan item jurnal (debit)
+            JurnalItem::updateOrCreate(
+                ['jurnal_id' => $jurnal->id, 'code_account' => $salesAccountId],
+                [
+                    'description' => "Debit untuk Invoice {$invoice_id}",
+                    'debit' => $request->totalKeseluruhan,
+                    'credit' => 0,
+                ]
+            );
+
+            // Simpan atau update credit note items
             foreach ($request->items as $item) {
                 $creditNote->items()->updateOrCreate(
                     ['no_resi' => $item['noresi']],
@@ -174,43 +215,6 @@ class CreditNoteController extends Controller
                 );
             }
 
-            // Generate journal number
-            $request->merge(['code_type' => 'CN']);
-            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
-
-            // Update or create journal
-            $jurnal = Jurnal::updateOrCreate(
-                ['no_journal' => $noJournal],
-                [
-                    'tipe_kode' => 'CN',
-                    'tanggal' => now(),
-                    'no_ref' => $invoice_id,  // Gunakan $invoice_id di sini
-                    'status' => 'Approve',
-                    'description' => "Jurnal untuk Invoice {$invoice_id}",
-                    'totaldebit' => $request->totalKeseluruhan,
-                    'totalcredit' => $request->totalKeseluruhan,
-                ]
-            );
-
-            // Update or create journal items
-            JurnalItem::updateOrCreate(
-                ['jurnal_id' => $jurnal->id, 'code_account' => $receivableSalesAccountId],
-                [
-                    'description' => "Debit untuk Invoice {$invoice_id}",
-                    'debit' => 0,
-                    'credit' => $request->totalKeseluruhan,
-                ]
-            );
-
-            JurnalItem::updateOrCreate(
-                ['jurnal_id' => $jurnal->id, 'code_account' => $salesAccountId],
-                [
-                    'description' => "Kredit untuk Invoice {$invoice_id}",
-                    'debit' => $request->totalKeseluruhan,
-                    'credit' => 0,
-                ]
-            );
-
             DB::commit();
             return response()->json(['message' => 'Credit note berhasil disimpan!'], 200);
 
@@ -219,6 +223,7 @@ class CreditNoteController extends Controller
             return response()->json(['error' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 
