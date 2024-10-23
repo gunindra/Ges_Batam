@@ -69,7 +69,8 @@ aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
                             class="form-control rounded-3" placeholder="Search">
                         <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                             <option value="" selected disabled>Pilih Filter</option>
-
+                            <option value="Lunas" >Lunas</option>
+                            <option value="Belum Lunas">Belum Lunas</option>
                         </select>
                         <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                         <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"

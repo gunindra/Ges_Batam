@@ -51,7 +51,7 @@ class PurchasePaymentController extends Controller
 
         // Filter berdasarkan metode pembayaran (status)
         if (!empty($request->status)) {
-            $query->where('c.name', $request->status);
+            $query->where('b.status_bayar', $request->status);
         }
 
         // Filter berdasarkan rentang tanggal pembayaran
