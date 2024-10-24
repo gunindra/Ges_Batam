@@ -11,37 +11,60 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TrackingsController extends Controller
 {
-    public function index(){
+    public function index()
+    {
+        $listStatus = DB::table('tbl_tracking')
+        ->select('status')
+        ->distinct()
+        ->get();
 
-
-        return view('Tracking.indextracking');
+        return view('Tracking.indextracking', compact('listStatus'));
     }
     public function getTrackingData(Request $request)
     {
-        // Build the query
-        $query = DB::table('tbl_tracking as a')
+
+        $query = DB::table('tbl_tracking')
             ->select([
-                'a.no_resi',
-                'a.no_do',
-                'a.status',
-                'a.keterangan',
-                'a.id'
+                'no_resi',
+                'no_do',
+                'status',
+                'keterangan',
+                'id'
             ])
             ->limit(100);
-    
-        $query->orderBy('a.id', 'desc');
-    
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $query->orderBy('id', 'desc');
+
         $data = $query->get();
 
         return DataTables::of($data)
+            ->editColumn('status', function ($row) {
+                $statusBadgeClass = '';
+                switch ($row->status) {
+                    case 'Dalam Perjalanan':
+                        $statusBadgeClass = 'badge-primary';
+                        break;
+                    case 'Batam/Sortir':
+                        $statusBadgeClass = 'badge-success';
+                        break;
+                    default:
+                        $statusBadgeClass = 'badge-secondary';
+                        break;
+                }
+
+                return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
+            })
             ->addColumn('action', function ($row) {
                 return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' .
-                       '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
+                    '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['status', 'action']) 
             ->make(true);
     }
-    
+
     public function addTracking(Request $request)
     {
         $request->validate([
@@ -50,7 +73,7 @@ class TrackingsController extends Controller
             'status' => 'required|string|max:50',
             'keterangan' => 'nullable|string|max:255',
         ]);
-    
+
         try {
             foreach ($request->input('noResi') as $resi) {
                 $Tracking = new Tracking();
@@ -60,17 +83,17 @@ class TrackingsController extends Controller
                 $Tracking->keterangan = $request->input('keterangan');
                 $Tracking->save();
             }
-    
+
             return response()->json(['success' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-    
+
 
     public function updateTracking(Request $request, $id)
     {
-       $validated = $request->validate([
+        $validated = $request->validate([
             'noDeliveryOrder' => 'required|string|max:20',
             'keterangan' => 'nullable|string|max:255',
         ]);
@@ -108,7 +131,7 @@ class TrackingsController extends Controller
     }
     public function show($id)
     {
-        $Tracking = Tracking::findOrFail( $id);
+        $Tracking = Tracking::findOrFail($id);
         return response()->json($Tracking);
     }
 }

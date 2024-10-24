@@ -306,7 +306,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Journal
     Route::get('/journal', [JournalController::class, 'index'])->name('journal');
-    Route::get('/journal/getlistJournal', [JournalController::class, 'getlistJournal'])->name('getlistJournal');
+    Route::get('/journal-data', [JournalController::class, 'getjournalData'])->name('journal.data');
     Route::get('/journal/addjournal', [JournalController::class, 'addjournal'])->name('addjournal');
     Route::get('/journal/generateNoJurnal', [JournalController::class, 'generateNoJurnal'])->name('generateNoJurnal');
     Route::post('/journal/addjournal/store', [JournalController::class, 'store'])->name('storeJurnal');

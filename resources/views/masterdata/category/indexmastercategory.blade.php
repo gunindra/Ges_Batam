@@ -368,7 +368,7 @@
                                 if (response.success) {
                                     showMessage("success", response.message);
                                     $('#modalEditCategory').modal('hide');
-                                    modalEditCategory();
+                                    getlistCategory();
                                 }
                             },
                             error: function () {
