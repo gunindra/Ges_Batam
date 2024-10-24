@@ -177,6 +177,7 @@
         $(document).ready(function() {
             let table = $('#supplierInvoiceTable').DataTable({
                 serverSide: true,
+                processing: true,
                 ajax: {
                     url: "{{ route('getlistSupplierInvoice') }}",
                     type: 'GET',
@@ -220,6 +221,7 @@
                 order: [],
                 lengthChange: false,
                 language: {
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
                     info: "_START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     emptyTable: "No data available in table",
