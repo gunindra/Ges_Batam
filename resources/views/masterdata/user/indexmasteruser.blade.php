@@ -299,7 +299,6 @@
                     $('#nameUsersEdit').val(response.name);
                     $('#emailUsersEdit').val(response.email);
                     $('#roleUsersEdit').val(response.role);
-                    console.log(response.role)
                     $('#modalEditUsers').modal('show');
                     $('#saveEditUsers').data('id', userid);
                 },

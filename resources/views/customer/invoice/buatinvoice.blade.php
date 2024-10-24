@@ -333,22 +333,21 @@
             var minrate = $('#selectCostumer option:selected').data('minrate') || 0;
             globalMinrate = minrate;
 
-            // Menyembunyikan pesan error alamat saat customer belum dipilih
             $('#alamatError').addClass('d-none');
 
             if (selectedCustomer) {
-                $('#pickupDelivery').show(); 
+                $('#pickupDelivery').show();
 
                 if (metodePengiriman === 'Pickup') {
-                    $('#pickupDelivery h2').text('Pick Up'); 
-                    $('#alamatContainer').empty(); 
+                    $('#pickupDelivery h2').text('Pick Up');
+                    $('#alamatContainer').empty();
                     $('#alamatError').addClass('d-none');
                 } else if (metodePengiriman === 'Delivery') {
-                    $('#pickupDelivery h2').text('Delivery'); 
+                    $('#pickupDelivery h2').text('Delivery');
 
                     if (jumlahAlamat == 1) {
-                        $('#alamatContainer').html('<p>' + alamat + '</p>'); 
-                        $('#alamatError').addClass('d-none'); 
+                        $('#alamatContainer').html('<p>' + alamat + '</p>');
+                        $('#alamatError').addClass('d-none');
                     } else if (jumlahAlamat > 1) {
                         var alamatList = alamat.split(', ');
                         var selectAlamat = '<label for="alamatSelect" class="form-label">Alamat</label>';
@@ -358,8 +357,8 @@
                             selectAlamat += '<option value="' + alamatItem + '">' + alamatItem + '</option>';
                         });
                         selectAlamat += '</select>';
-                        $('#alamatContainer').html(selectAlamat); 
-                        $('#alamatError').addClass('d-none'); 
+                        $('#alamatContainer').html(selectAlamat);
+                        $('#alamatError').addClass('d-none');
                     }
                 }
 
@@ -375,9 +374,9 @@
                 });
                 updateDisplayedTotalHarga();
             } else {
-                $('#pickupDelivery').hide(); 
+                $('#pickupDelivery').hide();
                 $('#alamatContainer').empty();
-                $('#alamatError').addClass('d-none'); 
+                $('#alamatError').addClass('d-none');
             }
         });
 
@@ -439,7 +438,6 @@
                 const scannedNoResi = $(this).val().trim();
                 let isAlreadyInTable = false;
 
-                // Cek apakah sudah ada di tabel
                 $('#barang-list tr').each(function () {
                     const existingNoResi = $(this).find('td:eq(1)').text().trim();
                     if (existingNoResi === scannedNoResi) {
@@ -713,9 +711,6 @@
             return isValid;
         }
 
-
-
-
         $('#buatInvoice').click(function () {
             const noResi = [];
             const beratBarang = [];
@@ -762,127 +757,134 @@
                 $('#errorCustomer').removeClass('d-none');
                 isValid = false;
             }
-
             if ($('#selectCostumer option:selected').data('metode') === 'Delivery') {
-                let alamat = $('#alamatSelect').val();
-                if (!alamat) {
-                    $('#alamatError').removeClass('d-none');
-                    isValid = false;
+                let jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
+
+                if (jumlahAlamat > 1) {
+                    let alamat = $('#alamatSelect').val();
+                    if (!alamat) {
+                        $('#alamatError').removeClass('d-none');
+                        isValid = false;
+                    } else {
+                        $('#alamatError').addClass('d-none');
+                    }
                 } else {
                     $('#alamatError').addClass('d-none');
                 }
             }
-            if (noResi === '') {
-                $('#noResiError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#noResiError').addClass('d-none');
-            }
-            if (rateBerat === null) {
-                $('#rateBeratError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#rateBeratError').addClass('d-none');
-            }
-            if (pembagiVolume === null) {
-                $('#pembagiVolumeError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#pembagiVolumeError').addClass('d-none');
-            }
-            if (rateVolume === null) {
-                $('#rateVolumeError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#rateVolumeError').addClass('d-none');
-            }
-            if (tanggal === '') {
-                $('#tanggalError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#tanggalError').addClass('d-none');
-            }
+                if (noResi === '') {
+                    $('#noResiError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#noResiError').addClass('d-none');
+                }
+                if (rateBerat === null) {
+                    $('#rateBeratError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateBeratError').addClass('d-none');
+                }
+                if (pembagiVolume === null) {
+                    $('#pembagiVolumeError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#pembagiVolumeError').addClass('d-none');
+                }
+                if (rateVolume === null) {
+                    $('#rateVolumeError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateVolumeError').addClass('d-none');
+                }
+                if (tanggal === '') {
+                    $('#tanggalError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#tanggalError').addClass('d-none');
+                }
 
-            if (customer === null) {
-                $('#customerError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#customerError').addClass('d-none');
-            }
+                if (customer === null) {
+                    $('#customerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#customerError').addClass('d-none');
+                }
 
-            if (currencyInvoice === null) {
-                $('#currencyInvoiceError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#currencyInvoiceError').addClass('d-none');
-            }
+                if (currencyInvoice === null) {
+                    $('#currencyInvoiceError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#currencyInvoiceError').addClass('d-none');
+                }
 
-            if (currencyInvoice === '1' && rateCurrency === null) {
-                $('#rateCurrencyError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#rateCurrencyError').addClass('d-none');
-            }
+                if (currencyInvoice === '1' && rateCurrency === null) {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
+                }
 
-            if (!validateForm()) {
-                e.preventDefault();
-                return;
-            }
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
+                }
 
 
-            if (!isValid) {
-                Swal.fire({
-                    title: "Periksa input yang masih kosong.",
-                    icon: "error"
-                });
-                return;
-            }
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('tambainvoice') }}",
-                data: {
-                    noInvoice: noInvoice,
-                    noResi: noResi,
-                    tanggal: tanggal,
-                    customer: customer,
-                    currencyInvoice: currencyInvoice,
-                    rateCurrency: rateCurrency,
-                    beratBarang: beratBarang,
-                    panjang: panjang,
-                    lebar: lebar,
-                    tinggi: tinggi,
-                    metodePengiriman: metodePengiriman,
-                    alamat: alamat,
-                    totalharga: totalharga,
-                    hargaBarang: hargaBarang,
-                    _token: csrfToken
-                },
-                success: function (response) {
-                    if (response.status === 'success') {
-                        showMessage("success", "Invoice berhasil dibuat").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "Gagal membuat invoice",
-                            icon: "error"
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    let errorMessage =
-                        "Terjadi Kesalahan membuat invoice";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
+                if (!isValid) {
                     Swal.fire({
-                        title: errorMessage,
+                        title: "Periksa input yang masih kosong.",
                         icon: "error"
                     });
+                    return;
                 }
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('tambainvoice') }}",
+                    data: {
+                        noInvoice: noInvoice,
+                        noResi: noResi,
+                        tanggal: tanggal,
+                        customer: customer,
+                        currencyInvoice: currencyInvoice,
+                        rateCurrency: rateCurrency,
+                        beratBarang: beratBarang,
+                        panjang: panjang,
+                        lebar: lebar,
+                        tinggi: tinggi,
+                        metodePengiriman: metodePengiriman,
+                        alamat: alamat,
+                        totalharga: totalharga,
+                        hargaBarang: hargaBarang,
+                        _token: csrfToken
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            showMessage("success", "Invoice berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Gagal membuat invoice",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    
+                    error: function (xhr, status, error) {
+                        let errorMessage =
+                            "Terjadi Kesalahan membuat invoice";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        Swal.fire({
+                            title: errorMessage,
+                            icon: "error"
+                        });
+                    },
+                    
+                });
             });
-        });
     });
 </script>
 @endsection

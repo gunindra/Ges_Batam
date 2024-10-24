@@ -108,12 +108,22 @@
                             data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
                                     class="fas fa-plus"></i></span>Tambah Tracking</button>
                     </div>
-                    <div class="float-left">
+                    <div class="float-left d-flex">
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                             class="form-control rounded-3" placeholder="Search">
+                        <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                            <option value="" selected disabled>Pilih Status</option>
+                            @foreach ($listStatus as $status)
+                                <option value="{{ $status->status }}">{{ $status->status }}</option>
+                            @endforeach
+                        </select>
+                        <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                            onclick="window.location.reload()">
+                            Reset
+                        </button>
                     </div>
                     <div id="containerTracking" class="table-responsive px-2">
-                         <table class="table align-items-center table-flush table-hover" id="tableTracking">
+                        <table class="table align-items-center table-flush table-hover" id="tableTracking">
                             <thead class="thead-light">
                                 <tr>
                                     <th>No. Resi</th>
@@ -136,14 +146,14 @@
                                                 class="fas fa-eye"></i></a>
                                     </td>
                                 </tr> --}}
-                                </tbody>
-                            </table>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
 
@@ -185,29 +195,32 @@
         ajax: {
             url: "{{ route('tracking.data') }}",
             method: 'GET',
+            data: function (d) {
+                d.status = $('#filterStatus').val();
+            }
         },
         columns: [{
             data: 'no_resi',
-            name: 'a.no_resi',
+            name: 'no_resi',
         },
         {
             data: 'no_do',
-            name: 'a.no_do',
+            name: 'no_do',
         },
         {
             data: 'status',
-            name: 'a.status',
+            name: 'status',
         },
         {
             data: 'keterangan',
-            name: 'a.keterangan',
-            
+            name: 'keterangan',
+
         },
         {
             data: 'action',
             name: 'action',
             orderable: false,
-            searchable: false,
+
         }
         ],
         lengthChange: false,
@@ -221,10 +234,13 @@
     });
 
 
-    $('#txSearch').keyup(function() {
-            var searchValue = $(this).val();
-            table.search(searchValue).draw();
-        });
+    $('#txSearch').keyup(function () {
+        var searchValue = $(this).val();
+        table.search(searchValue).draw();
+    });
+    $('#filterStatus').change(function () {
+        table.ajax.reload();
+    });
 
     $('#saveTracking').click(function () {
 
@@ -296,6 +312,7 @@
                         success: function (response) {
                             Swal.close();
                             if (response.success) {
+                                $('#modalTambahTracking').modal('hide');
                                 showMessage("success",
                                     "berhasil ditambahkan");
                                 $('#modalTambahTracking').modal('hide');
@@ -433,7 +450,7 @@
     $(document).on('click', '.btnDestroyTracking', function (e) {
 
         let id = $(this).data('id');
-        
+
 
         Swal.fire({
             title: "Apakah Kamu Yakin Ingin Hapus Tracking Ini?",
@@ -478,7 +495,7 @@
 
                             showMessage("success",
                                 "Berhasil menghapus");
-                                table.ajax.reload();
+                            table.ajax.reload();
                         } else {
                             showMessage("error", "Gagal menghapus");
                         }
