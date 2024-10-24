@@ -823,7 +823,19 @@
                 } else {
                     $('#customerError').addClass('d-none');
                 }
+                if (customer === null) {
+                    $('#customerError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#customerError').addClass('d-none');
+                }
 
+                if (currencyInvoice === null) {
+                    $('#currencyInvoiceError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#currencyInvoiceError').addClass('d-none');
+                }
                 if (currencyInvoice === null) {
                     $('#currencyInvoiceError').removeClass('d-none');
                     isValid = false;
@@ -837,13 +849,30 @@
                 } else {
                     $('#rateCurrencyError').addClass('d-none');
                 }
+                if (currencyInvoice === '1' && rateCurrency === null) {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
+                }
 
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
+                }
                 if (!validateForm()) {
                     e.preventDefault();
                     return;
                 }
 
 
+                if (!isValid) {
+                    Swal.fire({
+                        title: "Periksa input yang masih kosong.",
+                        icon: "error"
+                    });
+                    return;
+                }
                 if (!isValid) {
                     Swal.fire({
                         title: "Periksa input yang masih kosong.",

@@ -8,6 +8,7 @@ use App\Models\JurnalItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables; 
 
 class JournalController extends Controller
 {
@@ -18,18 +19,12 @@ class JournalController extends Controller
             ->distinct()
             ->get();
 
-
-
         return view('accounting.journal.indexjournal', compact('uniqueStatuses'));
     }
-    public function getlistJournal(Request $request)
+ 
+    public function getjournalData(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $status = $request->status;
-        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
-        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-
-        $data = DB::table('tbl_jurnal')
+        $query = DB::table('tbl_jurnal')
             ->select(
                 'id',
                 'no_journal',
@@ -39,6 +34,7 @@ class JournalController extends Controller
                 'totalcredit',
                 'status',
                 'description'
+<<<<<<< HEAD
             )
             ->where(function ($query) use ($txSearch) {
                 $query->where(DB::raw('UPPER(no_journal)'), 'LIKE', $txSearch)
@@ -109,14 +105,53 @@ class JournalController extends Controller
             $output .= '
                 </td>
             </tr>';
+=======
+            );
+    
+        if ($request->status) {
+            $query->where('status', $request->status);
+>>>>>>> tandrio
         }
-
-        $output .= '</tbody></table>';
-
-        return $output;
+    
+        if ($request->startDate && $request->endDate) {
+            $startDate = date('Y-m-d', strtotime($request->startDate));
+            $endDate = date('Y-m-d', strtotime($request->endDate));
+            $query->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+    
+        return DataTables::of($query)
+            ->editColumn('totalcredit', function ($row) {
+                return 'Rp ' . number_format($row->totalcredit, 0, ',', '.'); // Format totalcredit
+            })
+            ->editColumn('tanggal', function ($row) {
+                return $row->tanggal; 
+            })
+            ->editColumn('status', function ($row) {
+                $statusBadgeClass = '';
+                switch ($row->status) {
+                    case 'Approve':
+                        $statusBadgeClass = 'badge-success'; 
+                        break;
+                    case 'Draft':
+                        $statusBadgeClass = 'badge-primary'; 
+                        break;
+                    default:
+                        $statusBadgeClass = 'badge-secondary'; 
+                        break;
+                }
+    
+                return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
+            })
+            ->addColumn('action', function ($row) {
+                return '
+                    <a class="btn btnUpdateJournal btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit text-white"></i></a>
+                    <a class="btn btnDestroyJournal btn-sm btn-danger" data-id="' . $row->id . '"><i class="fas fa-trash text-white"></i></a>
+                ';
+            })
+            ->rawColumns(['status', 'action']) 
+            ->make(true);
     }
-
-
+    
     public function addjournal()
     {
 
