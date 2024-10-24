@@ -45,7 +45,8 @@ use App\Http\Controllers\{
     Admin\EquityController,
     Admin\BalanceController,
     Admin\CashFlowController,
-    Admin\VendorController
+    Admin\VendorController,
+    Admin\TopupController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -344,6 +345,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
     Route::post('/account-settings/update/{id}', [AccountingSettingController::class, 'update'])->name('account-settings.update');
+
+    //Top Up
+    Route::get('/topup', [TopupController::class, 'index'])->name('topuppage');
+    Route::get('/topup/getPricePoints', [TopupController::class, 'getPricePoints'])->name('get-price-points');
+    Route::get('/topup/getCustomers', [TopupController::class, 'getCustomers'])->name('get-customers');
+    Route::post('/topup-points', [TopupController::class, 'storeTopup'])->name('topup-points');
+
+
+
+
 
 
      //Report

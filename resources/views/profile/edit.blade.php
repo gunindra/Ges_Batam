@@ -9,102 +9,201 @@
         </div>
 
         <div class="row">
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-body">
-                <form id="profileForm">
-                    @csrf
-                    @method('PATCH')
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="profileForm">
+                            @csrf
+                            @method('PATCH')
 
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input id="name" class="form-control" type="text" name="name"
-                            value="{{ old('name', auth()->user()->name) }}" required autofocus>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input id="name" class="form-control" type="text" name="name"
+                                    value="{{ old('name', auth()->user()->name) }}" required autofocus>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input id="email" class="form-control" type="email" name="email"
+                                    value="{{ old('email', auth()->user()->email) }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">New Password (optional)</label>
+                                <input id="password" class="form-control" type="password" name="password">
+                                <span id="password-error" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password_confirmation">Confirm Password</label>
+                                <input id="password_confirmation" class="form-control" type="password"
+                                    name="password_confirmation">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input id="email" class="form-control" type="email" name="email"
-                            value="{{ old('email', auth()->user()->email) }}" required>
+            <!-- Updated User Points Section with clearer Top-Up and current price -->
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">User Points</h4>
+                        <p class="card-text">Here is an overview of your current points and other relevant details.</p>
+
+                        <div class="mb-3">
+                            <div class="text-center">
+                                <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
+                                <p class="text-muted">Poin</p>
+                            </div>
+                        </div>
+
+                        <!-- Indikator Harga Berlaku -->
+                        <div class="mb-3">
+                            <p class="text-muted">Harga per 1kg poin saat ini: <strong>Rp 50.000</strong></p>
+                        </div>
+
+                        <!-- Progress Bar to Show Poin Usage -->
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="70"
+                                aria-valuemin="0" aria-valuemax="100">100% Used</div>
+                        </div>
+
+                        <!-- Top-Up Points Section with prominent button -->
+                        <div class="rewards-section">
+                            <h4>Top-Up Points</h4>
+                            <div class="reward-item d-flex align-items-center">
+                                <p class="pt-2">Ingin Mengisi Poin Untuk User Ini?</p>
+                                <button class="btn-topUp ml-3 btn btn-lg btn-primary" data-toggle="modal"
+                                    data-target="#topupModal">Top Up</button>
+                            </div>
+                        </div>
+
+                        <!-- Riwayat Penggunaan Poin Terakhir -->
+                        <div class="mb-3">
+                            <h5>Riwayat Penggunaan Terakhir</h5>
+                            <ul>
+                                <li>10 Poin digunakan pada 2024-10-20</li>
+                                <li>5 Poin digunakan pada 2024-10-18</li>
+                                <li>15 Poin digunakan pada 2024-10-15</li>
+                            </ul>
+                        </div>
+
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label for="password">New Password (optional)</label>
-                        <input id="password" class="form-control" type="password" name="password">
-                        <span id="password-error" class="text-danger"></span>
+            <!-- Updated History Points Section -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="mb-3">History Poin</h4>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Costumer ID</th>
+                                    <th>Nama Costumer</th>
+                                    <th>Nominal Top Up</th>
+                                    <th>Harga (1kg)</th>
+                                    <th>Nama Akun Jurnal</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                    <th>Poin</th> <!-- Kolom untuk penanda poin -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>001</td>
+                                    <td>John Doe</td>
+                                    <td>100.000</td>
+                                    <td>50.000</td>
+                                    <td>Jurnal A</td>
+                                    <td><span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span></td>
+                                    <td>2024-10-23</td>
+                                    <td><span class="badge text-white bg-success">Masuk</span></td>
+                                    <!-- Penanda poin masuk -->
+                                </tr>
+                                <tr>
+                                    <td>002</td>
+                                    <td>Jane Smith</td>
+                                    <td>50.000</td>
+                                    <td>25.000</td>
+                                    <td>Jurnal B</td>
+                                    <td><span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum
+                                            Lunas</span></td>
+                                    <td>2024-10-22</td>
+                                    <td><span class="badge text-white bg-danger">Keluar</span></td>
+                                    <!-- Penanda poin keluar -->
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label for="password_confirmation">Confirm Password</label>
-                        <input id="password_confirmation" class="form-control" type="password"
-                            name="password_confirmation">
-                    </div>
+        </div>
+    </div>
 
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
-                </form>
+    <!-- Modal Konfirmasi Top-Up -->
+    <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="topupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="topupModalLabel">Konfirmasi Top-Up</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Anda akan mengisi ulang poin untuk pengguna ini.</p>
+                    <p><strong>Jumlah Poin:</strong> <input type="number" id="topupAmount" class="form-control"
+                            placeholder="Masukkan jumlah poin"></p>
+
+                    <p><strong>Harga per 1kg poin:</strong>
+                        <select id="pricePerKg" class="form-control">
+                            <option value="">Pilih Harga</option>
+                        </select>
+                    </p>
+
+                    <p><strong>Total yang Harus Dibayar:</strong> Rp <span id="totalCost">0</span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmTopUp">Konfirmasi Top-Up</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- New Card -->
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-body">
-            <h4 class="card-title">User Points</h4>
-                <p class="card-text">Here is an overview of your current points and other relevant details.</p>
-                
-                <div class="mb-3">
-                    <div class="text-center">
-                        <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
-                        <p class="text-muted">Poin</p>
-                    </div>
-                </div>
-               
-
-                <div class="mb-3">
-                    <h5>Points Earned</h5>
-                    <ul>
-                        <li>Purchase point: <span class="text-primary">200 points</span></li>
-                        <li>Referral bonus: <span class="text-primary">300 points</span></li>
-                        <li>Purchase bonus: <span class="text-primary">10 points</span></li>
-                    </ul>
-                </div>
-
-                <div class="rewards-section">
-            <h4>Penukaran Poin</h4>
-            <div class="reward-item">
-                <p>Diskon 10% Pengiriman (100 Poin)</p>
-                <button class="btn-redeem btn-primary" data-points="100">Tukar</button>
-            </div>
-            <div class="reward-item">
-                <p>Voucher Asuransi Pengiriman (200 Poin)</p>
-                <button class="btn-redeem btn-primary" data-points="200">Tukar</button>
-            </div>
-            <div class="reward-item">
-                <p>Merchandise Eksklusif (500 Poin)</p>
-                <button class="btn-redeem btn-primary" data-points="500">Tukar</button>
-            </div>
-        </div>
-
-
-                <!-- <div class="mb-3">
-                    <h5>Recent Activities</h5>
-                    <ul>
-                        <li>September 10, 2024 - Survey completed</li>
-                        <li>September 12, 2024 - Referral bonus awarded</li>
-                    </ul>
-                </div>  -->
-            </div>
-        </div>
-    </div>
-</div>
-</div>
 
 @endsection
 
 @section('script')
     <script>
         $(document).ready(function() {
+            const pricePerKg = 50000; // Harga per kg poin
+
+            // Saat jumlah poin diubah, hitung total biaya
+            $('#topupAmount').on('input', function() {
+                let amount = $(this).val();
+                let totalCost = amount * pricePerKg;
+                $('#totalCost').text(totalCost.toLocaleString()); // Format angka agar lebih mudah dibaca
+            });
+
+            // Handle Top-Up Confirmation
+            $('#confirmTopUp').on('click', function() {
+                let amount = $('#topupAmount').val();
+                if (amount > 0) {
+                    // Logic to handle the top-up (could be an AJAX call)
+                    alert('Top-up berhasil untuk ' + amount + ' poin.');
+                    $('#topupModal').modal('hide');
+                } else {
+                    alert('Masukkan jumlah poin yang valid.');
+                }
+            });
+
             $('#profileForm').on('submit', function(event) {
                 event.preventDefault();
 
@@ -127,8 +226,7 @@
                             let errors = xhr.responseJSON.errors;
 
                             if (errors.password) {
-                                $('#password-error').text(errors.password[
-                                    0]);
+                                $('#password-error').text(errors.password[0]);
                             }
                         } else {
                             Swal.fire({
@@ -140,7 +238,6 @@
                         }
                     }
                 });
-
             });
         });
     </script>

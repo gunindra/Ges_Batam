@@ -28,6 +28,11 @@
                 <i class="fas fa-truck-loading"></i>
                 <span>Driver</span></a>
         </li>
+        <li class="nav-item {{ request()->routeIs('topuppage') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('topuppage') }}">
+                <i class="fas fa-wallet"></i>
+                <span>Top Up</span></a>
+        </li>
         <li
             class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('pickup') ? 'active' : '' }}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"

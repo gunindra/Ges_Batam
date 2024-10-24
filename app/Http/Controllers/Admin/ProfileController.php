@@ -5,11 +5,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\PricePoin;
 
 class ProfileController extends Controller
 {
     public function edit(Request $request)
     {
+
+
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
