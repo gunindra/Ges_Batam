@@ -8,7 +8,7 @@ use App\Models\JurnalItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables; 
+use Yajra\DataTables\Facades\DataTables;
 
 class JournalController extends Controller
 {
@@ -21,7 +21,7 @@ class JournalController extends Controller
 
         return view('accounting.journal.indexjournal', compact('uniqueStatuses'));
     }
- 
+
     public function getjournalData(Request $request)
     {
         $query = DB::table('tbl_jurnal')
@@ -34,112 +34,39 @@ class JournalController extends Controller
                 'totalcredit',
                 'status',
                 'description'
-<<<<<<< HEAD
-            )
-            ->where(function ($query) use ($txSearch) {
-                $query->where(DB::raw('UPPER(no_journal)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('UPPER(tipe_kode)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('UPPER(description)'), 'LIKE', $txSearch);
-            })
-            ->when($status, function ($query) use ($status) {
-                return $query->where('status', $status);
-            })
-            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('tanggal', [$startDate, $endDate]);
-            })
-            ->orderBy('id', 'desc') // Add this line to order by ID in descending order
-            ->get();
-
-        $output = '
-        <table class="table align-items-center table-flush table-hover" id="tableJournal">
-            <thead class="thead-light">
-                <tr>
-                    <th>No. Journal</th>
-                    <th>Deskripsi</th>
-                    <th>Tanggal</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>';
-
-        foreach ($data as $item) {
-            $statusBadgeClass = '';
-
-            switch ($item->status) {
-                case 'Approve':
-                    $statusBadgeClass = 'badge-success';
-                    break;
-                case 'Draft':
-                    $statusBadgeClass = 'badge-primary';
-                    break;
-                default:
-                    $statusBadgeClass = 'badge-secondary';
-                    break;
-            }
-
-            $output .= '
-            <tr>
-                <td>' . ($item->no_journal ?? '-') . '</td>
-                <td>' . ($item->description ?? '-') . '</td>
-                <td>' . ($item->tanggal ?? '-') . '</td>
-                <td>Rp ' . number_format($item->totalcredit ?? 0, 0, ',', '.') . '</td> <!-- Format total with Rp -->
-                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status ?? '-') . '</span></td>
-                <td>
-                    <a class="btn btnUpdateJournal btn-sm btn-secondary text-white" data-id="' . $item->id . '">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                ';
-
-            // if ($item->status === '') {
-            //     $output .= '
-            //         ';
-            // }
-
-            // $output .= '
-            //         <a class="btn btnDestroyJournal btn-sm btn-danger text-white" data-id="' . $item->id . '">
-            //             <i class="fas fa-trash"></i>
-            //         </a>';
-
-            $output .= '
-                </td>
-            </tr>';
-=======
             );
-    
+
         if ($request->status) {
             $query->where('status', $request->status);
->>>>>>> tandrio
         }
-    
+
         if ($request->startDate && $request->endDate) {
             $startDate = date('Y-m-d', strtotime($request->startDate));
             $endDate = date('Y-m-d', strtotime($request->endDate));
             $query->whereBetween('tanggal', [$startDate, $endDate]);
         }
-    
+
         return DataTables::of($query)
             ->editColumn('totalcredit', function ($row) {
                 return 'Rp ' . number_format($row->totalcredit, 0, ',', '.'); // Format totalcredit
             })
             ->editColumn('tanggal', function ($row) {
-                return $row->tanggal; 
+                return $row->tanggal;
             })
             ->editColumn('status', function ($row) {
                 $statusBadgeClass = '';
                 switch ($row->status) {
                     case 'Approve':
-                        $statusBadgeClass = 'badge-success'; 
+                        $statusBadgeClass = 'badge-success';
                         break;
                     case 'Draft':
-                        $statusBadgeClass = 'badge-primary'; 
+                        $statusBadgeClass = 'badge-primary';
                         break;
                     default:
-                        $statusBadgeClass = 'badge-secondary'; 
+                        $statusBadgeClass = 'badge-secondary';
                         break;
                 }
-    
+
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
@@ -148,10 +75,10 @@ class JournalController extends Controller
                     <a class="btn btnDestroyJournal btn-sm btn-danger" data-id="' . $row->id . '"><i class="fas fa-trash text-white"></i></a>
                 ';
             })
-            ->rawColumns(['status', 'action']) 
+            ->rawColumns(['status', 'action'])
             ->make(true);
     }
-    
+
     public function addjournal()
     {
 
