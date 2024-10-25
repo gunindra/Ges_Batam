@@ -35,12 +35,22 @@ class TopupController extends Controller
         $customers = Customer::select('id', 'nama_pembeli', 'marking')->get();
         return response()->json($customers);
     }
-    public function getData()
-    {
-        $topups = HistoryTopup::with(['customer', 'pricePerKg', 'account'])
-                    ->select(['customer_id', 'customer_name', 'topup_amount', 'price_per_kg_id', 'account_id', 'date']);
 
-        return DataTables::of($topups)
+    public function getData(Request $request)
+    {
+        $query = HistoryTopup::with(['customer', 'pricePerKg', 'account'])
+                    ->select(['customer_id', 'customer_name', 'topup_amount', 'price_per_kg_id', 'account_id', 'date']);
+        // if ($request->has('status') && !is_null($request->status)) {
+        //     $query->where('status', $request->status);
+        // }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = Carbon::parse($request->startDate)->startOfDay();
+            $endDate = Carbon::parse($request->endDate)->endOfDay();
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        return DataTables::of($query)
             ->editColumn('customer_id', function ($row) {
                 return $row->customer ? $row->customer->marking : 'Marking tidak tersedia';
             })
@@ -62,6 +72,7 @@ class TopupController extends Controller
             })
             ->make(true);
     }
+
 
 
     public function storeTopup(Request $request)

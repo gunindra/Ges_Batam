@@ -65,9 +65,9 @@
                                 <select id="accountSelect" class="form-control select2" style="width: 100%">
                                     <option value="">Pilih Akun Jurnal</option>
                                     @foreach ($coas as $coa)
-                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
-                                        {{ $coa->name }}</option>
-                                @endforeach
+                                        <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
+                                            {{ $coa->name }}</option>
+                                    @endforeach
                                 </select>
                             </p>
                         </div>
@@ -171,10 +171,10 @@
                             {{-- Search --}}
                             <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                 class="form-control rounded-3" placeholder="Search">
-                            <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                            {{-- <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                 <option value="" selected disabled>Pilih Filter</option>
 
-                            </select>
+                            </select> --}}
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                             <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                 onclick="window.location.reload()">
@@ -239,12 +239,12 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ route('topup.data') }}", // Route untuk mengambil data topup
+                    url: "{{ route('topup.data') }}",
                     type: 'GET',
                     data: function(d) {
-                        d.status = $('#filterStatus').val(); // Filter status lunas atau belum
-                        d.startDate = $('#startDate').val(); // Filter tanggal mulai
-                        d.endDate = $('#endDate').val(); // Filter tanggal akhir
+                        // d.status = $('#filterStatus').val();
+                        d.startDate = $('#startDate').val();
+                        d.endDate = $('#endDate').val();
                     },
                     error: function(xhr, error, thrown) {
                         Swal.fire({
@@ -258,29 +258,29 @@
                 columns: [{
                         data: 'customer_id',
                         name: 'customer_id'
-                    }, // Costumer ID
+                    },
                     {
                         data: 'customer_name',
                         name: 'customer_name'
-                    }, // Nama Costumer
+                    },
                     {
                         data: 'topup_amount',
                         name: 'topup_amount',
                         render: $.fn.dataTable.render.number(',', '.', 2)
-                    }, // Nominal Top Up
+                    },
                     {
                         data: 'price_per_kg_id',
                         name: 'price_per_kg_id',
                         render: $.fn.dataTable.render.number(',', '.', 2)
-                    }, // Harga (1kg)
+                    },
                     {
                         data: 'account.name',
                         name: 'account.name'
-                    }, // Nama Akun Jurnal
+                    },
                     {
                         data: 'date',
                         name: 'date'
-                    } // Tanggal
+                    }
                 ],
                 lengthChange: false,
                 pageLength: 10,
@@ -293,6 +293,50 @@
                     zeroRecords: "No matching records found"
                 }
             });
+
+
+            $('#txSearch').keyup(function() {
+                var searchValue = $(this).val();
+                table.search(searchValue).draw();
+            });
+
+
+            $('#saveFilterTanggal').on('click', function() {
+                table.ajax.reload();
+                $('#modalFilterTanggal').modal('hide');
+            });
+
+            $(document).on('click', '#filterTanggal', function(e) {
+                $('#modalFilterTanggal').modal('show');
+            });
+
+            flatpickr("#startDate", {
+                dateFormat: "d M Y",
+                onChange: function(selectedDates, dateStr, instance) {
+
+                    $("#endDate").flatpickr({
+                        dateFormat: "d M Y",
+                        minDate: dateStr
+                    });
+                }
+            });
+
+            flatpickr("#endDate", {
+                dateFormat: "d MM Y",
+                onChange: function(selectedDates, dateStr, instance) {
+                    var startDate = new Date($('#startDate').val());
+                    var endDate = new Date(dateStr);
+                    if (endDate < startDate) {
+                        showMessage(error,
+                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                        $('#endDate').val('');
+                    }
+                }
+            });
+
+            // $('#filterStatus').change(function() {
+            //     table.ajax.reload();
+            // });
 
 
 
@@ -324,7 +368,7 @@
                         $.each(response, function(index, customer) {
                             customerSelect.append(
                                 `<option value="${customer.id}">${customer.nama_pembeli} (Marking: ${customer.marking})</option>`
-                                );
+                            );
                         });
                     },
                     error: function() {
@@ -344,7 +388,7 @@
                         $.each(response, function(index, price) {
                             pricePerKgDropdown.append(
                                 `<option value="${price.price_per_kg}" data-id="${price.id}">Rp ${price.price_per_kg} - Berlaku Sejak: ${price.effective_date}</option>`
-                                );
+                            );
                         });
                     },
                     error: function() {

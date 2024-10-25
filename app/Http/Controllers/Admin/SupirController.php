@@ -54,7 +54,7 @@ class SupirController extends Controller
             'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
-        DB::beginTransaction(); // Mulai transaction untuk memastikan atomicity
+        DB::beginTransaction();
 
         try {
             $invoiceIds = explode(',', $request->input('selectedValues'));
@@ -86,7 +86,6 @@ class SupirController extends Controller
                         $photoPath = null;
                     }
 
-                    // Update pengantaran_detail dengan file signature dan photo
                     DB::table('tbl_pengantaran_detail')
                         ->where('invoice_id', $invoiceId)
                         ->update([
@@ -96,7 +95,6 @@ class SupirController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                    // Cek apakah semua bukti_pengantaran dan tanda_tangan dengan invoice_id sudah terisi
                     $pengantaranDetails = DB::table('tbl_pengantaran_detail')
                         ->where('invoice_id', $invoiceId)
                         ->get();
@@ -106,7 +104,6 @@ class SupirController extends Controller
                     });
 
                     if ($allCompleted) {
-                        // Jika semua bukti_pengantaran dan tanda_tangan sudah terisi, update status invoice menjadi 6
                         DB::table('tbl_invoice')
                             ->where('id', $invoiceId)
                             ->update([
@@ -114,7 +111,6 @@ class SupirController extends Controller
                                 'updated_at' => now(),
                             ]);
 
-                        // Update status tbl_pengantaran jika semua bukti sudah lengkap
                         $pengantaranId = DB::table('tbl_pengantaran_detail')
                             ->where('invoice_id', $invoiceId)
                             ->value('pengantaran_id');
@@ -129,7 +125,6 @@ class SupirController extends Controller
                         }
                     }
 
-                    // Update status resi
                     $noResiList = DB::table('tbl_resi')
                         ->where('invoice_id', $invoiceId)
                         ->pluck('no_resi');
@@ -144,17 +139,17 @@ class SupirController extends Controller
                     }
 
                 } catch (\Exception $e) {
-                    DB::rollBack(); // Rollback jika ada error
+                    DB::rollBack();
                     \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
                     return response()->json(['error' => 'Terjadi kesalahan saat memproses data.'], 500);
                 }
             }
 
-            DB::commit(); // Commit jika semua berhasil
+            DB::commit();
             return response()->json(['message' => 'Data berhasil diupdate.'], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback jika terjadi general error
+            DB::rollBack();
             \Log::error('General error: ' . $e->getMessage());
             return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
