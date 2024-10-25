@@ -105,6 +105,7 @@
         $(document).ready(function() {
             var table = $('#debitNoteTable').DataTable({
                 serverSide: true,
+                processing: true,
                 ajax: {
                     url: "{{ route('getDebitNotes') }}",
                     type: 'GET',
@@ -134,6 +135,7 @@
                 lengthChange: false,
                 pageLength: 7,
                 language: {
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
                     info: "_START_ to _END_ of _TOTAL_ entries",
                     infoEmpty: "Showing 0 to 0 of 0 entries",
                     emptyTable: "No data available in table",
