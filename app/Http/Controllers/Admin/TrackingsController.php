@@ -14,9 +14,9 @@ class TrackingsController extends Controller
     public function index()
     {
         $listStatus = DB::table('tbl_tracking')
-        ->select('status')
-        ->distinct()
-        ->get();
+            ->select('status')
+            ->distinct()
+            ->get();
 
         return view('Tracking.indextracking', compact('listStatus'));
     }
@@ -30,8 +30,7 @@ class TrackingsController extends Controller
                 'status',
                 'keterangan',
                 'id'
-            ])
-            ->limit(100);
+            ]);
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -45,10 +44,16 @@ class TrackingsController extends Controller
                 $statusBadgeClass = '';
                 switch ($row->status) {
                     case 'Dalam Perjalanan':
+                        $statusBadgeClass = 'badge-success';
+                        break;
+                    case 'Batam / Sortir':
                         $statusBadgeClass = 'badge-primary';
                         break;
-                    case 'Batam/Sortir':
+                    case 'Delivering':
                         $statusBadgeClass = 'badge-success';
+                        break;
+                    case 'Ready For Pickup':
+                        $statusBadgeClass = 'badge-warning';
                         break;
                     default:
                         $statusBadgeClass = 'badge-secondary';
@@ -61,7 +66,7 @@ class TrackingsController extends Controller
                 return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' .
                     '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
             })
-            ->rawColumns(['status', 'action']) 
+            ->rawColumns(['status', 'action'])
             ->make(true);
     }
 
