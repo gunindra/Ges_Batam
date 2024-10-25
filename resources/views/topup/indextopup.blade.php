@@ -24,6 +24,11 @@
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
         }
+
+        .dataTables_length,
+        .dataTables_filter {
+            display: none;
+        }
     </style>
 
     {{-- <style>
@@ -36,7 +41,7 @@
 
     <!-- Modal Konfirmasi Top-Up -->
     <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="topupModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="topupModalLabel">Top-Up Baru</h5>
@@ -45,34 +50,60 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!-- Dropdown untuk memilih pengguna -->
-                    <p><strong>Pilih Pengguna:</strong>
-                        <select id="customerSelect" class="form-control select2" style="width: 100%">
-                            <option value="">Pilih Pengguna</option>
-                        </select>
-                    </p>
+                    <div class="row">
+                        <!-- Kolom kiri untuk pengguna dan akun -->
+                        <div class="col-md-6">
+                            <!-- Dropdown untuk memilih pengguna -->
+                            <p><strong>Pilih Pengguna:</strong>
+                                <select id="customerSelect" class="form-control select2" style="width: 100%">
+                                    <option value="">Pilih Pengguna</option>
+                                </select>
+                            </p>
 
-                    <!-- Input untuk jumlah poin -->
-                    <p><strong>Jumlah Poin:</strong> <input type="number" id="topupAmount" class="form-control"
-                            placeholder="Masukkan jumlah poin"></p>
+                            <!-- Dropdown untuk memilih COA account -->
+                            <p><strong>Pilih Akun Jurnal (COA):</strong>
+                                <select id="accountSelect" class="form-control select2" style="width: 100%">
+                                    <option value="">Pilih Akun Jurnal</option>
+                                    @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
+                                        {{ $coa->name }}</option>
+                                @endforeach
+                                </select>
+                            </p>
+                        </div>
 
-                    <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
-                    <p><strong>Harga per 1kg poin:</strong>
-                        <select id="pricePerKg" class="form-control">
-                            <option value="">Pilih Harga</option>
-                            <option value="new">Tambah Harga Baru</option>
-                        </select>
-                    </p>
+                        <!-- Kolom kanan untuk jumlah poin dan harga -->
+                        <div class="col-md-6">
+                            <!-- Input untuk jumlah poin -->
+                            <p><strong>Jumlah Poin:</strong> <input type="number" id="topupAmount" class="form-control"
+                                    placeholder="Masukkan jumlah poin"></p>
 
-                    <!-- Input untuk harga baru dan tanggal berlaku -->
-                    <div id="newPriceSection" style="display: none;">
-                        <p><strong>Harga Baru:</strong> <input type="number" id="newPrice" class="form-control"
-                                placeholder="Masukkan harga baru"></p>
-                        <p><strong>Tanggal Berlaku:</strong> <input type="date" id="effectiveDate" class="form-control">
-                        </p>
+                            <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
+                            <p><strong>Harga per 1kg poin:</strong>
+                                <select id="pricePerKg" class="form-control">
+                                    <option value="">Pilih Harga</option>
+                                    <option value="new">Tambah Harga Baru</option>
+                                </select>
+                            </p>
+
+                            <!-- Input untuk harga baru dan tanggal berlaku -->
+                            <div id="newPriceSection" style="display: none;">
+                                <p><strong>Harga Baru:</strong> <input type="number" id="newPrice" class="form-control"
+                                        placeholder="Masukkan harga baru"></p>
+                                <p><strong>Tanggal Berlaku:</strong> <input type="date" id="effectiveDate"
+                                        class="form-control">
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <p><strong>Total yang Harus Dibayar:</strong> Rp <span id="totalCost">0</span></p>
+                    <!-- Baris untuk menampilkan total -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <h4><strong>Total yang Harus Dibayar:</strong></h4>
+                            <h1 class="display-4 text-primary" id="totalCost">Rp 0</h1>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -81,6 +112,7 @@
             </div>
         </div>
     </div>
+
 
 
     <div class="container-fluid" id="container-wrapper">
@@ -153,18 +185,18 @@
                             <table class="table table-striped" id="tableTopup">
                                 <thead>
                                     <tr>
-                                        <th>Costumer ID</th>
+                                        <th>Marking</th>
                                         <th>Nama Costumer</th>
                                         <th>Nominal Top Up</th>
                                         <th>Harga (1kg)</th>
                                         <th>Nama Akun Jurnal</th>
-                                        <th>Status</th>
+                                        {{-- <th>Status</th> --}}
                                         <th>Tanggal</th>
-                                        <th>Poin</th> <!-- Kolom untuk penanda poin -->
+                                        {{-- <th>Poin</th> <!-- Kolom untuk penanda poin --> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    {{-- <tr>
                                         <td>001</td>
                                         <td>John Doe</td>
                                         <td>100.000</td>
@@ -187,7 +219,7 @@
                                         <td>2024-10-22</td>
                                         <td><span class="badge text-white bg-danger">Keluar</span></td>
                                         <!-- Penanda poin keluar -->
-                                    </tr>
+                                    </tr> --}}
                                 </tbody>
                             </table>
                         </div>
@@ -203,8 +235,70 @@
 
     <script>
         $(document).ready(function() {
+            let table = $('#tableTopup').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('topup.data') }}", // Route untuk mengambil data topup
+                    type: 'GET',
+                    data: function(d) {
+                        d.status = $('#filterStatus').val(); // Filter status lunas atau belum
+                        d.startDate = $('#startDate').val(); // Filter tanggal mulai
+                        d.endDate = $('#endDate').val(); // Filter tanggal akhir
+                    },
+                    error: function(xhr, error, thrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load top-up data. Please try again!',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                },
+                columns: [{
+                        data: 'customer_id',
+                        name: 'customer_id'
+                    }, // Costumer ID
+                    {
+                        data: 'customer_name',
+                        name: 'customer_name'
+                    }, // Nama Costumer
+                    {
+                        data: 'topup_amount',
+                        name: 'topup_amount',
+                        render: $.fn.dataTable.render.number(',', '.', 2)
+                    }, // Nominal Top Up
+                    {
+                        data: 'price_per_kg_id',
+                        name: 'price_per_kg_id',
+                        render: $.fn.dataTable.render.number(',', '.', 2)
+                    }, // Harga (1kg)
+                    {
+                        data: 'account.name',
+                        name: 'account.name'
+                    }, // Nama Akun Jurnal
+                    {
+                        data: 'date',
+                        name: 'date'
+                    } // Tanggal
+                ],
+                lengthChange: false,
+                pageLength: 10,
+                language: {
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>', // Custom spinner saat processing
+                    info: "_START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    emptyTable: "No data available in table",
+                    loadingRecords: "Loading...",
+                    zeroRecords: "No matching records found"
+                }
+            });
+
+
+
             const pricePerKgDropdown = $('#pricePerKg');
             const customerSelect = $('#customerSelect');
+            const coaSelect = $('#accountSelect');
             const totalCostDisplay = $('#totalCost');
             const topupAmountInput = $('#topupAmount');
             const newPriceSection = $('#newPriceSection');
@@ -212,20 +306,18 @@
             const effectiveDateInput = $('#effectiveDate');
             let selectedPrice = 0;
 
+            // Inisialisasi Select2
             $('.select2').select2();
 
-
-            // Ambil daftar pengguna dan daftar harga ketika modal dibuka
+            // Ambil daftar harga per kg
             $('#topupModal').on('show.bs.modal', function() {
                 // Ambil daftar pengguna
                 $.ajax({
-                    url: "{{ route('get-customers') }}",
+                    url: "{{ route('get-customers') }}", // Route untuk mengambil daftar pengguna
                     method: 'GET',
                     success: function(response) {
-                        customerSelect.empty(); // Kosongkan dropdown pengguna
+                        customerSelect.empty();
                         customerSelect.append('<option value="">Pilih Pengguna</option>');
-
-                        // Tambahkan pengguna ke dropdown
                         $.each(response, function(index, customer) {
                             customerSelect.append(
                                 `<option value="${customer.id}">${customer.nama_pembeli} (Marking: ${customer.marking})</option>`
@@ -239,16 +331,13 @@
 
                 // Ambil daftar harga
                 $.ajax({
-                    url: "{{ route('get-price-points') }}",
+                    url: "{{ route('get-price-points') }}", // Route untuk mengambil harga per kg
                     method: 'GET',
                     success: function(response) {
-                        pricePerKgDropdown.empty(); // Kosongkan dropdown harga
+                        pricePerKgDropdown.empty();
                         pricePerKgDropdown.append('<option value="">Pilih Harga</option>');
                         pricePerKgDropdown.append(
-                            '<option value="new">Tambah Harga Baru</option>'
-                            ); // Opsi untuk menambah harga baru
-
-                        // Tambahkan harga ke dropdown
+                            '<option value="new">Tambah Harga Baru</option>');
                         $.each(response, function(index, price) {
                             pricePerKgDropdown.append(
                                 `<option value="${price.price_per_kg}" data-id="${price.id}">Rp ${price.price_per_kg} - Berlaku Sejak: ${price.effective_date}</option>`
@@ -261,25 +350,23 @@
                 });
             });
 
-            // Tampilkan input harga baru jika admin memilih "Tambah Harga Baru"
+            // Kalkulasi total biaya ketika jumlah poin atau harga dipilih
             pricePerKgDropdown.on('change', function() {
                 if ($(this).val() === 'new') {
                     newPriceSection.show();
-                    selectedPrice = 0; // Reset harga jika memilih tambah harga baru
+                    selectedPrice = 0;
                 } else {
                     newPriceSection.hide();
                     selectedPrice = $(this).val();
-                    calculateTotal();
                 }
+                calculateTotal();
             });
 
-            // Kalkulasi total biaya ketika jumlah poin, harga, atau harga baru dimasukkan
             topupAmountInput.on('input', function() {
                 calculateTotal();
             });
 
             newPriceInput.on('input', function() {
-                // Ketika harga baru dimasukkan, gunakan harga tersebut untuk kalkulasi
                 selectedPrice = $(this).val();
                 calculateTotal();
             });
@@ -287,226 +374,44 @@
             function calculateTotal() {
                 const amount = topupAmountInput.val();
                 const totalCost = amount * selectedPrice;
-                totalCostDisplay.text(totalCost ? totalCost.toLocaleString() : 0); // Tampilkan total biaya
+                totalCostDisplay.text(totalCost ? totalCost.toLocaleString() : 0);
             }
 
-            // Handle Top-Up Confirmation
             $('#confirmTopUp').on('click', function() {
-                let amount = topupAmountInput.val();
-                let selectedCustomer = customerSelect.val();
-                let selectedPriceId = pricePerKgDropdown.find('option:selected').data('id');
-                let newPrice = newPriceInput.val();
-                let effectiveDate = effectiveDateInput.val();
+                const customerId = customerSelect.val();
+                const coaId = coaSelect.val();
+                const topupAmount = topupAmountInput.val();
+                const priceId = pricePerKgDropdown.find('option:selected').data('id');
+                const newPrice = newPriceInput.val();
+                const effectiveDate = effectiveDateInput.val();
 
-                if (selectedCustomer && amount > 0) {
-                    // Jika admin memilih untuk menambah harga baru
-                    if (pricePerKgDropdown.val() === 'new') {
-                        if (newPrice > 0 && effectiveDate) {
-                            // Simpan harga baru dan lakukan top-up
-                            saveNewPriceAndTopUp(selectedCustomer, amount, newPrice, effectiveDate);
-                        } else {
-                            alert('Masukkan harga baru dan tanggal berlaku.');
+                // Validasi dan simpan data top-up
+                if (customerId && topupAmount && (priceId || newPrice)) {
+                    // Lakukan AJAX untuk simpan data
+                    $.ajax({
+                        url: "{{ route('topup-points') }}",
+                        method: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            customer_id: customerId,
+                            topup_amount: topupAmount,
+                            price_per_kg_id: priceId || null,
+                            new_price: newPrice || null,
+                            effective_date: effectiveDate || null,
+                            coa_id: coaId
+                        },
+                        success: function(response) {
+                            alert('Top-up berhasil!');
+                            $('#topupModal').modal('hide');
+                        },
+                        error: function() {
+                            alert('Gagal melakukan top-up.');
                         }
-                    } else if (selectedPriceId) {
-                        // Jika admin memilih harga yang sudah ada, lakukan top-up dengan harga tersebut
-                        saveTopUp(selectedCustomer, amount, selectedPriceId);
-                    } else {
-                        alert('Pilih harga yang valid.');
-                    }
+                    });
                 } else {
-                    alert('Masukkan jumlah poin dan pilih pengguna.');
+                    alert('Mohon lengkapi semua data yang diperlukan.');
                 }
             });
-
-            // Simpan harga baru dan lakukan top-up
-            function saveNewPriceAndTopUp(customerId, amount, newPrice, effectiveDate) {
-                $.ajax({
-                    url: "{{ route('topup-points') }}",
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        customer_id: customerId,
-                        topup_amount: amount,
-                        new_price: newPrice,
-                        effective_date: effectiveDate
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Top-up berhasil disimpan dengan harga baru.');
-                            $('#topupModal').modal('hide');
-                        }
-                    },
-                    error: function() {
-                        alert('Gagal menyimpan top-up.');
-                    }
-                });
-            }
-
-            // Simpan top-up dengan harga yang sudah ada
-            function saveTopUp(customerId, amount, priceId) {
-                $.ajax({
-                    url: "{{ route('topup-points') }}",
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        customer_id: customerId,
-                        topup_amount: amount,
-                        price_per_kg_id: priceId
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Top-up berhasil disimpan.');
-                            $('#topupModal').modal('hide');
-                        }
-                    },
-                    error: function() {
-                        alert('Gagal menyimpan top-up.');
-                    }
-                });
-            }
         });
     </script>
-    {{-- <script>
-        var table = $('#tablePurchaseTop-up').DataTable({
-            serverSide: true,
-            ajax: {
-                url: "{{ route('Top-up.data') }}",
-                method: 'GET',
-                data: function(d) {
-                    d.startDate = $('#startDate').val();
-                    d.endDate = $('#endDate').val();
-                    d.status = $('#filterStatus').val();
-                },
-                error: function(xhr, error, thrown) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to load Top-up data. Please try again!',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            },
-            columns: [{
-                    data: 'kode_pembayaran',
-                    name: 'a.kode_pembayaran'
-                },
-                {
-                    data: 'no_invoice',
-                    name: 'b.no_invoice'
-                },
-                {
-                    data: 'amount',
-                    name: 'a.amount',
-                    render: function(data, type, row) {
-                        return parseFloat(data).toLocaleString('id-ID', {
-                            style: 'decimal',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        });
-                    }
-                },
-                {
-                    data: 'Top-up_method',
-                    name: 'c.name'
-                },
-                {
-                    data: 'status_bayar',
-                    name: 'b.status_bayar'
-                },
-                {
-                    data: 'tanggal_bayar',
-                    name: 'tanggal_bayar',
-                    searchable: false
-                }
-            ],
-            lengthChange: false,
-            pageLength: 7,
-            language: {
-                info: "_START_ to _END_ of _TOTAL_ entries",
-                infoEmpty: "Showing 0 to 0 of 0 entries",
-                emptyTable: "No data available in table",
-                loadingRecords: "Loading...",
-                zeroRecords: "No matching records found"
-            }
-        });
-
-        $('#txSearch').keyup(function() {
-            var searchValue = $(this).val();
-            table.search(searchValue).draw();
-        });
-
-
-        $('#saveFilterTanggal').on('click', function() {
-            table.ajax.reload();
-            $('#modalFilterTanggal').modal('hide');
-        });
-
-        $(document).on('click', '#filterTanggal', function(e) {
-            $('#modalFilterTanggal').modal('show');
-        });
-
-        flatpickr("#startDate", {
-            dateFormat: "d M Y",
-            onChange: function(selectedDates, dateStr, instance) {
-
-                $("#endDate").flatpickr({
-                    dateFormat: "d M Y",
-                    minDate: dateStr
-                });
-            }
-        });
-
-        flatpickr("#endDate", {
-            dateFormat: "d MM Y",
-            onChange: function(selectedDates, dateStr, instance) {
-                var startDate = new Date($('#startDate').val());
-                var endDate = new Date(dateStr);
-                if (endDate < startDate) {
-                    showMessage(error,
-                        "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                    $('#endDate').val('');
-                }
-            }
-        });
-
-        $('#filterStatus').change(function() {
-            table.ajax.reload();
-        });
-
-
-
-        $('#exportBtn').on('click', function() {
-            var status = $('#filterStatus').val();
-            var startDate = $('#startDate').val();
-            var endDate = $('#endDate').val();
-
-            $.ajax({
-                url: "{{ route('exportTop-up') }}",
-                type: 'GET',
-                data: {
-                    status: status,
-                    startDate: startDate,
-                    endDate: endDate
-                },
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                success: function(data) {
-                    var blob = new Blob([data], {
-                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    });
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = "Top-up Customers.xlsx";
-                    link.click();
-                },
-                error: function() {
-                    Swal.fire({
-                        title: "Export failed!",
-                        icon: "error"
-                    });
-                }
-            });
-        });
-    </script> --}}
 @endsection

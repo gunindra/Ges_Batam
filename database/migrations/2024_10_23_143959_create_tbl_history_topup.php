@@ -19,9 +19,9 @@ return new class extends Migration
             $table->decimal('remaining_points', 15, 2);
             $table->unsignedBigInteger('price_per_kg_id');
             $table->unsignedBigInteger('account_id');
-            $table->string('status')->default('belum lunas');
+            // $table->string('status')->default('belum lunas');
             $table->date('date');
-            $table->enum('point_status', ['masuk', 'keluar'])->nullable();
+            // $table->enum('point_status', ['masuk', 'keluar'])->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

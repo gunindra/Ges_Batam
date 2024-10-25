@@ -18,9 +18,9 @@ class HistoryTopup extends Model
         'remaining_points',
         'price_per_kg_id',
         'account_id',
-        'status',
+        // 'status',
         'date',
-        'point_status',
+        // 'point_status',
     ];
 
     // Relationship to the customer (tbl_pembeli)

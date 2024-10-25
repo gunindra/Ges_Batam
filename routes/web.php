@@ -351,8 +351,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/getPricePoints', [TopupController::class, 'getPricePoints'])->name('get-price-points');
     Route::get('/topup/getCustomers', [TopupController::class, 'getCustomers'])->name('get-customers');
     Route::post('/topup-points', [TopupController::class, 'storeTopup'])->name('topup-points');
-
-
+    Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
 
 
 
