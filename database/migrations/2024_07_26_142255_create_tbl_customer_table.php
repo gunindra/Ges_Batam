@@ -15,6 +15,7 @@ class CreateTblCustomerTable extends Migration
             $table->string('no_wa', 50);
             $table->string('sisa_poin', 50)->nullable();
             $table->foreignId('category_id')->constrained('tbl_category')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('tbl_users')->onDelete('cascade');
             $table->timestamp('transaksi_terakhir')->nullable();
             $table->tinyInteger('status');
             $table->timestamp('non_active_at')->nullable();

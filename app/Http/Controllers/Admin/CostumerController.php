@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
@@ -122,28 +123,33 @@ class CostumerController extends Controller
             'metodePengiriman' => 'required|string|in:Delivery,Pickup',
             'alamatCustomer' => 'nullable|array',
             'alamatCustomer.*' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:tbl_users,email',
+            'password' => 'required|min:6|confirmed',
         ]);
-        $markingCostumer = $request->input('markingCostmer');
-        $namacostumer = $request->input('namaCustomer');
-        $notlponcostumer = $request->input('noTelpon');
-        $categorycostumer = $request->input('categoryCustomer');
-        $metodePengiriman = $request->input('metodePengiriman');
-        $alamatcostumer = $request->input('alamatCustomer', []);
 
         try {
             DB::beginTransaction();
 
+
+            $user = User::create([
+                'name' => $request->namaCustomer,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => 'customer',
+            ]);
+
             $pembeliId = DB::table('tbl_pembeli')->insertGetId([
-                'marking' => $markingCostumer,
-                'nama_pembeli' => $namacostumer,
-                'no_wa' => $notlponcostumer,
-                'category_id' => $categorycostumer,
-                'metode_pengiriman' => $metodePengiriman,
+                'user_id' => $user->id,
+                'marking' => $request->input('markingCostmer'),
+                'nama_pembeli' => $request->input('namaCustomer'),
+                'no_wa' => $request->input('noTelpon'),
+                'category_id' => $request->input('categoryCustomer'),
+                'metode_pengiriman' => $request->input('metodePengiriman'),
                 'status' => 1,
                 'created_at' => now(),
             ]);
 
-            foreach ($alamatcostumer as $alamat) {
+            foreach ($request->input('alamatCustomer', []) as $alamat) {
                 DB::table('tbl_alamat')->insert([
                     'pembeli_id' => $pembeliId,
                     'alamat' => $alamat,
@@ -152,13 +158,13 @@ class CostumerController extends Controller
             }
 
             DB::commit();
-
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function updateCostumer(Request $request)
     {

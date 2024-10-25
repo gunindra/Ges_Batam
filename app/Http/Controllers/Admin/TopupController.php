@@ -39,7 +39,8 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'pricePerKg', 'account'])
-                    ->select(['customer_id', 'customer_name', 'topup_amount', 'price_per_kg_id', 'account_id', 'date']);
+                    ->select(['customer_id', 'customer_name', 'topup_amount', 'price_per_kg_id', 'account_id', 'date'])
+                    ->orderBy('id', 'desc');
         // if ($request->has('status') && !is_null($request->status)) {
         //     $query->where('status', $request->status);
         // }

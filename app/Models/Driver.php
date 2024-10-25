@@ -9,11 +9,16 @@ class Driver extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_supir'; 
+    protected $table = 'tbl_supir';
     protected $fillable = [
         'nama_supir',
         'alamat_supir',
         'no_wa',
         'image_sim',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

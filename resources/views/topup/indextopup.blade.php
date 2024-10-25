@@ -58,6 +58,7 @@
                                 <select id="customerSelect" class="form-control select2" style="width: 100%">
                                     <option value="">Pilih Pengguna</option>
                                 </select>
+                                <span id="customerSelectError" class="text-danger"></span> <!-- Pesan error -->
                             </p>
 
                             <!-- Dropdown untuk memilih COA account -->
@@ -69,14 +70,18 @@
                                             {{ $coa->name }}</option>
                                     @endforeach
                                 </select>
+                                <span id="accountSelectError" class="text-danger"></span> <!-- Pesan error -->
                             </p>
                         </div>
 
                         <!-- Kolom kanan untuk jumlah poin dan harga -->
                         <div class="col-md-6">
                             <!-- Input untuk jumlah poin -->
-                            <p><strong>Jumlah Poin:</strong> <input type="number" id="topupAmount" class="form-control"
-                                    placeholder="Masukkan jumlah poin"></p>
+                            <p><strong>Jumlah Poin:</strong>
+                                <input type="number" id="topupAmount" class="form-control"
+                                    placeholder="Masukkan jumlah poin">
+                                <span id="topupAmountError" class="text-danger"></span> <!-- Pesan error -->
+                            </p>
 
                             <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
                             <p><strong>Harga per 1kg poin:</strong>
@@ -84,14 +89,19 @@
                                     <option value="">Pilih Harga</option>
                                     <option value="new">Tambah Harga Baru</option>
                                 </select>
+                                <span id="pricePerKgError" class="text-danger"></span> <!-- Pesan error -->
                             </p>
 
                             <!-- Input untuk harga baru dan tanggal berlaku -->
                             <div id="newPriceSection" style="display: none;">
-                                <p><strong>Harga Baru:</strong> <input type="number" id="newPrice" class="form-control"
-                                        placeholder="Masukkan harga baru"></p>
-                                <p><strong>Tanggal Berlaku:</strong> <input type="date" id="effectiveDate"
-                                        class="form-control">
+                                <p><strong>Harga Baru:</strong>
+                                    <input type="number" id="newPrice" class="form-control"
+                                        placeholder="Masukkan harga baru">
+                                    <span id="newPriceError" class="text-danger"></span> <!-- Pesan error -->
+                                </p>
+                                <p><strong>Tanggal Berlaku:</strong>
+                                    <input type="date" id="effectiveDate" class="form-control">
+                                    <span id="effectiveDateError" class="text-danger"></span> <!-- Pesan error -->
                                 </p>
                             </div>
                         </div>
@@ -112,6 +122,7 @@
             </div>
         </div>
     </div>
+
 
 
 
@@ -282,6 +293,7 @@
                         name: 'date'
                     }
                 ],
+                order: [],
                 lengthChange: false,
                 pageLength: 10,
                 language: {
@@ -356,11 +368,18 @@
             // Inisialisasi Select2
             $('.select2').select2();
 
-            // Ambil daftar harga per kg
+            // Reset pesan error
+            function resetErrorMessages() {
+                $('.text-danger').text(''); // Menghapus semua pesan error
+            }
+
+            // Ambil daftar harga per kg dan daftar pengguna saat modal dibuka
             $('#topupModal').on('show.bs.modal', function() {
+                resetErrorMessages();
+
                 // Ambil daftar pengguna
                 $.ajax({
-                    url: "{{ route('get-customers') }}", // Route untuk mengambil daftar pengguna
+                    url: "{{ route('get-customers') }}",
                     method: 'GET',
                     success: function(response) {
                         customerSelect.empty();
@@ -372,13 +391,18 @@
                         });
                     },
                     error: function() {
-                        alert('Gagal mengambil data pengguna.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal mengambil data pengguna.',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
 
                 // Ambil daftar harga
                 $.ajax({
-                    url: "{{ route('get-price-points') }}", // Route untuk mengambil harga per kg
+                    url: "{{ route('get-price-points') }}",
                     method: 'GET',
                     success: function(response) {
                         pricePerKgDropdown.empty();
@@ -392,7 +416,12 @@
                         });
                     },
                     error: function() {
-                        alert('Gagal mengambil data harga.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal mengambil data harga.',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             });
@@ -424,7 +453,10 @@
                 totalCostDisplay.text(totalCost ? totalCost.toLocaleString() : 0);
             }
 
+            // Saat tombol konfirmasi top-up diklik
             $('#confirmTopUp').on('click', function() {
+                resetErrorMessages(); // Reset pesan error sebelum validasi
+
                 const customerId = customerSelect.val();
                 const coaId = coaSelect.val();
                 const topupAmount = topupAmountInput.val();
@@ -432,33 +464,73 @@
                 const newPrice = newPriceInput.val();
                 const effectiveDate = effectiveDateInput.val();
 
-                // Validasi dan simpan data top-up
-                if (customerId && topupAmount && (priceId || newPrice)) {
-                    // Lakukan AJAX untuk simpan data
-                    $.ajax({
-                        url: "{{ route('topup-points') }}",
-                        method: 'POST',
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            customer_id: customerId,
-                            topup_amount: topupAmount,
-                            price_per_kg_id: priceId || null,
-                            new_price: newPrice || null,
-                            effective_date: effectiveDate || null,
-                            coa_id: coaId
-                        },
-                        success: function(response) {
-                            alert('Top-up berhasil!');
-                            $('#topupModal').modal('hide');
-                        },
-                        error: function() {
-                            alert('Gagal melakukan top-up.');
-                        }
-                    });
-                } else {
-                    alert('Mohon lengkapi semua data yang diperlukan.');
+                let hasError = false;
+
+                // Validasi input
+                if (!customerId) {
+                    $('#customerSelectError').text('Pengguna harus dipilih.');
+                    hasError = true;
                 }
+
+                if (!coaId) {
+                    $('#accountSelectError').text('Akun jurnal harus dipilih.');
+                    hasError = true;
+                }
+
+                if (!topupAmount || topupAmount <= 0) {
+                    $('#topupAmountError').text('Silahkan masukkan poin.');
+                    hasError = true;
+                }
+
+                if (!priceId && (!newPrice || newPrice <= 0)) {
+                    $('#pricePerKgError').text('Harga baru harus lebih dari 0.');
+                    hasError = true;
+                }
+
+                if (priceId === 'new' && !effectiveDate) {
+                    $('#effectiveDateError').text('Tanggal berlaku harus diisi.');
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    return;
+                }
+
+                // Lakukan AJAX untuk simpan data
+                $.ajax({
+                    url: "{{ route('topup-points') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        customer_id: customerId,
+                        topup_amount: topupAmount,
+                        price_per_kg_id: priceId || null,
+                        new_price: newPrice || null,
+                        effective_date: effectiveDate || null,
+                        coa_id: coaId
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sukses!',
+                            text: 'Top-up berhasil!',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            $('#topupModal').modal('hide');
+                            table.ajax.reload();
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal melakukan top-up.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
             });
+
         });
     </script>
 @endsection

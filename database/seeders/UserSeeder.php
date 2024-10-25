@@ -17,17 +17,17 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'name' => 'Admin User',
+                'name' => 'Superadmin',
+                'email' => 'superadmin@example.com',
+                'password' => Hash::make('password'),
+                'role' => 'superadmin',
+            ],
+            [
+                'name' => 'Admin',
                 'email' => 'admin@example.com',
-                'password' => Hash::make('password'), // Enkripsi password
+                'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
-            // [
-            //     'name' => 'Regular User',
-            //     'email' => 'user@example.com',
-            //     'password' => Hash::make('password'),
-            //     'role' => 'user',
-            // ],
         ];
 
         foreach ($users as $user) {

@@ -354,8 +354,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
 
 
-
-
      //Report
     //ProfitLoss
     Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
