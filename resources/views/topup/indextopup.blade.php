@@ -359,7 +359,7 @@
             const customerSelect = $('#customerSelect');
             const coaSelect = $('#accountSelect');
             const totalCostDisplay = $('#totalCost');
-            const topupAmountInput = $('#topupAmount');
+            const remainingPointsInput = $('#topupAmount'); // Ubah id untuk representasi jumlah poin
             const newPriceSection = $('#newPriceSection');
             const newPriceInput = $('#newPrice');
             const effectiveDateInput = $('#effectiveDate');
@@ -438,7 +438,7 @@
                 calculateTotal();
             });
 
-            topupAmountInput.on('input', function() {
+            remainingPointsInput.on('input', function() {
                 calculateTotal();
             });
 
@@ -448,9 +448,9 @@
             });
 
             function calculateTotal() {
-                const amount = topupAmountInput.val();
-                const totalCost = amount * selectedPrice;
-                totalCostDisplay.text(totalCost ? totalCost.toLocaleString() : 0);
+                const remainingPoints = remainingPointsInput.val(); // Ambil nilai jumlah poin dari input
+                const topupAmount = remainingPoints * selectedPrice; // Hitung topup_amount
+                totalCostDisplay.text(topupAmount ? `Rp ${topupAmount.toLocaleString()}` : 'Rp 0');
             }
 
             // Saat tombol konfirmasi top-up diklik
@@ -459,10 +459,11 @@
 
                 const customerId = customerSelect.val();
                 const coaId = coaSelect.val();
-                const topupAmount = topupAmountInput.val();
+                const remainingPoints = remainingPointsInput.val(); // Ambil nilai jumlah poin dari input
                 const priceId = pricePerKgDropdown.find('option:selected').data('id');
                 const newPrice = newPriceInput.val();
                 const effectiveDate = effectiveDateInput.val();
+                const topupAmount = remainingPoints * selectedPrice; // Hitung topup_amount
 
                 let hasError = false;
 
@@ -477,8 +478,8 @@
                     hasError = true;
                 }
 
-                if (!topupAmount || topupAmount <= 0) {
-                    $('#topupAmountError').text('Silahkan masukkan poin.');
+                if (!remainingPoints || remainingPoints <= 0) {
+                    $('#topupAmountError').text('Silahkan masukkan jumlah poin.');
                     hasError = true;
                 }
 
@@ -503,7 +504,7 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         customer_id: customerId,
-                        topup_amount: topupAmount,
+                        remaining_points: remainingPoints,
                         price_per_kg_id: priceId || null,
                         new_price: newPrice || null,
                         effective_date: effectiveDate || null,

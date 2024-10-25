@@ -179,8 +179,7 @@
                                 </select>
                             </div>
                             <div class="mt-3">
-                                <label for="purchaseProfitAccount" class="form-label fw-bold">Purchase Profit Rate
-                                    Account</label>
+                                <label for="purchaseProfitAccount" class="form-label fw-bold">Setting Kredit untuk Top Up</label>
                                 <select class="form-control select2singgle" id="PurchaseRate" required>
                                     <option value="">Pilih Akun</option>
                                     @foreach ($coas as $coa)

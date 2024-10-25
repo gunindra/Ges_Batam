@@ -15,7 +15,7 @@ class User extends Authenticatable
      *
      * @var string
      */
-    protected $table = 'tbl_users'; // Tambahkan ini untuk menggunakan tabel 'tbl_users'
+    protected $table = 'tbl_users';
 
     /**
      * The attributes that are mass assignable.

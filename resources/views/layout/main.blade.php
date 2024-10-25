@@ -16,7 +16,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Menu Dashboard -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'customer', 'supir']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'customer', 'driver']))
                 <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -36,7 +36,7 @@
             @endif
 
             <!-- Menu Driver -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'supir']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'driver']))
                 <li class="nav-item {{ request()->routeIs('supir') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('supir') }}">
                         <i class="fas fa-truck-loading"></i>
@@ -178,8 +178,8 @@
                                 href="{{ route('pembagirate') }}">Rate</a>
                             <a class="collapse-item {{ request()->routeIs('category') ? 'active' : '' }}"
                                 href="{{ route('category') }}">Category</a>
-                            <a class="collapse-item {{ request()->routeIs('role') ? 'active' : '' }}"
-                                href="{{ route('role') }}">Role</a>
+                            {{-- <a class="collapse-item {{ request()->routeIs('role') ? 'active' : '' }}"
+                                href="{{ route('role') }}">Role</a> --}}
                             <a class="collapse-item {{ request()->routeIs('user') ? 'active' : '' }}"
                                 href="{{ route('user') }}">User</a>
                             <a class="collapse-item {{ request()->routeIs('vendor') ? 'active' : '' }}"

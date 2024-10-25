@@ -14,7 +14,7 @@ class CreateTblSupirTable extends Migration
             $table->text('alamat_supir');
             $table->string('no_wa', 15);
             $table->string('image_sim', 100);
-            $table->foreignId('user_id')->nullable()->constrained('tbl_users')->onDelete('cascade'); // Foreign key to users
+            $table->foreignId('user_id')->nullable()->constrained('tbl_users')->onDelete('cascade');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

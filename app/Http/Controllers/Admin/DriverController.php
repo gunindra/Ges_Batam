@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
+use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Driver;
+use App\Models\User;
 
 class DriverController extends Controller
 {
@@ -62,28 +65,38 @@ class DriverController extends Controller
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
             'noTelponDriver' => 'required|string|max:15',
-            'simDriver' => 'nullable|mimes:jpg,jpeg,png',
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png|max:2048',
+            'emailDriver' => 'required|email|unique:tbl_users,email',
         ]);
 
         try {
+            DB::beginTransaction();
+            $user = new User();
+            $user->name = $request->input('namaDriver');
+            $user->email = $request->input('emailDriver');
+            $user->password = Hash::make('password');
+            $user->role = 'driver';
+            $user->save();
+
             $Driver = new Driver();
             $Driver->nama_supir = $request->input('namaDriver');
             $Driver->alamat_supir = $request->input('alamatDriver');
             $Driver->no_wa = $request->input('noTelponDriver');
-            $simDriver = $request->file('simDriver');
+            $Driver->user_id = $user->id;
 
-            if ($simDriver) {
+            if ($request->hasFile('simDriver')) {
+                $simDriver = $request->file('simDriver');
                 $fileName = uniqid('Sim_', true) . '.' . $simDriver->getClientOriginalExtension();
                 $simDriver->storeAs('public/sim', $fileName);
                 $Driver->image_sim = $fileName;
             }
-
-
             $Driver->save();
+            DB::commit();
 
-            return response()->json(['success' => 'berhasil ditambahkan']);
+            return response()->json(['success' => 'Driver dan User berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal menambahkan']);
+            DB::rollBack();
+            return response()->json(['error' => 'Gagal menambahkan driver: ' . $e->getMessage()], 500);
         }
     }
 
