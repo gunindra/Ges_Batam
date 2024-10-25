@@ -45,7 +45,11 @@ class TopupController extends Controller
                 return $row->customer ? $row->customer->marking : 'Marking tidak tersedia';
             })
             ->editColumn('topup_amount', function ($row) {
-                return 'Rp ' . number_format($row->topup_amount, 2);
+                if ($row->pricePerKg) {
+                    $total = $row->topup_amount * $row->pricePerKg->price_per_kg;
+                    return 'Rp ' . number_format($total, 2);
+                }
+                return 'Total tidak tersedia';
             })
             ->editColumn('price_per_kg_id', function ($row) {
                 if ($row->pricePerKg) {
