@@ -91,6 +91,8 @@ class TopupController extends Controller
 
         try {
             $customer = Customer::find($request->customer_id);
+
+            // Cek apakah ada harga baru yang dimasukkan
             if ($request->new_price && $request->effective_date) {
                 $price = PricePoin::create([
                     'price_per_kg' => $request->new_price,
@@ -100,6 +102,8 @@ class TopupController extends Controller
             } else {
                 $priceId = $request->price_per_kg_id;
             }
+
+            // Simpan riwayat top-up ke database
             $topup = HistoryTopup::create([
                 'customer_id' => $request->customer_id,
                 'customer_name' => $customer->nama_pembeli,
@@ -110,6 +114,19 @@ class TopupController extends Controller
                 'account_id' => $request->coa_id,
             ]);
 
+            // Update kolom sisa_poin dengan hasil penjumlahan sebagai string
+            $newSisaPoin = (string)(((int)$customer->sisa_poin ?? 0) + $request->topup_amount);
+            $customer->sisa_poin = $newSisaPoin;
+            $customer->save();
+
+            $updatedPembeli = DB::table('tbl_pembeli')
+            ->where('id', $request->customer_id)
+            ->update(['transaksi_terakhir' => now()]);
+
+            if (!$updatedPembeli) {
+                throw new \Exception("Gagal memperbarui transaksi terakhir di tbl_pembeli");
+            }
+
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Top-up berhasil disimpan', 'data' => $topup]);
 
@@ -118,6 +135,8 @@ class TopupController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan top-up: ' . $e->getMessage()], 500);
         }
     }
+
+
 
 
 
