@@ -86,14 +86,20 @@
                             <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
                             <p><strong>Harga per 1kg poin:</strong>
                                 <select id="pricePerKg" class="form-control">
-                                    <option value="">Pilih Harga</option>
-                                    <option value="new">Tambah Harga Baru</option>
+                                    <option value="">Pilih harga</option>
+                                    @foreach ($listRateVolume as $rate)
+                                        @if ($rate->rate_for == 'Berat')
+                                            <option value="{{ $rate->nilai_rate }}">
+                                                {{ number_format($rate->nilai_rate, 0, ',', '.') }}
+                                            </option>
+                                        @endif
+                                    @endforeach
                                 </select>
                                 <span id="pricePerKgError" class="text-danger"></span> <!-- Pesan error -->
                             </p>
 
                             <!-- Input untuk harga baru dan tanggal berlaku -->
-                            <div id="newPriceSection" style="display: none;">
+                            {{-- <div id="newPriceSection" style="display: none;">
                                 <p><strong>Harga Baru:</strong>
                                     <input type="number" id="newPrice" class="form-control"
                                         placeholder="Masukkan harga baru">
@@ -103,7 +109,7 @@
                                     <input type="date" id="effectiveDate" class="form-control">
                                     <span id="effectiveDateError" class="text-danger"></span> <!-- Pesan error -->
                                 </p>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
 
@@ -193,8 +199,8 @@
                             </button>
                         </div>
                         <div id="containerPurchaseTop-up" class="px-3">
-                            <table class="table table-striped" id="tableTopup">
-                                <thead>
+                            <table class="table align-items-center table-flush table-hover" id="tableTopup">
+                                <thead class="thead-light">
                                     <tr>
                                         <th>Marking</th>
                                         <th>Nama Costumer</th>
@@ -280,8 +286,8 @@
                         render: $.fn.dataTable.render.number(',', '.', 2)
                     },
                     {
-                        data: 'price_per_kg_id',
-                        name: 'price_per_kg_id',
+                        data: 'price_per_kg',
+                        name: 'price_per_kg',
                         render: $.fn.dataTable.render.number(',', '.', 2)
                     },
                     {
@@ -401,32 +407,31 @@
                 });
 
                 // Ambil daftar harga
-                $.ajax({
-                    url: "{{ route('get-price-points') }}",
-                    method: 'GET',
-                    success: function(response) {
-                        pricePerKgDropdown.empty();
-                        pricePerKgDropdown.append('<option value="">Pilih Harga</option>');
-                        pricePerKgDropdown.append(
-                            '<option value="new">Tambah Harga Baru</option>');
-                        $.each(response, function(index, price) {
-                            pricePerKgDropdown.append(
-                                `<option value="${price.price_per_kg}" data-id="${price.id}">Rp ${price.price_per_kg} - Berlaku Sejak: ${price.effective_date}</option>`
-                            );
-                        });
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Gagal mengambil data harga.',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                });
+                // $.ajax({
+                //     url: "{{ route('get-price-points') }}",
+                //     method: 'GET',
+                //     success: function(response) {
+                //         pricePerKgDropdown.empty();
+                //         pricePerKgDropdown.append('<option value="">Pilih Harga</option>');
+                //         pricePerKgDropdown.append(
+                //             '<option value="new">Tambah Harga Baru</option>');
+                //         $.each(response, function(index, price) {
+                //             pricePerKgDropdown.append(
+                //                 `<option value="${price.price_per_kg}" data-id="${price.id}">Rp ${price.price_per_kg} - Berlaku Sejak: ${price.effective_date}</option>`
+                //             );
+                //         });
+                //     },
+                //     error: function() {
+                //         Swal.fire({
+                //             icon: 'error',
+                //             title: 'Error!',
+                //             text: 'Gagal mengambil data harga.',
+                //             confirmButtonText: 'OK'
+                //         });
+                //     }
+                // });
             });
 
-            // Kalkulasi total biaya ketika jumlah poin atau harga dipilih
             pricePerKgDropdown.on('change', function() {
                 if ($(this).val() === 'new') {
                     newPriceSection.show();
@@ -448,26 +453,22 @@
             });
 
             function calculateTotal() {
-                const remainingPoints = remainingPointsInput.val(); // Ambil nilai jumlah poin dari input
-                const topupAmount = remainingPoints * selectedPrice; // Hitung topup_amount
+                const remainingPoints = remainingPointsInput.val();
+                const topupAmount = remainingPoints * selectedPrice;
                 totalCostDisplay.text(topupAmount ? `Rp ${topupAmount.toLocaleString()}` : 'Rp 0');
             }
 
-            // Saat tombol konfirmasi top-up diklik
             $('#confirmTopUp').on('click', function() {
-                resetErrorMessages(); // Reset pesan error sebelum validasi
+                resetErrorMessages();
 
                 const customerId = customerSelect.val();
                 const coaId = coaSelect.val();
-                const remainingPoints = remainingPointsInput.val(); // Ambil nilai jumlah poin dari input
-                const priceId = pricePerKgDropdown.find('option:selected').data('id');
-                const newPrice = newPriceInput.val();
-                const effectiveDate = effectiveDateInput.val();
-                const topupAmount = remainingPoints * selectedPrice; // Hitung topup_amount
+                const remainingPoints = remainingPointsInput.val();
+                const priceId = pricePerKgDropdown.val();
+                const topupAmount = remainingPoints * selectedPrice;
 
                 let hasError = false;
 
-                // Validasi input
                 if (!customerId) {
                     $('#customerSelectError').text('Pengguna harus dipilih.');
                     hasError = true;
@@ -483,13 +484,8 @@
                     hasError = true;
                 }
 
-                if (!priceId && (!newPrice || newPrice <= 0)) {
-                    $('#pricePerKgError').text('Harga baru harus lebih dari 0.');
-                    hasError = true;
-                }
-
-                if (priceId === 'new' && !effectiveDate) {
-                    $('#effectiveDateError').text('Tanggal berlaku harus diisi.');
+                if (!priceId) {
+                    $('#pricePerKgError').text('Silahkan pilih harga.');
                     hasError = true;
                 }
 
@@ -497,7 +493,6 @@
                     return;
                 }
 
-                // Lakukan AJAX untuk simpan data
                 $.ajax({
                     url: "{{ route('topup-points') }}",
                     method: 'POST',
@@ -505,9 +500,7 @@
                         _token: "{{ csrf_token() }}",
                         customer_id: customerId,
                         remaining_points: remainingPoints,
-                        price_per_kg_id: priceId || null,
-                        new_price: newPrice || null,
-                        effective_date: effectiveDate || null,
+                        price_per_kg: priceId || null,
                         coa_id: coaId
                     },
                     success: function(response) {
@@ -521,17 +514,20 @@
                             table.ajax.reload();
                         });
                     },
-                    error: function() {
+                    error: function(xhr) {
+                        let errorMessage = 'Gagal melakukan top-up.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'Gagal melakukan top-up.',
+                            text: errorMessage,
                             confirmButtonText: 'OK'
                         });
                     }
                 });
             });
-
         });
     </script>
 @endsection

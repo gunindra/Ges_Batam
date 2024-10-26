@@ -437,7 +437,7 @@ class InvoiceController extends Controller
                 DB::rollBack();
 
                 if (strpos($e->getMessage(), 'code_account') !== false) {
-                    return response()->json(['status' => 'error', 'message' => 'Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di sistem.'], 400);
+                    return response()->json(['status' => 'error', 'message' => 'Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di Account Setting.'], 400);
                 }
 
                 return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice. Silakan coba lagi.'], 500);
