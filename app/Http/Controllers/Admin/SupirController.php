@@ -119,7 +119,7 @@ class SupirController extends Controller
                             DB::table('tbl_pengantaran')
                                 ->where('id', $pengantaranId)
                                 ->update([
-                                    'status_id' => 6,
+                                    // 'status_id' => 6,
                                     'updated_at' => now(),
                                 ]);
                         }

@@ -520,7 +520,7 @@ class DeliveryController extends Controller
                 'metode_pengiriman' => 'Delivery',
                 'supir_id' => $driverId,
                 'tanggal_pengantaran' => $formattedDate,
-                'status_id' => 4,
+                // 'status_id' => 4,
                 'created_at' => now(),
             ]);
 
