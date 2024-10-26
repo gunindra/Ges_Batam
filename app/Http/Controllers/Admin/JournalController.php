@@ -34,7 +34,8 @@ class JournalController extends Controller
                 'totalcredit',
                 'status',
                 'description'
-            );
+            )
+            ->orderBy('id','desc');
 
         if ($request->status) {
             $query->where('status', $request->status);
