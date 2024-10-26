@@ -442,7 +442,7 @@
                     const scannedNoResi = $(this).val().trim();
                     let isAlreadyInTable = false;
 
-                    // Cek apakah sudah ada di tabel
+
                     $('#barang-list tr').each(function() {
                         const existingNoResi = $(this).find('td:eq(1)').text().trim();
                         if (existingNoResi === scannedNoResi) {
@@ -454,7 +454,7 @@
                         showMessage("error", "Resi ini sudah ada di scan");
                         $(this).val('');
                     } else if (scannedNoResi !== '') {
-                        // Cek resi ke database
+
                         $.ajax({
                             url: "{{ route('cekResiInvoice') }}",
                             method: 'GET',
@@ -462,10 +462,10 @@
                                 noResi: scannedNoResi
                             },
                             success: function(response) {
-                                // Tangani respons dari server
                                 if (response.status === 'success') {
                                     addItemRow(scannedNoResi);
                                     console.log('Menunggu data berat dari timbangan...');
+
                                     const ws = new WebSocket('ws://127.0.0.1:8080');
                                     ws.onopen = function() {
                                         console.log('Terhubung ke Aplikasi Timbangan');
@@ -476,7 +476,6 @@
                                     ws.onmessage = function(event) {
                                         try {
                                             const data = JSON.parse(event.data);
-
                                             const weight = data.weight;
                                             const lastWeightInput = $(
                                                 'input.beratBarang:last');
@@ -490,13 +489,17 @@
                                         }
                                     };
                                 } else {
+
                                     showMessage("error", response.message);
                                 }
-                                $('#scanNoresi').val(
-                                '');
+                                $('#scanNoresi').val('');
                             },
-                            error: function(xhr, status, error) {
-                                showMessage("error", "Terjadi kesalahan: " + error);
+                            error: function(xhr) {
+                                let errorMessage = "Terjadi kesalahan pada server.";
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                showMessage("error", errorMessage);
                                 $('#scanNoresi').val('');
                             }
                         });
@@ -909,13 +912,13 @@
                         } else {
                             Swal.fire({
                                 title: "Gagal membuat invoice",
+                                text: response.message,
                                 icon: "error"
                             });
                         }
                     },
-                    error: function(xhr, status, error) {
-                        let errorMessage =
-                            "Terjadi Kesalahan membuat invoice";
+                    error: function(xhr) {
+                        let errorMessage = "Gagal membuat invoice.";
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }

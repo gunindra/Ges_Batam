@@ -431,12 +431,16 @@ class InvoiceController extends Controller
             } catch (\Exception $e) {
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
-            DB::commit();
+                DB::commit();
+                return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
 
-            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice: ' . $e->getMessage()], 500);
+                if (strpos($e->getMessage(), 'code_account') !== false) {
+                    return response()->json(['status' => 'error', 'message' => 'Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di sistem.'], 400);
+                }
+
+                return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice. Silakan coba lagi.'], 500);
         }
     }
 
@@ -539,15 +543,12 @@ class InvoiceController extends Controller
             }
 
             if ($tracking->status === 'Dalam Perjalanan') {
-                // Jika status "Dalam Perjalanan", kembalikan respons sukses
                 return response()->json(['status' => 'success', 'message' => 'Nomor resi valid untuk diproses'], 200);
             } else {
-                // Jika status bukan "Dalam Perjalanan", kembalikan respons dengan error
                 return response()->json(['status' => 'error', 'message' => 'Status nomor resi tidak valid'], 400);
             }
 
         } catch (\Exception $e) {
-            // Menangkap kesalahan dan mengembalikan respons error
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
