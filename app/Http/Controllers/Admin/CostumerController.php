@@ -116,7 +116,7 @@ class CostumerController extends Controller
     public function addCostumer(Request $request)
     {
         $request->validate([
-            'markingCostmer' => 'required|string|max:255',
+            'markingCostmer' => 'required|string|max:255|unique:tbl_pembeli,marking',
             'namaCustomer' => 'required|string|max:255',
             'noTelpon' => 'required|string|max:15',
             'categoryCustomer' => 'required|exists:tbl_category,id',
@@ -125,11 +125,13 @@ class CostumerController extends Controller
             'alamatCustomer.*' => 'nullable|string|max:255',
             'email' => 'required|email|unique:tbl_users,email',
             'password' => 'required|min:6|confirmed',
+        ], [
+            'markingCostmer.unique' => 'Marking sudah terdaftar. Gunakan marking yang berbeda.',
+            'email.unique' => 'Email sudah terdaftar. Gunakan email yang berbeda.',
         ]);
 
         try {
             DB::beginTransaction();
-
 
             $user = User::create([
                 'name' => $request->namaCustomer,
@@ -164,6 +166,8 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
+
+
 
 
     public function updateCostumer(Request $request)

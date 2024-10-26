@@ -245,8 +245,8 @@
                                 <p class="text-muted">Poin</p>
                             </div>
                             <!-- <div>
-                                                <p id="statusValue" class="h5"></p>
-                                            </div> -->
+                                                        <p id="statusValue" class="h5"></p>
+                                                    </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -485,7 +485,7 @@
                 var nomorTelpon = $('#noTelpon').val().trim();
                 var emailCustomer = $('#emailCustomer').val();
                 var passwordCustomer = $('#passwordCustomer').val();
-                var passwordConfirmation = $('#passwordConfirmationCustomer').val(); // Konfirmasi password
+                var passwordConfirmation = $('#passwordConfirmationCustomer').val();
                 var categoryCustomer = $('#categoryCustomer').val();
                 var metodePengiriman = $('#metodePengiriman').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -495,7 +495,6 @@
                 let valueNotlep = clearplus + nomorTelpon;
 
                 var isValid = true;
-
                 $('.text-danger').addClass('d-none');
 
                 if (markingCostmer === '') {
@@ -578,8 +577,7 @@
                             formData.append('noTelpon', valueNotlep);
                             formData.append('email', emailCustomer);
                             formData.append('password', passwordCustomer);
-                            formData.append('password_confirmation',
-                            passwordConfirmation);
+                            formData.append('password_confirmation', passwordConfirmation);
                             formData.append('categoryCustomer', categoryCustomer);
                             formData.append('metodePengiriman', metodePengiriman);
                             formData.append('_token', csrfToken);
@@ -607,17 +605,6 @@
                                 processData: false,
                                 success: function(response) {
                                     Swal.close();
-
-                                    if (response.url) {
-                                        window.open(response.url, '_blank');
-                                    } else if (response.error) {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: response.error
-                                        });
-                                    }
-
                                     if (response.status === 'success') {
                                         showMessage("success",
                                         "Data Berhasil Disimpan");
@@ -632,10 +619,27 @@
                                     }
                                 },
                                 error: function(xhr) {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        icon: "error",
-                                    });
+                                    Swal.close();
+                                    var response = xhr.responseJSON;
+
+                                    if (response.errors) {
+                                        if (response.errors.markingCostmer) {
+                                            $('#markingCostumerError').text(response
+                                                    .errors.markingCostmer[0])
+                                                .removeClass('d-none');
+                                        }
+                                        if (response.errors.email) {
+                                            $('#emailCustomerError').text(response
+                                                .errors.email[0]).removeClass(
+                                                'd-none');
+                                        }
+                                    } else {
+                                        Swal.fire({
+                                            title: "Gagal Menambahkan Data",
+                                            text: "Terjadi kesalahan, silakan coba lagi.",
+                                            icon: "error",
+                                        });
+                                    }
                                 }
                             });
                         }
