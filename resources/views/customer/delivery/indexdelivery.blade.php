@@ -322,7 +322,7 @@
 
 
         $(document).on('click', '.btnSelesaikanPickup', function(e) {
-            let pengantaranId = $(this).data('id');
+            let pengantaranId = $(this).data('invoice-id');
 
             Swal.fire({
                 title: "Apakah Invoice ini Sudah di Pick Up?",
@@ -526,11 +526,12 @@
 
                 // Keterangan & Confirmation Button
                 if (statusInvoice[i] === 'Done') {
-                    modalContent += '<td>Barang sudah diambil</td>';
+                    // Tampilkan keterangan dinamis jika ada
+                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Barang sudah diambil') + '</td>';
                 } else if (metodePengiriman === 'Pickup') {
                     // Tampilkan tombol hanya jika metode pengiriman adalah "Pickup"
                     modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') +
-                        ' <button type="button" class="btn btn-success btn-sm confirm-pickup" data-invoice-id="' +
+                        '<button type="button" class="btn btn-success btn-sm btnSelesaikanPickup" data-invoice-id="' +
                         invoiceNumbers[i] + '">Confirm Pickup</button></td>';
                 } else {
                     // Jika bukan pickup, hanya tampilkan keterangan

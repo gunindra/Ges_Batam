@@ -589,7 +589,7 @@ class DeliveryController extends Controller
             $pengantaranId = DB::table('tbl_pengantaran')->insertGetId([
                 'metode_pengiriman' => 'Pickup',
                 'tanggal_pengantaran' => $formattedDate,
-                'status_id' => 2,
+                // 'status_id' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -832,18 +832,37 @@ class DeliveryController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $id = $request->id;
+        $noInvoice = $request->id;
 
         try {
+            // Dapatkan `pengantaran_id` dari `tbl_invoice` berdasarkan `no_invoice`
+            $invoice = DB::table('tbl_invoice')
+                ->where('no_invoice', $noInvoice)
+                ->first();
 
+            if (!$invoice) {
+                return response()->json(['error' => 'Invoice dengan nomor tersebut tidak ditemukan.'], 404);
+            }
+
+            // Cari `pengantaran_id` terkait dari `tbl_pengantaran_detail`
+            $pengantaranId = DB::table('tbl_pengantaran_detail')
+                ->where('invoice_id', $invoice->id)
+                ->value('pengantaran_id');
+
+            if (!$pengantaranId) {
+                return response()->json(['error' => 'Tidak ada pengantaran terkait dengan nomor invoice ini.'], 404);
+            }
+
+            // Ambil semua `invoice_id` yang terkait dengan `pengantaran_id`
             $invoiceIds = DB::table('tbl_pengantaran_detail')
-                ->where('pengantaran_id', $id)
+                ->where('pengantaran_id', $pengantaranId)
                 ->pluck('invoice_id');
 
             if ($invoiceIds->isEmpty()) {
                 return response()->json(['error' => 'Tidak ada invoice yang ditemukan untuk pengantaran ini.'], 404);
             }
 
+            // Update `status_id` untuk semua `invoice_id` terkait
             try {
                 DB::table('tbl_invoice')
                     ->whereIn('id', $invoiceIds)
@@ -856,7 +875,7 @@ class DeliveryController extends Controller
                 return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data invoice.'], 500);
             }
 
-
+            // Update status `tbl_tracking` berdasarkan `no_resi`
             $noResiList = DB::table('tbl_resi')
                 ->whereIn('invoice_id', $invoiceIds)
                 ->pluck('no_resi');
@@ -875,16 +894,30 @@ class DeliveryController extends Controller
                 }
             }
 
+            // Update status `tbl_pengantaran` berdasarkan `pengantaran_id`
             try {
                 DB::table('tbl_pengantaran')
-                    ->where('id', $id)
+                    ->where('id', $pengantaranId)
                     ->update([
-                        'status_id' => 6,
                         'updated_at' => now(),
                     ]);
             } catch (\Exception $e) {
-                \Log::error("Error updating tbl_pengantaran for pengantaran_id {$id}: " . $e->getMessage());
+                \Log::error("Error updating tbl_pengantaran for pengantaran_id {$pengantaranId}: " . $e->getMessage());
                 return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data pengantaran.'], 500);
+            }
+
+            // Update kolom `keterangan` di `tbl_pengantaran_detail`
+            try {
+                DB::table('tbl_pengantaran_detail')
+                    ->where('pengantaran_id', $pengantaranId)
+                    ->where('invoice_id', $invoice->id)
+                    ->update([
+                        'keterangan' => 'Barang telah selesai di ambil oleh customer',
+                        'updated_at' => now()
+                    ]);
+            } catch (\Exception $e) {
+                \Log::error("Error updating keterangan in tbl_pengantaran_detail for pengantaran_id {$pengantaranId} and invoice_id {$invoice->id}: " . $e->getMessage());
+                return response()->json(['error' => 'Terjadi kesalahan saat mengupdate keterangan pengantaran.'], 500);
             }
 
             return response()->json(['message' => 'Status pengantaran, invoice, dan tracking berhasil diperbarui.'], 200);

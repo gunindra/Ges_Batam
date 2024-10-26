@@ -48,6 +48,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             if (!$invoice) {
                 throw new \Exception("Invoice tidak ditemukan");
             }
+            $no_invoice = $invoice->no_invoice;
 
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $invoice->id)
@@ -81,7 +82,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             }
 
             try {
-                $pdfFileName = 'list_barang_'.$this->invoiceId.'_'.time().'.pdf';
+                $pdfFileName = 'list_barang_'. $no_invoice .'.pdf';
                 $filePath = storage_path('app/public/list_barang/' . $pdfFileName);
                 $pdf->save($filePath);
             } catch (\Exception $e) {
