@@ -4,9 +4,9 @@
 
 @section('main')
 
-    <!---Container Fluid-->
-    <div class="container-fluid" id="container-wrapper">
-        <!-- Modal Tambah Customer -->
+<!---Container Fluid-->
+<div class="container-fluid" id="container-wrapper">
+    <!-- Modal Tambah Customer -->
         <div class="modal fade" id="modalTambahCustomer" tabindex="-1" role="dialog" aria-labelledby="modalTambahCustomerTitle"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">

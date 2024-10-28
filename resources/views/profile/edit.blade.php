@@ -55,7 +55,7 @@
 
                         <div class="mb-3">
                             <div class="text-center">
-                                <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
+                                <h1 id="pointValue" class="display-3 font-weight-bold text-primary">  {{ $listPoin !== null ? (floor($listPoin) == $listPoin ? number_format($listPoin, 0): rtrim(rtrim(number_format($listPoin, 2), '0'), '.')) : '0' }} poin</h1>
                                 <p class="text-muted">Poin</p>
                             </div>
                         </div>
@@ -182,6 +182,7 @@
 
 @section('script')
     <script>
+        
         $(document).ready(function() {
             const pricePerKg = 50000; // Harga per kg poin
 

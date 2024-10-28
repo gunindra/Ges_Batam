@@ -6,15 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\PricePoin;
-
+use Illuminate\Support\Facades\DB;
 class ProfileController extends Controller
 {
     public function edit(Request $request)
     {
-
-
+        $listPoin = DB::table('tbl_pembeli')
+        ->where('user_id', $request->user()->id)
+        ->value('sisa_poin');
         return view('profile.edit', [
             'user' => $request->user(),
+            'listPoin' => $listPoin,
         ]);
     }
 
