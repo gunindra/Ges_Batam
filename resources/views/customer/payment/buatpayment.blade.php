@@ -64,13 +64,6 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <label for="amountPayment" class="form-label fw-bold">Payment Amount</label>
-                                    <input type="number" class="form-control" id="payment" name="" value=""
-                                        placeholder="Masukkan nominal pembayaran" required>
-                                    <div id="errAmountPayment" class="text-danger mt-1 d-none">Silahkan isi Amount
-                                    </div>
-                                </div>
-                                <div class="mt-3">
                                     <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
                                     <select class="form-control select2" id="selectMethod">
                                         <option value="" selected disabled>Pilih Metode Pembayaran</option>
@@ -80,6 +73,21 @@
                                         @endforeach
                                     </select>
                                     <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Metode</div>
+                                </div>
+                                <div class="mt-3 d-none" id="section_poin">
+                                    <label for="" class="form-label fw-bold">Poin (Kg)</label>
+                                    <input type="number" class="form-control" id="amountPoin"
+                                        placeholder="Masukkan nominal poin" value="">
+                                    <div id="erramountPoin" class="text-danger mt-1 d-none">Silahkan isi masukkan nominal
+                                        Poin</div>
+                                    <button type="button" class="btn btn-primary mt-2" id="submitAmountPoin">Hitung
+                                        Payment</button>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="amountPayment" class="form-label fw-bold">Payment Amount</label>
+                                    <input type="number" class="form-control" id="payment" name="" value=""
+                                        placeholder="Masukkan nominal pembayaran" required>
+                                    <div id="errAmountPayment" class="text-danger mt-1 d-none">Silahkan isi Amount</div>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -92,6 +100,8 @@
                                             id="previewInvoiceDate">-</span></p>
                                     <p><strong class="text-primary">Status Invoice :</strong> <span
                                             id="previewInvoiceStatus">-</span></p>
+                                    <p><strong class="text-primary">Total Berat (Kg) :</strong> <span
+                                            id="previewTotalWeight">-</span></p>
                                     <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
                                             class="fw-bold text-success">-</span></p>
                                     <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
@@ -156,12 +166,14 @@
                                     .total_bayar);
                                 $('#previewRemainingPayment').text(response.invoice[0]
                                     .sisa_bayar);
+                                $('#previewTotalWeight').text(response.invoice[0]
+                                    .total_berat);
                             } else {
-                                alert('Data tidak ditemukan');
+                                // alert('Data tidak ditemukan');
+                                showMessage("error" , "Data tidak ditemukan")
                             }
                         },
                         error: function(xhr, status, error) {
-                            // Error handling
                             console.log(xhr.responseText);
                         }
                     });
@@ -169,78 +181,145 @@
             });
 
 
-            $('#buatPayment').click(function(e) {
-                e.preventDefault();
+            $('#selectMethod').on('change', function() {
+                const selectedMethod = $(this).val();
+                const sectionPoin = $('#section_poin');
+                const paymentInput = $('#payment');
 
-                var invoice = $('#selectInvoice').val();
-                var tanggalPayment = $('#tanggalPayment').val();
-                var paymentAmount = $('#payment').val();
-                var paymentMethod = $('#selectMethod').val();
-
-                let valid = true;
-                if (!invoice) {
-                    $('#errInvoicePayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!tanggalPayment) {
-                    $('#errTanggalPayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!paymentAmount) {
-                    $('#errAmountPayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!paymentMethod) {
-                    $('#errMethodPayment').removeClass('d-none');
-                    valid = false;
-                }
-
-                if (valid) {
-                    $.ajax({
-                        url: "{{ route('buatpembayaran') }}",
-                        method: 'POST',
-                        data: {
-                            invoice: invoice,
-                            tanggalPayment: tanggalPayment,
-                            paymentAmount: paymentAmount,
-                            paymentMethod: paymentMethod,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                showMessage("success", "Payment berhasil dibuat").then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: response
-                                        .message // Menampilkan pesan error dari response
-                                });
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            let responseJSON = xhr.responseJSON;
-                            if (responseJSON && responseJSON.message) {
-                                // Menampilkan pesan error jika ada
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Terjadi Kesalahan!',
-                                    text: responseJSON
-                                        .message // Pesan error dari backend
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Terjadi Kesalahan!',
-                                    text: 'Error tidak diketahui terjadi'
-                                });
-                            }
-                        }
-                    });
+                if (selectedMethod === "167") {
+                    sectionPoin.removeClass("d-none");
+                    paymentInput.prop("disabled", true);
+                } else {
+                    sectionPoin.addClass("d-none");
+                    paymentInput.prop("disabled", false);
                 }
             });
+
+            $('#submitAmountPoin').on('click', function() {
+                let invoiceNo = $('#selectInvoice').val();
+                let amountPoin = $('#amountPoin').val();
+
+                if (!amountPoin) {
+                    $('#payment').val('');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Silahkan masukkan nominal poin terlebih dahulu.',
+                    });
+                    return;
+                }
+
+                if (!invoiceNo) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Silakan pilih nomor invoice terlebih dahulu.',
+                    });
+                    $('#amountPoin').val('');
+                    $('#payment').val('');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('amountPoin') }}",
+                    type: 'GET',
+                    data: {
+                        amountPoin: amountPoin,
+                        invoiceNo: invoiceNo
+                    },
+                    success: function(response) {
+                        if (response.total_nominal) {
+                            $('#payment').val(response.total_nominal);
+                        } else {
+                            console.log('Data tidak ditemukan');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: xhr.responseJSON.error
+                            });
+                            $('#payment').val('');
+                        } else {
+                            console.error('Terjadi kesalahan:', error);
+                        }
+                    }
+                });
+            });
+        });
+
+        $('#buatPayment').click(function(e) {
+            e.preventDefault();
+
+            var invoice = $('#selectInvoice').val();
+            var tanggalPayment = $('#tanggalPayment').val();
+            var paymentAmount = $('#payment').val();
+            var paymentMethod = $('#selectMethod').val();
+            var amountPoin = $('#amountPoin').val();
+
+            let valid = true;
+            if (!invoice) {
+                $('#errInvoicePayment').removeClass('d-none');
+                valid = false;
+            }
+            if (!tanggalPayment) {
+                $('#errTanggalPayment').removeClass('d-none');
+                valid = false;
+            }
+            if (!paymentAmount) {
+                $('#errAmountPayment').removeClass('d-none');
+                valid = false;
+            }
+            if (!paymentMethod) {
+                $('#errMethodPayment').removeClass('d-none');
+                valid = false;
+            }
+
+            if (valid) {
+                $.ajax({
+                    url: "{{ route('buatpembayaran') }}",
+                    method: 'POST',
+                    data: {
+                        invoice: invoice,
+                        tanggalPayment: tanggalPayment,
+                        paymentAmount: paymentAmount,
+                        paymentMethod: paymentMethod,
+                        amountPoin: amountPoin,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showMessage("success", "Payment berhasil dibuat").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: response
+                                    .message
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let responseJSON = xhr.responseJSON;
+                        if (responseJSON && responseJSON.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan!',
+                                text: responseJSON
+                                    .message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan!',
+                                text: 'Error tidak diketahui terjadi'
+                            });
+                        }
+                    }
+                });
+            }
         });
     </script>
 @endsection

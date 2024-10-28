@@ -13,7 +13,7 @@ class CreateTblCustomerTable extends Migration
             $table->string('marking', 100)->unique();
             $table->string('nama_pembeli', 100);
             $table->string('no_wa', 50);
-            $table->string('sisa_poin', 50)->nullable();
+            $table->decimal('sisa_poin', 10, 2)->default(0);
             $table->foreignId('category_id')->constrained('tbl_category')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('tbl_users')->onDelete('cascade');
             $table->timestamp('transaksi_terakhir')->nullable();

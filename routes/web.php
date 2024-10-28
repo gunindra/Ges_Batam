@@ -140,6 +140,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
     Route::get('/payment/getInvoiceAmount', [PaymentController::class, 'getInvoiceAmount'])->name('getInvoiceAmount');
+    Route::get('/payment/amountPoin', [PaymentController::class, 'amountPoin'])->name('amountPoin');
     Route::post('/payment/store', [PaymentController::class, 'store'])->name('buatpembayaran');
     Route::get('/payment-data', [PaymentController::class, 'getPaymentData'])->name('payment.data');
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
