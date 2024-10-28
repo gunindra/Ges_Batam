@@ -328,8 +328,22 @@ class InvoiceController extends Controller
 
         $accountSettings = DB::table('tbl_account_settings')->first();
 
+        if (!$accountSettings) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
         $salesAccountId = $accountSettings->sales_account_id;
         $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
+
+        if (is_null($salesAccountId) || is_null($receivableSalesAccountId)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
 
         $existingInvoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
         if ($existingInvoice) {

@@ -182,9 +182,26 @@ class PaymentController extends Controller
         try {
             Log::info("Starting payment process for Invoice: {$request->invoice}");
             $accountSettings = DB::table('tbl_account_settings')->first();
+
+            if (!$accountSettings) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+                ], 400);
+            }
+
+
             $salesAccountId = $accountSettings->sales_account_id;
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
+            $poinMarginAccount = $accountSettings->discount_sales_account_id;
+
+            if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+                ], 400);
+            }
 
             $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
             $invoice_id = $invoice->id;
@@ -337,7 +354,7 @@ class PaymentController extends Controller
 
                     Log::info("Menambahkan akun margin di kredit dengan nilai: " . abs($poinMargin));
                     $journalItems[] = [
-                        'code_account' => $accountSettings->discount_sales_account_id, // Ganti ke akun diskon
+                        'code_account' => $poinMarginAccount, // Ganti ke akun diskon
                         'description' => "Poin Margin untuk Invoice {$request->invoice}",
                         'debit' => 0,
                         'credit' => abs($poinMargin),
