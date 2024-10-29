@@ -304,9 +304,16 @@
                                     location.reload();
                                 });
                         },
-                        error: function(xhr, status, error) {
-                            showMessage('error', 'Terjadi kesalahan saat menyimpan data.');
+                        error: function(xhr) {
+                        let errorMessage = "Gagal membuat invoice.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
                         }
+                        Swal.fire({
+                            title: errorMessage,
+                            icon: "error"
+                        });
+                    }
                     });
 
                 });
