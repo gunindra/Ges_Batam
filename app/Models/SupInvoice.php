@@ -16,6 +16,7 @@ class SupInvoice extends Model
         'tanggal',
         'vendor_id',
         'matauang_id',
+        'no_ref',
         'rate_matauang',
         'status_bayar',
         'total_bayar',

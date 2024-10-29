@@ -18,6 +18,7 @@ return new class extends Migration {
              $table->date('tanggal')->nullable();
              $table->unsignedBigInteger('vendor_id')->nullable();
              $table->foreign('vendor_id')->references('id')->on('tbl_sup_invoice')->onDelete('cascade');
+             $table->string('no_ref');
              $table->foreignId('matauang_id')->constrained('tbl_matauang')->nullable();
              $table->decimal('rate_matauang', 20,2)->nullable();
              $table->string('status_bayar', 50)->nullable()->default('Belum lunas');

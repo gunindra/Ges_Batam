@@ -76,7 +76,7 @@
                                 <div class="mt-3">
                                     <label for="noResi" class="form-label fw-bold">No Invoice :</label>
                                     <div class="d-flex">
-                                        <h2 class="fw-bold" id="noInvoice">-</h2>
+                                        <input type="text" id="noInvoice" class="form-control col-8">
                                         <a class="pt-2" id="btnRefreshInvoice" href=""><span
                                                 class="pl-2 text-success"><i class="fas fa-sync-alt"></i></span></a>
                                     </div>
@@ -121,17 +121,20 @@
                                     <select class="form-control select2singgle" id="selectVendor" style="width: 67%">
                                         <option value="" selected disabled>Pilih Vendor</option>
                                         @foreach ($listVendor as $id => $name)
-                                        <option value="{{ $id }}">{{ $name }}</option>
-                                    @endforeach
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
                                     </select>
                                     <div id="customerError" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
                                 </div>
                                 <div class="mt-3" id="alamatContainer"></div>
-
                             </div>
                             <div class="col-6">
-                                <div class="mt-5" id="pickupDelivery" style="display: none;">
-                                    <h2></h2>
+                                <div class="mt-3">
+                                    <label for="NoReference" class="form-label fw-bold">No Reference</label>
+                                    <input type="text" class="form-control col-8" id="noReferenceVendor" value=""
+                                        placeholder="Silahkan isi No Reference">
+                                    <div id="No Reference Error" class="text-danger mt-1 d-none">No Reference tidak boleh
+                                        kosong</div>
                                 </div>
                             </div>
                         </div>
@@ -143,17 +146,14 @@
                                 <tr>
                                     <th>Code Account</th>
                                     <th>Description</th>
-                                    <th>Debit</th>
-                                    <th>Credit</th>
-                                    <th>Memo</th>
+                                    <th>Nominal</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="items-container">
-                                <!-- Two default rows without the "Remove" button initially -->
                                 <tr>
                                     <td>
-                                        <select class="form-control select2singgle" name="account" style="width: 15vw;"
+                                        <select class="form-control select2singgle" name="account" style="width: 30vw;"
                                             required>
                                             <option value="">Pilih Akun</option>
                                             @foreach ($coas as $coa)
@@ -172,47 +172,8 @@
                                             placeholder="0.00" required>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" name="credit" value="0"
-                                            placeholder="" required>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="memo" placeholder="">
-                                    </td>
-                                    <td>
                                         <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
-                                            style="display:none;">Remove</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <select class="form-control select2singgle" name="account" style="width: 15vw;"
-                                            required>
-                                            <option value="">Pilih Akun</option>
-                                            @foreach ($coas as $coa)
-                                                <option value="{{ $coa->id }}">
-                                                    {{ $coa->code_account_id }} - {{ $coa->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="item_desc"
-                                            placeholder="Input Description" required>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="debit" value="0"
-                                            placeholder="" required>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" name="credit" value="0"
-                                            placeholder="" required>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="memo" placeholder="">
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1"
-                                            style="display:none;">Remove</button>
+                                            style="display: none;">Remove</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -228,15 +189,11 @@
                                         <input type="text" class="form-control-flush" id="total_debit"
                                             name="total_debit" value="" disabled>
                                     </td>
-                                    <td>
-                                        <label>Total:</label>
-                                        <input type="text" class="form-control-flush" id="total_credit"
-                                            name="total_credit" value="" disabled>
-                                    </td>
                                     <td colspan="3"></td>
                                 </tr>
                             </tfoot>
                         </table>
+
                         <div class="col-12 mt-5">
                             <div class="col-4 float-right">
                                 <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
@@ -270,13 +227,15 @@
 
                         if (response.status === 'success') {
 
-                            $('#noInvoice').text(response.no_invoice);
+                            $('#noInvoice').val(response.no_invoice);
                         } else {
-                            alert('Gagal mendapatkan nomor invoice.');
+                            // alert('Gagal mendapatkan nomor invoice.');
+                            showMessage("error", "Gagal mendapatkan nomor invoice.")
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert('Terjadi kesalahan: ' + error);
+                        // alert('Terjadi kesalahan: ' + error);
+                        showMessage("error", "Terjadi kesalahan:" + error);
                     },
                     complete: function() {
                         $('#noInvoice').find('.spinner-border').remove();
@@ -304,75 +263,59 @@
                 autoclose: true,
             }).datepicker('setDate', today);
 
-            function updateTotals() {
-                var totalDebit = 0;
-                var totalCredit = 0;
-                $('#items-container tr').each(function() {
-                    var debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
-                    var creditValue = parseFloat($(this).find('input[name="credit"]').val()) || 0;
-
-                    totalDebit += debitValue;
-                    totalCredit += creditValue;
-                });
-
-                $('#total_debit').val(totalDebit.toFixed(0));
-                $('#total_credit').val(totalCredit.toFixed(0));
-            }
-            $('.select2singgle').select2();
             $('#add-item-button').click(function() {
                 var newRow = `
-    <tr>
-        <td>
-            <select class="form-control select2singgle" name="account" style="width: 15vw;" required>
-                <option value="">Pilih Akun</option>
-                @foreach ($coas as $coa)
-                    <option value="{{ $coa->id }}">
-                        {{ $coa->code_account_id }} - {{ $coa->name }}
-                    </option>
-                @endforeach
-            </select>
-        </td>
-        <td>
-            <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-        </td>
-        <td>
-            <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
-        </td>
-        <td>
-            <input type="number" class="form-control" name="credit" value="0" placeholder="0.00" required>
-        </td>
-        <td>
-            <input type="text" class="form-control" name="memo" placeholder="">
-        </td>
-        <td>
-            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-        </td>
-    </tr>
-    `;
+        <tr>
+            <td>
+                <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
+                    <option value="">Pilih Akun</option>
+                    @foreach ($coas as $coa)
+                        <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
+                    @endforeach
+                </select>
+            </td>
+            <td>
+                <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+            </td>
+            <td>
+                <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+            </td>
+        </tr>`;
                 $('#items-container').append(newRow);
                 $('.select2singgle').last().select2();
-                if ($('#items-container tr').length > 2) {
+
+                if ($('#items-container tr').length > 1) {
                     $('.removeItemButton').show();
                 }
                 updateTotals();
             });
 
             $(document).on('click', '.removeItemButton', function() {
-                var rowCount = $('#items-container tr').length;
-                if (rowCount > 2) {
+                if ($('#items-container tr').length > 1) {
                     $(this).closest('tr').remove();
                 }
 
-                rowCount = $('#items-container tr').length;
-
-                if (rowCount === 2) {
+                if ($('#items-container tr').length === 1) {
                     $('.removeItemButton').hide();
                 }
 
                 updateTotals();
             });
 
-            $(document).on('input', 'input[name="debit"], input[name="credit"]', function() {
+            // Update only the Total Debit
+            function updateTotals() {
+                let totalDebit = 0;
+                $('#items-container tr').each(function() {
+                    let debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                    totalDebit += debitValue;
+                });
+                $('#total_debit').val(totalDebit.toFixed(0));
+            }
+
+            $(document).on('input', 'input[name="debit"]', function() {
                 updateTotals();
             });
 
@@ -387,8 +330,9 @@
             });
 
             function getFormValues() {
-                let invoiceNumber = $('#noInvoice').text();
+                let invoiceNumber = $('#noInvoice').val();
                 let tanggal = $('#tanggalVendor').val();
+                let noReferenceVendor = $('#noReferenceVendor').val();
                 let currency = $('#currencyInvoice').val();
                 let rateCurrency = $('#rateCurrency').val();
                 let vendor = $('#selectVendor').val();
@@ -398,30 +342,18 @@
                     let account = $(this).find('select[name="account"]').val();
                     let itemDesc = $(this).find('input[name="item_desc"]').val();
                     let debit = $(this).find('input[name="debit"]').val();
-                    let credit = $(this).find('input[name="credit"]').val();
-                    let memo = $(this).find('input[name="memo"]').val();
 
                     items.push({
                         account: account,
                         itemDesc: itemDesc,
-                        debit: debit,
-                        credit: credit,
-                        memo: memo
+                        debit: debit
                     });
                 });
-
-                // console.log({
-                //     invoiceNumber: invoiceNumber,
-                //     tanggal: tanggal,
-                //     currency: currency,
-                //     rateCurrency: rateCurrency,
-                //     vendor: vendor,
-                //     items: items
-                // });
 
                 return {
                     invoiceNumber: invoiceNumber,
                     tanggal: tanggal,
+                    noReferenceVendor: noReferenceVendor,
                     currency: currency,
                     rateCurrency: rateCurrency,
                     vendor: vendor,
@@ -432,12 +364,14 @@
             $('#buatJournal').click(function(e) {
                 e.preventDefault();
                 let formData = getFormValues();
+
                 $.ajax({
                     url: "{{ route('supInvoice.store') }}",
                     type: 'POST',
                     data: {
                         invoice_no: formData.invoiceNumber,
                         tanggal: formData.tanggal,
+                        noReferenceVendor: formData.noReferenceVendor,
                         vendor: formData.vendor,
                         matauang_id: formData.currency,
                         rateCurrency: formData.rateCurrency,
@@ -450,14 +384,15 @@
                                 location.reload();
                             });
                         } else {
-                            showMessage('error','Gagal menyimpan invoice');
+                            showMessage('error', 'Gagal menyimpan invoice');
                         }
                     },
                     error: function(xhr, status, error) {
-                        showMessage('error','Terjadi kesalahan');
+                        showMessage('error', 'Terjadi kesalahan');
                     }
                 });
             });
+
         });
     </script>
 @endsection

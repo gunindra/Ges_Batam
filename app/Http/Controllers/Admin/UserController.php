@@ -51,10 +51,10 @@ class UserController extends Controller
                     <td class="">' . ($item->name ?? '-') . '</td>
                     <td class="">' . ($item->email ?? '-') . '</td>
                     <td class="">' . ($item->role ?? '-') . '</td>
-                
+
                  <td>
                         <a  class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-name="' . $item->name . '" data-email="' . $item->email . '"  data-role="' . $item->role . '"><i class="fas fa-edit"></i></a>
-                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a> 
+                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
                 </td>
                 </tr>
             ';

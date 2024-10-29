@@ -44,7 +44,7 @@
                                     <th>Description</th>
                                     <th>Debit</th>
                                     <th>Credit</th>
-                                    <th>Memo</th>
+                                    {{-- <th>Memo</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -155,8 +155,8 @@
                                         <th>Vendor</th>
                                         <th>Tanggal</th>
                                         <th>Mata Uang</th>
-                                        <th>Total Debit</th>
-                                        <th>Total Credit</th>
+                                        <th>Status</th>
+                                        <th>Total Bayar</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -204,19 +204,21 @@
                         name: 'matauang'
                     }, // Mata Uang
                     {
-                        data: 'total_debit',
-                        name: 'total_debit'
-                    }, // Total Debit
+                        data: 'status_bayar',
+                        name: 'status_bayar',
+                        orderable: false,
+                        searchable: false
+                    }, // Status Bayar
                     {
-                        data: 'total_credit',
-                        name: 'total_credit'
-                    }, // Total Credit
+                        data: 'total_harga',
+                        name: 'total_harga'
+                    }, // Total Harga
                     {
                         data: 'action',
                         name: 'action',
                         orderable: false,
                         searchable: false
-                    }
+                    } // Action Buttons
                 ],
                 order: [],
                 lengthChange: false,
@@ -229,6 +231,7 @@
                     zeroRecords: "No matching records found"
                 }
             });
+
 
             $('#txSearch').keyup(function() {
                 var searchValue = $(this).val();
@@ -284,26 +287,28 @@
                     success: function(response) {
                         console.log(response);
 
+                        // Update modal title and details
                         $('#modalDetailInvoiceTitle').text('Detail Invoice: ' + response
                             .invoice_no);
                         $('#invoiceNo').text(response.invoice_no);
                         $('#invoiceDate').text(response.tanggal);
-                        $('#vendorName').text(response.vendor);
+                        $('#vendorName').text(response
+                        .vendor_name); // Use vendor_name instead of vendor
 
                         // Clear previous item details
                         $('#invoiceItems tbody').empty();
 
-                        // Loop through the items and append rows to the table
+                        // Initialize totals
                         var totalDebit = 0;
                         var totalCredit = 0;
 
+                        // Append each item to the table and calculate totals
                         response.items.forEach(function(item) {
                             var row = '<tr>' +
                                 '<td>' + (item.coa ? item.coa.name : 'N/A') + '</td>' +
                                 '<td>' + item.description + '</td>' +
                                 '<td>' + item.debit + '</td>' +
                                 '<td>' + item.credit + '</td>' +
-                                '<td>' + item.memo + '</td>' +
                                 '</tr>';
 
                             $('#invoiceItems tbody').append(row);
@@ -313,7 +318,7 @@
                             totalCredit += parseFloat(item.credit);
                         });
 
-                        // Update totals
+                        // Update totals in the modal
                         $('#totalDebit').text(totalDebit.toFixed(2));
                         $('#totalCredit').text(totalCredit.toFixed(2));
 
@@ -321,10 +326,11 @@
                         $('#modalDetailInvoice').modal('show');
                     },
                     error: function() {
-                        showMessage("error", "Terjadi kesalahan saat mengambil data COA");
+                        showMessage("error", "Terjadi kesalahan saat mengambil data Invoice");
                     }
                 });
             });
+
 
         });
     </script>
