@@ -3,6 +3,41 @@
 @section('title', 'Profile')
 
 @section('main')
+
+    <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog" aria-labelledby="modalFilterTanggalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFilterTanggalTitle">Filter Tanggal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mt-3">
+                                <label for="pembayaranStatus" class="form-label fw-bold">Pilih Tanggal:</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="date" id="startDate" class="form-control"
+                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
+                                    <span class="mx-2">sampai</span>
+                                    <input type="date" id="endDate" class="form-control"
+                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveFilterTanggal" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Profile</h1>
@@ -101,72 +136,64 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="mb-3">History Poin</h4>
-                        <table id="pointsHistoryTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Customer Name</th>
-                                    <th>Marking</th>
-                                    <th>Points</th>
-                                    <th>Price per Kg</th>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h4>History Poin</h4>
+                            <div class="sectionbutton">
+                                <button class="btn btn-primary" id="filterTanggal">Filter Tanggal</button>
+                                <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                                    onclick="window.location.reload()">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tabelsection">
+                            <table id="pointsHistoryTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer Name</th>
+                                        <th>Marking</th>
+                                        <th>Points</th>
+                                        <th>Price per Kg</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-
-    <!-- Modal Konfirmasi Top-Up -->
-    <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="topupModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="topupModalLabel">Konfirmasi Top-Up</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Anda akan mengisi ulang poin untuk pengguna ini.</p>
-                    <p><strong>Jumlah Poin:</strong> <input type="number" id="topupAmount" class="form-control"
-                            placeholder="Masukkan jumlah poin"></p>
-
-                    <p><strong>Harga per 1kg poin:</strong>
-                        <select id="pricePerKg" class="form-control">
-                            <option value="">Pilih Harga</option>
-                        </select>
-                    </p>
-
-                    <p><strong>Total yang Harus Dibayar:</strong> Rp <span id="totalCost">0</span></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="confirmTopUp">Konfirmasi Top-Up</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
 @endsection
 
 @section('script')
 
     <script>
         $(document).ready(function() {
-            $('#pointsHistoryTable').DataTable({
+            let table = $('#pointsHistoryTable').DataTable({
                 processing: true,
                 serverSide: true,
+                searching: false,
                 ajax: {
                     url: "{{ route('getPointsHistory') }}",
-                    type: 'GET'
+                    method: 'GET',
+                    data: function(d) {
+                        d.startDate = $('#startDate').val();
+                        d.endDate = $('#endDate').val();
+                        d.status = $('#filterStatus').val();
+                        d.txSearch = $('#txSearch').val();
+                    },
+                    error: function(xhr, error, thrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load payment data. Please try again!',
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 },
                 columns: [{
                         data: 'id',
@@ -206,8 +233,9 @@
                     {
                         targets: 6,
                         className: 'text-center'
-                    } // Centering the 'Type' badge
+                    }
                 ],
+                order: [],
                 lengthChange: false,
                 pageLength: 7,
                 language: {
@@ -219,31 +247,41 @@
                     zeroRecords: "No matching records found"
                 }
             });
+
+            flatpickr("#startDate", {
+                dateFormat: "d M Y",
+                onChange: function(selectedDates, dateStr, instance) {
+
+                    $("#endDate").flatpickr({
+                        dateFormat: "d M Y",
+                        minDate: dateStr
+                    });
+                }
+            });
+
+            flatpickr("#endDate", {
+                dateFormat: "d MM Y",
+                onChange: function(selectedDates, dateStr, instance) {
+                    var startDate = new Date($('#startDate').val());
+                    var endDate = new Date(dateStr);
+                    if (endDate < startDate) {
+                        showwMassage(error,
+                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                        $('#endDate').val('');
+                    }
+                }
+            });
+            $(document).on('click', '#filterTanggal', function(e) {
+                $('#modalFilterTanggal').modal('show');
+            });
+            $('#saveFilterTanggal').click(function() {
+                table.ajax.reload();
+                $('#modalFilterTanggal').modal('hide');
+            });
         });
     </script>
     <script>
         $(document).ready(function() {
-            const pricePerKg = 50000; // Harga per kg poin
-
-            // Saat jumlah poin diubah, hitung total biaya
-            $('#topupAmount').on('input', function() {
-                let amount = $(this).val();
-                let totalCost = amount * pricePerKg;
-                $('#totalCost').text(totalCost.toLocaleString()); // Format angka agar lebih mudah dibaca
-            });
-
-            // Handle Top-Up Confirmation
-            $('#confirmTopUp').on('click', function() {
-                let amount = $('#topupAmount').val();
-                if (amount > 0) {
-                    // Logic to handle the top-up (could be an AJAX call)
-                    alert('Top-up berhasil untuk ' + amount + ' poin.');
-                    $('#topupModal').modal('hide');
-                } else {
-                    alert('Masukkan jumlah poin yang valid.');
-                }
-            });
-
             $('#profileForm').on('submit', function(event) {
                 event.preventDefault();
 

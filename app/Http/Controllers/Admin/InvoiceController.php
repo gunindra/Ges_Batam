@@ -13,6 +13,7 @@ use App\Models\Jurnal;
 use App\Models\JurnalItem;
 use Log;
 use Str;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class InvoiceController extends Controller
@@ -148,165 +149,119 @@ class InvoiceController extends Controller
         }
     }
 
-
     public function getlistInvoice(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-        // $isNotif = $request->isNotif;
+        $txSearch = $request->has('txSearch') ? '%' . strtolower(trim($request->txSearch)) . '%' : '%%';
+        $query = DB::table('tbl_invoice as a')
+            ->select(
+                'a.id',
+                'a.no_invoice',
+                'a.tanggal_invoice',
+                DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar"),
+                'b.nama_pembeli as pembeli',
+                'a.alamat',
+                'a.metode_pengiriman',
+                'a.total_harga as harga',
+                'a.matauang_id',
+                'a.rate_matauang',
+                DB::raw("GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list"),
+                'd.id as status_id',
+                'd.status_name',
+                'a.wa_status',
+                'a.status_bayar'
+            )
+            ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
+            ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
+            ->leftJoin('tbl_resi as r', 'r.invoice_id', '=', 'a.id')
+            ->where(function ($q) use ($txSearch) {
+                $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
+                  ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
+                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch) // Menggunakan DATE_FORMAT untuk pencarian tanggal
+                  ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
+                  ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
+            });
 
-        $dateCondition = '';
         if ($startDate && $endDate) {
-            $dateCondition = "AND a.tanggal_invoice BETWEEN '$startDate' AND '$endDate'";
+            $query->whereBetween('a.tanggal_invoice', [$startDate, $endDate]);
         }
 
-        $statusCondition = $status ? "AND d.status_name LIKE '$status'" : "";
-
-        // Updated query to include wa_status only for relevant invoices
-        $q = "SELECT a.id,
-                    a.no_invoice,
-                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                    b.nama_pembeli AS pembeli,
-                    a.alamat,
-                    a.metode_pengiriman,
-                    a.total_harga AS harga,
-                    a.matauang_id,
-                    a.rate_matauang,
-                    GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list,
-                    d.id AS status_id,
-                    d.status_name,
-                    a.wa_status,
-                    a.status_bayar
-                FROM tbl_invoice AS a
-                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                JOIN tbl_status AS d ON a.status_id = d.id
-                LEFT JOIN tbl_resi AS r ON r.invoice_id = a.id
-                WHERE (
-                    UPPER(b.nama_pembeli) LIKE '$txSearch'
-                    OR UPPER(a.no_invoice) LIKE '$txSearch'
-                    )
-                $dateCondition
-                $statusCondition
-                GROUP BY a.id, a.no_invoice, a.tanggal_invoice,a.status_bayar, b.nama_pembeli, a.alamat, a.metode_pengiriman, a.total_harga, a.matauang_id, a.rate_matauang, d.id, d.status_name, a.wa_status
-                ORDER BY CASE d.id
-                            WHEN '1' THEN 1
-                            WHEN '5' THEN 2
-                            WHEN '3' THEN 3
-                            WHEN '2' THEN 4
-                            WHEN '4' THEN 5
-                            ELSE 6
-                        END,
-                        a.id DESC
-                LIMIT 100;";
-
-        $data = DB::select($q);
-
-        // Currency symbols array
-        $currencySymbols = [
-            1 => 'Rp. ',
-            2 => '$ ',
-            3 => '¥ '
-        ];
-
-        // Table generation
-        $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
-                        <thead class="thead-light">
-                            <tr>';
-                            // if ($isNotif == 'true') {
-                                $output .= '<th class="no-sort"><input type="checkbox" class="selectAll" id="selectAll"></th>';
-                            // }
-        $output .= '
-                                <th>No Invoice</th>
-                                <th>Tanggal</th>
-                                <th>Customer</th>
-                                <th>Pengiriman</th>
-                                <th>Alamat</th>
-                                <th>Status Pembayaran </th>
-                                <th>Harga</th>
-                                <th>Status</th>';
-                            // if ($isNotif = 'true') {
-                                $output .= '<th>Action</th>';
-                            // }
-        $output .= '</tr>
-                        </thead>
-                        <tbody>';
-
-        foreach ($data as $item) {
-            $statusBadgeClass = '';
-            $btnChangeMethod = '';
-
-            switch ($item->status_name) {
-                case 'Batam / Sortir':
-                    $statusBadgeClass = 'badge-primary';
-                    break;
-                case 'Ready For Pickup':
-                    $statusBadgeClass = 'badge-warning';
-                    break;
-                case 'Out For Delivery':
-                    $statusBadgeClass = 'badge-primary';
-                    break;
-                case 'Delivering':
-                    $statusBadgeClass = 'badge-delivering';
-                    break;
-                case 'Done':
-                    $statusBadgeClass = 'badge-secondary';
-                    break;
-                default:
-                    $statusBadgeClass = 'badge-secondary';
-                    break;
-            }
-
-            // Change method button for certain conditions
-            if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
-                $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
-            }
-
-            // Convert the price based on currency
-            $convertedHarga = $item->harga;
-            if ($item->matauang_id != 1) {
-                $convertedHarga = $item->harga / $item->rate_matauang;
-            }
-
-            // WhatsApp status icon logic
-            $waStatusIcon = '';
-            if ($item->wa_status == 'pending') {
-                $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;" title="Mengirimkan pesan WhatsApp"></i>';
-            } elseif ($item->wa_status == 'sent') {
-                $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;" title="Pesan WhatsApp terkirim"></i>';
-            } elseif ($item->wa_status == 'failed') {
-                $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;" title="Pesan WhatsApp gagal"></i>';
-            }
-
-            // Generating table rows
-            $output .= '<tr>';
-            // if ($isNotif == 'true') {
-                $output .= '<td><input type="checkbox" class="selectItem" data-id="' . $item->id . '"></td>';
-            // }
-
-            $output .= '
-                <td>' . ($item->no_invoice ?? '-') . ' ' . $waStatusIcon . '</td>
-                <td>' . ($item->tanggal_bayar ?? '-') . '</td>
-                <td>' . ($item->pembeli ?? '-') . '</td>
-                <td>' . ($item->metode_pengiriman ?? '-') . '</td>
-                <td>' . ($item->alamat ?? '-') . '</td>
-                <td>' . ($item->status_bayar ?? '-') . '</td>
-                <td>' . $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',') . '</td>
-                <td><span class="badge ' . $statusBadgeClass . '">' . ($item->status_name ?? '-') . '</span></td>';
-
-            // if ($isNotif = 'true') {
-                $output .= '<td>' . $btnChangeMethod . '
-                            <a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>
-                            </td>';
-            // }
-            $output .= '</tr>';
+        if ($status) {
+            $query->where('d.status_name', 'LIKE', $status);
         }
 
-        $output .= '</tbody></table>';
+        $query->groupBy(
+                'a.id',
+                'a.no_invoice',
+                'a.tanggal_invoice',
+                'a.status_bayar',
+                'b.nama_pembeli',
+                'a.alamat',
+                'a.metode_pengiriman',
+                'a.total_harga',
+                'a.matauang_id',
+                'a.rate_matauang',
+                'd.id',
+                'd.status_name',
+                'a.wa_status'
+            )
+            ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END")
+            ->orderBy('a.id', 'DESC');
 
-        return $output;
+        return DataTables::of($query)
+            ->addColumn('no_invoice', function ($item) {
+                $waStatusIcon = '';
+                if ($item->wa_status == 'pending') {
+                    $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;" title="Mengirimkan pesan WhatsApp"></i>';
+                } elseif ($item->wa_status == 'sent') {
+                    $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;" title="Pesan WhatsApp terkirim"></i>';
+                } elseif ($item->wa_status == 'failed') {
+                    $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;" title="Pesan WhatsApp gagal"></i>';
+                }
+
+                return ($item->no_invoice ?? '-') . ' ' . $waStatusIcon;
+            })
+            ->addColumn('status_bayar', function($row) {
+                return $row->status_bayar == 'Lunas'
+                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
+                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
+            })
+            ->addColumn('status_badge', function ($item) {
+                $statusBadgeClass = match ($item->status_name) {
+                    'Batam / Sortir' => 'badge-primary',
+                    'Ready For Pickup' => 'badge-warning',
+                    'Out For Delivery' => 'badge-primary',
+                    'Delivering' => 'badge-delivering',
+                    'Done' => 'badge-secondary',
+                    default => 'badge-secondary',
+                };
+                return '<span class="badge ' . $statusBadgeClass . '">' . $item->status_name . '</span>';
+            })
+            ->addColumn('converted_harga', function ($item) {
+                $currencySymbols = [
+                    1 => 'Rp. ',
+                    2 => '$ ',
+                    3 => '¥ '
+                ];
+                $convertedHarga = $item->harga;
+                if ($item->matauang_id != 1) {
+                    $convertedHarga = $item->harga / $item->rate_matauang;
+                }
+                return $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',');
+            })
+            ->addColumn('action', function ($item) {
+                $btnChangeMethod = '';
+                if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
+                    $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm mr-2 btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
+                }
+                return $btnChangeMethod . '<a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
+            })
+            ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar'])
+            ->make(true);
     }
+
 
 
     public function tambainvoice(Request $request)

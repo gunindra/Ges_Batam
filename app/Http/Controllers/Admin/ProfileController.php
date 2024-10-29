@@ -53,15 +53,30 @@ class ProfileController extends Controller
         return redirect()->route('home');
     }
 
-    public function getPointsHistory()
+    public function getPointsHistory(Request $request)
     {
         $user = auth()->user();
         $whereConditionTopup = "";
         $whereConditionUsage = "";
+
+        // Tambahkan filter user_id jika bukan superadmin
         if ($user->role !== 'superadmin') {
-            $whereConditionTopup = "WHERE tbl_pembeli.user_id = {$user->id}";
-            $whereConditionUsage = "WHERE tbl_pembeli.user_id = {$user->id}";
+            $whereConditionTopup .= "WHERE tbl_pembeli.user_id = {$user->id}";
+            $whereConditionUsage .= "WHERE tbl_pembeli.user_id = {$user->id}";
         }
+
+        // Tambahkan filter tanggal untuk semua pengguna
+        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
+        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
+
+        if ($startDate && $endDate) {
+            $dateConditionTopup = "date BETWEEN '{$startDate}' AND '{$endDate}'";
+            $dateConditionUsage = "usage_date BETWEEN '{$startDate}' AND '{$endDate}'";
+
+            $whereConditionTopup .= ($whereConditionTopup ? " AND " : "WHERE ") . $dateConditionTopup;
+            $whereConditionUsage .= ($whereConditionUsage ? " AND " : "WHERE ") . $dateConditionUsage;
+        }
+
         $sql = "
             SELECT
                 tbl_history_topup.id,
@@ -115,4 +130,5 @@ class ProfileController extends Controller
             ->rawColumns(['type_badge'])
             ->make(true);
     }
+
 }
