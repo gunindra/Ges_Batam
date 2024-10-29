@@ -63,35 +63,35 @@
                         </div>
 
                         <!-- Indikator Harga Berlaku -->
-                        <div class="mb-3">
+                        {{-- <div class="mb-3">
                             <p class="text-muted">Harga per 1kg poin saat ini: <strong>Rp 50.000</strong></p>
-                        </div>
+                        </div> --}}
 
                         <!-- Progress Bar to Show Poin Usage -->
-                        <div class="progress mb-3">
+                        {{-- <div class="progress mb-3">
                             <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="70"
                                 aria-valuemin="0" aria-valuemax="100">100% Used</div>
-                        </div>
+                        </div> --}}
 
                         <!-- Top-Up Points Section with prominent button -->
-                        <div class="rewards-section">
+                        {{-- <div class="rewards-section">
                             <h4>Top-Up Points</h4>
                             <div class="reward-item d-flex align-items-center">
                                 <p class="pt-2">Ingin Mengisi Poin Untuk User Ini?</p>
                                 <button class="btn-topUp ml-3 btn btn-lg btn-primary" data-toggle="modal"
                                     data-target="#topupModal">Top Up</button>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Riwayat Penggunaan Poin Terakhir -->
-                        <div class="mb-3">
+                        {{-- <div class="mb-3">
                             <h5>Riwayat Penggunaan Terakhir</h5>
                             <ul>
                                 <li>10 Poin digunakan pada 2024-10-20</li>
                                 <li>5 Poin digunakan pada 2024-10-18</li>
                                 <li>15 Poin digunakan pada 2024-10-15</li>
                             </ul>
-                        </div>
+                        </div> --}}
 
                     </div>
                 </div>

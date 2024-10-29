@@ -55,7 +55,13 @@ class ProfileController extends Controller
 
     public function getPointsHistory()
     {
-        // Raw SQL Query
+        $user = auth()->user();
+        $whereConditionTopup = "";
+        $whereConditionUsage = "";
+        if ($user->role !== 'superadmin') {
+            $whereConditionTopup = "WHERE tbl_pembeli.user_id = {$user->id}";
+            $whereConditionUsage = "WHERE tbl_pembeli.user_id = {$user->id}";
+        }
         $sql = "
             SELECT
                 tbl_history_topup.id,
@@ -72,6 +78,7 @@ class ProfileController extends Controller
                 tbl_pembeli ON tbl_history_topup.customer_id = tbl_pembeli.id
             JOIN
                 tbl_coa ON tbl_history_topup.account_id = tbl_coa.id
+            $whereConditionTopup
 
             UNION ALL
 
@@ -88,36 +95,24 @@ class ProfileController extends Controller
                 tbl_usage_points
             JOIN
                 tbl_pembeli ON tbl_usage_points.customer_id = tbl_pembeli.id
+            $whereConditionUsage
 
             ORDER BY
                 date
         ";
 
-        // Run the raw SQL query
         $combinedData = \DB::select($sql);
-
-        // Convert the result to a collection for DataTables compatibility
         $combinedData = collect($combinedData);
-
-        // Return DataTables response
         return DataTables::of($combinedData)
-                ->editColumn('date', function ($row) {
-                    return \Carbon\Carbon::parse($row->date)->translatedFormat('d F Y');
-                })
-                ->addColumn('type_badge', function ($row) {
-                    return $row->type === 'Masuk'
-                        ? '<span class="badge text-white bg-success">Masuk</span>'
-                        : '<span class="badge text-white bg-danger">Keluar</span>';
-                })
-                ->rawColumns(['type_badge'])
-                ->make(true);
+            ->editColumn('date', function ($row) {
+                return \Carbon\Carbon::parse($row->date)->translatedFormat('d F Y');
+            })
+            ->addColumn('type_badge', function ($row) {
+                return $row->type === 'Masuk'
+                    ? '<span class="badge text-white bg-success">Masuk</span>'
+                    : '<span class="badge text-white bg-danger">Keluar</span>';
+            })
+            ->rawColumns(['type_badge'])
+            ->make(true);
     }
-
-
-
-
-
-
-
-
 }
