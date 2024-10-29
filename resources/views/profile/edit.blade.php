@@ -55,7 +55,9 @@
 
                         <div class="mb-3">
                             <div class="text-center">
-                                <h1 id="pointValue" class="display-3 font-weight-bold text-primary">  {{ $listPoin !== null ? (floor($listPoin) == $listPoin ? number_format($listPoin, 0): rtrim(rtrim(number_format($listPoin, 2), '0'), '.')) : '0' }} poin</h1>
+                                <h1 id="pointValue" class="display-3 font-weight-bold text-primary">
+                                    {{ $listPoin !== null ? (floor($listPoin) == $listPoin ? number_format($listPoin, 0) : rtrim(rtrim(number_format($listPoin, 2), '0'), '.')) : '0' }}
+                                    poin</h1>
                                 <p class="text-muted">Poin</p>
                             </div>
                         </div>
@@ -100,44 +102,19 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="mb-3">History Poin</h4>
-                        <table class="table table-striped">
+                        <table id="pointsHistoryTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th>Costumer ID</th>
-                                    <th>Nama Costumer</th>
-                                    <th>Nominal Top Up</th>
-                                    <th>Harga (1kg)</th>
-                                    <th>Nama Akun Jurnal</th>
-                                    <th>Status</th>
-                                    <th>Tanggal</th>
-                                    <th>Poin</th> <!-- Kolom untuk penanda poin -->
+                                    <th>ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Marking</th>
+                                    <th>Points</th>
+                                    <th>Price per Kg</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>001</td>
-                                    <td>John Doe</td>
-                                    <td>100.000</td>
-                                    <td>50.000</td>
-                                    <td>Jurnal A</td>
-                                    <td><span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span></td>
-                                    <td>2024-10-23</td>
-                                    <td><span class="badge text-white bg-success">Masuk</span></td>
-                                    <!-- Penanda poin masuk -->
-                                </tr>
-                                <tr>
-                                    <td>002</td>
-                                    <td>Jane Smith</td>
-                                    <td>50.000</td>
-                                    <td>25.000</td>
-                                    <td>Jurnal B</td>
-                                    <td><span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum
-                                            Lunas</span></td>
-                                    <td>2024-10-22</td>
-                                    <td><span class="badge text-white bg-danger">Keluar</span></td>
-                                    <!-- Penanda poin keluar -->
-                                </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -181,8 +158,70 @@
 @endsection
 
 @section('script')
+
     <script>
-        
+        $(document).ready(function() {
+            $('#pointsHistoryTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('getPointsHistory') }}",
+                    type: 'GET'
+                },
+                columns: [{
+                        data: 'id',
+                        name: 'id'
+                    },
+                    {
+                        data: 'customer_name',
+                        name: 'customer_name'
+                    },
+                    {
+                        data: 'marking',
+                        name: 'marking'
+                    },
+                    {
+                        data: 'points',
+                        name: 'points'
+                    },
+                    {
+                        data: 'price_per_kg',
+                        name: 'price_per_kg'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date'
+                    },
+                    {
+                        data: 'type_badge',
+                        name: 'type_badge',
+                        orderable: false,
+                        searchable: false
+                    },
+                ],
+                columnDefs: [{
+                        targets: [0, 6],
+                        className: 'text-center'
+                    },
+                    {
+                        targets: 6,
+                        className: 'text-center'
+                    } // Centering the 'Type' badge
+                ],
+                lengthChange: false,
+                pageLength: 7,
+                language: {
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+                    info: "_START_ to _END_ of _TOTAL_ entries",
+                    infoEmpty: "Showing 0 to 0 of 0 entries",
+                    emptyTable: "No data available in table",
+                    loadingRecords: "Loading...",
+                    zeroRecords: "No matching records found"
+                }
+            });
+        });
+    </script>
+    <script>
         $(document).ready(function() {
             const pricePerKg = 50000; // Harga per kg poin
 
