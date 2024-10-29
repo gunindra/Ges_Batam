@@ -88,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::get('/profile/points-history', [ProfileController::class, 'getPointsHistory'])->name('getPointsHistory');
     // Verifikasi Email
     Route::get('/email/verify', [VerifyEmailController::class, '__invoke'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['auth', 'signed'])->name('verification.verify');

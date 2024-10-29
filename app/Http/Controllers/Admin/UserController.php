@@ -22,7 +22,7 @@ class UserController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $role = $request->role;
-    
+
         $data = DB::table('tbl_users')
             ->select('id', 'name', 'email', 'password', 'role')
             ->where(function ($q) use ($txSearch) {
@@ -32,9 +32,9 @@ class UserController extends Controller
             ->when($role, function ($q) use ($role) {
                 return $q->where('role', $role);
             })
-            ->orderBy('updated_at', 'desc') 
+            ->orderBy('updated_at', 'desc')
             ->get();
-    
+
         $output = '<table class="table align-items-center table-flush table-hover" id="tableUser">
                         <thead class="thead-light">
                             <tr>
@@ -45,24 +45,23 @@ class UserController extends Controller
                             </tr>
                         </thead>
                         <tbody>';
-                        
+
         foreach ($data as $item) {
             $output .=
-                '<tr>
-                    <td>' . ($item->name ?? '-') . '</td>
-                    <td>' . ($item->email ?? '-') . '</td>
-                    <td>' . ($item->role ?? '-') . '</td>
-                    <td>
-                        <a class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-name="' . $item->name . '" data-email="' . $item->email . '" data-password="' . $item->password . '" data-role="' . $item->role . '">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '">
-                            <i class="fas fa-trash"></i>
-                        </a> 
-                    </td>
-                </tr>';
+                '
+                <tr>
+                    <td class="">' . ($item->name ?? '-') . '</td>
+                    <td class="">' . ($item->email ?? '-') . '</td>
+                    <td class="">' . ($item->role ?? '-') . '</td>
+
+                 <td>
+                        <a  class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-name="' . $item->name . '" data-email="' . $item->email . '"  data-role="' . $item->role . '"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '" ><i class="fas fa-trash"></i></a>
+                </td>
+                </tr>
+            ';
         }
-    
+
         $output .= '</tbody></table>';
         return $output;
     }
@@ -80,8 +79,8 @@ class UserController extends Controller
             $User = new User();
             $User->name = $request->input('nameUsers');
             $User->email = $request->input('emailUsers');
-            $User->password = bcrypt($request->input('passwordUsers')); 
-            $User->role = $request->input('roleUsers'); 
+            $User->password = bcrypt($request->input('passwordUsers'));
+            $User->role = $request->input('roleUsers');
 
             $User->save();
 
@@ -96,7 +95,7 @@ class UserController extends Controller
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255',
             'roleUsers' => 'required|string|max:50',
-           'passwordUsers' => 'nullable|min:8|confirmed', 
+           'passwordUsers' => 'nullable|min:8|confirmed',
         ]);
         try {
             $User = User::findOrFail($id);
@@ -105,7 +104,7 @@ class UserController extends Controller
             if ($request->filled('passwordUsers')) {
                 $User->password = bcrypt($request->input('passwordUsers'));
             }
-            $User->role = $request->input('roleUsers'); 
+            $User->role = $request->input('roleUsers');
 
             $User->update($validated);
 

@@ -40,13 +40,14 @@ class SupplierInvoiceController extends Controller
     {
         if ($request->ajax()) {
 
-            // Tambahkan join dengan tabel tbl_vendors untuk mendapatkan nama vendor
+            // Join with tbl_vendors to get the vendor name and with tbl_matauang to get currency abbreviation
             $data = SupInvoice::join('tbl_matauang', 'tbl_sup_invoice.matauang_id', '=', 'tbl_matauang.id')
-                ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id') // Join ke tabel tbl_vendors
-                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Pilih nama vendor
+                ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id')
+                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Select vendor name
+                ->orderBy('id', 'desc')
                 ->with('items');
 
-            // Filter tanggal jika ada startDate dan endDate
+            // Filter by date range if startDate and endDate are provided
             if (!empty($request->startDate) && !empty($request->endDate)) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));
                 $endDate = date('Y-m-d', strtotime($request->endDate));
@@ -59,7 +60,7 @@ class SupplierInvoiceController extends Controller
                     return $row->invoice_no;
                 })
                 ->addColumn('vendor', function($row) {
-                    return $row->vendor_name; // Tampilkan nama vendor
+                    return $row->vendor_name;
                 })
                 ->addColumn('tanggal', function($row) {
                     return Carbon::parse($row->tanggal)->format('d F Y');
@@ -67,13 +68,13 @@ class SupplierInvoiceController extends Controller
                 ->addColumn('matauang', function($row) {
                     return $row->singkatan_matauang;
                 })
-                ->addColumn('total_debit', function($row) {
-                    $totalDebit = $row->items->sum('debit');
-                    return number_format($totalDebit, 2);
+                ->addColumn('status_bayar', function($row) {
+                    return $row->status_bayar == 'Lunas'
+                        ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
+                        : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
                 })
-                ->addColumn('total_credit', function($row) {
-                    $totalCredit = $row->items->sum('credit');
-                    return number_format($totalCredit, 2);
+                ->addColumn('total_harga', function($row) {
+                    return number_format($row->total_harga, 2);
                 })
                 ->addColumn('action', function($row) {
                     $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
@@ -84,16 +85,16 @@ class SupplierInvoiceController extends Controller
                         $searchValue = $request->search['value'];
                         $query->where(function($q) use ($searchValue) {
                             $q->where('tbl_sup_invoice.invoice_no', 'like', "%{$searchValue}%")
-                              ->orWhere('tbl_vendors.name', 'like', "%{$searchValue}%") // Tambahkan pencarian nama vendor
+                              ->orWhere('tbl_vendors.name', 'like', "%{$searchValue}%")
                               ->orWhere('tbl_matauang.singkatan_matauang', 'like', "%{$searchValue}%");
                         });
                     }
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['status_bayar', 'action'])
                 ->make(true);
         }
-
     }
+
 
     public function addSupplierInvoice()
     {
@@ -164,12 +165,12 @@ class SupplierInvoiceController extends Controller
             'invoice_no' => 'required|unique:tbl_sup_invoice,invoice_no',
             'tanggal' => 'required|date',
             'vendor' => 'required',
+            'noReferenceVendor' => 'required',
             'matauang_id' => 'required',
             'items' => 'required|array',
             'items.*.account' => 'required',
             'items.*.itemDesc' => 'required',
-            'items.*.debit' => 'nullable|numeric',
-            'items.*.credit' => 'nullable|numeric',
+            'items.*.debit' => 'required|numeric',
         ]);
 
         DB::beginTransaction();
@@ -177,78 +178,80 @@ class SupplierInvoiceController extends Controller
         try {
             $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
 
-            $totalDebit = 0;
-            $totalCredit = 0;
+            // Ensure all debit values are numeric and calculate the total debit
+            $totalDebit = array_sum(array_map(function ($item) {
+                return (float)$item['debit'];
+            }, $request->items));
 
-            foreach ($request->items as $item) {
-                $totalDebit += $item['debit'] ?? 0;
-                $totalCredit += $item['credit'] ?? 0;
+            // Fetch the vendor's account ID to use as the credit account
+            $vendor = Vendor::findOrFail($request->vendor);
+            $vendorAccountId = $vendor->account_id;
+
+            if (!$vendorAccountId) {
+                throw new \Exception('Vendor tidak memiliki account_id.');
             }
 
-            if ($totalDebit !== $totalCredit) {
-                throw new \Exception('Total debit dan credit tidak seimbang.');
-            }
-
+            // Create the supplier invoice
             $supInvoice = SupInvoice::create([
                 'invoice_no' => $request->invoice_no,
                 'tanggal' => $formattedDate,
                 'vendor_id' => $request->vendor,
+                'no_ref' => $request->noReferenceVendor,
                 'matauang_id' => $request->matauang_id,
                 'total_harga' => $totalDebit,
                 'total_bayar' => 0,
             ]);
 
+            // Create each item as a debit entry in SupInvoiceItem
             foreach ($request->items as $item) {
                 SupInvoiceItem::create([
                     'invoice_id' => $supInvoice->id,
                     'coa_id' => $item['account'],
                     'description' => $item['itemDesc'],
-                    'debit' => $item['debit'] ?? 0,
-                    'credit' => $item['credit'] ?? 0,
-                    'memo' => $item['memo'] ?? '',
+                    'debit' => (float)$item['debit'], // Cast debit to float to avoid string issues
+                    'credit' => 0,
                 ]);
             }
 
-            try {
-                $request->merge(['code_type' => 'AP']);
-                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+            $request->merge(['code_type' => 'AP']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
-                $jurnal = Jurnal::create([
-                    'no_journal' => $noJournal,
-                    'tipe_kode' => 'AP',
-                    'tanggal' => $formattedDate,
-                    'no_ref' => $request->invoice_no,
-                    'status' => 'Approve',
-                    'description' => "Jurnal untuk Invoice {$request->invoice_no}",
-                    'totaldebit' => $totalDebit,
-                    'totalcredit' => $totalCredit,
+            $jurnal = Jurnal::create([
+                'no_journal' => $noJournal,
+                'tipe_kode' => 'AP',
+                'tanggal' => $formattedDate,
+                'no_ref' => $request->invoice_no,
+                'status' => 'Approve',
+                'description' => "Jurnal untuk Invoice {$request->invoice_no}",
+                'totaldebit' => $totalDebit,
+                'totalcredit' => $totalDebit,
+            ]);
+
+            foreach ($request->items as $item) {
+                JurnalItem::create([
+                    'jurnal_id' => $jurnal->id,
+                    'code_account' => $item['account'],
+                    'description' => "Debit untuk Invoice {$request->invoice_no}",
+                    'debit' => (float)$item['debit'],
+                    'credit' => 0,
                 ]);
-
-                foreach ($request->items as $item) {
-                    if ($item['debit'] > 0) {
-                        JurnalItem::create([
-                            'jurnal_id' => $jurnal->id,
-                            'code_account' => $item['account'],
-                            'description' => "Debit untuk Invoice {$request->invoice_no}",
-                            'debit' => $item['debit'],
-                            'credit' => 0,
-                        ]);
-                    }
-
-                    if ($item['credit'] > 0) {
-                        JurnalItem::create([
-                            'jurnal_id' => $jurnal->id,
-                            'code_account' => $item['account'],
-                            'description' => "Credit untuk Invoice {$request->invoice_no}",
-                            'debit' => 0,
-                            'credit' => $item['credit'],
-                        ]);
-                    }
-                }
-
-            } catch (\Exception $e) {
-                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
+
+            SupInvoiceItem::create([
+                'invoice_id' => $supInvoice->id,
+                'coa_id' => $vendorAccountId,
+                'description' => "Credit untuk invoice {$request->invoice_no}",
+                'debit' => 0,
+                'credit' => $totalDebit,
+            ]);
+
+            JurnalItem::create([
+                'jurnal_id' => $jurnal->id,
+                'code_account' => $vendorAccountId,
+                'description' => "Credit untuk Invoice {$request->invoice_no}",
+                'debit' => 0,
+                'credit' => $totalDebit,
+            ]);
 
             DB::commit();
 
@@ -260,18 +263,32 @@ class SupplierInvoiceController extends Controller
     }
 
 
+
+
+
     public function showDetail(Request $request)
     {
-
         $id = $request->input('id');
-        $invoice = SupInvoice::with(['items.coa'])->find($id);
+        $invoice = SupInvoice::with(['items.coa', 'vendor'])->find($id);
 
         if (!$invoice) {
             return response()->json(['error' => 'Invoice not found'], 404);
         }
         $invoice->tanggal = Carbon::parse($invoice->tanggal)->translatedFormat('d F Y');
-        return response()->json($invoice);
+        $response = [
+            'invoice_no' => $invoice->invoice_no,
+            'tanggal' => $invoice->tanggal,
+            'no_ref' => $invoice->no_ref,
+            'matauang_id' => $invoice->matauang_id,
+            'total_harga' => $invoice->total_harga,
+            'total_bayar' => $invoice->total_bayar,
+            'vendor_name' => $invoice->vendor->name,
+            'items' => $invoice->items
+        ];
+
+        return response()->json($response);
     }
+
 
 
 
