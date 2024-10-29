@@ -17,6 +17,7 @@ class CostumerController extends Controller
         return view('masterdata.costumer.indexmastercostumer', [
             'listCategory' => $listCategory
         ]);
+
     }
 
     public function getlistCostumer(Request $request)
@@ -25,7 +26,7 @@ class CostumerController extends Controller
         $status = $request->status;
 
         $query = DB::table('tbl_pembeli')
-                ->select(
+            ->select(
                 'tbl_pembeli.id',
                 'tbl_pembeli.marking',
                 'tbl_pembeli.nama_pembeli',
@@ -37,13 +38,15 @@ class CostumerController extends Controller
                 DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
                 'tbl_pembeli.status',
                 'tbl_pembeli.category_id',
-                'tbl_category.category_name'
+                'tbl_category.category_name',
+                'tbl_users.email',
             )
             ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
             ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
-            ->where(function($q) use ($txSearch) {
+            ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+            ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', strtoupper($txSearch))
-                  ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch));
+                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch));
             });
 
         if ($status === '1') {
@@ -53,17 +56,18 @@ class CostumerController extends Controller
         }
 
         $data = $query->groupBy(
-                'tbl_pembeli.id',
-                'tbl_pembeli.marking',
-                'tbl_pembeli.nama_pembeli',
-                'tbl_pembeli.no_wa',
-                'tbl_pembeli.sisa_poin',
-                'tbl_pembeli.metode_pengiriman',
-                'tbl_pembeli.transaksi_terakhir',
-                'tbl_pembeli.status',
-                'tbl_pembeli.category_id',
-                'tbl_category.category_name'
-            )
+            'tbl_pembeli.id',
+            'tbl_pembeli.marking',
+            'tbl_pembeli.nama_pembeli',
+            'tbl_pembeli.no_wa',
+            'tbl_pembeli.sisa_poin',
+            'tbl_pembeli.metode_pengiriman',
+            'tbl_pembeli.transaksi_terakhir',
+            'tbl_pembeli.status',
+            'tbl_pembeli.category_id',
+            'tbl_category.category_name',
+            'tbl_users.email',
+        )
             ->orderBy('tbl_pembeli.status', 'DESC')
             ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC')
             ->get();
@@ -102,7 +106,7 @@ class CostumerController extends Controller
                     ' . $statusCell . '
                     <td>
                         <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '"  data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '"  data-metode_pengiriman="' . $item->metode_pengiriman . '"  data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
+                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '"  data-metode_pengiriman="' . $item->metode_pengiriman . '"  data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
                     </td>
                 </tr>
             ';
@@ -111,6 +115,7 @@ class CostumerController extends Controller
         $output .= '</tbody></table>';
         return $output;
     }
+
 
 
     public function addCostumer(Request $request)
@@ -166,8 +171,6 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
-
-
 
 
     public function updateCostumer(Request $request)

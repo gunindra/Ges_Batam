@@ -3,7 +3,6 @@
 @section('title', 'Master Data | User')
 
 @section('main')
-
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <div class="modal fade" id="modalTambahUsers" tabindex="-1" role="dialog" aria-labelledby="modalTambahUsersTitle"
@@ -30,15 +29,32 @@
                                 placeholder="Masukkan email user">
                             <div id="emailUsersError" class="text-danger mt-1 d-none">Silahkan isi Email</div>
                         </div>
+                        <div class="password-field mt-3">
+                            <label for="passwordUsers" class="form-label fw-bold">Password</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="passwordUsers"
+                                    placeholder="Masukkan password">
+                                <span id="togglePassword" class="input-group-text" style="cursor: pointer;">
+                                    <i class="fa fa-eye" id="eyeIcon"></i>
+                                </span>
+                            </div>
+                            <div id="passwordUsersError" class="text-danger mt-1 d-none">Password must be at least 8
+                                characters.</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="passwordConfirmationUsers" class="form-label fw-bold">Konfirmasi
+                                Password</label>
+                            <input type="password" class="form-control" id="passwordConfirmationUsers"
+                                placeholder="Konfirmasi password">
+                            <div id="passwordConfirmationError" class="text-danger mt-1 d-none">Konfirmasi password
+                                tidak cocok</div>
+                        </div>
                         <div class="mt-3">
                             <label for="roleUsers" class="form-label fw-bold">Role</label>
                             <select class="form-control" id="roleUsers" style="width: 466px;">
                                 <option value="" selected disabled>Pilih Role</option>
-                                @foreach ($listRole as $role)
-                                    <option value="{{ $role->role }}">
-                                        {{ $role->role }}
-                                    </option>
-                                @endforeach
+                                <option value="superadmin">Superadmin</option>
+                                <option value="admin">Admin</option>
                             </select>
                             <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                         </div>
@@ -75,14 +91,32 @@
                         <div id="emailUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Email</div>
                     </div>
                     <div class="mt-3">
+                        <label for="passwordUsersEdit" class="form-label fw-bold">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="passwordUsersEdit"
+                                placeholder="Masukkan new password">
+                            <span id="togglePassword1" class="input-group-text" style="cursor: pointer;">
+                                <i class="fa fa-eye" id="eyeIcon1"></i>
+                            </span>
+                        </div>
+                        <div id="passwordUsersErrorEdit" class="text-danger mt-1 d-none">Password must be at least 8
+                            characters.
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="passwordConfirmationUsersEdit" class="form-label fw-bold">Konfirmasi
+                            Password</label>
+                        <input type="password" class="form-control" id="passwordConfirmationUsersEdit"
+                            placeholder="Konfirmasi password">
+                        <div id="passwordConfirmationErrorEdit" class="text-danger mt-1 d-none">Konfirmasi password
+                            tidak cocok</div>
+                    </div>
+                    <div class="mt-3">
                         <label for="roleUsersEdit" class="form-label fw-bold">Role</label>
                         <select class="form-control" id="roleUsersEdit" style="width: 466px;">
                             <option value="" selected disabled>Pilih Role</option>
-                            @foreach ($listRole as $role)
-                                <option value="{{ $role->role }}">
-                                    {{ $role->role }}
-                                </option>
-                            @endforeach
+                            <option value="superadmin">Superadmin</option>
+                            <option value="admin">Admin</option>
                         </select>
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>
@@ -197,7 +231,9 @@
         $('#saveUsers').click(function () {
             var nameUsers = $('#nameUsers').val().trim();
             var emailUsers = $('#emailUsers').val().trim();
-            var roleUsers = $('#roleUsers').val().trim();
+            var passwordUsers = $('#passwordUsers').val();
+            var passwordConfirmation = $('#passwordConfirmationUsers').val();
+            var roleUsers = $('#roleUsers').val();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -222,6 +258,19 @@
             } else {
                 $('#emailUsersError').addClass('d-none');
             }
+            if (passwordUsers.length < 8) {
+                $('#passwordUsersError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#passwordUsersError').addClass('d-none');
+            }
+            if (passwordUsers !== passwordConfirmation) {
+                $('#passwordConfirmationError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#passwordConfirmationError').addClass('d-none');
+            }
+
             if (!roleUsers || roleUsers === '' || roleUsers === '0') {
                 $('#roleUsersError').removeClass('d-none');
                 isValid = false;
@@ -256,6 +305,8 @@
                             data: {
                                 nameUsers: nameUsers,
                                 emailUsers: emailUsers,
+                                passwordUsers: passwordUsers,
+                                passwordUsers_confirmation: passwordConfirmation,
                                 roleUsers: roleUsers,
                                 _token: '{{ csrf_token() }}',
                             },
@@ -279,12 +330,18 @@
             }
         });
         $('#modalTambahUsers').on('hidden.bs.modal', function () {
-            $('#nameUsers,#emailUsers,#roleUsers').val('');
+            $('#nameUsers,#emailUsers,#passwordUsers,#passwordConfirmationUsers,#roleUsers').val('');
             if (!$('#nameUsersError').hasClass('d-none')) {
                 $('#nameUsersError').addClass('d-none');
             }
             if (!$('#emailUsersError').hasClass('d-none')) {
                 $('#emailUsersError').addClass('d-none');
+            }
+            if (!$('#passwordUsersError').hasClass('d-none')) {
+                $('#passwordUsersError').addClass('d-none');
+            }
+            if (!$('#passwordConfirmationError').hasClass('d-none')) {
+                $('#passwordConfirmationError').addClass('d-none');
             }
             if (!$('#roleUsersError').hasClass('d-none')) {
                 $('#roleUsersError').addClass('d-none');
@@ -298,6 +355,7 @@
                 success: function (response) {
                     $('#nameUsersEdit').val(response.name);
                     $('#emailUsersEdit').val(response.email);
+                    $('#passwordUsersEdit').val(response.password);
                     $('#roleUsersEdit').val(response.role);
                     $('#modalEditUsers').modal('show');
                     $('#saveEditUsers').data('id', userid);
@@ -312,6 +370,8 @@
             var userid = $(this).data('id');
             var nameUsers = $('#nameUsersEdit').val();
             var emailUsers = $('#emailUsersEdit').val();
+            var passwordUsers = $('#passwordUsersEdit').val();
+            var passwordConfirmation = $('#passwordConfirmationUsersEdit').val();
             var roleUsers = $('#roleUsersEdit').val();
 
             var isValid = true;
@@ -334,6 +394,21 @@
                 isValid = false;
             } else {
                 $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (passwordUsers.length > 0) {
+
+                if (passwordUsers.length < 8) {
+                    $('#passwordUsersErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#passwordUsersErrorEdit').addClass('d-none');
+                }
+                if (passwordUsers !== passwordConfirmation) {
+                    $('#passwordConfirmationErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#passwordConfirmationErrorEdit').addClass('d-none');
+                }
             }
             if (!roleUsers || roleUsers === '' || roleUsers === '0') {
                 $('#roleUsersErrorEdit').removeClass('d-none');
@@ -369,6 +444,8 @@
                             data: {
                                 nameUsers: nameUsers,
                                 emailUsers: emailUsers,
+                                passwordUsers: passwordUsers,
+                                passwordUsers_confirmation: passwordConfirmation,
                                 roleUsers: roleUsers,
                                 _token: '{{ csrf_token() }}',
                             },
@@ -390,12 +467,18 @@
             }
         });
         $('#modalEditUsers').on('hidden.bs.modal', function () {
-            $('#nameUsersEdit,#emailUsersEdit,#roleUsersEdit').val('');
+            $('#nameUsersEdit,#emailUsersEdit,#passwordUsersEdit,#passwordConfirmationUsersEdit,#roleUsersEdit').val('');
             if (!$('#nameUsersErrorEdit').hasClass('d-none')) {
                 $('#nameUsersErrorEdit').addClass('d-none');
             }
             if (!$('#emailUsersErrorEdit').hasClass('d-none')) {
                 $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#passwordUsersErrorEdit').hasClass('d-none')) {
+                $('#passwordUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#passwordConfirmationErrorEdit').hasClass('d-none')) {
+                $('#passwordConfirmationErrorEdit').addClass('d-none');
             }
             if (!$('#roleUsersErrorEdit').hasClass('d-none')) {
                 $('#roleUsersErrorEdit').addClass('d-none');
@@ -454,6 +537,29 @@
                 }
             });
 
+        });
+    });
+    $(document).ready(function () {
+        $('#togglePassword').on('click', function () {
+            const passwordField = $('#passwordUsers');
+            const eyeIcon = $('#eyeIcon');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            // Toggle the eye icon
+            eyeIcon.toggleClass('fa-eye fa-eye-slash');
+        });
+
+        $('#togglePassword1').on('click', function () {
+            const passwordField = $('#passwordUsersEdit');
+            const eyeIcon1 = $('#eyeIcon1');
+
+            const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+
+            // Toggle the eye icon
+            eyeIcon1.toggleClass('fa-eye fa-eye-slash');
         });
     });
 
