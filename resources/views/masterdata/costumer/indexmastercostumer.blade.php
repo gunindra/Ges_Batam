@@ -245,8 +245,8 @@
                                 <p class="text-muted">Poin</p>
                             </div>
                             <!-- <div>
-                                                        <p id="statusValue" class="h5"></p>
-                                                    </div> -->
+                                                                <p id="statusValue" class="h5"></p>
+                                                            </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -607,7 +607,7 @@
                                     Swal.close();
                                     if (response.status === 'success') {
                                         showMessage("success",
-                                        "Data Berhasil Disimpan");
+                                            "Data Berhasil Disimpan");
                                         getListCustomer();
                                         $('#modalTambahCustomer').modal('hide');
                                     } else {
@@ -663,12 +663,20 @@
 
             $(document).on('click', '.btnPointCostumer', function(e) {
                 e.preventDefault();
-                let poinValue = $(this).data('poin') || 0;
                 let category = $(this).data('category');
                 let transaksi = $(this).data('transaksi');
                 let status = $(this).data('status');
+                let poinValue = parseFloat($(this).data('poin')) || 0;
 
-                $('#pointValue').text(poinValue).show();
+                let formattedPoinValue;
+                if (poinValue % 1 === 0) {
+                    formattedPoinValue = parseInt(poinValue);
+                } else if (poinValue * 10 % 1 === 0) {
+                    formattedPoinValue = poinValue.toFixed(1);
+                } else {
+                    formattedPoinValue = poinValue.toFixed(2);
+                }
+                $('#pointValue').text(formattedPoinValue).show();
 
                 if (!transaksi) {
                     $('#transaksiDate').text('Tanggal belum tersedia');

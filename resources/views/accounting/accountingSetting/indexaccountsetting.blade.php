@@ -82,7 +82,7 @@
                                 </select>
                             </div>
                             <div class="mt-3">
-                                <label for="discountAccount" class="form-label fw-bold">Discount Sales Account</label>
+                                <label for="discountAccount" class="form-label fw-bold">Customer Paymennt Poin Margin</label>
                                 <select class="form-control select2singgle" id="Discount" required>
                                     <option value="">Pilih Akun</option>
                                     @foreach ($coas as $coa)
@@ -93,7 +93,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label for="salesProfitAccount" class="form-label fw-bold">Sales Profit Rate Account</label>
                                 <select class="form-control select2singgle" id="ProfitRate" required>
                                     <option value="">Pilih Akun</option>
@@ -116,7 +116,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

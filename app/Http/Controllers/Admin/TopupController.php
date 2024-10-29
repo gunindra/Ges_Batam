@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 use App\Models\PricePoin;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Log;
 
 class TopupController extends Controller
 {
@@ -52,8 +53,8 @@ class TopupController extends Controller
 
     public function getData(Request $request)
     {
-        $query = HistoryTopup::with(['customer', 'account']) // Menghapus relasi `pricePerKg`
-                    ->select(['customer_id', 'customer_name', 'topup_amount', 'price_per_kg', 'account_id', 'date'])
+        $query = HistoryTopup::with(['customer', 'account'])
+                    ->select(['customer_id', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date'])
                     ->orderBy('id', 'desc');
 
         // Filter berdasarkan tanggal hanya jika `startDate` dan `endDate` tersedia
@@ -83,8 +84,6 @@ class TopupController extends Controller
 
     public function storeTopup(Request $request)
     {
-        // dd($request->all());
-        // Validasi input
         $request->validate([
             'customer_id' => 'required|exists:tbl_pembeli,id',
             'remaining_points' => 'required|numeric|min:1',
@@ -95,30 +94,38 @@ class TopupController extends Controller
         DB::beginTransaction();
 
         try {
-            // Ambil data customer
-            $customer = Customer::find($request->customer_id);
+            $customer = Customer::findOrFail($request->customer_id);
+            Log::info("Sisa poin sebelum increment: " . $customer->sisa_poin);
 
-            // Hitung total top-up amount
             $topupAmount = $request->remaining_points * $request->price_per_kg;
-
-            // Buat entri top-up di `tbl_history_topup`
             $topup = HistoryTopup::create([
                 'customer_id' => $request->customer_id,
                 'customer_name' => $customer->nama_pembeli,
                 'topup_amount' => $topupAmount,
                 'remaining_points' => $request->remaining_points,
                 'price_per_kg' => $request->price_per_kg,
-                'balance' => $request->remaining_points, // Set `balance` sebagai poin yang ditop-up
+                'balance' => $request->remaining_points,
                 'date' => now(),
                 'account_id' => $request->coa_id,
             ]);
 
-            // Update kolom `sisa_poin` di `tbl_pembeli`
-            $customer->sisa_poin = (string)(((int)$customer->sisa_poin ?? 0) + $request->remaining_points);
-            $customer->transaksi_terakhir = now();
-            $customer->save();
+            $initialSisaPoin = $customer->sisa_poin ?? 0;
 
-            // Buat jurnal utama dan item jurnal (logika tetap sama)
+            $customer->increment('sisa_poin', $request->remaining_points);
+
+            $updatedSisaPoin = Customer::where('id', $request->customer_id)->value('sisa_poin');
+            Log::info("Sisa poin setelah increment (database): " . $updatedSisaPoin);
+
+            if (round($updatedSisaPoin, 2) != round($initialSisaPoin + $request->remaining_points, 2)) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menambahkan sisa poin. Transaksi dibatalkan.'
+                ], 500);
+            }
+
+
+            // Proses jurnal
             $creditAccount = DB::table('tbl_account_settings')->value('purchase_profit_rate_account_id');
             if (!$creditAccount) {
                 throw new \Exception("Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di Account Setting.");
@@ -138,7 +145,6 @@ class TopupController extends Controller
             $jurnal->totalcredit = $topupAmount;
             $jurnal->save();
 
-            // Buat Jurnal Item Debit
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
             $jurnalItemDebit->code_account = $request->coa_id;
@@ -147,7 +153,6 @@ class TopupController extends Controller
             $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
 
-            // Buat Jurnal Item Credit
             $jurnalItemCredit = new JurnalItem();
             $jurnalItemCredit->jurnal_id = $jurnal->id;
             $jurnalItemCredit->code_account = $creditAccount;
@@ -165,6 +170,7 @@ class TopupController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan top-up: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 

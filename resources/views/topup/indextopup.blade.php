@@ -205,6 +205,7 @@
                                         <th>Marking</th>
                                         <th>Nama Costumer</th>
                                         <th>Nominal Top Up</th>
+                                        <th>Poin Top Up</th>
                                         <th>Harga (1kg)</th>
                                         <th>Nama Akun Jurnal</th>
                                         {{-- <th>Status</th> --}}
@@ -279,6 +280,17 @@
                     {
                         data: 'customer_name',
                         name: 'customer_name'
+                    },
+                    {
+                        data: 'remaining_points',
+                        name: 'remaining_points',
+                        render: function(data) {
+                            if (data % 1 === 0) {
+                                return parseInt(data);
+                            } else {
+                                return parseFloat(data).toFixed(2);
+                            }
+                        }
                     },
                     {
                         data: 'topup_amount',

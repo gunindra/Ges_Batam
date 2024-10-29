@@ -199,6 +199,9 @@ class COASeeder extends Seeder
             ['code_account_id' => '8.8.00', 'name' => 'BEBAN DI LUAR USAHA LAINNYA', 'default_posisi' => 'Debit', 'set_as_group' => false, 'parent_id' => 157], //id = 165
 
             ['code_account_id' => '9.0.00', 'name' => 'BIAYA', 'default_posisi' => 'Debit', 'set_as_group' => true, 'parent_id' => null], //id = 166
+
+            ['code_account_id' => '2.1.04.06', 'name' => 'POIN', 'default_posisi' => 'Credit', 'set_as_group' => false, 'parent_id' => 70], //id = 167
+            ['code_account_id' => '2.1.04.07', 'name' => 'POIN MARGIN', 'default_posisi' => 'Credit', 'set_as_group' => false, 'parent_id' => 70], //id = 168
         ];
 
 
