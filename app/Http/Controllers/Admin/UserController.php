@@ -11,12 +11,12 @@ class UserController extends Controller
 {
     public function index()
     {
+        $listRole = DB::table('tbl_users')
+        ->select('role')
+        ->distinct()
+        ->get();
 
-        $listRole = DB::select("SELECT role FROM tbl_role");
-
-        return view('masterdata.user.indexmasteruser', [
-            'listRole' => $listRole
-        ]);
+        return view('masterdata.user.indexmasteruser', compact('listRole'));
     }
     public function getlistUser(Request $request)
     {
