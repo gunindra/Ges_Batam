@@ -355,26 +355,31 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
 
 
-     //Report
+    //Report
     //ProfitLoss
     Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
     Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
+    Route::get('/report/getProfitOrLoss/pdf', [ProfitLossController::class, 'generatePdf'])->name('profitLoss.pdf');
 
     //Equity
     Route::get('/report/equity', [EquityController::class, 'index'])->name('equity');
     Route::get('/report/getEquity', [EquityController::class, 'getEquity'])->name('getEquity');
+    Route::get('/report/getEquity/pdf', [EquityController::class, 'generatePdf'])->name('equity.pdf');
 
      //Cashflow
     Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
     Route::get('/report/getCashFlow',  [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
+    Route::get('/report/getCashFlow/pdf', [CashFlowController::class, 'generatePdf'])->name('cashflow.pdf');
 
     //Ledger
     Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
     Route::get('/report/getLedger',  [LedgerController::class, 'getLedger'])->name('getLedger');
+    Route::get('/report/getLedger/pdf', [LedgerController::class, 'generatePdf'])->name('ledger.pdf');
 
     //Balance
     Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
     Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
+    Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
 });
 
 

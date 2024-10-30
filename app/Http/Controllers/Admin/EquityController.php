@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EquityController extends Controller
 {
@@ -25,19 +26,19 @@ class EquityController extends Controller
                                                     AND ju.tanggal >= '$startDate'
                                                     AND ju.tanggal <= '$endDate'
                                                     THEN ji.debit ELSE 0 END), 0) AS total_debit,
-                                    IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+                                    IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                     AND ju.tanggal >= '$startDate'
                                                     AND ju.tanggal <= '$endDate'
                                                     THEN ji.credit ELSE 0 END), 0) AS total_credit,
-                                    IFNULL(SUM(CASE 
+                                    IFNULL(SUM(CASE
                                                 WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                                                 AND ju.tanggal >= '$startDate'
-                                                AND ju.tanggal <= '$endDate' 
-                                                THEN ji.credit - ji.debit 
-                                                WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                                                AND ju.tanggal <= '$endDate'
+                                                THEN ji.credit - ji.debit
+                                                WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                                                 AND ju.tanggal >= '$startDate'
                                                 AND ju.tanggal <= '$endDate'
-                                                THEN ji.debit - ji.credit 
+                                                THEN ji.debit - ji.credit
                                                 ELSE 0 END), 0) AS grand_total
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -51,19 +52,19 @@ class EquityController extends Controller
                                                             AND ju.tanggal >= '$startDate'
                                                             AND ju.tanggal <= '$endDate'
                                                             THEN ji.debit ELSE 0 END), 0) AS total_debit,
-                                            IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+                                            IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                             AND ju.tanggal >= '$startDate'
                                                             AND ju.tanggal <= '$endDate'
                                                             THEN ji.credit ELSE 0 END), 0) AS total_credit,
-                                            IFNULL(SUM(CASE 
+                                            IFNULL(SUM(CASE
                                                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                                                         AND ju.tanggal >= '$startDate'
-                                                        AND ju.tanggal <= '$endDate' 
-                                                        THEN ji.credit - ji.debit 
-                                                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                                                        AND ju.tanggal <= '$endDate'
+                                                        THEN ji.credit - ji.debit
+                                                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                                                         AND ju.tanggal >= '$startDate'
                                                         AND ju.tanggal <= '$endDate'
-                                                        THEN ji.debit - ji.credit 
+                                                        THEN ji.debit - ji.credit
                                                         ELSE 0 END), 0) AS grand_total
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -77,19 +78,19 @@ class EquityController extends Controller
                                                         AND ju.tanggal >= '$startDate'
                                                         AND ju.tanggal <= '$endDate'
                                                         THEN ji.debit ELSE 0 END), 0) AS total_debit,
-                                        IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+                                        IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                         AND ju.tanggal >= '$startDate'
                                                         AND ju.tanggal <= '$endDate'
                                                         THEN ji.credit ELSE 0 END), 0) AS total_credit,
-                                        IFNULL(SUM(CASE 
+                                        IFNULL(SUM(CASE
                                                     WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                                                     AND ju.tanggal >= '$startDate'
-                                                    AND ju.tanggal <= '$endDate' 
-                                                    THEN ji.credit - ji.debit 
-                                                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                                                    AND ju.tanggal <= '$endDate'
+                                                    THEN ji.credit - ji.debit
+                                                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                                                     AND ju.tanggal >= '$startDate'
                                                     AND ju.tanggal <= '$endDate'
-                                                    THEN ji.debit - ji.credit 
+                                                    THEN ji.debit - ji.credit
                                                     ELSE 0 END), 0) AS grand_total
                                     FROM tbl_coa coa
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -103,19 +104,19 @@ class EquityController extends Controller
                                                             AND ju.tanggal >= '$startDate'
                                                             AND ju.tanggal <= '$endDate'
                                                             THEN ji.debit ELSE 0 END), 0) AS total_debit,
-                                            IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+                                            IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                             AND ju.tanggal >= '$startDate'
                                                             AND ju.tanggal <= '$endDate'
                                                             THEN ji.credit ELSE 0 END), 0) AS total_credit,
-                                            IFNULL(SUM(CASE 
+                                            IFNULL(SUM(CASE
                                                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                                                         AND ju.tanggal >= '$startDate'
-                                                        AND ju.tanggal <= '$endDate' 
-                                                        THEN ji.credit - ji.debit 
-                                                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                                                        AND ju.tanggal <= '$endDate'
+                                                        THEN ji.credit - ji.debit
+                                                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                                                         AND ju.tanggal >= '$startDate'
                                                         AND ju.tanggal <= '$endDate'
-                                                        THEN ji.debit - ji.credit 
+                                                        THEN ji.debit - ji.credit
                                                         ELSE 0 END), 0) AS grand_total
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -129,19 +130,19 @@ class EquityController extends Controller
                                                     AND ju.tanggal >= '$startDate'
                                                     AND ju.tanggal <= '$endDate'
                                                     THEN ji.debit ELSE 0 END), 0) AS total_debit,
-                                    IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+                                    IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                     AND ju.tanggal >= '$startDate'
                                                     AND ju.tanggal <= '$endDate'
                                                     THEN ji.credit ELSE 0 END), 0) AS total_credit,
-                                    IFNULL(SUM(CASE 
+                                    IFNULL(SUM(CASE
                                                 WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                                                 AND ju.tanggal >= '$startDate'
-                                                AND ju.tanggal <= '$endDate' 
-                                                THEN ji.credit - ji.debit 
-                                                WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                                                AND ju.tanggal <= '$endDate'
+                                                THEN ji.credit - ji.debit
+                                                WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                                                 AND ju.tanggal >= '$startDate'
                                                 AND ju.tanggal <= '$endDate'
-                                                THEN ji.debit - ji.credit 
+                                                THEN ji.debit - ji.credit
                                                 ELSE 0 END), 0) AS grand_total
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -174,7 +175,7 @@ class EquityController extends Controller
                         else{
                             $output .= '<td class="text-left">' . number_format($additionalCapital[0]->grand_total * -1, 2) . '</td> </tr>';
                         }
-        
+
         $output .= '<tr>
                         <td>Retained Earning</td>';
                         if ($returnedProfit[0]->grand_total >= 0){
@@ -191,7 +192,7 @@ class EquityController extends Controller
                         else{
                             $output .= '<td class="text-left">' . number_format($currentYearProfit[0]->grand_total * -1, 2) . '</td> </tr>';
                         }
-        
+
         $output .= '<tr>
                         <td>Prive or Dividend</td>';
                         if ($dividen[0]->grand_total >= 0){
@@ -203,9 +204,9 @@ class EquityController extends Controller
 
         $output .= '<tr>
                         <td><strong>Ending Balance of Owner`s Equity</Strong></td>';
-        
+
         $equity = $capital[0]->grand_total + $additionalCapital[0]->grand_total + $returnedProfit[0]->grand_total + $currentYearProfit[0]->grand_total - $dividen[0]->grand_total;
-        
+
         if ($equity >= 0){
             $output .= '<td class="text-right">' . number_format($equity, 2) . '</td> </tr>';
         }
@@ -216,5 +217,14 @@ class EquityController extends Controller
 
 
         return $output;
+    }
+
+
+    public function generatePdf(Request $request)
+    {
+        $htmlOutput = $this->getEquity($request);
+
+        $pdf = PDF::loadHTML($htmlOutput);
+        return $pdf->download('Equity_Report.pdf');
     }
 }

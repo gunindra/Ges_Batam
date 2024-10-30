@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class CashFlowController extends Controller
 {
@@ -26,27 +28,27 @@ class CashFlowController extends Controller
                             AND ju.tanggal >= '$startDate'
                             AND ju.tanggal <= '$endDate'
                             THEN ji.debit ELSE 0 END), 0) AS total_debit,
-            IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+            IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                             AND ju.tanggal >= '$startDate'
                             AND ju.tanggal <= '$endDate'
                             THEN ji.credit ELSE 0 END), 0) AS total_credit,
-            IFNULL(SUM(CASE 
+            IFNULL(SUM(CASE
                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
-                        AND ju.tanggal >= '$startDate'
-                        AND ju.tanggal <= '$endDate' 
-                        THEN ji.credit - ji.debit 
-                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
                         AND ju.tanggal >= '$startDate'
                         AND ju.tanggal <= '$endDate'
-                        THEN ji.debit - ji.credit 
+                        THEN ji.credit - ji.debit
+                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
+                        AND ju.tanggal >= '$startDate'
+                        AND ju.tanggal <= '$endDate'
+                        THEN ji.debit - ji.credit
                         ELSE 0 END), 0) AS grand_total,
-            IFNULL(SUM(CASE 
+            IFNULL(SUM(CASE
                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                         AND ju.tanggal < '$startDate'
-                        THEN ji.credit - ji.debit 
-                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                        THEN ji.credit - ji.debit
+                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                         AND ju.tanggal < '$startDate'
-                        THEN ji.debit - ji.credit 
+                        THEN ji.debit - ji.credit
                         ELSE 0 END), 0) AS begining_balance
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -61,27 +63,27 @@ class CashFlowController extends Controller
                             AND ju.tanggal >= '$startDate'
                             AND ju.tanggal <= '$endDate'
                             THEN ji.debit ELSE 0 END), 0) AS total_debit,
-            IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+            IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                             AND ju.tanggal >= '$startDate'
                             AND ju.tanggal <= '$endDate'
                             THEN ji.credit ELSE 0 END), 0) AS total_credit,
-            IFNULL(SUM(CASE 
+            IFNULL(SUM(CASE
                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
-                        AND ju.tanggal >= '$startDate'
-                        AND ju.tanggal <= '$endDate' 
-                        THEN ji.credit - ji.debit 
-                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
                         AND ju.tanggal >= '$startDate'
                         AND ju.tanggal <= '$endDate'
-                        THEN ji.debit - ji.credit 
+                        THEN ji.credit - ji.debit
+                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
+                        AND ju.tanggal >= '$startDate'
+                        AND ju.tanggal <= '$endDate'
+                        THEN ji.debit - ji.credit
                         ELSE 0 END), 0) AS grand_total,
-            IFNULL(SUM(CASE 
+            IFNULL(SUM(CASE
                         WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                         AND ju.tanggal < '$startDate'
-                        THEN ji.credit - ji.debit 
-                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                        THEN ji.credit - ji.debit
+                        WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                         AND ju.tanggal < '$startDate'
-                        THEN ji.debit - ji.credit 
+                        THEN ji.debit - ji.credit
                         ELSE 0 END), 0) AS begining_balance
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -95,27 +97,27 @@ class CashFlowController extends Controller
                         AND ju.tanggal >= '$startDate'
                         AND ju.tanggal <= '$endDate'
                         THEN ji.debit ELSE 0 END), 0) AS total_debit,
-        IFNULL(SUM(CASE WHEN ju.status = 'Approve' 
+        IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                         AND ju.tanggal >= '$startDate'
                         AND ju.tanggal <= '$endDate'
                         THEN ji.credit ELSE 0 END), 0) AS total_credit,
-        IFNULL(SUM(CASE 
+        IFNULL(SUM(CASE
                     WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
-                    AND ju.tanggal >= '$startDate'
-                    AND ju.tanggal <= '$endDate' 
-                    THEN ji.credit - ji.debit 
-                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
                     AND ju.tanggal >= '$startDate'
                     AND ju.tanggal <= '$endDate'
-                    THEN ji.debit - ji.credit 
+                    THEN ji.credit - ji.debit
+                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
+                    AND ju.tanggal >= '$startDate'
+                    AND ju.tanggal <= '$endDate'
+                    THEN ji.debit - ji.credit
                     ELSE 0 END), 0) AS grand_total,
-        IFNULL(SUM(CASE 
+        IFNULL(SUM(CASE
                     WHEN ju.status = 'Approve' AND coa.default_posisi = 'credit'
                     AND ju.tanggal < '$startDate'
-                    THEN ji.credit - ji.debit 
-                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit' 
+                    THEN ji.credit - ji.debit
+                    WHEN ju.status = 'Approve' AND coa.default_posisi = 'debit'
                     AND ju.tanggal < '$startDate'
-                    THEN ji.debit - ji.credit 
+                    THEN ji.debit - ji.credit
                     ELSE 0 END), 0) AS begining_balance
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
@@ -139,7 +141,7 @@ class CashFlowController extends Controller
             <table class="table" width="100%">
                 <thead>
                     <tr>
-                    
+
                         <td><h5 class="page-title"> <b> OPENING CASH BALANCE </b> </h5>
                 ';
         if ($total_beginning_balance >= 0){
@@ -233,7 +235,15 @@ class CashFlowController extends Controller
         }
 
         $output .= '</div>';
-        
+
         return $output;
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $htmlOutput = $this->getCashFlow($request);
+
+        $pdf = PDF::loadHTML($htmlOutput);
+        return $pdf->download('CashFLow_Report.pdf');
     }
 }

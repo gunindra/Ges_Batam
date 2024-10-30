@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LedgerController extends Controller
 {
@@ -19,9 +20,9 @@ class LedgerController extends Controller
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : date('Y-m-01');
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : date('Y-m-t');
 
-        $coaQuery = DB::select("SELECT tbl_coa.name AS account_name, 
-                                    tbl_coa.id AS coa_id, 
-                                    tbl_coa.code_account_id AS code, 
+        $coaQuery = DB::select("SELECT tbl_coa.name AS account_name,
+                                    tbl_coa.id AS coa_id,
+                                    tbl_coa.code_account_id AS code,
                                     tbl_coa.default_posisi AS position
                                 FROM tbl_coa
                                 ORDER BY tbl_coa.code_account_id ASC");
@@ -40,7 +41,7 @@ class LedgerController extends Controller
                                         WHERE ji.code_account = $coa->coa_id
                                         AND ju.tanggal >= '$startDate'
                                         AND ju.tanggal <= '$endDate'");
-            
+
             $beginningBalance = 0;
             $endingBalance = 0;
 
@@ -50,7 +51,7 @@ class LedgerController extends Controller
                                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                                     WHERE ji.code_account = $coa->coa_id
                                                     AND ju.tanggal < '$startDate'");
-                
+
             if ($coa->position == 'Debit'){
                 $beginningBalance = $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit;
             }
@@ -60,14 +61,14 @@ class LedgerController extends Controller
 
             $totalDebit = 0;
             $totalCredit = 0;
-                
+
             if (!empty($journalQuery)) {
 
                 foreach ($journalQuery as $journal) {
                     $totalDebit += $journal->debit;
                     $totalCredit += $journal->credit;
                 }
-                
+
             }
 
             if ($coa->position == 'Debit'){
@@ -105,7 +106,7 @@ class LedgerController extends Controller
                             else{
                                 $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'] * -1, 2) . '</b> </td> </tr>';
                             }
-            
+
             foreach($data['journal_entries'] as $entry){
                 $output .='<tr>
                                 <td>' . ($entry->tanggal ?? '-') . '</td>
@@ -127,8 +128,17 @@ class LedgerController extends Controller
                             }
         }
         $output .='</tbody></table>';
-        
-        
+
+
         return $output;
+    }
+
+
+    public function generatePdf(Request $request)
+    {
+        $htmlOutput = $this->getLedger($request);
+
+        $pdf = PDF::loadHTML($htmlOutput);
+        return $pdf->download('Ledger_Report.pdf');
     }
 }
