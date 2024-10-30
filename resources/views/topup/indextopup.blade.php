@@ -63,8 +63,17 @@
 
                             <!-- Dropdown untuk memilih COA account -->
                             <p><strong>Pilih Akun Jurnal (COA):</strong>
-                                <select id="accountSelect" class="form-control select2" style="width: 100%">
+                                {{-- <select id="accountSelect" class="form-control select2" style="width: 100%">
                                     <option value="">Pilih Akun Jurnal</option>
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
+                                            {{ $coa->name }}</option>
+                                    @endforeach
+                                </select> --}}
+
+
+                                <select class="form-control select2" id="accountSelect" style="width: 100%">
+                                    <option value="" selected disabled>Pilih Metode Pembayaran</option>
                                     @foreach ($coas as $coa)
                                         <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
                                             {{ $coa->name }}</option>
@@ -253,6 +262,22 @@
 
     <script>
         $(document).ready(function() {
+
+            $('#topupModal').on('shown.bs.modal', function() {
+                $('#accountSelect').select2({
+                    dropdownParent: $(
+                    '#topupModal'),
+                    placeholder: "Pilih Akun Jurnal",
+                    allowClear: true
+                });
+                $('#customerSelect').select2({
+                    dropdownParent: $('#topupModal'),
+                    placeholder: "Pilih Pengguna",
+                    allowClear: true
+                });
+            });
+
+
             let table = $('#tableTopup').DataTable({
                 processing: true,
                 serverSide: true,
@@ -368,34 +393,25 @@
             //     table.ajax.reload();
             // });
 
-
-
-
-
-
             const pricePerKgDropdown = $('#pricePerKg');
             const customerSelect = $('#customerSelect');
             const coaSelect = $('#accountSelect');
             const totalCostDisplay = $('#totalCost');
-            const remainingPointsInput = $('#topupAmount'); // Ubah id untuk representasi jumlah poin
+            const remainingPointsInput = $('#topupAmount');
             const newPriceSection = $('#newPriceSection');
             const newPriceInput = $('#newPrice');
             const effectiveDateInput = $('#effectiveDate');
             let selectedPrice = 0;
 
-            // Inisialisasi Select2
-            $('.select2').select2();
 
             // Reset pesan error
             function resetErrorMessages() {
                 $('.text-danger').text(''); // Menghapus semua pesan error
             }
 
-            // Ambil daftar harga per kg dan daftar pengguna saat modal dibuka
             $('#topupModal').on('show.bs.modal', function() {
                 resetErrorMessages();
 
-                // Ambil daftar pengguna
                 $.ajax({
                     url: "{{ route('get-customers') }}",
                     method: 'GET',

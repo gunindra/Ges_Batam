@@ -81,6 +81,42 @@
                 </li>
             @endif
 
+            {{-- Menu Content --}}
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+                <li
+                    class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('heropage') || request()->routeIs('Advertisement') || request()->routeIs('popup') || request()->routeIs('contact') ? 'active' : '' }}">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
+                        aria-expanded="true" aria-controls="collapseBootstraps">
+                        <i class="fas fa-tasks"></i>
+                        <span>Content</span>
+                    </a>
+                    <div id="collapseBootstraps" class="collapse" aria-labelledby="headingBootstrap"
+                        data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu</h6>
+                            <a class="collapse-item {{ request()->routeIs('heropage') ? 'active' : '' }}"
+                                href="{{ route('heropage') }}">Hero Page</a>
+                            <a class="collapse-item {{ request()->routeIs('informations') ? 'active' : '' }}"
+                                href="{{ route('informations') }}">Information</a>
+                            <a class="collapse-item {{ request()->routeIs('abouts') ? 'active' : '' }}"
+                                href="{{ route('abouts') }}">About</a>
+                            <a class="collapse-item {{ request()->routeIs('whys') ? 'active' : '' }}"
+                                href="{{ route('whys') }}">Why</a>
+                            <a class="collapse-item {{ request()->routeIs('services') ? 'active' : '' }}"
+                                href="{{ route('services') }}">Service</a>
+                            <a class="collapse-item {{ request()->routeIs('advertisement') ? 'active' : '' }}"
+                                href="{{ route('advertisement') }}">Advertisement</a>
+                            <a class="collapse-item {{ request()->routeIs('popup') ? 'active' : '' }}"
+                                href="{{ route('popup') }}">Popup</a>
+                            <a class="collapse-item {{ request()->routeIs('contact') ? 'active' : '' }}"
+                                href="{{ route('contact') }}">Contact</a>
+                            <a class="collapse-item {{ request()->routeIs('whatsapp') ? 'active' : '' }}"
+                                href="{{ route('whatsapp') }}">Whatsapp</a>
+                        </div>
+                    </div>
+                </li>
+            @endif
+
             <!-- Menu Accounting (hanya superadmin) -->
             @if (Auth::user()->role === 'superadmin')
                 <li
