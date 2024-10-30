@@ -346,7 +346,7 @@
                             var formData = new FormData();
                             formData.append('namaDriver', namaDriver);
                             formData.append('emailDriver',
-                            emailDriver); // Tambahkan email ke FormData
+                                emailDriver); // Tambahkan email ke FormData
                             formData.append('alamatDriver', alamatDriver);
                             formData.append('noTelponDriver', valueNotlep);
                             formData.append('simDriver', simDriver);
@@ -375,10 +375,15 @@
                                         getListDriver();
                                     }
                                 },
-                                error: function(response) {
-                                    Swal.close();
-                                    showMessage("error",
-                                        "Terjadi kesalahan, coba lagi nanti");
+                                error: function(xhr) {
+                                    let errorMessage = "Gagal menambah driver.";
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    Swal.fire({
+                                        title: errorMessage,
+                                        icon: "error"
+                                    });
                                 }
                             });
                         }
