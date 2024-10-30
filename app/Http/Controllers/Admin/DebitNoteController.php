@@ -117,11 +117,24 @@ class DebitNoteController extends Controller
         DB::beginTransaction();
 
         try {
-            // Ambil ID akun pengembalian pembelian dari pengaturan akun
             $accountSettings = DB::table('tbl_account_settings')->first();
+
+            if (!$accountSettings) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+                ], 400);
+            }
             $supplierPurchaseReturnAccountId = $accountSettings->supplier_purchase_return_account_id;
 
-            // Validasi jika supplier_purchase_return_account_id valid
+
+            if (is_null($supplierPurchaseReturnAccountId)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+                ], 400);
+            }
+
             if (!DB::table('tbl_coa')->where('id', $supplierPurchaseReturnAccountId)->exists()) {
                 return response()->json(['error' => 'Akun pengembalian pembelian tidak valid.'], 400);
             }
@@ -129,19 +142,16 @@ class DebitNoteController extends Controller
             $codeType = "DN";
             $currentYear = date('y');
 
-            // Ambil data invoice
+
             $invoice = SupInvoice::where('id', $request->invoiceDebit)->firstOrFail();
             $invoice_id = $invoice->invoice_no;
 
-            // Cek apakah debitNoteId ada, jika ada lakukan update, jika tidak buat baru
-            if ($request->has('debitNoteId')) {
-                // Update debit note
-                $debitNote = DebitNote::findOrFail($request->debitNoteId);
 
-                // Ambil jurnal terkait debit note ini jika sudah ada
+            if ($request->has('debitNoteId')) {
+
+                $debitNote = DebitNote::findOrFail($request->debitNoteId);
                 $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
             } else {
-                // Buat debit note baru
                 $lastDebitNote = DebitNote::where('no_debitnote', 'like', $codeType . $currentYear . '%')
                     ->orderBy('no_debitnote', 'desc')
                     ->first();
@@ -152,21 +162,16 @@ class DebitNoteController extends Controller
                 $debitNote = new DebitNote();
                 $debitNote->no_debitnote = $newNoDebitNote;
 
-                // Generate nomor jurnal baru untuk create
                 $request->merge(['code_type' => 'DN']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
-                // Buat jurnal baru
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
             }
-
-            // Jika currencyDebit == 1, kosongkan rateCurrency
             if ($request->currencyDebit == 1) {
                 $request->rateCurrency = null;
             }
 
-            // Simpan atau update data debit note
             $debitNote->invoice_id = $request->invoiceDebit;
             $debitNote->account_id = $request->accountDebit;
             $debitNote->matauang_id = $request->currencyDebit;
@@ -175,7 +180,6 @@ class DebitNoteController extends Controller
             $debitNote->total_keseluruhan = $request->totalKeseluruhan;
             $debitNote->save();
 
-            // Simpan atau update debit note items
             foreach ($request->items as $item) {
                 $debitNote->items()->updateOrCreate(
                     ['no_resi' => $item['noresi']],
@@ -188,7 +192,6 @@ class DebitNoteController extends Controller
                 );
             }
 
-            // Update atau buat jurnal jika perlu
             $jurnal->tipe_kode = 'DN';
             $jurnal->tanggal = now();
             $jurnal->no_ref = $invoice_id;
@@ -198,7 +201,6 @@ class DebitNoteController extends Controller
             $jurnal->totalcredit = $request->totalKeseluruhan;
             $jurnal->save();
 
-            // Simpan item jurnal (debit)
             JurnalItem::updateOrCreate(
                 ['jurnal_id' => $jurnal->id, 'code_account' => $request->accountDebit],
                 [
@@ -208,7 +210,6 @@ class DebitNoteController extends Controller
                 ]
             );
 
-            // Simpan item jurnal (kredit)
             JurnalItem::updateOrCreate(
                 ['jurnal_id' => $jurnal->id, 'code_account' => $supplierPurchaseReturnAccountId],
                 [

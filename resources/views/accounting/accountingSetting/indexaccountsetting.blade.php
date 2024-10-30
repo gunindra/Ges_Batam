@@ -128,7 +128,7 @@
                     <div class="card-body">
                         <div id="containerBooking" class="table-responsive px-3">
                             <h5 class="modal-title" id="modalTambahCustomerTitle">Accounting Vendor</h5>
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label for="purchaseAccount" class="form-label fw-bold">Purchase Account</label>
                                 <select class="form-control select2singgle" id="Purchase" required>
                                     <option value="">Pilih Akun</option>
@@ -139,8 +139,8 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
-                            <div class="mt-3">
+                            </div> --}}
+                            {{-- <div class="mt-3">
                                 <label for="debtAccount" class="form-label fw-bold">Debt Account</label>
                                 <select class="form-control select2singgle" id="Debt" required>
                                     <option value="">Pilih Akun</option>
@@ -151,7 +151,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="mt-3">
                                 <label for="supplierAccount" class="form-label fw-bold">Supplier Purchase Return
                                     Account</label>
@@ -165,7 +165,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label for="discountPurchaseAccount" class="form-label fw-bold">Discount Purchase
                                     Account</label>
                                 <select class="form-control select2singgle" id="DiscountPurchase" required>
@@ -177,7 +177,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="mt-3">
                                 <label for="purchaseProfitAccount" class="form-label fw-bold">Setting Kredit untuk Top Up</label>
                                 <select class="form-control select2singgle" id="PurchaseRate" required>
@@ -190,7 +190,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mt-3">
+                            {{-- <div class="mt-3">
                                 <label for="purchaseLossAccount" class="form-label fw-bold">Purchase Loss Rate
                                     Account</label>
                                 <select class="form-control select2singgle" id="PurchaseLoss" required>
@@ -202,7 +202,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

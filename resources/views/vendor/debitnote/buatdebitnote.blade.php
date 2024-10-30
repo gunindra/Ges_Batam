@@ -141,7 +141,8 @@
                                 <div class="input-group pt-2 mt-3">
                                     <label for="noteDebit" class="form-label fw-bold p-1">Note</label>
                                 </div>
-                                <textarea id="noteDebit" class="form-control" aria-label="With textarea" placeholder="Masukkan content" rows="4"></textarea>
+                                <textarea id="noteDebit" class="form-control" aria-label="With textarea" placeholder="Masukkan content"
+                                    rows="4"></textarea>
                             </div>
                             <div class="col-4 ms-5 mt-5 ml-5">
                                 <div class="mb-3" style="border-bottom:1px solid black;">
@@ -280,11 +281,13 @@
                             });
                         },
                         error: function(xhr) {
+                            let errorMessage = "Gagal membuat debit note.";
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
                             Swal.fire({
-                                title: 'Error',
-                                text: 'Terjadi kesalahan saat menyimpan data.',
-                                icon: 'error',
-                                confirmButtonText: 'OK'
+                                title: errorMessage,
+                                icon: "error"
                             });
                         }
                     });
