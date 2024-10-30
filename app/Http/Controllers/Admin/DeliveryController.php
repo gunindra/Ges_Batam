@@ -35,6 +35,7 @@ class DeliveryController extends Controller
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
 
+
         $query = DB::table('tbl_pengantaran as a')
             ->select(
                 'a.id as pengantaran_id',
@@ -56,7 +57,7 @@ class DeliveryController extends Controller
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
             ->join('tbl_status as s', 'b.status_id', '=', 's.id')
             ->leftJoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
-            ->groupBy('a.id')
+            ->groupBy('a.id', 'a.metode_pengiriman', 'a.supir_id', 'e.nama_supir')
             ->orderBy('a.id', 'desc');
 
         if ($request->txSearch) {
@@ -124,7 +125,7 @@ class DeliveryController extends Controller
         $output .= '</tbody></table>';
 
 
-    return $output;
+        return $output;
 
     }
 
@@ -195,7 +196,7 @@ class DeliveryController extends Controller
         return $output;
     }
 
-    public function getlistTableBuatPickup (Request $request)
+    public function getlistTableBuatPickup(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
@@ -227,7 +228,7 @@ class DeliveryController extends Controller
 
         $data = DB::select($q);
 
-                $output = '<table id="datatable_resi_pickup" class="table table-bordered table-hover">
+        $output = '<table id="datatable_resi_pickup" class="table table-bordered table-hover">
                 <thead>
                         <tr>
                             <th><input type="checkbox" id="select_all_pickup"></th>
@@ -237,9 +238,9 @@ class DeliveryController extends Controller
                         </tr>
                 </thead>
                 <tbody>';
-                foreach ($data as $item) {
-                    $output .=
-                        '
+        foreach ($data as $item) {
+            $output .=
+                '
                        <tr>
                             <td><input type="checkbox" class="checkbox_resi_pickup" value="' . $item->no_invoice . '"></td>
                             <td>' . ($item->no_invoice ?? '-') . '</td>
@@ -247,7 +248,7 @@ class DeliveryController extends Controller
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
                     ';
-                }
+        }
         $output .= '</tbody></table>';
         return $output;
     }
@@ -367,7 +368,7 @@ class DeliveryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Proses selesai',
-            'data' => array_filter($results, function($result) {
+            'data' => array_filter($results, function ($result) {
                 return $result['success'] === true;
             })
         ]);
@@ -486,7 +487,7 @@ class DeliveryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Proses selesai',
-            'data' => array_filter($results, function($result) {
+            'data' => array_filter($results, function ($result) {
                 return $result['success'] === true;
             })
         ]);
@@ -646,9 +647,9 @@ class DeliveryController extends Controller
 
         try {
             $result = DB::table('tbl_pengantaran')
-                        ->select('pembayaran_id')
-                        ->where('id', $idpengantaran)
-                        ->first();
+                ->select('pembayaran_id')
+                ->where('id', $idpengantaran)
+                ->first();
 
             if (!$result) {
                 return response()->json([
@@ -680,8 +681,8 @@ class DeliveryController extends Controller
         $file = $request->file('file');
         try {
             $result = DB::table('tbl_pengantaran')
-                        ->where('id', $idpengantaran)
-                        ->first();
+                ->where('id', $idpengantaran)
+                ->first();
 
             if (!$result) {
                 return response()->json([
@@ -781,18 +782,18 @@ class DeliveryController extends Controller
 
         try {
             $invoiceResi = DB::table('tbl_resi as r')
-            ->select(
-                'r.invoice_id',
-                'r.no_resi',
-                'r.no_do',
-                'r.berat',
-                'r.panjang',
-                'r.lebar',
-                'r.tinggi'
-            )
-            ->whereIn('r.invoice_id', $invoiceIds)
-            ->get()
-            ->groupBy('invoice_id');
+                ->select(
+                    'r.invoice_id',
+                    'r.no_resi',
+                    'r.no_do',
+                    'r.berat',
+                    'r.panjang',
+                    'r.lebar',
+                    'r.tinggi'
+                )
+                ->whereIn('r.invoice_id', $invoiceIds)
+                ->get()
+                ->groupBy('invoice_id');
         } catch (\Exception $e) {
             Log::error('Error fetching resi data: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'Failed to fetch resi data'], 500);
@@ -804,9 +805,9 @@ class DeliveryController extends Controller
                 'invoices' => $invoices,
                 'invoiceResi' => $invoiceResi,
             ])
-            ->setPaper('A4', 'portrait')
-            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-            ->setWarnings(false);
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
         } catch (\Exception $e) {
             Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'Failed to generate PDF'], 500);

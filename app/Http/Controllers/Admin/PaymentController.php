@@ -85,6 +85,12 @@ class PaymentController extends Controller
             ->editColumn('tanggal_bayar', function ($row) {
                 return $row->tanggal_bayar;
             })
+            ->addColumn('status_bayar', function($row) {
+                return $row->status_bayar == 'Lunas'
+                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
+                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
+            })
+            ->rawColumns(['status_bayar'])
             ->make(true);
     }
 
