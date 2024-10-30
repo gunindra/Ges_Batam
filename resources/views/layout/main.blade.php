@@ -418,10 +418,10 @@
                                 <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                 Settings
                             </a> --}}
-                                <a class="dropdown-item" href="{{ route('verification.notice') }}">
+                                {{-- <a class="dropdown-item" href="{{ route('verification.notice') }}">
                                     <i class="fas fa-envelope fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Verify Account
-                                </a>
+                                </a> --}}
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="javascript:void(0);" data-toggle="modal"
                                     data-target="#logoutModal">
