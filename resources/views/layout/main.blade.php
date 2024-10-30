@@ -58,7 +58,7 @@
             <!-- Menu Customer -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
                 <li
-                    class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('pickup') ? 'active' : '' }}">
+                    class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('payment') || request()->routeIs('creditnote') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"
                         aria-expanded="true" aria-controls="collapseBootstrap">
                         <i class="fas fa-user"></i>
@@ -107,7 +107,7 @@
 
             <!-- Menu Report (hanya superadmin) -->
             @if (Auth::user()->role === 'superadmin')
-                <li class="nav-item {{ request()->routeIs('vendor') ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('profitloss') || request()->routeIs('ledger') || request()->routeIs('equity')  || request()->routeIs('balance') || request()->routeIs('cashflow') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport"
                         aria-expanded="true" aria-controls="listreport">
                         <i class="fas fa-file-alt fa-lg"></i>
@@ -134,7 +134,7 @@
 
             <!-- Menu Vendor -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
-                <li class="nav-item {{ request()->routeIs('vendor') ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('supplierInvoice') || request()->routeIs('purchasePayment') || request()->routeIs('debitnote')? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse"
                         data-target="#collapseBootstrapsVendor" aria-expanded="true"
                         aria-controls="collapseBootstrapsVendor">
@@ -158,7 +158,7 @@
 
             <!-- Master Data (Hanya Superadmin) -->
             @if (Auth::user()->role === 'superadmin')
-                <li class="nav-item {{ request()->routeIs('masterdata') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') || request()->routeIs('user') || request()->routeIs('vendor') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                         aria-expanded="true" aria-controls="collapseBootstrap">
                         <i class="far fa-fw fa-window-maximize"></i>
