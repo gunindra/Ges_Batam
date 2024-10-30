@@ -74,6 +74,7 @@ class InvoiceController extends Controller
                                             a.metode_pengiriman,
                                             c.id AS category_id,
                                             c.minimum_rate,
+                                            c.maximum_rate,
                                             GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
                                             COUNT(b.id) AS jumlah_alamat
                                         FROM tbl_pembeli a
@@ -84,7 +85,8 @@ class InvoiceController extends Controller
                                          a.marking,
                                           a.metode_pengiriman,
                                            c.id,
-                                            c.minimum_rate");
+                                            c.minimum_rate,
+                                            c.maximum_rate");
 
             $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
