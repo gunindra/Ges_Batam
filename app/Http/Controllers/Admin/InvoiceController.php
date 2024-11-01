@@ -181,7 +181,7 @@ class InvoiceController extends Controller
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch) // Menggunakan DATE_FORMAT untuk pencarian tanggal
+                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
             });

@@ -556,6 +556,26 @@
                     }
                 });
             });
+
+            $('#topupModal').on('hidden.bs.modal', function() {
+                $('#customerSelect, #accountSelect, #topupAmount, #pricePerKg').val('');
+
+                if (!$('#customerSelect').hasClass('d-none')) {
+                    $('#customerSelect').addClass('d-none');
+                }
+
+                if (!$('#accountSelectError').hasClass('d-none')) {
+                    $('#accountSelectError').addClass('d-none');
+                }
+
+                if (!$('#topupAmountError').hasClass('d-none')) {
+                    $('#topupAmountError').addClass('d-none');
+                }
+
+                if (!$('#pricePerKgError').hasClass('d-none')) {
+                    $('#pricePerKgError').addClass('d-none');
+                }
+            });
         });
     </script>
 @endsection
