@@ -10,7 +10,7 @@ class EquityController extends Controller
 {
     public function index() {
 
-        return view('report.equity.indexequity');
+        return view('Report.Equity.indexequity');
     }
 
     public function getEquity(Request $request)

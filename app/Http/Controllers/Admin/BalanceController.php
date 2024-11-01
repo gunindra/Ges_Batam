@@ -10,7 +10,7 @@ class BalanceController extends Controller
 {
     public function index() {
 
-        return view('report.balance.indexbalance');
+        return view('Report.Balance.indexbalance');
     }
 
     public function getBalance(Request $request)

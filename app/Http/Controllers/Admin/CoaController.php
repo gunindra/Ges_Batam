@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
-use App\Models\Coa;
+use App\Models\COA;
 use Illuminate\Http\Request;
 
 class CoaController extends Controller

@@ -10,7 +10,7 @@ class LedgerController extends Controller
 {
     public function index() {
 
-        return view('report.ledger.indexledger');
+        return view('Report.Ledger.indexledger');
     }
 
     public function getLedger(Request $request)
