@@ -37,13 +37,13 @@
                                             <input type="password" class="form-control" id="password" name="password"
                                                 required placeholder="Password">
                                         </div>
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <div class="custom-control custom-checkbox small" style="line-height: 1.5rem;">
                                                 <input type="checkbox" class="custom-control-input" id="customCheck">
                                                 <label class="custom-control-label" for="customCheck">Remember Me</label>
                                             </div>
-                                        </div>
-                                        <a href="{{ route('password.request') }}" class="my-2">Forgot Password?</a>
+                                        </div> --}}
+                                        <a href="#" id="lupaPassword" class="my-2">Forgot Password?</a>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary btn-block">Login</button>
                                         </div>
@@ -111,6 +111,12 @@
                         });
                     }
                 });
+            });
+
+            $('#lupaPassword').click(function (e) {
+                e.preventDefault();
+                showMessage("error", "Please Notify Your IT Support For This Issue.");
+
             });
         });
     </script>

@@ -30,7 +30,7 @@ class CostumerController extends Controller
                 'tbl_pembeli.id',
                 'tbl_pembeli.marking',
                 'tbl_pembeli.nama_pembeli',
-                DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR ", ") AS alamat'),
+                DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
                 DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
                 'tbl_pembeli.no_wa',
                 'tbl_pembeli.sisa_poin',
@@ -120,6 +120,7 @@ class CostumerController extends Controller
 
     public function addCostumer(Request $request)
     {
+
         $request->validate([
             'markingCostmer' => 'required|string|max:255|unique:tbl_pembeli,marking',
             'namaCustomer' => 'required|string|max:255',
@@ -134,6 +135,8 @@ class CostumerController extends Controller
             'markingCostmer.unique' => 'Marking sudah terdaftar. Gunakan marking yang berbeda.',
             'email.unique' => 'Email sudah terdaftar. Gunakan email yang berbeda.',
         ]);
+
+        $alamatCustomer = $request->input('alamatCustomer', []);
 
         try {
             DB::beginTransaction();
@@ -156,13 +159,18 @@ class CostumerController extends Controller
                 'created_at' => now(),
             ]);
 
-            foreach ($request->input('alamatCustomer', []) as $alamat) {
-                DB::table('tbl_alamat')->insert([
-                    'pembeli_id' => $pembeliId,
-                    'alamat' => $alamat,
-                    'created_at' => now(),
-                ]);
+            if (!empty($alamatCustomer)) {
+                foreach ($alamatCustomer as $alamat) {
+                    if (!is_null($alamat) && trim($alamat) !== '') {
+                        DB::table('tbl_alamat')->insert([
+                            'pembeli_id' => $pembeliId,
+                            'alamat' => $alamat,
+                            'created_at' => now(),
+                        ]);
+                    }
+                }
             }
+
 
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil ditambahkan'], 200);
@@ -171,7 +179,6 @@ class CostumerController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);
         }
     }
-
 
     public function updateCostumer(Request $request)
     {
@@ -183,16 +190,17 @@ class CostumerController extends Controller
             'alamatCustomer' => 'nullable|array',
             'alamatCustomer.*' => 'nullable|string|max:255',
         ]);
+
         $id = $request->input('id');
         $namacostumer = $request->input('namaCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categoryCustomer = $request->input('categoryCustomer');
-        $alamatcostumer = $request->input('alamatCustomer');
+        $alamatCustomer = $request->input('alamatCustomer', []);
         $metodePengiriman = $request->input('metodePengiriman');
+
         try {
             DB::beginTransaction();
 
-            // Update data customer di tbl_pembeli
             DB::table('tbl_pembeli')
                 ->where('id', $id)
                 ->update([
@@ -203,28 +211,26 @@ class CostumerController extends Controller
                     'updated_at' => now(),
                 ]);
 
-            // Hapus semua alamat lama dari tbl_alamat untuk customer ini
             DB::table('tbl_alamat')
                 ->where('pembeli_id', $id)
                 ->delete();
 
-            // Insert alamat baru ke tbl_alamat hanya jika metode pengiriman adalah Delivery dan alamat tidak kosong
-            if ($metodePengiriman === 'Delivery' && !empty($alamatcostumer) || $metodePengiriman === 'Pickup' && !empty($alamatcostumer)) {
-                foreach ($alamatcostumer as $alamat) {
-                    // Cek jika alamat tidak null atau kosong
-                    if (!is_null($alamat) && trim($alamat) !== '') {
-                        DB::table('tbl_alamat')->insert([
-                            'pembeli_id' => $id,
-                            'alamat' => $alamat,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
+                if (!empty($alamatCustomer)) {
+                    foreach ($alamatCustomer as $alamat) {
+                        if (!is_null($alamat) && trim($alamat) !== '') {
+                            DB::table('tbl_alamat')->insert([
+                                'pembeli_id' => $id,
+                                'alamat' => $alamat,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
                     }
                 }
-            }
+
+
 
             DB::commit();
-
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil diupdate'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
