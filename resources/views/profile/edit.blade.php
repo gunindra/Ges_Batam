@@ -286,7 +286,7 @@
                 event.preventDefault();
 
                 $.ajax({
-                    url: "{{ route('prof1ile.update') }}",
+                    url: "{{ route('profile.update') }}",
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
