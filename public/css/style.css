@@ -230,7 +230,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
 .carousel-image {
   width: 100%;
   height: 100%;
@@ -243,17 +242,15 @@ body {
 }
 
 .carousel-caption h5 {
-  font-size: 85px;
   text-transform: capitalize;
   letter-spacing: 2px;
   margin-top: 25px;
-  font-family: cursive;
+  font-family: Roboto;
 }
 
 .carousel-caption p {
   width: 60%;
   margin: auto;
-  font-size: 18px;
   line-height: 1.9;
 }
 
@@ -289,6 +286,13 @@ body {
 .single-slide .carousel-control-next,
 .single-slide .carousel-indicators {
   display: none;
+}
+/* carousel slide */
+.JudulSlide h2{
+  font-size:50px;
+}
+.contentSlide p{
+  font-size:17px;
 }
 /* main */
 .main{
@@ -329,7 +333,9 @@ body {
 
 .contentGallery {
   padding: 10%;
-  overflow-wrap: break-word;
+  overflow-wrap: break-word; 
+  word-wrap: break-word;     
+  word-break: break-all;   
 }
 
 .contentGallery h2 {
@@ -361,6 +367,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-right:20px;
 }
 
 .main-content .box-gallery::before {
@@ -535,7 +542,7 @@ body {
 }
 
 .image img {
-  width: 92%;
+  width: 70%;
   height: auto;
   border-radius: 30px;
   display: block; 
@@ -582,7 +589,7 @@ body {
 
 .contentAbout {
   flex: 1;
-  max-width: 50%;
+  max-width: 60%;
   margin-right: 20px;
 }
 
@@ -758,12 +765,12 @@ body {
 }
 
 .single-service .box {
-  width: 35%;
+  width: 100%;
   height: auto;
 }
 
 .double-service .box {
-  width: 35%; 
+  width: 100%; 
   height: auto;
 }
 
@@ -871,12 +878,11 @@ article a:hover {
 
 .imageWhy {
   flex: 1 1 300px; 
-  max-width: 500px;
   margin-right: 20px;
 }
 
 .imageWhy img {
-  width: 100%;
+  width: 400px;
   border-radius: 15px; 
   object-fit: cover;
 }
@@ -1207,7 +1213,7 @@ a:hover {
   }
 
   .image {
-    width: 80%;
+    width: 100%;
     margin: 20px 0;
   }
   /* Masuk bagian about */
@@ -1217,7 +1223,7 @@ a:hover {
   
   .JudulAbout h2 {
     margin-left: 50px;
-    margin-top: 50px;
+    margin-top: 100px;
   }
   .image img{
     width: 60%;
@@ -1232,7 +1238,7 @@ a:hover {
   }
 
   .image-sectionwhy {
-    max-width: 70%; 
+    max-width: 80%; 
     margin-bottom: 20px;
   }
 
@@ -1271,16 +1277,6 @@ a:hover {
     flex-direction: column; 
     align-items: center; 
   }
-  
-  .image-sectionwhy {
-    margin-right: 0;
-    margin-bottom: 20px; 
-  }
-  .image-sectionwhy img{
-    width:250%;
-    height:auto;
-  }
-
   .contentwhy {
     margin-left: 0;
   }
@@ -1289,32 +1285,37 @@ a:hover {
     margin-left: 0; 
     font-size: 20px; 
   }
-  /* service */
-  .triple-service .box-area, .single-service .box-area,
-  .double-service .box-area{
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px; 
+  .box-area {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 20px;
   }
 
-  .triple-service .box, .single-service .box,
-  .double-service .box {
-    width: 100%; 
-    height: auto;
-  }
-
-  .triple-service .box, .single-service .box,
-  .double-service .box img{
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
   .box {
+    height: 350px; 
     max-width: 100%;
   }
 
-  
+  .title h1 {
+    font-size: 36px;
+  }
+
+  .overlay h3 {
+    font-size: 20px;
+  }
+
+  .overlay p {
+    font-size: 14px; 
+  }
+
+  .button-container {
+    height: auto; 
+    padding-bottom: 10px; 
+  }
+
+  .btn-modern {
+    padding: 10px 20px; 
+    font-size: 14px; 
+  }
 }
 
 @media only screen and (max-width: 776px) {
@@ -1344,6 +1345,7 @@ a:hover {
     width: 80%;
     font-size: 16px;
   }
+ 
   /* Gallery */
   .wrapperGallery{
     width: 80%;
@@ -1382,7 +1384,6 @@ a:hover {
 
   .image {
     width: 100%;
-    margin: 10px 0;
   }
   .section-header {
     font-size: 14px; 
@@ -1393,11 +1394,11 @@ a:hover {
   }
 
   .contentGallery h2 {
-    font-size: 18px; 
+    font-size: 14px; 
   }
   .contentGallery p {
     line-height: 1.5;
-    font-size:12px;
+    font-size:11px;
     overflow-wrap: break-word;
   }
   .main-content {
@@ -1413,11 +1414,16 @@ a:hover {
     margin: 0 20px;
   }
   
-  .contentAbout, .imageAbout {
+  .contentAbout {
     max-width: 100%;
     margin-right: 0;
     margin-bottom: 20px;
   }
+  .imageAbout {
+    width: 100%;
+    margin: 0 auto; 
+    margin-bottom:30px;
+}
   
   .JudulAbout h2 {
     margin-left: 20px;
@@ -1433,7 +1439,7 @@ a:hover {
   }
 
   .image-sectionwhy {
-    max-width: 30%; 
+    max-width: 80%; 
     margin-bottom: 20px; 
   }
 
@@ -1466,11 +1472,13 @@ a:hover {
   }
   
   .image-sectionwhy {
-    margin-right: 0;
+    margin-right: 0;   overflow-wrap: break-word;
+    white-space: normal;
+    transition: font-size 0.3s;
     margin-bottom: 20px; 
   }
   .image-sectionwhy img{
-    width:250%;
+    width:100%;
     height:auto;
   }
 
@@ -1492,7 +1500,8 @@ a:hover {
   }
 
   .box {
-    height: 250px; 
+    height: 300px; 
+    max-width: 100%;
   }
 
   .btn-modern {
@@ -1507,9 +1516,7 @@ a:hover {
   .overlay p {
     font-size: 12px;
   }
-  .box {
-    max-width: 80%;
-  }
+
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
     display: flex;
@@ -1577,7 +1584,7 @@ a:hover {
   }
   /* carousel */
   .carousel-caption {
-    bottom: 100px;
+    bottom: 50px;
   }
   .carousel-caption h5 {
     font-size: 35px;
@@ -1585,6 +1592,13 @@ a:hover {
   .carousel-caption p {
     width: 90%;
     font-size: 14px;
+  }
+   /* Masuk bagian slide carousel*/
+   .JudulSlide h2{
+    font-size:30px;
+  }
+  .contentSlide p{
+    font-size:15px;
   }
   /* about */
   .content-container {
@@ -1599,13 +1613,14 @@ a:hover {
   }
 
   .imageAbout {
-    max-width: 100%;
+    max-width: 80%;
     margin-bottom: 20px;
+    margin-left:45px;
   }
 
   .JudulAbout h2 {
     margin-left: 20px;
-    margin-top: 30px;
+    margin-top: 100px;
     font-size: 24px;
   }
 
@@ -1693,9 +1708,9 @@ a:hover {
   .JudulAbout h2 {
     font-size: 24px;
     margin-left: 10px;
-    margin-top: 20px;
+    margin-top: 100px;
   }
-  
+ 
   .contentAbout h2 {
     font-size: 20px;
   }
@@ -1706,6 +1721,24 @@ a:hover {
   
   .content-container {
     margin: 0 10px;
+  }
+  .carousel-caption {
+    margin-bottom: 130px; /* Adjust the margin as needed */
+  }
+
+  .carousel-caption h5 {
+    margin-top: 15px; /* Adjust the top margin for the title */
+  }
+
+  .carousel-caption a {
+    margin-top: 10px; /* Adjust the margin for the Learn More button */
+  }
+  /* Masuk bagian slide carousel*/
+  .JudulSlide h2{
+    font-size:26px;
+  }
+  .contentSlide p{
+    font-size:13px;
   }
   /* footer */
   .footer-content h3 {
@@ -1770,5 +1803,36 @@ a:hover {
   
   .overlay p {
     font-size: 10px; 
+  }
+  .Judulwhy h2 {
+    margin-top: 100px; 
+  }
+  
+  .content-containerwhy {
+    flex-direction: column;
+    padding: 10px; 
+  }
+
+  .imageWhy {
+    margin-right: 0; 
+    margin-bottom: 20px;
+    flex: 1 1 auto; 
+  }
+
+  .imageWhy img {
+    width: 100%; 
+    height: auto; 
+    border-radius: 10px;
+  }
+
+  .contentwhy {
+    flex: 1 1 auto; 
+  }
+  .contentwhy h2 {
+    font-size: 20px; 
+  }
+
+  .contentwhy p {
+    font-size: 16px; 
   }
 } 
