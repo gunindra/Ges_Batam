@@ -11,7 +11,7 @@
       </div>
       <div class="contentwhy">
         <h2 id="judulWhy">Why Choose Us</h2>
-        <p id="parafWhy">{!! nl2br( e( $dataPtges->Paragraph_WhyUs )) !!}</p>
+        <p id="parafWhy" style=" word-break: break-word; ">{!! nl2br( e( $dataPtges->Paragraph_WhyUs )) !!}</p>
       </div>
     </div>
     @else

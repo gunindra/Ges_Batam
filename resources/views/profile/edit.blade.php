@@ -98,9 +98,9 @@
                         </div>
 
                         <!-- Indikator Harga Berlaku -->
-                        {{-- <div class="mb-3">
-                            <p class="text-muted">Harga per 1kg poin saat ini: <strong>Rp 50.000</strong></p>
-                        </div> --}}
+                        <div class="mb-3">
+                            <p class="text-muted"></p>
+                        </div> 
 
                         <!-- Progress Bar to Show Poin Usage -->
                         {{-- <div class="progress mb-3">
@@ -286,7 +286,7 @@
                 event.preventDefault();
 
                 $.ajax({
-                    url: "{{ route('profile.update') }}",
+                    url: "{{ route('prof1ile.update') }}",
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
