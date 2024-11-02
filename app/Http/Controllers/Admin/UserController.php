@@ -91,29 +91,42 @@ class UserController extends Controller
     }
     public function updateUsers(Request $request, $id)
     {
-        $validated = $request->validate([
+
+        $rules = [
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255',
-            'roleUsers' => 'required|string|max:50',
-           'passwordUsers' => 'nullable|min:8|confirmed',
-        ]);
+            'passwordUsers' => 'nullable|min:8|confirmed',
+        ];
+
+        if ($request->input('roleUsers') !== 'driver' && $request->input('roleUsers') !== 'customer') {
+            $rules['roleUsers'] = 'nullable|string|max:50';
+        } else {
+            $rules['roleUsers'] = 'required|string|max:50';
+        }
+
+        $validated = $request->validate($rules);
+
         try {
             $User = User::findOrFail($id);
             $User->name = $request->input('nameUsers');
             $User->email = $request->input('emailUsers');
+
             if ($request->filled('passwordUsers')) {
                 $User->password = bcrypt($request->input('passwordUsers'));
             }
-            $User->role = $request->input('roleUsers');
+
+            if ($request->input('roleUsers') !== null) {
+                $User->role = $request->input('roleUsers');
+            }
 
             $User->update($validated);
-
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
+
     public function destroyUsers($id)
     {
         try {

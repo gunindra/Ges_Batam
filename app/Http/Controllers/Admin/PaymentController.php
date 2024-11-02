@@ -176,6 +176,7 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'invoice' => 'required|string',
             'tanggalPayment' => 'required|date',
@@ -187,6 +188,11 @@ class PaymentController extends Controller
 
         try {
             Log::info("Starting payment process for Invoice: {$request->invoice}");
+
+            if ($request->amountPoin === null) {
+                return $this->processNormalPayment($request);
+            }
+
             $accountSettings = DB::table('tbl_account_settings')->first();
 
             if (!$accountSettings) {
@@ -460,7 +466,110 @@ class PaymentController extends Controller
         ), 'Payment Customers.xlsx');
     }
 
+    private function processNormalPayment($request)
+    {
+        $accountSettings = DB::table('tbl_account_settings')->first();
 
+        if (!$accountSettings) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        $salesAccountId = $accountSettings->sales_account_id;
+        $paymentMethodId = $request->paymentMethod;
+        $receivableSalesAccount = COA::find($paymentMethodId);
+
+        if (is_null($salesAccountId) || is_null($receivableSalesAccount)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        if (!$receivableSalesAccount) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun dengan ID yang diberikan tidak ditemukan.'
+            ], 404);
+        }
+
+        $receivableSalesAccountId = $receivableSalesAccount->id;
+
+        try {
+            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $codeType = "BO";
+            $currentYear = date('y');
+
+            $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+            $invoice_id = $invoice->id;
+
+            $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
+            if ($totalBayarBaru > $invoice->total_harga) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Total pembayaran melebihi total harga invoice.'
+                ], 400);
+            }
+
+            $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
+                ->orderBy('kode_pembayaran', 'desc')
+                ->first();
+
+            $newSequence = $lastPayment ? intval(substr($lastPayment->kode_pembayaran, -4)) + 1 : 1;
+            $newKodePembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+            $payment = new Payment();
+            $payment->invoice_id = $invoice_id;
+            $payment->payment_date = $tanggalPayment;
+            $payment->amount = $request->paymentAmount;
+            $payment->payment_method_id = $paymentMethodId;
+            $payment->kode_pembayaran = $newKodePembayaran;
+            $payment->save();
+
+            $invoice->total_bayar = $totalBayarBaru;
+            $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+            $invoice->save();
+
+            $request->merge(['code_type' => 'BKM']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'BKM';
+            $jurnal->tanggal = $tanggalPayment;
+            $jurnal->no_ref = $request->invoice;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Jurnal untuk Invoice {$request->invoice}";
+            $jurnal->totaldebit = $request->paymentAmount;
+            $jurnal->totalcredit = $request->paymentAmount;
+            $jurnal->save();
+
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $receivableSalesAccountId;
+            $jurnalItemDebit->description = "Kredit untuk Invoice {$request->invoice}";
+            $jurnalItemDebit->debit = 0;
+            $jurnalItemDebit->credit = $request->paymentAmount;
+            $jurnalItemDebit->save();
+
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $salesAccountId;
+            $jurnalItemCredit->description = "Debit untuk Invoice {$request->invoice}";
+            $jurnalItemCredit->debit = $request->paymentAmount;
+            $jurnalItemCredit->credit = 0;
+            $jurnalItemCredit->save();
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Payment successfully created and invoice updated']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw new \Exception('Error during normal payment processing: ' . $e->getMessage());
+        }
+    }
 
 
 }

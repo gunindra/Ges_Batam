@@ -363,11 +363,11 @@
                     $('#modalEditUsers').modal('show');
                     $('#saveEditUsers').data('id', userid);
                     if (response.role === 'driver' || response.role === 'customer') {
-                        $('#roleUsersEdit').hide(); 
+                        $('#roleUsersEdit').hide();
                         $('#roleUsersEdit').val('');
                         $('label[for="roleUsersEdit"]').hide();
                     } else {
-                        $('#roleUsersEdit').show(); 
+                        $('#roleUsersEdit').show();
                         $('label[for="roleUsersEdit"]').show();
                     }
                 },
@@ -421,13 +421,6 @@
                 $('#passwordConfirmationErrorEdit').addClass('d-none');
             }
         }
-        if (!roleUsers || roleUsers === '' || roleUsers === '0') {
-            $('#roleUsersErrorEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#roleUsersErrorEdit').addClass('d-none');
-        }
-
 
         if (isValid) {
             Swal.fire({

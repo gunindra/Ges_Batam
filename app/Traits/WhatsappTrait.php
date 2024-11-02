@@ -12,7 +12,7 @@ trait WhatsappTrait
     {
         $url = $fileUrl ? 'https://wa.aplikasiajp.com/send-media' : 'https://wa.aplikasiajp.com/send-message';
 
-        $apiKey =  DB::table('tbl_ptges')->value('api_key');
+        $apiKey = config('app.whatsapp_api_key');
 
         $sender = '62' . DB::table('tbl_ptges')->value('phone');
 
