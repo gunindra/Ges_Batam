@@ -31,7 +31,7 @@ class SupplierInvoiceController extends Controller
     {
         $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
-        return view('vendor.supplierinvoice.indexsupplierInvoice', [
+        return view('vendor.supplierinvoice.indexsupplierinvoice', [
             'listStatus' => $listStatus
         ]);
     }

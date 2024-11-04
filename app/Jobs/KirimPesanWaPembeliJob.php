@@ -82,7 +82,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             }
 
             try {
-                $pdfFileName = 'list_barang_'. $no_invoice .'.pdf';
+                $pdfFileName = 'GES_'. $no_invoice .'.pdf';
                 $filePath = storage_path('app/public/list_barang/' . $pdfFileName);
                 $pdf->save($filePath);
             } catch (\Exception $e) {

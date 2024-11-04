@@ -192,6 +192,8 @@
                 } else {
                     sectionPoin.addClass("d-none");
                     paymentInput.prop("disabled", false);
+                    $('#amountPoin').val("");
+                    paymentInput.val("")
                 }
             });
 

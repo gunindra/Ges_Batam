@@ -39,10 +39,10 @@ class CategoryController extends Controller
                     <td>' . ($item->minimum_rate ? number_format((float) $item->minimum_rate, 0, '.', ',') : '-') . '</td>
                     <td>' . ($item->maximum_rate ? number_format((float) $item->maximum_rate, 0, '.', ',') : '-') . '</td>
                     <td>
-                        <a class="btn btnUpdateCategory btn-sm btn-secondary text-white" 
-                           data-id="' . $item->id . '" 
-                           data-category_name="' . $item->category_name . '" 
-                           data-minimum_rate="' . $item->minimum_rate . '" 
+                        <a class="btn btnUpdateCategory btn-sm btn-secondary text-white"
+                           data-id="' . $item->id . '"
+                           data-category_name="' . $item->category_name . '"
+                           data-minimum_rate="' . $item->minimum_rate . '"
                            data-maximum_rate="' . $item->maximum_rate . '">
                            <i class="fas fa-edit"></i>
                         </a>
@@ -60,7 +60,14 @@ class CategoryController extends Controller
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
             'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
+        ], [
+            'nameCategory.required' => 'Nama kategori harus diisi.',
+            'minimumRateCategory.required' => 'Rate minimum harus diisi.',
+            'maximumRateCategory.required' => 'Rate maksimum harus diisi.',
+            'maximumRateCategory.gte' => 'Rate maksimum tidak boleh lebih kecil dari rate minimum.',
         ]);
+
+
         try {
             $Category = new Category();
             $Category->category_name = $request->input('nameCategory');
@@ -80,6 +87,11 @@ class CategoryController extends Controller
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
             'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
+        ],[
+            'nameCategory.required' => 'Nama kategori harus diisi.',
+            'minimumRateCategory.required' => 'Rate minimum harus diisi.',
+            'maximumRateCategory.required' => 'Rate maksimum harus diisi.',
+            'maximumRateCategory.gte' => 'Rate maksimum tidak boleh lebih kecil dari rate minimum.',
         ]);
         try {
         $Category = Category::findOrFail($id);
@@ -87,7 +99,7 @@ class CategoryController extends Controller
         $Category->minimum_rate = $request->input('minimumRateCategory');
         $Category->maximum_rate = $request->input('maximumRateCategory');
 
-      
+
             $Category->update($validated);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);

@@ -123,7 +123,7 @@
                                 </button>
                             </div>
                             <div class="d-flex mb-2 mr-3 float-right">
-                                <a class="btn btn-secondary mr-1" style="color:white; display:none;" id="kirimNot"><span
+                                <a class="btn btn-secondary mr-1" style="color:white;" id="kirimNot"><span
                                         class="pr-2"><i class="fas fa-paper-plane"
                                             style="color: #ffffff;"></i></span>Kirim
                                     Notifikasi</a>
@@ -318,19 +318,21 @@
                 }
             });
 
+
+
             const handleSelectItems = () => {
-                const toggleKirimNot = () => {
-                    $('#kirimNot').toggle($('.selectItem:checked').length > 0);
-                };
+                // const toggleKirimNot = () => {
+                //     $('#kirimNot').toggle($('.selectItem:checked').length > 0);
+                // };
                 $('#tableInvoice').on('change', '.selectItem', function() {
-                    toggleKirimNot();
+                    // toggleKirimNot();
                     const allChecked = $('.selectItem').length === $('.selectItem:checked').length;
                     $('#selectAll').prop('checked', allChecked);
                 });
 
                 $('#tableInvoice').on('change', '#selectAll', function() {
                     $('.selectItem').prop('checked', this.checked);
-                    toggleKirimNot();
+                    // toggleKirimNot();
                 });
             };
 
@@ -384,7 +386,7 @@
                                     if (response.success) {
                                         showMessage("success",
                                             "Berhasil mengirim notifikasi");
-                                        $('#kirimNot').hide();
+                                        // $('#kirimNot').hide();
                                         table.ajax.reload();
                                     } else {
                                         showMessage("error", response.message ||
@@ -396,7 +398,7 @@
                                     showMessage("error",
                                         "Terjadi kesalahan saat mengirim notifikasi"
                                     );
-                                    $('#kirimNot').hide();
+
                                 }
                             });
                         }

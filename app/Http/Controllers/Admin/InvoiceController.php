@@ -74,6 +74,7 @@ class InvoiceController extends Controller
                                             a.metode_pengiriman,
                                             c.id AS category_id,
                                             c.minimum_rate,
+                                            c.maximum_rate,
                                             GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
                                             COUNT(b.id) AS jumlah_alamat
                                         FROM tbl_pembeli a
@@ -84,7 +85,8 @@ class InvoiceController extends Controller
                                          a.marking,
                                           a.metode_pengiriman,
                                            c.id,
-                                            c.minimum_rate");
+                                            c.minimum_rate,
+                                            c.maximum_rate");
 
             $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
@@ -179,7 +181,7 @@ class InvoiceController extends Controller
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch) // Menggunakan DATE_FORMAT untuk pencarian tanggal
+                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
                   ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
             });
@@ -335,6 +337,8 @@ class InvoiceController extends Controller
             foreach ($noResi as $index => $resi) {
 
                 $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
+                $harga = isset($hargaBarang[$index]) ? str_replace(',', '.', str_replace('.', '', $hargaBarang[$index])) : null;
+                Log::info("Harga yang akan disimpan: " . $harga);
                 DB::table('tbl_resi')->insert([
                     'invoice_id' => $invoiceId,
                     'no_resi' => $resi,
@@ -343,7 +347,7 @@ class InvoiceController extends Controller
                     'panjang' => $panjang[$index] ?? null,
                     'lebar' => $lebar[$index] ?? null,
                     'tinggi' => $tinggi[$index] ?? null,
-                    'harga' => $hargaBarang[$index] ?? null,
+                    'harga' => $harga,
                     'created_at' => now(),
                 ]);
 

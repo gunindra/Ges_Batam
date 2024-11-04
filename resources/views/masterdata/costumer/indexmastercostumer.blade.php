@@ -641,7 +641,7 @@
 
 
         $('#modalTambahCustomer').on('hidden.bs.modal', function () {
-            $('#namaCustomer, #noTelpon, #categoryCustomer, #markingCustomer').val('');
+            $('#namaCustomer, #noTelpon, #categoryCustomer, #markingCustomer, #emailCustomer, #passwordCustomer, #passwordConfirmationCustomer').val('');
             $('#alamatContainer').children('.alamat-item:gt(0)').remove();
             $('#alamatContainer').children('.alamat-item').first().find('textarea').val('');
             $('#alamatSection').hide();
@@ -723,17 +723,17 @@
             let pengiriman = $(this).data('metode_pengiriman');
 
             // Memisahkan string alamat menjadi array
-            let alamatArray = alamat.split(', ');
+            let alamatArray = alamat.split(';');
 
             // Kosongkan container alamat dan tambahkan textarea sesuai jumlah alamat
             $('#alamatContainerEdit').empty();
             alamatArray.forEach((alamatItem, index) => {
                 let newAlamat = `<div class="mt-3 alamat-item">
-                            <label for="alamatCustomerEdit${index}" class="form-label fw-bold">Alamat</label>
-                            <textarea class="form-control" id="alamatCustomerEdit${index}" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3">${alamatItem}</textarea>
-                            <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
-                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
-                        </div>`;
+                                    <label for="alamatCustomerEdit${index}" class="form-label fw-bold">Alamat</label>
+                                    <textarea class="form-control" id="alamatCustomerEdit${index}" name="alamatCustomerEdit[]" placeholder="Masukkan alamat" rows="3">${alamatItem.trim()}</textarea>
+                                    <div class="text-danger mt-1 d-none alamat-error">Silahkan isi alamat customer</div>
+                                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
+                                </div>`;
                 $('#alamatContainerEdit').append(newAlamat);
             });
 
@@ -750,17 +750,21 @@
             // Menangani perubahan metode pengiriman
             $('#metodePengirimanEdit').change(function () {
                 var metodePengiriman = $(this).val();
-                if (metodePengiriman === 'Delivery' || metodePengiriman === 'Pickup') {
-                    $('#alamatSectionEdit').show(); // Tampilkan bagian alamat
+                if (metodePengiriman === 'Delivery') {
+                    $('#alamatSectionEdit').show();
+                    $('#addAlamatButtonEdit').show();
+                } else if (metodePengiriman === 'Pickup') {
+                    $('#alamatSectionEdit').show();
+                    $('#addAlamatButtonEdit').hide();
+                    $('#alamatContainerEdit').children('.alamat-item:gt(0)').remove();
                 } else {
-                    $('#alamatSectionEdit').hide(); // Sembunyikan bagian alamat
+                    $('#alamatSectionEdit').hide();
                     $('#alamatContainerEdit').find('textarea').val('');
                     $('#alamatContainerEdit').children('.alamat-item:gt(0)').remove();
-                    toggleRemoveButtonEdit();
                 }
+                toggleRemoveButtonEdit();
             });
 
-            // Menambahkan alamat baru ketika tombol 'Tambah Alamat' ditekan pada modal edit
             $('#addAlamatButtonEdit').off('click').on('click', function () {
                 let alamatContainer = $('#alamatContainerEdit');
                 let newAlamat = `<div class="mt-3 alamat-item">
@@ -956,7 +960,7 @@
 
         $(document).on('click', '.show-address-modal', function () {
             let alamat = $(this).data('alamat');
-            let alamatArray = alamat.split(', ');
+            let alamatArray = alamat.split(';');
 
             let alamatList = $('#alamatList');
             alamatList.empty(); // Kosongkan daftar alamat

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Driver;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 class DriverController extends Controller
 {
@@ -61,13 +62,22 @@ class DriverController extends Controller
 
     public function addDriver(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
             'noTelponDriver' => 'required|string|max:15',
             'simDriver' => 'nullable|mimes:jpg,jpeg,png|max:2048',
             'emailDriver' => 'required|email|unique:tbl_users,email',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email yang Anda masukkan sudah terdaftar. Silakan gunakan email lain.',
+            ], 400);
+        }
+
+
 
         try {
             DB::beginTransaction();

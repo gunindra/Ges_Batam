@@ -147,6 +147,7 @@
                                             <option value="{{ $pembeli->id }}"
                                                 data-metode="{{ $pembeli->metode_pengiriman }}"
                                                 data-minrate="{{ $pembeli->minimum_rate }}"
+                                                data-maxrate="{{ $pembeli->maximum_rate }}"
                                                 data-alamat="{{ $pembeli->alamat }}"
                                                 data-jumlahalamat="{{ $pembeli->jumlah_alamat }}">
                                                 {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}
@@ -325,6 +326,7 @@
             });
 
             let globalMinrate = 0;
+            let globalMaxrate = 0;
             $('#pickupDelivery').hide();
 
             $('#selectCostumer').change(function() {
@@ -332,8 +334,11 @@
                 var metodePengiriman = $('#selectCostumer option:selected').data('metode');
                 var alamat = $('#selectCostumer option:selected').data('alamat');
                 var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
-                var minrate = $('#selectCostumer option:selected').data('minrate') || 0;
+                var minrate = Math.floor($('#selectCostumer option:selected').data('minrate') || 0);
+                var maxrate = Math.floor($('#selectCostumer option:selected').data('maxrate') || 0);
+
                 globalMinrate = minrate;
+                globalMaxrate = maxrate;
 
                 $('#alamatError').addClass('d-none');
 
@@ -349,9 +354,9 @@
 
                         if (jumlahAlamat == 1) {
                             var selectAlamat =
-                            '<label for="alamatSelect" class="form-label">Alamat</label>';
+                                '<label for="alamatSelect" class="form-label">Alamat</label>';
                             selectAlamat +=
-                            '<select id="alamatSelect" class="form-control col-9" disabled>';
+                                '<select id="alamatSelect" class="form-control col-9" disabled>';
                             selectAlamat += '<option value="' + alamat + '" selected>' + alamat +
                                 '</option>';
                             selectAlamat += '</select>';
@@ -360,7 +365,7 @@
                         } else if (jumlahAlamat > 1) {
                             var alamatList = alamat.split(', ');
                             var selectAlamat =
-                            '<label for="alamatSelect" class="form-label">Alamat</label>';
+                                '<label for="alamatSelect" class="form-label">Alamat</label>';
                             selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
                             selectAlamat += '<option value="" selected disabled>Pilih Alamat</option>';
                             alamatList.forEach(function(alamatItem) {
@@ -403,7 +408,6 @@
 
             const initialCurrency = $('#currencyInvoice').val();
 
-            // Tampilkan atau sembunyikan elemen berdasarkan mata uang awal
             if (initialCurrency !== '1') {
                 $('#rateCurrencySection').show();
                 $('#totalIdr').show();
@@ -605,14 +609,23 @@
                 const hargaPerKg = parseFloat($('#rateBerat').val()) || 0;
 
                 if (berat > 0 && hargaPerKg) {
-                    let totalHarga = berat * hargaPerKg;
-                    totalHarga = Math.max(totalHarga, globalMinrate);
+                    if (berat < 2 && globalMinrate > 0) {
+                        totalHarga = globalMinrate;
+                    } else {
+                        totalHarga = berat * hargaPerKg;
+                        totalHarga = Math.max(totalHarga, globalMinrate);
+                    }
+
+                    totalHarga = Math.min(totalHarga, globalMaxrate);
+
                     row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
                 } else {
                     row.find('.hargaBarang').text("Rp. 0");
                 }
                 updateDisplayedTotalHarga();
             }
+
+
 
 
             function updateTotalHargaVolume(row) {
@@ -637,11 +650,11 @@
                 let totalHarga = 0;
 
                 $('.hargaBarang').each(function() {
-                    let harga = $(this).text().replace(/[^0-9,-]+/g, "");
+                    let harga = $(this).text().replace(/[^0-9,-]+/g, "").replace(",", ".");
                     totalHarga += parseFloat(harga) || 0;
                 });
 
-                $('#totalHargaValue').val(totalHarga);
+                $('#totalHargaValue').val(totalHarga.toFixed(2));
 
                 const currencyValue = $('#currencyInvoice').val();
                 const totalHargaIDR = totalHarga;
@@ -654,7 +667,7 @@
                     return;
                 }
 
-                $('#idrCurrentCy').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                $('#idrCurrentCy').text("Rp. " + totalHargaIDR.toLocaleString('id-ID', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 }));
@@ -662,7 +675,7 @@
                 if (!currencyValue) {
                     $('#total-harga').text('-');
                 } else if (currencyValue === '1') {
-                    $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                    $('#total-harga').text("Rp. " + totalHargaIDR.toLocaleString('id-ID', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     }));
@@ -684,6 +697,7 @@
                     $('#total-harga').text('-');
                 }
             }
+
 
             function setRemoveItemButton() {
                 $('.remove-item').off('click').on('click', function() {

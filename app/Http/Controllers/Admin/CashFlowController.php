@@ -12,7 +12,7 @@ class CashFlowController extends Controller
     public function index() {
 
 
-        return view('report.cashflow.indexcashflow');
+        return view('Report.CashFlow.indexcashflow');
     }
 
     public function getCashFlow(Request $request)
