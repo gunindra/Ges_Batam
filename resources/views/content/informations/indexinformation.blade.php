@@ -254,7 +254,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "Information berhasil ditambahkan");
+                                        "Information Berhasil ditambahkan");
                                     $('#modalTambahInformations').modal('hide');
                                     getlistInformations();
                                 }

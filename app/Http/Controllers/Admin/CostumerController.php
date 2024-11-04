@@ -173,7 +173,7 @@ class CostumerController extends Controller
 
 
             DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil ditambahkan'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Data Pelanggan Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal Menambahkan Data Pelanggan: ' . $e->getMessage()], 500);

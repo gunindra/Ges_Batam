@@ -317,7 +317,7 @@
                             if (response.success) {
                                 $('#modalTambahTracking').modal('hide');
                                 showMessage("success",
-                                    "berhasil ditambahkan");
+                                    "Berhasil ditambahkan");
                                 $('#modalTambahTracking').modal('hide');
                                 table.ajax.reload();
                             }

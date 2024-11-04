@@ -265,7 +265,7 @@
                                     Swal.close();
                                     if (response.success) {
                                         showMessage("success",
-                                            "berhasil ditambahkan");
+                                            "Berhasil ditambahkan");
                                         $('#modalTambahCategory').modal('hide');
                                         getlistCategory();
                                     }

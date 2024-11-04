@@ -405,7 +405,7 @@ class InvoiceController extends Controller
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
                 DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);
+                return response()->json(['status' => 'success', 'message' => 'Invoice Berhasil ditambahkan dan status tracking diperbarui'], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
 
