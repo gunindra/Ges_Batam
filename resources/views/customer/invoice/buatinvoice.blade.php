@@ -650,11 +650,11 @@
                 let totalHarga = 0;
 
                 $('.hargaBarang').each(function() {
-                    let harga = $(this).text().replace(/[^0-9,-]+/g, "");
+                    let harga = $(this).text().replace(/[^0-9,-]+/g, "").replace(",", ".");
                     totalHarga += parseFloat(harga) || 0;
                 });
 
-                $('#totalHargaValue').val(totalHarga);
+                $('#totalHargaValue').val(totalHarga.toFixed(2));
 
                 const currencyValue = $('#currencyInvoice').val();
                 const totalHargaIDR = totalHarga;
@@ -667,7 +667,7 @@
                     return;
                 }
 
-                $('#idrCurrentCy').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                $('#idrCurrentCy').text("Rp. " + totalHargaIDR.toLocaleString('id-ID', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 }));
@@ -675,7 +675,7 @@
                 if (!currencyValue) {
                     $('#total-harga').text('-');
                 } else if (currencyValue === '1') {
-                    $('#total-harga').text("Rp. " + parseFloat(totalHargaIDR).toLocaleString('id-ID', {
+                    $('#total-harga').text("Rp. " + totalHargaIDR.toLocaleString('id-ID', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     }));

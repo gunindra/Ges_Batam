@@ -337,6 +337,8 @@ class InvoiceController extends Controller
             foreach ($noResi as $index => $resi) {
 
                 $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
+                $harga = isset($hargaBarang[$index]) ? str_replace(',', '.', str_replace('.', '', $hargaBarang[$index])) : null;
+                Log::info("Harga yang akan disimpan: " . $harga);
                 DB::table('tbl_resi')->insert([
                     'invoice_id' => $invoiceId,
                     'no_resi' => $resi,
@@ -345,7 +347,7 @@ class InvoiceController extends Controller
                     'panjang' => $panjang[$index] ?? null,
                     'lebar' => $lebar[$index] ?? null,
                     'tinggi' => $tinggi[$index] ?? null,
-                    'harga' => $hargaBarang[$index] ?? null,
+                    'harga' => $harga,
                     'created_at' => now(),
                 ]);
 
