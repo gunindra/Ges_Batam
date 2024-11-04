@@ -364,13 +364,13 @@ body {
   font-size: 25px;
   text-transform: uppercase;
   margin-bottom: 15px;
-  font-size: 2.5vw;
+  font-size: 1.1vw;
 }
 
 .contentGallery p {
   line-height: 1.5;
   overflow-wrap: break-word;
-  font-size: 1.5vw; 
+  font-size: 0.8vw; 
 }
 
 .main-content {
@@ -1371,11 +1371,11 @@ a:hover {
 		font-size: 15px;
 	}
   .carousel-caption h5 {
-    font-size: 45px;
+    font-size: 21px;
   }
   .carousel-caption p {
     width: 80%;
-    font-size: 16px;
+    font-size: 14px;
   }
   .responsive-title {
     font-size: 4vw; 
@@ -1390,6 +1390,18 @@ a:hover {
     padding: 30px 0px;
     text-align: center;
     margin-left:60px;
+  }
+  .contentGallery h2 {
+    font-size: 25px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-size: 3vw;
+  }
+  
+  .contentGallery p {
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    font-size: 2vw; 
   }
   /* About us */
   .containerAbout .heading h1 {
@@ -1759,20 +1771,17 @@ a:hover {
   .carousel-caption {
     margin-bottom: 200px; 
   }
-
+  .carousel-caption p {
+    width: 80%;
+    font-size: 10px;
+  }
   .carousel-caption h5 {
     margin-top: 15px;
+    font-size: 14.2px;
   }
 
   .carousel-caption a {
-    margin-top: 10px; 
-  }
-  .responsive-title {
-    font-size: 5vw;
-  }
-
-  .responsive-paragraph {
-    font-size: 4vw;
+    margin-top: 10.5px; 
   }
   /* Masuk bagian slide carousel*/
   .JudulSlide h2{
@@ -1780,6 +1789,19 @@ a:hover {
   }
   .contentSlide p{
     font-size:13px;
+  }
+  /*Gallery*/
+  .contentGallery h2 {
+    font-size: 25px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    font-size: 2.8vw;
+  }
+  
+  .contentGallery p {
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    font-size: 2.4vw; 
   }
   /* footer */
   .footer-content h3 {

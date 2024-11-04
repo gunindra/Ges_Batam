@@ -99,8 +99,8 @@
       alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
       <div class="img-text">
       <div class="contentGallery">
-        <h2>{{ Str::limit($info->title_informations ?? '-', 50, '') }}</h2>
-        <p>{{ Str::limit($info->content_informations ?? '-', 150, '') }}</p>
+        <h2>{{ Str::limit($info->title_informations ?? '-', 150, '') }}</h2>
+        <p>{{ Str::limit($info->content_informations ?? '-', 250, '') }}</p>
       </div>
       </div>
       </div>
@@ -321,84 +321,7 @@
         ride: 'carouselSlide'
       });
     });
-    function adjustFontSize() {
-      const titles = document.querySelectorAll('.responsive-title');
-      const paragraphs = document.querySelectorAll('.responsive-paragraph');
 
-      titles.forEach(title => {
-        const containerWidth = title.parentElement.offsetWidth;
-
-        if (window.innerWidth >= 1024) {
-          title.style.fontSize = `${containerWidth / 25}px`;
-        } else if (window.innerWidth >= 991) {
-          title.style.fontSize = `${containerWidth / 28}px`;
-        } else if (window.innerWidth >= 766) {
-          title.style.fontSize = `${containerWidth / 23}px`;
-        } else {
-          title.style.fontSize = `${containerWidth / 15}px`;
-        }
-      });
-
-      paragraphs.forEach(paragraph => {
-        const containerWidth = paragraph.parentElement.offsetWidth;
-
-
-        if (window.innerWidth >= 1024) {
-          paragraph.style.fontSize = `${containerWidth / 55}px`;
-        } else if (window.innerWidth >= 991) {
-          paragraph.style.fontSize = `${containerWidth / 40}px`;
-        } else if (window.innerWidth >= 766) {
-          title.style.fontSize = `${containerWidth / 35}px`;
-        } else {
-          paragraph.style.fontSize = `${containerWidth / 23}px`;
-        }
-      });
-    }
-
-    window.onresize = adjustFontSize;
-    adjustFontSize();
-
-    function adjustGalleryFontSize() {
-      const titles = document.querySelectorAll('.contentGallery h2');
-      const paragraphs = document.querySelectorAll('.contentGallery p');
-
-      titles.forEach(title => {
-        const containerWidth = title.parentElement.offsetWidth;
-
-
-        if (window.innerWidth >= 1024) { 
-          title.style.fontSize = `${containerWidth / 25}px`;
-        } else if (window.innerWidth >= 766) {
-          title.style.fontSize = `${containerWidth / 25}px`;
-        } else if (window.innerWidth >= 425) {
-          title.style.fontSize = `${containerWidth / 20}px`;
-        } else if (window.innerWidth >= 375) {
-          title.style.fontSize = `${containerWidth / 17}px`;
-        } else { 
-          title.style.fontSize = `${containerWidth / 18}px`;
-        }
-      });
-
-      paragraphs.forEach(paragraph => {
-        const containerWidth = paragraph.parentElement.offsetWidth;
-
-
-        if (window.innerWidth >= 1024) { 
-          paragraph.style.fontSize = `${containerWidth / 35}px`;
-        } else if (window.innerWidth >= 766) {
-          paragraph.style.fontSize = `${containerWidth / 33}px`;
-        } else if (window.innerWidth >= 425) {
-          paragraph.style.fontSize = `${containerWidth / 25}px`;
-        } else if (window.innerWidth >= 375) {
-          paragraph.style.fontSize = `${containerWidth / 20}px`;
-        } else { 
-          paragraph.style.fontSize = `${containerWidth / 21}px`;
-        }
-      });
-    }
-
-    window.onresize = adjustGalleryFontSize;
-    adjustGalleryFontSize();
   </script>
 
   @endsection
