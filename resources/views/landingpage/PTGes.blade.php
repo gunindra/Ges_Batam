@@ -321,19 +321,19 @@
     const parafCarousel = document.getElementById('parafCarousel');
 
     function adjustFontSize() {
-        const titleLength = judulCarousel.innerText.length; 
-        const contentLength = parafCarousel.innerText.length; 
-        
+        const titleLength = judulCarousel.innerText.length;
+        const contentLength = parafCarousel.innerText.length;
+
         if (titleLength > 30) {
-            judulCarousel.style.fontSize = 'calc(1rem + 5px)'; 
+            judulCarousel.style.fontSize = 'calc(1rem + 5px)';
         } else {
-            judulCarousel.style.fontSize = 'calc(1rem + 15px)'; 
+            judulCarousel.style.fontSize = 'calc(1rem + 15px)';
         }
 
-        if (contentLength > 50) { 
+        if (contentLength > 50) {
             parafCarousel.style.fontSize = 'calc(15px)';
         } else {
-            parafCarousel.style.fontSize = 'calc(1rem + 5px)'; 
+            parafCarousel.style.fontSize = 'calc(1rem + 5px)';
         }
     }
 
