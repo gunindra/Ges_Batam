@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0, maximal-scale=1,user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="PT. GES Logistic - Solusi pengiriman cepat dan ekonomis dari Cina ke Indonesia. Hanya di GesBatam.">
     <meta name="keywords" content="PT GES Logistic, logistik, pengiriman barang, Cina ke Indonesia, cepat dan ekonomis">
     <meta name="robots" content="index, follow">
@@ -23,6 +23,7 @@
     <meta name="twitter:title" content="PT. GES Logistic - Pengiriman Cepat dan Ekonomis dari Cina">
     <meta name="twitter:description" content="Layanan pengiriman cepat dan hemat dari Cina ke Indonesia bersama GesBatam.">
     <meta name="twitter:image" content="https://www.gesbatam.com/img/logo4.png">
+    
     <title>@yield('title')</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet">
