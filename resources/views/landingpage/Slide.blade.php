@@ -2,7 +2,7 @@
     @section('title', 'PT. GES | Heropage')
 
     <body class="navigasi-page">
-    <div class="JudulSlide text-primary" style="margin-top:100px; text-align:center; font-family: cursive;">
+    <div class="JudulSlide text-primary" style="margin-top:100px; text-align:center; font-family: Roboto;">
         <h2 style=" word-wrap: break-word; word-break: break-word; max-width: 1500px; margin-left: 50px; margin-right: 50px;">
             {{ $dataHeropage[0]->title_heropage }}
         </h2>

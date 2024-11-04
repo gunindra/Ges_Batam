@@ -13,7 +13,6 @@ body {
 }
 
 /* popup */
-
 .popup-dialog {
   position: relative;
   border: none;
@@ -32,6 +31,7 @@ body {
 .popup-image {
   width: 100%;
   border-radius: 8px;
+  margin-top: 30px;
 }
 
 .popup-title {
@@ -94,7 +94,7 @@ body {
   position: relative;
   z-index: 1;
 }
-/* .close-btn {
+.close-button {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -102,8 +102,8 @@ body {
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #555;
-} */
+  color: #333; 
+}
 
 
 /* nav */
@@ -200,7 +200,6 @@ body {
 	padding: 1px 5px;
 	font-size: 18px;
 	line-height: 0.3;
-	background: #;
 }
 .navbar-logo {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
@@ -230,6 +229,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .carousel-image {
   width: 100%;
   height: 100%;
@@ -237,21 +237,42 @@ body {
 }
 
 .carousel-caption {
-  margin-bottom: 220px;
-  z-index: 2;
+  position: absolute; 
+  margin-bottom: 140px; 
+  left: 0;
+  right: 0;
+  z-index: 2; 
+  text-align: center;
+  padding: 15px; 
 }
 
 .carousel-caption h5 {
   text-transform: capitalize;
   letter-spacing: 2px;
-  margin-top: 25px;
+  margin: 0; 
   font-family: Roboto;
+  overflow-wrap: break-word;
+  word-wrap: break-word; 
 }
 
 .carousel-caption p {
-  width: 60%;
-  margin: auto;
-  line-height: 1.9;
+  width: 100%; 
+  margin: 5px auto;
+  line-height: 1.9; 
+  overflow-wrap: break-word; 
+}
+
+
+.responsive-title {
+  font-size: 2.5vw; 
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.responsive-paragraph {
+  font-size: 1.5vw;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .carousel-caption a {
@@ -282,6 +303,7 @@ body {
 .carousel-indicators button {
   width: 100px;
 }
+
 .single-slide .carousel-control-prev,
 .single-slide .carousel-control-next,
 .single-slide .carousel-indicators {
@@ -342,11 +364,13 @@ body {
   font-size: 25px;
   text-transform: uppercase;
   margin-bottom: 15px;
+  font-size: 2.5vw;
 }
 
 .contentGallery p {
   line-height: 1.5;
   overflow-wrap: break-word;
+  font-size: 1.5vw; 
 }
 
 .main-content {
@@ -1174,7 +1198,7 @@ a:hover {
 	}
   /* carousel */
 	.carousel-caption {
-		bottom: 350px;
+		bottom: 300px;
 	}
 	.carousel-caption h5 {
 		font-size: 65px;
@@ -1183,6 +1207,14 @@ a:hover {
 		font-size: 18px;
 		width: 100%;
 	}
+  .responsive-title {
+    font-size: 2vw; 
+  }
+
+  .responsive-paragraph {
+    font-size: 1.2vw; 
+  }
+
   /* Main */
 
   .main{
@@ -1331,7 +1363,7 @@ a:hover {
 	}
   /* carousel */
 	.carousel-caption {
-		bottom: 165px;
+		bottom: 185px;
 	}
 	
 	.carousel-caption a {
@@ -1345,7 +1377,13 @@ a:hover {
     width: 80%;
     font-size: 16px;
   }
- 
+  .responsive-title {
+    font-size: 4vw; 
+  }
+
+  .responsive-paragraph {
+    font-size: 3vw; 
+  }
   /* Gallery */
   .wrapperGallery{
     width: 80%;
@@ -1393,12 +1431,8 @@ a:hover {
     font-size: 30px; 
   }
 
-  .contentGallery h2 {
-    font-size: 14px; 
-  }
   .contentGallery p {
     line-height: 1.5;
-    font-size:11px;
     overflow-wrap: break-word;
   }
   .main-content {
@@ -1584,7 +1618,7 @@ a:hover {
   }
   /* carousel */
   .carousel-caption {
-    bottom: 50px;
+    bottom: 100px;
   }
   .carousel-caption h5 {
     font-size: 35px;
@@ -1723,15 +1757,22 @@ a:hover {
     margin: 0 10px;
   }
   .carousel-caption {
-    margin-bottom: 130px; /* Adjust the margin as needed */
+    margin-bottom: 200px; 
   }
 
   .carousel-caption h5 {
-    margin-top: 15px; /* Adjust the top margin for the title */
+    margin-top: 15px;
   }
 
   .carousel-caption a {
-    margin-top: 10px; /* Adjust the margin for the Learn More button */
+    margin-top: 10px; 
+  }
+  .responsive-title {
+    font-size: 5vw;
+  }
+
+  .responsive-paragraph {
+    font-size: 4vw;
   }
   /* Masuk bagian slide carousel*/
   .JudulSlide h2{

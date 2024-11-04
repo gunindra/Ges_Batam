@@ -69,7 +69,7 @@ class InformationsController extends Controller
 
             $information->save();
 
-            return response()->json(['success' => 'berhasil ditambahkan']);
+            return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
         }

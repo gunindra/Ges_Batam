@@ -18,21 +18,17 @@ class PopupController extends Controller
     public function addPopup(Request $request)
     {
         $request->validate([
-            'titlePopup' => 'required|string|max:255|unique:tbl_popup,title_Popup',
+            'titlePopup' => 'required|string|max:255',
             'paragraphPopup' => 'required|string',
             'linkPopup' => 'required|string|max:255',
             'imagePopup' => $request->hasFile('imagePopup') ? 'nullable|mimes:jpg,jpeg,png' : '',
         ]);
-        $titlePopup = $request->input('titlePopup');
-        $paragraphPopup = $request->input('paragraphPopup');
-        $linkPopup = $request->input('linkPopup');
-        $imagePopup = $request->file('imagePopup');
 
         try {
             $existingData = Popup::first();
             $fileName = $existingData ? $existingData->Image_Popup : null;
 
-            if ($imagePopup) {
+            if ($request->hasFile('imagePopup')) {
                 if ($existingData && $existingData->Image_Popup) {
                     $existingImagePath = 'public/images/' . $existingData->Image_Popup;
                     if (Storage::exists($existingImagePath)) {
@@ -40,26 +36,25 @@ class PopupController extends Controller
                     }
                 }
                 $uniqueId = uniqid('Popup_', true);
-                $fileName = $uniqueId . '.' . $imagePopup->getClientOriginalExtension();
-                $imagePopup->storeAs('public/images', $fileName);
-            } 
+                $fileName = $uniqueId . '.' . $request->file('imagePopup')->getClientOriginalExtension();
+                $request->file('imagePopup')->storeAs('public/images', $fileName);
+            }
 
-            Popup::updateOrCreate(
+            $popup = Popup::updateOrCreate(
                 ['id' => $existingData ? $existingData->id : null],
                 [
-                    'title_Popup' =>$titlePopup ,
-                    'Paragraph_Popup' =>$paragraphPopup ,
-                    'Link_Popup' => $linkPopup,
+                    'title_Popup' => $request->input('titlePopup'),
+                    'Paragraph_Popup' => $request->input('paragraphPopup'),
+                    'Link_Popup' => $request->input('linkPopup'),
                     'Image_Popup' => $fileName,
                 ]
             );
 
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imagePopup' =>$fileName, 'titlePopup' => $titlePopup, 'paragraphPopup' => nl2br(e($paragraphPopup)), 'linkPopup' => $linkPopup]]);
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['id' => $popup->id, 'imagePopup' => $fileName, 'titlePopup' => $request->input('titlePopup'), 'paragraphPopup' => nl2br(e($request->input('paragraphPopup'))), 'linkPopup' => $request->input('linkPopup')]]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
-
 
     public function destroyPopup($id)
     {

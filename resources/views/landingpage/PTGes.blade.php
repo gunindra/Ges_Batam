@@ -1,17 +1,17 @@
 <x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
 
-
   @section('title', 'PT. GES')
   <!-- popup -->
-  @if(isset($popup) && ($popup->Image_Popup || $popup->Judul_Popup || $popup->Paraf_Popup || $popup->Link_Popup))
+  @if(isset($popup) && ($popup->Image_Popup || $popup->title_Popup || $popup->Paragraph_Popup || $popup->Link_Popup))
     <dialog id="welcome-dialog" class="popup-dialog">
+    <button id="close-popup" class="close-button">x</button>
+
     @if($popup->Image_Popup)
     <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
   @endif
 
     @if($popup->title_Popup)
-    <h2 class="popup-title">{{$popup->title_Popup}}
-    </h2>
+    <h2 class="popup-title">{{ $popup->title_Popup }}</h2>
   @endif
 
     @if($popup->Paragraph_Popup)
@@ -38,9 +38,14 @@
       <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
       alt="{{ $heropage->title_heropage }}">
       <div class="carousel-caption">
-      <h5 id="judulCarousel" style="  overflow-wrap: break-word;  white-space: normal;">{{ $heropage->title_heropage }}</h5>
-      <p id="parafCarousel" style="  overflow-wrap: break-word;  white-space: normal;">{!! nl2br(e(Str::limit($heropage->content_heropage, 150, ''))) !!}</p>
-      <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
+      <h5 id="judulCarousel" class="responsive-title">
+        {{ $heropage->title_heropage }}
+      </h5>
+      <p id="parafCarousel" class="responsive-paragraph">
+        {!! nl2br(e(Str::limit($heropage->content_heropage, 150, ''))) !!}
+      </p>
+      <a class="btn-responsive bg-primary bg-gradient text-white"
+        href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
       </div>
       </div>
     @endforeach
@@ -94,7 +99,7 @@
       alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
       <div class="img-text">
       <div class="contentGallery">
-        <h2>{{ Str::limit($info->title_informations ?? '-',50,'') }}</h2>
+        <h2>{{ Str::limit($info->title_informations ?? '-', 50, '') }}</h2>
         <p>{{ Str::limit($info->content_informations ?? '-', 150, '') }}</p>
       </div>
       </div>
@@ -184,12 +189,12 @@
             <h1 style="font-size:32px;">About Us</h1>
           </div>
           <h2>What they say about us</h2>
-          <p id="parafAbout">{!! nl2br(e($dataPtges->Paragraph_AboutUs ?? '-')) !!}</p>
+          <p id="parafAbout">{!! nl2br(e(Str::limit($dataPtges->Paragraph_AboutUs ?? '-', 200))) !!}</p>
           <a href="/About" class="btn">Learn More</a>
         </div>
         <div class="image" id="imageAbout">
           @if (!empty($dataPtges->Image_AboutUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;" alt="About Us Image">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
     @endif
@@ -204,14 +209,16 @@
       <div class="why">
         <div class="image-sectionwhy">
           @if (!empty($dataPtges->Image_WhyUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
     @endif
         </div>
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
-          <p id="parafWhy" style=" word-break: break-word; ">{!! nl2br(e($dataPtges->Paragraph_WhyUs ?? '-')) !!}</p>
+          <p id="parafWhy" style=" word-break: break-word; ">
+            {!! nl2br(e(Str::limit($dataPtges->Paragraph_WhyUs ?? '-', 200))) !!}
+          </p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>
           </div>
@@ -234,8 +241,10 @@
         <img src="{{ asset('storage/images/' . $service->image_service) }}"
         alt="{{ $service->title_service ?? '-' }}">
         <div class="overlay">
-        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50,'') }}</h3>
-        <p style="word-break: break-word;">{!! nl2br(e(Str::limit($service->content_service ?? '-', 150,''))) !!}</p>
+        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 45, '') }}</h3>
+        <p style="word-break: break-word;">
+        {!! nl2br(e(Str::limit($service->content_service ?? '-', 145, ''))) !!}
+        </p>
         <div class="button-container">
         <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
         </div>
@@ -258,9 +267,6 @@
       </div>
     </div>
   </div>
-
-
-
 
   <!-- iklan slide -->
   <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}" style="margin-top:50px;">
@@ -315,32 +321,84 @@
         ride: 'carouselSlide'
       });
     });
-
-    document.addEventListener('DOMContentLoaded', function () {
-    const judulCarousel = document.getElementById('judulCarousel');
-    const parafCarousel = document.getElementById('parafCarousel');
-
     function adjustFontSize() {
-        const titleLength = judulCarousel.innerText.length; 
-        const contentLength = parafCarousel.innerText.length; 
-        
-        if (titleLength > 30) {
-            judulCarousel.style.fontSize = 'calc(1rem + 5px)'; 
-        } else {
-            judulCarousel.style.fontSize = 'calc(1rem + 15px)'; 
-        }
+      const titles = document.querySelectorAll('.responsive-title');
+      const paragraphs = document.querySelectorAll('.responsive-paragraph');
 
-        if (contentLength > 50) { 
-            parafCarousel.style.fontSize = 'calc(15px)';
+      titles.forEach(title => {
+        const containerWidth = title.parentElement.offsetWidth;
+
+        if (window.innerWidth >= 1024) {
+          title.style.fontSize = `${containerWidth / 25}px`;
+        } else if (window.innerWidth >= 991) {
+          title.style.fontSize = `${containerWidth / 28}px`;
+        } else if (window.innerWidth >= 766) {
+          title.style.fontSize = `${containerWidth / 23}px`;
         } else {
-            parafCarousel.style.fontSize = 'calc(1rem + 5px)'; 
+          title.style.fontSize = `${containerWidth / 15}px`;
         }
+      });
+
+      paragraphs.forEach(paragraph => {
+        const containerWidth = paragraph.parentElement.offsetWidth;
+
+
+        if (window.innerWidth >= 1024) {
+          paragraph.style.fontSize = `${containerWidth / 55}px`;
+        } else if (window.innerWidth >= 991) {
+          paragraph.style.fontSize = `${containerWidth / 40}px`;
+        } else if (window.innerWidth >= 766) {
+          title.style.fontSize = `${containerWidth / 35}px`;
+        } else {
+          paragraph.style.fontSize = `${containerWidth / 23}px`;
+        }
+      });
     }
 
-
+    window.onresize = adjustFontSize;
     adjustFontSize();
 
-});
+    function adjustGalleryFontSize() {
+      const titles = document.querySelectorAll('.contentGallery h2');
+      const paragraphs = document.querySelectorAll('.contentGallery p');
+
+      titles.forEach(title => {
+        const containerWidth = title.parentElement.offsetWidth;
+
+
+        if (window.innerWidth >= 1024) { 
+          title.style.fontSize = `${containerWidth / 25}px`;
+        } else if (window.innerWidth >= 766) {
+          title.style.fontSize = `${containerWidth / 25}px`;
+        } else if (window.innerWidth >= 425) {
+          title.style.fontSize = `${containerWidth / 20}px`;
+        } else if (window.innerWidth >= 375) {
+          title.style.fontSize = `${containerWidth / 17}px`;
+        } else { 
+          title.style.fontSize = `${containerWidth / 18}px`;
+        }
+      });
+
+      paragraphs.forEach(paragraph => {
+        const containerWidth = paragraph.parentElement.offsetWidth;
+
+
+        if (window.innerWidth >= 1024) { 
+          paragraph.style.fontSize = `${containerWidth / 35}px`;
+        } else if (window.innerWidth >= 766) {
+          paragraph.style.fontSize = `${containerWidth / 33}px`;
+        } else if (window.innerWidth >= 425) {
+          paragraph.style.fontSize = `${containerWidth / 25}px`;
+        } else if (window.innerWidth >= 375) {
+          paragraph.style.fontSize = `${containerWidth / 20}px`;
+        } else { 
+          paragraph.style.fontSize = `${containerWidth / 21}px`;
+        }
+      });
+    }
+
+    window.onresize = adjustGalleryFontSize;
+    adjustGalleryFontSize();
   </script>
 
   @endsection

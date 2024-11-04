@@ -1,71 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
     const welcomeDialog = document.getElementById('welcome-dialog');
     const goButton = document.querySelector('.btn-Go');
-
+    const closeButton = document.getElementById('close-popup');
 
     if (!sessionStorage.getItem('popupDisplayed')) {
         welcomeDialog.showModal();
     }
 
+    goButton.addEventListener('click', function(event) {
+        sessionStorage.setItem('popupDisplayed', 'true');
+        welcomeDialog.close();
+    });
 
-   goButton.addEventListener('click', function(event) {
-    sessionStorage.setItem('popupDisplayed', 'true');
-    welcomeDialog.close();
-});
+    closeButton.addEventListener('click', function() {
+        sessionStorage.setItem('popupDisplayed', 'true');
+        welcomeDialog.close();
+    });
 
     window.addEventListener('popstate', function() {
-        if (sessionStorage.getItem('popupDisplayed') === 'true') {
-            if (welcomeDialog.open) {
-                welcomeDialog.close();
-            }
+        if (sessionStorage.getItem('popupDisplayed') === 'true' && welcomeDialog.open) {
+            welcomeDialog.close();
         }
     });
+
     window.addEventListener('pageshow', function(event) {
-        if (event.persisted || (sessionStorage.getItem('popupDisplayed') === 'true')) {
+        if (event.persisted || sessionStorage.getItem('popupDisplayed') === 'true') {
             if (welcomeDialog.open) {
                 welcomeDialog.close();
             }
         }
     });
 });
-
-
-
-
-// Scroll navbar carousel
-// document.addEventListener('DOMContentLoaded', function() {
-//     const navbar = document.querySelector('.navbar');
-//     const carousel = document.querySelector('.carousel');
-//     const navbarToggler = document.querySelector('.navbar-toggler');
-
-//     function handleScroll() {
-//         if (carousel && window.scrollY > (carousel.offsetHeight - navbar.offsetHeight)) {
-//             navbar.classList.add('scrolled');
-//             navbar.classList.remove('transparent');
-//         } else {
-//             navbar.classList.remove('scrolled');
-//             if (!navbar.classList.contains('open')) {
-//                 navbar.classList.add('transparent');
-//             }
-//         }
-//     }
-
-//     function handleTogglerClick() {
-//         navbar.classList.toggle('open');
-//         if (navbar.classList.contains('open')) {
-//             navbar.classList.remove('transparent');
-//         } else {
-//             if (carousel && window.scrollY <= (carousel.offsetHeight - navbar.offsetHeight)) {
-//                 navbar.classList.add('transparent');
-//             }
-//         }
-//     }
-
-//     handleScroll();
-//     window.addEventListener('scroll', handleScroll);
-//     navbarToggler.addEventListener('click', handleTogglerClick);
-// });
-// Slide
 var copy = document.querySelector(".logos-slide").cloneNode(true);
 document.querySelector(".logos").appendChild(copy);
 
@@ -93,21 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-// wa
-    // document.getElementById('whatsappButton').onclick = function() {
-    //     var phoneNumber = '6289636090157';
-    //     var message = 'Halo Admin, saya memiliki masalah website ini';
-    //     var whatsappUrl = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
-    //     window.open(whatsappUrl, '_blank');
-    // };
-
-
-// const Home = document.getElementById("Home");
-
-// Home.addEventListener("click", function (){
-//   window.location.href= "PTGes.blade.php";
-// });
-
   document.addEventListener("scroll", function() {
     const navbar = document.querySelector('.navbar');
     const carousel = document.querySelector('#carouselExample');

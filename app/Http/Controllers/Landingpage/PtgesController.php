@@ -11,6 +11,7 @@ class PtgesController extends Controller
 
     public function index()
     {
+
         $listinformation = DB::select("SELECT title_informations, content_informations, image_informations FROM tbl_informations");
 
         $listservices = DB::select("SELECT id, title_service, LEFT(content_service, 150) AS content_service, image_service FROM tbl_service");
