@@ -213,13 +213,13 @@
                                     <tr>
                                         <th>Marking</th>
                                         <th>Nama Costumer</th>
-                                        <th>Nominal Top Up</th>
                                         <th>Poin Top Up</th>
+                                        <th>Nominal Top Up</th>
                                         <th>Harga (1kg)</th>
                                         <th>Nama Akun Jurnal</th>
-                                        {{-- <th>Status</th> --}}
                                         <th>Tanggal</th>
-                                        {{-- <th>Poin</th> <!-- Kolom untuk penanda poin --> --}}
+                                        <th>Status</th>
+                                        <th>Action</th> <!-- Kolom untuk penanda poin -->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -266,7 +266,7 @@
             $('#topupModal').on('shown.bs.modal', function() {
                 $('#accountSelect').select2({
                     dropdownParent: $(
-                    '#topupModal'),
+                        '#topupModal'),
                     placeholder: "Pilih Akun Jurnal",
                     allowClear: true
                 });
@@ -334,6 +334,14 @@
                     {
                         data: 'date',
                         name: 'date'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
                     }
                 ],
                 order: [],
@@ -575,6 +583,50 @@
                 if (!$('#pricePerKgError').hasClass('d-none')) {
                     $('#pricePerKgError').addClass('d-none');
                 }
+            });
+
+            $(document).on('click', '.btnCancelTopup', function(e) {
+                var id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: "{{ route('cancleTopup') }}",
+                            type: 'POST',
+                            data: {
+                                topup_id: id,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire(
+                                    'Dibatalkan!',
+                                    'Top-up berhasil dibatalkan.',
+                                    'success'
+                                );
+
+                                $('#tableTopup').DataTable().ajax
+                                    .reload();
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire(
+                                    'Gagal!',
+                                    'Terjadi kesalahan. Silakan coba lagi.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>
