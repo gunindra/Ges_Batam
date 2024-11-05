@@ -25,7 +25,7 @@ body {
   background-color: white;
   font-family: Arial, sans-serif;
   position:fixed;
-  
+
 }
 
 .popup-image {
@@ -49,7 +49,7 @@ body {
 .btn-Go {
   display: inline-block;
   color: white;
-  background-color: #007bff; 
+  background-color: #007bff;
   border: none;
   padding: 10px 20px;
   border-radius: 30px;
@@ -84,7 +84,7 @@ body {
 
 .btn-Go:hover {
   background-color: #0056b3;
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-Go a {
@@ -102,7 +102,7 @@ body {
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #333; 
+  color: #333;
 }
 
 
@@ -112,14 +112,14 @@ body {
 }
 .navbar-nav .nav-item .nav-link.active {
   font-weight: bold !important;
-  color: #9EDDFF !important; 
+  color: #9EDDFF !important;
 }
 
 .navbar-nav .nav-item .nav-link {
-  color:#9EDDFF; 
+  color:#9EDDFF;
 }
 .navbar.open {
-  background-color: #6499E9; 
+  background-color: #6499E9;
 }
 .navbar {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -133,7 +133,7 @@ body {
 }
 
 .navbar.scrolled .nav-link {
-  color: #ffffff; 
+  color: #ffffff;
 }
 .navbar.scrolled {
   background-color: #6499E9;
@@ -164,7 +164,7 @@ body {
   background-color: transparent !important;
 }
 .navigasi-page .navbar{
-  background-color: #6499E9; 
+  background-color: #6499E9;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 .navigasi-page-navbar{
@@ -202,17 +202,17 @@ body {
 	line-height: 0.3;
 }
 .navbar-logo {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   background-color:white;
   padding:10px 10px;
 }
 
 .navbar-logo:hover {
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4); 
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.4);
 }
 .navbar-shadow {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 .navbar.homepage .navbar-logo {
   display: none;
@@ -224,8 +224,8 @@ body {
 
 /* carousel  */
 .carousel-item {
-  height: 100vh; 
-  min-height: 300px; 
+  height: 100vh;
+  min-height: 300px;
   position: relative;
   overflow: hidden;
 }
@@ -233,38 +233,38 @@ body {
 .carousel-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;  
+  object-fit: cover;
 }
 
 .carousel-caption {
-  position: absolute; 
-  margin-bottom: 140px; 
+  position: absolute;
+  margin-bottom: 140px;
   left: 0;
   right: 0;
-  z-index: 2; 
+  z-index: 2;
   text-align: center;
-  padding: 15px; 
+  padding: 15px;
 }
 
 .carousel-caption h5 {
   text-transform: capitalize;
   letter-spacing: 2px;
-  margin: 0; 
+  margin: 0;
   font-family: Roboto;
   overflow-wrap: break-word;
-  word-wrap: break-word; 
+  word-wrap: break-word;
 }
 
 .carousel-caption p {
-  width: 100%; 
+  width: 100%;
   margin: 5px auto;
-  line-height: 1.9; 
-  overflow-wrap: break-word; 
+  line-height: 1.9;
+  overflow-wrap: break-word;
 }
 
 
 .responsive-title {
-  font-size: 2.5vw; 
+  font-size: 2.5vw;
   overflow-wrap: break-word;
   white-space: normal;
 }
@@ -292,7 +292,7 @@ body {
   height: 100%;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.6); 
+  background: rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
 
@@ -355,9 +355,9 @@ body {
 
 .contentGallery {
   padding: 10%;
-  overflow-wrap: break-word; 
-  word-wrap: break-word;     
-  word-break: break-all;   
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .contentGallery h2 {
@@ -370,7 +370,7 @@ body {
 .contentGallery p {
   line-height: 1.5;
   overflow-wrap: break-word;
-  font-size: 0.8vw; 
+  font-size: 0.8vw;
 }
 
 .main-content {
@@ -386,7 +386,7 @@ body {
   cursor: pointer;
   margin-bottom: 15px;
   box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.15);
-  height: 250px; 
+  height: 250px;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -441,14 +441,14 @@ body {
 
 .single-gallery .box-gallery {
   width: 100%;
-  max-width: 600px; 
-  height: 250px; 
+  max-width: 600px;
+  height: 250px;
 }
 
 .single-gallery img {
   width: 100%;
   max-width: 100%;
-  height: 100%; 
+  height: 100%;
   object-fit: cover;
 }
 
@@ -492,8 +492,8 @@ body {
   width: 50%;
   margin: 0px 60px;
   transition: transform 0.3s ease;
-  padding: 0 60px; 
-  box-sizing: border-box; 
+  padding: 0 60px;
+  box-sizing: border-box;
 }
 
 .content:hover {
@@ -554,11 +554,11 @@ body {
 
 .image {
   transition: transform 0.4s ease;
-  width: 40%; 
+  width: 40%;
   margin: 0 15px;
   display: flex;
   justify-content: center;
-  
+
 }
 
 .image:hover {
@@ -569,7 +569,7 @@ body {
   width: 70%;
   height: auto;
   border-radius: 30px;
-  display: block; 
+  display: block;
 }
 
 /* Masuk bagian learn more About*/
@@ -627,7 +627,7 @@ body {
   width: 100%;
   height: auto;
   border-radius: 30px;
-  float:right; 
+  float:right;
 }
 
 /* bagian Services */
@@ -644,16 +644,16 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2); 
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  width: 100%; 
-  max-width: 100%; 
+  width: 100%;
+  max-width: 100%;
 }
 
 .box img {
-  width: 100%; 
-  height: 350px; 
-  object-fit: cover; 
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
   border-radius: 10px;
   display: block;
   transition: transform 0.5s ease;
@@ -695,12 +695,12 @@ body {
 }
 
 .overlay p {
-  font-size: 16px; 
+  font-size: 16px;
 }
 
 .button-container {
   position: relative;
-  height: 300px; 
+  height: 300px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -753,7 +753,7 @@ body {
 
 .box:hover img {
   transform: scale(1.1) translateZ(10px);
-  filter: blur(3px); 
+  filter: blur(3px);
 }
 
 .title h1 {
@@ -794,12 +794,12 @@ body {
 }
 
 .double-service .box {
-  width: 100%; 
+  width: 100%;
   height: auto;
 }
 
 .double-service .box img {
-  object-fit: cover; 
+  object-fit: cover;
 }
 
 /* WhyUs */
@@ -819,19 +819,19 @@ body {
   margin: auto;
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   padding: 20px;
   border-radius: 10px;
   box-sizing: border-box;
 }
 
 .image-sectionwhy {
-  width: 100%; 
+  width: 100%;
   max-width: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
 }
 
 .image-sectionwhy img {
@@ -843,8 +843,8 @@ body {
 }
 
 article {
-  width: 100%; 
-  max-width: 55%; 
+  width: 100%;
+  max-width: 55%;
   box-sizing: border-box;
 }
 
@@ -858,8 +858,8 @@ article p {
   font-size: 19px;
   color: #fff;
   margin-top: 25px;
-  line-height: 1.5; 
-  word-wrap: break-word; 
+  line-height: 1.5;
+  word-wrap: break-word;
 }
 
 article .buttonwhy {
@@ -889,38 +889,38 @@ article a:hover {
 .Judulwhy h2 {
   text-align: center;
   margin-bottom: 20px;
-  margin-top: 100px; 
+  margin-top: 100px;
 }
 
 .content-containerwhy {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start; 
+  align-items: flex-start;
   padding: 20px;
-  gap: 20px; 
+  gap: 20px;
 }
 
 .imageWhy {
-  flex: 1 1 300px; 
+  flex: 1 1 300px;
   margin-right: 20px;
 }
 
 .imageWhy img {
   width: 400px;
-  border-radius: 15px; 
+  border-radius: 15px;
   object-fit: cover;
 }
 
 .contentwhy {
-  flex: 2 1 500px; 
-  min-width: 300px; 
+  flex: 2 1 500px;
+  min-width: 300px;
 }
 
 .contentwhy h2 {
   margin-bottom: 20px;
   font-weight: 500;
   color: #7d7d7d;
-  font-size: 24px; 
+  font-size: 24px;
 }
 
 .contentwhy p {
@@ -990,7 +990,7 @@ footer {
   background: #3C3D37;
   padding-top: 50px;
   margin-top:auto;
-  
+
 }
 
 .containers {
@@ -1010,7 +1010,7 @@ footer {
 }
 
 h3 {
-  font-size: 24px; 
+  font-size: 24px;
   margin-bottom: 15px;
   text-align: center;
   color: white;
@@ -1124,54 +1124,54 @@ a:hover {
 /* Responsive */
 @media (max-width: 1500px) {
   .wrapper-About {
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
   }
-  
+
   .content {
     width: 80%;
-    margin: 0 0 20px 0; 
-    padding: 0 20px; 
+    margin: 0 0 20px 0;
+    padding: 0 20px;
   }
-  
+
   .image {
-    width: 45%; 
+    width: 45%;
     margin: 0;
-    justify-content: center; 
+    justify-content: center;
   }
-  
+
   .heading h1 {
     font-size: 40px;
   }
-  
+
   .content h2 {
     font-size: 20px;
   }
-  
+
   .content p {
     font-size: 16px;
   }
-  
+
   .content .btn {
     font-size: 16px;
     padding: 10px 14px;
   }
 }
 @media only screen and (max-width: 1440px) {
-  
+
   /* service */
   .box {
     max-width: 100%;
   }
-  
+
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
-    gap: 20px; 
+    gap: 20px;
   }
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 100%; 
+    width: 100%;
     height: auto;
   }
 
@@ -1208,11 +1208,11 @@ a:hover {
 		width: 100%;
 	}
   .responsive-title {
-    font-size: 2vw; 
+    font-size: 2vw;
   }
 
   .responsive-paragraph {
-    font-size: 1.2vw; 
+    font-size: 1.2vw;
   }
 
   /* Main */
@@ -1220,7 +1220,7 @@ a:hover {
   .main{
     height:auto;
   }
-  
+
   /* information */
   .wrapperGallery{
     width: 80%;
@@ -1252,7 +1252,7 @@ a:hover {
   .content-container {
     margin: 0 50px;
   }
-  
+
   .JudulAbout h2 {
     margin-left: 50px;
     margin-top: 100px;
@@ -1261,7 +1261,7 @@ a:hover {
     width: 60%;
     height: auto;
     border-radius: 30px;
-    display: block; 
+    display: block;
   }
   /* why */
   .why {
@@ -1270,52 +1270,52 @@ a:hover {
   }
 
   .image-sectionwhy {
-    max-width: 80%; 
+    max-width: 80%;
     margin-bottom: 20px;
   }
 
   .image-sectionwhy img {
     width: 100%;
-    max-width: none; 
-    
+    max-width: none;
+
   }
 
   article {
-    max-width: 80%; 
+    max-width: 80%;
     padding: 0 20px;
   }
 
   article h3 {
-    font-size: 21px; 
+    font-size: 21px;
   }
 
   article p {
     font-size: 18px;
     display: flex;
-    justify-content: center; 
+    justify-content: center;
   }
 
   article .buttonwhy {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
   }
 
   article a {
-    padding: 14px 22px; 
-    font-size: 18px; 
+    padding: 14px 22px;
+    font-size: 18px;
   }
   /* Masuk bagian Why */
   .content-containerwhy {
-    flex-direction: column; 
-    align-items: center; 
+    flex-direction: column;
+    align-items: center;
   }
   .contentwhy {
     margin-left: 0;
   }
 
   .contentwhy h2 {
-    margin-left: 0; 
-    font-size: 20px; 
+    margin-left: 0;
+    font-size: 20px;
   }
   .box-area {
     grid-template-columns: repeat(2, 1fr);
@@ -1323,7 +1323,7 @@ a:hover {
   }
 
   .box {
-    height: 350px; 
+    height: 350px;
     max-width: 100%;
   }
 
@@ -1336,17 +1336,17 @@ a:hover {
   }
 
   .overlay p {
-    font-size: 14px; 
+    font-size: 14px;
   }
 
   .button-container {
-    height: auto; 
-    padding-bottom: 10px; 
+    height: auto;
+    padding-bottom: 10px;
   }
 
   .btn-modern {
-    padding: 10px 20px; 
-    font-size: 14px; 
+    padding: 10px 20px;
+    font-size: 14px;
   }
 }
 
@@ -1365,7 +1365,7 @@ a:hover {
 	.carousel-caption {
 		bottom: 185px;
 	}
-	
+
 	.carousel-caption a {
 		padding: 10px 15px;
 		font-size: 15px;
@@ -1378,11 +1378,11 @@ a:hover {
     font-size: 14px;
   }
   .responsive-title {
-    font-size: 4vw; 
+    font-size: 4vw;
   }
 
   .responsive-paragraph {
-    font-size: 3vw; 
+    font-size: 3vw;
   }
   /* Gallery */
   .wrapperGallery{
@@ -1397,11 +1397,11 @@ a:hover {
     margin-bottom: 15px;
     font-size: 3vw;
   }
-  
+
   .contentGallery p {
     line-height: 1.5;
     overflow-wrap: break-word;
-    font-size: 2vw; 
+    font-size: 2vw;
   }
   /* About us */
   .containerAbout .heading h1 {
@@ -1436,11 +1436,11 @@ a:hover {
     width: 100%;
   }
   .section-header {
-    font-size: 14px; 
+    font-size: 14px;
   }
 
   .wrapperGallery h1 {
-    font-size: 30px; 
+    font-size: 30px;
   }
 
   .contentGallery p {
@@ -1459,7 +1459,7 @@ a:hover {
     flex-direction: column;
     margin: 0 20px;
   }
-  
+
   .contentAbout {
     max-width: 100%;
     margin-right: 0;
@@ -1467,14 +1467,14 @@ a:hover {
   }
   .imageAbout {
     width: 100%;
-    margin: 0 auto; 
+    margin: 0 auto;
     margin-bottom:30px;
 }
-  
+
   .JudulAbout h2 {
     margin-left: 20px;
   }
-  
+
   .contentAbout p {
     font-size: 16px;
   }
@@ -1485,17 +1485,17 @@ a:hover {
   }
 
   .image-sectionwhy {
-    max-width: 80%; 
-    margin-bottom: 20px; 
+    max-width: 80%;
+    margin-bottom: 20px;
   }
 
   .image-sectionwhy img {
-    width: 100%; 
-    margin-right: 0; 
+    width: 100%;
+    margin-right: 0;
   }
 
   article {
-    max-width: 100%; 
+    max-width: 100%;
     text-align: center;
   }
 
@@ -1513,15 +1513,15 @@ a:hover {
   }
   /* Masuk bagian Why */
   .content-containerwhy {
-    flex-direction: column; 
-    align-items: center; 
+    flex-direction: column;
+    align-items: center;
   }
-  
+
   .image-sectionwhy {
     margin-right: 0;   overflow-wrap: break-word;
     white-space: normal;
     transition: font-size 0.3s;
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
   }
   .image-sectionwhy img{
     width:100%;
@@ -1533,8 +1533,8 @@ a:hover {
   }
 
   .contentwhy h2 {
-    margin-left: 0; 
-    font-size: 20px; 
+    margin-left: 0;
+    font-size: 20px;
   }
   /* service */
   .wrapper{
@@ -1546,7 +1546,7 @@ a:hover {
   }
 
   .box {
-    height: 300px; 
+    height: 300px;
     max-width: 100%;
   }
 
@@ -1566,14 +1566,14 @@ a:hover {
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px; 
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
   }
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 80%; 
+    width: 80%;
     height: auto;
   }
 
@@ -1608,7 +1608,7 @@ a:hover {
   }
 
   .social-icons {
-    margin-left: 0; 
+    margin-left: 0;
   }
   /* wa */
   .whatsapp-float {
@@ -1621,7 +1621,7 @@ a:hover {
   .whatsapp-float i {
     font-size: 44px;
   }
-  
+
 }
 
 @media (max-width: 576px) {
@@ -1651,7 +1651,7 @@ a:hover {
     flex-direction: column;
     margin: 0 20px;
   }
-  
+
   .contentAbout {
     max-width: 100%;
     margin-right: 0;
@@ -1681,7 +1681,7 @@ a:hover {
   .contentAbout p {
     font-size: 14px;
   }
- 
+
   /* service */
   .box {
     max-width: 80%;
@@ -1689,14 +1689,14 @@ a:hover {
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px; 
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
   }
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 100%; 
+    width: 100%;
     height: auto;
   }
 
@@ -1720,7 +1720,7 @@ a:hover {
 
   .image-sectionwhy img {
     width: 100%;
-    max-width: none; 
+    max-width: none;
     margin-right: 0;
   }
 
@@ -1730,23 +1730,23 @@ a:hover {
   }
 
   article h3 {
-    font-size: 20px; 
+    font-size: 20px;
   }
 
   article p {
-    font-size: 16px; 
-    margin-top: 15px; 
+    font-size: 16px;
+    margin-top: 15px;
   }
 
   article .buttonwhy {
-    margin-top: 20px; 
+    margin-top: 20px;
   }
 
   article a {
-    padding: 12px 20px; 
-    font-size: 17px; 
+    padding: 12px 20px;
+    font-size: 17px;
   }
-  
+
 }
 
 @media (max-width: 480px) {
@@ -1756,20 +1756,20 @@ a:hover {
     margin-left: 10px;
     margin-top: 100px;
   }
- 
+
   .contentAbout h2 {
     font-size: 20px;
   }
-  
+
   .contentAbout p {
     font-size: 14px;
   }
-  
+
   .content-container {
     margin: 0 10px;
   }
   .carousel-caption {
-    margin-bottom: 200px; 
+    margin-bottom: 200px;
   }
   .carousel-caption p {
     width: 80%;
@@ -1781,7 +1781,7 @@ a:hover {
   }
 
   .carousel-caption a {
-    margin-top: 10.5px; 
+    margin-top: 10.5px;
   }
   /* Masuk bagian slide carousel*/
   .JudulSlide h2{
@@ -1797,23 +1797,23 @@ a:hover {
     margin-bottom: 5px;
     font-size: 2.8vw;
   }
-  
+
   .contentGallery p {
     line-height: 1.5;
     overflow-wrap: break-word;
-    font-size: 2.4vw; 
+    font-size: 2.4vw;
   }
   /* footer */
   .footer-content h3 {
-    font-size: 20px; 
+    font-size: 20px;
   }
 
   .social-icons i {
-    font-size: 20px; 
+    font-size: 20px;
   }
 
   .bottom-bar p {
-    font-size: 14px; 
+    font-size: 14px;
   }
   /* wa */
   .whatsapp-float {
@@ -1839,14 +1839,14 @@ a:hover {
   .triple-service .box-area, .single-service .box-area,
   .double-service .box-area{
     display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px; 
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
   }
 
   .triple-service .box, .single-service .box,
   .double-service .box {
-    width: 100%; 
+    width: 100%;
     height: auto;
   }
 
@@ -1863,39 +1863,39 @@ a:hover {
     font-size: 14px;
     letter-spacing: 2px;
   }
-  
+
   .overlay p {
-    font-size: 10px; 
+    font-size: 10px;
   }
   .Judulwhy h2 {
-    margin-top: 100px; 
+    margin-top: 100px;
   }
-  
+
   .content-containerwhy {
     flex-direction: column;
-    padding: 10px; 
+    padding: 10px;
   }
 
   .imageWhy {
-    margin-right: 0; 
+    margin-right: 0;
     margin-bottom: 20px;
-    flex: 1 1 auto; 
+    flex: 1 1 auto;
   }
 
   .imageWhy img {
-    width: 100%; 
-    height: auto; 
+    width: 100%;
+    height: auto;
     border-radius: 10px;
   }
 
   .contentwhy {
-    flex: 1 1 auto; 
+    flex: 1 1 auto;
   }
   .contentwhy h2 {
-    font-size: 20px; 
+    font-size: 20px;
   }
 
   .contentwhy p {
-    font-size: 16px; 
+    font-size: 16px;
   }
-} 
+}
