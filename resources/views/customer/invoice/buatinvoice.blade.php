@@ -110,6 +110,11 @@
                                         placeholder="Pilih tanggal">
                                     <div id="tanggalError" class="text-danger mt-1 d-none">Tanggal tidak boleh kosong</div>
                                 </div>
+                                <div class="mt-3">
+                                    <label for="tanggal" class="form-label fw-bold">Tanggal Buat</label>
+                                    <input type="text" class="form-control col-8" id="tanggalBuat" value=""
+                                        placeholder="Pilih tanggal" disabled>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
@@ -399,7 +404,7 @@
 
 
             var today = new Date();
-            $('#tanggal').datepicker({
+            $('#tanggal, #tanggalBuat').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,

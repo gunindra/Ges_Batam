@@ -101,7 +101,11 @@
                                     <p><strong class="text-primary">Status Invoice :</strong> <span
                                             id="previewInvoiceStatus">-</span></p>
                                     <p><strong class="text-primary">Total Berat (Kg) :</strong> <span
-                                            id="previewTotalWeight">-</span></p>
+                                            id="previewTotalWeight">-</span> (<span id="previewCountWeight">0</span> Resi)
+                                    </p>
+                                    <p><strong class="text-primary">Total Dimensi :</strong> <span
+                                            id="previewTotalDimension">-</span> (<span id="previewCountDimension">0</span>
+                                        Resi)</p>
                                     <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
                                             class="fw-bold text-success">-</span></p>
                                     <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
@@ -110,13 +114,12 @@
                                             id="previewRemainingPayment" class="fw-bold text-danger">-</span></p>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                     <div class="col-12 mt-4 mb-5">
                         <div class="col-4 float-right">
-                            <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3" style="width: 100%;">Buat
+                            <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3"
+                                style="width: 100%;">Buat
                                 Payment</button>
                         </div>
                     </div>
@@ -146,7 +149,6 @@
                 var invoiceNo = $(this).val();
 
                 if (invoiceNo) {
-
                     $.ajax({
                         url: "{{ route('getInvoiceAmount') }}",
                         type: 'GET',
@@ -155,22 +157,29 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                $('#previewInvoiceNumber').text(response.invoice[0].no_invoice);
+                                $('#previewInvoiceNumber').text(response.invoice[0]
+                                    .no_invoice || '-');
                                 $('#previewInvoiceAmount').text(response.invoice[0]
-                                    .total_harga);
+                                    .total_harga || '0');
                                 $('#previewInvoiceDate').text(response.invoice[0]
-                                    .tanggal_bayar);
+                                    .tanggal_bayar || '-');
                                 $('#previewInvoiceStatus').text(response.invoice[0]
-                                    .status_name);
-                                $('#previewTotalPaid').text(response.invoice[0]
-                                    .total_bayar);
+                                    .status_name || '-');
+                                $('#previewTotalPaid').text(response.invoice[0].total_bayar ||
+                                    '0');
                                 $('#previewRemainingPayment').text(response.invoice[0]
-                                    .sisa_bayar);
-                                $('#previewTotalWeight').text(response.invoice[0]
-                                    .total_berat);
+                                    .sisa_bayar || '0');
+                                $('#previewTotalWeight').text(response.invoice[0].total_berat ||
+                                    '0');
+                                $('#previewTotalDimension').text(response.invoice[0]
+                                    .total_dimensi || '0');
+                                $('#previewCountWeight').text(response.invoice[0].count_berat ||
+                                    '0');
+                                $('#previewCountDimension').text(response.invoice[0]
+                                    .count_dimensi || '0'
+                                    );
                             } else {
-                                // alert('Data tidak ditemukan');
-                                showMessage("error" , "Data tidak ditemukan")
+                                showMessage("error", "Data tidak ditemukan");
                             }
                         },
                         error: function(xhr, status, error) {

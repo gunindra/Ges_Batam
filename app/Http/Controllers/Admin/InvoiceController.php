@@ -320,6 +320,7 @@ class InvoiceController extends Controller
             $invoiceId = DB::table('tbl_invoice')->insertGetId([
                 'no_invoice' => $noInvoice,
                 'tanggal_invoice' => $formattedDate,
+                'tanggal_buat' => now(),
                 'pembeli_id' => $customer,
                 'metode_pengiriman' => $metodePengiriman,
                 'alamat' => $alamatTujuan,

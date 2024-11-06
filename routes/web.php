@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboardnew/mothly', [DashboardController::class, 'fetchMonthlyData'])->name('fetchMonthlyData');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -45,6 +45,7 @@
                 </div>
             </div>
         </div>
+
         <div class="modal fade" id="modalEditCategory" tabindex="-1" role="dialog"
             aria-labelledby="modalEditCategoryTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -105,30 +106,30 @@
                         </div>
                         <div id="containerCategory" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableVendor">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th>No.</th>
-                                            <th>Judul</th>
-                                            <th>Isi Vendor</th>
-                                            <th>Image</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1.</td>
-                                            <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                            <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                            <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                        class="fas fa-edit"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                            <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                            </td>
-                                        </tr>
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>Judul</th>
+                                                    <th>Isi Vendor</th>
+                                                    <th>Image</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1.</td>
+                                                    <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                    <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                    <td>
+                                                    <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                class="fas fa-edit"></i></a>
+                                                    <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                    <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                    </td>
+                                                </tr>
 
-                                    </tbody>
-                                </table> -->
+                                            </tbody>
+                                        </table> -->
                         </div>
                     </div>
                 </div>
@@ -214,20 +215,21 @@
                     $('#minimumRateCategoryError').addClass('d-none');
                 }
 
-                if (maximumRateCategory === '') {
-                    $('#maximumRateCategoryError').removeClass('d-none').text(
-                        "Maximum Rate Category tidak boleh kosong");
-                    isValid = false;
-                } else if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
-                    $('#maximumRateCategoryError').removeClass('d-none').text(
-                        "Maximum Rate Category harus berupa angka positif");
-                    isValid = false;
-                } else if (parseFloat(maximumRateCategory) > 1000000000000000) {
-                    $('#maximumRateCategoryError').removeClass('d-none').text(
-                        "Karakter maksimum tidak boleh melebihi 15 ");
-                    isValid = false;
+                // Only validate maximumRateCategory if it's not empty
+                if (maximumRateCategory !== '') {
+                    if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
+                        $('#maximumRateCategoryError').removeClass('d-none').text(
+                            "Maximum Rate Category harus berupa angka positif");
+                        isValid = false;
+                    } else if (parseFloat(maximumRateCategory) > 1000000000000000) {
+                        $('#maximumRateCategoryError').removeClass('d-none').text(
+                            "Karakter maksimum tidak boleh melebihi 15 ");
+                        isValid = false;
+                    } else {
+                        $('#maximumRateCategoryError').addClass('d-none');
+                    }
                 } else {
-                    $('#maximumRateCategoryError').addClass('d-none');
+                    $('#maximumRateCategoryError').addClass('d-none'); // Hide error if field is empty
                 }
 
                 // Jika semua input valid, lanjutkan aksi simpan
@@ -243,7 +245,6 @@
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            var formData = new FormData();
                             Swal.fire({
                                 title: 'Loading...',
                                 text: 'Please wait while we process save your data.',
@@ -258,7 +259,8 @@
                                 data: {
                                     nameCategory: nameCategory,
                                     minimumRateCategory: minimumRateCategory,
-                                    maximumRateCategory: maximumRateCategory,
+                                    maximumRateCategory: maximumRateCategory ||
+                                        null, // Send null if empty
                                     _token: '{{ csrf_token() }}',
                                 },
                                 success: function(response) {
@@ -280,6 +282,8 @@
                     });
                 }
             });
+
+
             $(document).on('click', '.btnUpdateCategory', function(e) {
                 var categoryid = $(this).data('id');
                 $.ajax({
@@ -297,6 +301,7 @@
                     }
                 });
             });
+
             $('#saveEditCategory').on('click', function() {
                 var categoryid = $(this).data('id');
                 var nameCategory = $('#nameCategoryEdit').val();
@@ -328,21 +333,23 @@
                     $('#minimumRateCategoryErrorEdit').addClass('d-none');
                 }
 
-                if (maximumRateCategory === '') {
-                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text(
-                        "Maximum Rate Category tidak boleh kosong");
-                    isValid = false;
-                } else if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
-                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text(
-                        "Maximum Rate Category harus berupa angka positif");
-                    isValid = false;
-                } else if (parseFloat(maximumRateCategory) > 100000000000000000) {
-                    $('#maximumRateCategoryErrorEdit').removeClass('d-none').text(
-                        "Karakter maksimum tidak boleh melebihi 15 ");
-                    isValid = false;
+                // Only validate maximumRateCategory if it's not empty
+                if (maximumRateCategory !== '') {
+                    if (isNaN(maximumRateCategory) || parseFloat(maximumRateCategory) < 0) {
+                        $('#maximumRateCategoryErrorEdit').removeClass('d-none').text(
+                            "Maximum Rate Category harus berupa angka positif");
+                        isValid = false;
+                    } else if (parseFloat(maximumRateCategory) > 100000000000000000) {
+                        $('#maximumRateCategoryErrorEdit').removeClass('d-none').text(
+                            "Karakter maksimum tidak boleh melebihi 15 ");
+                        isValid = false;
+                    } else {
+                        $('#maximumRateCategoryErrorEdit').addClass('d-none');
+                    }
                 } else {
-                    $('#maximumRateCategoryErrorEdit').addClass('d-none');
+                    $('#maximumRateCategoryErrorEdit').addClass('d-none'); // Hide error if field is empty
                 }
+
                 if (isValid) {
                     Swal.fire({
                         title: 'Apakah Anda yakin?',
@@ -377,7 +384,8 @@
                                 data: {
                                     nameCategory: nameCategory,
                                     minimumRateCategory: minimumRateCategory,
-                                    maximumRateCategory: maximumRateCategory,
+                                    maximumRateCategory: maximumRateCategory ||
+                                    null, // Send null if empty
                                     _token: '{{ csrf_token() }}',
                                 },
                                 success: function(response) {
@@ -390,16 +398,11 @@
                                 },
                                 error: function(xhr) {
                                     if (xhr.status === 422) {
-                                        // Ambil pesan error dari respons JSON
                                         let errors = xhr.responseJSON.errors;
                                         let errorMessage = '';
-
-                                        // Gabungkan semua pesan error menjadi satu
                                         Object.values(errors).forEach(error => {
                                             errorMessage += error[0] + '\n';
                                         });
-
-                                        // Tampilkan pesan error di SweetAlert
                                         Swal.fire({
                                             icon: 'error',
                                             title: 'Validasi Gagal!',
@@ -487,24 +490,24 @@
                                 }
                             },
                             error: function(xhr) {
-                                    if (xhr.status === 422) {
-                                        // Ambil pesan error dari respons JSON
-                                        let errors = xhr.responseJSON.errors;
-                                        let errorMessage = '';
+                                if (xhr.status === 422) {
+                                    // Ambil pesan error dari respons JSON
+                                    let errors = xhr.responseJSON.errors;
+                                    let errorMessage = '';
 
-                                        // Gabungkan semua pesan error menjadi satu
-                                        Object.values(errors).forEach(error => {
-                                            errorMessage += error[0] + '\n';
-                                        });
+                                    // Gabungkan semua pesan error menjadi satu
+                                    Object.values(errors).forEach(error => {
+                                        errorMessage += error[0] + '\n';
+                                    });
 
-                                        // Tampilkan pesan error di SweetAlert
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Validasi Gagal!',
-                                            text: errorMessage,
-                                        });
-                                    }
+                                    // Tampilkan pesan error di SweetAlert
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Validasi Gagal!',
+                                        text: errorMessage,
+                                    });
                                 }
+                            }
                         });
                     }
                 });
