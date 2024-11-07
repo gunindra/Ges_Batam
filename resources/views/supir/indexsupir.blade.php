@@ -3,138 +3,104 @@
 @section('title', 'Driver')
 
 @section('main')
-<div class="container-fluid" id="container-wrapper">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800 px-2">Driver</h1>
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Driver</li>
-        </ol>
-    </div>
+    <div class="container-fluid" id="container-wrapper">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800 px-2">Driver</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Driver</li>
+            </ol>
+        </div>
 
 
-    <!-- Modal Batal Kirim -->
-    <div class="modal fade" id="batalModal" tabindex="-1" aria-labelledby="batalModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="batalModalLabel">Alasan Pembatalan Kirim</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        <!-- Modal Batal Kirim -->
+        <div class="modal fade" id="batalModal" tabindex="-1" aria-labelledby="batalModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="batalModalLabel">Alasan Pembatalan Kirim</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="batalForm">
+                            <div class="mb-3">
+                                <label for="alasanBatal" class="form-label">Masukkan alasan pembatalan:</label>
+                                <textarea class="form-control" id="alasanBatal" rows="3" placeholder="Tuliskan alasan di sini..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-danger" id="submitBatal">Batalkan Kirim</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="batalForm">
-                        <div class="mb-3">
-                            <label for="alasanBatal" class="form-label">Masukkan alasan pembatalan:</label>
-                            <textarea class="form-control" id="alasanBatal" rows="3"
-                                placeholder="Tuliskan alasan di sini..."></textarea>
+            </div>
+        </div>
+
+        <div class="row mb-3 px-3">
+            <div class="col-xl-12 px-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="m-0 font-weight-bold text-primary">Invoice</h6>
+                        <div class="d-flex justify-content-center mb-2 mr-3 mt-3">
+                            <select class="form-control" id="selectResi" style="width: 500px;" multiple="multiple">
+                                <option value="" disabled>Pilih No.Invoice</option>
+                                @foreach ($listInvoice as $Invoice)
+                                    <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}
+                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-danger" id="submitBatal">Batalkan Kirim</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-3 px-3">
-        <div class="col-xl-12 px-2">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-primary">Invoice</h6>
-                    <div class="d-flex justify-content-center mb-2 mr-3 mt-3">
-                        <select class="form-control" id="selectResi" style="width: 500px;" multiple="multiple">
-                            <option value="" disabled>Pilih No.Invoice</option>
-                            @foreach ($listInvoice as $Invoice)
-                                <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }} ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="text-center mt-3">
-                        <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
-                        <p class="text-muted">Jumlah Resi</p>
+                        <div class="text-center mt-3">
+                            <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
+                            <p class="text-muted">Jumlah Resi</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row mb-3 px-3">
-        <div class="col-xl-12 px-2">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="m-0 font-weight-bold text-primary">Bukti Pengantaran</h6>
-                    <div class="my-3">
-                        <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Bukti Pengantaran</label>
-                        <input type="file" class="form-control" id="photo" name="photo">
-                        <div id="imageSupirError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
-                    </div>
+        <div class="row mb-3 px-3">
+            <div class="col-xl-12 px-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="m-0 font-weight-bold text-primary">Bukti Pengantaran</h6>
+                        <div class="my-3">
+                            <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Bukti Pengantaran</label>
+                            <input type="file" class="form-control" id="photo" name="photo">
+                            <div id="imageSupirError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        </div>
 
-                    <label for="pengantaranStatus" class="form-label fw-bold">Tanda Tangan Bawah ini</label>
-                    <div class="preview mt-3" id="previewContainer"
-                        style="border:1px solid black; height: 250px; border-radius:10px;">
-                        <canvas id="signature-pad" style="width: 100%; height: 100%;"></canvas>
-                    </div>
+                        <label for="pengantaranStatus" class="form-label fw-bold">Tanda Tangan Bawah ini</label>
+                        <div class="preview mt-3" id="previewContainer"
+                            style="border:1px solid black; height: 250px; border-radius:10px;">
+                            <canvas id="signature-pad" style="width: 100%; height: 100%;"></canvas>
+                        </div>
 
-                    <div class="mt-3">
-                        <button id="clear" class="btn btn-danger">Hapus</button>
-                        <button id="save" class="btn btn-success">Simpan</button>
-                        <button id="batal" class="btn btn-secondary" data-bs-toggle="modal"
-                            data-bs-target="#batalModal">Batal Kirim</button>
-                        <input type="hidden" name="signature" id="signatureData" value="">
-                        <div id="imageSupirError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        <div class="mt-3">
+                            <button id="clear" class="btn btn-danger">Hapus</button>
+                            <button id="save" class="btn btn-success">Simpan</button>
+                            <button id="batal" class="btn btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#batalModal">Batal Kirim</button>
+                            <input type="hidden" name="signature" id="signatureData" value="">
+                            <div id="imageSupirError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 @section('script')
-<script>
-
-    $('#selectResi').select2({
-        placeholder: 'Pilih No.Invoice',
-        allowClear: true
-    });
-
-    $('#selectResi').on('change', function () {
-        var selectedInvoices = $(this).val();
-        if (selectedInvoices.length > 0) {
-            $.ajax({
-                url: '{{ route('jumlahresi') }}',
-                type: 'GET',
-                data: {
-                    invoice_ids: selectedInvoices
-                },
-                success: function (response) {
-
-                    $('#pointValue').text(response.count);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        } else {
-            $('#pointValue').text(0);
-        }
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        $('#batal').on('click', function () {
-            $('#batalModal').modal('show');
-        });
-
+    <script>
         $('#selectResi').select2({
             placeholder: 'Pilih No.Invoice',
             allowClear: true
         });
 
-        $('#selectResi').on('change', function () {
+        $('#selectResi').on('change', function() {
             var selectedInvoices = $(this).val();
             if (selectedInvoices.length > 0) {
                 $.ajax({
@@ -143,10 +109,11 @@
                     data: {
                         invoice_ids: selectedInvoices
                     },
-                    success: function (response) {
+                    success: function(response) {
+
                         $('#pointValue').text(response.count);
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.log(error);
                     }
                 });
@@ -154,120 +121,154 @@
                 $('#pointValue').text(0);
             }
         });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#batal').on('click', function() {
+                $('#batalModal').modal('show');
+            });
 
-        let canvas = document.getElementById('signature-pad');
-        const signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgb(255, 255, 255)'
-        });
+            $('#selectResi').select2({
+                placeholder: 'Pilih No.Invoice',
+                allowClear: true
+            });
 
-        function resizeCanvas() {
-            var ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext('2d').scale(ratio, ratio);
-            signaturePad.clear();
-        }
-        resizeCanvas();
-        $(window).on('resize', resizeCanvas);
+            $('#selectResi').on('change', function() {
+                var selectedInvoices = $(this).val();
+                if (selectedInvoices.length > 0) {
+                    $.ajax({
+                        url: '{{ route('jumlahresi') }}',
+                        type: 'GET',
+                        data: {
+                            invoice_ids: selectedInvoices
+                        },
+                        success: function(response) {
+                            $('#pointValue').text(response.count);
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                } else {
+                    $('#pointValue').text(0);
+                }
+            });
 
-        $('#clear').on('click', function () {
-            signaturePad.clear();
-            $('#photo').val('');
-        });
+            let canvas = document.getElementById('signature-pad');
+            const signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)'
+            });
 
-        $('#save').on('click', function () {
-            if (signaturePad.isEmpty()) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Tanda tangan kosong!',
-                    text: 'Harap tanda tangan terlebih dahulu.'
-                });
-                return;
+            function resizeCanvas() {
+                var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+                signaturePad.clear();
             }
+            resizeCanvas();
+            $(window).on('resize', resizeCanvas);
 
-            var photo = $('#photo').get(0).files[0];
-            var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
+            $('#clear').on('click', function() {
+                signaturePad.clear();
+                $('#photo').val('');
+            });
 
+            $('#save').on('click', function() {
+                // Check if signature pad is empty
+                var isSignatureEmpty = signaturePad.isEmpty();
+                // Check if photo input has a file
+                var photo = $('#photo').get(0).files[0];
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
 
-            if (!photo) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Foto belum diunggah!',
-                    text: 'Harap unggah foto terlebih dahulu.'
-                });
-                return;
-            } else if (!validExtensions.includes(photo.type)) {
-                $('#imageSupirError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
-                return;
-            } else {
-                $('#imageSupirError').addClass('d-none');
-            }
+                // If both are empty, show a warning
+                if (isSignatureEmpty && !photo) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Tanda tangan atau foto wajib diisi!',
+                        text: 'Harap isi minimal tanda tangan atau unggah foto.'
+                    });
+                    return;
+                }
 
-            if ($('#selectResi').val() === null || $('#selectResi').val().length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invoice belum dipilih!',
-                    text: 'Harap pilih invoice terlebih dahulu.'
-                });
-                return;
-            }
+                // If photo is present, validate file type
+                if (photo && !validExtensions.includes(photo.type)) {
+                    $('#imageSupirError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.')
+                        .removeClass('d-none');
+                    return;
+                } else {
+                    $('#imageSupirError').addClass('d-none');
+                }
 
+                // Check if any invoice is selected
+                if ($('#selectResi').val() === null || $('#selectResi').val().length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invoice belum dipilih!',
+                        text: 'Harap pilih invoice terlebih dahulu.'
+                    });
+                    return;
+                }
 
-            canvas.toBlob(function (blob) {
-                var formData = new FormData();
-                formData.append('signature', blob, 'signature.png');
-                formData.append('photo', photo);
-                formData.append('selectedValues', $('#selectResi').val());
-
-                Swal.fire({
-                    title: 'Sedang memproses...',
-                    text: 'Harap menunggu hingga proses selesai',
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                // Prepare the data for submission
+                canvas.toBlob(function(blob) {
+                    var formData = new FormData();
+                    if (!isSignatureEmpty) {
+                        formData.append('signature', blob, 'signature.png');
                     }
-                });
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('tambahdata') }}',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (response) {
-                        Swal.close();
-                        showMessage("success", "Data berhasil diupdate!").then(() => {
-                            location.reload();
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        Swal.close();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: 'Terjadi kesalahan saat menyimpan data.'
-                        });
+                    if (photo) {
+                        formData.append('photo', photo);
                     }
+                    formData.append('selectedValues', $('#selectResi').val());
+
+                    Swal.fire({
+                        title: 'Sedang memproses...',
+                        text: 'Harap menunggu hingga proses selesai',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('tambahdata') }}',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.close();
+                            showMessage("success", "Data berhasil diupdate!").then(
+                        () => {
+                                location.reload();
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.close();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Terjadi kesalahan saat menyimpan data.'
+                            });
+                        }
+                    });
                 });
             });
-        });
 
+            $('#submitBatal').on('click', function() {
 
+                const alasanBatal = $('#alasanBatal').val();
 
-        $('#submitBatal').on('click', function () {
+                var formData = new FormData();
 
-            const alasanBatal = $('#alasanBatal').val();
+                formData.append('selectedValues', $('#selectResi').val());
+                formData.append('alasan', alasanBatal);
 
-            var formData = new FormData();
-
-            formData.append('selectedValues', $('#selectResi').val());
-            formData.append('alasan', alasanBatal);
-
-            Swal.fire({
+                Swal.fire({
                     title: 'Sedang memproses...',
                     text: 'Harap menunggu hingga proses selesai',
                     icon: 'info',
@@ -286,13 +287,13 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function (response) {
+                    success: function(response) {
                         Swal.close();
                         showMessage("success", "Data berhasil diupdate!").then(() => {
                             location.reload();
                         });
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         Swal.close();
                         Swal.fire({
                             icon: 'error',
@@ -301,7 +302,7 @@
                         });
                     }
                 });
-        })
-    });
-</script>
+            })
+        });
+    </script>
 @endsection

@@ -38,7 +38,7 @@ class SupirController extends Controller
         ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
         ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
         ->join('tbl_supir as d', 'd.id', '=', 'c.supir_id')
-        ->join('tbl_costumer as e', 'e.id', '=', 'b.pembeli_id')
+        ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
         ->select(
             'a.invoice_id',
             'b.metode_pengiriman',
@@ -57,6 +57,7 @@ class SupirController extends Controller
             'listInvoice' => $listInvoice
         ]);
     }
+
     public function tambahdata(Request $request)
     {
         $request->validate([
@@ -109,7 +110,7 @@ class SupirController extends Controller
                         ->get();
 
                     $allCompleted = $pengantaranDetails->every(function ($detail) {
-                        return !empty($detail->bukti_pengantaran) && !empty($detail->tanda_tangan);
+                        return !empty($detail->bukti_pengantaran) || !empty($detail->tanda_tangan);
                     });
 
                     if ($allCompleted) {
@@ -128,7 +129,6 @@ class SupirController extends Controller
                             DB::table('tbl_pengantaran')
                                 ->where('id', $pengantaranId)
                                 ->update([
-                                    // 'status_id' => 6,
                                     'updated_at' => now(),
                                 ]);
                         }
@@ -163,6 +163,7 @@ class SupirController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
     }
+
 
 
     public function batalAntar(Request $request)
