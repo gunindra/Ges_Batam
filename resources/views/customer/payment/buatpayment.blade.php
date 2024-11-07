@@ -103,30 +103,6 @@
                                     placeholder="Masukkan nominal pembayaran" required>
                             </div>
 
-                            <div class="col-6">
-                                <h5 class="fw-bold mt-3">Preview Invoice</h5>
-                                <div id="invoicePreview" class="border p-4 rounded mt-3 shadow-sm"
-                                    style="background-color: #f9f9f9;">
-                                    <p><strong class="text-primary">Nomor Invoice :</strong> <span
-                                            id="previewInvoiceNumber">-</span></p>
-                                    <p><strong class="text-primary">Tanggal Invoice :</strong> <span
-                                            id="previewInvoiceDate">-</span></p>
-                                    <p><strong class="text-primary">Status Invoice :</strong> <span
-                                            id="previewInvoiceStatus">-</span></p>
-                                    <p><strong class="text-primary">Total Berat (Kg) :</strong> <span
-                                            id="previewTotalWeight">-</span> (<span id="previewCountWeight">0</span> Resi)
-                                    </p>
-                                    <p><strong class="text-primary">Total Dimensi :</strong> <span
-                                            id="previewTotalDimension">-</span> (<span id="previewCountDimension">0</span>
-                                        Resi)</p>
-                                    <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
-                                            class="fw-bold text-success">-</span></p>
-                                    <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
-                                            class="fw-bold text-info">-</span></p>
-                                    <p><strong class="text-primary">Sisa Pembayaran :</strong> <span
-                                            id="previewRemainingPayment" class="fw-bold text-danger">-</span></p>
-                                </div>
-                            </div>
                         </div>
                         <div class="col-6">
                             <h5 class="fw-bold mt-3">Preview Invoice</h5>

@@ -569,5 +569,27 @@ class PaymentController extends Controller
         }
     }
 
+    public function generateKodePembayaran()
+    {
+        $codeType = "BO";
+        $currentYear = date('y');
+
+        $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
+            ->orderBy('kode_pembayaran', 'desc')
+            ->first();
+
+        $newSequence = 1;
+        if ($lastPayment) {
+            $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));  // Extract last 4 digits
+            $newSequence = $lastSequence + 1;
+        }
+
+        $kode_pembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'status' => 'success',
+            'kode_pembayaran' => $kode_pembayaran
+        ]);
+    }
 
 }
