@@ -4,77 +4,117 @@
 
 @section('main')
 
-    <style>
-        .select2-container--default .select2-selection--single {
-            height: 40px;
-            border: 1px solid #d1d3e2;
-            border-radius: 0.25rem;
-            padding: 6px 12px;
-        }
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 27px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 38px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
 
-        .select2-dropdown {
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-        }
-    </style>
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+</style>
 
 
-    <!-- Modal -->
-    <div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi Delivery</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+<!-- Modal -->
+<div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi Delivery</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Search Input -->
+                <input type="text" id="txSearch" class="form-control mb-3"
+                    placeholder="Cari No. Resi atau Nama Pembeli">
+
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control" id="filter_date" placeholder="Pilih tanggal">
+                    <select class="form-control ml-2" id="filterMarking" style="width: 200px;">
+                        <option value="" selected disabled>Pilih Marking</option>
+                        @foreach ($listMarking as $marking)
+                            <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
+                        @endforeach
+                    </select>
+                    <select class="form-control ml-2" id="filterNoDo" style="width: 200px;">
+                        <option value="" selected disabled>Pilih NoDo</option>
+                        @foreach ($listNoDo as $nodo)
+                            <option value="{{ $nodo->no_do }}">{{ $nodo->no_do }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                        onclick="resetModalFilters()">
+                        Reset
                     </button>
                 </div>
-                <div class="modal-body">
-
-                    <!-- Search Input -->
-                    <input type="text" id="txSearch" class="form-control mb-3"
-                        placeholder="Cari No. Resi atau Nama Pembeli">
-
-                    <input type="text" class="form-control" id="filter_date" placeholder="Pilih tanggal">
-                    <div id="containerBuatDelivery" class="">
-                    </div>
-                    <!-- Table with Checkboxes -->
+                <div id="containerBuatDelivery" class="ml-2">
 
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="confirmSelection">Pilih</button>
-                </div>
+
+                <!-- Table with Checkboxes -->
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmSelection">Pilih</button>
             </div>
         </div>
     </div>
-    <!-- End Modal -->
+</div>
+<!-- End Modal -->
 
-    <!-- Modal -->
-    <div class="modal fade" id="inputResiPickupModal" tabindex="-1" aria-labelledby="inputResiPickupModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="inputResiPickupModalLabel">Pilih dari List Resi Pick up</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+<!-- Modal -->
+<div class="modal fade" id="inputResiPickupModal" tabindex="-1" aria-labelledby="inputResiPickupModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inputResiPickupModalLabel">Pilih dari List Resi Pick up</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Input -->
+                <input type="text" id="txSearchPickup" class="form-control mb-3"
+                    placeholder="Cari No. Resi atau Nama Pembeli">
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control" id="filter_date_pickup" placeholder="Pilih tanggal">
+                    <select class="form-control ml-2" id="filterMarkingPickup" style="width: 200px;">
+                        <option value="" selected disabled>Pilih Marking</option>
+                        @foreach ($listMarkingPickup as $marking)
+                            <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
+                        @endforeach
+                    </select>
+                    <select class="form-control ml-2" id="filterNoDoPickup" style="width: 200px;">
+                        <option value="" selected disabled>Pilih NoDo</option>
+                        @foreach ($listNoDoPickup as $nodo)
+                            <option value="{{ $nodo->no_do }}">{{ $nodo->no_do }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
+                        onclick="resetModalFiltersPickup()">
+                        Reset
                     </button>
                 </div>
-                <div class="modal-body">
-                    <!-- Search Input -->
-                    <input type="text" id="txSearchPickup" class="form-control mb-3"
-                        placeholder="Cari No. Resi atau Nama Pembeli">
-                    <input type="text" class="form-control" id="filter_date_pickup" placeholder="Pilih tanggal">
-                    <div id="containerBuatPickup" class=""></div>
+                    <div id="containerBuatPickup" class="">
+
+                    </div>
                     <!-- Table with Checkboxes -->
                 </div>
                 <div class="modal-footer">
@@ -180,7 +220,8 @@
                                         </tbody>
                                     </table>
                                     <div class="d-flex justify-content-end mt-3">
-                                        <button class="btn btn-primary px-5 py-2" id="buatDelivery">Buat Delivery</button>
+                                        <button class="btn btn-primary px-5 py-2" id="buatDelivery">Buat
+                                            Delivery</button>
                                     </div>
                                 </div>
                             </div>
@@ -261,12 +302,12 @@
     </div>
     <!---Container Fluid-->
 
-@endsection
+    @endsection
 
-@section('script')
+    @section('script')
     <script>
-        $(document).ready(function() {
-            $('.nav-links').on('click', function(e) {
+        $(document).ready(function () {
+            $('.nav-links').on('click', function (e) {
                 e.preventDefault();
                 var tab = $(this).data('tab');
                 $('.tab-pane').removeClass('show active').addClass('d-none');
@@ -287,18 +328,22 @@
 
             const filterDate = $('#filter_date').val();
             const txtSearch = $('#txSearch').val();
+            const filterMarking = $('#filterMarking').val();
+            const filterNoDo = $('#filterNoDo').val();
 
             $.ajax({
-                    url: "{{ route('getlistTableBuatDelivery') }}",
-                    method: "GET",
-                    data: {
-                        txSearch: txtSearch,
-                        filter_date: filterDate
-                    },
-                    beforeSend: () => {
-                        $('#containerBuatDelivery').html(loadSpin)
-                    }
-                })
+                url: "{{ route('getlistTableBuatDelivery') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch,
+                    filter_date: filterDate,
+                    marking: filterMarking,
+                    no_do: filterNoDo
+                },
+                beforeSend: () => {
+                    $('#containerBuatDelivery').html(loadSpin)
+                }
+            })
                 .done(res => {
                     $('#containerBuatDelivery').html(res)
                     $('#datatable_resi').DataTable({
@@ -319,14 +364,14 @@
                         }]
                     });
 
-                    $('#select_all').on('click', function() {
+                    $('#select_all').on('click', function () {
 
                         var rows = $('#datatable_resi tbody tr');
 
                         $('input[type="checkbox"]:visible', rows).prop('checked', this.checked);
                     });
 
-                    $('#datatable_resi tbody').on('click', 'input[type="checkbox"]', function() {
+                    $('#datatable_resi tbody').on('click', 'input[type="checkbox"]', function () {
                         var totalCheckboxes = $('#datatable_resi tbody input[type="checkbox"]:visible')
                             .length;
                         var checkedCheckboxes = $(
@@ -338,9 +383,24 @@
         }
         getlistTableBuatDelivery();
 
+        $('#filterMarking').change(function () {
+            getlistTableBuatDelivery();
+        });
+        $('#filterNoDo').change(function () {
+            getlistTableBuatDelivery();
+        });
+
         $('.select2singgle').select2({
             width: 'resolve'
         });
+        function resetModalFilters() {
+            $('#txSearch').val('');
+
+            $('#filterMarking').prop('selectedIndex', 0);
+
+            $('#filterNoDo').prop('selectedIndex', 0);
+            getlistTableBuatDelivery();
+        }
 
         var today = new Date();
         $('#tanggal_delivery').datepicker({
@@ -360,7 +420,7 @@
             opens: 'left'
         });
 
-        $('#txSearch').keyup(function(e) {
+        $('#txSearch').keyup(function (e) {
             var inputText = $(this).val();
             if (inputText.length >= 1 || inputText.length == 0) {
                 getlistTableBuatDelivery();
@@ -368,7 +428,7 @@
         })
 
 
-        $('input[name="input_resi"]').on('change', function() {
+        $('input[name="input_resi"]').on('change', function () {
             if ($(this).val() === 'list') {
                 $('#datatable_resi_wrapper').removeClass('d-none');
                 $('#resi_container').addClass('d-none');
@@ -378,7 +438,7 @@
             }
         });
 
-        $('#datatable_resi tbody').on('change', 'input[type="checkbox"]', function() {
+        $('#datatable_resi tbody').on('change', 'input[type="checkbox"]', function () {
             if (!this.checked) {
                 var el = $('#select_all').get(0);
                 if (el && el.checked && ('indeterminate' in el)) {
@@ -389,12 +449,12 @@
         let enteredResis = [];
 
         function updateRowNumbers() {
-            $('#table_resi_body tr').each(function(index) {
+            $('#table_resi_body tr').each(function (index) {
                 $(this).find('td:first').text(index + 1);
             });
         }
 
-        $('#tambah').on('click', function(e) {
+        $('#tambah').on('click', function (e) {
             e.preventDefault();
 
             var noInvoice = $('#no_resi').val();
@@ -416,7 +476,7 @@
                     _token: csrfToken,
                     no_invoice: noInvoice,
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showMessage('success', response.message);
                         const data = response.data;
@@ -442,15 +502,15 @@
                         showMessage('error', response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
         });
 
-        $('#confirmSelection').on('click', function() {
+        $('#confirmSelection').on('click', function () {
             var selectedInvoices = [];
-            $('#datatable_resi tbody input[type="checkbox"]:checked').each(function() {
+            $('#datatable_resi tbody input[type="checkbox"]:checked').each(function () {
                 selectedInvoices.push($(this).val());
             });
 
@@ -467,7 +527,7 @@
                     _token: csrfToken,
                     no_invoices: selectedInvoices
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showMessage('success', response.message);
 
@@ -503,7 +563,7 @@
                         showMessage('error', response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
@@ -514,7 +574,7 @@
 
 
         // Event listener untuk tombol "Remove"
-        $(document).on('click', '.remove-row', function() {
+        $(document).on('click', '.remove-row', function () {
             var noInvoice = String($(this).data('invoice')); // Konversi ke string
             var rowIndex = enteredResis.indexOf(noInvoice);
 
@@ -527,7 +587,7 @@
             console.log(enteredResis);
         });
 
-        $('#buatDelivery').on('click', function(e) {
+        $('#buatDelivery').on('click', function (e) {
             e.preventDefault();
 
             var noResi = [];
@@ -551,7 +611,7 @@
                 $('#driverError').addClass('d-none');
             }
 
-            $('#table_resi_body tr').each(function() {
+            $('#table_resi_body tr').each(function () {
                 var noResiItem = $(this).find('td').eq(1).text();
                 noResi.push(noResiItem);
             });
@@ -581,7 +641,7 @@
                     tanggal: tanggal_delivery,
                     driver_id: driver
                 },
-                success: function(response) {
+                success: function (response) {
                     Swal.close();
                     if (response.success) {
                         showMessage("success", "Delivery berhasil dibuat!").then(() => {
@@ -591,7 +651,7 @@
                         showMessage('error', 'Gagal membuat delivery: ' + response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     Swal.close();
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
@@ -600,18 +660,18 @@
 
 
 
-        $('#filter_date').on('change', function() {
+        $('#filter_date').on('change', function () {
             getlistTableBuatDelivery();
         });
 
         $('#filter_date').trigger('change');
 
 
-        $('#buatDeliveryTable').on('click', function(e) {
+        $('#buatDeliveryTable').on('click', function (e) {
             var selectedNoResi = [];
 
             // Ambil nilai dari checkbox yang dicentang
-            $('input.checkbox_resi:checked').each(function() {
+            $('input.checkbox_resi:checked').each(function () {
                 selectedNoResi.push($(this).val());
             });
 
@@ -670,7 +730,7 @@
                             tanggal: tanggal_delivery,
                             driver_id: driver
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.close();
                             if (response.success) {
                                 showMessage("success", "Delivery berhasil dibuat!").then(() => {
@@ -681,7 +741,7 @@
                                     .message);
                             }
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             Swal.close();
                             showMessage('error', 'Terjadi kesalahan: ' + error);
                         }
@@ -696,18 +756,22 @@
 
             const filterDatePickup = $('#filter_date_pickup').val();
             const txtSearchPickup = $('#txSearchPickup').val();
+            const filterMarkingPickup = $('#filterMarkingPickup').val();
+            const filterNoDoPickup = $('#filterNoDoPickup').val();
 
             $.ajax({
-                    url: "{{ route('getlistTableBuatPickup') }}",
-                    method: "GET",
-                    data: {
-                        txSearch: txtSearchPickup,
-                        filter_date: filterDatePickup
-                    },
-                    beforeSend: () => {
-                        $('#containerBuatPickup').html(loadSpin)
-                    }
-                })
+                url: "{{ route('getlistTableBuatPickup') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearchPickup,
+                    filter_date: filterDatePickup,
+                    marking: filterMarkingPickup,
+                    no_do: filterNoDoPickup
+                },
+                beforeSend: () => {
+                    $('#containerBuatPickup').html(loadSpin)
+                }
+            })
                 .done(res => {
                     $('#containerBuatPickup').html(res)
                     $('#datatable_resi_pickup').DataTable({
@@ -727,17 +791,17 @@
                         }]
                     });
 
-                    $('#select_all_pickup').on('click', function() {
+                    $('#select_all_pickup').on('click', function () {
                         var rows = $('#datatable_resi_pickup tbody tr');
 
                         $('input[type="checkbox"]:visible', rows).prop('checked', this.checked);
                     });
 
-                    $('#datatable_resi_pickup tbody').on('click', 'input[type="checkbox"]', function() {
+                    $('#datatable_resi_pickup tbody').on('click', 'input[type="checkbox"]', function () {
                         var totalCheckboxes = $(
                             '#datatable_resi_pickup tbody input[type="checkbox"]:visible').length;
                         var checkedCheckboxes = $(
-                                '#datatable_resi_pickup tbody input[type="checkbox"]:visible:checked')
+                            '#datatable_resi_pickup tbody input[type="checkbox"]:visible:checked')
                             .length;
 
                         $('#select_all_pickup').prop('checked', totalCheckboxes === checkedCheckboxes);
@@ -763,14 +827,30 @@
             opens: 'left'
         });
 
-        $('#txSearchPickup').keyup(function(e) {
+        $('#filterMarkingPickup').change(function () {
+            getlistTableBuatPickup();
+        });
+        $('#filterNoDoPickup').change(function () {
+            getlistTableBuatPickup();
+        });
+
+        function resetModalFiltersPickup() {
+            $('#txSearch').val('');
+
+            $('#filterMarkingPickup').prop('selectedIndex', 0);
+
+            $('#filterNoDoPickup').prop('selectedIndex', 0);
+            getlistTableBuatPickup();
+        }
+
+        $('#txSearchPickup').keyup(function (e) {
             var inputText = $(this).val();
             if (inputText.length >= 1 || inputText.length == 0) {
                 getlistTableBuatPickup();
             }
         });
 
-        $('#filter_date_pickup').on('change', function() {
+        $('#filter_date_pickup').on('change', function () {
             getlistTableBuatPickup();
         });
         $('#filter_date_pickup').trigger('change');
@@ -778,12 +858,12 @@
         let enteredResisPickup = [];
 
         function updateRowNumbersPickup() {
-            $('#table_resi_body_pickup tr').each(function(index) {
+            $('#table_resi_body_pickup tr').each(function (index) {
                 $(this).find('td:first').text(index + 1);
             });
         }
 
-        $('#tambah_pickup').on('click', function(e) {
+        $('#tambah_pickup').on('click', function (e) {
             e.preventDefault();
 
             var noInvoicePickup = $('#no_resi_pickup').val();
@@ -805,7 +885,7 @@
                     _token: csrfToken,
                     no_invoice: noInvoicePickup,
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showMessage('success', response.message);
                         const data = response.data;
@@ -830,15 +910,15 @@
                         showMessage('error', response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
         });
 
-        $('#confirmSelectionPickup').on('click', function() {
+        $('#confirmSelectionPickup').on('click', function () {
             var selectedInvoicesPickup = [];
-            $('#datatable_resi_pickup tbody input[type="checkbox"]:checked').each(function() {
+            $('#datatable_resi_pickup tbody input[type="checkbox"]:checked').each(function () {
                 selectedInvoicesPickup.push($(this).val());
             });
 
@@ -855,7 +935,7 @@
                     _token: csrfToken,
                     no_invoices: selectedInvoicesPickup
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         showMessage('success', response.message);
                         const invoices = response.data;
@@ -886,7 +966,7 @@
                         showMessage('error', response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
             });
@@ -894,7 +974,7 @@
             $('#inputResiPickupModal').modal('hide');
         });
 
-        $(document).on('click', '.remove-row-pickup', function() {
+        $(document).on('click', '.remove-row-pickup', function () {
             var noInvoicePickup = String($(this).data('invoice'));
             var rowIndex = enteredResisPickup.indexOf(noInvoicePickup);
 
@@ -906,7 +986,7 @@
             updateRowNumbersPickup();
         });
 
-        $('#buatPickup').on('click', function(e) {
+        $('#buatPickup').on('click', function (e) {
             e.preventDefault();
 
             var noResiPickup = [];
@@ -920,7 +1000,7 @@
                 $('#tanggalPickupError').addClass('d-none');
             }
 
-            $('#table_resi_body_pickup tr').each(function() {
+            $('#table_resi_body_pickup tr').each(function () {
                 var noResiItem = $(this).find('td').eq(1).text();
                 noResiPickup.push(noResiItem);
             });
@@ -948,7 +1028,7 @@
                     resi_list: noResiPickup,
                     tanggal: tanggalPickup
                 },
-                success: function(response) {
+                success: function (response) {
                     Swal.close();
                     if (response.success) {
                         showMessage("success", "Pickup berhasil dibuat!").then(() => {
@@ -958,7 +1038,7 @@
                         showMessage('error', 'Gagal membuat pickup: ' + response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     Swal.close();
                     showMessage('error', 'Terjadi kesalahan: ' + error);
                 }
@@ -966,4 +1046,4 @@
         });
     </script>
 
-@endsection
+    @endsection
