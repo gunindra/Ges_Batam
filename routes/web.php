@@ -144,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payment/store', [PaymentController::class, 'store'])->name('buatpembayaran');
     Route::get('/payment-data', [PaymentController::class, 'getPaymentData'])->name('payment.data');
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
+    Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
 
 
     // Popup

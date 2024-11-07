@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('invoice_id')->references('id')->on('tbl_invoice')->onDelete('cascade');
             $table->date('payment_date');
             $table->decimal('amount', 15, 2);
+            $table->decimal('discount')->nullable();
             $table->unsignedBigInteger('payment_method_id')->nullable();
             $table->foreign('payment_method_id')->references('id')->on('tbl_coa')->onDelete('set null');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

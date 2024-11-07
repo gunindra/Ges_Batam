@@ -15,6 +15,7 @@ class PTges extends Model
         'Image_AboutUs',
         'Image_WhyUs',
         'Paragraph_WhyUs',
+        'alamat',
         'email',
         'phone',
         'phones',

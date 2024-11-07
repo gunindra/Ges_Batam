@@ -85,15 +85,15 @@
             <div class="col-lg-6">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h4 class="card-title">User Points</h4>
-                        <p class="card-text">Here is an overview of your current points and other relevant details.</p>
+                        <h4 class="card-title">User kuota</h4>
+                        <p class="card-text">Here is an overview of your current kuota and other relevant details.</p>
 
                         <div class="mb-3">
                             <div class="text-center">
                                 <h1 id="pointValue" class="display-3 font-weight-bold text-primary">
                                     {{ $listPoin !== null ? (floor($listPoin) == $listPoin ? number_format($listPoin, 0) : rtrim(rtrim(number_format($listPoin, 2), '0'), '.')) : '0' }}
-                                    poin</h1>
-                                <p class="text-muted">Poin</p>
+                                    Kuota</h1>
+                                <p class="text-muted">Kuota</p>
                             </div>
                         </div>
 
@@ -153,7 +153,7 @@
                                         <th>ID</th>
                                         <th>Customer Name</th>
                                         <th>Marking</th>
-                                        <th>Points</th>
+                                        <th>Kuota</th>
                                         <th>Price per Kg</th>
                                         <th>Date</th>
                                         <th>Type</th>

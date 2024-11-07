@@ -47,7 +47,7 @@
                                 <input type="password" class="form-control" id="passwordCustomer"
                                     placeholder="Masukkan password">
                                 <div id="passwordCustomerError" class="text-danger mt-1 d-none">Silahkan isi password
-                                    customer</div>
+                                    customer </div>
                             </div>
                             <div class="mt-3">
                                 <label for="passwordConfirmationCustomer" class="form-label fw-bold">Konfirmasi
@@ -231,7 +231,7 @@
                     <div class="text-center">
                         <div class="mb-4">
                             <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
-                            <p class="text-muted">Poin</p>
+                            <p class="text-muted">Kuota</p>
                         </div>
                         <!-- <div>
                                                         <p id="statusValue" class="h5"></p>
@@ -509,11 +509,18 @@
             if (passwordCustomer === '') {
                 $('#passwordCustomerError').removeClass('d-none');
                 isValid = false;
+            } else if (passwordCustomer.length < 6) {
+                $('#passwordCustomerError').text('Password harus memiliki minimal 6 karakter').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#passwordCustomerError').addClass('d-none');
             }
 
             if (passwordCustomer !== passwordConfirmation) {
-                $('#passwordConfirmationError').removeClass('d-none');
+                $('#passwordConfirmationError').text('Password dan konfirmasi password tidak cocok').removeClass('d-none');
                 isValid = false;
+            } else {
+                $('#passwordConfirmationError').addClass('d-none');
             }
 
             if (categoryCustomer === '' || categoryCustomer === null) {
@@ -641,7 +648,7 @@
 
 
         $('#modalTambahCustomer').on('hidden.bs.modal', function () {
-            $('#namaCustomer, #noTelpon, #categoryCustomer, #markingCustomer').val('');
+            $('#namaCustomer, #noTelpon, #categoryCustomer, #markingCustomer,#emailCustomer,#passwordCustomer,#passwordConfirmationCustomer').val('');
             $('#alamatContainer').children('.alamat-item:gt(0)').remove();
             $('#alamatContainer').children('.alamat-item').first().find('textarea').val('');
             $('#alamatSection').hide();

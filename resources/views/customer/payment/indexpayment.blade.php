@@ -86,7 +86,6 @@
                                         <th>No. Invoice</th>
                                         <th>Ammount</th>
                                         <th>Metode Pembayaran</th>
-                                        <th>Status</th>
                                         <th>Tanggal Payment</th>
                                         {{-- <th>Action</th> --}}
                                     </tr>
@@ -173,10 +172,6 @@
                 {
                     data: 'payment_method',
                     name: 'c.name'
-                },
-                {
-                    data: 'status_bayar',
-                    name: 'b.status_bayar'
                 },
                 {
                     data: 'tanggal_bayar',
