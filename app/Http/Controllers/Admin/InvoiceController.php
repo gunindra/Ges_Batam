@@ -268,6 +268,10 @@ class InvoiceController extends Controller
 
     public function tambainvoice(Request $request)
     {
+        // Logging awal untuk menandai permulaan proses
+        Log::info("Memulai proses tambainvoice dengan data: ", $request->all());
+
+        // Mengambil input dari request
         $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
         $tanggal = $request->input('tanggal');
@@ -283,40 +287,48 @@ class InvoiceController extends Controller
         $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
 
+        // Mengambil pengaturan akun
         $accountSettings = DB::table('tbl_account_settings')->first();
 
         if (!$accountSettings) {
+            Log::error("Gagal menemukan pengaturan akun. Silakan cek Account setting.");
             return response()->json([
                 'status' => 'error',
                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
             ], 400);
         }
 
+        // Mengecek keberadaan sales dan receivable sales account ID
         $salesAccountId = $accountSettings->sales_account_id;
         $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
 
         if (is_null($salesAccountId) || is_null($receivableSalesAccountId)) {
+            Log::error("sales_account_id atau receivable_sales_account_id kosong di pengaturan akun.");
             return response()->json([
                 'status' => 'error',
                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
             ], 400);
         }
 
+        // Mengecek apakah nomor invoice sudah ada
         $existingInvoice = DB::table('tbl_invoice')->where('no_invoice', $noInvoice)->first();
         if ($existingInvoice) {
+            Log::warning("Nomor invoice sudah ada: {$noInvoice}");
             return response()->json([
                 'status' => 'error',
                 'message' => 'Nomor invoice sudah ada, silakan refresh nomor invoice.'
             ], 400);
         }
 
+        // Format tanggal
         $date = DateTime::createFromFormat('j F Y', $tanggal);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
 
         DB::beginTransaction();
-
         try {
+            Log::info("Memulai penyimpanan invoice.");
 
+            // Menyimpan data invoice
             $invoiceId = DB::table('tbl_invoice')->insertGetId([
                 'no_invoice' => $noInvoice,
                 'tanggal_invoice' => $formattedDate,
@@ -330,16 +342,20 @@ class InvoiceController extends Controller
                 'status_id' => 1,
                 'created_at' => now(),
             ]);
+            Log::info("Berhasil menyimpan invoice dengan ID: {$invoiceId}");
 
             if (!$invoiceId) {
                 throw new \Exception("Gagal mendapatkan ID baru dari tbl_invoice");
             }
 
+            // Menyimpan data resi
             foreach ($noResi as $index => $resi) {
+                Log::info("Memproses resi: {$resi}");
 
                 $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
                 $harga = isset($hargaBarang[$index]) ? str_replace(',', '.', str_replace('.', '', $hargaBarang[$index])) : null;
                 Log::info("Harga yang akan disimpan: " . $harga);
+
                 DB::table('tbl_resi')->insert([
                     'invoice_id' => $invoiceId,
                     'no_resi' => $resi,
@@ -351,30 +367,34 @@ class InvoiceController extends Controller
                     'harga' => $harga,
                     'created_at' => now(),
                 ]);
-
+                Log::info("Berhasil menyimpan data resi untuk invoice: {$noInvoice}");
             }
 
+            // Memperbarui status tracking
             foreach ($noResi as $resi) {
                 $updatedTracking = DB::table('tbl_tracking')
                     ->where('no_resi', $resi)
                     ->update(['status' => 'Batam / Sortir']);
-
                 if (!$updatedTracking) {
                     throw new \Exception("{$resi} No Resi ini tidak terdaftar di Tracking");
                 }
             }
 
+            // Memperbarui transaksi terakhir pembeli
             $updatedPembeli = DB::table('tbl_pembeli')
                 ->where('id', $customer)
                 ->update(['transaksi_terakhir' => now()]);
-
             if (!$updatedPembeli) {
                 throw new \Exception("Gagal memperbarui transaksi terakhir di tbl_pembeli");
             }
 
+            // Menambahkan jurnal
             try {
+                Log::info("Membuat jurnal untuk invoice {$noInvoice}");
+
                 $request->merge(['code_type' => 'AR']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
                 $jurnal->tipe_kode = 'AR';
@@ -403,20 +423,26 @@ class InvoiceController extends Controller
                 $jurnalItemCredit->save();
 
             } catch (\Exception $e) {
+                Log::error("Gagal menambahkan jurnal: " . $e->getMessage());
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
-                DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Invoice Berhasil ditambahkan dan status tracking diperbarui'], 200);
-            } catch (\Exception $e) {
-                DB::rollBack();
 
-                if (strpos($e->getMessage(), 'code_account') !== false) {
-                    return response()->json(['status' => 'error', 'message' => 'Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di Account Setting.'], 400);
-                }
+            // Commit transaksi database
+            DB::commit();
+            Log::info("Proses tambainvoice selesai dengan sukses.");
+            return response()->json(['status' => 'success', 'message' => 'Invoice Berhasil ditambahkan dan status tracking diperbarui'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Gagal menambahkan Invoice. Error: " . $e->getMessage());
 
-                return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice. Silakan coba lagi.'], 500);
+            if (strpos($e->getMessage(), 'code_account') !== false) {
+                return response()->json(['status' => 'error', 'message' => 'Pengaturan akun belum lengkap. Silakan periksa pengaturan akun di Account Setting.'], 400);
+            }
+
+            return response()->json(['status' => 'error', 'message' => 'Gagal menambahkan Invoice. Silakan coba lagi.'], 500);
         }
     }
+
 
     public function kirimPesanWaPembeli(Request $request)
     {

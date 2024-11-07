@@ -621,7 +621,9 @@
                         totalHarga = Math.max(totalHarga, globalMinrate);
                     }
 
-                    totalHarga = Math.min(totalHarga, globalMaxrate);
+                    if (globalMaxrate > 0) {
+                        totalHarga = Math.min(totalHarga, globalMaxrate);
+                    }
 
                     row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
                 } else {
