@@ -378,7 +378,6 @@
                     month: selectedMonth
                 },
                 success: function(response) {
-                    console.log("ini data yang diteriam",response.data); // Cek data yang diterima
                     updateChart(response.data);
                 },
                 error: function(error) {
@@ -524,7 +523,7 @@
                         min: 0,
                         ticks: {
                             callback: function(value) {
-                                return 'Rp.' + number_format(value); // Mengatur format nilai pada sumbu y
+                                return 'Rp.' + number_format(value);
                             }
                         }
                     }

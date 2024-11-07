@@ -46,7 +46,8 @@ class CostumerController extends Controller
             ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', strtoupper($txSearch))
-                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch));
+                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch))
+                    ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', strtoupper($txSearch));
             });
 
         if ($status === '1') {

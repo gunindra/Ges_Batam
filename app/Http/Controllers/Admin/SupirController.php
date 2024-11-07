@@ -35,14 +35,23 @@ class SupirController extends Controller
     {
 
         $listInvoice = DB::table('tbl_pengantaran_detail as a')
-            ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
-            ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
-            ->join('tbl_supir as d', 'd.id', '=', 'c.supir_id')
-            ->select('a.invoice_id', 'b.metode_pengiriman', 'b.no_invoice', 'd.nama_supir')
-            ->whereNull('a.bukti_pengantaran')
-            ->whereNull('a.tanda_tangan')
-            ->where('b.metode_pengiriman', 'Delivery')
-            ->get();
+        ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
+        ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
+        ->join('tbl_supir as d', 'd.id', '=', 'c.supir_id')
+        ->join('tbl_costumer as e', 'e.id', '=', 'b.pembeli_id')
+        ->select(
+            'a.invoice_id',
+            'b.metode_pengiriman',
+            'b.no_invoice',
+            'd.nama_supir',
+            'e.marking',
+            'e.nama_pembeli'
+        )
+        ->whereNull('a.bukti_pengantaran')
+        ->whereNull('a.tanda_tangan')
+        ->where('b.metode_pengiriman', 'Delivery')
+        ->get();
+
 
         return view('supir.indexsupir', [
             'listInvoice' => $listInvoice
@@ -159,12 +168,12 @@ class SupirController extends Controller
     public function batalAntar(Request $request)
     {
         $request->validate([
-            'alasan' => 'required|string|max:255', // Validate the reason
+            'alasan' => 'required|string|max:255',
         ]);
 
         $invoiceIds = explode(',', $request->input('selectedValues'));
 
-        DB::beginTransaction(); // Start a transaction to ensure atomicity
+        DB::beginTransaction();
 
         try {
             foreach ($invoiceIds as $invoiceId) {
@@ -176,7 +185,7 @@ class SupirController extends Controller
                             'updated_at' => now(),
                         ]);
                 } catch (\Exception $e) {
-                    DB::rollBack(); // Rollback if there's an error
+                    DB::rollBack();
                     \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
                     return response()->json(['error' => 'Terjadi kesalahan saat memproses penghapusan.'], 500);
                 }

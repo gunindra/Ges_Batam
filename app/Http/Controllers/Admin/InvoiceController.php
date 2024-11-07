@@ -444,7 +444,7 @@ class InvoiceController extends Controller
 
             $q = "SELECT a.id,
                         a.no_invoice,
-                        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                        DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
                         b.nama_pembeli AS pembeli,
                         a.alamat,
                         a.metode_pengiriman,

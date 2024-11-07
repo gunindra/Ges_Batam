@@ -48,7 +48,7 @@
                         <select class="form-control" id="selectResi" style="width: 500px;" multiple="multiple">
                             <option value="" disabled>Pilih No.Invoice</option>
                             @foreach ($listInvoice as $Invoice)
-                                <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}</option>
+                                <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }} ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})</option>
                             @endforeach
                         </select>
                     </div>
