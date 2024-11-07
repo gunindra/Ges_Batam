@@ -238,7 +238,7 @@ body {
 
 .carousel-caption {
   position: absolute;
-  margin-bottom: 140px;
+  margin-bottom: 320px;
   left: 0;
   right: 0;
   z-index: 2;
@@ -250,7 +250,7 @@ body {
   text-transform: capitalize;
   letter-spacing: 2px;
   margin: 0;
-  font-family: Roboto;
+  font-family: andika;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
@@ -264,16 +264,16 @@ body {
 
 
 .responsive-title {
-  font-size: 2.5vw;
+  font-size: 3.5vw;
   overflow-wrap: break-word;
   white-space: normal;
 }
 
-.responsive-paragraph {
-  font-size: 1.5vw;
+/* .responsive-paragraph {
+  font-size: 1.8vw;
   overflow-wrap: break-word;
   white-space: normal;
-}
+} */
 
 .carousel-caption a {
   text-transform: uppercase;
@@ -675,8 +675,6 @@ body {
   left: 0;
   bottom: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
   padding: 20px;
   text-align: center;
@@ -686,26 +684,29 @@ body {
   opacity: 1;
 }
 
+.overlay-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+}
+
 .overlay h3 {
   font-weight: 500;
-  margin-bottom: 10px;
   font-family: 'Bebas Neue', sans-serif;
   font-size: 24px;
-  letter-spacing: 2px;
+  margin: 0;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .overlay p {
   font-size: 16px;
-}
-
-.button-container {
-  position: relative;
-  height: 300px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding-bottom: 20pxnavbar
+  margin: 10px 0 20px 0;
 }
 
 .btn-modern {
@@ -722,6 +723,17 @@ body {
   text-align: center;
   transition: all 0.3s ease;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  margin-top: auto;
+  align-self: center;
+}
+.button-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 20pxnavbar
 }
 
 .btn-modern::before {
@@ -1198,23 +1210,15 @@ a:hover {
 	}
   /* carousel */
 	.carousel-caption {
-		bottom: 300px;
+		margin-bottom: 305px;
 	}
 	.carousel-caption h5 {
-		font-size: 65px;
+		font-size: 3.2vw;
 	}
 	.carousel-caption p {
 		font-size: 18px;
 		width: 100%;
 	}
-  .responsive-title {
-    font-size: 2vw;
-  }
-
-  .responsive-paragraph {
-    font-size: 1.2vw;
-  }
-
   /* Main */
 
   .main{
@@ -1363,7 +1367,7 @@ a:hover {
 	}
   /* carousel */
 	.carousel-caption {
-		bottom: 185px;
+		margin-bottom: 300px;
 	}
 
 	.carousel-caption a {
@@ -1371,19 +1375,16 @@ a:hover {
 		font-size: 15px;
 	}
   .carousel-caption h5 {
-    font-size: 21px;
+    font-size: 3.5vw;
   }
-  .carousel-caption p {
+  /* .carousel-caption p {
     width: 80%;
     font-size: 14px;
   }
   .responsive-title {
-    font-size: 4vw;
-  }
+    font-size: 4.5vw;
+  } */
 
-  .responsive-paragraph {
-    font-size: 3vw;
-  }
   /* Gallery */
   .wrapperGallery{
     width: 80%;
@@ -1630,15 +1631,15 @@ a:hover {
   }
   /* carousel */
   .carousel-caption {
-    bottom: 100px;
+    margin-bottom: 320px;
   }
   .carousel-caption h5 {
-    font-size: 35px;
+    font-size: 3.5vw;
   }
-  .carousel-caption p {
+  /* .carousel-caption p {
     width: 90%;
     font-size: 14px;
-  }
+  } */
    /* Masuk bagian slide carousel*/
    .JudulSlide h2{
     font-size:30px;
@@ -1769,15 +1770,14 @@ a:hover {
     margin: 0 10px;
   }
   .carousel-caption {
-    margin-bottom: 200px;
+    margin-bottom: 300px;
   }
-  .carousel-caption p {
+  /* .carousel-caption p {
     width: 80%;
     font-size: 10px;
-  }
+  } */
   .carousel-caption h5 {
-    margin-top: 15px;
-    font-size: 14.2px;
+    font-size: 23px;
   }
 
   .carousel-caption a {
@@ -1794,14 +1794,14 @@ a:hover {
   .contentGallery h2 {
     font-size: 25px;
     text-transform: uppercase;
-    margin-bottom: 5px;
-    font-size: 2.8vw;
+    margin-bottom: 3px;
+    font-size: 3vw;
   }
 
   .contentGallery p {
-    line-height: 1.5;
+    line-height: 1.3;
     overflow-wrap: break-word;
-    font-size: 2.4vw;
+    font-size: 2.6vw;
   }
   /* footer */
   .footer-content h3 {

@@ -86,14 +86,14 @@
                         <!-- Kolom kanan untuk jumlah poin dan harga -->
                         <div class="col-md-6">
                             <!-- Input untuk jumlah poin -->
-                            <p><strong>Jumlah Poin:</strong>
+                            <p><strong>Jumlah Kuota:</strong>
                                 <input type="number" id="topupAmount" class="form-control"
-                                    placeholder="Masukkan jumlah poin">
+                                    placeholder="Masukkan jumlah kuota">
                                 <span id="topupAmountError" class="text-danger"></span> <!-- Pesan error -->
                             </p>
 
                             <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
-                            <p><strong>Harga per 1kg poin:</strong>
+                            <p><strong>Harga per 1kg kuota:</strong>
                                 <select id="pricePerKg" class="form-control">
                                     <option value="">Pilih harga</option>
                                     @foreach ($listRateVolume as $rate)
@@ -214,7 +214,7 @@
                                         <th>Marking</th>
                                         <th>Nama Costumer</th>
                                         <th>Nominal Top Up</th>
-                                        <th>Poin Top Up</th>
+                                        <th>Kuota Top Up</th>
                                         <th>Harga (1kg)</th>
                                         <th>Nama Akun Jurnal</th>
                                         {{-- <th>Status</th> --}}
@@ -508,7 +508,7 @@
                 }
 
                 if (!remainingPoints || remainingPoints <= 0) {
-                    $('#topupAmountError').text('Silahkan masukkan jumlah poin.');
+                    $('#topupAmountError').text('Silahkan masukkan jumlah kuota.');
                     hasError = true;
                 }
 

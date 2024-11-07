@@ -153,14 +153,17 @@ class DeliveryController extends Controller
             $endDate = null;
         }
         $q = "SELECT a.id,
-                    a.no_invoice,
-                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                    b.nama_pembeli AS pembeli,
-                    a.metode_pengiriman,
-                    a.status_id
+                a.no_invoice,
+                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                b.nama_pembeli AS pembeli,
+                c.no_do,
+                b.marking,
+                a.metode_pengiriman,
+                a.status_id
                 FROM tbl_invoice AS a
-                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                JOIN tbl_status AS d ON a.status_id = d.id
+                    JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+                    JOIN tbl_resi AS c ON a.id = c.invoice_id
+                    JOIN tbl_status AS d ON a.status_id = d.id
                   WHERE (
                     UPPER( a.no_invoice) LIKE '$txSearch'
                     OR UPPER(b.nama_pembeli) LIKE '$txSearch'
@@ -175,6 +178,8 @@ class DeliveryController extends Controller
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="select_all"></th>
+                            <th>No Do</th>
+                            <th>Marking</th>
                             <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
@@ -186,6 +191,8 @@ class DeliveryController extends Controller
                        <tr>
                             <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
                             <td>' . ($item->no_invoice ?? '-') . '</td>
+                            <td>' . ($item->no_do ?? '-') . '</td>
+                            <td>' . ($item->marking ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>

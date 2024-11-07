@@ -54,6 +54,7 @@ class InformationsController extends Controller
             'contentInformations' => 'required|string|max:1000',
             'imageInformations' => 'nullable|mimes:jpg,jpeg,png,svg',
         ]);
+
         try {
             $information = new Information();
             $information->title_informations = $request->input('titleInformations');

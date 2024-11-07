@@ -30,10 +30,10 @@ class PaymentController extends Controller
     public function index()
     {
         $listPayment = DB::table('tbl_payment_customer as pc')
-        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
-        ->select('coa.name as payment_method')
-        ->groupBy('coa.name')
-        ->get();
+            ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
+            ->select('coa.name as payment_method')
+            ->groupBy('coa.name')
+            ->get();
 
         return view('customer.payment.indexpayment', [
             'listpayment' => $listPayment,
@@ -65,7 +65,6 @@ class PaymentController extends Controller
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
                 'a.amount',
                 'c.name as payment_method',
-                'b.status_bayar',
                 'a.id'
             ]);
 
@@ -85,12 +84,6 @@ class PaymentController extends Controller
             ->editColumn('tanggal_bayar', function ($row) {
                 return $row->tanggal_bayar;
             })
-            ->addColumn('status_bayar', function($row) {
-                return $row->status_bayar == 'Lunas'
-                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
-                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
-            })
-            ->rawColumns(['status_bayar'])
             ->make(true);
     }
 
@@ -181,6 +174,7 @@ class PaymentController extends Controller
             'invoice' => 'required|string',
             'tanggalPayment' => 'required|date',
             'paymentAmount' => 'required|numeric',
+            'discountPayment' => 'required|integer',
             'paymentMethod' => 'required|integer',
         ]);
 
@@ -246,14 +240,15 @@ class PaymentController extends Controller
                 $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));
                 $newSequence = $lastSequence + 1;
             }
-            $newKodePembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+            $kode = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
             $payment = new Payment();
             $payment->invoice_id = $invoice_id;
             $payment->payment_date = $tanggalPayment;
             $payment->amount = $request->paymentAmount;
+            $payment->discount = $request->discountAmount;
             $payment->payment_method_id = $paymentMethodId;
-            $payment->kode_pembayaran = $newKodePembayaran;
+            $payment->kode_pembayaran = $request->kode;
             $payment->save();
 
             if ($request->amountPoin) {
@@ -269,7 +264,8 @@ class PaymentController extends Controller
                 $totalNominal = 0;
 
                 foreach ($topups as $topup) {
-                    if ($remainingPoin <= 0) break;
+                    if ($remainingPoin <= 0)
+                        break;
 
                     if ($topup->balance >= $remainingPoin) {
                         $nominal = $remainingPoin * $topup->price_per_kg;
@@ -310,8 +306,6 @@ class PaymentController extends Controller
                 }
 
                 $poinMargin = $totalNominal - $sisaTagihan;
-
-
 
                 Log::info("Poin Margin: {$poinMargin}");
 
@@ -385,7 +379,7 @@ class PaymentController extends Controller
                         'code_account' => $paymentMethodId,
                         'description' => "Kredit untuk Invoice {$request->invoice}",
                         'debit' => 0,
-                        'credit' =>  $sisaTagihan + abs($poinMargin), // Kurangi kelebihan
+                        'credit' => $sisaTagihan + abs($poinMargin), // Kurangi kelebihan
                     ];
 
                     Log::info("Menambahkan akun margin di debit dengan nilai: {$poinMargin}");

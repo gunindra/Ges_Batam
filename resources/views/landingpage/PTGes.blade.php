@@ -41,11 +41,8 @@
       <h5 id="judulCarousel" class="responsive-title">
         {{ $heropage->title_heropage }}
       </h5>
-      <p id="parafCarousel" class="responsive-paragraph">
-        {!! nl2br(e(Str::limit($heropage->content_heropage, 150, ''))) !!}
-      </p>
-      <a class="btn-responsive bg-primary bg-gradient text-white"
-        href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
+      <!-- <a class="btn-responsive bg-primary bg-gradient text-white"
+        href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a> -->
       </div>
       </div>
     @endforeach
@@ -99,8 +96,8 @@
       alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
       <div class="img-text">
       <div class="contentGallery">
-        <h2>{{ Str::limit($info->title_informations ?? '-', 150, '') }}</h2>
-        <p>{{ Str::limit($info->content_informations ?? '-', 250, '') }}</p>
+        <h2 id="titleContent">{{ Str::limit($info->title_informations ?? '-', 120, '') }}</h2>
+        <p id="paragraphContent">{{ Str::limit($info->content_informations ?? '-', 260, '') }}</p>
       </div>
       </div>
       </div>
@@ -194,7 +191,8 @@
         </div>
         <div class="image" id="imageAbout">
           @if (!empty($dataPtges->Image_AboutUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;" alt="About Us Image">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;"
+        alt="About Us Image">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
     @endif
@@ -241,10 +239,12 @@
         <img src="{{ asset('storage/images/' . $service->image_service) }}"
         alt="{{ $service->title_service ?? '-' }}">
         <div class="overlay">
-        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 45, '') }}</h3>
+        <div class="overlay-content">
+        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50,'') }}</h3>
         <p style="word-break: break-word;">
-        {!! nl2br(e(Str::limit($service->content_service ?? '-', 145, ''))) !!}
+        {!! nl2br(e(Str::limit($service->content_service ?? '-', 149))) !!}
         </p>
+        </div>
         <div class="button-container">
         <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
         </div>
@@ -291,8 +291,7 @@
         <div class="col-lg-5 col-md-12">
           <p class="textMaps" style="margin-top:10px; font-size:40px; font-family: sans-serif;">Contact <i
               style="color:#80AF81;">Us</i></p>
-          <p class="pt-3" style="color:#1679AB; font-size: 20px; font-family: sans-serif;">42Q2+6PH, Unnamed Road,
-            Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
+          <p style="color:#1679AB; font-size: 20px; font-family: sans-serif;">{{ $dataPtges->alamat ?? '-'}}</p>
           <div class="Contact-Us" style="font-size:17px; color:#1679AB;">
             <p><i class="ph ph-envelope fa-xl"></i> {{ $dataPtges->email ?? '-'}}</p>
             <p><i class="ph ph-phone fa-xl"></i>
@@ -321,7 +320,7 @@
         ride: 'carouselSlide'
       });
     });
-
+   
   </script>
 
   @endsection

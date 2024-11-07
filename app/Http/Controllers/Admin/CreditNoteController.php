@@ -25,25 +25,20 @@ class CreditNoteController extends Controller
 
     public function index()
     {
-            $listStatus = DB::select("     SELECT b.name
-        FROM tbl_credit_note AS a
-        JOIN tbl_coa AS b ON b.id = a.account_id
-        GROUP BY a.account_id, b.name") ;
-
+        $listStatus = DB::select("SELECT b.name
+            FROM tbl_credit_note AS a
+            JOIN tbl_coa AS b ON b.id = a.account_id
+            GROUP BY a.account_id, b.name");
 
         return view('customer.creditnote.indexcreditnote',  [
             'listStatus' => $listStatus]);
     }
 
-
-
     public function addCreditNote()
     {
-
         $coas = COA::all();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $listInvoice = DB::select("SELECT id, no_invoice FROM tbl_invoice");
-
 
         return view('customer.creditnote.buatcreditnote', [
             'listCurrency' => $listCurrency,
@@ -59,7 +54,7 @@ class CreditNoteController extends Controller
                 ->join('tbl_invoice AS inv', 'cn.invoice_id', '=', 'inv.id')
                 ->join('tbl_coa AS coa', 'cn.account_id', '=', 'coa.id')
                 ->join('tbl_matauang AS mu', 'cn.matauang_id', '=', 'mu.id')
-                ->select( 'cn.id','cn.no_creditnote', 'inv.no_invoice', 'coa.name as coa_name', 'mu.singkatan_matauang as currency_short', 'cn.created_at')
+                ->select('cn.id','cn.no_creditnote', 'inv.no_invoice', 'coa.name as coa_name', 'mu.singkatan_matauang as currency_short', 'cn.created_at')
                 ->orderBy('cn.id', 'desc');
 
             if ($request->status) {
@@ -91,15 +86,12 @@ class CreditNoteController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = ' <a href="#" data-id="' . $row->id . '" class="btn btnedit btn-primary btn-sm"><i class="fas fa-list-ul"></i></a>';
-                    // $btn .= ' <a href="#" data-id="' . $row->id . '" class="btn btndelete btn-danger btn-sm"><i class="fas fa-trash"></i></a>';
                     return $btn;
                 })
-
                 ->rawColumns(['action'])
                 ->make(true);
         }
     }
-
 
     public function store(Request $request)
     {
@@ -113,8 +105,6 @@ class CreditNoteController extends Controller
             'items.*.noresi' => 'required|string|max:255',
             'items.*.deskripsi' => 'required|string|max:255',
             'items.*.harga' => 'required|numeric',
-            'items.*.jumlah' => 'required|numeric',
-            'items.*.total' => 'required|numeric',
             'totalKeseluruhan' => 'required|numeric',
         ]);
 
@@ -150,7 +140,6 @@ class CreditNoteController extends Controller
             // Jika creditNoteId ada, lakukan update; jika tidak ada, buat credit note baru
             if ($request->has('creditNoteId')) {
                 $creditNote = CreditNote::findOrFail($request->creditNoteId);
-
                 // Cek apakah jurnal sudah ada untuk invoice ini
                 $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
             } else {
@@ -217,33 +206,31 @@ class CreditNoteController extends Controller
                 ]
             );
 
-            // Simpan atau update credit note items
+            // Simpan atau update credit note items (hanya noresi, deskripsi, dan harga)
             foreach ($request->items as $item) {
                 $creditNote->items()->updateOrCreate(
                     ['no_resi' => $item['noresi']],
                     [
                         'deskripsi' => $item['deskripsi'],
                         'harga' => $item['harga'],
-                        'jumlah' => $item['jumlah'],
-                        'total' => $item['total'],
                     ]
                 );
             }
 
             DB::commit();
-            return response()->json(['message' => 'Credit note berhasil disimpan!'], 200);
-
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Credit Note has been saved successfully.',
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'There was an error while saving the data.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
-
-
-
-
-
-
     public function updatepage($id)
     {
         $creditNote = CreditNote::with('items')->find($id);

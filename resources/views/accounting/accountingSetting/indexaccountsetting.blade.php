@@ -82,7 +82,7 @@
                                 </select>
                             </div>
                             <div class="mt-3">
-                                <label for="discountAccount" class="form-label fw-bold">Customer Paymennt Poin Margin</label>
+                                <label for="discountAccount" class="form-label fw-bold">Customer Paymennt Kuota Margin</label>
                                 <select class="form-control select2singgle" id="Discount" required>
                                     <option value="">Pilih Akun</option>
                                     @foreach ($coas as $coa)
