@@ -35,10 +35,15 @@ class InvoiceController extends Controller
     }
     public function index()
     {
+        $listDo = DB::table('tbl_resi')
+        ->select('no_do')
+        ->distinct()
+        ->get();
         $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
         return view('customer.invoice.indexinvoice', [
-            'listStatus' => $listStatus
+            'listStatus' => $listStatus,
+            'listDo' => $listDo,
         ]);
     }
 
@@ -154,12 +159,14 @@ class InvoiceController extends Controller
     public function getlistInvoice(Request $request)
     {
         $status = $request->status;
+        $NoDo = $request->no_do;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
         $txSearch = $request->has('txSearch') ? '%' . strtolower(trim($request->txSearch)) . '%' : '%%';
         $query = DB::table('tbl_invoice as a')
             ->select(
                 'a.id',
+                'r.no_do',
                 'a.no_invoice',
                 'a.tanggal_invoice',
                 DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar"),
@@ -194,8 +201,13 @@ class InvoiceController extends Controller
             $query->where('d.status_name', 'LIKE', $status);
         }
 
+        if ($NoDo) {
+            $query->where('r.no_do', 'LIKE', $NoDo);
+        }
+
         $query->groupBy(
                 'a.id',
+                'r.no_do',
                 'a.no_invoice',
                 'a.tanggal_invoice',
                 'a.status_bayar',

@@ -133,16 +133,55 @@ class DeliveryController extends Controller
 
     public function addDelivery()
     {
+        $listNoDo = DB::table('tbl_resi')
+            ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+            ->select('tbl_resi.no_do')
+            ->distinct()
+            ->where('tbl_invoice.status_id', 1)
+            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
+            ->get();
+
+        $listMarking = DB::table('tbl_pembeli')
+            ->join('tbl_invoice', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
+            ->select('tbl_pembeli.marking')
+            ->distinct()
+            ->where('tbl_invoice.status_id', 1)
+            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
+            ->get();
+
+        $listNoDoPickup = DB::table('tbl_resi  as p')
+            ->join('tbl_invoice as i', 'p.invoice_id', '=', 'i.id')
+            ->select('p.no_do')
+            ->distinct()
+            ->where('i.status_id', 1)
+            ->where('i.metode_pengiriman', 'Pickup')
+            ->get();
+            
+
+        $listMarkingPickup = DB::table('tbl_pembeli as p')
+            ->join('tbl_invoice as i', 'p.id', '=', 'i.pembeli_id')
+            ->select('p.marking') 
+            ->distinct()
+            ->where('i.status_id', 1)
+            ->where('i.metode_pengiriman', 'Pickup')
+            ->get();
         $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
 
         return view('customer.delivery.buatdelivery', [
             'listSupir' => $listSopir,
+            'listMarking' => $listMarking,
+            'listNoDo' => $listNoDo,
+            'listNoDoPickup' => $listNoDoPickup,
+            'listMarkingPickup' => $listMarkingPickup
         ]);
     }
 
     public function getlistTableBuatDelivery(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+
+        $filterMarking = $request->marking ?? '';
+        $filterNoDo = $request->no_do ?? '';
 
         if ($request->filter_date) {
             [$startDate, $endDate] = explode(' - ', $request->filter_date);
@@ -152,6 +191,7 @@ class DeliveryController extends Controller
             $startDate = null;
             $endDate = null;
         }
+
         $q = "SELECT a.id,
                 a.no_invoice,
                 DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
@@ -160,18 +200,30 @@ class DeliveryController extends Controller
                 b.marking,
                 a.metode_pengiriman,
                 a.status_id
-                FROM tbl_invoice AS a
-                    JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                    JOIN tbl_resi AS c ON a.id = c.invoice_id
-                    JOIN tbl_status AS d ON a.status_id = d.id
-                  WHERE (
-                    UPPER( a.no_invoice) LIKE '$txSearch'
-                    OR UPPER(b.nama_pembeli) LIKE '$txSearch'
-                    )
-                And a.status_id = 1
-                AND a.metode_pengiriman = 'Delivery'
-                AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
+              FROM tbl_invoice AS a
+              JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+              JOIN tbl_resi AS c ON a.id = c.invoice_id
+              JOIN tbl_status AS d ON a.status_id = d.id
+              WHERE (
+                UPPER(a.no_invoice) LIKE '$txSearch'
+                OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+              )
+              AND a.status_id = 1
+              AND a.metode_pengiriman = 'Delivery'";
 
+        if ($startDate && $endDate) {
+            $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
+        }
+
+        if (!empty($filterMarking)) {
+            $q .= " AND b.marking = '$filterMarking'";
+        }
+
+        if (!empty($filterNoDo)) {
+            $q .= " AND c.no_do = '$filterNoDo'";
+        }
+
+        // Execute the query and get the results
         $data = DB::select($q);
 
         $output = '<table id="datatable_resi" class="table table-bordered table-hover">
@@ -190,9 +242,9 @@ class DeliveryController extends Controller
             $output .= '
                        <tr>
                             <td><input type="checkbox" class="checkbox_resi" value="' . $item->no_invoice . '"></td>
-                            <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->no_do ?? '-') . '</td>
                             <td>' . ($item->marking ?? '-') . '</td>
+                             <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
@@ -203,9 +255,13 @@ class DeliveryController extends Controller
         return $output;
     }
 
+
     public function getlistTableBuatPickup(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+
+        $filterMarkingPickup = $request->marking ?? '';
+        $filterNoDoPickup = $request->no_do ?? '';
 
         if ($request->filter_date) {
             [$startDate, $endDate] = explode(' - ', $request->filter_date);
@@ -215,31 +271,46 @@ class DeliveryController extends Controller
             $startDate = null;
             $endDate = null;
         }
+
         $q = "SELECT a.id,
-                    a.no_invoice,
-                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                    b.nama_pembeli AS pembeli,
-                    a.metode_pengiriman,
-                    a.status_id
-                FROM tbl_invoice AS a
-                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                JOIN tbl_status AS d ON a.status_id = d.id
-                  WHERE (
-                    UPPER( a.no_invoice) LIKE '$txSearch'
-                    OR UPPER(b.nama_pembeli) LIKE '$txSearch'
-                    )
-                And a.status_id = 1
-                AND a.metode_pengiriman = 'Pickup'
-                AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
+        a.no_invoice,
+        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+        b.nama_pembeli AS pembeli,
+        c.no_do,
+        b.marking,
+        a.metode_pengiriman,
+        a.status_id
+        FROM tbl_invoice AS a
+        JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+        JOIN tbl_status AS d ON a.status_id = d.id
+        JOIN tbl_resi AS c ON a.id = c.invoice_id
+        WHERE (
+            UPPER(a.no_invoice) LIKE '$txSearch'
+            OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+        )
+        AND a.status_id = 1
+        AND a.metode_pengiriman = 'Pickup'";
 
+        if ($startDate && $endDate) {
+            $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
+        }
 
+        if (!empty($filterMarkingPickup)) {
+            $q .= " AND b.marking = '$filterMarkingPickup'";
+        }
+
+        if (!empty($filterNoDoPickup)) {
+            $q .= " AND c.no_do = '$filterNoDoPickup'";
+        }
         $data = DB::select($q);
 
         $output = '<table id="datatable_resi_pickup" class="table table-bordered table-hover">
                 <thead>
                         <tr>
                             <th><input type="checkbox" id="select_all_pickup"></th>
-                            <th>No Resi</th>
+                           <th>No Do</th>
+                            <th>Marking</th>
+                            <th>No Invoice</th>
                             <th>Tanggal</th>
                             <th>Customer</th>
                         </tr>
@@ -250,7 +321,9 @@ class DeliveryController extends Controller
                 '
                        <tr>
                             <td><input type="checkbox" class="checkbox_resi_pickup" value="' . $item->no_invoice . '"></td>
-                            <td>' . ($item->no_invoice ?? '-') . '</td>
+                           <td>' . ($item->no_do ?? '-') . '</td>
+                            <td>' . ($item->marking ?? '-') . '</td>
+                             <td>' . ($item->no_invoice ?? '-') . '</td>
                             <td>' . ($item->tanggal_bayar ?? '-') . '</td>
                             <td>' . ($item->pembeli ?? '-') . '</td>
                         </tr>
