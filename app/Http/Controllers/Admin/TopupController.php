@@ -54,10 +54,9 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'account'])
-                    ->select(['customer_id', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date'])
+                    ->select(['id', 'customer_id', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'balance', 'status'])
                     ->orderBy('id', 'desc');
 
-        // Filter berdasarkan tanggal hanya jika `startDate` dan `endDate` tersedia
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
             $startDate = Carbon::parse($request->startDate)->startOfDay();
             $endDate = Carbon::parse($request->endDate)->endOfDay();
@@ -78,8 +77,22 @@ class TopupController extends Controller
             ->editColumn('date', function ($row) {
                 return $row->date ? Carbon::parse($row->date)->format('d F Y') : 'Tanggal tidak tersedia';
             })
+            ->editColumn('status', function ($row) {
+                return $row->status === 'active'
+                    ? '<span class="badge badge-success">Active</span>'
+                    : '<span class="badge badge-secondary">Canceled</span>';
+            })
+            ->addColumn('action', function ($row) {
+                if ($row->remaining_points == $row->balance && $row->status === 'active') {
+                    return '<button class="btn btnCancelTopup btn-sm btn-danger" data-id="' . $row->id . '">Cancel</button>';
+                }
+                return '-';
+            })
+            ->rawColumns(['status', 'action'])
             ->make(true);
     }
+
+
 
 
     public function storeTopup(Request $request)
@@ -170,6 +183,82 @@ class TopupController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan top-up: ' . $e->getMessage()], 500);
         }
     }
+
+
+    public function cancleTopup(Request $request)
+    {
+
+
+        $request->validate([
+            'topup_id' => 'required|exists:tbl_history_topup,id',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $topup = HistoryTopup::findOrFail($request->topup_id);
+            $customer = Customer::findOrFail($topup->customer_id);
+
+            if ($topup->status === 'canceled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Top-up ini sudah dibatalkan sebelumnya.'
+                ], 400);
+            }
+            $topup->status = 'canceled';
+            $topup->save();
+
+            $customer->decrement('sisa_poin', $topup->remaining_points);
+
+            $request->merge(['code_type' => 'TC']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'TC';
+            $jurnal->tanggal = now();
+            $jurnal->no_ref = $topup->id;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Pembatalan Top-up untuk Customer {$customer->nama_pembeli}";
+            $jurnal->totaldebit = $topup->topup_amount;
+            $jurnal->totalcredit = $topup->topup_amount;
+            $jurnal->save();
+
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $topup->account_id;
+            $jurnalItemDebit->description = "Pembatalan debit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemDebit->debit = 0;
+            $jurnalItemDebit->credit = $topup->topup_amount;
+            $jurnalItemDebit->save();
+
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = DB::table('tbl_account_settings')->value('purchase_profit_rate_account_id');
+            $jurnalItemCredit->description = "Pembatalan kredit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemCredit->debit = $topup->topup_amount;
+            $jurnalItemCredit->credit = 0;
+            $jurnalItemCredit->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Top-up berhasil dibatalkan.',
+                'data' => $topup
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membatalkan top-up: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
 
 
 

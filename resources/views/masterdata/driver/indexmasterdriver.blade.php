@@ -370,7 +370,7 @@
                                 success: function(response) {
                                     Swal.close();
                                     if (response.success) {
-                                        showMessage("success", "berhasil ditambahkan");
+                                        showMessage("success", "Berhasil ditambahkan");
                                         $('#modalTambahDriver').modal('hide');
                                         getListDriver();
                                     }

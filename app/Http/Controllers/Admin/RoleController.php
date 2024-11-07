@@ -55,19 +55,19 @@ class RoleController extends Controller
         $request->validate([
             'roleMaster' => 'required|string|max:255|unique:tbl_role,role',
         ]);
-    
+
         try {
             $Role = new Role();
             $Role->role = $request->input('roleMaster');
-    
+
             $Role->save();
-    
+
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
-    
+
     public function updateRole(Request $request, $id)
     {
         $validated = $request->validate([

@@ -54,6 +54,7 @@
                                 <div id="errKodePayment" class="text-danger mt-1 d-none">Silahkan isi Kode
                                 </div>
                             </div>
+<<<<<<< HEAD
                             <div class="mt-3">
                                 <label for="Invoice" class="form-label fw-bold">Invoice</label>
                                 <select class="form-control select2" id="selectInvoice">
@@ -102,6 +103,32 @@
                                 <input type="number" class="form-control" id="discountPayment" name="" value=""
                                     placeholder="Masukkan nominal pembayaran" required>
                             </div>
+=======
+                            <div class="col-6">
+                                <h5 class="fw-bold mt-3">Preview Invoice</h5>
+                                <div id="invoicePreview" class="border p-4 rounded mt-3 shadow-sm"
+                                    style="background-color: #f9f9f9;">
+                                    <p><strong class="text-primary">Nomor Invoice :</strong> <span
+                                            id="previewInvoiceNumber">-</span></p>
+                                    <p><strong class="text-primary">Tanggal Invoice :</strong> <span
+                                            id="previewInvoiceDate">-</span></p>
+                                    <p><strong class="text-primary">Status Invoice :</strong> <span
+                                            id="previewInvoiceStatus">-</span></p>
+                                    <p><strong class="text-primary">Total Berat (Kg) :</strong> <span
+                                            id="previewTotalWeight">-</span> (<span id="previewCountWeight">0</span> Resi)
+                                    </p>
+                                    <p><strong class="text-primary">Total Dimensi :</strong> <span
+                                            id="previewTotalDimension">-</span> (<span id="previewCountDimension">0</span>
+                                        Resi)</p>
+                                    <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
+                                            class="fw-bold text-success">-</span></p>
+                                    <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
+                                            class="fw-bold text-info">-</span></p>
+                                    <p><strong class="text-primary">Sisa Pembayaran :</strong> <span
+                                            id="previewRemainingPayment" class="fw-bold text-danger">-</span></p>
+                                </div>
+                            </div>
+>>>>>>> ilham
                         </div>
                         <div class="col-6">
                             <h5 class="fw-bold mt-3">Preview Invoice</h5>
@@ -126,11 +153,20 @@
 
 
                     </div>
+<<<<<<< HEAD
                 </div>
                 <div class="col-12 mt-4 mb-5">
                     <div class="col-4 float-right">
                         <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3" style="width: 100%;">Buat
                             Payment</button>
+=======
+                    <div class="col-12 mt-4 mb-5">
+                        <div class="col-4 float-right">
+                            <button id="buatPayment" class="btn btn-primary p-3 float-right mt-3"
+                                style="width: 100%;">Buat
+                                Payment</button>
+                        </div>
+>>>>>>> ilham
                     </div>
                 </div>
             </div>
@@ -142,6 +178,7 @@
 
 @endsection
 @section('script')
+<<<<<<< HEAD
 <script>
     function generateKodePembayaran() {
         $.ajax({
@@ -154,6 +191,74 @@
             success: function (response) {
                 if (response.status === 'success') {
                     $('#KodePayment').val(response.kode_pembayaran);
+=======
+    <script>
+        $('.select2').select2();
+
+        var today = new Date();
+        $('#tanggalPayment').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        }).datepicker('setDate', today);
+
+
+        $(document).ready(function() {
+            $('#selectInvoice').on('change', function() {
+                var invoiceNo = $(this).val();
+
+                if (invoiceNo) {
+                    $.ajax({
+                        url: "{{ route('getInvoiceAmount') }}",
+                        type: 'GET',
+                        data: {
+                            no_invoice: invoiceNo
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#previewInvoiceNumber').text(response.invoice[0]
+                                    .no_invoice || '-');
+                                $('#previewInvoiceAmount').text(response.invoice[0]
+                                    .total_harga || '0');
+                                $('#previewInvoiceDate').text(response.invoice[0]
+                                    .tanggal_bayar || '-');
+                                $('#previewInvoiceStatus').text(response.invoice[0]
+                                    .status_name || '-');
+                                $('#previewTotalPaid').text(response.invoice[0].total_bayar ||
+                                    '0');
+                                $('#previewRemainingPayment').text(response.invoice[0]
+                                    .sisa_bayar || '0');
+                                $('#previewTotalWeight').text(response.invoice[0].total_berat ||
+                                    '0');
+                                $('#previewTotalDimension').text(response.invoice[0]
+                                    .total_dimensi || '0');
+                                $('#previewCountWeight').text(response.invoice[0].count_berat ||
+                                    '0');
+                                $('#previewCountDimension').text(response.invoice[0]
+                                    .count_dimensi || '0'
+                                    );
+                            } else {
+                                showMessage("error", "Data tidak ditemukan");
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+            });
+
+
+            $('#selectMethod').on('change', function() {
+                const selectedMethod = $(this).val();
+                const sectionPoin = $('#section_poin');
+                const paymentInput = $('#payment');
+
+                if (selectedMethod === "167") {
+                    sectionPoin.removeClass("d-none");
+                    paymentInput.prop("disabled", true);
+>>>>>>> ilham
                 } else {
                     sectionPoin.addClass("d-none");
                     paymentInput.prop("disabled", false);

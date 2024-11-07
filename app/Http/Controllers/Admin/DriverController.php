@@ -103,7 +103,7 @@ class DriverController extends Controller
             $Driver->save();
             DB::commit();
 
-            return response()->json(['success' => 'Driver dan User berhasil ditambahkan'], 200);
+            return response()->json(['success' => 'Driver dan User Berhasil ditambahkan'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Gagal menambahkan driver: ' . $e->getMessage()], 500);

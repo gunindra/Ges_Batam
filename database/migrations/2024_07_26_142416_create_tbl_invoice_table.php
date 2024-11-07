@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('no_invoice', 20)->unique();
             $table->timestamp('tanggal_invoice');
+            $table->timestamp('tanggal_buat');
             $table->foreignId('pembeli_id')->constrained('tbl_pembeli');
             $table->string('metode_pengiriman', 50);
             $table->text('alamat')->nullable();

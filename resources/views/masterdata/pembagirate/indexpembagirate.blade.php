@@ -327,7 +327,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                         $('#modalTambahPembagi').modal('hide');
                                         getlistPembagi();
                                 }
@@ -586,7 +586,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                         $('#modalTambahRate').modal('hide');
                                         getlistRate();
                                 }

@@ -285,7 +285,7 @@
                             success: function(response) {
                                 Swal.close();
                                 if (response.success) {
-                                    showMessage("success", "COA berhasil ditambahkan")
+                                    showMessage("success", "COA Berhasil ditambahkan")
                                         .then(
                                             () => {
                                                 location.reload();

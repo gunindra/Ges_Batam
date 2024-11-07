@@ -320,6 +320,7 @@ class InvoiceController extends Controller
             $invoiceId = DB::table('tbl_invoice')->insertGetId([
                 'no_invoice' => $noInvoice,
                 'tanggal_invoice' => $formattedDate,
+                'tanggal_buat' => now(),
                 'pembeli_id' => $customer,
                 'metode_pengiriman' => $metodePengiriman,
                 'alamat' => $alamatTujuan,
@@ -405,7 +406,7 @@ class InvoiceController extends Controller
                 throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
             }
                 DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Invoice berhasil ditambahkan dan status tracking diperbarui'], 200);
+                return response()->json(['status' => 'success', 'message' => 'Invoice Berhasil ditambahkan dan status tracking diperbarui'], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
 
@@ -443,7 +444,7 @@ class InvoiceController extends Controller
 
             $q = "SELECT a.id,
                         a.no_invoice,
-                        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                        DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
                         b.nama_pembeli AS pembeli,
                         a.alamat,
                         a.metode_pengiriman,

@@ -59,7 +59,7 @@ class VendorController extends Controller
             'account_id' => $request->account_id,
         ]);
 
-        return response()->json(['success' => 'Vendor berhasil ditambahkan!']);
+        return response()->json(['success' => 'Vendor Berhasil ditambahkan!']);
     }
 
 

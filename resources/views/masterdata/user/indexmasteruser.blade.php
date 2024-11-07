@@ -317,7 +317,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                     $('#modalTambahUsers').modal('hide');
                                     getListUser();
                                 }

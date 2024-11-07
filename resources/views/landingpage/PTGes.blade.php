@@ -320,7 +320,7 @@
         ride: 'carouselSlide'
       });
     });
-   
+
   </script>
 
   @endsection

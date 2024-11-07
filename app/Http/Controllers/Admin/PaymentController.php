@@ -93,13 +93,17 @@ class PaymentController extends Controller
     {
         $invoiceSelect = $request->no_invoice;
         $invoice = DB::select("SELECT
+                                    a.id,
                                     a.no_invoice,
                                     DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
                                     FORMAT(a.total_harga, 0) AS total_harga,
                                     FORMAT(a.total_bayar, 0) AS total_bayar,
                                     FORMAT(a.total_harga - a.total_bayar, 0) AS sisa_bayar,
                                     b.status_name,
-                                    (SELECT SUM(r.berat) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_berat
+                                    (SELECT SUM(r.berat) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_berat,
+                                    (SELECT SUM(r.panjang * r.lebar * r.tinggi) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_dimensi,
+                                    (SELECT COUNT(*) FROM tbl_resi AS r WHERE r.invoice_id = a.id AND r.berat > 0) AS count_berat,
+                                    (SELECT COUNT(*) FROM tbl_resi AS r WHERE r.invoice_id = a.id AND (r.panjang * r.lebar * r.tinggi) > 0) AS count_dimensi
                                 FROM
                                     tbl_invoice AS a
                                 JOIN

@@ -309,7 +309,7 @@
                             success: function (response) {
                                 Swal.close();
                                 if (response.success) {
-                                    showMessage("success", "berhasil ditambahkan")
+                                    showMessage("success", "Berhasil ditambahkan")
                                         .then(
                                             () => {
                                                 location.reload();
