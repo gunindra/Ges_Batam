@@ -931,6 +931,7 @@
                         alamat: alamat,
                         totalharga: totalharga,
                         hargaBarang: hargaBarang,
+                        rateBerat: rateBerat,
                         _token: csrfToken
                     },
                     success: function(response) {

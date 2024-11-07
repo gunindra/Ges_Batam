@@ -268,6 +268,7 @@ class InvoiceController extends Controller
 
     public function tambainvoice(Request $request)
     {
+
         // Logging awal untuk menandai permulaan proses
         Log::info("Memulai proses tambainvoice dengan data: ", $request->all());
 
@@ -284,6 +285,7 @@ class InvoiceController extends Controller
         $lebar = $request->input('lebar');
         $tinggi = $request->input('tinggi');
         $alamatTujuan = $request->input('alamat');
+        $rateBerat = $request->input('rateBerat');
         $hargaBarang = $request->input('hargaBarang');
         $totalharga = $request->input('totalharga');
 
@@ -360,6 +362,7 @@ class InvoiceController extends Controller
                     'invoice_id' => $invoiceId,
                     'no_resi' => $resi,
                     'no_do' => $noDo,
+                    'priceperkg' => $rateBerat,
                     'berat' => $beratBarang[$index] ?? null,
                     'panjang' => $panjang[$index] ?? null,
                     'lebar' => $lebar[$index] ?? null,
@@ -473,6 +476,7 @@ class InvoiceController extends Controller
                         DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
                         b.nama_pembeli AS pembeli,
                         a.alamat,
+                        b.marking,
                         a.metode_pengiriman,
                         a.total_harga AS harga,
                         a.matauang_id,
@@ -494,7 +498,7 @@ class InvoiceController extends Controller
 
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $id)
-                ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
+                ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
             try {
                 $pdf = Pdf::loadView('exportPDF.invoice', [
