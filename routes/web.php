@@ -46,7 +46,8 @@ use App\Http\Controllers\{
     Admin\BalanceController,
     Admin\CashFlowController,
     Admin\VendorController,
-    Admin\TopupController
+    Admin\TopupController,
+    Admin\SoaController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -383,6 +384,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
     Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
     Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
+
+    //Balance
+    Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
+    Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
+    Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
 });
 
 
