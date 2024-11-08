@@ -187,9 +187,9 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th><input type="checkbox" class="selectAll" id="selectAll"></th>
-                                    <th>No Do</th>
                                     <th>No Invoice</th>
                                     <th>Tanggal</th>
+                                    <th>No Do</th>
                                     <th>Customer</th>
                                     <th>Pengiriman</th>
                                     <th>Alamat</th>
@@ -249,13 +249,6 @@
                 }
             },
             {
-                data: 'no_do',
-                name: 'no_do',
-                render: function (data, type, row) {
-                    return data ? data : '-';
-                }
-            },
-            {
                 data: 'no_invoice',
                 name: 'no_invoice',
                 render: function (data, type, row) {
@@ -265,6 +258,13 @@
             {
                 data: 'tanggal_bayar',
                 name: 'tanggal_bayar',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'no_do',
+                name: 'no_do',
                 render: function (data, type, row) {
                     return data ? data : '-';
                 }
