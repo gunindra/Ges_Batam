@@ -156,11 +156,11 @@ class DeliveryController extends Controller
             ->where('i.status_id', 1)
             ->where('i.metode_pengiriman', 'Pickup')
             ->get();
-            
+
 
         $listMarkingPickup = DB::table('tbl_pembeli as p')
             ->join('tbl_invoice as i', 'p.id', '=', 'i.pembeli_id')
-            ->select('p.marking') 
+            ->select('p.marking')
             ->distinct()
             ->where('i.status_id', 1)
             ->where('i.metode_pengiriman', 'Pickup')
@@ -207,9 +207,12 @@ class DeliveryController extends Controller
               WHERE (
                 UPPER(a.no_invoice) LIKE '$txSearch'
                 OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+                OR UPPER(c.no_do) LIKE '$txSearch'
+                OR UPPER(b.marking) LIKE '$txSearch'
               )
               AND a.status_id = 1
-              AND a.metode_pengiriman = 'Delivery'";
+              AND a.metode_pengiriman = 'Delivery'
+              GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, c.no_do, b.marking, a.metode_pengiriman, a.status_id";
 
         if ($startDate && $endDate) {
             $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";
@@ -287,9 +290,12 @@ class DeliveryController extends Controller
         WHERE (
             UPPER(a.no_invoice) LIKE '$txSearch'
             OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+             OR UPPER(c.no_do) LIKE '$txSearch'
+                OR UPPER(b.marking) LIKE '$txSearch'
         )
         AND a.status_id = 1
-        AND a.metode_pengiriman = 'Pickup'";
+        AND a.metode_pengiriman = 'Pickup'
+        GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, c.no_do, b.marking, a.metode_pengiriman, a.status_id";
 
         if ($startDate && $endDate) {
             $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";

@@ -29,7 +29,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="inputResiModal" tabindex="-1" aria-labelledby="inputResiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputResiModalLabel">Pilih dari List Resi Delivery</h5>
@@ -81,7 +81,7 @@
 <!-- Modal -->
 <div class="modal fade" id="inputResiPickupModal" tabindex="-1" aria-labelledby="inputResiPickupModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog  modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="inputResiPickupModalLabel">Pilih dari List Resi Pick up</h5>
@@ -353,7 +353,7 @@
                         info: false,
                         "bSort": true,
                         "aaSorting": [],
-                        // pageLength: 7,
+                        pageLength: 7,
                         responsive: true,
                         language: {
                             search: ""
@@ -781,6 +781,7 @@
                         info: false,
                         "bSort": true,
                         "aaSorting": [],
+                        pageLength: 7,
                         responsive: true,
                         language: {
                             search: ""

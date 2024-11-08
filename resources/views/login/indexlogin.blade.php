@@ -30,19 +30,13 @@
                                     <form id="loginForm" class="user" method="POST">
                                         @csrf
                                         <div class="form-group">
-                                            <input type="email" class="form-control" id="email" name="email"
-                                                required aria-describedby="emailHelp" placeholder="Enter Email Address">
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                required aria-describedby="nameHelp" placeholder="Enter Name">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control" id="password" name="password"
                                                 required placeholder="Password">
                                         </div>
-                                        {{-- <div class="form-group">
-                                            <div class="custom-control custom-checkbox small" style="line-height: 1.5rem;">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
-                                                <label class="custom-control-label" for="customCheck">Remember Me</label>
-                                            </div>
-                                        </div> --}}
                                         <a href="#" id="lupaPassword" class="my-2">Forgot Password?</a>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary btn-block">Login</button>
@@ -96,8 +90,7 @@
                                 window.location.href = response.redirect;
                             });
                         } else {
-                            showMessage("error", response
-                                .message);
+                            showMessage("error", response.message);
                         }
                     },
                     error: function(xhr) {
@@ -113,10 +106,9 @@
                 });
             });
 
-            $('#lupaPassword').click(function (e) {
+            $('#lupaPassword').click(function(e) {
                 e.preventDefault();
                 showMessage("error", "Please Notify Your IT Support For This Issue.");
-
             });
         });
     </script>
