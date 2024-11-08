@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ class LoginController extends Controller
 {
     public function index()
     {
+        // Uncomment this line if you want to redirect authenticated users to the dashboard
         // if (auth()->check()) {
         //     return redirect()->route('dashboard');
         // }
@@ -18,21 +20,36 @@ class LoginController extends Controller
 
     public function ajaxLogin(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('name', 'password');
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            $user = Auth::user();
+            // Handle role-based redirection
+            if ($user->role === 'superadmin') {
+                $redirectUrl = route('dashboard');
+            } elseif ($user->role === 'driver') {
+                $redirectUrl = route('supir');
+            } elseif ($user->role === 'customer') {
+                $redirectUrl = route('tracking');
+            } elseif (in_array($user->role, ['admin', 'supervisor'])) {
+                $redirectUrl = route('tracking');
+            } else {
+                // Default redirection if role doesn't match any condition
+                $redirectUrl = route('default.page'); // Replace 'default.page' with a valid route
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Login berhasil!',
-                'redirect' => route('dashboard')
+                'redirect' => $redirectUrl
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Email Dan Password Salah'
+            'message' => 'Nama dan Password Salah'
         ]);
     }
 
@@ -45,6 +62,4 @@ class LoginController extends Controller
 
         return redirect('/login');
     }
-
-
 }
