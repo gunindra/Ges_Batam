@@ -137,6 +137,8 @@
                                 href="{{ route('balance') }}">Balance</a>
                             <a class="collapse-item {{ request()->routeIs('cashflow') ? 'active' : '' }}"
                                 href="{{ route('cashflow') }}">CashFlow</a>
+                            <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
+                                href="{{ route('soa') }}">Statement of Account</a>
                         </div>
                     </div>
                 </li>
@@ -471,8 +473,7 @@
                         </div>
                     </div>
                 </div>
-
-
+                
                 @yield('main')
 
             </div>
@@ -494,4 +495,8 @@
             <!-- Footer -->
         </div>
     </div>
+
+
+
+
 @endsection
