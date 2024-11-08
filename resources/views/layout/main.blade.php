@@ -55,6 +55,16 @@
                 </li>
             @endif
             
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+                <li class="nav-item {{ request()->routeIs('pickup') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pickup') }}">
+                    <i class="fas fa-people-carry"></i>
+                        <span>Pickup</span>
+                    </a>
+                </li>
+            @endif
+
+            
             <!-- Menu Customer -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li

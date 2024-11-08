@@ -95,34 +95,6 @@
 @endsection
 @section('script')
     <script>
-        $('#selectResi').select2({
-            placeholder: 'Pilih No.Invoice',
-            allowClear: true
-        });
-
-        $('#selectResi').on('change', function() {
-            var selectedInvoices = $(this).val();
-            if (selectedInvoices.length > 0) {
-                $.ajax({
-                    url: '{{ route('jumlahresi') }}',
-                    type: 'GET',
-                    data: {
-                        invoice_ids: selectedInvoices
-                    },
-                    success: function(response) {
-
-                        $('#pointValue').text(response.count);
-                    },
-                    error: function(xhr, status, error) {
-                        console.log(error);
-                    }
-                });
-            } else {
-                $('#pointValue').text(0);
-            }
-        });
-    </script>
-    <script>
         $(document).ready(function() {
             $('#batal').on('click', function() {
                 $('#batalModal').modal('show');

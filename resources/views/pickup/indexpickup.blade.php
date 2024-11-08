@@ -80,30 +80,62 @@
 @endsection
 @section('script')
 <script>
-    $('#selectResi').select2({
-        placeholder: 'Pilih No.Invoice',
-        allowClear: true
-    });
+    $(document).ready(function () {
+        $('#batal').on('click', function () {
+            $('#batalModal').modal('show');
+        });
 
-    $('#selectResi').on('change', function () {
-        var selectedInvoices = $(this).val();
-        if (selectedInvoices.length > 0) {
-            $.ajax({
-                url: '{{ route('jumlahresipickup') }}',
-                type: 'GET',
-                data: {
-                    invoice_ids: selectedInvoices
-                },
-                success: function (response) {
-                    $('#pointValue').text(response.count);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        } else {
-            $('#pointValue').text(0);
+        $('#selectResi').select2({
+            placeholder: 'Pilih No.Invoice',
+            allowClear: true
+        });
+
+        $('#selectResi').on('change', function () {
+            var selectedInvoices = $(this).val();
+            if (selectedInvoices.length > 0) {
+                $.ajax({
+                    url: '{{ route('jumlahresipickup') }}',
+                    type: 'GET',
+                    data: {
+                        invoice_ids: selectedInvoices
+                    },
+                    success: function (response) {
+                        $('#pointValue').text(response.count);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#pointValue').text(0);
+            }
+        });
+
+        let canvas1 = document.getElementById('signature-pad-1');
+        let canvas2 = document.getElementById('signature-pad-2');
+
+        const signaturePad1 = new SignaturePad(canvas1, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+        const signaturePad2 = new SignaturePad(canvas2, {
+            backgroundColor: 'rgb(255, 255, 255)'
+        });
+
+        function resizeCanvas(canvas, signaturePad) {
+            var ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            signaturePad.clear();
         }
+
+        resizeCanvas(canvas1, signaturePad1);
+        resizeCanvas(canvas2, signaturePad2);
+
+        $(window).on('resize', function () {
+            resizeCanvas(canvas1, signaturePad1);
+            resizeCanvas(canvas2, signaturePad2);
+        });
     });
 </script>
 @endsection

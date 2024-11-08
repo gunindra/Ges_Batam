@@ -11,24 +11,18 @@ class PickupController extends Controller
     public function index()
     {
         $listInvoice = DB::table('tbl_pengantaran_detail as a')
-            ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
-            ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
-            ->join('tbl_supir as d', 'd.id', '=', 'c.supir_id')
-            ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
-            ->select(
-                'a.invoice_id',
-                'b.metode_pengiriman',
-                'b.no_invoice',
-                'd.nama_supir',
-                'e.marking',
-                'e.nama_pembeli'
-            )
-            ->whereNull('a.bukti_pengantaran')
-            ->whereNull('a.tanda_tangan')
-            ->where('b.metode_pengiriman', 'Pickup')
-            ->get();
-
-        dd($listInvoice); 
+       ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
+       ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
+       ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
+       ->select(
+           'a.invoice_id',
+           'b.metode_pengiriman',
+           'b.no_invoice',
+           'e.marking',
+           'e.nama_pembeli'
+       )
+       ->where('b.metode_pengiriman', 'Pickup')
+       ->get();
         return view('pickup.indexpickup', [
             'listInvoice' => $listInvoice
         ]);
@@ -42,6 +36,7 @@ class PickupController extends Controller
             ->count();
         return response()->json(['count' => $count]);
     }
+    
 
 
 }
