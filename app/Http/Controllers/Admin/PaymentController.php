@@ -178,7 +178,7 @@ class PaymentController extends Controller
             'invoice' => 'required|string',
             'tanggalPayment' => 'required|date',
             'paymentAmount' => 'required|numeric',
-            'discountPayment' => 'required|integer',
+            'discountPayment' => 'nullable|integer',
             'paymentMethod' => 'required|integer',
         ]);
 

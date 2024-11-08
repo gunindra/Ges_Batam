@@ -54,7 +54,7 @@
                     </a>
                 </li>
             @endif
-
+            
             <!-- Menu Customer -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li

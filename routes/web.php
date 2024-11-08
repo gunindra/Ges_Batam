@@ -134,9 +134,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
-    Route::get('/pickup/getlistPickup', [PickupController::class, 'getlistPickup'])->name('getlistPickup');
-    Route::post('/pickup/acceptPickup', [PickupController::class, 'acceptPickup'])->name('acceptPickup');
-
+    Route::get('/pickup/jumlahresipickup', [PickupController::class, 'jumlahresipickup'])->name('jumlahresipickup');
+    
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');

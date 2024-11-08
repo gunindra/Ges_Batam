@@ -42,7 +42,7 @@
         {{ $heropage->title_heropage }}
       </h5>
       <!-- <a class="btn-responsive bg-primary bg-gradient text-white"
-        href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a> -->
+      href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a> -->
       </div>
       </div>
     @endforeach
@@ -240,7 +240,7 @@
         alt="{{ $service->title_service ?? '-' }}">
         <div class="overlay">
         <div class="overlay-content">
-        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50,'') }}</h3>
+        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50, '') }}</h3>
         <p style="word-break: break-word;">
         {!! nl2br(e(Str::limit($service->content_service ?? '-', 149))) !!}
         </p>
@@ -320,6 +320,25 @@
         ride: 'carouselSlide'
       });
     });
+    // document.addEventListener("DOMContentLoaded", function () {
+    //   const titleElements = document.querySelectorAll("#judulCarousel");
+
+    //   titleElements.forEach(title => {
+    //     const maxFontSize = 50; 
+    //     const minFontSize = 30;
+    //     const baseLength = 20;   
+
+    //     const titleLength = title.textContent.length;
+    //     let fontSize = maxFontSize;
+
+    //     if (titleLength > baseLength) {
+    //       fontSize = Math.max(minFontSize, maxFontSize - (titleLength - baseLength) * 0.3);
+    //     }
+
+
+    //     title.style.fontSize = `${fontSize}px`;
+    //   });
+    // });
 
   </script>
 
