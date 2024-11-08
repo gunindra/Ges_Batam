@@ -52,7 +52,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $invoice->id)
-                ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi']);
+                ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
             if ($resiData->isEmpty()) {
                 throw new \Exception("Tidak ada resi yang terkait dengan invoice ini");
@@ -69,9 +69,11 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             try {
                 Log::info('Memulai pembuatan PDF untuk invoice ID: ' . $invoice->id);
 
-                $pdf = Pdf::loadView('exportPDF.notification', [
-                    'resiData' => $resiData,
+                $pdf = Pdf::loadView('exportPDF.invoice', [
                     'invoice' => $invoice,
+                    'resiData' => $resiData,
+                    'hargaIDR' => $invoice->total_harga,
+                    'tanggal' => $invoice->tanggal_bayar,
                 ]);
 
                 Log::info('Berhasil membuat PDF untuk invoice ID: ' . $invoice->id);
