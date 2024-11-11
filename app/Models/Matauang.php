@@ -5,14 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tracking extends Model
+class Matauang extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_tracking';
+    protected $table = 'tbl_matauang';
     protected $fillable = [
-        'no_resi',
-        'no_do',
-        'status',
-        'keterangan',
+        'nama_matauang',
+        'singkatan_matauang',
     ];
 }

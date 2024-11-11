@@ -129,7 +129,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-area">
-                            <canvas id="myAreaChart"></canvas>
+                            <canvas id="chartDashboard"></canvas>
                         </div>
                     </div>
                 </div>
@@ -444,7 +444,7 @@
         }
 
         // Area Chart Example
-        var ctx = document.getElementById("myAreaChart");
+        var ctx = document.getElementById("chartDashboard");
         var myLineChart = new Chart(ctx, {
             type: 'bar',
             data: {

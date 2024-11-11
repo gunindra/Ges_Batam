@@ -53,22 +53,15 @@ class DebitNoteController extends Controller
     public function getDebitNotes(Request $request)
     {
         if ($request->ajax()) {
-            $debitNotes = DB::table('tbl_debit_note AS dn')
-                ->join('tbl_sup_invoice AS inv', 'dn.invoice_id', '=', 'inv.id')
-                ->join('tbl_coa AS coa', 'dn.account_id', '=', 'coa.id')
-                ->join('tbl_matauang AS mu', 'dn.matauang_id', '=', 'mu.id')
-                ->select('dn.id', 'dn.no_debitnote', 'inv.invoice_no', 'coa.name as coa_name', 'mu.singkatan_matauang as currency_short', 'dn.created_at')
-                ->orderBy('dn.id', 'desc');
-
-            if ($request->status) {
-                $debitNotes->where('coa.name', $request->status);
-            }
+            $debitNotes = DebitNote::with(['invoice', 'coa', 'matauang', 'items']);
 
             if ($request->startDate && $request->endDate) {
                 $startDate = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
                 $endDate = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
-                $debitNotes->whereBetween('dn.created_at', [$startDate, $endDate]);
+                $debitNotes->whereBetween('created_at', [$startDate, $endDate]);
             }
+
+            $debitNotes = $debitNotes->get();
 
             return DataTables::of($debitNotes)
                 ->addIndexColumn()

@@ -10,7 +10,7 @@ class ProfitLossController extends Controller
 {
     public function index() {
 
-        return view('report.ProfitLoss.indexprofitloss');
+        return view('Report.ProfitLoss.indexprofitloss');
     }
 
     public function getProfitOrLoss(Request $request)
