@@ -461,19 +461,28 @@ class InvoiceController extends Controller
 
     public function kirimPesanWaPembeli(Request $request)
     {
+
+
         try {
             $invoiceIds = $request->input('id');
+            $type = $request->input('type');
+
             if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
                 throw new \Exception("Tidak ada invoice yang diterima");
             }
+
             foreach ($invoiceIds as $invoiceId) {
-                KirimPesanWaPembeliJob::dispatch($invoiceId);
+                $invoice = DB::table('tbl_invoice')->where('id', $invoiceId)->first();
+                $statusPembayaran = $invoice ? $invoice->status_bayar : null;
+                KirimPesanWaPembeliJob::dispatch($invoiceId, $type, $statusPembayaran);
             }
+
             return response()->json(['success' => true, 'message' => 'Pesan WhatsApp berhasil dikirim untuk semua invoice']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
 
     public function kirimInvoice(Request $request)
     {
@@ -508,6 +517,7 @@ class InvoiceController extends Controller
                         a.metode_pengiriman,
                         a.total_harga AS harga,
                         a.matauang_id,
+                        a.status_bayar,
                         a.rate_matauang,
                         d.id AS status_id,
                         d.status_name

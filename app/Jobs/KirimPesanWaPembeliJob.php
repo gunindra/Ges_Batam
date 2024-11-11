@@ -17,15 +17,14 @@ class KirimPesanWaPembeliJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, WhatsappTrait;
 
     protected $invoiceId;
+    protected $type;
+    protected $statusPembayaran;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($invoiceId)
+    public function __construct($invoiceId, $type = 'listBarang', $statusPembayaran = null)
     {
         $this->invoiceId = $invoiceId;
+        $this->type = $type;
+        $this->statusPembayaran = $statusPembayaran;
     }
 
     /**
@@ -58,12 +57,20 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 throw new \Exception("Tidak ada resi yang terkait dengan invoice ini");
             }
 
-            if ($invoice->metode_pengiriman === 'Pickup') {
-                $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
-            } elseif ($invoice->metode_pengiriman === 'Delivery') {
-                $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
+            $pesan = ''; // Initialize pesan
+
+            Log::info('Type for invoice ID ' . $this->invoiceId . ': ' . $this->type);
+
+            if ($this->type !== 'invoice') {
+                if ($invoice->metode_pengiriman === 'Pickup') {
+                    $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
+                } elseif ($invoice->metode_pengiriman === 'Delivery') {
+                    $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
+                } else {
+                    throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
+                }
             } else {
-                throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
+                $pesan = "Silahkan download file di atas untuk melihat invoice";
             }
 
             try {
@@ -73,7 +80,19 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     'invoice' => $invoice,
                     'resiData' => $resiData,
                     'hargaIDR' => $invoice->total_harga,
+                    'type' => $this->type,
                     'tanggal' => $invoice->tanggal_invoice,
+                    'statusPembayaran' => $this->statusPembayaran
+                ]);
+
+                Log::info('Invoice Data:', [
+                    'invoice_id' => $invoice->id,
+                    'nama_pembeli' => $invoice->nama_pembeli,
+                    'total_harga' => $invoice->total_harga,
+                    'tanggal_invoice' => $invoice->tanggal_invoice,
+                    'statusPembayaran' => $this->statusPembayaran,
+                    'resiData' => $resiData,
+                    'type' => $this->type
                 ]);
 
                 Log::info('Berhasil membuat PDF untuk invoice ID: ' . $invoice->id);

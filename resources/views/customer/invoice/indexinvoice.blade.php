@@ -405,6 +405,7 @@
                                 url: "{{ route('kirimPesanWaPembeli') }}",
                                 data: {
                                     id: selectedItems,
+                                    type: 'listbarang',
                                 },
                                 success: function(response) {
                                     Swal.close();
@@ -469,6 +470,7 @@
                                 url: "{{ route('kirimPesanWaPembeli') }}",
                                 data: {
                                     id: selectedItems,
+                                    type: 'invoice',
                                 },
                                 success: function(response) {
                                     Swal.close();
