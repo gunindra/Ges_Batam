@@ -475,6 +475,14 @@ class InvoiceController extends Controller
         }
     }
 
+    public function kirimInvoice(Request $request)
+    {
+        $invoiceIds = $request->input('id');
+        if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
+            throw new \Exception("Tidak ada invoice yang diterima");
+        }
+    }
+
 
     public function exportPdf(Request $request)
     {

@@ -136,6 +136,10 @@
                                             class="pr-2"><i class="fas fa-paper-plane"
                                                 style="color: #ffffff;"></i></span>Kirim
                                         Notifikasi</a>
+                                        <a class="btn btn-success mr-1" style="color:white;" id="kirimInvoice"><span
+                                            class="pr-2"><i class="fab fa-whatsapp"
+                                                style="color: #ffffff;"></i></span>Kirim Invoice</a>
+
                                 @endif
 
                                 <!-- <button class="btn btn-success mr-1" id="isNotif"><span class="pr-2"><i
@@ -347,18 +351,13 @@
 
 
             const handleSelectItems = () => {
-                // const toggleKirimNot = () => {
-                //     $('#kirimNot').toggle($('.selectItem:checked').length > 0);
-                // };
                 $('#tableInvoice').on('change', '.selectItem', function() {
-                    // toggleKirimNot();
                     const allChecked = $('.selectItem').length === $('.selectItem:checked').length;
                     $('#selectAll').prop('checked', allChecked);
                 });
 
                 $('#tableInvoice').on('change', '#selectAll', function() {
                     $('.selectItem').prop('checked', this.checked);
-                    // toggleKirimNot();
                 });
             };
 
@@ -430,7 +429,77 @@
                         }
                     });
                 });
+
+
+                $(document).on('click', '#kirimInvoice', function(e) {
+                    e.preventDefault();
+
+                    let selectedItems = [];
+                    $('.selectItem:checked').each(function() {
+                        selectedItems.push($(this).data('id'));
+                    });
+
+                    if (selectedItems.length === 0) {
+                        showMessage("error", "Tidak ada invoice yang dipilih");
+                        return;
+                    }
+
+
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Mengirim notifikasi...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            $.ajax({
+                                type: "GET",
+                                url: "{{ route('kirimPesanWaPembeli') }}",
+                                data: {
+                                    id: selectedItems,
+                                },
+                                success: function(response) {
+                                    Swal.close();
+                                    if (response.success) {
+                                        showMessage("success",
+                                            "Berhasil mengirim notifikasi");
+                                        table.ajax.reload();
+                                    } else {
+                                        showMessage("error", response.message ||
+                                            "Gagal mengirim notifikasi");
+                                    }
+                                },
+                                error: function() {
+                                    Swal.close();
+                                    showMessage("error",
+                                        "Terjadi kesalahan saat mengirim notifikasi"
+                                    );
+
+                                }
+                            });
+                        }
+                    });
+
+                });
+
+
+
             });
+
+
+
 
             // $('#txSearch').keyup(function() {
             //     let searchValue = $(this).val();
