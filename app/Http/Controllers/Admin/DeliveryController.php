@@ -21,20 +21,37 @@ class DeliveryController extends Controller
         $this->kirimPesanWhatsapp($noWa, $message);
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $listnodo = DB::table('tbl_resi')
+            ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+            ->select('tbl_resi.no_do')
+            ->distinct()
+            ->where('tbl_invoice.status_id', 1)
+            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
+            ->get();
 
+        $listmarking = DB::table('tbl_pembeli')
+            ->join('tbl_invoice', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
+            ->select('tbl_pembeli.marking')
+            ->distinct()
+            ->where('tbl_invoice.status_id', 1)
+            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
+            ->get();
 
-        return view('customer.delivery.indexdelivery');
+        return view('customer.delivery.indexdelivery', [
+            'listmarking' => $listmarking,
+            'listnodo' => $listnodo,
+        ]);
     }
 
     public function getlistDelivery(Request $request)
     {
         $status = strtoupper(trim($request->status));
-
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-
+        $filtermarking = $request->marking ?? '';
+        $filternodo = $request->no_do ?? '';
 
         $query = DB::table('tbl_pengantaran as a')
             ->select(
@@ -50,13 +67,16 @@ class DeliveryController extends Controller
                 DB::raw("GROUP_CONCAT(IFNULL(pd.bukti_pengantaran, 'Tidak Ada Bukti') SEPARATOR ', ') as list_bukti_pengantaran"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ', ') as list_tanda_tangan"),
                 DB::raw("GROUP_CONCAT(CONCAT(s.status_name) SEPARATOR ', ') as list_status_per_invoice"),
-                DB::raw("GROUP_CONCAT(IFNULL(pd.keterangan, 'Belum ada keterangan') SEPARATOR ', ') as list_keterangan")
+                DB::raw("GROUP_CONCAT(IFNULL(pd.keterangan, 'Belum ada keterangan') SEPARATOR ', ') as list_keterangan"),
+                DB::raw("GROUP_CONCAT(r.no_do SEPARATOR ', ') as list_no_do"),
+                DB::raw("GROUP_CONCAT(c.marking SEPARATOR ', ') as list_marking")
             )
             ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
             ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
             ->join('tbl_status as s', 'b.status_id', '=', 's.id')
             ->leftJoin('tbl_supir as e', 'a.supir_id', '=', 'e.id')
+            ->leftJoin('tbl_resi as r', 'a.id', '=', 'r.invoice_id')
             ->groupBy('a.id', 'a.metode_pengiriman', 'a.supir_id', 'e.nama_supir')
             ->orderBy('a.id', 'desc');
 
@@ -70,7 +90,13 @@ class DeliveryController extends Controller
         if ($request->status) {
             $query->where('s.status_name', '=', $status);
         }
-
+        if (!empty($filtermarking)) {
+            $query->where('c.marking', '=', $filtermarking);
+        }
+        
+        if (!empty($filternodo)) {
+            $query->where('r.no_do', '=', $filternodo);
+        }
         if ($startDate && $endDate) {
             $query->whereBetween('a.tanggal_pengantaran', [$startDate, $endDate]);
         } elseif ($startDate) {
@@ -84,53 +110,50 @@ class DeliveryController extends Controller
         $data = $query->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
-            <thead class="thead-light">
-                <tr>
-                    <th>Pengiriman</th>
-                    <th>Supir</th>
-                    <th>Jumlah Invoice</th>
-                    <th>Tanggal</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>';
+        <thead class="thead-light">
+            <tr>
+                <th>Pengiriman</th>
+                <th>Supir</th>
+                <th>Jumlah Invoice</th>
+                <th>Tanggal</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>';
 
         foreach ($data as $item) {
             $btnInvoice = '
-                <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
-                    data-invoices="' . htmlentities($item->list_no_resi) . '"
-                    data-customers="' . htmlentities($item->list_nama_pembeli) . '"
-                    data-alamat="' . htmlentities($item->list_alamat) . '"
-                    data-bukti="' . htmlentities($item->list_bukti_pengantaran) . '"
-                    data-tanda="' . htmlentities($item->list_tanda_tangan) . '"
-                    data-metode="' . htmlentities($item->metode_pengiriman) . '"
-                    data-keterangan="' . htmlentities($item->list_keterangan) . '"
-                    data-status="' . htmlentities($item->list_status_per_invoice) . '">
-                    Invoice (' . $item->jumlah_invoice . ')
-                </button>
-            ';
+           <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                 data-invoices="' . htmlentities($item->list_no_resi) . '"
+                data-customers="' . htmlentities($item->list_nama_pembeli) . ' "
+                data-alamat="' . htmlentities($item->list_alamat) . ' "
+                data-bukti="' . htmlentities($item->list_bukti_pengantaran) . ' "
+                data-tanda="' . htmlentities($item->list_tanda_tangan) . ' "
+                data-metode=" ' . htmlentities($item->metode_pengiriman) . ' "
+                data-keterangan="' . htmlentities($item->list_keterangan) . ' "
+                data-status="' . htmlentities($item->list_status_per_invoice) . ' "
+                data-no-do="' . htmlentities($item->list_no_do) . ' "    
+                data-marking="' . htmlentities($item->list_marking) . ' ">   
+                Invoice (' . $item->jumlah_invoice . ')
+            </button>
+                    ';
 
             $output .= '
-                <tr>
-                    <td>' . ($item->metode_pengiriman ?? '-') . '</td>
-                    <td>' . ($item->nama_supir ?? '-') . '</td>
-                    <td>' . $btnInvoice . '</td>
-                    <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
-                    <td>
-                        <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
-                    </td>
-                </tr>';
+            <tr>
+                <td>' . ($item->metode_pengiriman ?? '-') . '</td>
+                <td>' . ($item->nama_supir ?? '-') . '</td>
+                <td>' . $btnInvoice . '</td>
+                <td>' . ($item->tanggal_pengantaran ?? '-') . '</td>
+                <td>
+                    <a class="btn btnExportPDF btn-secondary text-white" data-id="' . $item->pengantaran_id . '"><i class="fas fa-file-pdf"></i></a>
+                </td>
+            </tr>';
         }
 
         $output .= '</tbody></table>';
 
-
         return $output;
-
     }
-
-
-
     public function addDelivery()
     {
         $listNoDo = DB::table('tbl_resi')
@@ -193,26 +216,28 @@ class DeliveryController extends Controller
         }
 
         $q = "SELECT a.id,
-                a.no_invoice,
-                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                b.nama_pembeli AS pembeli,
-                c.no_do,
-                b.marking,
-                a.metode_pengiriman,
-                a.status_id
-              FROM tbl_invoice AS a
-              JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-              JOIN tbl_resi AS c ON a.id = c.invoice_id
-              JOIN tbl_status AS d ON a.status_id = d.id
-              WHERE (
-                UPPER(a.no_invoice) LIKE '$txSearch'
-                OR UPPER(b.nama_pembeli) LIKE '$txSearch'
-                OR UPPER(c.no_do) LIKE '$txSearch'
-                OR UPPER(b.marking) LIKE '$txSearch'
-              )
-              AND a.status_id = 1
-              AND a.metode_pengiriman = 'Delivery'
-              GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, c.no_do, b.marking, a.metode_pengiriman, a.status_id";
+        a.no_invoice,
+        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+        b.nama_pembeli AS pembeli,
+        c.no_do,
+        b.marking,
+        a.metode_pengiriman,
+        a.status_id
+      FROM tbl_invoice AS a
+      JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+      JOIN tbl_resi AS c ON a.id = c.invoice_id
+      JOIN tbl_status AS d ON a.status_id = d.id
+      WHERE (
+        UPPER(a.no_invoice) LIKE '$txSearch'
+        OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+        OR UPPER(c.no_do) LIKE '$txSearch'
+        OR UPPER(b.marking) LIKE '$txSearch'
+      )
+      AND a.status_id = 1
+      AND a.metode_pengiriman = 'Delivery'
+      AND DATE(a.tanggal_invoice) BETWEEN '2024-11-01' AND '2024-11-30'
+      AND c.no_do = '2'
+      GROUP BY a.id, a.no_invoice, a.tanggal_invoice, b.nama_pembeli, c.no_do, b.marking, a.metode_pengiriman, a.status_id";
 
         if ($startDate && $endDate) {
             $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";

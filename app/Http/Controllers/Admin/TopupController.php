@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\PricePoin;
 use Illuminate\Support\Facades\DB;
+use Str;
 use Yajra\DataTables\Facades\DataTables;
 use Log;
 
@@ -54,7 +55,7 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'account'])
-                    ->select(['id', 'customer_id', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'balance', 'status'])
+                    ->select(['id', 'customer_id','code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'balance', 'status'])
                     ->orderBy('id', 'desc');
 
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
@@ -102,7 +103,10 @@ class TopupController extends Controller
             'remaining_points' => 'required|numeric|min:1',
             'price_per_kg' => 'required|numeric|min:0.01',
             'coa_id' => 'required|exists:tbl_coa,id',
+            'date' => "required|date"
         ]);
+
+        $formattedDate = Carbon::parse($request->date)->format('Y-m-d');
 
         DB::beginTransaction();
 
@@ -111,6 +115,7 @@ class TopupController extends Controller
             Log::info("Sisa poin sebelum increment: " . $customer->sisa_poin);
 
             $topupAmount = $request->remaining_points * $request->price_per_kg;
+            
             $topup = HistoryTopup::create([
                 'customer_id' => $request->customer_id,
                 'customer_name' => $customer->nama_pembeli,
@@ -118,8 +123,9 @@ class TopupController extends Controller
                 'remaining_points' => $request->remaining_points,
                 'price_per_kg' => $request->price_per_kg,
                 'balance' => $request->remaining_points,
-                'date' => now(),
+                'date' => $formattedDate,
                 'account_id' => $request->coa_id,
+                'code' => $request->code,
             ]);
 
             $initialSisaPoin = $customer->sisa_poin ?? 0;
@@ -256,16 +262,26 @@ class TopupController extends Controller
             ], 500);
         }
     }
+    public function generateCodeVoucher()
+    {
+        $codeType = "VC";
+        $currentYear = date('y');
 
+        $lastVoucher = HistoryTopup::where('code', 'like', $codeType . $currentYear . '%')
+            ->orderBy('code', 'desc')
+            ->first();
 
+        $newSequence = 1;
+        if ($lastVoucher) {
+            $lastSequence = intval(substr($lastVoucher->code, -4));  
+            $newSequence = $lastSequence + 1;
+        }
 
+        $code = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
-
-
-
-
-
-
-
-
+        return response()->json([
+            'status' => 'success',
+            'code' => $code
+        ]);
+    }
 }

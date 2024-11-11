@@ -86,7 +86,7 @@
                                         <th>No. Invoice</th>
                                         <th>Ammount</th>
                                         <th>Metode Pembayaran</th>
-                                        <th>Tanggal Payment</th>
+                                        <th>Tanggal</th>
                                         {{-- <th>Action</th> --}}
                                     </tr>
                                 </thead>
@@ -174,8 +174,8 @@
                     name: 'c.name'
                 },
                 {
-                    data: 'tanggal_bayar',
-                    name: 'tanggal_bayar',
+                    data: 'tanggal_buat',
+                    name: 'tanggal_buat',
                     searchable: false
                 }
             ],
