@@ -442,10 +442,14 @@
         </div>
 
         <div class="title">
-            <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
-            <h5>Pembeli: {{ $invoice->pembeli }} ({{ $invoice->marking }}) </h5>
+            <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
+            <h5>Pembeli: {{ $invoice->nama_pembeli }} ({{ $invoice->marking }}) </h5>
             <p>Alamat: {{ $invoice->alamat }}</p>
-            <h2>Invoice: {{ $invoice->no_invoice }}</h2>
+
+            <!-- Kondisi untuk menampilkan Invoice -->
+            @if ($type === 'invoice')
+                <h2>Invoice: {{ $invoice->no_invoice }}</h2>
+            @endif
         </div>
 
         <table>
@@ -487,7 +491,7 @@
                                     $panjang = $resi->panjang ?? 0;
                                     $lebar = $resi->lebar ?? 0;
                                     $tinggi = $resi->tinggi ?? 0;
-                                    $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100); // hasil dalam m3
+                                    $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100);
                                 @endphp
                                 {{ number_format($volume, 3) }} m³
                             </td>
@@ -498,11 +502,41 @@
             </tbody>
         </table>
 
-        <div class="summary">
-            <p class="text-right">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+        <div class="summary" style="position: relative;">
+            <!-- Only show lunas or belum lunas check if type is 'invoice' -->
+            @if ($type === 'invoice')
+                <?php
+                if ($statusPembayaran === 'Belum lunas') {
+                ?>
+                    <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+                <?php
+                } else {
+                    // Only show the paid stamp if it is 'invoice'
+                    $path = public_path('img/lunas.png');
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    if (file_exists($path)) {
+                        $data =  file_get_contents($path);
+                        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    } else {
+                        $base64 = '';
+                    }
+                ?>
+                    <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
+                        <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
+                    </div>
+                    <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+                <?php
+                }
+                ?>
+            @else
+                <!-- When it's not an invoice, just display total price -->
+                <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+            @endif
         </div>
     </div>
 </body>
+
+
 
 </html>
 

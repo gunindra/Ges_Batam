@@ -17,15 +17,14 @@ class KirimPesanWaPembeliJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, WhatsappTrait;
 
     protected $invoiceId;
+    protected $type;
+    protected $statusPembayaran;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($invoiceId)
+    public function __construct($invoiceId, $type = 'listBarang', $statusPembayaran = null)
     {
         $this->invoiceId = $invoiceId;
+        $this->type = $type;
+        $this->statusPembayaran = $statusPembayaran;
     }
 
     /**
@@ -41,7 +40,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             $invoice = DB::table('tbl_invoice as a')
                 ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
                 ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
-                ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa')
+                ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.marking','b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa')
                 ->where('a.id', $this->invoiceId)
                 ->first();
 
@@ -52,26 +51,48 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $invoice->id)
-                ->get(['no_resi', 'no_do', 'berat', 'panjang', 'lebar', 'tinggi']);
+                ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
             if ($resiData->isEmpty()) {
                 throw new \Exception("Tidak ada resi yang terkait dengan invoice ini");
             }
 
-            if ($invoice->metode_pengiriman === 'Pickup') {
-                $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
-            } elseif ($invoice->metode_pengiriman === 'Delivery') {
-                $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
+            $pesan = ''; // Initialize pesan
+
+            Log::info('Type for invoice ID ' . $this->invoiceId . ': ' . $this->type);
+
+            if ($this->type !== 'invoice') {
+                if ($invoice->metode_pengiriman === 'Pickup') {
+                    $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
+                } elseif ($invoice->metode_pengiriman === 'Delivery') {
+                    $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
+                } else {
+                    throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
+                }
             } else {
-                throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
+                $pesan = "Silahkan download file di atas untuk melihat invoice";
             }
 
             try {
                 Log::info('Memulai pembuatan PDF untuk invoice ID: ' . $invoice->id);
 
                 $pdf = Pdf::loadView('exportPDF.notification', [
-                    'resiData' => $resiData,
                     'invoice' => $invoice,
+                    'resiData' => $resiData,
+                    'hargaIDR' => $invoice->total_harga,
+                    'type' => $this->type,
+                    'tanggal' => $invoice->tanggal_invoice,
+                    'statusPembayaran' => $this->statusPembayaran
+                ]);
+
+                Log::info('Invoice Data:', [
+                    'invoice_id' => $invoice->id,
+                    'nama_pembeli' => $invoice->nama_pembeli,
+                    'total_harga' => $invoice->total_harga,
+                    'tanggal_invoice' => $invoice->tanggal_invoice,
+                    'statusPembayaran' => $this->statusPembayaran,
+                    'resiData' => $resiData,
+                    'type' => $this->type
                 ]);
 
                 Log::info('Berhasil membuat PDF untuk invoice ID: ' . $invoice->id);
