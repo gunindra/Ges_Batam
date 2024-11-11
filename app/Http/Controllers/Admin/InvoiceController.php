@@ -477,9 +477,17 @@ class InvoiceController extends Controller
 
     public function kirimInvoice(Request $request)
     {
+        try {
+
         $invoiceIds = $request->input('id');
+
         if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
             throw new \Exception("Tidak ada invoice yang diterima");
+        }
+
+            return response()->json(['success' => true, 'message' => 'Invoice berhasil dikirim']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

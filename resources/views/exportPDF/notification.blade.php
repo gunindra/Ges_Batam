@@ -442,10 +442,9 @@
         </div>
 
         <div class="title">
-            <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
-            <h5>Pembeli: {{ $invoice->pembeli }} ({{ $invoice->marking }}) </h5>
+            <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
+            <h5>Pembeli: {{ $invoice->nama_pembeli }} ({{ $invoice->marking }}) </h5>
             <p>Alamat: {{ $invoice->alamat }}</p>
-            <h2>Invoice: {{ $invoice->no_invoice }}</h2>
         </div>
 
         <table>
