@@ -14,33 +14,74 @@ class CoaController extends Controller
         ->where('set_as_group', 1)
         ->get();
 
-        return view('accounting.coa.indexcoa', compact('groupAccounts'));
+        $coaList = COA::whereNull('parent_id')
+        ->with('children.children')
+        ->get();
+
+
+
+
+        return view('accounting.coa.indexcoa', [
+            'groupAccounts' =>  $groupAccounts,
+            'coaList' => $coaList
+        ]);
     }
+
+    public function getCoaData()
+    {
+        $coaList = COA::whereNull('parent_id')
+            ->with('children') // Mengambil children dari setiap COA
+            ->get();
+
+        return response()->json(['coaData' => $coaList]);
+    }
+
 
     public function getlistcoa()
     {
-
         $data = COA::with('children')->whereNull('parent_id')->get();
 
+        // Start building the output for the table
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Account Code</th>
+                            <th>Nama</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
 
-        $buildList = function($items) use (&$buildList) {
-            $html = '<ul style="font-size: 20px;">';
-            foreach ($items as $item) {
-                $html .= '<li class="pt-2">';
-                $html .= '<a href="#" class="editCOA" data-id="' . $item->id . '">' . $item->code_account_id . ' - ' . $item->name . '</a>';
-                $html .= '<a class="btn btndeleteCOA btn-sm ml-2 btn-danger text-white" data-id="' . $item->id . '" style="font-size: 12px;" "><i class="fas fa-trash"></i></a>';
-                if ($item->children->isNotEmpty()) {
-                    $html .= $buildList($item->children);
-                }
-                $html .= '</li>';
-            }
-            $html .= '</ul>';
-            return $html;
-        };
-        $output = $buildList($data);
+        foreach ($data as $item) {
+            $output .= $this->renderRow($item);
+        }
+
+        $output .= '</tbody></table>';
         return response()->json(['html' => $output]);
     }
 
+    private function renderRow($item, $level = 0)
+    {
+        $padding = $level * 20;
+        $row = '
+        <tr>
+            <td style="padding-left: ' . $padding . 'px;">' . ($item->code_account_id ?? '-') . '</td>
+            <td>' . ($item->name ?? '-') . '</td>
+            <td>
+                <a class="btn btndeleteCOA btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash-alt"></i></a>
+                <a class="btn editCOA btn-sm btn-secondary text-white" data-id="' . $item->id . '" ><i class="fas fa-edit"></i></a>
+            </td>
+        </tr>';
+
+        // Jika ada children, loop melalui setiap child dan tambahkan ke tabel
+        if ($item->children) {
+            foreach ($item->children as $child) {
+                $row .= $this->renderRow($child, $level + 1);  // Panggil fungsi renderRow secara rekursif untuk children
+            }
+        }
+
+        return $row;
+    }
 
 
     public function store(Request $request)

@@ -20,6 +20,7 @@ class HistoryTopup extends Model
         'account_id',
         'balance',
         'date',
+        'code',
     ];
 
     // Relationship to the customer (tbl_pembeli)

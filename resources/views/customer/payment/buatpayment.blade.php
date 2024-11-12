@@ -55,12 +55,19 @@
                                 </div>
                             </div>
                             <div class="mt-3">
+                                <label for="Marking" class="form-label fw-bold">Marking</label>
+                                <select class="form-control select2" id="selectMarking">
+                                    <option value="" selected disabled>Pilih Marking</option>
+                                    @foreach ($listMarking as $markingList)
+                                        <option value="{{ $markingList->marking }}">{{ $markingList->marking }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="errMarkingPayment" class="text-danger mt-1 d-none">Silahkan Pilih Marking</div>
+                            </div>
+                            <div class="mt-3">
                                 <label for="Invoice" class="form-label fw-bold">Invoice</label>
                                 <select class="form-control select2" id="selectInvoice">
                                     <option value="" selected disabled>Pilih Invoice</option>
-                                    @foreach ($listInvoice as $invoice)
-                                        <option value="{{ $invoice->no_invoice }}">{{ $invoice->no_invoice }}</option>
-                                    @endforeach
                                 </select>
                                 <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih Invoice</div>
                             </div>
@@ -69,6 +76,10 @@
                                 <input type="input" class="form-control" id="tanggalPayment" value="">
                                 <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal
                                 </div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="" class="form-label fw-bold">Tanggal Buat</label>
+                                <input type="input" class="form-control" id="tanggalPaymentBuat" value="" disabled>
                             </div>
                             <div class="mt-3">
                                 <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
@@ -100,7 +111,7 @@
                             <div class="mt-3">
                                 <label for="discountPayment" class="form-label fw-bold">Discount</label>
                                 <input type="number" class="form-control" id="discountPayment" name="" value=""
-                                    placeholder="Masukkan nominal pembayaran" required>
+                                    placeholder="Masukkan discount" required>
                             </div>
 
                         </div>
@@ -144,6 +155,43 @@
 @endsection
 @section('script')
 <script>
+
+    $('#selectMarking').on('change', function () {
+        var marking = $(this).val();
+
+        if (marking) {
+            $.ajax({
+                url: "{{ route('getInvoiceByMarking') }}",
+                type: 'GET',
+                data: {
+                    marking: marking
+                },
+                success: function (response) {
+                    if (response.success) {
+
+                        $('#selectInvoice').empty();
+                        $('#selectInvoice').append('<option value="" selected disabled>Pilih Invoice</option>');
+
+                        $.each(response.invoices, function (index, invoice) {
+                            $('#selectInvoice').append('<option value="' + invoice.no_invoice + '">' + invoice.no_invoice + '</option>');
+                        });
+                    } else {
+
+                        $('#selectInvoice').empty();
+                        $('#selectInvoice').append('<option value="" disabled>No invoices available</option>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Gagal memuat invoice.'
+                    });
+                }
+            });
+        }
+    });
+
     function generateKodePembayaran() {
         $.ajax({
             url: "{{ route('generateKodePembayaran') }}",
@@ -170,13 +218,11 @@
             }
         });
     }
-
-
     generateKodePembayaran();
     $('.select2').select2();
 
     var today = new Date();
-    $('#tanggalPayment').datepicker({
+    $('#tanggalPayment,#tanggalPaymentBuat').datepicker({
         format: 'dd MM yyyy',
         todayBtn: 'linked',
         todayHighlight: true,
@@ -229,6 +275,8 @@
             const selectedMethod = $(this).val();
             const sectionPoin = $('#section_poin');
             const paymentInput = $('#payment');
+            const discountInput = $('#discountPayment');
+
 
             if (selectedMethod === "167") {
                 sectionPoin.removeClass("d-none");
@@ -236,8 +284,10 @@
             } else {
                 sectionPoin.addClass("d-none");
                 paymentInput.prop("disabled", false);
-                    $('#amountPoin').val("");
-                    paymentInput.val("")
+                discountInput.prop("disabled", false);
+                $('#amountPoin').val("");
+                paymentInput.val("");
+                discountInput.val("");
             }
         });
 
@@ -299,9 +349,11 @@
 
         var kode = $('#KodePayment').val();
         var invoice = $('#selectInvoice').val();
+        var marking = $('#selectMarking').val();
         var tanggalPayment = $('#tanggalPayment').val();
-        var paymentAmount = $('#payment').val();
-        var discountPayment = $('#discountPayment').val();
+        var tanggalPaymentBuat = $('#tanggalPaymentBuat').val();
+        var paymentAmount = parseFloat($('#payment').val()) || 0;
+        var discountPayment = parseFloat($('#discountPayment').val()) || 0;
         var paymentMethod = $('#selectMethod').val();
         var amountPoin = $('#amountPoin').val();
 
@@ -312,6 +364,10 @@
         }
         if (!invoice) {
             $('#errInvoicePayment').removeClass('d-none');
+            valid = false;
+        }
+        if (!marking) {
+            $('#errMarkingPayment').removeClass('d-none');
             valid = false;
         }
         if (!tanggalPayment) {
@@ -327,6 +383,8 @@
             valid = false;
         }
 
+        var totalPayment = paymentAmount + discountPayment;
+
         if (valid) {
             $.ajax({
                 url: "{{ route('buatpembayaran') }}",
@@ -335,7 +393,8 @@
                     kode: kode,
                     invoice: invoice,
                     tanggalPayment: tanggalPayment,
-                    paymentAmount: paymentAmount,
+                    tanggalPaymentBuat: tanggalPaymentBuat,
+                    paymentAmount: totalPayment,
                     discountPayment: discountPayment,
                     paymentMethod: paymentMethod,
                     amountPoin: amountPoin,

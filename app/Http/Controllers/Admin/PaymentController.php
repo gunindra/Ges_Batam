@@ -48,9 +48,12 @@ class PaymentController extends Controller
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum Lunas'");
 
+        $listMarking = DB::select("SELECT marking FROM tbl_pembeli");
+
         return view('customer.payment.buatpayment', [
             'listInvoice' => $listInvoice,
-            'coas' => $coas
+            'coas' => $coas,
+            'listMarking' => $listMarking
         ]);
     }
 
@@ -59,13 +62,15 @@ class PaymentController extends Controller
         $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
+            ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
             ->select([
                 'a.kode_pembayaran',
                 'b.no_invoice',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y') as tanggal_buat"),
                 'a.amount',
                 'c.name as payment_method',
-                'a.id'
+                'a.id',
+                'd.marking'
             ]);
 
         if (!empty($request->status)) {
@@ -81,8 +86,8 @@ class PaymentController extends Controller
         $query->orderBy('a.id', 'desc');
 
         return DataTables::of($query)
-            ->editColumn('tanggal_bayar', function ($row) {
-                return $row->tanggal_bayar;
+            ->editColumn('tanggal_buat', function ($row) {
+                return $row->tanggal_buat;
             })
             ->make(true);
     }
@@ -178,7 +183,7 @@ class PaymentController extends Controller
             'invoice' => 'required|string',
             'tanggalPayment' => 'required|date',
             'paymentAmount' => 'required|numeric',
-            'discountPayment' => 'nullable|integer',
+            'discountPayment' => 'nullable|numeric',
             'paymentMethod' => 'required|integer',
         ]);
 
@@ -591,5 +596,27 @@ class PaymentController extends Controller
             'kode_pembayaran' => $kode_pembayaran
         ]);
     }
+
+
+    public function getInvoiceByMarking(Request $request)
+    {
+        $marking = $request->get('marking');
+
+        $invoices = Invoice::join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
+            ->where('tbl_pembeli.marking', $marking)
+            ->where('tbl_invoice.status_bayar', 'Belum Lunas')
+            ->select('tbl_invoice.no_invoice')
+            ->get();
+
+        if ($invoices->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No invoices found for this marking.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'invoices' => $invoices
+        ]);
+    }
+
 
 }

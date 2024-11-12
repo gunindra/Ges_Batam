@@ -6,10 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class COA extends Model
 {
-    // Nama tabel (opsional jika berbeda dari default 'coas')
     protected $table = 'tbl_coa';
 
-    // Kolom yang bisa diisi (fillable)
     protected $fillable = [
         'code_account_id',
         'parent_id',
@@ -30,5 +28,11 @@ class COA extends Model
     public function children()
     {
         return $this->hasMany(COA::class, 'parent_id');
+    }
+
+    // Mengambil semua children dan child dari children secara rekursif
+    public function allChildren()
+    {
+        return $this->children()->with('children');
     }
 }
