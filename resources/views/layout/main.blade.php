@@ -108,6 +108,8 @@
                                 href="{{ route('coa') }}">COA</a>
                             <a class="collapse-item {{ request()->routeIs('journal') ? 'active' : '' }}"
                                 href="{{ route('journal') }}">Journal</a>
+                                <a class="collapse-item {{ request()->routeIs('asset') ? 'active' : '' }}"
+                                href="{{ route('asset') }}">Asset</a>
                             <a class="collapse-item {{ request()->routeIs('accountingSetting') ? 'active' : '' }}"
                                 href="{{ route('accountingSetting') }}">Accounting Setting</a>
                         </div>

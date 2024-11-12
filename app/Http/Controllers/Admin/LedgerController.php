@@ -96,36 +96,38 @@ class LedgerController extends Controller
             </thead>
             <tbody>';
         foreach($ledgerAccounts as $data){
-            $output .='<tr>
-                            <td>' . ($data['account_name'] ?? '-') . '</td>
-                            <td><b>BEGINING BALANCE</b></td>
-                            <td class="text-right"><b>  </b></td>';
-                            if ($data['beginning_balance'] >= 0){
-                                $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
-                            }
-                            else{
-                                $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'] * -1, 2) . '</b> </td> </tr>';
-                            }
-
-            foreach($data['journal_entries'] as $entry){
+            if (!empty($data['journal_entries']) || $data['beginning_balance'] != 0 || $data['ending_balance'] != 0) {
                 $output .='<tr>
-                                <td>' . ($entry->tanggal ?? '-') . '</td>
-                                <td>' . ($entry->items_description ?? '-') . '</td>
-                                <td class="text-right">' . ($entry->debit ?? '-') . '</td>
-                                <td class="text-right">' . ($entry->credit ?? '-') . '</td>
-                            </tr>';
-            }
+                                <td>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</td>
+                                <td><b>BEGINING BALANCE</b></td>
+                                <td class="text-right"><b>  </b></td>';
+                                if ($data['beginning_balance'] >= 0){
+                                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
+                                }
+                                else{
+                                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'] * -1, 2) . '</b> </td> </tr>';
+                                }
 
-            $output .='<tr>
-                            <td> </td>
-                            <td><b>ENDING BALANCE</b></td>
-                            <td class="text-right"> <b>  </b> </td>';
-                            if ($data['ending_balance'] >= 0){
-                                $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'], 2) . '</b> </td> </tr>';
-                            }
-                            else{
-                                $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'] * -1, 2) . '</b> </td> </tr>';
-                            }
+                foreach($data['journal_entries'] as $entry){
+                    $output .='<tr>
+                                    <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
+                                    <td>' . ($entry->items_description ?? '-') . '</td>
+                                    <td class="text-right">' . ($entry->debit ?? '-') . '</td>
+                                    <td class="text-right">' . ($entry->credit ?? '-') . '</td>
+                                </tr>';
+                }
+
+                $output .='<tr>
+                                <td> </td>
+                                <td><b>ENDING BALANCE</b></td>
+                                <td class="text-right"> <b>  </b> </td>';
+                                if ($data['ending_balance'] >= 0){
+                                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'], 2) . '</b> </td> </tr>';
+                                }
+                                else{
+                                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'] * -1, 2) . '</b> </td> </tr>';
+                                }
+            }
         }
         $output .='</tbody></table>';
 

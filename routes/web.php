@@ -48,6 +48,7 @@ use App\Http\Controllers\{
     Admin\VendorController,
     Admin\TopupController,
     Admin\SoaController,
+    Admin\AssetController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -348,6 +349,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
     Route::post('/account-settings/update/{id}', [AccountingSettingController::class, 'update'])->name('account-settings.update');
+
+    //Asset
+    Route::get('/asset', [AssetController::class, 'index'])->name('asset');
+    Route::get('/asset/add', [AssetController::class, 'create'])->name('asset.add');
+    Route::post('/asset/store', [AssetController::class, 'store'])->name('asset.store');
+    Route::get('/asset/show/{id}', [AssetController::class, 'show'])->name('asset.show');
+    Route::delete('/asset/destroy/{id}', [AssetController::class, 'destroy'])->name('asset.destroy');
 
     //Top Up
     Route::get('/topup', [TopupController::class, 'index'])->name('topuppage');
