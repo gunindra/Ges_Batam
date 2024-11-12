@@ -21,6 +21,8 @@ class PickupController extends Controller
            'e.marking',
            'e.nama_pembeli'
        )
+       ->whereNull('a.bukti_pengantaran')
+       ->whereNull('a.tanda_tangan')
        ->where('b.metode_pengiriman', 'Pickup')
        ->get();
         return view('pickup.indexpickup', [
