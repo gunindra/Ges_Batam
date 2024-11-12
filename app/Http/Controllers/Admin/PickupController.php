@@ -36,7 +36,7 @@ class PickupController extends Controller
             ->count();
         return response()->json(['count' => $count]);
     }
-    
+
 
 
 }

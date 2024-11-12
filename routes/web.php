@@ -110,7 +110,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/delivery/exportPDF', [DeliveryController::class, 'exportPDF'])->name('exportPDFDelivery');
     Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
     Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
-    Route::get('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
+    Route::post('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
     Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
     Route::post('/delivery/confirmasiPengantaran', [DeliveryController::class, 'confirmasiPengantaran'])->name('confirmasiPengantaran');
 
@@ -136,7 +136,7 @@ Route::middleware(['auth'])->group(function () {
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
     Route::get('/pickup/jumlahresipickup', [PickupController::class, 'jumlahresipickup'])->name('jumlahresipickup');
-    
+
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
     Route::get('/payment/addPayment', [PaymentController::class, 'addPayment'])->name('addPayment');
