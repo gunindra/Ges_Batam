@@ -38,12 +38,11 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg">
                 <div class="card mb-4">
                     <div class="card-body">
                         <input type="hidden" id="idData" value="{{ $createdAtStatus ?? '' }}">
                         <div id="containerBooking" class="table-responsive px-3">
-                            <h5 class="modal-title" id="modalTambahCustomerTitle">Accounting Sales Setting</h5>
                             <div class="mt-3">
                                 <label for="salesAccount" class="form-label fw-bold">Sales Account</label>
                                 <select class="form-control select2singgle" id="Sales" required>
@@ -93,6 +92,33 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <div class="mt-3">
+                                <label for="purchaseProfitAccount" class="form-label fw-bold">Setting Kredit untuk Top Up</label>
+                                <select class="form-control select2singgle" id="PurchaseRate" required>
+                                    <option value="">Pilih Akun</option>
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}"
+                                            {{ $accountSettings && $accountSettings->purchase_profit_rate_account_id == $coa->id ? 'selected' : '' }}>
+                                            {{ $coa->code_account_id }} - {{ $coa->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="supplierAccount" class="form-label fw-bold">Supplier Purchase Return
+                                    Account</label>
+                                <select class="form-control select2singgle" id="Supplier" required>
+                                    <option value="">Pilih Akun</option>
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}"
+                                            {{ $accountSettings && $accountSettings->supplier_purchase_return_account_id == $coa->id ? 'selected' : '' }}>
+                                            {{ $coa->code_account_id }} - {{ $coa->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             {{-- <div class="mt-3">
                                 <label for="salesProfitAccount" class="form-label fw-bold">Sales Profit Rate Account</label>
                                 <select class="form-control select2singgle" id="ProfitRate" required>
@@ -112,92 +138,6 @@
                                     @foreach ($coas as $coa)
                                         <option value="{{ $coa->id }}"
                                             {{ $accountSettings && $accountSettings->sales_loss_rate_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accounting Vendor Section -->
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div id="containerBooking" class="table-responsive px-3">
-                            <h5 class="modal-title" id="modalTambahCustomerTitle">Accounting Vendor</h5>
-                            {{-- <div class="mt-3">
-                                <label for="purchaseAccount" class="form-label fw-bold">Purchase Account</label>
-                                <select class="form-control select2singgle" id="Purchase" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->purchase_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-                            {{-- <div class="mt-3">
-                                <label for="debtAccount" class="form-label fw-bold">Debt Account</label>
-                                <select class="form-control select2singgle" id="Debt" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->debt_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-                            <div class="mt-3">
-                                <label for="supplierAccount" class="form-label fw-bold">Supplier Purchase Return
-                                    Account</label>
-                                <select class="form-control select2singgle" id="Supplier" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->supplier_purchase_return_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            {{-- <div class="mt-3">
-                                <label for="discountPurchaseAccount" class="form-label fw-bold">Discount Purchase
-                                    Account</label>
-                                <select class="form-control select2singgle" id="DiscountPurchase" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->discount_purchase_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
-                            <div class="mt-3">
-                                <label for="purchaseProfitAccount" class="form-label fw-bold">Setting Kredit untuk Top Up</label>
-                                <select class="form-control select2singgle" id="PurchaseRate" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->purchase_profit_rate_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            {{-- <div class="mt-3">
-                                <label for="purchaseLossAccount" class="form-label fw-bold">Purchase Loss Rate
-                                    Account</label>
-                                <select class="form-control select2singgle" id="PurchaseLoss" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->purchase_loss_rate_account_id == $coa->id ? 'selected' : '' }}>
                                             {{ $coa->code_account_id }} - {{ $coa->name }}
                                         </option>
                                     @endforeach
