@@ -4,41 +4,39 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Customer;
 
 class LoginController extends Controller
 {
     public function index()
     {
-        // Uncomment this line if you want to redirect authenticated users to the dashboard
-        // if (auth()->check()) {
-        //     return redirect()->route('dashboard');
-        // }
-
         return view('login.indexlogin');
     }
 
     public function ajaxLogin(Request $request)
     {
         $credentials = $request->only('name', 'password');
-
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt(['name' => $credentials['name'], 'password' => $credentials['password']])) {
             $request->session()->regenerate();
-
             $user = Auth::user();
-            // Handle role-based redirection
-            if ($user->role === 'superadmin') {
-                $redirectUrl = route('dashboard');
-            } elseif ($user->role === 'driver') {
-                $redirectUrl = route('supir');
-            } elseif ($user->role === 'customer') {
-                $redirectUrl = route('tracking');
-            } elseif (in_array($user->role, ['admin', 'supervisor'])) {
-                $redirectUrl = route('tracking');
-            } else {
-                // Default redirection if role doesn't match any condition
-                $redirectUrl = route('default.page'); // Replace 'default.page' with a valid route
-            }
+
+            $redirectUrl = $this->getRedirectUrl($user->role);
+            return response()->json([
+                'success' => true,
+                'message' => 'Login berhasil!',
+                'redirect' => $redirectUrl
+            ]);
+        }
+
+        $customer = Customer::where('marking', $credentials['name'])->first();
+        if ($customer && Hash::check($credentials['password'], $customer->user->password)) {
+            Auth::loginUsingId($customer->user_id);
+
+            $request->session()->regenerate();
+            $redirectUrl = $this->getRedirectUrl('customer');
 
             return response()->json([
                 'success' => true,
@@ -53,13 +51,27 @@ class LoginController extends Controller
         ]);
     }
 
+    private function getRedirectUrl($role)
+    {
+        switch ($role) {
+            case 'superadmin':
+                return route('dashboard');
+            case 'driver':
+                return route('supir');
+            case 'customer':
+            case 'admin':
+            case 'supervisor':
+                return route('tracking');
+            default:
+                return route('default.page');
+        }
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/login');
     }
 }

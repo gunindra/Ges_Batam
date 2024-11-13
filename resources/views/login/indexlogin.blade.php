@@ -31,7 +31,7 @@
                                         @csrf
                                         <div class="form-group">
                                             <input type="text" class="form-control" id="name" name="name"
-                                                required aria-describedby="nameHelp" placeholder="Enter Name">
+                                                required aria-describedby="nameHelp" placeholder="Enter Name or Marking">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control" id="password" name="password"
@@ -46,6 +46,7 @@
                                                 Home</a>
                                         </div>
                                     </form>
+                                    <div id="errorMessage" class="text-danger text-center mt-2" style="display: none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -82,24 +83,23 @@
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
+                                title: response.message,
                                 showConfirmButton: false,
                                 timer: 2000
                             }).then(() => {
                                 window.location.href = response.redirect;
                             });
                         } else {
-                            showMessage("error", response.message);
+                            $('#errorMessage').text(response.message).show();
                         }
                     },
                     error: function(xhr) {
-                        Swal.close(); // Tutup loading jika ada error
+                        Swal.close();
 
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'Terjadi kesalahan pada server. Silakan coba lagi.',
+                            text: 'Server error occurred. Please try again.',
                             showConfirmButton: true
                         });
                     }
@@ -108,7 +108,12 @@
 
             $('#lupaPassword').click(function(e) {
                 e.preventDefault();
-                showMessage("error", "Please Notify Your IT Support For This Issue.");
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Forgot Password',
+                    text: 'Please contact your IT support for assistance.',
+                    showConfirmButton: true
+                });
             });
         });
     </script>
