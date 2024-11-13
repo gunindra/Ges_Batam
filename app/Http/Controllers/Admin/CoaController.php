@@ -11,6 +11,7 @@ class CoaController extends Controller
     public function index()
     {
         $groupAccounts = COA::select('id', 'code_account_id', 'name')
+        ->whereNotNull('parent_id')
         ->where('set_as_group', 1)
         ->get();
 
@@ -19,23 +20,36 @@ class CoaController extends Controller
         ->get();
 
 
-
-
         return view('accounting.coa.indexcoa', [
             'groupAccounts' =>  $groupAccounts,
             'coaList' => $coaList
         ]);
     }
-
-    public function getCoaData()
+    public function getNextAccountCode(Request $request)
     {
-        $coaList = COA::whereNull('parent_id')
-            ->with('children') // Mengambil children dari setiap COA
-            ->get();
+        $accountId = $request->accountId;
+        $lastAccount = COA::where('parent_id', $accountId)
+                          ->orderBy('code_account_id', 'desc')
+                          ->first();
+        $nextAccountCode = $this->generateNextAccountCode($lastAccount);
 
-        return response()->json(['coaData' => $coaList]);
+        return response()->json(['next_account_code' => $nextAccountCode]);
     }
 
+    private function generateNextAccountCode($lastAccount)
+    {
+        if ($lastAccount) {
+            $lastCodeParts = explode('.', $lastAccount->code_account_id);
+
+            $lastSubCode = (int) end($lastCodeParts);
+            $nextSubCode = $lastSubCode + 1;
+            $nextAccountNumber = implode('.', array_slice($lastCodeParts, 0, -1)) . '.' . str_pad($nextSubCode, 2, '0', STR_PAD_LEFT);
+        } else {
+            $nextAccountNumber = str_pad($lastAccount->parent_id, 3, '0', STR_PAD_LEFT) . '.00';
+        }
+
+        return $nextAccountNumber;
+    }
 
     public function getlistcoa()
     {

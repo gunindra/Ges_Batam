@@ -8,7 +8,7 @@
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
 
-        {{-- <!-- Modal tambah COA -->
+        <!-- Modal tambah COA -->
         <div class="modal fade" id="modalTambahCOA" tabindex="-1" role="dialog" aria-labelledby="modalTambahCOATitle"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -20,22 +20,23 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="mt-3">
-                            <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                            <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
-                                required>
-                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
-                        </div>
+
                         <div class="mt-3">
                             <label for="groupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="groupAccount" required>
-                                <option value="" disabled selected>Select Group Account</option>
+                                <option value="" selected>Select Group Account</option>
                                 @foreach ($groupAccounts as $coa)
                                     <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
                                     </option>
                                 @endforeach
                             </select>
                             <div id="errGroupAccount" class="text-danger mt-1 d-none">Please select a group account</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
+                            <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
+                                required>
+                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="nameAccount" class="form-label fw-bold">Name*</label>
@@ -70,58 +71,6 @@
                 </div>
             </div>
         </div>
-        <!-- End Modal tambah COA --> --}}
-
-
-        <!-- Modal tambah COA -->
-        <div class="modal fade" id="modalTambahCOA" tabindex="-1" role="dialog" aria-labelledby="modalTambahCOATitle"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTambahCOATitle">Add New Account</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Account Type Selection -->
-                        <div class="mt-3">
-                            <label for="accountType" class="form-label fw-bold">Account Type*</label>
-                            <select class="form-control" id="accountType" required>
-                                <option value="" disabled selected>Select Account Type</option>
-                                <option value="parent">Parent</option>
-                                <option value="child">Child</option>
-                            </select>
-                            <div id="errAccountType" class="text-danger mt-1 d-none">This field is required</div>
-                        </div>
-
-                        <!-- Normal Input Fields for Parent Account -->
-                        <div id="parentFields" class="d-none">
-                            <div class="mt-3">
-                                <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                                <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
-                                    required>
-                                <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
-                            </div>
-                            <!-- Other Parent Fields Here -->
-                        </div>
-
-                        <!-- Dynamic Select Fields for Child Account -->
-                        <div id="childFields" class="d-none">
-                            <div id="parentSelectContainer"></div>
-                            {{-- <button type="button" id="addLevelSelect" class="btn btn-sm btn-link">Add Another
-                                Level</button> --}}
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                        <button type="button" id="saveCOA" class="btn btn-primary">Save COA</button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- End Modal tambah COA -->
 
 
@@ -139,14 +88,14 @@
                     <div class="modal-body">
                         <div class="mt-3">
                             <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                            <input type="text" class="form-control" id="editCodeAccountID" placeholder="Input Account ID"
-                                required>
+                            <input type="text" class="form-control" id="editCodeAccountID"
+                                placeholder="Input Account ID" required>
                             <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="editGroupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="editGroupAccount" required>
-                                <option value="" disabled selected>Select Group Account</option>
+                                <option value="" selected>Select Group Account</option>
                                 @foreach ($groupAccounts as $coa)
                                     <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
                                     </option>
@@ -293,79 +242,26 @@
 
             loadCOAList();
 
+            $('#groupAccount').on('change', function() {
+                const selectedSubChildId = $(this).val();
 
-            const $accountType = $('#accountType');
-            const $parentFields = $('#parentFields');
-            const $childFields = $('#childFields');
-            const $parentSelectContainer = $('#parentSelectContainer');
-            const $addLevelSelectBtn = $('#addLevelSelect');
-            let levelCount = 0;
-
-            $accountType.on('change', function() {
-                if ($(this).val() === 'parent') {
-                    $parentFields.removeClass('d-none');
-                    $childFields.addClass('d-none');
-
-                    // Hapus semua <select> yang ada sebelum menambahkannya lagi
-                    $parentSelectContainer.empty();
-                } else if ($(this).val() === 'child') {
-                    $parentFields.addClass('d-none');
-                    $childFields.removeClass('d-none');
-
-                    // Hapus semua <select> yang ada sebelum menambahkannya lagi
-                    $parentSelectContainer.empty();
-
-                    // Kemudian panggil addParentSelect untuk menambahkan elemen baru
-                    addParentSelect();
-                }
-            });
-
-            function addParentSelect() {
-                levelCount++;
-
-                // Menambahkan <select> baru dengan ID yang berbeda
-                const $newSelect = $(`
-                    <select class="form-control mt-2" id="parentSelectLevel${levelCount}">
-                        <option value="" disabled selected>Select Parent Account</option>
-                        @foreach ($coaList as $coa)
-                            <option value="{{ $coa->id }}" data-children="{{ json_encode($coa->children) }}">
-                                {{ $coa->code_account_id }} - {{ $coa->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                `);
-
-                // Tambahkan ke dalam kontainer
-                $parentSelectContainer.append($newSelect);
-
-                // Handle perubahan pada select baru untuk menampilkan children
-                $newSelect.on('change', function() {
-                    const selectedParentId = $(this).val();
-                    const selectedOption = $(this).find(`option[value="${selectedParentId}"]`);
-
-                    // Ambil data children dari option yang dipilih
-                    const children = JSON.parse(selectedOption.attr('data-children'));
-
-                    // Hapus children yang ada sebelumnya, jika ada
-                    $(this).nextAll('.child-select').remove();
-
-                    // Jika ada children, buatkan select untuk memilih child
-                    if (children.length > 0) {
-                        const $childSelect = $('<select class="form-control mt-2 child-select">')
-                            .append('<option value="" disabled selected>Select Child Account</option>');
-
-                        // Tambahkan children ke dalam child select
-                        children.forEach(child => {
-                            $childSelect.append(`
-                    <option value="${child.id}">${child.code_account_id} - ${child.name}</option>
-                `);
-                        });
-
-                        // Tambahkan child select ke dalam kontainer setelah parent select
-                        $(this).after($childSelect);
+                $.ajax({
+                    url: "{{ route('getNextAccountCode') }}",
+                    method: 'GET',
+                    data: {
+                        accountId: selectedSubChildId
+                    },
+                    success: function(response) {
+                        $('#codeAccountID').val(response.next_account_code);
+                    },
+                    error: function(error) {
+                        console.log('Error fetching account code:', error);
                     }
                 });
-            }
+
+            });
+
+
 
             // Tambah COA
             $('#saveCOA').on('click', function() {
