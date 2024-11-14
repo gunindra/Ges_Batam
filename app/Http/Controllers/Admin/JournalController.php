@@ -37,6 +37,11 @@ class JournalController extends Controller
             )
             ->orderBy('id','desc');
 
+        // Filter by tipe_kode
+        if ($request->tipe_kode) {
+            $query->where('tipe_kode', $request->tipe_kode);
+        }
+
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -49,7 +54,7 @@ class JournalController extends Controller
 
         return DataTables::of($query)
             ->editColumn('totalcredit', function ($row) {
-                return 'Rp ' . number_format($row->totalcredit, 0, ',', '.'); // Format totalcredit
+                return 'Rp ' . number_format($row->totalcredit, 0, ',', '.');
             })
             ->editColumn('tanggal', function ($row) {
                 return $row->tanggal;
@@ -67,7 +72,6 @@ class JournalController extends Controller
                         $statusBadgeClass = 'badge-secondary';
                         break;
                 }
-
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
@@ -79,6 +83,8 @@ class JournalController extends Controller
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
+
+
 
     public function addjournal()
     {
@@ -220,7 +226,6 @@ class JournalController extends Controller
             return response()->json(['error' => 'Failed to update journal: ' . $e->getMessage()], 500);
         }
     }
-
 
     public function destroy($id)
     {
