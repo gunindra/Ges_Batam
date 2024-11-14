@@ -464,7 +464,7 @@
                 url: "{{ route('get-customers') }}",
                 method: 'GET',
                 success: function (response) {
-                    customerSelect.empty();
+                  
                     customerSelect.append('<option value="">Pilih Pengguna</option>');
                     $.each(response, function (index, customer) {
                         customerSelect.append(
@@ -575,10 +575,6 @@
                 hasError = true;
             }
 
-            if (hasError) {
-                return;
-            }
-
             $.ajax({
                 url: "{{ route('topup-points') }}",
                 method: 'POST',
@@ -623,6 +619,7 @@
             if (!$('#customerSelectError').hasClass('d-none')) {
                 $('#customerSelectError').addClass('d-none');
             }
+            $('#customerSelect').empty(); 
 
             if (!$('#tanggalError').hasClass('d-none')) {
                 $('#tanggalError').addClass('d-none');
