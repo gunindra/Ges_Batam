@@ -55,8 +55,8 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'account'])
-                    ->select(['id', 'customer_id','code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'balance', 'status'])
-                    ->orderBy('id', 'desc');
+            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date','expired_date', 'balance', 'status'])
+            ->orderBy('id', 'desc');
 
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
             $startDate = Carbon::parse($request->startDate)->startOfDay();
@@ -78,24 +78,30 @@ class TopupController extends Controller
             ->editColumn('date', function ($row) {
                 return $row->date ? Carbon::parse($row->date)->format('d F Y') : 'Tanggal tidak tersedia';
             })
+            ->editColumn('expired_date', function ($row) {
+                return $row->expired_date ? Carbon::parse($row->expired_date)->format('d F Y') : 'Expired date not available';
+            })
             ->editColumn('status', function ($row) {
-                return $row->status === 'active'
-                    ? '<span class="badge badge-success">Active</span>'
-                    : '<span class="badge badge-secondary">Canceled</span>';
+                if ($row->status === 'active') {
+                    return '<span class="badge badge-success">Active</span>';
+                } elseif ($row->status === 'canceled') {
+                    return '<span class="badge badge-secondary">Canceled</span>';
+                } elseif ($row->status === 'expired') {
+                    return '<span class="badge badge-danger">Expired</span>';
+                } else {
+                    return '<span class="badge badge-danger">Expired</span>';
+                }
             })
             ->addColumn('action', function ($row) {
                 if ($row->remaining_points == $row->balance && $row->status === 'active') {
-                    return '<button class="btn btnCancelTopup btn-sm btn-danger" data-id="' . $row->id . '">Cancel</button>';
+                    return '<button class="btn btnCancelTopup btn-sm btn-danger" data-id="' . $row->id . '">Cancel</button>' .
+                        '<button class="btn btnExpiredTopup btn-sm mt-1 btn-secondary" data-id="' . $row->id . '">Expired</button>';
                 }
                 return '-';
             })
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
-
-
-
-
     public function storeTopup(Request $request)
     {
         $request->validate([
@@ -103,10 +109,12 @@ class TopupController extends Controller
             'remaining_points' => 'required|numeric|min:1',
             'price_per_kg' => 'required|numeric|min:0.01',
             'coa_id' => 'required|exists:tbl_coa,id',
-            'date' => "required|date"
+            'date' => "required|date",
+            'expired_date' => "required|date"
         ]);
 
         $formattedDate = Carbon::parse($request->date)->format('Y-m-d');
+        $formattedDates = Carbon::parse($request->expired_date)->format('Y-m-d');
 
         DB::beginTransaction();
 
@@ -115,7 +123,7 @@ class TopupController extends Controller
             Log::info("Sisa poin sebelum increment: " . $customer->sisa_poin);
 
             $topupAmount = $request->remaining_points * $request->price_per_kg;
-            
+
             $topup = HistoryTopup::create([
                 'customer_id' => $request->customer_id,
                 'customer_name' => $customer->nama_pembeli,
@@ -126,6 +134,7 @@ class TopupController extends Controller
                 'date' => $formattedDate,
                 'account_id' => $request->coa_id,
                 'code' => $request->code,
+                'expired_date' => $formattedDates,
             ]);
 
             $initialSisaPoin = $customer->sisa_poin ?? 0;
@@ -193,7 +202,6 @@ class TopupController extends Controller
 
     public function cancleTopup(Request $request)
     {
-
 
         $request->validate([
             'topup_id' => 'required|exists:tbl_history_topup,id',
@@ -273,7 +281,7 @@ class TopupController extends Controller
 
         $newSequence = 1;
         if ($lastVoucher) {
-            $lastSequence = intval(substr($lastVoucher->code, -4));  
+            $lastSequence = intval(substr($lastVoucher->code, -4));
             $newSequence = $lastSequence + 1;
         }
 
@@ -284,4 +292,36 @@ class TopupController extends Controller
             'code' => $code
         ]);
     }
+    public function expireTopup($id)
+    {
+        DB::beginTransaction();
+        try {
+            $topup = HistoryTopup::findOrFail($id);
+
+            if ($topup->status !== 'active') {
+                return response()->json(['success' => false, 'message' => 'Top-up tidak aktif atau sudah kedaluwarsa.'], 400);
+            }
+
+            $customer = Customer::findOrFail($topup->customer_id);
+
+            $initialBalance = $topup->balance;
+
+            $customer->sisa_poin = max(0, $customer->sisa_poin - $initialBalance);
+            $customer->save();
+
+            $topup->balance = 0;
+            $topup->status = 'expired';
+            $topup->save();
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Top-up expired successfully.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Failed to expire top-up: ' . $e->getMessage()], 500);
+        }
+
+    }
 }
+

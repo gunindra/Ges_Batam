@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('balance', 15, 2)->default(0);
             $table->date('date');
             $table->string('code');
+            $table->date('expired_date');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

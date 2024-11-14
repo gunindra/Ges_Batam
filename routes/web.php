@@ -366,6 +366,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
     Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
     Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
+    Route::post('topup/expire/{id}' , [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
     //ProfitLoss

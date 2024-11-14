@@ -84,10 +84,17 @@
                         </p>
 
 
-                        <strong>Tanggal Pembukuan:</strong>
-                        <input type="text" class="form-control col-12" id="tanggal" value=""
-                            placeholder="Pilih tanggal">
-                        <span id="tanggalError" class="text-danger"></span>
+                        <p><strong>Tanggal Pembukuan:</strong>
+                            <input type="text" class="form-control col-12" id="tanggal" value=""
+                                placeholder="Pilih tanggal">
+                            <span id="tanggalError" class="text-danger"></span>
+                        </p>
+
+                        <p><strong>Expired:</strong>
+                            <input type="text" class="form-control col-12" id="tanggalExpired" value=""
+                                placeholder="Pilih tanggal" disabled>
+                            <span id="tanggalExpiredError" class="text-danger"></span>
+                        </p>
                     </div>
                     <!-- Kolom kanan untuk jumlah poin dan harga -->
                     <div class="col-md-6">
@@ -214,7 +221,7 @@
                             Reset
                         </button>
                     </div>
-                    <div id="containerPurchaseTop-up" class="px-3">
+                    <div id="containerPurchaseTop-up">
                         <table class="table align-items-center table-flush table-hover" id="tableTopup">
                             <thead class="thead-light">
                                 <tr>
@@ -226,6 +233,7 @@
                                     <th>Harga (1kg)</th>
                                     <th>Nama Akun Jurnal</th>
                                     <th>Tanggal</th>
+                                    <th>Tanggal Expired</th>
                                     <th>Status</th>
                                     <th>Action</th> <!-- Kolom untuk penanda poin -->
                                 </tr>
@@ -347,6 +355,10 @@
             {
                 data: 'date',
                 name: 'date'
+            },
+            {
+                data: 'expired_date',
+                name: 'expired_date'
             },
             {
                 data: 'status',
@@ -512,19 +524,33 @@
             const inputValue = $(this).val().trim();
             calculateTotal();
         });
-     
+
 
         remainingPointsInput.on('input', function () {
             calculateTotal();
         });
 
         var today = new Date();
-        $('#tanggal').datepicker({
+        var nextYear = new Date(today);
+        nextYear.setFullYear(today.getFullYear() + 1);
+
+        $('#tanggal,#tanggalExpired').datepicker({
             format: 'dd MM yyyy',
             todayBtn: 'linked',
             todayHighlight: true,
             autoclose: true,
         }).datepicker('setDate', today);
+
+        $('#tanggalExpired').datepicker('setDate', nextYear);
+
+        $('#tanggal').on('changeDate', function () {
+            var selectedDate = $(this).datepicker('getDate');
+            if (selectedDate) {
+                var expiredDate = new Date(selectedDate);
+                expiredDate.setFullYear(selectedDate.getFullYear() + 1);
+                $('#tanggalExpired').datepicker('setDate', expiredDate);
+            }
+        });
 
         function calculateTotal() {
             const remainingPoints = parseFloat(remainingPointsInput.val()) || 0;
@@ -541,6 +567,7 @@
             const coaId = coaSelect.val();
             const remainingPoints = remainingPointsInput.val();
             const tanggal = $('#tanggal').val();
+            const tanggalExpired = $('#tanggalExpired').val();
             const Voucher = $('#Voucher').val();
             const priceId = pricePerKgInput.val();
             const topupAmount = remainingPoints * pricePerKgInput;
@@ -553,6 +580,11 @@
             }
             if (!tanggal) {
                 $('#tanggalError').text('Silahkan masukkan tanggal.');
+                hasError = true;
+            }
+
+            if (!tanggalExpired) {
+                $('#tanggalExpiredError').text('Silahkan masukkan tanggal.');
                 hasError = true;
             }
 
@@ -588,6 +620,7 @@
                     remaining_points: remainingPoints,
                     code: Voucher,
                     date: tanggal,
+                    expired_date: tanggalExpired,
                     price_per_kg: priceId || null,
                     coa_id: coaId
                 },
@@ -618,7 +651,7 @@
         });
 
         $('#topupModal').on('hidden.bs.modal', function () {
-            $('#customerSelect, #accountSelect, #topupAmount, #tanggal').val('');
+            $('#customerSelect, #accountSelect, #topupAmount').val('');
 
             if (!$('#customerSelectError').hasClass('d-none')) {
                 $('#customerSelectError').addClass('d-none');
@@ -626,6 +659,10 @@
 
             if (!$('#tanggalError').hasClass('d-none')) {
                 $('#tanggalError').addClass('d-none');
+            }
+
+            if (!$('#tanggalExpiredError').hasClass('d-none')) {
+                $('#tanggalExpiredError').addClass('d-none');
             }
 
             if (!$('#accountSelectError').hasClass('d-none')) {
@@ -687,6 +724,38 @@
                 }
             });
         });
+        $(document).on('click', '.btnExpiredTopup', function () {
+            const topupId = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to expire this top-up?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/topup/expire/${topupId}`,
+                        method: 'POST',
+                        data: { _token: "{{ csrf_token() }}" },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Expired!', response.message, 'success');
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error!', 'Failed to expire top-up.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
     });
 </script>
 @endsection

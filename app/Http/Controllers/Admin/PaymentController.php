@@ -63,14 +63,18 @@ class PaymentController extends Controller
             ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
             ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
+            ->join('tbl_payment_items as e', 'e.invoice_id', '=', 'a.invoice_id')
             ->select([
                 'a.kode_pembayaran',
                 'b.no_invoice',
-                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y') as tanggal_buat"),
+                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_buat"),
                 'a.amount',
                 'c.name as payment_method',
                 'a.id',
-                'd.marking'
+                'd.marking',
+                'e.account',
+                'e.description',
+                'e.debit'
             ]);
 
         if (!empty($request->status)) {
@@ -86,7 +90,7 @@ class PaymentController extends Controller
         $query->orderBy('a.id', 'desc');
 
         return DataTables::of($query)
-            ->editColumn('tanggal_buat', function ($row) {
+            ->editColumn('payment_date', function ($row) {
                 return $row->tanggal_buat;
             })
             ->make(true);
@@ -185,6 +189,10 @@ class PaymentController extends Controller
             'paymentAmount' => 'required|numeric',
             'discountPayment' => 'nullable|numeric',
             'paymentMethod' => 'required|integer',
+            'account' => 'nullable',
+            'description' => 'nullable',
+            'debit' => 'nullable|numeric',
+
         ]);
 
         DB::beginTransaction();
@@ -259,6 +267,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->kode_pembayaran = $request->kode;
             $payment->save();
+            
 
             if ($request->amountPoin) {
                 $remainingPoin = $request->amountPoin;

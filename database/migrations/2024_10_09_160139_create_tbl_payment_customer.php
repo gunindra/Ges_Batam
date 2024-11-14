@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('invoice_id');
             $table->foreign('invoice_id')->references('id')->on('tbl_invoice')->onDelete('cascade');
             $table->date('payment_date');
+            $table->date('payment_buat')->nullable();
             $table->decimal('amount', 15, 2);
             $table->decimal('discount')->nullable();
             $table->unsignedBigInteger('payment_method_id')->nullable();

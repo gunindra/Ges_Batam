@@ -46,14 +46,14 @@
                         <div class="d-flex flex-row">
                             <div class="col-6">
                                 <div class="mt-3">
-                                    <label for="invoiceDebit" class="form-label fw-bold">Invoice</label>
+                                    <label for="invoiceDebit" class="form-label fw-bold">No. Voucher</label>
                                     <select class="form-control select2" name="invoiceDebit" id="invoiceDebit">
-                                        <option value="" selected disabled>Pilih Invoice</option>
+                                        <option value="" selected disabled>Pilih Voucher</option>
                                         @foreach ($listInvoice as $invoice)
                                             <option value="{{ $invoice->id }}">{{ $invoice->invoice_no }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
+                                    <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
                                         terlebih dahulu</div>
                                 </div>
 
