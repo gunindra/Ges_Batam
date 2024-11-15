@@ -109,7 +109,6 @@ class TopupController extends Controller
             'remaining_points' => 'required|numeric|min:1',
             'price_per_kg' => 'required|numeric|min:0.01',
             'coa_id' => 'required|exists:tbl_coa,id',
-            'date' => "required|date",
             'expired_date' => "required|date"
         ]);
 
@@ -121,9 +120,7 @@ class TopupController extends Controller
         try {
             $customer = Customer::findOrFail($request->customer_id);
             Log::info("Sisa poin sebelum increment: " . $customer->sisa_poin);
-
-            $topupAmount = $request->remaining_points * $request->price_per_kg;
-
+            $topupAmount = $request->topupAmount;
             $topup = HistoryTopup::create([
                 'customer_id' => $request->customer_id,
                 'customer_name' => $customer->nama_pembeli,
@@ -231,7 +228,7 @@ class TopupController extends Controller
             $jurnal->no_journal = $noJournal;
             $jurnal->tipe_kode = 'TC';
             $jurnal->tanggal = now();
-            $jurnal->no_ref = $topup->id;
+            $jurnal->no_ref = $topup->code;
             $jurnal->status = 'Approve';
             $jurnal->description = "Pembatalan Top-up untuk Customer {$customer->nama_pembeli}";
             $jurnal->totaldebit = $topup->topup_amount;
@@ -292,7 +289,7 @@ class TopupController extends Controller
             'code' => $code
         ]);
     }
-    public function expireTopup($id)
+    public function expireTopup(Request $request, $id)
     {
         DB::beginTransaction();
         try {
@@ -312,6 +309,39 @@ class TopupController extends Controller
             $topup->balance = 0;
             $topup->status = 'expired';
             $topup->save();
+
+            $request->merge(['code_type' => 'TX']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'TX';
+            $jurnal->tanggal = now();
+            $jurnal->no_ref = $topup->code;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";
+            $jurnal->totaldebit = $topup->topup_amount;
+            $jurnal->totalcredit = $topup->topup_amount;
+            $jurnal->save();
+
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $topup->account_id;
+            $jurnalItemDebit->description = "Expired debit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemDebit->debit = 0;
+            $jurnalItemDebit->credit = $topup->topup_amount;
+            $jurnalItemDebit->save();
+
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = DB::table('tbl_account_settings')->value('purchase_profit_rate_account_id');
+            $jurnalItemCredit->description = "Expired kredit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemCredit->debit = $topup->topup_amount;
+            $jurnalItemCredit->credit = 0;
+            $jurnalItemCredit->save();
+
+
+
+
 
             DB::commit();
 

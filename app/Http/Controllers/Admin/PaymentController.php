@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\Invoice;
+use App\Models\PaymentCustomerItems;
 use App\Models\UsagePoints;
 use Carbon\Carbon;
 use App\Models\COA;
@@ -63,7 +64,8 @@ class PaymentController extends Controller
             ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
             ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
-            ->join('tbl_payment_items as e', 'e.invoice_id', '=', 'a.invoice_id')
+            ->join('tbl_payment_items as e', 'e.payment_id', '=', 'a.id')
+            ->join('tbl_coa as coa_items', 'e.coa_id', '=', 'coa_items.id')
             ->select([
                 'a.kode_pembayaran',
                 'b.no_invoice',
@@ -72,9 +74,9 @@ class PaymentController extends Controller
                 'c.name as payment_method',
                 'a.id',
                 'd.marking',
-                'e.account',
+                'e.coa_id',
                 'e.description',
-                'e.debit'
+                'e.nominal'
             ]);
 
         if (!empty($request->status)) {
@@ -195,6 +197,8 @@ class PaymentController extends Controller
 
         ]);
 
+        dd($request->all());
+
         DB::beginTransaction();
 
         try {
@@ -267,7 +271,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->kode_pembayaran = $request->kode;
             $payment->save();
-            
+
 
             if ($request->amountPoin) {
                 $remainingPoin = $request->amountPoin;
@@ -466,7 +470,6 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
     }
-
 
 
     public function export(Request $request)
