@@ -139,6 +139,8 @@
                                 href="{{ route('balance') }}">Balance</a>
                             <a class="collapse-item {{ request()->routeIs('cashflow') ? 'active' : '' }}"
                                 href="{{ route('cashflow') }}">CashFlow</a>
+                            <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
+                                href="{{ route('assetReport') }}">Asset Report</a>
                             <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
                                 href="{{ route('soa') }}">Statement of Account</a>
                         </div>

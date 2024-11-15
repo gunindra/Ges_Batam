@@ -49,6 +49,7 @@ use App\Http\Controllers\{
     Admin\TopupController,
     Admin\SoaController,
     Admin\AssetController,
+    Admin\AssetReportController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -397,6 +398,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
+
+    Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
+    Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
+    Route::get('/report/assetReport/pdf', [AssetReportController::class, 'generatePdf'])->name('assetReport.pdf');
 });
 
 
