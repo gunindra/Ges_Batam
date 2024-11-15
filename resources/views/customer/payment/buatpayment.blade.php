@@ -99,7 +99,7 @@
                         </div>
                         <div class="form-group mt-3">
                             <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
-                            <input type="date" class="form-control" id="tanggalPayment">
+                            <input type="text" class="form-control" id="tanggalPayment">
                             <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
                         <div class="form-group mt-3">

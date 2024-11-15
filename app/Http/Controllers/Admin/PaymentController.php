@@ -72,9 +72,6 @@ class PaymentController extends Controller
                 'c.name as payment_method',
                 'a.id',
                 'd.marking',
-                'e.account',
-                'e.description',
-                'e.debit'
             ]);
 
         if (!empty($request->status)) {
