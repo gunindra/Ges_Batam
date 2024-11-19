@@ -83,7 +83,7 @@ aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
                             <thead class="thead-light">
                                 <tr>
                                     <th>Kode</th>
-                                    <th>No. Invoice</th>
+                                    <th>No. Voucher</th>
                                     <th>Tanggal Payment</th>
                                     <th>Total Harga</th>
                                     <th>Metode Pembayaran</th>

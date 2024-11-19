@@ -119,8 +119,9 @@
                                     @endforeach
                                 </select>
                             </div>
-                            {{-- <div class="mt-3">
-                                <label for="salesProfitAccount" class="form-label fw-bold">Sales Profit Rate Account</label>
+
+                            <div class="mt-3">
+                                <label for="salesProfitAccount" class="form-label fw-bold">Discount payment account</label>
                                 <select class="form-control select2singgle" id="ProfitRate" required>
                                     <option value="">Pilih Akun</option>
                                     @foreach ($coas as $coa)
@@ -131,6 +132,7 @@
                                     @endforeach
                                 </select>
                             </div>
+                            {{--
                             <div class="mt-3">
                                 <label for="salesRateAccount" class="form-label fw-bold">Sales Loss Rate Account</label>
                                 <select class="form-control select2singgle" id="LossRate" required>

@@ -27,7 +27,7 @@
                         <h6>Invoice Information</h6>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p><strong>No Invoice:</strong> <span id="invoiceNo"></span></p>
+                                <p><strong>No Voucher:</strong> <span id="invoiceNo"></span></p>
                                 <p><strong>Tanggal:</strong> <span id="invoiceDate"></span></p>
                             </div>
                             <div class="col-md-6">
@@ -151,7 +151,7 @@
                             <table class="table align-items-center table-flush table-hover" id="supplierInvoiceTable">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>No Invoice</th>
+                                        <th>No. Voucher</th>
                                         <th>Vendor</th>
                                         <th>Tanggal</th>
                                         <th>Mata Uang</th>

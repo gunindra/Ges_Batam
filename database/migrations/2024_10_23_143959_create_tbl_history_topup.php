@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('tbl_history_topup', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id'); 
+            $table->unsignedBigInteger('customer_id');
             $table->string('customer_name');
             $table->decimal('topup_amount', 15, 2);
             $table->decimal('remaining_points', 15, 2);
-            $table->timestamp('tanggal_topup');
-            $table->decimal('price_per_kg', 15, 2); 
+            // $table->timestamp('tanggal_topup');
+            $table->decimal('price_per_kg', 15, 2); // Mengubah tipe data menjadi decimal
             $table->unsignedBigInteger('account_id');
             $table->decimal('balance', 15, 2)->default(0);
             $table->date('date');
             $table->string('code');
+            $table->date('expired_date');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

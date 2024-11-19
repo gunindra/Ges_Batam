@@ -82,7 +82,7 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No. Debit Note</th>
-                                        <th>No. Invoice</th>
+                                        <th>No. Voucher</th>
                                         <th>Nama Account</th>
                                         <th>Currency</th>
                                         <th>Tanggal</th>

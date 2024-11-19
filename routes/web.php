@@ -149,6 +149,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
+    Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
+
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -369,6 +371,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
     Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
     Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
+    Route::post('topup/expire/{id}' , [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
     //ProfitLoss
