@@ -19,7 +19,6 @@ return new class extends Migration
             $table->decimal('nominal');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
-
             // Foreign key constraints
             $table->foreign('payment_id')->references('id')->on('tbl_payment_customer')->onDelete('cascade');
             $table->foreign('coa_id')->references('id')->on('tbl_coa')->onDelete('cascade');
