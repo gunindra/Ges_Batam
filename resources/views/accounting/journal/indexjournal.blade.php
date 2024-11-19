@@ -9,9 +9,15 @@
     .dataTables_filter {
         display: none;
     }
-    #menuBkk .table, #menuBkm .table {
-    width: 100% !important;
-}
+
+    #menuBkk .table,
+    #menuBkm .table {
+        width: 100% !important;
+    }
+
+    footer {
+        margin-top: 100px;
+    }
 </style>
 
 <!---Container Fluid-->
@@ -81,8 +87,9 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex mb-2 mr-3 float-right">
-                                        <a class="btn btn-primary" href="{{ route('addjournal') }}" id=""><span
-                                                class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal</a>
+                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=Jurnal">
+                                            <span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal
+                                        </a>
                                     </div>
                                     <div class="d-flex mb-4">
                                         <!-- Search -->
@@ -129,8 +136,10 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex mb-2 mr-3 float-right">
-                                        <a class="btn btn-primary" href="{{ route('addjournal') }}" id=""><span
-                                                class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal</a>
+                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKK"
+                                            id="">
+                                            <span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal 
+                                        </a>
                                     </div>
                                     <div class="d-flex mb-4">
                                         <!-- Search -->
@@ -177,7 +186,7 @@
                             <div class="card mb-4">
                                 <div class="card-body">
                                     <div class="d-flex mb-2 mr-3 float-right">
-                                        <a class="btn btn-primary" href="{{ route('addjournal') }}" id=""><span
+                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKM" id=""><span
                                                 class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal</a>
                                     </div>
                                     <div class="d-flex mb-4">
@@ -239,7 +248,7 @@
 </script>
 <script>
     $(document).ready(function () {
-        function initTableJournal(tipeKode) {
+        function initTableJournal(tipeKode, excludeTypes = []) {
             return $('#tableJournal' + (tipeKode || '')).DataTable({
                 serverSide: true,
                 processing: true,
@@ -251,34 +260,18 @@
                         d.endDate = $('#endDate').val();
                         d.status = $('#filterStatus').val();
                         d.tipe_kode = tipeKode;
+                        if (excludeTypes.length > 0) {
+                            d.excludeTypes = excludeTypes;
+                        }
                     }
                 },
-                columns: [{
-                    data: 'no_journal',
-                    name: 'no_journal'
-                },
-                {
-                    data: 'description',
-                    name: 'description'
-                },
-                {
-                    data: 'tanggal',
-                    name: 'tanggal'
-                },
-                {
-                    data: 'totalcredit',
-                    name: 'totalcredit'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                columns: [
+                    { data: 'no_journal', name: 'no_journal' },
+                    { data: 'description', name: 'description' },
+                    { data: 'tanggal', name: 'tanggal' },
+                    { data: 'totalcredit', name: 'totalcredit' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 order: [],
                 lengthChange: false,
@@ -293,21 +286,17 @@
             });
         }
 
-        // Initialize tables for each tab
-        var tableGeneral = initTableJournal(''); // General Journal (no filter)
-        var tableBKK = initTableJournal('BKK'); // BKK filter
-        var tableBKM = initTableJournal('BKM'); // BKM filter
+        var tableGeneral = initTableJournal('', ['BKK', 'BKM']);
+        var tableBKK = initTableJournal('BKK');
+        var tableBKM = initTableJournal('BKM');
 
-        // Event listener for tab switch to reload the respective table
         $('a[data-tab]').on('click', function (e) {
             e.preventDefault();
             var tab = $(this).data('tab');
 
-            // Show or hide tables based on selected tab
             $('#jurnalUmum, #menuBkk, #menuBkm').removeClass('show active');
             $('#' + tab).addClass('show active');
 
-            // Trigger table draw for each tab on switching to refresh data
             if (tab === 'jurnalUmum') {
                 tableGeneral.draw();
             } else if (tab === 'menuBkk') {
@@ -318,13 +307,11 @@
         });
 
         $('#txSearch').keyup(function () {
-            var searchValue = $(this).val();
-            table.search(searchValue).draw();
+            tableGeneral.search($(this).val()).draw();
         });
 
-
         $('#saveFilterTanggal').on('click', function () {
-            table.ajax.reload();
+            tableGeneral.ajax.reload();
             $('#modalFilterTanggal').modal('hide');
         });
 
@@ -335,11 +322,7 @@
         flatpickr("#startDate", {
             dateFormat: "d M Y",
             onChange: function (selectedDates, dateStr, instance) {
-
-                $("#endDate").flatpickr({
-                    dateFormat: "d M Y",
-                    minDate: dateStr
-                });
+                $("#endDate").flatpickr({ dateFormat: "d M Y", minDate: dateStr });
             }
         });
 
@@ -349,16 +332,17 @@
                 var startDate = new Date($('#startDate').val());
                 var endDate = new Date(dateStr);
                 if (endDate < startDate) {
-                    showMessage(error,
-                        "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    showMessage("error", "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
                     $('#endDate').val('');
                 }
             }
         });
 
         $('#filterStatus').change(function () {
-            table.ajax.reload();
+            tableGeneral.ajax.reload();
         });
+
+
 
         $(document).on('click', '.btnUpdateJournal', function (e) {
             e.preventDefault();

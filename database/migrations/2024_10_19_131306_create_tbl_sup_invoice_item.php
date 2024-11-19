@@ -16,7 +16,7 @@ return new class extends Migration {
          Schema::create('tbl_sup_invoice_items', function (Blueprint $table) {
              $table->id();
              $table->foreignId('invoice_id')->constrained('tbl_sup_invoice')->onDelete('cascade');
-             $table->foreignId('coa_id')->constrained('tbl_coa')->onDelete('cascade'); // Code Account (COA)
+             $table->foreignId('coa_id')->constrained('tbl_coa')->onDelete('cascade'); 
              $table->string('description')->nullable();
              $table->decimal('debit', 15, 2)->default(0);
              $table->decimal('credit', 15, 2)->default(0);
@@ -26,6 +26,7 @@ return new class extends Migration {
      }
 
      /**
+
       * Reverse the migrations.
       *
       * @return void

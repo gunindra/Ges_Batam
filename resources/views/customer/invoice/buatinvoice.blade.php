@@ -368,7 +368,7 @@
                             $('#alamatContainer').html(selectAlamat);
                             $('#alamatError').addClass('d-none');
                         } else if (jumlahAlamat > 1) {
-                            var alamatList = alamat.split(', ');
+                            var alamatList = alamat.split('; ');
                             var selectAlamat =
                                 '<label for="alamatSelect" class="form-label">Alamat</label>';
                             selectAlamat += '<select id="alamatSelect" class="form-control col-9">';

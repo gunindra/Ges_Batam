@@ -151,6 +151,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
+    Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
+
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -348,6 +350,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
     Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
     Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
+    Route::get('/journal/generateNoJournalBKK', [JournalController::class, 'generateNoJournalBKK'])->name('generateNoJournalBKK');
+    Route::get('/journal/generateNoJournalBKM', [JournalController::class, 'generateNoJournalBKM'])->name('generateNoJournalBKM');
 
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
@@ -369,6 +373,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
     Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
     Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
+    Route::post('topup/expire/{id}' , [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
     //ProfitLoss

@@ -20,7 +20,7 @@ class CheckUserActivity extends Command
     public function handle()
     {
         $now = Carbon::now('Asia/Jakarta');
-        $threshold = $now->subMonths(6);
+        $threshold = $now->subSeconds(60);
 
         $this->info("Threshold time: " . $threshold);
 

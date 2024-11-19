@@ -11,6 +11,56 @@
         }
     </style>
 
+    <div class="modal fade" id="modalPaymentDetail" tabindex="-1" role="dialog" aria-labelledby="modalPaymentDetailTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPaymentDetailTitle">Detail Pembayaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4>Invoice Details</h4>
+                    <table class="table table-bordered" id="invoice-details-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data invoice akan dimuat di sini -->
+                        </tbody>
+                    </table>
+
+                    <h4>Payment Customer Items</h4>
+                    <table class="table table-bordered" id="payment-items-table">
+                        <thead>
+                            <tr>
+                                <th>COA ID</th>
+                                <th>Description</th>
+                                <th>Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data payment items akan dimuat di sini -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Payment</h1>
@@ -83,40 +133,16 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>Kode</th>
-                                        <th>No. Invoice</th>
-                                        <th>Ammount</th>
-                                        <th>Metode Pembayaran</th>
+                                        <th>Marking</th>
                                         <th>Tanggal</th>
-                                        {{-- <th>Action</th> --}}
+                                        <th>Metode Pembayaran</th>
+                                        <th>Nominal</th>
+                                        <th>Diskon</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- <tr>
-                                    <td>B0230123</td>
-                                    <td>001</td>
-                                    <td>IDR 1</td>
-                                    <td>IDR 100.000.000</td>
-                                    <td>IDR 200.000.000</td>
-                                    <td><span class="badge badge-success">Publish</span></td>
-                                    <td>12 September 2024</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>B0230123</td>
-                                    <td>001</td>
-                                    <td>IDR 1</td>
-                                    <td>IDR 100.000.000</td>
-                                    <td>IDR 200.000.000</td>
-                                    <td><span class="badge badge-success">Publish</span></td>
-                                    <td>12 September 2024</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr> --}}
+
                                 </tbody>
                             </table>
                         </div>
@@ -130,6 +156,9 @@
 @endsection
 @section('script')
     <script>
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+            </div> `;
         var table = $('#tablePurchasePayment').DataTable({
             serverSide: true,
             processing: true,
@@ -155,28 +184,49 @@
                     name: 'a.kode_pembayaran'
                 },
                 {
-                    data: 'no_invoice',
-                    name: 'b.no_invoice'
+                    data: 'marking',
+                    name: 'd.marking'
                 },
                 {
-                    data: 'amount',
-                    name: 'a.amount',
-                    render: function(data, type, row) {
-                        return parseFloat(data).toLocaleString('id-ID', {
-                            style: 'decimal',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                        });
-                    }
+                    data: 'tanggal_buat',
+                    name: 'tanggal_buat',
+                    searchable: false
                 },
                 {
                     data: 'payment_method',
                     name: 'c.name'
                 },
                 {
-                    data: 'tanggal_buat',
-                    name: 'tanggal_buat',
-                    searchable: false
+                    data: 'total_amount',
+                    name: 'total_amount',
+                    render: function(data, type, row) {
+                        return (isNaN(data) || data === null) ?
+                            'Rp. 0' :
+                            'Rp. ' + parseFloat(data).toLocaleString('id-ID', {
+                                style: 'decimal',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            });
+                    }
+                },
+                {
+                    data: 'discount',
+                    name: 'discount',
+                    render: function(data, type, row) {
+                        return (isNaN(data) || data === null) ?
+                            'Rp. 0' :
+                            'Rp. ' + parseFloat(data).toLocaleString('id-ID', {
+                                style: 'decimal',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                            });
+                    }
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    searchable: false,
+                    orderable: false
                 }
             ],
             lengthChange: false,
@@ -190,6 +240,7 @@
                 zeroRecords: "No matching records found"
             }
         });
+
 
         $('#txSearch').keyup(function() {
             var searchValue = $(this).val();
@@ -266,6 +317,90 @@
                         title: "Export failed!",
                         icon: "error"
                     });
+                }
+            });
+        });
+
+        $(document).on('click', '.btnDetailPaymet', function(e) {
+            e.preventDefault();
+
+            let id = $(this).data('id'); // Ambil ID payment
+
+            // Tampilkan modal dan spinner
+            $('#modalPaymentDetail').modal('show');
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('getInvoiceDetail') }}",
+                data: {
+                    id: id
+                },
+                success: function(response) {
+
+                    if (response.success) {
+                        let data = response.data;
+
+                        // Kosongkan tabel sebelum menambahkan data baru
+                        $('#invoice-details-table tbody').empty();
+                        $('#payment-items-table tbody').empty();
+
+                        // Format uang
+                        const formatCurrency = (amount) => {
+                            return new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            }).format(amount);
+                        };
+
+                        // Mengisi tabel invoice details
+                        let invoiceDetails = data.invoice_details.split(';');
+                        invoiceDetails.forEach(function(detail) {
+                            let [invoice, amount] = detail.split('(');
+                            amount = amount.replace(')', ''); // Menghapus tanda ')'
+                            $('#invoice-details-table tbody').append(`
+                        <tr>
+                            <td>${invoice}</td>
+                            <td>${formatCurrency(amount)}</td>
+                        </tr>
+                    `);
+                        });
+
+                        // Mengisi tabel item details
+                        if (data.item_details) {
+                            let itemDetails = data.item_details.split(';');
+                            if (itemDetails.length > 0) {
+                                itemDetails.forEach(function(detail) {
+                                    let [coa, nominalAndDesc] = detail.split('(');
+                                    let [nominal, description] = nominalAndDesc.split(') - ');
+                                    $('#payment-items-table tbody').append(`
+                                <tr>
+                                    <td>${coa}</td>
+                                    <td>${description}</td>
+                                    <td>${formatCurrency(nominal)}</td>
+                                </tr>
+                            `);
+                                });
+                            } else {
+                                // Jika item_details kosong, tampilkan pesan
+                                $('#payment-items-table tbody').append(`
+                            <tr>
+                                <td colspan="3" class="text-center">No Payment Items Available</td>
+                            </tr>
+                        `);
+                            }
+                        } else {
+                            // Jika item_details null, tampilkan pesan
+                            $('#payment-items-table tbody').append(`
+                        <tr>
+                            <td colspan="3" class="text-center">No Payment Items Available</td>
+                        </tr>
+                    `);
+                        }
+                    }
+
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
                 }
             });
         });

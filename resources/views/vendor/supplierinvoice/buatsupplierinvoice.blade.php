@@ -74,13 +74,13 @@
                     <div class="d-flex flex-row">
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="noResi" class="form-label fw-bold">No Invoice :</label>
+                                <label for="noResi" class="form-label fw-bold">No. Voucher :</label>
                                 <div class="d-flex">
                                     <input type="text" id="noInvoice" class="form-control col-8">
                                     <a class="pt-2" id="btnRefreshInvoice" href=""><span class="pl-2 text-success"><i
                                                 class="fas fa-sync-alt"></i></span></a>
                                 </div>
-                                <div id="noInvoiceError" class="text-danger mt-1 d-none">No Invoice tidak boleh kosong
+                                <div id="noInvoiceError" class="text-danger mt-1 d-none">No. Voucher tidak boleh kosong
                                 </div>
                             </div>
                             <div class="mt-3">
@@ -132,10 +132,10 @@
                         </div>
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="NoReference" class="form-label fw-bold">No Reference</label>
+                                <label for="NoReference" class="form-label fw-bold">No. Invoice Vendor</label>
                                 <input type="text" class="form-control col-8" id="noReferenceVendor" value=""
-                                    placeholder="Silahkan isi No Reference">
-                                <div id="NoReferenceError" class="text-danger mt-1 d-none">No Reference tidak boleh
+                                    placeholder="Silahkan isi No Invoice Vendor">
+                                <div id="NoReferenceError" class="text-danger mt-1 d-none">No Invoice Vendor tidak boleh
                                     kosong</div>
                             </div>
                         </div>

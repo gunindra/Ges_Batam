@@ -90,7 +90,8 @@
                                 window.location.href = response.redirect;
                             });
                         } else {
-                            $('#errorMessage').text(response.message).show();
+                            // $('#errorMessage').text(response.message).show();
+                            showMessage("error", response.message)
                         }
                     },
                     error: function(xhr) {
