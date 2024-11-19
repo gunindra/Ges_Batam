@@ -116,10 +116,9 @@
                     </div>
                 </li>
             @endif
-
             <!-- Menu Report (hanya superadmin) -->
             @if (Auth::user()->role === 'superadmin')
-                <li class="nav-item {{ request()->routeIs('profitloss') || request()->routeIs('ledger') || request()->routeIs('equity')  || request()->routeIs('balance') || request()->routeIs('cashflow') ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa')  ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport"
                         aria-expanded="true" aria-controls="listreport">
                         <i class="fas fa-file-alt fa-lg"></i>
@@ -129,6 +128,31 @@
                         data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Report</h6>
+                            <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
+                                href="{{ route('assetReport') }}">Asset Report</a>
+                            <a class="collapse-item {{ request()->routeIs('topUpReport') ? 'active' : '' }}"
+                                href="{{ route('topUpReport') }}">Top Up Report</a>
+                            <a class="collapse-item {{ request()->routeIs('penerimaanKas') ? 'active' : '' }}"
+                                href="{{ route('penerimaanKas') }}">Penerimaan Kas Report</a>
+                            <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
+                                href="{{ route('soa') }}">Statement of Account</a>
+                        </div>
+                    </div>
+                </li>
+            @endif
+
+            <!-- Menu Accounting Report (hanya superadmin) -->
+            @if (Auth::user()->role === 'superadmin')
+                <li class="nav-item {{ request()->routeIs('profitloss') || request()->routeIs('ledger') || request()->routeIs('equity')  || request()->routeIs('balance') || request()->routeIs('cashflow') ? 'active' : '' }}">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listAccountingReport"
+                        aria-expanded="true" aria-controls="listAccountingReport">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Accounting Report</span>
+                    </a>
+                    <div id="listAccountingReport" class="collapse" aria-labelledby="headingBootstrap"
+                        data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Accounting Report</h6>
                             <a class="collapse-item {{ request()->routeIs('profitloss') ? 'active' : '' }}"
                                 href="{{ route('profitloss') }}">Profit/Loss</a>
                             <a class="collapse-item {{ request()->routeIs('ledger') ? 'active' : '' }}"
@@ -139,10 +163,6 @@
                                 href="{{ route('balance') }}">Balance</a>
                             <a class="collapse-item {{ request()->routeIs('cashflow') ? 'active' : '' }}"
                                 href="{{ route('cashflow') }}">CashFlow</a>
-                            <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
-                                href="{{ route('assetReport') }}">Asset Report</a>
-                            <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
-                                href="{{ route('soa') }}">Statement of Account</a>
                         </div>
                     </div>
                 </li>
