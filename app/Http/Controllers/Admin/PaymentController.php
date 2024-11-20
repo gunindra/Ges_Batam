@@ -61,7 +61,7 @@ class PaymentController extends Controller
 
     public function getPaymentData(Request $request)
     {
-        $query = DB::table('tbl_payment_customer as a')
+            $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
             ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
@@ -70,7 +70,7 @@ class PaymentController extends Controller
                 'a.id',
                 'a.kode_pembayaran',
                 'd.marking',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_buat"),
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
                 'c.name as payment_method',
                 DB::raw('SUM(f.amount) as total_amount'),
                 'a.discount'
@@ -79,10 +79,11 @@ class PaymentController extends Controller
                 'a.id',
                 'a.kode_pembayaran',
                 'd.marking',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y')"),
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
                 'c.name',
                 'a.discount'
             );
+
 
 
         if (!empty($request->status)) {
@@ -274,6 +275,7 @@ class PaymentController extends Controller
             'invoice' => 'required|array',
             'kode' => 'required|string',
             'tanggalPayment' => 'required|date',
+            'tanggalPaymentBuat' => 'required',
             'paymentAmount' => 'required|numeric',
             'discountPayment' => 'nullable|numeric',
             'paymentMethod' => 'required|integer',
@@ -328,38 +330,42 @@ class PaymentController extends Controller
 
 
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-            $totalPayment = $request->paymentAmount + ($request->discountPayment ?? 0);
+
+            $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+
+            $formattedDateTime = $date->format('Y-m-d H:i:s');
+
+            $totalPayment = $request->paymentAmount;
+            $discount = $request->discountPayment ?? 0;
+            $totalEffectivePayment = $totalPayment + $discount;
 
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
             $payment->pembeli_id = $request->marking;
             $payment->payment_date = $tanggalPayment;
-            $payment->payment_buat = Carbon::now()->format('Y-m-d');
+            $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
-            $payment->discount = $request->discountPayment ?? 0;
+            $payment->discount = $discount;
             $payment->save();
 
-            // Array untuk menyimpan nomor invoice yang sudah diproses
             $invoiceList = [];
             foreach ($request->invoice as $noInvoice) {
                 $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
 
                 $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
-                $allocatedAmount = min($totalPayment, $remainingAmount);
+                $allocatedAmount = min($totalPayment, $remainingAmount); // Hanya dari pembayaran murni
 
-                // Check if the allocated amount is greater than the remaining payment
                 if ($allocatedAmount > $remainingAmount) {
                     Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
 
-                    // Stop further processing and return a response
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Pembayaran melebihi jumlah yang tersisa. Pembayaran dibatalkan.'
                     ], 400);
                 }
 
-                if ($allocatedAmount <= 0) {
-                    Log::info("Invoice {$noInvoice} sudah lunas.");
+                if ($allocatedAmount <= 0 && $totalEffectivePayment < $remainingAmount) {
+                    Log::info("Invoice {$noInvoice} sudah lunas atau pembayaran tidak mencukupi.");
                     continue;
                 }
 
@@ -370,19 +376,23 @@ class PaymentController extends Controller
                 $paymentInvoice->save();
 
                 $invoice->total_bayar += $allocatedAmount;
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                if ($totalEffectivePayment >= $remainingAmount) {
+                    $invoice->status_bayar = 'Lunas';
+                } else {
+                    $invoice->status_bayar = 'Belum Lunas';
+                }
                 $invoice->save();
 
                 $totalPayment -= $allocatedAmount;
-                if ($totalPayment <= 0) {
+                $totalEffectivePayment -= $remainingAmount;
+
+                if ($totalPayment <= 0 && $totalEffectivePayment <= 0) {
                     break;
                 }
 
-                // Menambahkan nomor invoice ke list
                 $invoiceList[] = $invoice->no_invoice;
             }
 
-            // Cancel payment if the total amount is still greater than 0
             if ($totalPayment > 0) {
                 Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
                 return response()->json([
@@ -704,17 +714,18 @@ class PaymentController extends Controller
         try {
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
             $totalPayment = $request->paymentAmount;
+            $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+            $formattedDateTime = $date->format('Y-m-d H:i:s');
 
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
             $payment->pembeli_id = $request->marking;
             $payment->payment_date = $tanggalPayment;
-            $payment->payment_buat = Carbon::now()->format('Y-m-d');
+            $payment->payment_buat =   $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
             $payment->save();
 
-            // Array untuk menyimpan nomor invoice yang sudah diproses
             $invoiceList = [];
             foreach ($request->invoice as $noInvoice) {
                 $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
@@ -722,7 +733,6 @@ class PaymentController extends Controller
                 $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
                 $allocatedAmount = min($totalPayment, $remainingAmount);
 
-                // Check if the allocated amount is greater than the remaining payment
                 if ($allocatedAmount > $remainingAmount) {
                     Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
 

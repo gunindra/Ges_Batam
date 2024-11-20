@@ -331,12 +331,21 @@
 
             // Set tanggal saat ini
             const today = new Date();
-            $('#tanggalPayment,#tanggalPaymentBuat').datepicker({
+            $('#tanggalPayment').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,
                 autoclose: true,
             }).datepicker('setDate', today);
+
+            flatpickr("#tanggalPaymentBuat", {
+                enableTime: true,
+                dateFormat: "d F Y H:i",
+                defaultDate: new Date(),
+                minuteIncrement: 1,
+                time_24hr: true,
+                locale: "id",
+            });
 
             // Muat detail invoice saat dipilih
             $('#selectInvoice').on('change', function() {
