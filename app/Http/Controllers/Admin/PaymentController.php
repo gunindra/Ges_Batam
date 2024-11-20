@@ -80,7 +80,8 @@ class PaymentController extends Controller
                 'a.kode_pembayaran',
                 'd.marking',
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y')"),
-                'c.name'
+                'c.name',
+                'a.discount'
             );
 
 

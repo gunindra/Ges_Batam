@@ -57,29 +57,35 @@
                                     terlebih dahulu</div>
                             </div> --}}
                             <div class="mt-3">
-                                <label for="invoiceDebit" class="form-label fw-bold">No. Voucher</label>
+                                <label for="namaVendor" class="form-label fw-bold">Nama Vendor</label>
+                                <select class="form-control select2" id="selectVendor">
+                                    <option value="" selected disabled>Pilih Vendor</option>
+                                    @foreach ($listVendor as $vendorList)
+                                        <option value="{{ $vendorList->name }}">{{ $vendorList->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="invoiceDebit" class="form-label fw-bold">Invoice</label>
+                                <select class="form-control select2" id="invoiceDebit" name="invoiceDebit">
+                                    <option value="" selected disabled>Pilih Invoice</option>
+                                </select>
+                                <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice</div>
+                            </div>
+
+                            <!-- <div class="mt-3">
+                                <label for="invoiceDebit" class="form-label fw-bold">Invoice</label>
                                 <select class="form-control select2" name="invoiceDebit" id="invoiceDebit">
-                                    <option value="" selected disabled>Pilih Voucher</option>
+                                    <option value="" selected disabled>Pilih Invoice</option>
                                     @foreach ($listInvoice as $invoice)
                                         <option value="{{ $invoice->id }}">{{ $invoice->invoice_no }}</option>
                                     @endforeach
                                 </select>
-                                <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
+                                <div id="invoiceDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice
                                     terlebih dahulu</div>
-                            </div>
-                            <div class="mt-3">
-                                <label for="currencyDebit" class="form-label fw-bold">Currency</label>
-                                <select class="form-control select2" name="currencyDebit" id="currencyDebit">
-                                    <option value="" selected disabled>Pilih Currency</option>
-                                    @foreach ($listCurrency as $currency)
-                                        <option value="{{ $currency->id }}">{{ $currency->nama_matauang }}
-                                            ({{ $currency->singkatan_matauang }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div id="currencyDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
-                                    terlebih dahulu</div>
-                            </div>
+                            </div> -->
+
                         </div>
                         <div class="col-6">
                             <div class="mt-3">
@@ -93,6 +99,19 @@
                                     @endforeach
                                 </select>
                                 <div id="accountDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Account
+                                    terlebih dahulu</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="currencyDebit" class="form-label fw-bold">Currency</label>
+                                <select class="form-control select2" name="currencyDebit" id="currencyDebit">
+                                    <option value="" selected disabled>Pilih Currency</option>
+                                    @foreach ($listCurrency as $currency)
+                                        <option value="{{ $currency->id }}">{{ $currency->nama_matauang }}
+                                            ({{ $currency->singkatan_matauang }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div id="currencyDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
                                     terlebih dahulu</div>
                             </div>
                             <div class="mt-3">
@@ -174,7 +193,40 @@
     @section('script')
     <script>
         $(document).ready(function () {
-            // Inisialisasi select2
+            $('#selectVendor').on('change', function () {
+                var vendorName = $(this).val(); 
+
+                if (vendorName) {
+                    $.ajax({
+                        url: "{{ route('getInvoiceByVendor') }}", 
+                        type: 'GET',
+                        data: { vendor_name: vendorName }, 
+                        success: function (response) {
+                            $('#invoiceDebit').empty(); 
+
+                            if (response.success) {
+                                $('#invoiceDebit').append('<option value="" selected disabled>Pilih Invoice</option>');
+
+                                $.each(response.SupInvoice, function (index, SupInvoice) {
+                                    $('#invoiceDebit').append('<option value="' + SupInvoice.invoice_no + '">' + SupInvoice.invoice_no + '</option>');
+                                });
+                            } else {
+                                $('#invoiceDebit').append('<option value="" disabled>No invoices available</option>');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Gagal memuat invoice.'
+                            });
+                        }
+                    });
+                } else {
+                    $('#invoiceDebit').empty();
+                    $('#invoiceDebit').append('<option value="" selected disabled>Pilih Invoice</option>');
+                }
+            });
             $('.select2').select2();
 
             $('#currencyDebit').change(function () {
@@ -237,6 +289,7 @@
                 const rateCurrency = $('#rateCurrency').val();
                 const noteDebit = $('#noteDebit').val();
                 const totalKeseluruhan = $('#Total').val();
+                const selectVendor = $('#selectVendor').val();
                 const items = [];
 
                 $('.error-message').remove();
@@ -248,8 +301,15 @@
                     isValid = false;
                 } else {
                     $('#invoiceDebitError').addClass('d-none');
-
                 }
+
+                if (!selectVendor) {
+                    $('#errVendorPayment').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#errVendorPayment').addClass('d-none');
+                }
+
                 if (!accountDebit) {
                     $('#accountDebitError').removeClass('d-none');
                     isValid = false;
