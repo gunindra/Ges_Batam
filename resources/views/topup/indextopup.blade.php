@@ -476,7 +476,6 @@
                 url: "{{ route('get-customers') }}",
                 method: 'GET',
                 success: function (response) {
-                    customerSelect.empty();
                     customerSelect.append('<option value="">Pilih Pengguna</option>');
                     $.each(response, function (index, customer) {
                         customerSelect.append(
@@ -569,8 +568,8 @@
             const tanggal = $('#tanggal').val();
             const tanggalExpired = $('#tanggalExpired').val();
             const Voucher = $('#Voucher').val();
-            const priceId = pricePerKgInput.val();
-            const topupAmount = remainingPoints * pricePerKgInput;
+            const priceId = pricePerKgInput.val().replace(/\./g, '');
+            const topupAmount = parseFloat(totalCostDisplay.text().replace(/[^0-9.-]+/g, '')) || 0;
 
             let hasError = false;
 
@@ -619,6 +618,7 @@
                     customer_id: customerId,
                     remaining_points: remainingPoints,
                     code: Voucher,
+                    topupAmount: topupAmount,
                     date: tanggal,
                     expired_date: tanggalExpired,
                     price_per_kg: priceId || null,
@@ -657,6 +657,8 @@
                 $('#customerSelectError').addClass('d-none');
             }
 
+            $('#customerSelect').empty();
+
             if (!$('#tanggalError').hasClass('d-none')) {
                 $('#tanggalError').addClass('d-none');
             }
@@ -679,6 +681,8 @@
             if (!$('#voucherError').hasClass('d-none')) {
                 $('#voucherError').addClass('d-none');
             }
+
+            $('#totalCost').text('Rp 0');
         });
 
         $(document).on('click', '.btnCancelTopup', function (e) {
@@ -733,7 +737,8 @@
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes',
-                cancelButtonText: 'No'
+                cancelButtonText: 'No',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({

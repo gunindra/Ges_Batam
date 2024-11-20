@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('tbl_payment_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invoice_id')->constrained('tbl_sup_invoice')->onDelete('cascade');
-            $table->foreignId('coa_id')->constrained('tbl_coa')->onDelete('cascade'); 
-            $table->string('description')->nullable();
-            $table->decimal('debit', 15, 2)->default(0);
-            $table->decimal('credit', 15, 2)->default(0);
-            $table->string('memo')->nullable();
-            $table->timestamps();
+            $table->unsignedBigInteger('payment_id');
+            $table->unsignedBigInteger('coa_id');
+            $table->string('description');
+            $table->decimal('nominal');
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            // Foreign key constraints
+            $table->foreign('payment_id')->references('id')->on('tbl_payment_customer')->onDelete('cascade');
+            $table->foreign('coa_id')->references('id')->on('tbl_coa')->onDelete('cascade');
         });
     }
 

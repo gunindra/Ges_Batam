@@ -80,7 +80,7 @@ class InvoiceController extends Controller
                                             c.id AS category_id,
                                             c.minimum_rate,
                                             c.maximum_rate,
-                                            GROUP_CONCAT(b.alamat SEPARATOR ', ') AS alamat,
+                                            GROUP_CONCAT(b.alamat SEPARATOR '; ') AS alamat,
                                             COUNT(b.id) AS jumlah_alamat
                                         FROM tbl_pembeli a
                                         LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id

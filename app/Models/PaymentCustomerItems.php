@@ -8,27 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentCustomerItems extends Model
 {
     use HasFactory;
-
     protected $table = 'tbl_payment_items';
+    protected $fillable = ['payment_id', 'coa_id', 'description', 'nominal'];
 
-    protected $fillable = [
-        'invoice_id',
-        'coa_id',
-        'description',
-        'debit',
-        'credit',
-        'memo',
-    ];
-
-    // Relasi dengan model TblSupInvoice
-    public function invoice()
+    /**
+     * Relationship with Payment.
+     * A payment item belongs to a specific payment.
+     */
+    public function payment()
     {
-        return $this->belongsTo(Payment::class, 'invoice_id');
-    }
-
-    // Relasi dengan model COA (tbl_coa)
-    public function coa()
-    {
-        return $this->belongsTo(COA::class, 'coa_id');
+        return $this->belongsTo(Payment::class, 'payment_id');
     }
 }

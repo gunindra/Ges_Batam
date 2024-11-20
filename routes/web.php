@@ -148,6 +148,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
+    Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
+
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');

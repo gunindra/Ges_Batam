@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('customer_name');
             $table->decimal('topup_amount', 15, 2);
             $table->decimal('remaining_points', 15, 2);
-            $table->timestamp('tanggal_topup');
+            // $table->timestamp('tanggal_topup');
             $table->decimal('price_per_kg', 15, 2); // Mengubah tipe data menjadi decimal
             $table->unsignedBigInteger('account_id');
             $table->decimal('balance', 15, 2)->default(0);
