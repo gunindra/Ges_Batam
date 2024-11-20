@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Invoice;
+use App\Models\Matauang;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -270,7 +273,10 @@ class InvoiceController extends Controller
                 if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
                     $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm mr-2 btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
                 }
-                return $btnChangeMethod . '<a class="btn btnExportInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
+                $btnExportInvoice = '<a class="btn btnExportInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
+                $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white mt-1" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
+            
+                return $btnChangeMethod . $btnExportInvoice . $btnEditInvoice;
             })
             ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar'])
             ->make(true);
@@ -622,5 +628,29 @@ class InvoiceController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Gagal mengubah metode pengiriman']);
     }
+    public function deleteoreditinvoice($id)
+    {
 
+        $invoice = Invoice::find($id);
+        $listCurrency = DB::table('tbl_matauang')->select('id', 'nama_matauang', 'singkatan_matauang')->get();
+        $listPembeli = Customer::all();
+        $listRateVolume = DB::table('tbl_rate')->select('id', 'nilai_rate','rate_for')->get();
+        $listPembagi = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')->get();
+    
+        if (!$invoice) {
+            return redirect()->route('invoice.index')->with('error', 'Invoice tidak ditemukan');
+        }
+    
+        // Kirim data invoice ke view
+        return view('customer.invoice.deleteoreditinvoice', [
+            'invoice' => $invoice,
+            'listCurrency' => $listCurrency,
+            'listPembeli' => $listPembeli,
+            'listRateVolume' => $listRateVolume,
+            'listPembagi' => $listPembagi,
+           
+           
+        ]);
+    }
+    
 }

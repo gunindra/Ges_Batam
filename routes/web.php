@@ -136,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
     Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
     Route::get('/invoice/cekResiInvoice', [InvoiceController::class, 'cekResiInvoice'])->name('cekResiInvoice');
+    Route::get('/invoice/updatedeletepage/{id}', [InvoiceController::class, 'deleteoreditinvoice'])->name('deleteoreditinvoice');
 
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
@@ -297,8 +298,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/debitnote/getDebitNotes', [DebitNoteController::class, 'getDebitNotes'])->name('getDebitNotes');
     Route::post('/vendor/debitnote/store', [DebitNoteController::class, 'store'])->name('debit-note.store');
     Route::get('/vendor/debitnote/updatepage/{id}', [DebitNoteController::class, 'updatepage'])->name('debitnote.updatepage');
-    Route::put('/vendor/debitnote/update/{id}', [DebitNoteController::class, 'update'])->name('debitnote.update');
-
+    // Route::put('/vendor/debitnote/update/{id}', [DebitNoteController::class, 'update'])->name('debitnote.update');
+    Route::get('/vendor/debitnote/GetInvoiceUpdate', [DebitNoteController::class, 'GetInvoiceUpdate'])->name('GetInvoiceUpdate');
+    Route::get('/vendor/debitnote/getInvoiceByVendor', [DebitNoteController::class, 'getInvoiceByVendor'])->name('getInvoiceByVendor');
 
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
@@ -373,11 +375,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
     Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
     Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
-    Route::post('topup/expire/{id}' , [TopupController::class, 'expireTopup'])->name('topup.expire');
+    Route::post('topup/expire/{id}', [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
     //ProfitLoss
-    Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+    Route::get('/report/profitloss', [ProfitLossController::class, 'index'])->name('profitloss');
     Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
     Route::get('/report/getProfitOrLoss/pdf', [ProfitLossController::class, 'generatePdf'])->name('profitLoss.pdf');
 
@@ -386,22 +388,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getEquity', [EquityController::class, 'getEquity'])->name('getEquity');
     Route::get('/report/getEquity/pdf', [EquityController::class, 'generatePdf'])->name('equity.pdf');
 
-     //Cashflow
-    Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
-    Route::get('/report/getCashFlow',  [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
+    //Cashflow
+    Route::get('/report/cashflow', [CashFlowController::class, 'index'])->name('cashflow');
+    Route::get('/report/getCashFlow', [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
     Route::get('/report/getCashFlow/pdf', [CashFlowController::class, 'generatePdf'])->name('cashflow.pdf');
 
     //Ledger
-    Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
-    Route::get('/report/getLedger',  [LedgerController::class, 'getLedger'])->name('getLedger');
+    Route::get('/report/ledger', [LedgerController::class, 'index'])->name('ledger');
+    Route::get('/report/getLedger', [LedgerController::class, 'getLedger'])->name('getLedger');
     Route::get('/report/getLedger/pdf', [LedgerController::class, 'generatePdf'])->name('ledger.pdf');
 
     //Balance
-    Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
-    Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
+    Route::get('/report/balance', [BalanceController::class, 'index'])->name('balance');
+    Route::get('/report/getBalance', [BalanceController::class, 'getBalance'])->name('getBalance');
     Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
 
-    //SOA
+    //Balance
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
