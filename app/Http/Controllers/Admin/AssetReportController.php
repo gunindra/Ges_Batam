@@ -17,7 +17,7 @@ class AssetReportController extends Controller
 
     public function index() {
 
-        return view('Report.AssetReport.indexbalance');
+        return view('Report.AssetReport.indexassetreport');
     }
 
     public function getAssetReport(Request $request)
@@ -55,9 +55,6 @@ class AssetReportController extends Controller
                             $item->ending_balance = $item->beginning_balance - $item->total_credit;
                             return $item;
                         });
-
-
-
         
         $output = '
                     <h5 style="text-align:center; width:100%">' 
@@ -93,72 +90,9 @@ class AssetReportController extends Controller
 
     public function generatePdf(Request $request)
     {
-        // try{
-        //     $customer_id = $request->customer;
-        //     $customer = Customer::where('id', '=', $customer_id)->first();
-            
-        //     if (!$customer) {
-        //         return redirect()->back()->withErrors(['error' => 'Mohon Pilih Customer yang diinginkan']);
-        //     }
+        $htmlOutput = $this->getAssetReport($request);
 
-        //     $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas')
-        //                 ->where('pembeli_id', '=', $customer_id);
-        //     $startDate = '';
-        //     $endDate = '';
-
-        //     if ($request->startDate){
-        //         $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
-        //         $startDate = date('Y-m-d', strtotime($request->startDate));
-        //     }
-        //     if ($request->endDate){
-        //         $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
-        //         $endDate = date('Y-m-d', strtotime($request->endDate));
-        //     }
-            
-        //     $invoice = $invoice->get();
-
-        //     if ($invoice->isEmpty()) {
-        //         return redirect()->back()->withErrors(['error' => 'Tidak ada data Invoice yang ditemukan']);
-        //     }
-            
-        //     $pdf = Pdf::loadView('exportPDF.soa', 
-        //     [
-        //         'startDate' => $startDate,
-        //         'endDate' => $endDate,
-        //         'invoice' => $invoice,
-        //         'customer' => $customer
-        //     ]);
-
-        //     $directoryPath = storage_path('app/public/soa');
-        //     $pdfFileName = 'Statement of Account_'. $customer->nama_pembeli .'.pdf';
-        //     $filePath = $directoryPath . '/' . $pdfFileName;
-
-        //     // Check if the directory exists; if not, create it
-        //     if (!file_exists($directoryPath)) {
-        //         mkdir($directoryPath, 0755, true);
-        //     }
-                
-        //     if (file_exists($filePath)) {
-        //         unlink($filePath);
-        //     }
-        //     $pdf->save($filePath);
-
-        //     $pesan = "Beikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
-        //     $fileUrl = asset('storage/soa/' . $pdfFileName);
-
-        //     if ($customer->no_wa) {
-        //         $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, $fileUrl);
-        //         $pesanTerkirim = $this->kirimPesanWhatsapp($customer->no_wa, $pesan);
-
-        //         if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
-        //             return redirect()->back()->withErrors(['error' => 'Gagal mengirim pesan WhatsApp ke ' . $customer->no_wa]);
-        //         }
-
-        //     } else {
-        //         return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan, silahkan periksa kembali Nomor Telpeon Customer yang dipilih']);
-        //     }
-        // } catch (\Exception $e) {
-        //     return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-        // }
+        $pdf = PDF::loadHTML($htmlOutput);
+        return $pdf->download('Asset Report.pdf');
     }
 }

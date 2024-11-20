@@ -1,15 +1,15 @@
 @extends('layout.main')
 
-@section('title', 'Report | Asset Report')
+@section('title', 'Report | Penerimaan Kas Report')
 
 @section('main')
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Asset Report</h1>
+            <h1 class="h3 mb-0 text-gray-800">Penerimaan Kas Report</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Report</li>
-                <li class="breadcrumb-item active" aria-current="page">Asset Report</li>
+                <li class="breadcrumb-item active" aria-current="page">Penerimaan Kas Report</li>
             </ol>
         </div>
         @if ($errors->has('error'))
@@ -31,7 +31,25 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="mt-3">
-                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin munculkan semua )</label>
+                                    <label for="Tanggal" class="form-label fw-bold">Customer:</label>
+                                    <select class="form-control select2" id="customer">
+                                        <option value="" selected disabled>Pilih Customer</option>
+                                        @foreach ($customers as $customer)
+                                            <option value="{{ $customer->id }}">{{ $customer->marking }} - {{$customer->nama_pembeli}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="payment" class="form-label fw-bold">Payment:</label>
+                                    <select class="form-control select2" id="payment">
+                                        <option value="" selected disabled>Pilih Payment</option>
+                                        @foreach ($payment as $payment)
+                                            <option value="{{ $payment->id }}">{{$payment->code_account_id}} - {{$payment->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin munculkan data bulan ini )</label>
                                     <div class="d-flex align-items-center">
                                         <input type="date" id="startDate" class="form-control"
                                             placeholder="Pilih tanggal mulai" style="width: 200px;">
@@ -66,7 +84,7 @@
                                 Reset
                             </button>
                         </div>
-                        <div id="containerSoa" class="table-responsive px-3">
+                        <div id="containerPenerimaaKas" class="table-responsive px-3">
 
                         </div>
                     </div>
@@ -83,15 +101,16 @@
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div> `;
 
-            const getAssetReport = () => {
+            const getPenerimaanKas = () => {
                 const txtSearch = $('#txSearch').val();
                 const filterStatus = $('#filterStatus').val();
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const customer = $('#customer').val();
+                const payment = $('#payment').val();
                 
                 $.ajax({
-                        url: "{{ route('getAssetReport') }}",
+                        url: "{{ route('getPenerimaanKas') }}",
                         method: "GET",
                         data: {
                             txSearch: txtSearch,
@@ -99,18 +118,19 @@
                             startDate: startDate,
                             endDate: endDate,
                             customer: customer,
+                            payment : payment,
                         },
                         beforeSend: () => {
-                            $('#containerSoa').html(loadSpin)
+                            $('#containerPenerimaaKas').html(loadSpin)
                         }
                     })
                     .done(res => {
-                        $('#containerSoa').html(res)
+                        $('#containerPenerimaaKas').html(res)
 
                     })
             }
 
-            getAssetReport();
+            getPenerimaanKas();
 
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
@@ -135,25 +155,58 @@
                     }
                 }
             });
-
+            
             $(document).on('click', '#filterTanggal', function(e) {
                 $('#modalFilterTanggal').modal('show');
             });
 
             $('#saveFilterTanggal').click(function() {
-                getAssetReport();
+                getPenerimaanKas();
                 $('#modalFilterTanggal').modal('hide');
             });
-            $('#sendWA').on('click', function(e) {
+            $('#print').on('click', function(e) {
                 e.preventDefault
-                const startDate = $('#startDate').val();
-                const endDate = $('#endDate').val();
-                const customer = $('#customer').val();
-
-                // Construct URL with query parameters
-                const pdfUrl = `{{ route('soaWA') }}?startDate=${startDate}&endDate=${endDate}&customer=${customer}`;
-                window.location.href = pdfUrl;
+                window.location.href = '{{ route('penerimaanKas.pdf') }}';
             });
+
         });
+        // Store the sorting order for each column
+        let sortOrders = {};
+
+        function sortTable(columnIndex) {
+            console.log(`Sorting column: ${columnIndex}`);
+
+            const table = document.getElementById("penerimaanKasTable");
+            const rows = Array.from(table.rows).slice(1); // Skip the header row
+
+            // Initialize or toggle the sorting order for this column
+            if (sortOrders[columnIndex] === undefined) {
+                sortOrders[columnIndex] = true; // Default to ascending on first click
+            } else {
+                sortOrders[columnIndex] = !sortOrders[columnIndex];
+            }
+
+            const ascending = sortOrders[columnIndex];
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].innerText.trim();
+                const cellB = rowB.cells[columnIndex].innerText.trim();
+
+                if (!isNaN(cellA) && !isNaN(cellB)) {
+                    // Numeric sorting
+                    return ascending ? cellA - cellB : cellB - cellA;
+                } else {
+                    // String sorting (case-insensitive)
+                    return ascending
+                        ? cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' })
+                        : cellB.localeCompare(cellA, undefined, { numeric: true, sensitivity: 'base' });
+                }
+            });
+
+            // Rebuild the table
+            rows.forEach(row => table.appendChild(row));
+        }
+
+
     </script>
 @endsection

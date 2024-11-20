@@ -328,7 +328,7 @@ class PaymentController extends Controller
 
 
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-            $totalPayment = $request->paymentAmount;
+            $totalPayment = $request->paymentAmount + ($request->discountPayment ?? 0);
 
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
