@@ -220,6 +220,7 @@
             });
 
             // Load invoices based on marking
+            // Fungsi untuk memuat invoice berdasarkan marking
             function loadInvoicesByMarking(marking) {
                 $.ajax({
                     url: "{{ route('getInvoiceByMarking') }}",
@@ -230,7 +231,6 @@
                     success: function(response) {
                         const $selectInvoice = $('#selectInvoice').empty();
                         if (response.success) {
-
                             response.invoices.forEach(invoice => {
                                 $selectInvoice.append(
                                     `<option value="${invoice.no_invoice}">${invoice.no_invoice}</option>`
@@ -247,57 +247,54 @@
                 });
             }
 
-            // Add a new item row
             $('#add-item-button').click(function() {
                 const newRow = `
-                    <tr>
-                        <td>
-                            <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
-                                <option value="">Pilih Akun</option>
-                                @foreach ($coas as $coa)
-                                    <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
-                                @endforeach
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-                        </td>
-                        <td>
-                            <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-                        </td>
-                    </tr>`;
+                <tr>
+                    <td>
+                        <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
+                            <option value="">Pilih Akun</option>
+                            @foreach ($coas as $coa)
+                                <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                    </td>
+                </tr>`;
                 $('#items-container').append(newRow);
                 $('.select2singgle').last().select2();
                 updateTotals();
             });
 
+            // Fungsi untuk menghitung total
             function updateTotals() {
                 let totalDebit = 0;
-
-                if ($('#items-container tr').length > 0) {
-                    $('#items-container tr').each(function() {
-                        const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
-                        totalDebit += debitValue;
-                    });
-                }
+                $('#items-container tr').each(function() {
+                    const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                    totalDebit += debitValue;
+                });
 
                 const paymentAmount = parseFloat($('#payment').val()) || 0;
                 const discountPayment = parseFloat($('#discountPayment').val()) || 0;
 
-                const grandTotal = totalDebit + paymentAmount - discountPayment;
-
+                const grandTotal = totalDebit + paymentAmount;
                 $('#total_payment').val(grandTotal.toFixed(0));
             }
 
-
+            // Event handler untuk tombol hapus
             $(document).on('click', '.removeItemButton', function() {
                 $(this).closest('tr').remove();
                 updateTotals();
             });
 
+            // Update total saat input nilai debit
             $(document).on('input', 'input[name="debit"]', function() {
                 updateTotals();
             });
@@ -305,6 +302,7 @@
             $('#payment, #discountPayment').on('input', updateTotals);
 
 
+            // Generate kode pembayaran
             function generateKodePembayaran() {
                 $.ajax({
                     url: "{{ route('generateKodePembayaran') }}",
@@ -319,7 +317,7 @@
                         }
                     },
                     error: function() {
-                        showMessage('"error"', 'Terjadi kesalahan dalam generate kode pembayaran.');
+                        showMessage('error', 'Terjadi kesalahan dalam generate kode pembayaran.');
                     }
                 });
             }
@@ -331,6 +329,7 @@
                 allowClear: true
             });
 
+            // Set tanggal saat ini
             const today = new Date();
             $('#tanggalPayment,#tanggalPaymentBuat').datepicker({
                 format: 'dd MM yyyy',
@@ -339,7 +338,7 @@
                 autoclose: true,
             }).datepicker('setDate', today);
 
-            // Load invoice details on selection
+            // Muat detail invoice saat dipilih
             $('#selectInvoice').on('change', function() {
                 const invoiceNo = $(this).val();
                 if (invoiceNo) {
@@ -358,12 +357,8 @@
                         const invoice = response.summary;
                         $('#previewInvoiceNumber').text(invoice.no_invoice.replace(/;/g, ', '));
                         $('#previewInvoiceAmount').text(invoice.total_harga);
-                        // $('#previewInvoiceDate').text(invoice.tanggal_bayar);
-                        // $('#previewInvoiceStatus').text(invoice.status_name);
                         $('#previewTotalPaid').text(invoice.total_bayar);
                         $('#previewRemainingPayment').text(invoice.sisa_bayar);
-                        $('#previewTotalWeight').text(invoice.total_berat);
-                        $('#previewTotalDimension').text(invoice.total_dimensi);
                     },
                     error: function() {
                         showMessage('error', 'Terjadi kesalahan saat memuat data invoice.');
@@ -497,7 +492,7 @@
 
                 if (isValid) {
                     const totalforntend = parseFloat($('#total_payment').val()) || 0;
-                    const backendDiscout = (parseFloat($('#discountPayment').val()) || 0) * 2;
+                    const backendDiscout = parseFloat($('#discountPayment').val()) || 0;
 
                     const totalAmmount = totalforntend + backendDiscout
 

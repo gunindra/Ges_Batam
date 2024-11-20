@@ -37,8 +37,21 @@ class JournalController extends Controller
             )
             ->orderBy('id','desc');
 
+        // Filter by tipe_kode
+        if ($request->tipe_kode) {
+            $query->where('tipe_kode', $request->tipe_kode);
+        }
+
+        if ($request->excludeTypes && is_array($request->excludeTypes)) {
+            $query->whereNotIn('tipe_kode', $request->excludeTypes);
+        }
+
         if ($request->status) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->excludeTypes && is_array($request->excludeTypes)) {
+            $query->whereNotIn('tipe_kode', $request->excludeTypes);
         }
 
         if ($request->startDate && $request->endDate) {
@@ -49,7 +62,7 @@ class JournalController extends Controller
 
         return DataTables::of($query)
             ->editColumn('totalcredit', function ($row) {
-                return 'Rp ' . number_format($row->totalcredit, 0, ',', '.'); // Format totalcredit
+                return 'Rp ' . number_format($row->totalcredit, 0, ',', '.');
             })
             ->editColumn('tanggal', function ($row) {
                 return $row->tanggal;
@@ -67,7 +80,6 @@ class JournalController extends Controller
                         $statusBadgeClass = 'badge-secondary';
                         break;
                 }
-
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
@@ -79,6 +91,8 @@ class JournalController extends Controller
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
+
+
 
     public function addjournal()
     {
@@ -221,7 +235,6 @@ class JournalController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -236,8 +249,51 @@ class JournalController extends Controller
             return response()->json(['error' => 'Failed to delete journal: ' . $e->getMessage()], 500);
         }
     }
+    public function generateNoJournalBKK()
+    {
+        $codeType = "BKK";
+        $currentYear = date('y');
 
+        $lastBKK = Jurnal::where('no_journal', 'like', $codeType . $currentYear . '%')
+            ->orderBy('no_journal', 'desc')
+            ->first();
 
+        $newSequence = 1;
+        if ($lastBKK) {
+            $lastSequence = intval(substr($lastBKK->no_journal, -4));  
+            $newSequence = $lastSequence + 1;
+        }
 
+        $no_journal = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'status' => 'success',
+            'no_journal' => $no_journal
+        ]);
+    }
+    public function generateNoJournalBKM()
+    {
+        $codeType = "BKM";
+        $currentYear = date('y');
+
+        $lastBKM = Jurnal::where('no_journal', 'like', $codeType . $currentYear . '%')
+            ->orderBy('no_journal', 'desc')
+            ->first();
+
+        $newSequence = 1;
+        if ($lastBKM) {
+            $lastSequence = intval(substr($lastBKM->no_journal, -4));  
+            $newSequence = $lastSequence + 1;
+        }
+
+        $no_journal = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'status' => 'success',
+            'no_journal' => $no_journal
+        ]);
+    }
 }
+
+
 

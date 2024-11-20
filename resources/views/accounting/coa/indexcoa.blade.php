@@ -58,8 +58,8 @@
                             <label for="defaultPosisi" class="form-label fw-bold">Default Posisi*</label>
                             <select class="form-control" id="defaultPosisi" required>
                                 <option value="" disabled selected>Select Default Position</option>
-                                <option value="debit">Debit</option>
-                                <option value="credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                                <option value="Credit">Credit</option>
                             </select>
                             <div id="errDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
@@ -87,12 +87,6 @@
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
-                            <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                            <input type="text" class="form-control" id="editCodeAccountID"
-                                placeholder="Input Account ID" required>
-                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
-                        </div>
-                        <div class="mt-3">
                             <label for="editGroupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="editGroupAccount" required>
                                 <option value="" selected>Select Group Account</option>
@@ -103,6 +97,12 @@
                             </select>
                             <div id="errEditGroupAccount" class="text-danger mt-1 d-none">Please select a group account
                             </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
+                            <input type="text" class="form-control" id="editCodeAccountID"
+                                placeholder="Input Account ID" required>
+                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="editNameAccount" class="form-label fw-bold">Name*</label>

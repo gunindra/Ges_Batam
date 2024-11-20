@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_history_topup', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id'); // Mengacu ke tabel tbl_pembeli
+            $table->unsignedBigInteger('customer_id');
             $table->string('customer_name');
             $table->decimal('topup_amount', 15, 2);
             $table->decimal('remaining_points', 15, 2);

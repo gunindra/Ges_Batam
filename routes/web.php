@@ -49,6 +49,9 @@ use App\Http\Controllers\{
     Admin\TopupController,
     Admin\SoaController,
     Admin\AssetController,
+    Admin\AssetReportController,
+    Admin\PenerimaanKasController,
+    Admin\TopUpReportController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -347,6 +350,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
     Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
     Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
+    Route::get('/journal/generateNoJournalBKK', [JournalController::class, 'generateNoJournalBKK'])->name('generateNoJournalBKK');
+    Route::get('/journal/generateNoJournalBKM', [JournalController::class, 'generateNoJournalBKM'])->name('generateNoJournalBKM');
 
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
@@ -396,10 +401,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
     Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
 
-    //Balance
+    //SOA
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
+
+    //Asset
+    Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
+    Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
+    Route::get('/report/assetReport/pdf', [AssetReportController::class, 'generatePdf'])->name('assetReport.pdf');
+
+    //PenerimaaKas
+    Route::get('/report/penerimaanKas',  [PenerimaanKasController::class, 'index'])->name('penerimaanKas');
+    Route::get('/report/getPenerimaanKas',  [PenerimaanKasController::class, 'getPenerimaanKas'])->name('getPenerimaanKas');
+    Route::get('/report/penerimaanKas/pdf', [PenerimaanKasController::class, 'generatePdf'])->name('penerimaanKas.pdf');
+
+    //Top Up Report
+    Route::get('/report/topUpReport',  [TopUpReportController::class, 'index'])->name('topUpReport');
+    Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
+    Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
 });
 
 
