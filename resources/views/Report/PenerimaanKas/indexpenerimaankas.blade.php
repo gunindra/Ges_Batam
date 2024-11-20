@@ -155,7 +155,7 @@
                     }
                 }
             });
-
+            
             $(document).on('click', '#filterTanggal', function(e) {
                 $('#modalFilterTanggal').modal('show');
             });
@@ -164,16 +164,49 @@
                 getPenerimaanKas();
                 $('#modalFilterTanggal').modal('hide');
             });
-            $('#sendWA').on('click', function(e) {
+            $('#print').on('click', function(e) {
                 e.preventDefault
-                const startDate = $('#startDate').val();
-                const endDate = $('#endDate').val();
-                const customer = $('#customer').val();
-
-                // Construct URL with query parameters
-                const pdfUrl = `{{ route('soaWA') }}?startDate=${startDate}&endDate=${endDate}&customer=${customer}`;
-                window.location.href = pdfUrl;
+                window.location.href = '{{ route('penerimaanKas.pdf') }}';
             });
+
         });
+        // Store the sorting order for each column
+        let sortOrders = {};
+
+        function sortTable(columnIndex) {
+            console.log(`Sorting column: ${columnIndex}`);
+
+            const table = document.getElementById("penerimaanKasTable");
+            const rows = Array.from(table.rows).slice(1); // Skip the header row
+
+            // Initialize or toggle the sorting order for this column
+            if (sortOrders[columnIndex] === undefined) {
+                sortOrders[columnIndex] = true; // Default to ascending on first click
+            } else {
+                sortOrders[columnIndex] = !sortOrders[columnIndex];
+            }
+
+            const ascending = sortOrders[columnIndex];
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].innerText.trim();
+                const cellB = rowB.cells[columnIndex].innerText.trim();
+
+                if (!isNaN(cellA) && !isNaN(cellB)) {
+                    // Numeric sorting
+                    return ascending ? cellA - cellB : cellB - cellA;
+                } else {
+                    // String sorting (case-insensitive)
+                    return ascending
+                        ? cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' })
+                        : cellB.localeCompare(cellA, undefined, { numeric: true, sensitivity: 'base' });
+                }
+            });
+
+            // Rebuild the table
+            rows.forEach(row => table.appendChild(row));
+        }
+
+
     </script>
 @endsection
