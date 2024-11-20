@@ -8,24 +8,40 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class LedgerController extends Controller
 {
-    public function index() {
+    public function index()
+    {
+        $listCode = DB::table('tbl_coa')
+            ->select('tbl_coa.code_account_id', 'tbl_coa.name')
+            ->distinct()
+            ->join('tbl_jurnal_items', 'tbl_coa.id', '=', 'tbl_jurnal_items.code_account')
+            ->join('tbl_jurnal', 'tbl_jurnal.id', '=', 'tbl_jurnal_items.jurnal_id')
+            ->orderBy('tbl_coa.code_account_id', 'ASC')
+            ->get();
 
-        return view('Report.Ledger.indexledger');
+        return view('Report.Ledger.indexledger', compact('listCode'));
     }
 
     public function getLedger(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
+        $filterCode = $request->code_account_id;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : date('Y-m-01');
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : date('Y-m-t');
+        
+        $filterCondition = '';
+        if ($filterCode) {
+            $filterCondition .= " AND tbl_coa.code_account_id = '$filterCode'";
+        }
 
         $coaQuery = DB::select("SELECT tbl_coa.name AS account_name,
                                     tbl_coa.id AS coa_id,
                                     tbl_coa.code_account_id AS code,
                                     tbl_coa.default_posisi AS position
                                 FROM tbl_coa
+                                $filterCondition
                                 ORDER BY tbl_coa.code_account_id ASC");
+
 
         $ledgerAccounts = [];
         foreach ($coaQuery as $coa) {
@@ -52,10 +68,9 @@ class LedgerController extends Controller
                                                     WHERE ji.code_account = $coa->coa_id
                                                     AND ju.tanggal < '$startDate'");
 
-            if ($coa->position == 'Debit'){
+            if ($coa->position == 'Debit') {
                 $beginningBalance = $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit;
-            }
-            else{
+            } else {
                 $beginningBalance = $beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit;
             }
 
@@ -71,10 +86,9 @@ class LedgerController extends Controller
 
             }
 
-            if ($coa->position == 'Debit'){
+            if ($coa->position == 'Debit') {
                 $endingBalance = $beginningBalance + $totalDebit - $totalCredit;
-            }
-            else{
+            } else {
                 $endingBalance = $beginningBalance + $totalCredit - $totalDebit;
             }
 
@@ -95,21 +109,20 @@ class LedgerController extends Controller
                 <th width="20%" class="text-right">Total Credit</th>
             </thead>
             <tbody>';
-        foreach($ledgerAccounts as $data){
+        foreach ($ledgerAccounts as $data) {
             if (!empty($data['journal_entries']) || $data['beginning_balance'] != 0 || $data['ending_balance'] != 0) {
-                $output .='<tr>
+                $output .= '<tr>
                                 <td>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</td>
                                 <td><b>BEGINING BALANCE</b></td>
                                 <td class="text-right"><b>  </b></td>';
-                                if ($data['beginning_balance'] >= 0){
-                                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
-                                }
-                                else{
-                                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'] * -1, 2) . '</b> </td> </tr>';
-                                }
+                if ($data['beginning_balance'] >= 0) {
+                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
+                } else {
+                    $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'] * -1, 2) . '</b> </td> </tr>';
+                }
 
-                foreach($data['journal_entries'] as $entry){
-                    $output .='<tr>
+                foreach ($data['journal_entries'] as $entry) {
+                    $output .= '<tr>
                                     <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
                                     <td>' . ($entry->items_description ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->debit ?? '-') . '</td>
@@ -117,19 +130,18 @@ class LedgerController extends Controller
                                 </tr>';
                 }
 
-                $output .='<tr>
+                $output .= '<tr>
                                 <td> </td>
                                 <td><b>ENDING BALANCE</b></td>
                                 <td class="text-right"> <b>  </b> </td>';
-                                if ($data['ending_balance'] >= 0){
-                                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'], 2) . '</b> </td> </tr>';
-                                }
-                                else{
-                                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'] * -1, 2) . '</b> </td> </tr>';
-                                }
+                if ($data['ending_balance'] >= 0) {
+                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'], 2) . '</b> </td> </tr>';
+                } else {
+                    $output .= '<td class="text-right"><b>' . number_format($data['ending_balance'] * -1, 2) . '</b> </td> </tr>';
+                }
             }
         }
-        $output .='</tbody></table>';
+        $output .= '</tbody></table>';
 
 
         return $output;
