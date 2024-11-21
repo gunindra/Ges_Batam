@@ -150,7 +150,7 @@
                                 <label for="noteCredit" class="form-label fw-bold p-1">Note</label>
                             </div>
                             <textarea id="noteCredit" class="form-control" aria-label="With textarea"
-                                placeholder="Masukkan content" rows="4"></textarea>
+                                placeholder="Masukkan note" rows="4"></textarea>
                         </div>
                         <div class="col-4 ms-5 mt-5 ml-5">
                             <div class="mb-3" style="border-bottom:1px solid black;">

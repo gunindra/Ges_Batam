@@ -67,7 +67,7 @@
 
                         <!-- Save Button Centered -->
                         <div class="mt-4 text-center">
-                            <button id="save" class="btn btn-success mt-3" style="width: 400px;">Submit</button>
+                            <button id="save" class="btn btn-success mt-3 w-50" >Submit</button>
                         </div>
                     </div>
                 </div>

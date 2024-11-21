@@ -69,11 +69,10 @@
         <i class="fas fa-arrow-left"></i>
         Back
     </a>
-   <div class="row">
+    <div class="row">
     <div class="col-lg-12">
         <div class="card mb-4">
             <div class="card-body">
-                <!-- Form Section -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mt-3">
@@ -108,7 +107,6 @@
                         </div>
                     </div>
                     
-                    <!-- Preview Invoice Section -->
                     <div class="col-md-6">
                         <h5 class="fw-bold mt-3">Preview Invoice</h5>
                         <div id="invoicePreview" class="border p-4 rounded mt-3 shadow-sm" style="background-color: #f9f9f9;">
@@ -149,7 +147,14 @@
                                     <label>Total:</label>
                                     <input type="text" class="form-control" id="total_debit" name="total_debit" value="" disabled>
                                 </td>
-                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <div class="col-5 mt-3">
+                                        <label for="keteranganPayment" class="form-label fw-bold">Keterangan</label>
+                                        <textarea id="keteranganPayment" class="form-control" aria-label="With textarea" placeholder="Masukkan keterangan" rows="4"></textarea>
+                                    </div>
+                                </td>
                             </tr>
                         </tfoot>
                     </table>
@@ -163,6 +168,7 @@
         </div>
     </div>
 </div>
+
 <!---Container Fluid-->
 
 @endsection
