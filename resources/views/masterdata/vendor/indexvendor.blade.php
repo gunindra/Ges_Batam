@@ -180,8 +180,8 @@
                                 <p class="text-muted">Poin</p>
                             </div>
                             <!-- <div>
-                                                                                                            <p id="statusValue" class="h5"></p>
-                                                                                                        </div> -->
+                                                                                                                    <p id="statusValue" class="h5"></p>
+                                                                                                                </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -326,7 +326,8 @@
                             $('#namaVendorEdit').val(response.data.name);
                             $('#noTelponEdit').val(response.data.phone);
                             $('#alamatContainerEdit textarea').val(response.data.address);
-
+                            $('#coaAccountEdit').val(response.data.account_id).trigger(
+                            'change');
                             // Simpan ID vendor di data attribute tombol Save Edit
                             $('#saveEditCostumer').data('vendor-id', response.data.id);
 
