@@ -453,16 +453,16 @@
         });
 
         $(document).on('click', '.show-invoice-modal', function() {
-            var invoiceNumbers = $(this).data('invoices').trim(); // Menghapus spasi tambahan
-            var marking = $(this).data('marking').trim(); // Menghapus spasi tambahan
-            var customerNames = $(this).data('customers').trim(); // Menghapus spasi tambahan
-            var noDo = $(this).data('no-do').trim(); // Menghapus spasi tambahan
-            var addresses = $(this).data('alamat').trim(); // Menghapus spasi tambahan
-            var buktiPengantaran = $(this).data('bukti').trim(); // Menghapus spasi tambahan
-            var tandaTangan = $(this).data('tanda').trim(); // Menghapus spasi tambahan
-            var metodePengiriman = $(this).data('metode').trim(); // Menghapus spasi tambahan
-            var keterangan = $(this).data('keterangan').trim(); // Menghapus spasi tambahan
-            var statusInvoice = $(this).data('status').trim(); // Menghapus spasi tambahan
+            var invoiceNumbers = $(this).data('invoices'); 
+            var marking = $(this).data('marking').trim(); 
+            var customerNames = $(this).data('customers').trim(); 
+            var noDo = $(this).data('no-do').trim(); 
+            var addresses = $(this).data('alamat').trim(); 
+            var buktiPengantaran = $(this).data('bukti').trim(); 
+            var tandaTangan = $(this).data('tanda').trim(); 
+            var metodePengiriman = $(this).data('metode').trim(); 
+            var keterangan = $(this).data('keterangan').trim(); 
+            var statusInvoice = $(this).data('status').trim(); 
 
             // Pastikan pemisahnya sesuai dengan ';'
             if (typeof invoiceNumbers !== 'string') {
