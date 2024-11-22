@@ -45,6 +45,11 @@ class PaymentController extends Controller
 
     public function addPayment()
     {
+        $savedPaymentAccounts = DB::table('tbl_payment_account')
+        ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
+        ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+        ->get();
+
         $coas = COA::all();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
@@ -54,8 +59,9 @@ class PaymentController extends Controller
 
         return view('customer.payment.buatpayment', [
             'listInvoice' => $listInvoice,
-            'coas' => $coas,
-            'listMarking' => $listMarking
+            'savedPaymentAccounts' => $savedPaymentAccounts,
+            'listMarking' => $listMarking,
+            'coas' => $coas
         ]);
     }
 

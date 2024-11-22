@@ -5,25 +5,25 @@
 @section('main')
 
     <style>
-        .select2-container--default .select2-selection--single {
-            height: 40px;
-            border: 1px solid #d1d3e2;
-            border-radius: 0.25rem;
-            padding: 6px 12px;
-        }
+       .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 27px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 38px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
 
-        .select2-dropdown {
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-        }
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
     </style>
 
     <!---Container Fluid-->
@@ -121,7 +121,7 @@
                             </div>
 
                             <div class="mt-3">
-                                <label for="salesProfitAccount" class="form-label fw-bold">Discount payment account</label>
+                                <label for="salesProfitAccount" class="form-label fw-bold">Discount Payment Account</label>
                                 <select class="form-control select2singgle" id="ProfitRate" required>
                                     <option value="">Pilih Akun</option>
                                     @foreach ($coas as $coa)
@@ -132,19 +132,19 @@
                                     @endforeach
                                 </select>
                             </div>
-                            {{--
-                            <div class="mt-3">
-                                <label for="salesRateAccount" class="form-label fw-bold">Sales Loss Rate Account</label>
-                                <select class="form-control select2singgle" id="LossRate" required>
-                                    <option value="">Pilih Akun</option>
-                                    @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}"
-                                            {{ $accountSettings && $accountSettings->sales_loss_rate_account_id == $coa->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
+
+                        <div class="mt-3">
+                        <label for="PaymentAcoount" class="form-label fw-bold">Payment Account</label>
+                            <select class="form-control" id="PaymentAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedPaymentAccounts)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -177,9 +177,12 @@
             const $saveButton = $('#saveButton');
             const selectedValues = {};
 
-            // Mengambil ID dari input idData
             const accountSettingId = $('#idData').val();
 
+            $('#PaymentAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
             $('select').on('change', function() {
                 const dropdownName = $(this).attr('name');
                 const selectedValue = $(this).val();
@@ -188,59 +191,58 @@
             });
 
             $('#saveButton').on('click', function(e) {
-                e.preventDefault();
+            e.preventDefault();
 
-                // Ambil nilai dari semua select dan input id
-                var data = {
-                    idData: $('#idData').val(),
-                    sales_account_id: $('#Sales').val(),
-                    receivable_sales_account_id: $('#Receivable').val(),
-                    customer_sales_return_account_id: $('#Return').val(),
-                    discount_sales_account_id: $('#Discount').val(),
-                    sales_profit_rate_account_id: $('#ProfitRate').val(),
-                    sales_loss_rate_account_id: $('#LossRate').val(),
-                    purchase_account_id: $('#Purchase').val(),
-                    debt_account_id: $('#Debt').val(),
-                    supplier_purchase_return_account_id: $('#Supplier').val(),
-                    discount_purchase_account_id: $('#DiscountPurchase').val(),
-                    purchase_profit_rate_account_id: $('#PurchaseRate').val(),
-                    purchase_loss_rate_account_id: $('#PurchaseLoss').val(),
-                };
+            const Data = {
+                idData: $('#idData').val(),
+                sales_account_id: $('#Sales').val(),
+                receivable_sales_account_id: $('#Receivable').val(),
+                customer_sales_return_account_id: $('#Return').val(),
+                discount_sales_account_id: $('#Discount').val(),
+                sales_profit_rate_account_id: $('#ProfitRate').val(),
+                sales_loss_rate_account_id: $('#LossRate').val(),
+                purchase_account_id: $('#Purchase').val(),
+                debt_account_id: $('#Debt').val(),
+                supplier_purchase_return_account_id: $('#Supplier').val(),
+                discount_purchase_account_id: $('#DiscountPurchase').val(),
+                purchase_profit_rate_account_id: $('#PurchaseRate').val(),
+                purchase_loss_rate_account_id: $('#PurchaseLoss').val(),
+                coa_id: $("#PaymentAccount").val()  
+            };
 
-                Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Harap tunggu, sedang memperbarui data.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-
-                $.ajax({
-                    url: '/account-settings/store',
-                    type: 'POST',
-                    data: data,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-
-                        Swal.close();
-                        showMessage("success", "Data berhasil disimpan").then(() => {
-                                location.reload();
-                            });
-                    },
-                    error: function(xhr) {
-                        Swal.close();
-                        Swal.fire({
-                            title: 'Terjadi Kesalahan!',
-                            text: xhr.responseJSON.message,
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                });
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Harap tunggu, sedang memperbarui data.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
-        </script>
+
+            $.ajax({
+                url: '/account-settings/store',  
+                type: 'POST',
+                data: Data,  
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.close();
+                    showMessage("success", "Data berhasil disimpan").then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    Swal.fire({
+                        title: 'Terjadi Kesalahan!',
+                        text: xhr.responseJSON.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+
+    </script>
     @endsection

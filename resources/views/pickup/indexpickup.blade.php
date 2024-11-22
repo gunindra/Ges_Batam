@@ -83,10 +83,10 @@
     <script>
         $(document).ready(function() {
 
-            $('#selectResi').select2({
-                placeholder: 'Pilih No.Invoice',
-                allowClear: true
-            });
+                $('#selectResi').select2({
+                    placeholder: 'Pilih No.Invoice',
+                    allowClear: true
+                });
             // Setup for selectResi
             $('#selectResi').on('change', function() {
                 var selectedInvoices = $(this).val();
