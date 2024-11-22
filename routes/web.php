@@ -397,8 +397,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Ledger
     Route::get('/report/ledger', [LedgerController::class, 'index'])->name('ledger');
-    Route::get('/report/getLedger', [LedgerController::class, 'getLedger'])->name('getLedger');
+    Route::get('/report/getLedger', [LedgerController::class, 'getLedgerHtml'])->name('getLedger');
     Route::get('/report/getLedger/pdf', [LedgerController::class, 'generatePdf'])->name('ledger.pdf');
+    Route::get('/report/getLedger/exportExcel', [LedgerController::class, 'exportExcel'])->name('ledger.exportExcel');
 
     //Balance
     Route::get('/report/balance', [BalanceController::class, 'index'])->name('balance');
