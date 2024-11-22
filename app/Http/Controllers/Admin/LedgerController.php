@@ -11,7 +11,7 @@ class LedgerController extends Controller
     public function index()
     {
         $listCode = DB::table('tbl_coa')
-            ->select('tbl_coa.code_account_id', 'tbl_coa.name')
+            ->select('tbl_coa.id','tbl_coa.code_account_id', 'tbl_coa.name')
             ->distinct()
             ->join('tbl_jurnal_items', 'tbl_coa.id', '=', 'tbl_jurnal_items.code_account')
             ->join('tbl_jurnal', 'tbl_jurnal.id', '=', 'tbl_jurnal_items.jurnal_id')
@@ -23,24 +23,20 @@ class LedgerController extends Controller
 
     public function getLedger(Request $request)
     {
+
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
-        $filterCode = $request->code_account_id;
+        $filterCode = $request->filterCode;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : date('Y-m-01');
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : date('Y-m-t');
-        
-        $filterCondition = '';
-        if ($filterCode) {
-            $filterCondition .= " AND tbl_coa.code_account_id = '$filterCode'";
-        }
 
-        $coaQuery = DB::select("SELECT tbl_coa.name AS account_name,
-                                    tbl_coa.id AS coa_id,
-                                    tbl_coa.code_account_id AS code,
-                                    tbl_coa.default_posisi AS position
-                                FROM tbl_coa
-                                $filterCondition
-                                ORDER BY tbl_coa.code_account_id ASC");
+        $coaQuery = DB::table('tbl_coa')
+        ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
+        ->when($filterCode, function ($query, $filterCode) {
+            return $query->where('tbl_coa.id', $filterCode);
+        })
+        ->orderBy('tbl_coa.code_account_id', 'ASC')
+        ->get();
 
 
         $ledgerAccounts = [];

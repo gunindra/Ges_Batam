@@ -81,7 +81,7 @@
                         <select class="form-control select2singgle" id="filterCode" style="width: 200px;">
                             <option value="" selected disabled>Pilih Akun</option>
                             @foreach ($listCode as $Code)
-                                <option value="{{ $Code->code_account_id }}">{{ $Code->code_account_id }} -
+                                <option value="{{ $Code->id }}">{{ $Code->code_account_id }} -
                                     {{ $Code->name }}
                                 </option>
                             @endforeach
