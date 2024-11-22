@@ -38,7 +38,7 @@
                                     <i class="fa fa-eye" id="eyeIcon"></i>
                                 </span>
                             </div>
-                            <div id="passwordUsersError" class="text-danger mt-1 d-none">Password must be at least 8
+                            <div id="passwordUsersError" class="text-danger mt-1 d-none">Password must be at least 6
                                 characters.</div>
                         </div>
                         <div class="mt-3">
@@ -100,7 +100,7 @@
                                 <i class="fa fa-eye" id="eyeIcon1"></i>
                             </span>
                         </div>
-                        <div id="passwordUsersErrorEdit" class="text-danger mt-1 d-none">Password must be at least 8
+                        <div id="passwordUsersErrorEdit" class="text-danger mt-1 d-none">Password must be at least 6
                             characters.
                         </div>
                     </div>
@@ -257,7 +257,7 @@
             } else {
                 $('#emailUsersError').addClass('d-none');
             }
-            if (passwordUsers.length < 8) {
+            if (passwordUsers.length < 6) {
                 $('#passwordUsersError').removeClass('d-none');
                 isValid = false;
             } else {

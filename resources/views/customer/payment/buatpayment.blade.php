@@ -147,6 +147,12 @@
                         <input type="number" class="form-control" id="discountPayment" placeholder="Masukkan discount"
                             required>
                     </div>
+
+                    <div class="input-group mt-3">
+                        <label for="keteranganPayment" class="form-label fw-bold p-1">Keterangan</label>
+                    </div>
+                    <textarea id="keteranganPayment" class="form-control" aria-label="With textarea"
+                        placeholder="Masukkan keterangan" rows="4"></textarea>
                 </div>
             </div>
         </div>
@@ -520,6 +526,7 @@
                     discountPayment: parseFloat($('#discountPayment').val()) || 0,
                     paymentMethod: $('#selectMethod').val(),
                     amountPoin: $('#amountPoin').val(),
+                    keterangan: $('#keteranganPayment').val(),
                     totalAmmount: totalAmmount,
                     items: items,
                     _token: '{{ csrf_token() }}'

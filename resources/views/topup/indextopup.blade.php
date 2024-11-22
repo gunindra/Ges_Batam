@@ -222,6 +222,7 @@
                         </button>
                     </div>
                     <div id="containerPurchaseTop-up">
+                        <div class="table-responsive">
                         <table class="table align-items-center table-flush table-hover" id="tableTopup">
                             <thead class="thead-light">
                                 <tr>
@@ -265,6 +266,7 @@
                                 </tr> --}}
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>

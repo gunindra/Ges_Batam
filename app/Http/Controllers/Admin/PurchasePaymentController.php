@@ -27,7 +27,8 @@ class PurchasePaymentController extends Controller
         $this->jurnalController = $jurnalController;
     }
 
-    public function index() {
+    public function index()
+    {
 
 
         return view('vendor.purchasepayment.indexpurchasepayment');
@@ -61,8 +62,8 @@ class PurchasePaymentController extends Controller
 
         $query->orderBy('a.id', 'desc');
         return DataTables::of($query)
-            ->addColumn('action', function($row) {
-                return '<button class="btn btn-info btn-sm" onclick="viewPaymentDetails(' . $row->id . ')">Lihat</button>';
+            ->addColumn('action', function ($row) {
+                return '<a class="btn btnviewPaymentDetails btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white ml-1">Detail</span></a>';
             })
             ->rawColumns(['action'])
             ->make(true);
@@ -77,13 +78,13 @@ class PurchasePaymentController extends Controller
         $coas = COA::all();
 
         $listInvoice = SupInvoice::where('status_bayar', 'Belum Lunas')
-        ->select('invoice_no')
-        ->get();
+            ->select('invoice_no')
+            ->get();
 
         $listVendor = Vendor::select('id', 'name')
-        ->get();
+            ->get();
 
-        return view('vendor.purchasepayment.buatpurchasepayment' , [
+        return view('vendor.purchasepayment.buatpurchasepayment', [
             'listInvoice' => $listInvoice,
             'coas' => $coas,
             'listVendor' => $listVendor
@@ -175,6 +176,7 @@ class PurchasePaymentController extends Controller
             'tanggalPayment' => 'required|date',
             'paymentAmount' => 'required|numeric',
             'paymentMethod' => 'required|integer',
+            'keteranganPaymentSup' => 'nullable|string',
             'items' => 'nullable|array',
             'items.*.account' => 'required|integer',
             'items.*.item_desc' => 'required|string',
@@ -210,12 +212,12 @@ class PurchasePaymentController extends Controller
                 ->orderBy('kode_pembayaran', 'desc')
                 ->first();
 
-                $currentYear = date('y');
-                $lastSequence = PaymentSup::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
-                    ->max(DB::raw('CAST(SUBSTR(kode_pembayaran, -4) AS UNSIGNED)'));
+            $currentYear = date('y');
+            $lastSequence = PaymentSup::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
+                ->max(DB::raw('CAST(SUBSTR(kode_pembayaran, -4) AS UNSIGNED)'));
 
-                $newSequence = $lastSequence ? $lastSequence + 1 : 1;
-                $newKodePembayaran = sprintf('%s%s%04d', $codeType, $currentYear, $newSequence);
+            $newSequence = $lastSequence ? $lastSequence + 1 : 1;
+            $newKodePembayaran = sprintf('%s%s%04d', $codeType, $currentYear, $newSequence);
 
             $payment = new PaymentSup();
             // $payment->invoice_id = $invoice->id;
@@ -223,6 +225,7 @@ class PurchasePaymentController extends Controller
             // $payment->amount = $request->paymentAmount;
             $payment->payment_method_id = $request->paymentMethod;
             $payment->kode_pembayaran = $newKodePembayaran;
+            $payment->Keterangan = $request->keteranganPaymentSup;
             $payment->save();
 
 
@@ -271,7 +274,7 @@ class PurchasePaymentController extends Controller
                 $jurnal->no_journal = $noJournal;
                 $jurnal->tipe_kode = 'BKK';
                 $jurnal->tanggal = $tanggalPayment;
-                $jurnal->no_ref =  $noRef;
+                $jurnal->no_ref = $noRef;
                 $jurnal->status = 'Approve';
                 $jurnal->description = "Jurnal untuk Invoice {$noRef}";
                 $jurnal->totaldebit = $request->paymentAmount;
@@ -342,7 +345,43 @@ class PurchasePaymentController extends Controller
             $request->endDate
         ), 'Payment_Suppiler.xlsx');
     }
+    public function getInvoiceSupDetail(Request $request)
+    {
+        $id = $request->id;
 
+        $paymentSup = PaymentSup::select(
+            'pc.id AS payment_sup_id',
+            'pc.Keterangan',
+            'pc.kode_pembayaran',
+            DB::raw("GROUP_CONCAT(DISTINCT CONCAT(inv.invoice_no, '(', pi.amount, ')') SEPARATOR '; ') AS invoice_details"),
+            DB::raw("GROUP_CONCAT(DISTINCT CONCAT(coa.name, '(', pitems.nominal, ') - ', pitems.description) SEPARATOR '; ') AS item_details")
+        )
+            ->from('tbl_payment_sup as pc')
+            ->where('pc.id', $id)
+            ->leftJoin('tbl_payment_invoice_sup as pi', 'pc.id', '=', 'pi.payment_id')
+            ->leftJoin('tbl_sup_invoice as inv', 'pi.invoice_id', '=', 'inv.id')
+            ->leftJoin('tbl_payment_sup_items as pitems', 'pc.id', '=', 'pitems.payment_id')
+            ->leftJoin('tbl_coa as coa', 'pitems.coa_id', '=', 'coa.id')
+            ->groupBy(
+                'pc.id',
+                'pc.Keterangan',
+                'pc.kode_pembayaran'
+            )
+            ->first();
+
+        if (!$paymentSup) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment Vendor not found.',
+            ], 404);
+        }
+
+        // Jika payment ditemukan, kirimkan response dengan datanya
+        return response()->json([
+            'success' => true,
+            'data' => $paymentSup,
+        ]);
+    }
 
 
 }
