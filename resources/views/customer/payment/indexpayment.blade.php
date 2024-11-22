@@ -48,6 +48,8 @@
                             <!-- Data payment items akan dimuat di sini -->
                         </tbody>
                     </table>
+                    <label for="Keterangan" class="form-label fw-bold">Keterangan :</label>
+                    <div id="payment-description" class="form-label fw-bold">Tidak ada keterangan</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -55,12 +57,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Payment</h1>
@@ -128,7 +124,7 @@
                                 Reset
                             </button>
                         </div>
-                        <div id="containerPurchasePayment" class="px-3">
+                        <div id="containerPurchasePayment" class="table-responsive px-3">
                             <table class="table align-items-center table-flush table-hover" id="tablePurchasePayment">
                                 <thead class="thead-light">
                                     <tr>
@@ -339,6 +335,9 @@
 
                     if (response.success) {
                         let data = response.data;
+
+                        let Keterangan = data.Keterangan || 'Tidak ada keterangan';
+                        $('#payment-description').text(Keterangan);
 
                         // Kosongkan tabel sebelum menambahkan data baru
                         $('#invoice-details-table tbody').empty();

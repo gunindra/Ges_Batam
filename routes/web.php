@@ -292,6 +292,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/purchasePayment/getSupInvoiceAmount', [PurchasePaymentController::class, 'getSupInvoiceAmount'])->name('getSupInvoiceAmount');
     Route::get('/vendor/purchasePayment/export', [PurchasePaymentController::class, 'export'])->name('getSupInvoiceExport');
     Route::post('/vendor/purchasePayment/payment', [PurchasePaymentController::class, 'store'])->name('paymentSup');
+    Route::get('/vendor/purchasePayment/getInvoiceSupDetail', [PurchasePaymentController::class, 'getInvoiceSupDetail'])->name('getInvoiceSupDetail');
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');

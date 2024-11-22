@@ -17,6 +17,7 @@ class Payment extends Model
         'payment_date',
         'discount',
         'payment_buat',
+        'Keterangan',
         'payment_method_id',
     ];
 

@@ -72,7 +72,7 @@ class UserController extends Controller
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
             'roleUsers' => 'required|string|max:50',
-            'passwordUsers' => 'required|min:8|confirmed',
+            'passwordUsers' => 'required|min:6|confirmed',
         ]);
 
         try {
@@ -95,7 +95,7 @@ class UserController extends Controller
         $rules = [
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255',
-            'passwordUsers' => 'nullable|min:8|confirmed',
+            'passwordUsers' => 'nullable|min:6|confirmed',
         ];
 
         if ($request->input('roleUsers') !== 'driver' && $request->input('roleUsers') !== 'customer') {

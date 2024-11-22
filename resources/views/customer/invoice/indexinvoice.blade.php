@@ -190,27 +190,29 @@
                         {{-- </div> --}}
 
                     <div id="containerInvoice">
-                        <table id="tableInvoice" class="table align-items-center table-flush table-hover">
-                            <thead class="thead-light">
-                                <tr>
+                        <div class="table-responsive">
+                            <table id="tableInvoice" class="table align-items-center table-flush table-hover">
+                                <thead class="thead-light">
+                                    <tr>
 
-                                    @if (Auth::user()->role === 'supervisor')
-                                        <th><input type="checkbox" class="selectAll" id="selectAll"></th>
-                                    @endif
-                                    <th>No Invoice</th>
-                                    <th>Tanggal</th>
-                                    <th>No Do</th>
-                                    <th>Customer</th>
-                                    <th>Pengiriman</th>
-                                    <th>Alamat</th>
-                                    <th>Status Pembayaran</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                                        @if (Auth::user()->role === 'supervisor')
+                                            <th><input type="checkbox" class="selectAll" id="selectAll"></th>
+                                        @endif
+                                        <th>No Invoice</th>
+                                        <th>Tanggal</th>
+                                        <th>No Do</th>
+                                        <th>Customer</th>
+                                        <th>Pengiriman</th>
+                                        <th>Alamat</th>
+                                        <th>Status Pembayaran</th>
+                                        <th>Harga</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

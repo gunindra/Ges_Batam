@@ -161,7 +161,7 @@
                         </div>
 
                         <h4 class="pt-5 ml-3">Daftar Account</h4>
-                        <div class="ml-3" id="containerListCOA">
+                        <div class="ml-3 table-responsive" id="containerListCOA">
                             {{-- <ul>
                                 <li>
                                     <a href="">1.0.00 - ASET</a>

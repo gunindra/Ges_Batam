@@ -193,6 +193,7 @@ class PaymentController extends Controller
                 'pc.payment_buat',
                 'pc.payment_method_id',
                 'pc.discount',
+                'pc.Keterangan',
                 DB::raw("GROUP_CONCAT(DISTINCT CONCAT(inv.no_invoice, '(', pi.amount, ')') SEPARATOR '; ') AS invoice_details"),
                 DB::raw("GROUP_CONCAT(DISTINCT CONCAT(coa.name, '(', pitems.nominal, ') - ', pitems.description) SEPARATOR '; ') AS item_details")
             )
@@ -208,7 +209,8 @@ class PaymentController extends Controller
                 'pc.payment_date',
                 'pc.payment_buat',
                 'pc.payment_method_id',
-                'pc.discount'
+                'pc.discount',
+                'pc.Keterangan'
             )
             ->first();
 
@@ -286,6 +288,7 @@ class PaymentController extends Controller
             'discountPayment' => 'nullable|numeric',
             'paymentMethod' => 'required|integer',
             'amountPoin' => 'nullable|numeric',
+            'keterangan' => 'nullable|string',
             'items' => 'nullable|array',
             'items.*.account' => 'required|integer',
             'items.*.item_desc' => 'required|string',
@@ -352,6 +355,7 @@ class PaymentController extends Controller
             $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $discount;
+            $payment->Keterangan = $request->keterangan;
             $payment->save();
 
             $invoiceList = [];
@@ -730,6 +734,7 @@ class PaymentController extends Controller
             $payment->payment_buat =   $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
+            $payment->Keterangan = $request->keterangan;
             $payment->save();
 
             $invoiceList = [];

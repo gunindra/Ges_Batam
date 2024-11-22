@@ -271,12 +271,12 @@ class InvoiceController extends Controller
             ->addColumn('action', function ($item) {
                 $btnChangeMethod = '';
                 if ($item->metode_pengiriman == 'Pickup' && $item->status_id == 1) {
-                    $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm mr-2 btn-success text-white" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
+                    $btnChangeMethod = '<a class="btn btnChangeMethod btn-sm  btn-success text-white mr-1" data-id="' . $item->id . '" data-method="Delivery" ><i class="fas fa-sync-alt"></i></a>';
                 }
-                $btnExportInvoice = '<a class="btn btnExportInvoice btn-sm btn-primary text-white" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
-                $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white mt-1" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
+                $btnExportInvoice = '<a class="btn btnExportInvoice btn-sm btn-primary text-white mr-1" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
+                $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
             
-                return $btnChangeMethod . $btnExportInvoice . $btnEditInvoice;
+                return '<div class="d-flex">' . $btnChangeMethod . $btnExportInvoice . $btnEditInvoice . '</div>';
             })
             ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar'])
             ->make(true);
