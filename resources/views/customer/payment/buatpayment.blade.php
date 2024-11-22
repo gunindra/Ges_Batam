@@ -300,7 +300,9 @@
             updateTotals();
         });
 
-        $('#payment, #discountPayment').on('input', updateTotals);
+        $('#payment, #discountPayment').on('input change', function() {
+            updateTotals();
+        });
 
 
         // Generate kode pembayaran
@@ -386,6 +388,7 @@
             if (selectedMethod === "162") {
                 sectionPoin.removeClass("d-none");
                 paymentInput.prop("disabled", true);
+                discountInput.prop("disabled", true);
             } else {
                 sectionPoin.addClass("d-none");
                 paymentInput.prop("disabled", false);
@@ -422,6 +425,7 @@
                 success: function (response) {
                     if (response.total_nominal) {
                         $('#payment').val(response.total_nominal);
+                        updateTotals();
                     } else {
                         showMessage('error', 'Data tidak ditemukan');
                     }
