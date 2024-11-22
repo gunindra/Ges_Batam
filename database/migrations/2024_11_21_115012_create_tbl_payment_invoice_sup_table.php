@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_payment_invoice', function (Blueprint $table) {
+        Schema::create('tbl_payment_invoice_sup', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('payment_id');
             $table->unsignedBigInteger('invoice_id');
             $table->decimal('amount', 15, 2);
-            $table->foreign('invoice_id')->references('id')->on('tbl_invoice')->onDelete('cascade');
-            $table->foreign('payment_id')->references('id')->on('tbl_payment_customer')->onDelete('cascade');
+            $table->foreign('payment_id')->references('id')->on('tbl_payment_sup')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('id')->on('tbl_sup_invoice')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_payment_invoice');
+        Schema::dropIfExists('tbl_payment_invoice_sup');
     }
 };

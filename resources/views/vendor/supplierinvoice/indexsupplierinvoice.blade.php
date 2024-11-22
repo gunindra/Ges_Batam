@@ -190,35 +190,35 @@
             columns: [{
                 data: 'invoice_no',
                 name: 'invoice_no'
-            }, // Nomor Invoice
+            },
             {
                 data: 'vendor',
                 name: 'vendor'
-            }, // Vendor
+            },
             {
                 data: 'tanggal',
                 name: 'tanggal'
-            }, // Tanggal
+            },
             {
                 data: 'matauang',
                 name: 'matauang'
-            }, // Mata Uang
+            },
             {
                 data: 'status_bayar',
                 name: 'status_bayar',
                 orderable: false,
                 searchable: false
-            }, // Status Bayar
+            },
             {
                 data: 'total_harga',
                 name: 'total_harga'
-            }, // Total Harga
+            },
             {
                 data: 'action',
                 name: 'action',
                 orderable: false,
                 searchable: false
-            } // Action Buttons
+            }
             ],
             order: [],
             lengthChange: false,

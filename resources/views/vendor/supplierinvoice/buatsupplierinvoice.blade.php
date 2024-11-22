@@ -342,15 +342,14 @@
             let vendor = $('#selectVendor').val();
 
             let items = [];
-            let isItemsValid = true; // Variable to track item validity
+            let isItemsValid = true;
             $('#items-container tr').each(function () {
                 let account = $(this).find('select[name="account"]').val();
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
 
-                // Check for empty fields
                 if (!account || !itemDesc || !debit) {
-                    isItemsValid = false; // Mark as invalid if any field is empty
+                    isItemsValid = false;
                 }
 
                 items.push({
@@ -368,7 +367,7 @@
                 rateCurrency: rateCurrency,
                 vendor: vendor,
                 items: items,
-                isItemsValid: isItemsValid // Add validity of items
+                isItemsValid: isItemsValid
             };
         }
 
@@ -376,7 +375,6 @@
             e.preventDefault();
             let formData = getFormValues();
 
-            // Validate required fields
             let isValid = true;
 
             if (!formData.currency) {
@@ -404,26 +402,23 @@
                 isValid = false;
             }
 
-            // Validate item rows
             if (!formData.isItemsValid) {
-                $('#tableError').removeClass('d-none'); // Show table error
+                $('#tableError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#tableError').addClass('d-none'); // Hide table error if valid
+                $('#tableError').addClass('d-none');
             }
 
-            // Additional validation for rateCurrency when currency is SGD or CNY
             if (formData.currency) {
-                let selectedCurrency = $('#currencyInvoice option:selected').text(); // Get the selected currency name
+                let selectedCurrency = $('#currencyInvoice option:selected').text();
                 if ((selectedCurrency.includes("SGD") || selectedCurrency.includes("CNY")) && !formData.rateCurrency) {
                     $('#rateCurrencyError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#rateCurrencyError').addClass('d-none'); // Hide error if rateCurrency is valid
+                    $('#rateCurrencyError').addClass('d-none');
                 }
             }
 
-            // Only proceed with the AJAX request if the form is valid
             if (isValid) {
                 $.ajax({
                     url: "{{ route('supInvoice.store') }}",
