@@ -16,7 +16,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Menu Dashboard -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'customer', 'driver']))
+            @if (in_array(Auth::user()->role, ['superadmin']))
                 <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -26,7 +26,7 @@
             @endif
 
             <!-- Menu Tracking -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor', 'customer']))
                 <li class="nav-item {{ request()->routeIs('tracking') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('tracking') }}">
                         <i class="fas fa-globe-asia"></i>
@@ -36,7 +36,7 @@
             @endif
 
             <!-- Menu Driver -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'driver']))
+            @if (in_array(Auth::user()->role, ['driver']))
                 <li class="nav-item {{ request()->routeIs('supir') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('supir') }}">
                         <i class="fas fa-truck-loading"></i>
@@ -46,7 +46,7 @@
             @endif
 
             <!-- Menu Top Up -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li class="nav-item {{ request()->routeIs('topuppage') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('topuppage') }}">
                         <i class="fas fa-wallet"></i>
@@ -55,8 +55,18 @@
                 </li>
             @endif
 
-            <!-- Menu Customer -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+                <li class="nav-item {{ request()->routeIs('pickup') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pickup') }}">
+                    <i class="fas fa-people-carry"></i>
+                        <span>Pickup</span>
+                    </a>
+                </li>
+            @endif
+
+
+            <!-- Menu Customer -->
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li
                     class="nav-item {{ request()->routeIs('invoice') || request()->routeIs('delivery') || request()->routeIs('payment') || request()->routeIs('creditnote') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#customerMenu"
@@ -98,16 +108,17 @@
                                 href="{{ route('coa') }}">COA</a>
                             <a class="collapse-item {{ request()->routeIs('journal') ? 'active' : '' }}"
                                 href="{{ route('journal') }}">Journal</a>
+                                <a class="collapse-item {{ request()->routeIs('asset') ? 'active' : '' }}"
+                                href="{{ route('asset') }}">Asset</a>
                             <a class="collapse-item {{ request()->routeIs('accountingSetting') ? 'active' : '' }}"
                                 href="{{ route('accountingSetting') }}">Accounting Setting</a>
                         </div>
                     </div>
                 </li>
             @endif
-
             <!-- Menu Report (hanya superadmin) -->
             @if (Auth::user()->role === 'superadmin')
-                <li class="nav-item {{ request()->routeIs('profitloss') || request()->routeIs('ledger') || request()->routeIs('equity')  || request()->routeIs('balance') || request()->routeIs('cashflow') ? 'active' : '' }}">
+                <li class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa')  ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport"
                         aria-expanded="true" aria-controls="listreport">
                         <i class="fas fa-file-alt fa-lg"></i>
@@ -117,6 +128,33 @@
                         data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Report</h6>
+                            <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
+                                href="{{ route('assetReport') }}">Asset Report</a>
+                            <a class="collapse-item {{ request()->routeIs('topUpReport') ? 'active' : '' }}"
+                                href="{{ route('topUpReport') }}">Top Up Report</a>
+                            <a class="collapse-item {{ request()->routeIs('penerimaanKas') ? 'active' : '' }}"
+                                href="{{ route('penerimaanKas') }}">Penerimaan Kas Report</a>
+                            <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
+                                href="{{ route('soa') }}">SOA Customer</a>
+                            <a class="collapse-item {{ request()->routeIs('soaVendor') ? 'active' : '' }}"
+                                href="{{ route('soaVendor') }}">SOA Vendor</a>
+                        </div>
+                    </div>
+                </li>
+            @endif
+
+            <!-- Menu Accounting Report (hanya superadmin) -->
+            @if (Auth::user()->role === 'superadmin')
+                <li class="nav-item {{ request()->routeIs('profitloss') || request()->routeIs('ledger') || request()->routeIs('equity')  || request()->routeIs('balance') || request()->routeIs('cashflow') ? 'active' : '' }}">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listAccountingReport"
+                        aria-expanded="true" aria-controls="listAccountingReport">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Accounting Report</span>
+                    </a>
+                    <div id="listAccountingReport" class="collapse" aria-labelledby="headingBootstrap"
+                        data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Accounting Report</h6>
                             <a class="collapse-item {{ request()->routeIs('profitloss') ? 'active' : '' }}"
                                 href="{{ route('profitloss') }}">Profit/Loss</a>
                             <a class="collapse-item {{ request()->routeIs('ledger') ? 'active' : '' }}"
@@ -133,7 +171,7 @@
             @endif
 
             <!-- Menu Vendor -->
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li class="nav-item {{ request()->routeIs('supplierInvoice') || request()->routeIs('purchasePayment') || request()->routeIs('debitnote')? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse"
                         data-target="#collapseBootstrapsVendor" aria-expanded="true"
@@ -157,7 +195,7 @@
             @endif
 
             <!-- Master Data (Hanya Superadmin) -->
-            @if (Auth::user()->role === 'superadmin')
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
             <li class="nav-item {{ request()->routeIs('costumer') || request()->routeIs('driver') || request()->routeIs('rekening') || request()->routeIs('pembagirate') || request()->routeIs('category') || request()->routeIs('user') || request()->routeIs('vendor') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstrap"
                         aria-expanded="true" aria-controls="collapseBootstrap">
@@ -190,7 +228,7 @@
             @endif
 
             {{-- Menu Content --}}
-            @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
+            @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li
                     class="nav-item {{ request()->routeIs('abouts') || request()->routeIs('whys') || request()->routeIs('services') || request()->routeIs('informations') || request()->routeIs('heropage') || request()->routeIs('Advertisement') || request()->routeIs('popup') || request()->routeIs('contact') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBootstraps"
@@ -464,7 +502,6 @@
                     </div>
                 </div>
 
-
                 @yield('main')
 
             </div>
@@ -486,4 +523,8 @@
             <!-- Footer -->
         </div>
     </div>
+
+
+
+
 @endsection

@@ -63,7 +63,7 @@ class PembagirateController extends Controller
 
             $Pembagi->save();
 
-            return response()->json(['success' => 'berhasil ditambahkan']);
+            return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
         }
@@ -147,9 +147,12 @@ class PembagirateController extends Controller
     {
         $request->validate([
             'nilaiRate' => 'required|numeric',
-            'forRate' => 'required|in:Berat,Volume',
+            'forRate' => 'required|in:Berat,Volume,Topup',
         ]);
         try {
+            if ($request->input('forRate') === 'Topup' && Rate::where('rate_for', 'Topup')->exists()) {
+                return response()->json(['error' => 'Hanya boleh ada satu data rate dengan kategori Topup'],400);
+            }
             $Rate = new Rate();
             $Rate->nilai_rate = $request->input('nilaiRate');
             $Rate->rate_for = $request->input('forRate');
@@ -177,9 +180,12 @@ class PembagirateController extends Controller
     {
         $validated = $request->validate([
             'nilaiRate' => 'required|numeric',
-            'forRate' => 'required|in:Berat,Volume',
+            'forRate' => 'required|in:Berat,Volume,Topup',
         ]);
         try {
+            if ($request->input('forRate') === 'Topup' && Rate::where('rate_for', 'Topup')->where('id', '!=', $id)->exists()) {
+                return response()->json(['error' => 'Hanya boleh ada satu data rate dengan kategori Topup'], 400);
+            }
             $Rate = Rate::findOrFail($id);
             $Rate->nilai_rate = $request->input('nilaiRate');
             $Rate->rate_for = $request->input('forRate');
@@ -197,5 +203,4 @@ class PembagirateController extends Controller
         $Rate = Rate::findOrFail($id);
         return response()->json($Rate);
     }
-
 }

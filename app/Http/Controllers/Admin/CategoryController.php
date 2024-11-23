@@ -59,14 +59,10 @@ class CategoryController extends Controller
         $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
-            'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
         ], [
             'nameCategory.required' => 'Nama kategori harus diisi.',
             'minimumRateCategory.required' => 'Rate minimum harus diisi.',
-            'maximumRateCategory.required' => 'Rate maksimum harus diisi.',
-            'maximumRateCategory.gte' => 'Rate maksimum tidak boleh lebih kecil dari rate minimum.',
         ]);
-
 
         try {
             $Category = new Category();
@@ -76,29 +72,27 @@ class CategoryController extends Controller
 
             $Category->save();
 
-            return response()->json(['success' => 'berhasil ditambahkan']);
+            return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
+
     public function updateCategory(Request $request, $id)
     {
         $validated = $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
-            'maximumRateCategory' => 'required|numeric|min:0|gte:minimumRateCategory',
         ],[
             'nameCategory.required' => 'Nama kategori harus diisi.',
             'minimumRateCategory.required' => 'Rate minimum harus diisi.',
-            'maximumRateCategory.required' => 'Rate maksimum harus diisi.',
-            'maximumRateCategory.gte' => 'Rate maksimum tidak boleh lebih kecil dari rate minimum.',
         ]);
-        try {
-        $Category = Category::findOrFail($id);
-        $Category->category_name = $request->input('nameCategory');
-        $Category->minimum_rate = $request->input('minimumRateCategory');
-        $Category->maximum_rate = $request->input('maximumRateCategory');
 
+        try {
+            $Category = Category::findOrFail($id);
+            $Category->category_name = $request->input('nameCategory');
+            $Category->minimum_rate = $request->input('minimumRateCategory');
+            $Category->maximum_rate = $request->input('maximumRateCategory');
 
             $Category->update($validated);
 
@@ -107,6 +101,7 @@ class CategoryController extends Controller
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
+
 
     public function destroyCategory($id)
     {

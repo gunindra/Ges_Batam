@@ -25,25 +25,20 @@ class CreditNoteController extends Controller
 
     public function index()
     {
-            $listStatus = DB::select("     SELECT b.name
-        FROM tbl_credit_note AS a
-        JOIN tbl_coa AS b ON b.id = a.account_id
-        GROUP BY a.account_id, b.name") ;
-
+        $listStatus = DB::select("SELECT b.name
+            FROM tbl_credit_note AS a
+            JOIN tbl_coa AS b ON b.id = a.account_id
+            GROUP BY a.account_id, b.name");
 
         return view('customer.creditnote.indexcreditnote',  [
             'listStatus' => $listStatus]);
     }
 
-
-
     public function addCreditNote()
     {
-
         $coas = COA::all();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $listInvoice = DB::select("SELECT id, no_invoice FROM tbl_invoice");
-
 
         return view('customer.creditnote.buatcreditnote', [
             'listCurrency' => $listCurrency,
@@ -59,7 +54,7 @@ class CreditNoteController extends Controller
                 ->join('tbl_invoice AS inv', 'cn.invoice_id', '=', 'inv.id')
                 ->join('tbl_coa AS coa', 'cn.account_id', '=', 'coa.id')
                 ->join('tbl_matauang AS mu', 'cn.matauang_id', '=', 'mu.id')
-                ->select( 'cn.id','cn.no_creditnote', 'inv.no_invoice', 'coa.name as coa_name', 'mu.singkatan_matauang as currency_short', 'cn.created_at')
+                ->select('cn.id','cn.no_creditnote', 'inv.no_invoice', 'coa.name as coa_name', 'mu.singkatan_matauang as currency_short', 'cn.created_at')
                 ->orderBy('cn.id', 'desc');
 
             if ($request->status) {
@@ -91,15 +86,12 @@ class CreditNoteController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = ' <a href="#" data-id="' . $row->id . '" class="btn btnedit btn-primary btn-sm"><i class="fas fa-list-ul"></i></a>';
-                    // $btn .= ' <a href="#" data-id="' . $row->id . '" class="btn btndelete btn-danger btn-sm"><i class="fas fa-trash"></i></a>';
                     return $btn;
                 })
-
                 ->rawColumns(['action'])
                 ->make(true);
         }
     }
-
 
     public function store(Request $request)
     {
@@ -113,8 +105,6 @@ class CreditNoteController extends Controller
             'items.*.noresi' => 'required|string|max:255',
             'items.*.deskripsi' => 'required|string|max:255',
             'items.*.harga' => 'required|numeric',
-            'items.*.jumlah' => 'required|numeric',
-            'items.*.total' => 'required|numeric',
             'totalKeseluruhan' => 'required|numeric',
         ]);
 
@@ -143,18 +133,15 @@ class CreditNoteController extends Controller
             $codeType = "CN";
             $currentYear = date('y');
 
-            // Cari data invoice berdasarkan request->invoiceCredit
             $invoice = Invoice::where('id', $request->invoiceCredit)->firstOrFail();
-            $invoice_id = $invoice->no_invoice;  // Inisialisasi variabel $invoice_id
+            $invoice_id = $invoice->no_invoice;
 
-            // Jika creditNoteId ada, lakukan update; jika tidak ada, buat credit note baru
             if ($request->has('creditNoteId')) {
                 $creditNote = CreditNote::findOrFail($request->creditNoteId);
-
-                // Cek apakah jurnal sudah ada untuk invoice ini
+                $creditNote->items()->delete();
                 $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
             } else {
-                // Membuat no_creditnote baru jika creditNoteId tidak ada
+
                 $lastCreditNote = CreditNote::where('no_creditnote', 'like', $codeType . $currentYear . '%')
                     ->orderBy('no_creditnote', 'desc')
                     ->first();
@@ -166,19 +153,16 @@ class CreditNoteController extends Controller
                 }
                 $newNoCreditNote = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
-                $creditNote = new CreditNote();  // Inisialisasi objek baru
-                $creditNote->no_creditnote = $newNoCreditNote;  // Buat nomor credit note baru
+                $creditNote = new CreditNote();
+                $creditNote->no_creditnote = $newNoCreditNote;
 
-                // Generate nomor jurnal baru untuk create
                 $request->merge(['code_type' => 'CN']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
-                // Buat jurnal baru
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
             }
 
-            // Update atau buat data credit note
             $creditNote->invoice_id = $request->invoiceCredit;
             $creditNote->account_id = $request->accountCredit;
             $creditNote->matauang_id = $request->currencyCredit;
@@ -187,8 +171,7 @@ class CreditNoteController extends Controller
             $creditNote->total_keseluruhan = $request->totalKeseluruhan;
             $creditNote->save();
 
-            // Simpan atau update jurnal jika perlu
-            $jurnal->tipe_kode = 'CN';
+
             $jurnal->tanggal = now();
             $jurnal->no_ref = $invoice_id;
             $jurnal->status = 'Approve';
@@ -197,7 +180,6 @@ class CreditNoteController extends Controller
             $jurnal->totalcredit = $request->totalKeseluruhan;
             $jurnal->save();
 
-            // Simpan item jurnal (kredit)
             JurnalItem::updateOrCreate(
                 ['jurnal_id' => $jurnal->id, 'code_account' => $receivableSalesAccountId],
                 [
@@ -207,7 +189,6 @@ class CreditNoteController extends Controller
                 ]
             );
 
-            // Simpan item jurnal (debit)
             JurnalItem::updateOrCreate(
                 ['jurnal_id' => $jurnal->id, 'code_account' => $salesAccountId],
                 [
@@ -217,32 +198,28 @@ class CreditNoteController extends Controller
                 ]
             );
 
-            // Simpan atau update credit note items
             foreach ($request->items as $item) {
-                $creditNote->items()->updateOrCreate(
-                    ['no_resi' => $item['noresi']],
-                    [
-                        'deskripsi' => $item['deskripsi'],
-                        'harga' => $item['harga'],
-                        'jumlah' => $item['jumlah'],
-                        'total' => $item['total'],
-                    ]
-                );
+                $creditNote->items()->create([
+                    'no_resi' => $item['noresi'],
+                    'deskripsi' => $item['deskripsi'],
+                    'harga' => $item['harga'],
+                ]);
             }
 
             DB::commit();
-            return response()->json(['message' => 'Credit note berhasil disimpan!'], 200);
-
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Credit Note has been saved successfully.',
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'There was an error while saving the data.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
-
-
-
-
-
 
     public function updatepage($id)
     {

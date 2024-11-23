@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tracking extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_tracking'; 
+    protected $table = 'tbl_tracking';
     protected $fillable = [
         'no_resi',
         'no_do',

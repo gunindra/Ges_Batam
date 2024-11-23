@@ -23,7 +23,8 @@
                 <div class="modal-body">
                     <div class="mt-3">
                         <label for="nilaiPembagi" class="form-label fw-bold">Nilai</label>
-                        <input type="text" class="form-control" id="nilaiPembagi" value="" placeholder="Silahkan isi Nilai">
+                        <input type="text" class="form-control" id="nilaiPembagi" value=""
+                            placeholder="Silahkan isi Nilai">
                         <div id="nilaiPembagiError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
                 </div>
@@ -87,6 +88,7 @@
                             <option value="" selected disabled>Pilih for</option>
                             <option value="Volume">Volume</option>
                             <option value="Berat">Berat</option>
+                            <option value="Topup">Topup</option>
                         </select>
                         <div id="forRateError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
@@ -122,6 +124,7 @@
                             <option value="" selected disabled>Pilih for</option>
                             <option value="Volume">Volume</option>
                             <option value="Berat">Berat</option>
+                            <option value="Topup">Topup</option>
                         </select>
                         <div id="forRateEditError" class="text-danger mt-1 d-none">Silahkan isi nilai</div>
                     </div>
@@ -327,9 +330,9 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
-                                        $('#modalTambahPembagi').modal('hide');
-                                        getlistPembagi();
+                                        "Berhasil ditambahkan");
+                                    $('#modalTambahPembagi').modal('hide');
+                                    getlistPembagi();
                                 }
                             },
                             error: function (response) {
@@ -457,7 +460,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url:'/masterdata/pembagirate/destroy/' + id,
+                        url: '/masterdata/pembagirate/destroy/' + id,
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
                             id: id,
@@ -586,15 +589,20 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
-                                        $('#modalTambahRate').modal('hide');
-                                        getlistRate();
+                                        "Berhasil ditambahkan");
+                                    $('#modalTambahRate').modal('hide');
+                                    getlistRate();
                                 }
                             },
                             error: function (response) {
                                 Swal.close();
+                                 if (response.error) {
                                 showMessage("error",
                                     "Terjadi kesalahan, coba lagi nanti");
+                                 }else{
+                                    showMessage("error",
+                                    "Hanya boleh ada satu data yang kategori topup");
+                                 }
                             }
                         });
                     }
@@ -691,8 +699,13 @@
                             },
                             error: function (response) {
                                 Swal.close();
+                                if (response.error) {
                                 showMessage("error",
                                     "Terjadi kesalahan, coba lagi nanti");
+                                 }else{
+                                    showMessage("error",
+                                    "Hanya boleh ada satu data yang kategori topup");
+                                 }
                             }
                         });
                     }
@@ -732,7 +745,7 @@
                     });
                     $.ajax({
                         type: "DELETE",
-                        url: '/masterdata/rate/destroyrate/'+ id,
+                        url: '/masterdata/rate/destroyrate/' + id,
                         data: {
                             id: id,
                             _token: $('meta[name="csrf-token"]').attr('content'),

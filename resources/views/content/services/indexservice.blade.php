@@ -124,7 +124,7 @@
                                         <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
-                                    
+
                                 </tbody>
                             </table> -->
                     </div>
@@ -244,7 +244,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                     $('#modalTambahService').modal('hide');
                                     getlistService();
                                 }

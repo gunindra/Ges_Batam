@@ -22,6 +22,7 @@ class BalanceController extends Controller
 
         $assetAccount = DB::select("SELECT coa.name AS account_name,
                                         coa.id AS coa_id,
+                                        coa.set_as_group AS set_as_group,
                                         coa.code_account_id AS code,
                                         IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                         AND ju.tanggal >= '$startDate'
@@ -45,10 +46,13 @@ class BalanceController extends Controller
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                     WHERE coa.code_account_id LIKE '1%'
-                                    GROUP BY coa_id, account_name, code");
+                                    AND coa.set_as_group = 0
+                                    GROUP BY coa_id, account_name, code, set_as_group
+                                    HAVING grand_total != 0");
 
         $liabilityAccount = DB::select("SELECT coa.name AS account_name,
                                         coa.id AS coa_id,
+                                        coa.set_as_group AS set_as_group,
                                         coa.code_account_id AS code,
                                         IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                         AND ju.tanggal >= '$startDate'
@@ -72,10 +76,13 @@ class BalanceController extends Controller
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                     WHERE coa.code_account_id LIKE '2%'
-                                    GROUP BY coa_id, account_name, code");
+                                    AND coa.set_as_group = 0
+                                    GROUP BY coa_id, account_name, code, set_as_group
+                                    HAVING grand_total != 0");
 
         $equityAccount = DB::select("SELECT coa.name AS account_name,
                                         coa.id AS coa_id,
+                                        coa.set_as_group AS set_as_group,
                                         coa.code_account_id AS code,
                                         IFNULL(SUM(CASE WHEN ju.status = 'Approve'
                                                         AND ju.tanggal >= '$startDate'
@@ -99,7 +106,9 @@ class BalanceController extends Controller
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                     WHERE coa.code_account_id LIKE '3%'
-                                    GROUP BY coa_id, account_name, code");
+                                    AND coa.set_as_group = 0
+                                    GROUP BY coa_id, account_name, code, set_as_group
+                                    HAVING grand_total != 0");
         $output = '<div class="card-body">
                     <table class="table" width="100%">';
 
@@ -107,7 +116,7 @@ class BalanceController extends Controller
         foreach ($assetAccount as $data) {
             $total_sum_asset += $data->grand_total;
             $output .= '<tr>
-                            <td>' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
+                            <td style="padding-left:50px;">' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
                             if ($data->grand_total >= 0){
                                 $output .= '<td class="text-right">' . number_format($data->grand_total, 2) . '</td> </tr>';
                             }
@@ -116,7 +125,7 @@ class BalanceController extends Controller
                             }
         }
         $output .= '<tr>
-                        <td> <b> TOTAL </b></td>';
+                        <td> <b> TOTAL ASSET </b></td>';
                         if ($total_sum_asset >= 0){
                             $output .= '<td class="text-right"><b>' . number_format($total_sum_asset, 2) . '</b> </td> </tr>';
                         }
@@ -128,7 +137,7 @@ class BalanceController extends Controller
         foreach ($liabilityAccount as $data) {
             $total_sum_liability += $data->grand_total;
             $output .= '<tr>
-                            <td>' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
+                            <td style="padding-left:50px;">' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
                             if ($data->grand_total >= 0){
                                 $output .= '<td class="text-right">' . number_format($data->grand_total, 2) . '</td> </tr>';
                             }
@@ -137,7 +146,7 @@ class BalanceController extends Controller
                             }
         }
         $output .= '<tr>
-                        <td> <b> TOTAL </b></td>';
+                        <td> <b> TOTAL LIABILITY</b></td>';
                         if ($total_sum_liability >= 0){
                             $output .= '<td class="text-right"><b>' . number_format($total_sum_liability, 2) . '</b> </td> </tr>';
                         }
@@ -149,7 +158,7 @@ class BalanceController extends Controller
         foreach ($equityAccount as $data) {
             $total_sum_equity += $data->grand_total;
             $output .= '<tr>
-                            <td>' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
+                            <td style="padding-left:50px;">' . (($data->code ?? '-') . ' ' . ($data->account_name ?? '-') . '') . '</td>';
                             if ($data->grand_total >= 0){
                                 $output .= '<td class="text-right">' . number_format($data->grand_total, 2) . '</td> </tr>';
                             }
@@ -158,7 +167,7 @@ class BalanceController extends Controller
                             }
         }
         $output .= '<tr>
-                        <td> <b> TOTAL </b></td>';
+                        <td> <b> TOTAL EQUITY</b></td>';
                         if ($total_sum_equity >= 0){
                             $output .= '<td class="text-right"><b>' . number_format($total_sum_equity, 2) . '</b> </td> </tr>';
                         }

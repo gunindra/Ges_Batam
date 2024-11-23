@@ -20,22 +20,23 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="mt-3">
-                            <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                            <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
-                                required>
-                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
-                        </div>
+
                         <div class="mt-3">
                             <label for="groupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="groupAccount" required>
-                                <option value="" disabled selected>Select Group Account</option>
+                                <option value="" selected>Select Group Account</option>
                                 @foreach ($groupAccounts as $coa)
                                     <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
                                     </option>
                                 @endforeach
                             </select>
                             <div id="errGroupAccount" class="text-danger mt-1 d-none">Please select a group account</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
+                            <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
+                                required>
+                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="nameAccount" class="form-label fw-bold">Name*</label>
@@ -57,8 +58,8 @@
                             <label for="defaultPosisi" class="form-label fw-bold">Default Posisi*</label>
                             <select class="form-control" id="defaultPosisi" required>
                                 <option value="" disabled selected>Select Default Position</option>
-                                <option value="debit">Debit</option>
-                                <option value="credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                                <option value="Credit">Credit</option>
                             </select>
                             <div id="errDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
@@ -71,6 +72,7 @@
             </div>
         </div>
         <!-- End Modal tambah COA -->
+
 
         <!-- Modal Update COA -->
         <div class="modal fade" id="modalUpdateCOA" tabindex="-1" role="dialog" aria-labelledby="modalUpdateCOATitle"
@@ -85,15 +87,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="mt-3">
-                            <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
-                            <input type="text" class="form-control" id="editCodeAccountID"
-                                placeholder="Input Account ID" required>
-                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
-                        </div>
-                        <div class="mt-3">
                             <label for="editGroupAccount" class="form-label fw-bold">Group Account</label>
                             <select class="form-control" id="editGroupAccount" required>
-                                <option value="" disabled selected>Select Group Account</option>
+                                <option value="" selected>Select Group Account</option>
                                 @foreach ($groupAccounts as $coa)
                                     <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}
                                     </option>
@@ -101,6 +97,12 @@
                             </select>
                             <div id="errEditGroupAccount" class="text-danger mt-1 d-none">Please select a group account
                             </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
+                            <input type="text" class="form-control" id="editCodeAccountID"
+                                placeholder="Input Account ID" required>
+                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
                         </div>
                         <div class="mt-3">
                             <label for="editNameAccount" class="form-label fw-bold">Name*</label>
@@ -159,7 +161,7 @@
                         </div>
 
                         <h4 class="pt-5 ml-3">Daftar Account</h4>
-                        <div class="ml-3" id="containerListCOA">
+                        <div class="ml-3 table-responsive" id="containerListCOA">
                             {{-- <ul>
                                 <li>
                                     <a href="">1.0.00 - ASET</a>
@@ -209,10 +211,10 @@
             // Load daftar COA dengan spinner saat data di-load
             function loadCOAList() {
                 const loadSpin = `
-        <div class="d-flex justify-content-center align-items-center mt-5">
-            <div class="spinner-border text-primary" role="status"></div>
-        </div>
-    `;
+            <div class="d-flex justify-content-center align-items-center mt-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        `;
 
                 $('#containerListCOA').html(loadSpin);
 
@@ -221,14 +223,45 @@
                     method: 'GET',
                     success: function(response) {
                         $('#containerListCOA').html(response.html);
+                        // Initialize DataTable
+                        $('#tableCOA').DataTable({
+                            // You can customize options here
+                            "paging": true,
+                            "searching": true,
+                            "ordering": true,
+                            "info": true,
+                            "lengthChange": true
+                        });
                     },
-                    error: function() {
-                        $('#containerListCOA').html('<p>Gagal memuat data</p>');
+                    error: function(xhr, status, error) {
+                        console.error("Error loading COA list:", error);
+                        $('#containerListCOA').html('<p>Gagal memuat data. Silakan coba lagi.</p>');
                     }
                 });
             }
 
             loadCOAList();
+
+            $('#groupAccount').on('change', function() {
+                const selectedSubChildId = $(this).val();
+
+                $.ajax({
+                    url: "{{ route('getNextAccountCode') }}",
+                    method: 'GET',
+                    data: {
+                        accountId: selectedSubChildId
+                    },
+                    success: function(response) {
+                        $('#codeAccountID').val(response.next_account_code);
+                    },
+                    error: function(error) {
+                        console.log('Error fetching account code:', error);
+                    }
+                });
+
+            });
+
+
 
             // Tambah COA
             $('#saveCOA').on('click', function() {
@@ -285,7 +318,7 @@
                             success: function(response) {
                                 Swal.close();
                                 if (response.success) {
-                                    showMessage("success", "COA berhasil ditambahkan")
+                                    showMessage("success", "COA Berhasil ditambahkan")
                                         .then(
                                             () => {
                                                 location.reload();

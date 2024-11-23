@@ -30,19 +30,13 @@
                                     <form id="loginForm" class="user" method="POST">
                                         @csrf
                                         <div class="form-group">
-                                            <input type="email" class="form-control" id="email" name="email"
-                                                required aria-describedby="emailHelp" placeholder="Enter Email Address">
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                required aria-describedby="nameHelp" placeholder="Enter Name or Marking">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control" id="password" name="password"
                                                 required placeholder="Password">
                                         </div>
-                                        {{-- <div class="form-group">
-                                            <div class="custom-control custom-checkbox small" style="line-height: 1.5rem;">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
-                                                <label class="custom-control-label" for="customCheck">Remember Me</label>
-                                            </div>
-                                        </div> --}}
                                         <a href="#" id="lupaPassword" class="my-2">Forgot Password?</a>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary btn-block">Login</button>
@@ -52,6 +46,7 @@
                                                 Home</a>
                                         </div>
                                     </form>
+                                    <div id="errorMessage" class="text-danger text-center mt-2" style="display: none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -88,35 +83,38 @@
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
+                                title: response.message,
                                 showConfirmButton: false,
                                 timer: 2000
                             }).then(() => {
                                 window.location.href = response.redirect;
                             });
                         } else {
-                            showMessage("error", response
-                                .message);
+                            // $('#errorMessage').text(response.message).show();
+                            showMessage("error", response.message)
                         }
                     },
                     error: function(xhr) {
-                        Swal.close(); // Tutup loading jika ada error
+                        Swal.close();
 
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: 'Terjadi kesalahan pada server. Silakan coba lagi.',
+                            text: 'Server error occurred. Please try again.',
                             showConfirmButton: true
                         });
                     }
                 });
             });
 
-            $('#lupaPassword').click(function (e) {
+            $('#lupaPassword').click(function(e) {
                 e.preventDefault();
-                showMessage("error", "Please Notify Your IT Support For This Issue.");
-
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Forgot Password',
+                    text: 'Please contact your IT support for assistance.',
+                    showConfirmButton: true
+                });
             });
         });
     </script>

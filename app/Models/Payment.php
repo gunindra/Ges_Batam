@@ -13,9 +13,40 @@ class Payment extends Model
 
     protected $fillable = [
         'kode_pembayaran',
-        'invoice_number',
+        'pembeli_id',
         'payment_date',
-        'amount',
-        'payment_method',
+        'discount',
+        'payment_buat',
+        'Keterangan',
+        'payment_method_id',
     ];
+
+    /**
+     * Relasi ke tabel pembeli.
+     */
+    public function pembeli()
+    {
+        return $this->belongsTo(Customer::class, 'pembeli_id');
+    }
+
+    /**
+     * Relasi ke tabel COA (payment method).
+     */
+    public function paymentMethod()
+    {
+        return $this->belongsTo(COA::class, 'payment_method_id');
+    }
+
+    /**
+     * Relasi ke tabel payment_invoice.
+     */
+    public function paymentInvoices()
+    {
+        return $this->hasMany(PaymentInvoice::class, 'payment_id');
+    }
+
+    public function paymentCustomerItems()
+    {
+        return $this->hasMany(PaymentCustomerItems::class, 'payment_id');
+    }
 }

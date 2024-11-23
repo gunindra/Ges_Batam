@@ -223,7 +223,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                         $('#modalTambahAdvertisement').modal('hide');
                                         getlistAdvertisement();
                                 }

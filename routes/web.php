@@ -47,7 +47,13 @@ use App\Http\Controllers\{
     Admin\BalanceController,
     Admin\CashFlowController,
     Admin\VendorController,
-    Admin\TopupController
+    Admin\TopupController,
+    Admin\SoaController,
+    Admin\SoaVendorController,
+    Admin\AssetController,
+    Admin\AssetReportController,
+    Admin\PenerimaanKasController,
+    Admin\TopUpReportController,
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -84,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboardnew/mothly', [DashboardController::class, 'fetchMonthlyData'])->name('fetchMonthlyData');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -109,7 +116,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/delivery/exportPDF', [DeliveryController::class, 'exportPDF'])->name('exportPDFDelivery');
     Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
     Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
-    Route::get('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
+    Route::post('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
     Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
     Route::post('/delivery/confirmasiPengantaran', [DeliveryController::class, 'confirmasiPengantaran'])->name('confirmasiPengantaran');
 
@@ -131,11 +138,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
     Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
     Route::get('/invoice/cekResiInvoice', [InvoiceController::class, 'cekResiInvoice'])->name('cekResiInvoice');
+    Route::get('/invoice/updatedeletepage/{id}', [InvoiceController::class, 'deleteoreditinvoice'])->name('deleteoreditinvoice');
 
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
-    Route::get('/pickup/getlistPickup', [PickupController::class, 'getlistPickup'])->name('getlistPickup');
-    Route::post('/pickup/acceptPickup', [PickupController::class, 'acceptPickup'])->name('acceptPickup');
+    Route::get('/pickup/jumlahresipickup', [PickupController::class, 'jumlahresipickup'])->name('jumlahresipickup');
 
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
@@ -145,6 +152,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payment/store', [PaymentController::class, 'store'])->name('buatpembayaran');
     Route::get('/payment-data', [PaymentController::class, 'getPaymentData'])->name('payment.data');
     Route::get('/paymentdata/export', [PaymentController::class, 'export'])->name('exportPayment');
+    Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
+    Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
+    Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
 
 
     // Popup
@@ -293,10 +303,12 @@ Route::middleware(['auth'])->group(function () {
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');
     Route::get('/vendor/purchasePayment/getPaymentSupData', [PurchasePaymentController::class, 'getPaymentSupData'])->name('getPaymentSupData');
+    Route::get('/vendor/purchasePayment/getInoviceByVendor', [PurchasePaymentController::class, 'getInoviceByVendor'])->name('getInoviceByVendor');
     Route::get('/vendor/purchasePayment/addPurchasePayment', [PurchasePaymentController::class, 'addPurchasePayment'])->name('addPurchasePayment');
     Route::get('/vendor/purchasePayment/getSupInvoiceAmount', [PurchasePaymentController::class, 'getSupInvoiceAmount'])->name('getSupInvoiceAmount');
     Route::get('/vendor/purchasePayment/export', [PurchasePaymentController::class, 'export'])->name('getSupInvoiceExport');
     Route::post('/vendor/purchasePayment/payment', [PurchasePaymentController::class, 'store'])->name('paymentSup');
+    Route::get('/vendor/purchasePayment/getInvoiceSupDetail', [PurchasePaymentController::class, 'getInvoiceSupDetail'])->name('getInvoiceSupDetail');
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
@@ -304,8 +316,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/debitnote/getDebitNotes', [DebitNoteController::class, 'getDebitNotes'])->name('getDebitNotes');
     Route::post('/vendor/debitnote/store', [DebitNoteController::class, 'store'])->name('debit-note.store');
     Route::get('/vendor/debitnote/updatepage/{id}', [DebitNoteController::class, 'updatepage'])->name('debitnote.updatepage');
-    Route::put('/vendor/debitnote/update/{id}', [DebitNoteController::class, 'update'])->name('debitnote.update');
-
+    // Route::put('/vendor/debitnote/update/{id}', [DebitNoteController::class, 'update'])->name('debitnote.update');
+    Route::get('/vendor/debitnote/GetInvoiceUpdate', [DebitNoteController::class, 'GetInvoiceUpdate'])->name('GetInvoiceUpdate');
+    Route::get('/vendor/debitnote/getInvoiceByVendor', [DebitNoteController::class, 'getInvoiceByVendor'])->name('getInvoiceByVendor');
 
     //Credit Note
     Route::get('/customer/creditnote', [CreditNoteController::class, 'index'])->name('creditnote');
@@ -341,6 +354,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/coa', [CoaController::class, 'index'])->name('coa');
     Route::get('/coa', [CoaController::class, 'index'])->name('coa');
     Route::get('/coa/getlistcoa', [CoaController::class, 'getlistcoa'])->name('getlistcoa');
+    Route::get('/coa/getNextAccountCode', [CoaController::class, 'getNextAccountCode'])->name('getNextAccountCode');
     Route::post('/coa/store', [CoaController::class, 'store'])->name('coa.store');
     Route::delete('/coa/delete/{id}', [COAController::class, 'destroy'])->name('coa.destroy');
     Route::get('/coa/{id}', [COAController::class, 'show'])->name('coa.show');
@@ -356,11 +370,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/journal/updatejournal/update', [JournalController::class, 'updatejurnal'])->name('updatejurnal');
     Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
     Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
+    Route::get('/journal/generateNoJournalBKK', [JournalController::class, 'generateNoJournalBKK'])->name('generateNoJournalBKK');
+    Route::get('/journal/generateNoJournalBKM', [JournalController::class, 'generateNoJournalBKM'])->name('generateNoJournalBKM');
 
     //Acoounting Setting
     Route::get('/accountingSetting', [AccountingSettingController::class, 'index'])->name('accountingSetting');
     Route::post('/account-settings/store', [AccountingSettingController::class, 'store'])->name('account-settings.store');
     Route::post('/account-settings/update/{id}', [AccountingSettingController::class, 'update'])->name('account-settings.update');
+
+    //Asset
+    Route::get('/asset', [AssetController::class, 'index'])->name('asset');
+    Route::get('/asset/add', [AssetController::class, 'create'])->name('asset.add');
+    Route::post('/asset/store', [AssetController::class, 'store'])->name('asset.store');
+    Route::get('/asset/show/{id}', [AssetController::class, 'show'])->name('asset.show');
+    Route::delete('/asset/destroy/{id}', [AssetController::class, 'destroy'])->name('asset.destroy');
 
     //Top Up
     Route::get('/topup', [TopupController::class, 'index'])->name('topuppage');
@@ -368,11 +391,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/topup/getCustomers', [TopupController::class, 'getCustomers'])->name('get-customers');
     Route::post('/topup-points', [TopupController::class, 'storeTopup'])->name('topup-points');
     Route::get('/topup/data', [TopupController::class, 'getData'])->name('topup.data');
-
+    Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
+    Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
+    Route::post('topup/expire/{id}', [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
     //ProfitLoss
-    Route::get('/report/profitloss',  [ProfitLossController::class, 'index'])->name('profitloss');
+    Route::get('/report/profitloss', [ProfitLossController::class, 'index'])->name('profitloss');
     Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
     Route::get('/report/getProfitOrLoss/pdf', [ProfitLossController::class, 'generatePdf'])->name('profitLoss.pdf');
 
@@ -381,20 +406,46 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getEquity', [EquityController::class, 'getEquity'])->name('getEquity');
     Route::get('/report/getEquity/pdf', [EquityController::class, 'generatePdf'])->name('equity.pdf');
 
-     //Cashflow
-    Route::get('/report/cashflow',  [CashFlowController::class, 'index'])->name('cashflow');
-    Route::get('/report/getCashFlow',  [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
+    //Cashflow
+    Route::get('/report/cashflow', [CashFlowController::class, 'index'])->name('cashflow');
+    Route::get('/report/getCashFlow', [CashFlowController::class, 'getCashFlow'])->name('getCashFlow');
     Route::get('/report/getCashFlow/pdf', [CashFlowController::class, 'generatePdf'])->name('cashflow.pdf');
 
     //Ledger
-    Route::get('/report/ledger',  [LedgerController::class, 'index'])->name('ledger');
-    Route::get('/report/getLedger',  [LedgerController::class, 'getLedger'])->name('getLedger');
+    Route::get('/report/ledger', [LedgerController::class, 'index'])->name('ledger');
+    Route::get('/report/getLedger', [LedgerController::class, 'getLedgerHtml'])->name('getLedger');
     Route::get('/report/getLedger/pdf', [LedgerController::class, 'generatePdf'])->name('ledger.pdf');
+    Route::get('/report/getLedger/exportExcel', [LedgerController::class, 'exportExcel'])->name('ledger.exportExcel');
 
     //Balance
-    Route::get('/report/balance',  [BalanceController::class, 'index'])->name('balance');
-    Route::get('/report/getBalance',  [BalanceController::class, 'getBalance'])->name('getBalance');
+    Route::get('/report/balance', [BalanceController::class, 'index'])->name('balance');
+    Route::get('/report/getBalance', [BalanceController::class, 'getBalance'])->name('getBalance');
     Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
+
+    //Soa Customer
+    Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
+    Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
+    Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
+
+    //Soa Vendor
+    Route::get('/report/soaVendor',  [SoaVendorController::class, 'index'])->name('soaVendor');
+    Route::get('/report/soaVendor/getSoaVendor',  [SoaVendorController::class, 'getSoaVendor'])->name('getSoaVendor');
+    Route::get('/report/soaVendor/soaWA', [SoaVendorController::class, 'soaWA'])->name('soaWA.vendor');
+
+    //Asset
+    Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
+    Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
+    Route::get('/report/assetReport/pdf', [AssetReportController::class, 'generatePdf'])->name('assetReport.pdf');
+
+    //PenerimaaKas
+    Route::get('/report/penerimaanKas',  [PenerimaanKasController::class, 'index'])->name('penerimaanKas');
+    Route::get('/report/getPenerimaanKas',  [PenerimaanKasController::class, 'getPenerimaanKas'])->name('getPenerimaanKas');
+    Route::get('/report/penerimaanKas/pdf', [PenerimaanKasController::class, 'generatePdf'])->name('penerimaanKas.pdf');
+
+    //Top Up Report
+    Route::get('/report/topUpReport',  [TopUpReportController::class, 'index'])->name('topUpReport');
+    Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
+    Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
 });
 
 

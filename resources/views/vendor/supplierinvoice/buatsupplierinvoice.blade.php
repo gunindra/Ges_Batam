@@ -74,13 +74,13 @@
                     <div class="d-flex flex-row">
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="noResi" class="form-label fw-bold">No Invoice :</label>
+                                <label for="noResi" class="form-label fw-bold">No. Voucher :</label>
                                 <div class="d-flex">
                                     <input type="text" id="noInvoice" class="form-control col-8">
                                     <a class="pt-2" id="btnRefreshInvoice" href=""><span class="pl-2 text-success"><i
                                                 class="fas fa-sync-alt"></i></span></a>
                                 </div>
-                                <div id="noInvoiceError" class="text-danger mt-1 d-none">No Invoice tidak boleh kosong
+                                <div id="noInvoiceError" class="text-danger mt-1 d-none">No. Voucher tidak boleh kosong
                                 </div>
                             </div>
                             <div class="mt-3">
@@ -132,10 +132,10 @@
                         </div>
                         <div class="col-6">
                             <div class="mt-3">
-                                <label for="NoReference" class="form-label fw-bold">No Reference</label>
+                                <label for="NoReference" class="form-label fw-bold">No. Invoice Vendor</label>
                                 <input type="text" class="form-control col-8" id="noReferenceVendor" value=""
-                                    placeholder="Silahkan isi No Reference">
-                                <div id="NoReferenceError" class="text-danger mt-1 d-none">No Reference tidak boleh
+                                    placeholder="Silahkan isi No Invoice Vendor">
+                                <div id="NoReferenceError" class="text-danger mt-1 d-none">No Invoice Vendor tidak boleh
                                     kosong</div>
                             </div>
                         </div>
@@ -342,15 +342,14 @@
             let vendor = $('#selectVendor').val();
 
             let items = [];
-            let isItemsValid = true; // Variable to track item validity
+            let isItemsValid = true;
             $('#items-container tr').each(function () {
                 let account = $(this).find('select[name="account"]').val();
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
 
-                // Check for empty fields
                 if (!account || !itemDesc || !debit) {
-                    isItemsValid = false; // Mark as invalid if any field is empty
+                    isItemsValid = false;
                 }
 
                 items.push({
@@ -368,7 +367,7 @@
                 rateCurrency: rateCurrency,
                 vendor: vendor,
                 items: items,
-                isItemsValid: isItemsValid // Add validity of items
+                isItemsValid: isItemsValid
             };
         }
 
@@ -376,7 +375,6 @@
             e.preventDefault();
             let formData = getFormValues();
 
-            // Validate required fields
             let isValid = true;
 
             if (!formData.currency) {
@@ -404,26 +402,23 @@
                 isValid = false;
             }
 
-            // Validate item rows
             if (!formData.isItemsValid) {
-                $('#tableError').removeClass('d-none'); // Show table error
+                $('#tableError').removeClass('d-none');
                 isValid = false;
             } else {
-                $('#tableError').addClass('d-none'); // Hide table error if valid
+                $('#tableError').addClass('d-none');
             }
 
-            // Additional validation for rateCurrency when currency is SGD or CNY
             if (formData.currency) {
-                let selectedCurrency = $('#currencyInvoice option:selected').text(); // Get the selected currency name
+                let selectedCurrency = $('#currencyInvoice option:selected').text();
                 if ((selectedCurrency.includes("SGD") || selectedCurrency.includes("CNY")) && !formData.rateCurrency) {
                     $('#rateCurrencyError').removeClass('d-none');
                     isValid = false;
                 } else {
-                    $('#rateCurrencyError').addClass('d-none'); // Hide error if rateCurrency is valid
+                    $('#rateCurrencyError').addClass('d-none');
                 }
             }
 
-            // Only proceed with the AJAX request if the form is valid
             if (isValid) {
                 $.ajax({
                     url: "{{ route('supInvoice.store') }}",

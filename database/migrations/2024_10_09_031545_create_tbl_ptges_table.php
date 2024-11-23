@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('Image_AboutUs')->nullable();
             $table->text('Paragraph_WhyUs')->nullable();
             $table->string('Image_WhyUs')->nullable();
+            $table->string('alamat')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('phones')->nullable();

@@ -17,6 +17,7 @@ class PaymentSup extends Model
         'payment_date',
         'amount',
         'payment_method_id',
+        'Keterangan',
         'created_at',
         'updated_at'
     ];

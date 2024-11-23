@@ -121,7 +121,7 @@
                                         <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
                                         </td>
                                     </tr>
-                                    
+
                                 </tbody>
                             </table> -->
                     </div>
@@ -241,7 +241,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "HeroPage berhasil ditambahkan");
+                                        "HeroPage Berhasil ditambahkan");
                                     $('#modalTambahHeropage').modal('hide');
                                     getlistHeroPage();
                                 }

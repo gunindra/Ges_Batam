@@ -190,6 +190,7 @@
             var imageInformations = $('#imageInformations')[0].files[0];
 
             var isValid = true;
+            var errorMessage = '';
 
             if (titleInformations === '') {
                 $('#titleInformationsError').removeClass('d-none');
@@ -197,12 +198,24 @@
             } else {
                 $('#titleInformationsError').addClass('d-none');
             }
+
+            if (titleInformations.length > 120) {
+                errorMessage += 'Judul tidak boleh lebih dari 120 karakter.<br>';
+                isValid = false;
+            }
+
             if (contentInformations === '') {
                 $('#contentInformationsError').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#contentInformationsError').addClass('d-none');
             }
+
+            if (contentInformations.length > 260) {
+                errorMessage += 'Konten tidak boleh lebih dari 260 karakter.<br>';
+                isValid = false;
+            }
+
             if (imageInformations) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageInformations.type)) {
@@ -217,87 +230,78 @@
                 isValid = false;
             }
 
-            if (isValid) {
+            if (!isValid) {
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we are saving the data.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        var formData = new FormData();
-                        formData.append('titleInformations', titleInformations);
-                        formData.append('contentInformations', contentInformations);
-                        formData.append('imageInformations', imageInformations);
-                        formData.append('_token', '{{ csrf_token() }}');
-
-                        $.ajax({
-                            url: '/content/informations/store',
-                            method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                Swal.close();
-                                if (response.success) {
-                                    showMessage("success",
-                                        "Information berhasil ditambahkan");
-                                    $('#modalTambahInformations').modal('hide');
-                                    getlistInformations();
-                                }
-                            },
-                            error: function (response) {
-                                Swal.close();
-                                if (response.status === 422) {
-                                    showMessage("error", "Judul yang dimasukkan sudah ada. Silakan masukkan judul yang berbeda.");
-                                } else {
-                                showMessage("error","Terjadi kesalahan, coba lagi nanti");
-                                }
-                            }
-                        });
-                    }
+                    icon: 'error',
+                    title: 'Error',
+                    html: errorMessage || 'Silakan periksa input Anda.',
+                    confirmButtonText: 'OK',
                 });
+                return;
             }
-        });
 
-        $(document).on('click', '.btnUpdateInformations', function (e) {
-            var informationid = $(this).data('id');
-            $.ajax({
-                url: '/content/informations/' + informationid,
-                method: 'GET',
-                success: function (response) {
-                    $('#titleInformationsEdit').val(response.title_informations);
-                    $('#contentInformationsEdit').val(response.content_informations);
-                    $('#textNamaEdit').text(response.image_informations);
-                    $('#modalEditInformations').modal('show');
-                    $('#saveEditInformations').data('id', informationid);
-                },
-                error: function () {
-                    showMessage("error",
-                        "Terjadi kesalahan saat mengambil data information");
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Loading...',
+                        text: 'Please wait while we are saving the data.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    var formData = new FormData();
+                    formData.append('titleInformations', titleInformations);
+                    formData.append('contentInformations', contentInformations);
+                    formData.append('imageInformations', imageInformations);
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    $.ajax({
+                        url: '/content/informations/store',
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            Swal.close();
+                            if (response.success) {
+                                showMessage("success", "Information berhasil ditambahkan");
+                                $('#modalTambahInformations').modal('hide');
+                                getlistInformations();
+                            }
+                        },
+                        error: function (response) {
+                            Swal.close();
+                            if (response.status === 422) {
+                                showMessage("error", "Judul yang dimasukkan sudah ada. Silakan masukkan judul yang berbeda.");
+                            } else {
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        }
+                    });
                 }
             });
         });
+
         $('#saveEditInformations').on('click', function () {
             var informationid = $(this).data('id');
-            var titleInformations = $('#titleInformationsEdit').val();
-            var contentInformations = $('#contentInformationsEdit').val();
+            var titleInformations = $('#titleInformationsEdit').val().trim();
+            var contentInformations = $('#contentInformationsEdit').val().trim();
             var imageInformations = $('#imageInformationsEdit')[0].files[0];
 
             let isValid = true;
+            var errorMessage = '';
+
 
             if (titleInformations === '') {
                 $('#titleInformationsErrorEdit').removeClass('d-none');
@@ -306,6 +310,10 @@
                 $('#titleInformationsErrorEdit').addClass('d-none');
             }
 
+            if (titleInformations.length > 120) {
+                errorMessage += 'Judul tidak boleh lebih dari 120 karakter.<br>';
+                isValid = false;
+            }
             if (contentInformations === '') {
                 $('#contentInformationsErrorEdit').removeClass('d-none');
                 isValid = false;
@@ -313,11 +321,15 @@
                 $('#contentInformationsErrorEdit').addClass('d-none');
             }
 
+            if (contentInformations.length > 260) {
+                errorMessage += 'Konten tidak boleh lebih dari 260 karakter.<br>';
+                isValid = false;
+            }
+
             if (imageInformations) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                 if (!validExtensions.includes(imageInformations.type)) {
-                    $('#imageInformationsErrorEdit').text(
-                        'Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
+                    $('#imageInformationsErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.').removeClass('d-none');
                     isValid = false;
                 } else {
                     $('#imageInformationsErrorEdit').addClass('d-none');

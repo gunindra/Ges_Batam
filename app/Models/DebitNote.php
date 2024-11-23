@@ -33,11 +33,11 @@ class DebitNote extends Model
         return $this->belongsTo(COA::class, 'account_id');
     }
 
-    // // Relasi ke tabel Matauang
-    // public function matauang()
-    // {
-    //     return $this->belongsTo(Matauang::class, 'matauang_id');
-    // }
+    // Relasi ke tabel Matauang
+    public function matauang()
+    {
+        return $this->belongsTo(Matauang::class, 'matauang_id');
+    }
 
     // Relasi ke DebitNoteItem
     public function items()

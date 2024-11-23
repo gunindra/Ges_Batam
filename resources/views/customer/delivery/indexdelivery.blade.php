@@ -94,7 +94,7 @@
     <!-- Modal Structure -->
     <div class="modal fade" id="invoiceModal" tabindex="-1" role="dialog" aria-labelledby="invoiceModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 80%; width: 80%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="invoiceModalLabel">Detail Invoice</h5>
@@ -129,7 +129,7 @@
                         <div class="d-flex mb-2 justify-content-between align-items-center">
                             <div class="d-flex">
                                 {{-- Search --}}
-                                <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
+                                <input id="txSearch" type="text" style="width: 200px; min-width: 200px;"
                                     class="form-control rounded-3" placeholder="Search">
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Filter</option>
@@ -137,6 +137,18 @@
                                     <option value="Out For Delivery">Out For Delivery</option>
                                     <option value="Delivering">Delivering</option>
                                     <option value="Done">Done</option>
+                                </select>
+                                <select class="form-control ml-2" id="filtermarking" style="width: 200px;">
+                                    <option value="" selected disabled>Pilih Marking</option>
+                                    @foreach ($listmarking as $marking)
+                                        <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
+                                    @endforeach
+                                </select>
+                                <select class="form-control ml-2" id="filternodo" style="width: 200px;">
+                                    <option value="" selected disabled>Pilih NoDo</option>
+                                    @foreach ($listnodo as $nodo)
+                                        <option value="{{ $nodo->no_do }}">{{ $nodo->no_do }}</option>
+                                    @endforeach
                                 </select>
                                 <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -149,47 +161,44 @@
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>No Resi</th>
-                                        <th>Tanggal</th>
-                                        <th>Driver</th>
-                                        <th>Pengiriman</th>
-                                        <th>Harga</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>B0230123</td>
-                                        <td>24 Juli 2024</td>
-                                        <td>Tandrio</td>
-                                        <td>Delivery</td>
-                                        <td>Rp. 10.000</td>
-                                        <td><span class="badge badge-success">Done</span></td>
-                                        <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                    class="fas fa-eye"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i
-                                                    class="fas fa-file-upload"></i></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>B0234043</td>
-                                        <td>28 Juli 2024</td>
-                                        <td>Tandrio</td>
-                                        <td>Delivery</td>
-                                        <td>Rp. 12.000</td>
-                                        <td><span class="badge badge-info">Delivery</span></td>
-                                        <td>
-                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="btn btn-sm btn-danger"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table> --}}
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>No Resi</th>
+                                    <th>Tanggal</th>
+                                    <th>Driver</th>
+                                    <th>Pengiriman</th>
+                                    <th>Harga</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>B0230123</td>
+                                    <td>24 Juli 2024</td>
+                                    <td>Tandrio</td>
+                                    <td>Delivery</td>
+                                    <td>Rp. 10.000</td>
+                                    <td><span class="badge badge-success">Done</span></td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>B0234043</td>
+                                    <td>28 Juli 2024</td>
+                                    <td>Tandrio</td>
+                                    <td>Delivery</td>
+                                    <td>Rp. 12.000</td>
+                                    <td><span class="badge badge-info">Delivery</span></td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
+                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> --}}
                         </div>
                     </div>
                 </div>
@@ -213,6 +222,8 @@
             const filterStatus = $('#filterStatus').val();
             const startDate = $('#startDate').val();
             const endDate = $('#endDate').val();
+            const filtermarking = $('#filtermarking').val();
+            const filternodo = $('#filternodo').val();
 
             $.ajax({
                     url: "{{ route('getlistDelivery') }}",
@@ -221,7 +232,9 @@
                         txSearch: txtSearch,
                         startDate: startDate,
                         endDate: endDate,
-                        status: filterStatus
+                        status: filterStatus,
+                        marking: filtermarking,
+                        no_do: filternodo
                     },
                     beforeSend: () => {
                         $('#containerDelivery').html(loadSpin)
@@ -252,6 +265,13 @@
                 getlistDelivery();
             }
         })
+
+        $('#filtermarking').change(function() {
+            getlistDelivery();
+        });
+        $('#filternodo').change(function() {
+            getlistDelivery();
+        });
 
         flatpickr("#startDate", {
             dateFormat: "d M Y",
@@ -433,34 +453,40 @@
         });
 
         $(document).on('click', '.show-invoice-modal', function() {
-            var invoiceNumbers = $(this).data('invoices');
-            var customerNames = $(this).data('customers');
-            var addresses = $(this).data('alamat');
-            var buktiPengantaran = $(this).data('bukti');
-            var tandaTangan = $(this).data('tanda');
-            var metodePengiriman = $(this).data('metode');
-            var keterangan = $(this).data('keterangan');
-            var statusInvoice = $(this).data('status');
+            var invoiceNumbers = $(this).data('invoices'); 
+            var marking = $(this).data('marking').trim(); 
+            var customerNames = $(this).data('customers').trim(); 
+            var noDo = $(this).data('no-do').trim(); 
+            var addresses = $(this).data('alamat').trim(); 
+            var buktiPengantaran = $(this).data('bukti').trim(); 
+            var tandaTangan = $(this).data('tanda').trim(); 
+            var metodePengiriman = $(this).data('metode').trim(); 
+            var keterangan = $(this).data('keterangan').trim(); 
+            var statusInvoice = $(this).data('status').trim(); 
 
+            // Pastikan pemisahnya sesuai dengan ';'
             if (typeof invoiceNumbers !== 'string') {
                 invoiceNumbers = String(invoiceNumbers);
             }
 
-            if (invoiceNumbers.indexOf(',') === -1) {
+            if (invoiceNumbers.indexOf(';') === -1) {
                 invoiceNumbers = [invoiceNumbers];
             } else {
-                invoiceNumbers = invoiceNumbers.split(', ');
+                invoiceNumbers = invoiceNumbers.split(';'); // Sesuaikan pemisah
             }
 
-            customerNames = customerNames ? customerNames.split(', ') : [];
-            addresses = addresses ? addresses.split(', ') : [];
-            buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(', ') : [];
-            tandaTangan = tandaTangan ? tandaTangan.split(', ') : [];
-            keterangan = keterangan ? keterangan.split(', ') : [];
-            statusInvoice = statusInvoice ? statusInvoice.split(', ') : [];
+            marking = marking ? marking.split(';') : [];
+            customerNames = customerNames ? customerNames.split(';') : [];
+            noDo = noDo ? noDo.split(';') : [];
+            addresses = addresses ? addresses.split(';') : [];
+            buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(';') : [];
+            tandaTangan = tandaTangan ? tandaTangan.split(';') : [];
+            keterangan = keterangan ? keterangan.split(';') : [];
+            statusInvoice = statusInvoice ? statusInvoice.split(';') : [];
+
 
             var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent += '<thead><tr><th>No. Invoice</th><th>Customer</th>';
+            modalContent += '<thead><tr><th>No. Invoice</th><th>Marking</th><th>Customer</th><th>No. DO</th>';
 
             if (metodePengiriman !== 'Pickup') {
                 modalContent += '<th>Alamat</th>';
@@ -468,6 +494,8 @@
 
             if (metodePengiriman !== 'Pickup') {
                 modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
+            } else {
+                modalContent += '<th>Tanda Tangan Admin</th><th>Tanda Tangan Customer</th>';
             }
 
             modalContent += '<th>Status</th>';
@@ -477,28 +505,29 @@
             for (var i = 0; i < invoiceNumbers.length; i++) {
                 modalContent += '<tr>';
                 modalContent += '<td>' + invoiceNumbers[i] + '</td>';
+                modalContent += '<td>' + (marking[i] ? marking[i] : 'Tidak Ada Marking') + '</td>';
                 modalContent += '<td>' + customerNames[i] + '</td>';
+                modalContent += '<td>' + (noDo[i] ? noDo[i] : 'Tidak Ada No. DO') + '</td>';
+
 
                 if (metodePengiriman !== 'Pickup') {
                     modalContent += '<td>' + addresses[i] + '</td>';
                 }
 
-                if (metodePengiriman !== 'Pickup') {
-                    if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
-                        modalContent += '<td><a href="/storage/' + buktiPengantaran[i] +
-                            '" target="_blank">Lihat Bukti</a></td>';
-                    } else {
-                        modalContent += '<td>Tidak Ada Bukti</td>';
-                    }
-                    if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
-                        modalContent += '<td><a href="/storage/' + tandaTangan[i] +
-                            '" target="_blank">Lihat Tanda Tangan</a></td>';
-                    } else {
-                        modalContent += '<td>Tidak Ada Tanda Tangan</td>';
-                    }
+                if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
+                    modalContent += '<td><a href="/storage/' + buktiPengantaran[i] +
+                        '" target="_blank">Lihat Bukti</a></td>';
+                } else {
+                    modalContent += '<td>Tidak Ada Bukti</td>';
+                }
+                if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
+                    modalContent += '<td><a href="/storage/' + tandaTangan[i] +
+                        '" target="_blank">Lihat Tanda Tangan</a></td>';
+                } else {
+                    modalContent += '<td>Tidak Ada Tanda Tangan</td>';
                 }
 
-                // Add Status with Color
+
                 var statusBadgeClass = '';
                 switch (statusInvoice[i]) {
                     case 'Out For Delivery':
@@ -523,22 +552,7 @@
 
                 modalContent += '<td><span class="badge ' + statusBadgeClass + '">' + statusInvoice[i] +
                     '</span></td>';
-
-                // Keterangan & Confirmation Button
-                if (statusInvoice[i] === 'Done') {
-                    // Tampilkan keterangan dinamis jika ada
-                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Barang sudah diambil') + '</td>';
-                } else if (metodePengiriman === 'Pickup') {
-                    // Tampilkan tombol hanya jika metode pengiriman adalah "Pickup"
-                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') +
-                        '<button type="button" class="btn btn-success btn-sm btnSelesaikanPickup" data-invoice-id="' +
-                        invoiceNumbers[i] + '">Confirm Pickup</button></td>';
-                } else {
-                    // Jika bukan pickup, hanya tampilkan keterangan
-                    modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
-                }
-
-
+                modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
                 modalContent += '</tr>';
             }
 
@@ -555,6 +569,7 @@
                 pageLength: 5
             });
         });
+
 
 
         $(document).on('click', '.btnBuktiPengantaran', function(e) {

@@ -110,6 +110,11 @@
                                         placeholder="Pilih tanggal">
                                     <div id="tanggalError" class="text-danger mt-1 d-none">Tanggal tidak boleh kosong</div>
                                 </div>
+                                <div class="mt-3">
+                                    <label for="tanggal" class="form-label fw-bold">Tanggal Buat</label>
+                                    <input type="text" class="form-control col-8" id="tanggalBuat" value=""
+                                        placeholder="Pilih tanggal" disabled>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
@@ -363,7 +368,7 @@
                             $('#alamatContainer').html(selectAlamat);
                             $('#alamatError').addClass('d-none');
                         } else if (jumlahAlamat > 1) {
-                            var alamatList = alamat.split(', ');
+                            var alamatList = alamat.split('; ');
                             var selectAlamat =
                                 '<label for="alamatSelect" class="form-label">Alamat</label>';
                             selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
@@ -399,7 +404,7 @@
 
 
             var today = new Date();
-            $('#tanggal').datepicker({
+            $('#tanggal, #tanggalBuat').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,
@@ -616,7 +621,9 @@
                         totalHarga = Math.max(totalHarga, globalMinrate);
                     }
 
-                    totalHarga = Math.min(totalHarga, globalMaxrate);
+                    if (globalMaxrate > 0) {
+                        totalHarga = Math.min(totalHarga, globalMaxrate);
+                    }
 
                     row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
                 } else {
@@ -924,6 +931,7 @@
                         alamat: alamat,
                         totalharga: totalharga,
                         hargaBarang: hargaBarang,
+                        rateBerat: rateBerat,
                         _token: csrfToken
                     },
                     success: function(response) {

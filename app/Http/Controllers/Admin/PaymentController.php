@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Payment;
+use App\Models\PaymentInvoice;
 use App\Models\Invoice;
+use App\Models\PaymentCustomerItems;
 use App\Models\UsagePoints;
 use Carbon\Carbon;
 use App\Models\COA;
@@ -30,10 +32,10 @@ class PaymentController extends Controller
     public function index()
     {
         $listPayment = DB::table('tbl_payment_customer as pc')
-        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
-        ->select('coa.name as payment_method')
-        ->groupBy('coa.name')
-        ->get();
+            ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
+            ->select('coa.name as payment_method')
+            ->groupBy('coa.name')
+            ->get();
 
         return view('customer.payment.indexpayment', [
             'listpayment' => $listPayment,
@@ -43,31 +45,52 @@ class PaymentController extends Controller
 
     public function addPayment()
     {
+        $savedPaymentAccounts = DB::table('tbl_payment_account')
+        ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
+        ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+        ->get();
+
         $coas = COA::all();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum Lunas'");
 
+        $listMarking = DB::select("SELECT nama_pembeli, marking FROM tbl_pembeli");
+
         return view('customer.payment.buatpayment', [
             'listInvoice' => $listInvoice,
+            'savedPaymentAccounts' => $savedPaymentAccounts,
+            'listMarking' => $listMarking,
             'coas' => $coas
         ]);
     }
 
     public function getPaymentData(Request $request)
     {
-        $query = DB::table('tbl_payment_customer as a')
-            ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
+            $query = DB::table('tbl_payment_customer as a')
+            ->join('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
+            ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
-            ->select([
+            ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
+            ->select(
+                'a.id',
                 'a.kode_pembayaran',
-                'b.no_invoice',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
-                'a.amount',
+                'd.marking',
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
                 'c.name as payment_method',
-                'b.status_bayar',
-                'a.id'
-            ]);
+                DB::raw('SUM(f.amount) as total_amount'),
+                'a.discount'
+            )
+            ->groupBy(
+                'a.id',
+                'a.kode_pembayaran',
+                'd.marking',
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
+                'c.name',
+                'a.discount'
+            );
+
+
 
         if (!empty($request->status)) {
             $query->where('c.name', $request->status);
@@ -81,51 +104,130 @@ class PaymentController extends Controller
 
         $query->orderBy('a.id', 'desc');
 
-        return DataTables::of($query)
-            ->editColumn('tanggal_bayar', function ($row) {
-                return $row->tanggal_bayar;
+        $payments = $query->get();
+
+
+        return DataTables::of($payments)
+            ->editColumn('payment_date', function ($row) {
+                return $row->tanggal_buat;
             })
-            ->addColumn('status_bayar', function($row) {
-                return $row->status_bayar == 'Lunas'
-                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
-                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
+            ->addColumn('action', function ($row) {
+                return '
+                    <a class="btn btnDetailPaymet btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white"> Detail</span></a>
+                ';
             })
-            ->rawColumns(['status_bayar'])
             ->make(true);
     }
+
 
 
 
     public function getInvoiceAmount(Request $request)
     {
         $invoiceSelect = $request->no_invoice;
-        $invoice = DB::select("SELECT
-                                    a.no_invoice,
-                                    DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-                                    FORMAT(a.total_harga, 0) AS total_harga,
-                                    FORMAT(a.total_bayar, 0) AS total_bayar,
-                                    FORMAT(a.total_harga - a.total_bayar, 0) AS sisa_bayar,
-                                    b.status_name,
-                                    (SELECT SUM(r.berat) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_berat
-                                FROM
-                                    tbl_invoice AS a
-                                JOIN
-                                    tbl_status AS b ON a.status_id = b.id
-                                WHERE
-                                    a.no_invoice = '$invoiceSelect'");
+        if (!is_array($invoiceSelect)) {
+            $invoiceSelect = [$invoiceSelect];
+        }
 
-        if ($invoice) {
-            return response()->json([
-                'success' => true,
-                'invoice' => $invoice
-            ]);
-        } else {
+        $invoices = DB::select("
+            SELECT
+                a.id,
+                a.no_invoice,
+                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                FORMAT(a.total_harga, 0) AS total_harga,
+                FORMAT(a.total_bayar, 0) AS total_bayar,
+                FORMAT(a.total_harga - a.total_bayar, 0) AS sisa_bayar,
+                (SELECT SUM(r.berat) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_berat,
+                (SELECT SUM(r.panjang * r.lebar * r.tinggi) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_dimensi
+            FROM
+                tbl_invoice AS a
+            WHERE
+                a.no_invoice IN (" . implode(',', array_fill(0, count($invoiceSelect), '?')) . ")
+        ", $invoiceSelect);
+
+        // Jika tidak ada hasil, kembalikan error
+        if (empty($invoices)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice tidak ditemukan'
             ]);
         }
+
+        $totalHarga = 0;
+        $totalBayar = 0;
+        $totalBerat = 0;
+        $totalDimensi = 0;
+        $noInvoices = [];
+
+        foreach ($invoices as $invoice) {
+            $totalHarga += str_replace(',', '', $invoice->total_harga);
+            $totalBayar += str_replace(',', '', $invoice->total_bayar ?? 0);
+            $totalBerat += $invoice->total_berat ?? 0;
+            $totalDimensi += $invoice->total_dimensi ?? 0;
+            $noInvoices[] = $invoice->no_invoice;
+        }
+
+        $sisaBayar = $totalHarga - $totalBayar;
+
+        return response()->json([
+            'success' => true,
+            'summary' => [
+                'total_harga' => number_format($totalHarga, 0, ',', '.'),
+                'total_bayar' => number_format($totalBayar, 0, ',', '.'),
+                'sisa_bayar' => number_format($sisaBayar, 0, ',', '.'),
+                'total_berat' => $totalBerat,
+                'total_dimensi' => $totalDimensi,
+                'no_invoice' => implode(';', $noInvoices),
+            ]
+        ]);
     }
+
+
+    public function getInvoiceDetail(Request $request)
+    {
+        $id = $request->id;
+        $paymentCustomer = Payment::select(
+                'pc.id AS payment_customer_id',
+                'pc.kode_pembayaran',
+                'pc.payment_date',
+                'pc.payment_buat',
+                'pc.payment_method_id',
+                'pc.discount',
+                'pc.Keterangan',
+                DB::raw("GROUP_CONCAT(DISTINCT CONCAT(inv.no_invoice, '(', pi.amount, ')') SEPARATOR '; ') AS invoice_details"),
+                DB::raw("GROUP_CONCAT(DISTINCT CONCAT(coa.name, '(', pitems.nominal, ') - ', pitems.description) SEPARATOR '; ') AS item_details")
+            )
+            ->from('tbl_payment_customer as pc')
+            ->leftJoin('tbl_payment_invoice as pi', 'pc.id', '=', 'pi.payment_id')
+            ->leftJoin('tbl_invoice as inv', 'pi.invoice_id', '=', 'inv.id')
+            ->leftJoin('tbl_payment_items as pitems', 'pc.id', '=', 'pitems.payment_id')
+            ->leftJoin('tbl_coa as coa', 'pitems.coa_id', '=', 'coa.id')
+            ->where('pc.id', $id)
+            ->groupBy(
+                'pc.id',
+                'pc.kode_pembayaran',
+                'pc.payment_date',
+                'pc.payment_buat',
+                'pc.payment_method_id',
+                'pc.discount',
+                'pc.Keterangan'
+            )
+            ->first();
+
+        // Cek jika data ditemukan
+        if (!$paymentCustomer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment customer not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $paymentCustomer,
+        ]);
+    }
+
 
 
     public function amountPoin(Request $request)
@@ -178,23 +280,39 @@ class PaymentController extends Controller
     {
 
         $validated = $request->validate([
-            'invoice' => 'required|string',
+            'invoice' => 'required|array',
+            'kode' => 'required|string',
             'tanggalPayment' => 'required|date',
+            'tanggalPaymentBuat' => 'required',
             'paymentAmount' => 'required|numeric',
+            'discountPayment' => 'nullable|numeric',
             'paymentMethod' => 'required|integer',
+            'amountPoin' => 'nullable|numeric',
+            'keterangan' => 'nullable|string',
+            'items' => 'nullable|array',
+            'items.*.account' => 'required|integer',
+            'items.*.item_desc' => 'required|string',
+            'items.*.debit' => 'required|numeric',
         ]);
+
+        // dd($request->all());
+
+
+        if (
+            $request->amountPoin === null &&
+            ($request->discountPayment === null || $request->discountPayment == 0) &&
+            (empty($request->items) || count($request->items) === 0)
+        ) {
+            return $this->processNormalPayment($request);
+        }
+
 
         DB::beginTransaction();
 
         try {
-            Log::info("Starting payment process for Invoice: {$request->invoice}");
-
-            if ($request->amountPoin === null) {
-                return $this->processNormalPayment($request);
-            }
+            Log::info("Memulai ketika ada kondisi poin atau discount dengan jurnal manual");
 
             $accountSettings = DB::table('tbl_account_settings')->first();
-
             if (!$accountSettings) {
                 return response()->json([
                     'status' => 'error',
@@ -202,63 +320,104 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-
             $salesAccountId = $accountSettings->sales_account_id;
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
+            $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id;
 
-            if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount)) {
+            if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount) || is_null($paymentDiscountAccount)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
                 ], 400);
             }
 
-            $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
-            $invoice_id = $invoice->id;
-
-            $codeType = "BO";
-            $currentYear = date('y');
-
-            if (!$receivableSalesAccount) {
-                Log::error("Account with ID {$paymentMethodId} not found.");
-                DB::rollBack();
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Akun dengan ID yang diberikan tidak ditemukan.'
-                ], 404);
-            }
+            $noRef = implode(', ', $request->invoice);
 
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-            Log::info("Formatted Payment Date: {$tanggalPayment}");
 
-            $totalTagihanInvoice = $invoice->total_harga;
-            $totalBayarInvoice = $invoice->total_bayar ?? 0;
-            $sisaTagihan = $totalTagihanInvoice - $totalBayarInvoice;
 
-            $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
-                ->orderBy('kode_pembayaran', 'desc')
-                ->first();
+            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
 
-            $newSequence = 1;
-            if ($lastPayment) {
-                $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));
-                $newSequence = $lastSequence + 1;
-            }
-            $newKodePembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+            $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+
+            $formattedDateTime = $date->format('Y-m-d H:i:s');
+
+            $totalPayment = $request->paymentAmount;
+            $discount = $request->discountPayment ?? 0;
+            $totalEffectivePayment = $totalPayment + $discount;
 
             $payment = new Payment();
-            $payment->invoice_id = $invoice_id;
+            $payment->kode_pembayaran = $request->kode;
+            $payment->pembeli_id = $request->marking;
             $payment->payment_date = $tanggalPayment;
-            $payment->amount = $request->paymentAmount;
+            $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
-            $payment->kode_pembayaran = $newKodePembayaran;
+            $payment->discount = $discount;
+            $payment->Keterangan = $request->keterangan;
             $payment->save();
 
-            if ($request->amountPoin) {
-                $remainingPoin = $request->amountPoin;
+            $invoiceList = [];
+            foreach ($request->invoice as $noInvoice) {
+                $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
 
+                $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
+                $allocatedAmount = min($totalPayment, $remainingAmount);
+
+                if ($allocatedAmount > $remainingAmount) {
+                    Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pembayaran melebihi jumlah yang tersisa. Pembayaran dibatalkan.'
+                    ], 400);
+                }
+
+                if ($allocatedAmount <= 0 && $totalEffectivePayment < $remainingAmount) {
+                    Log::info("Invoice {$noInvoice} sudah lunas atau pembayaran tidak mencukupi.");
+                    continue;
+                }
+
+                $totalTagihanInvoice = $remainingAmount;
+                $paymentInvoice = new PaymentInvoice();
+                $paymentInvoice->payment_id = $payment->id;
+                $paymentInvoice->invoice_id = $invoice->id;
+                $paymentInvoice->amount = $allocatedAmount;
+                $paymentInvoice->save();
+
+                $invoice->total_bayar += $allocatedAmount;
+                if ($totalEffectivePayment >= $remainingAmount) {
+                    $invoice->status_bayar = 'Lunas';
+                } else {
+                    $invoice->status_bayar = 'Belum Lunas';
+                }
+                $invoice->save();
+
+                $totalPayment -= $allocatedAmount;
+                $totalEffectivePayment -= $remainingAmount;
+
+                if ($totalPayment <= 0 && $totalEffectivePayment <= 0) {
+                    break;
+                }
+
+                $invoiceList[] = $invoice->no_invoice;
+            }
+
+            if ($totalPayment > 0) {
+                Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pembayaran tidak dapat diproses karena sisa dana melebihi jumlah yang harus dibayar.'
+                ], 400);
+            }
+
+            if ($request->amountPoin) {
+                // Ambil data invoice
+                $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+                $paymentMethodId = $request->paymentMethod;
+
+                // Ambil data topup poin pelanggan
                 $topups = DB::table('tbl_history_topup')
                     ->where('customer_id', $invoice->pembeli_id)
                     ->where('balance', '>', 0)
@@ -267,41 +426,68 @@ class PaymentController extends Controller
 
                 $totalUsedPoin = 0;
                 $totalNominal = 0;
+                $remainingPoin = $request->amountPoin;
+
+                $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+
+                // Pastikan hasil query tidak kosong
+                if (empty($currentPointPrice)) {
+                    Log::error("Rate for 'Topup' not found.");
+                    return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+                }
+
+                // Ambil nilai rate dari query result
+                $currentPointPrice = $currentPointPrice[0]->nilai_rate;
 
                 foreach ($topups as $topup) {
                     if ($remainingPoin <= 0) break;
 
                     if ($topup->balance >= $remainingPoin) {
+                        // Poin yang digunakan cukup dari topup ini
                         $nominal = $remainingPoin * $topup->price_per_kg;
                         $totalNominal += $nominal;
                         $totalUsedPoin += $remainingPoin;
+
+                        // Kurangi saldo poin di history topup
                         DB::table('tbl_history_topup')->where('id', $topup->id)->decrement('balance', $remainingPoin);
+
+                        // Catat penggunaan poin
                         UsagePoints::create([
                             'customer_id' => $invoice->pembeli_id,
                             'history_topup_id' => $topup->id,
                             'used_points' => $remainingPoin,
                             'price_per_kg' => $topup->price_per_kg,
-                            'usage_date' => now()
+                            'usage_date' => now(),
                         ]);
 
+                        // Sisa poin yang digunakan selesai
                         $remainingPoin = 0;
                     } else {
+                        // Jika poin yang tersedia tidak cukup untuk digunakan seluruhnya
                         $nominal = $topup->balance * $topup->price_per_kg;
                         $totalNominal += $nominal;
                         $totalUsedPoin += $topup->balance;
-                        $remainingPoin -= $topup->balance;
+
+                        // Kurangi saldo poin di history topup
                         DB::table('tbl_history_topup')->where('id', $topup->id)->update(['balance' => 0]);
+
+                        // Catat penggunaan poin
                         UsagePoints::create([
                             'customer_id' => $invoice->pembeli_id,
                             'history_topup_id' => $topup->id,
                             'used_points' => $topup->balance,
                             'price_per_kg' => $topup->price_per_kg,
-                            'usage_date' => now()
+                            'usage_date' => now(),
                         ]);
+
+                        // Kurangi poin yang masih harus digunakan
+                        $remainingPoin -= $topup->balance;
                     }
                 }
 
+                // Validasi jika poin yang digunakan masih kurang dari yang dibutuhkan
                 if ($remainingPoin > 0) {
+                    Log::error("Remaining points after topup insufficient", ['remainingPoin' => $remainingPoin]);
                     DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -309,97 +495,89 @@ class PaymentController extends Controller
                     ], 400);
                 }
 
-                $poinMargin = $totalNominal - $sisaTagihan;
+                $newNominal = $totalUsedPoin * $currentPointPrice;
 
+                $poinMargin = $newNominal - $totalNominal;
 
+                // Log informasi margin
+                Log::info("Margin Poin Calculated", [
+                    'totalUsedPoin' => $totalUsedPoin,
+                    'currentPointPrice' => $currentPointPrice,
+                    'newNominal' => $newNominal,
+                    'totalNominal' => $totalNominal,
+                    'poinMargin' => $poinMargin,
+                ]);
 
-                Log::info("Poin Margin: {$poinMargin}");
+                $invoiceNumbers = is_array($request->invoice) ? implode(', ', $request->invoice) : $request->invoice;
 
                 $request->merge(['code_type' => 'BKM']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+
+                Log::info("Generated Journal Number", ['noJournal' => $noJournal]);
+
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
                 $jurnal->tipe_kode = 'BKM';
-                $jurnal->tanggal = $tanggalPayment;
-                $jurnal->no_ref = $request->invoice;
+                $jurnal->tanggal = now();
+                $jurnal->no_ref = $invoiceNumbers;
                 $jurnal->status = 'Approve';
-                $jurnal->description = "Jurnal untuk Invoice {$request->invoice}";
+                $jurnal->description = "Jurnal untuk Invoice " . $invoiceNumbers;
                 $jurnal->totaldebit = $totalNominal;
                 $jurnal->totalcredit = $totalNominal;
-                // $jurnal->totaldebit = $sisaTagihan + abs($poinMargin);
-                // $jurnal->totalcredit = $sisaTagihan + abs($poinMargin);
                 $jurnal->save();
+
                 $journalItems = [];
 
-                if ($poinMargin == 0) {
-                    // Kondisi poin margin 0: Hanya dua akun, debit dan kredit sama
+                if ($poinMargin > 0) {
                     $journalItems[] = [
                         'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice {$request->invoice}",
+                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
                         'debit' => $totalTagihanInvoice,
                         'credit' => 0,
                     ];
-
                     $journalItems[] = [
                         'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice {$request->invoice}",
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
                         'debit' => 0,
-                        'credit' => $totalNominal,
+                        'credit' => $newNominal,
                     ];
-
-                } elseif ($poinMargin < 0) {
-                    // Kondisi poin margin negatif: Tambahkan akun margin di kredit, tambah nilai pada debit akun utama
                     $journalItems[] = [
-                        'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice {$request->invoice}",
-                        'debit' => $sisaTagihan, // Tambah kekurangan
-                        // 'debit' => $totalTagihanInvoice, // Tambah kekurangan
-                        'credit' => 0,
-                    ];
-
-                    $journalItems[] = [
-                        'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice {$request->invoice}",
-                        'debit' => 0,
-                        'credit' => $totalNominal,
-                    ];
-
-                    Log::info("Menambahkan akun margin di kredit dengan nilai: " . abs($poinMargin));
-                    $journalItems[] = [
-                        'code_account' => $poinMarginAccount, // Ganti ke akun diskon
-                        'description' => "Poin Margin untuk Invoice {$request->invoice}",
-                        'debit' => 0,
-                        'credit' => abs($poinMargin),
-                    ];
-
-                } elseif ($poinMargin > 0) {
-                    // Kondisi poin margin positif: Tambahkan akun margin di debit, tambah nilai pada kredit akun utama
-                    $journalItems[] = [
-                        'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice {$request->invoice}",
-                        'debit' => $totalTagihanInvoice,
-                        'credit' => 0,
-                    ];
-
-                    $journalItems[] = [
-                        'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice {$request->invoice}",
-                        'debit' => 0,
-                        'credit' =>  $sisaTagihan + abs($poinMargin), // Kurangi kelebihan
-                    ];
-
-                    Log::info("Menambahkan akun margin di debit dengan nilai: {$poinMargin}");
-                    $journalItems[] = [
-                        'code_account' => $accountSettings->discount_sales_account_id, // Ganti ke akun diskon
-                        'description' => "Poin Margin untuk Invoice {$request->invoice}",
+                        'code_account' => $accountSettings->discount_sales_account_id,
+                        'description' => "Margin Poin Positif untuk Invoice " . $invoiceNumbers,
                         'debit' => $poinMargin,
                         'credit' => 0,
                     ];
+                } elseif ($poinMargin < 0) {
+                    $journalItems[] = [
+                        'code_account' => $salesAccountId,
+                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                        'debit' => $totalTagihanInvoice + abs($poinMargin),
+                        'credit' => 0,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $paymentMethodId,
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'debit' => 0,
+                        'credit' => $newNominal,
+                    ];
+                } elseif ($poinMargin == 0) {
+                    Log::info("Case: Point Margin is Zero");
+                    $journalItems[] = [
+                        'code_account' => $salesAccountId,
+                        'description' => "Debit untuk Invoice " .  $invoiceNumbers,
+                        'debit' => $totalNominal,
+                        'credit' => 0,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $paymentMethodId,
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'debit' => 0,
+                        'credit' => $totalNominal,
+                    ];
                 }
 
-                // Simpan item jurnal ke database
+                // Simpan item jurnal
                 foreach ($journalItems as $item) {
-                    Log::info("Menambahkan item jurnal: ", $item);
                     JurnalItem::create([
                         'jurnal_id' => $jurnal->id,
                         'code_account' => $item['code_account'],
@@ -409,38 +587,93 @@ class PaymentController extends Controller
                     ]);
                 }
 
-                if ($poinMargin < 0 && abs($poinMargin) > 20000) {
-                    Log::error("Margin poin negatif terlalu besar untuk dianggap Lunas.");
-                    DB::rollBack();
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Poin tidak cukup untuk menutup tagihan ini.'
-                    ], 400);
-                }
+                $sudahBayar = $invoice->total_bayar;
+                $jumlahKeseluruhan = $newNominal + $sudahBayar + $poinMargin;
 
-                if ($poinMargin <= 0) {
-                    Log::info("Invoice dianggap Lunas.");
+                $invoice->update([
+                    'total_bayar' => $jumlahKeseluruhan,
+                ]);
+
+                if ($invoice->total_harga == $invoice->total_bayar){
                     $invoice->update([
-                        'total_bayar' => $totalTagihanInvoice,
-                        'status_bayar' => 'Lunas'
-                    ]);
-                } else {
-                    Log::info("Invoice Lunas dengan saldo lebih sebesar {$poinMargin}.");
-                    $invoice->update([
-                        'total_bayar' => $totalTagihanInvoice + $poinMargin,
-                        'status_bayar' => 'Lunas'
+                        'status_bayar' => 'Lunas',
                     ]);
                 }
-
-                $updatesipoin = DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
-                Log::info("Sisa poin pembeli dengan ID {$invoice->pembeli_id} dikurangi sebanyak {$totalUsedPoin}. Sisa poin telah diperbarui.");
-                Log::info("Sisa poin pembeli dengan ID {updatesipoin}");
-
+                DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
             }
 
+            if ($request->discountPayment) {
+                $request->merge(['code_type' => 'BKM']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
-            // dd($totalTagihanInvoice);
+                $jurnal = new Jurnal();
+                $jurnal->no_journal = $noJournal;
+                $jurnal->tipe_kode = 'BKM';
+                $jurnal->tanggal = $tanggalPayment;
+                $jurnal->no_ref = $noRef;
+                $jurnal->status = 'Approve';
+                $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
+                $jurnal->totaldebit = $request->paymentAmount;
+                $jurnal->totalcredit = $request->paymentAmount;
+                $jurnal->save();
 
+                Log::info('Entri jurnal berhasil dibuat', ['jurnalId' => $jurnal->id]);
+
+                $jurnalItemDebit = new JurnalItem();
+                $jurnalItemDebit->jurnal_id = $jurnal->id;
+                $jurnalItemDebit->code_account = $receivableSalesAccount->id;
+                $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
+                $jurnalItemDebit->debit = $request->paymentAmount;
+                $jurnalItemDebit->credit = 0;
+                $jurnalItemDebit->save();
+
+                Log::info('Jurnal item debit berhasil ditambahkan.');
+
+                $jurnalItemCredit = new JurnalItem();
+                $jurnalItemCredit->jurnal_id = $jurnal->id;
+                $jurnalItemCredit->code_account = $salesAccountId;
+                $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
+                $jurnalItemCredit->debit = 0;
+                $jurnalItemCredit->credit = $request->totalAmmount;
+                $jurnalItemCredit->save();
+
+                Log::info('Jurnal item kredit berhasil ditambahkan.');
+
+                $jurnalItemDiscount = new JurnalItem();
+                $jurnalItemDiscount->jurnal_id = $jurnal->id;
+                $jurnalItemDiscount->code_account = $paymentDiscountAccount;
+                $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
+                $jurnalItemDiscount->debit = $request->discountPayment;
+                $jurnalItemDiscount->credit = 0;
+                $jurnalItemDiscount->save();
+
+                Log::info('Jurnal item diskon berhasil ditambahkan.');
+            }
+
+            if ($request->has('items') && is_array($request->items)) {
+                foreach ($request->items as $item) {
+                    PaymentCustomerItems::create([
+                        'payment_id' => $payment->id,
+                        'coa_id' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'nominal' => $item['debit'],
+                    ]);
+
+                    $jurnalItem = new JurnalItem();
+                    $jurnalItem->jurnal_id = $jurnal->id;
+                    $jurnalItem->code_account = $item['account'];
+                    $jurnalItem->description = $item['item_desc'];
+                    $jurnalItem->debit = $item['debit'];
+                    $jurnalItem->credit = 0;
+                    $jurnalItem->save();
+
+                    Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
+                        'account' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'nominal' => $item['debit'],
+                    ]);
+                }
+            }
 
             DB::commit();
             return response()->json([
@@ -455,22 +688,14 @@ class PaymentController extends Controller
         }
     }
 
-
-
-    public function export(Request $request)
-    {
-        return Excel::download(new PaymentExport(
-            $request->status,
-            $request->startDate,
-            $request->endDate
-        ), 'Payment Customers.xlsx');
-    }
-
     private function processNormalPayment($request)
     {
+        Log::info('Mulai proses pembayaran normal', ['request' => $request->all()]);
+
         $accountSettings = DB::table('tbl_account_settings')->first();
 
         if (!$accountSettings) {
+            Log::error('Account settings tidak ditemukan.');
             return response()->json([
                 'status' => 'error',
                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
@@ -482,93 +707,192 @@ class PaymentController extends Controller
         $receivableSalesAccount = COA::find($paymentMethodId);
 
         if (is_null($salesAccountId) || is_null($receivableSalesAccount)) {
+            Log::error('Akun pengaturan tidak lengkap.');
             return response()->json([
                 'status' => 'error',
                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
             ], 400);
         }
 
-        if (!$receivableSalesAccount) {
-            DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Akun dengan ID yang diberikan tidak ditemukan.'
-            ], 404);
-        }
-
-        $receivableSalesAccountId = $receivableSalesAccount->id;
-
+        DB::beginTransaction();
         try {
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-            $codeType = "BO";
-            $currentYear = date('y');
+            $totalPayment = $request->paymentAmount;
+            $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+            $formattedDateTime = $date->format('Y-m-d H:i:s');
 
-            $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
-            $invoice_id = $invoice->id;
+            $payment = new Payment();
+            $payment->kode_pembayaran = $request->kode;
+            $payment->pembeli_id = $request->marking;
+            $payment->payment_date = $tanggalPayment;
+            $payment->payment_buat =   $formattedDateTime;
+            $payment->payment_method_id = $paymentMethodId;
+            $payment->discount = $request->discountPayment ?? 0;
+            $payment->Keterangan = $request->keterangan;
+            $payment->save();
 
-            $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
-            if ($totalBayarBaru > $invoice->total_harga) {
+            $invoiceList = [];
+            foreach ($request->invoice as $noInvoice) {
+                $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
+
+                $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
+                $allocatedAmount = min($totalPayment, $remainingAmount);
+
+                if ($allocatedAmount > $remainingAmount) {
+                    Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
+
+                    // Stop further processing and return a response
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pembayaran melebihi jumlah yang tersisa. Pembayaran dibatalkan.'
+                    ], 400);
+                }
+
+                if ($allocatedAmount <= 0) {
+                    Log::info("Invoice {$noInvoice} sudah lunas.");
+                    continue;
+                }
+
+                $paymentInvoice = new PaymentInvoice();
+                $paymentInvoice->payment_id = $payment->id;
+                $paymentInvoice->invoice_id = $invoice->id;
+                $paymentInvoice->amount = $allocatedAmount;
+                $paymentInvoice->save();
+
+                $invoice->total_bayar += $allocatedAmount;
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->save();
+
+                $totalPayment -= $allocatedAmount;
+                if ($totalPayment <= 0) {
+                    break;
+                }
+
+                // Menambahkan nomor invoice ke list
+                $invoiceList[] = $invoice->no_invoice;
+            }
+
+            // Cancel payment if the total amount is still greater than 0
+            if ($totalPayment > 0) {
+                Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Total pembayaran melebihi total harga invoice.'
+                    'message' => 'Pembayaran tidak dapat diproses karena sisa dana melebihi jumlah yang harus dibayar.'
                 ], 400);
             }
 
-            $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
-                ->orderBy('kode_pembayaran', 'desc')
-                ->first();
+            $noRef = implode(', ', $request->invoice);
 
-            $newSequence = $lastPayment ? intval(substr($lastPayment->kode_pembayaran, -4)) + 1 : 1;
-            $newKodePembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+            if ($totalPayment > 0) {
+                Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+            }
 
-            $payment = new Payment();
-            $payment->invoice_id = $invoice_id;
-            $payment->payment_date = $tanggalPayment;
-            $payment->amount = $request->paymentAmount;
-            $payment->payment_method_id = $paymentMethodId;
-            $payment->kode_pembayaran = $newKodePembayaran;
-            $payment->save();
-
-            $invoice->total_bayar = $totalBayarBaru;
-            $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
-            $invoice->save();
-
+            // Generate nomor jurnal menggunakan jurnalController
             $request->merge(['code_type' => 'BKM']);
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
+            // Buat entri jurnal
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
-            $jurnal->tipe_kode = 'BKM';
+            $jurnal->tipe_kode = 'BKM';  // Menggunakan tipe kode yang sama
             $jurnal->tanggal = $tanggalPayment;
-            $jurnal->no_ref = $request->invoice;
+            $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Invoice {$request->invoice}";
+            $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
             $jurnal->totaldebit = $request->paymentAmount;
             $jurnal->totalcredit = $request->paymentAmount;
             $jurnal->save();
 
+            Log::info('Entri jurnal berhasil dibuat', ['jurnalId' => $jurnal->id]);
+
+            // Tambahkan jurnal item debit
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
-            $jurnalItemDebit->code_account = $receivableSalesAccountId;
-            $jurnalItemDebit->description = "Kredit untuk Invoice {$request->invoice}";
-            $jurnalItemDebit->debit = 0;
-            $jurnalItemDebit->credit = $request->paymentAmount;
+            $jurnalItemDebit->code_account = $receivableSalesAccount->id;  // Ambil ID dari akun penerimaan
+            $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
+            $jurnalItemDebit->debit = $request->paymentAmount;
+            $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
 
+            Log::info('Jurnal item debit berhasil ditambahkan.');
+
+            // Tambahkan jurnal item kredit
             $jurnalItemCredit = new JurnalItem();
             $jurnalItemCredit->jurnal_id = $jurnal->id;
-            $jurnalItemCredit->code_account = $salesAccountId;
-            $jurnalItemCredit->description = "Debit untuk Invoice {$request->invoice}";
-            $jurnalItemCredit->debit = $request->paymentAmount;
-            $jurnalItemCredit->credit = 0;
+            $jurnalItemCredit->code_account = $salesAccountId;  // Ambil ID dari akun penjualan
+            $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
+            $jurnalItemCredit->debit = 0;
+            $jurnalItemCredit->credit = $request->paymentAmount;
             $jurnalItemCredit->save();
 
+            Log::info('Jurnal item kredit berhasil ditambahkan.');
+
+            // Commit transaksi
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Payment successfully created and invoice updated']);
+            Log::info('Pembayaran berhasil diproses.');
+            return response()->json(['success' => true, 'message' => 'Payments successfully created and invoices updated']);
         } catch (\Exception $e) {
             DB::rollback();
-            throw new \Exception('Error during normal payment processing: ' . $e->getMessage());
+            Log::error('Terjadi kesalahan saat memproses pembayaran', ['error' => $e->getMessage()]);
+            throw new \Exception('Error during multiple invoice payment processing: ' . $e->getMessage());
         }
+    }
+
+
+
+    public function export(Request $request)
+    {
+        return Excel::download(new PaymentExport(
+            $request->status,
+            $request->startDate,
+            $request->endDate
+        ), 'Payment Customers.xlsx');
+    }
+
+
+
+    public function generateKodePembayaran()
+    {
+        $codeType = "BO";
+        $currentYear = date('y');
+
+        $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
+            ->orderBy('kode_pembayaran', 'desc')
+            ->first();
+
+        $newSequence = 1;
+        if ($lastPayment) {
+            $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));  // Extract last 4 digits
+            $newSequence = $lastSequence + 1;
+        }
+
+        $kode_pembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'status' => 'success',
+            'kode_pembayaran' => $kode_pembayaran
+        ]);
+    }
+
+
+    public function getInvoiceByMarking(Request $request)
+    {
+        $marking = $request->input('marking');
+
+        $invoices = Invoice::join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
+            ->where('tbl_pembeli.marking', $marking)
+            ->where('tbl_invoice.status_bayar', 'Belum Lunas')
+            ->select('tbl_invoice.no_invoice')
+            ->get();
+
+        if ($invoices->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No invoices found for this marking.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'invoices' => $invoices
+        ]);
     }
 
 

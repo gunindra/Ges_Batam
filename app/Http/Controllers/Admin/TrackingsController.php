@@ -6,6 +6,7 @@ use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Tracking;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -18,7 +19,10 @@ class TrackingsController extends Controller
             ->distinct()
             ->get();
 
-        return view('Tracking.indextracking', compact('listStatus'));
+        return view('Tracking.indextracking', [
+            'listStatus' =>  $listStatus,
+            'hasActionColumn' => in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor'])
+        ]);
     }
     public function getTrackingData(Request $request)
     {

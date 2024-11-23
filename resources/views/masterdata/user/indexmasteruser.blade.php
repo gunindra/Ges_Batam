@@ -38,7 +38,7 @@
                                     <i class="fa fa-eye" id="eyeIcon"></i>
                                 </span>
                             </div>
-                            <div id="passwordUsersError" class="text-danger mt-1 d-none">Password must be at least 8
+                            <div id="passwordUsersError" class="text-danger mt-1 d-none">Password must be at least 6
                                 characters.</div>
                         </div>
                         <div class="mt-3">
@@ -55,6 +55,7 @@
                                 <option value="" selected disabled>Pilih Status</option>
                                 <option value="admin">Admin</option>
                                 <option value="superadmin">SuperAdmin</option>
+                                <option value="supervisor">Supervisor</option>
                             </select>
                             <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                         </div>
@@ -99,7 +100,7 @@
                                 <i class="fa fa-eye" id="eyeIcon1"></i>
                             </span>
                         </div>
-                        <div id="passwordUsersErrorEdit" class="text-danger mt-1 d-none">Password must be at least 8
+                        <div id="passwordUsersErrorEdit" class="text-danger mt-1 d-none">Password must be at least 6
                             characters.
                         </div>
                     </div>
@@ -117,6 +118,7 @@
                             <option value="" selected disabled>Pilih Status</option>
                             <option value="admin">Admin</option>
                             <option value="superadmin">SuperAdmin</option>
+                            <option value="supervisor">Supervisor</option>
                         </select>
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>
@@ -255,7 +257,7 @@
             } else {
                 $('#emailUsersError').addClass('d-none');
             }
-            if (passwordUsers.length < 8) {
+            if (passwordUsers.length < 6) {
                 $('#passwordUsersError').removeClass('d-none');
                 isValid = false;
             } else {
@@ -317,7 +319,7 @@
                                 Swal.close();
                                 if (response.success) {
                                     showMessage("success",
-                                        "berhasil ditambahkan");
+                                        "Berhasil ditambahkan");
                                     $('#modalTambahUsers').modal('hide');
                                     getListUser();
                                 }

@@ -55,7 +55,7 @@
                                 </div>
                             </div>
                             <div class="my-3 ml-3">
-                                <label for="" class="form-label fw-bold">Tipe Kode</label>
+                                <label for="Tipe" class="form-label fw-bold">Tipe Kode</label>
                                 <div class="input-container">
                                     <input type="radio" id="type1" name="code_type" value="BKM">
                                     <label for="type1" class="input-label mr-3">BKM</label>
@@ -223,28 +223,151 @@
             autoclose: true,
         }).datepicker('setDate', today);
 
-        $('input[name="code_type"]').change(function () {
-            const selectedType = $('input[name="code_type"]:checked').val();
 
-            if (selectedType) {
-                $.ajax({
-                    url: "{{ route('generateNoJurnal') }}",
-                    method: 'GET',
-                    data: {
-                        code_type: selectedType,
-                    },
-                    success: function (response) {
-                        console.log('Data berhasil dikirim:', response);
-                        $('#noJournal').val(response.no_journal);
-                    },
-                    error: function (xhr) {
+        function checkAndHideBKKOption() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeType = urlParams.get('code_type');
 
+            if (codeType === 'BKK') {
+                $('#type2').hide();
+                $('label[for="type2"]').hide();
+                $('#type2').prop('checked', true);
+
+                $('#type3').hide();
+                $('label[for="type3"]').hide();
+
+                $('#type1').hide();
+                $('label[for="type1"]').hide();
+
+                $('#type4').hide();
+                $('label[for="type4"]').hide();
+
+                $('#type5').hide();
+                $('label[for="type5"]').hide();
+
+                $('#type6').hide();
+                $('label[for="type6"]').hide();
+
+                $('#type7').hide();
+                $('label[for="type7"]').hide();
+
+                $('label[for="Tipe"]').hide();
+
+                $('#errCodeType').hide();
+
+                function generateNoJournalBKK() {
+                    $.ajax({
+                        url: "{{ route('generateNoJournalBKK') }}",
+                        type: 'GET',
+                        dataType: 'json',
+                        beforeSend: function () {
+                            $('#noJournal').val('Loading...');
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                $('#noJournal').val(response.no_journal);
+                            } else {
+                                alert('noJournal generation failed.');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showMessage("error", "Terjadi kesalahan: " + error);
+                        },
+                        complete: function () {
+                            $('#noJournal').find('.spinner-border').remove();
+                        }
+                    });
+                }
+                generateNoJournalBKK();
+                $('.select2').select2();
+
+            } else if (codeType === 'Jurnal') {
+                $('#type2').hide();
+                $('label[for="type2"]').hide();
+
+                $('#type1').hide();
+                $('label[for="type1"]').hide();
+
+                $('input[name="code_type"]').change(function () {
+                    const selectedType = $('input[name="code_type"]:checked').val();
+
+                    if (selectedType) {
+                        $.ajax({
+                            url: "{{ route('generateNoJurnal') }}",
+                            method: 'GET',
+                            data: {
+                                code_type: selectedType,
+                            },
+                            success: function (response) {
+                                console.log('Data berhasil dikirim:', response);
+                                $('#noJournal').val(response.no_journal);
+                            },
+                            error: function (xhr) {
+
+                            }
+                        });
+                    } else {
+                        $('#errMessage').removeClass('d-none');
                     }
                 });
-            } else {
-                $('#errMessage').removeClass('d-none');
+
+            } else if (codeType === 'BKM') {
+                $('#type2').hide();
+                $('label[for="type2"]').hide();
+
+                $('#type3').hide();
+                $('label[for="type3"]').hide();
+
+                $('#type1').hide();
+                $('label[for="type1"]').hide();
+                $('#type1').prop('checked', true);
+
+                $('#type4').hide();
+                $('label[for="type4"]').hide();
+
+                $('#type5').hide();
+                $('label[for="type5"]').hide();
+
+                $('#type6').hide();
+                $('label[for="type6"]').hide();
+
+                $('#type7').hide();
+                $('label[for="type7"]').hide();
+
+                $('label[for="Tipe"]').hide();
+
+                $('#errCodeType').hide();
+
+                function generateNoJournalBKM() {
+                    $.ajax({
+                        url: "{{ route('generateNoJournalBKM') }}",
+                        type: 'GET',
+                        dataType: 'json',
+                        beforeSend: function () {
+                            $('#noJournal').val('Loading...');
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                $('#noJournal').val(response.no_journal);
+                            } else {
+                                alert('noJournal generation failed.');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showMessage("error", "Terjadi kesalahan: " + error);
+                        },
+                        complete: function () {
+                            $('#noJournal').find('.spinner-border').remove();
+                        }
+                    });
+                }
+                generateNoJournalBKM();
+                $('.select2').select2();
             }
-        });
+
+        }
+        checkAndHideBKKOption();
+
         function updateTotals() {
             var totalDebit = 0;
             var totalCredit = 0;

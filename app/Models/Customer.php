@@ -20,6 +20,7 @@ class Customer extends Model
         'status',
         'non_active_at',
         'metode_pengiriman',
+        'user_id'
     ];
 
     public function category()

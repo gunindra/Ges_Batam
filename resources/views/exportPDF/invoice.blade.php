@@ -171,6 +171,9 @@
 </head>
 
 <body>
+    <?php
+    $hargaIDR = ceil($hargaIDR / 1000) * 1000;
+    ?>
     <div class="container">
         <div class="header">
             <div class="logo-container">
@@ -184,7 +187,7 @@
                     $base64 = '';
                 }
                 ?>
-                <img src="<?php echo $base64?>" alt="logo" class="logo"/>
+                <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
             <div class="company-info">
                 <div class="company-name">PT. GES LOGISTIC</div>
@@ -198,7 +201,8 @@
 
         <div class="title">
             <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
-            <h5>Pembeli: {{ $invoice->pembeli }}</h5>
+            <h5>Pembeli: {{ $invoice->pembeli }} ({{ $invoice->marking }}) </h5>
+            <p>Alamat: {{ $invoice->alamat }}</p>
             <h2>Invoice: {{ $invoice->no_invoice }}</h2>
         </div>
 
@@ -229,9 +233,21 @@
                         @endif
 
                         @if ($resi->berat)
-                            <td>{{ $resi->berat }}</td>
+                            <td>
+                                {{ $resi->berat ?? '0' }}
+                                @if ($resi->priceperkg)
+                                    / {{ number_format($resi->priceperkg, 2) }} perkg
+                                @endif
+                            </td>
                         @else
-                            <td>{{ $resi->panjang ?? '0' }} x {{ $resi->lebar ?? '0' }} x {{ $resi->tinggi ?? '0' }} cm
+                            <td>
+                                @php
+                                    $panjang = $resi->panjang ?? 0;
+                                    $lebar = $resi->lebar ?? 0;
+                                    $tinggi = $resi->tinggi ?? 0;
+                                    $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100); // hasil dalam m3
+                                @endphp
+                                {{ number_format($volume, 3) }} m³
                             </td>
                         @endif
                         <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>

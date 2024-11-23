@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('tbl_payment_sup', function (Blueprint $table) {
             $table->id();
             $table->string('kode_pembayaran');
-            $table->unsignedBigInteger('invoice_id');
-            $table->foreign('invoice_id')->references('id')->on('tbl_sup_invoice')->onDelete('cascade');
+            // $table->unsignedBigInteger('invoice_id');
+            // $table->foreign('invoice_id')->references('id')->on('tbl_sup_invoice')->onDelete('cascade');
             $table->date('payment_date');
-            $table->decimal('amount', 15, 2);
+            // $table->decimal('amount', 15, 2);
             $table->unsignedBigInteger('payment_method_id'); // Mengganti tipe data dari string ke unsignedBigInteger
             $table->foreign('payment_method_id')->references('id')->on('tbl_coa')->onDelete('cascade');
             // $table->text('description')->nullable();

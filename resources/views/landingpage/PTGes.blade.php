@@ -1,17 +1,17 @@
 <x-layout :dataPtges="$dataPtges ?? ''" :wa="$wa ?? ''">
 
-
   @section('title', 'PT. GES')
   <!-- popup -->
-  @if(isset($popup) && ($popup->Image_Popup || $popup->Judul_Popup || $popup->Paraf_Popup || $popup->Link_Popup))
+  @if(isset($popup) && ($popup->Image_Popup || $popup->title_Popup || $popup->Paragraph_Popup || $popup->Link_Popup))
     <dialog id="welcome-dialog" class="popup-dialog">
+    <button id="close-popup" class="close-button">x</button>
+
     @if($popup->Image_Popup)
     <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
   @endif
 
     @if($popup->title_Popup)
-    <h2 class="popup-title">{{$popup->title_Popup}}
-    </h2>
+    <h2 class="popup-title">{{ $popup->title_Popup }}</h2>
   @endif
 
     @if($popup->Paragraph_Popup)
@@ -38,9 +38,11 @@
       <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
       alt="{{ $heropage->title_heropage }}">
       <div class="carousel-caption">
-      <h5 id="judulCarousel" style="  overflow-wrap: break-word;  white-space: normal;">{{ $heropage->title_heropage }}</h5>
-      <p id="parafCarousel" style="  overflow-wrap: break-word;  white-space: normal;">{!! nl2br(e(Str::limit($heropage->content_heropage, 150, ''))) !!}</p>
-      <a class="bg-primary bg-gradient text-white" href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a>
+      <h5 id="judulCarousel" class="responsive-title">
+        {{ $heropage->title_heropage }}
+      </h5>
+      <!-- <a class="btn-responsive bg-primary bg-gradient text-white"
+      href="{{ url('/Slide?id=' . $heropage->id) }}">Learn More</a> -->
       </div>
       </div>
     @endforeach
@@ -94,8 +96,8 @@
       alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
       <div class="img-text">
       <div class="contentGallery">
-        <h2>{{ Str::limit($info->title_informations ?? '-',50,'') }}</h2>
-        <p>{{ Str::limit($info->content_informations ?? '-', 150, '') }}</p>
+        <h2 id="titleContent">{{ Str::limit($info->title_informations ?? '-', 120, '') }}</h2>
+        <p id="paragraphContent">{{ Str::limit($info->content_informations ?? '-', 260, '') }}</p>
       </div>
       </div>
       </div>
@@ -184,12 +186,13 @@
             <h1 style="font-size:32px;">About Us</h1>
           </div>
           <h2>What they say about us</h2>
-          <p id="parafAbout">{!! nl2br(e($dataPtges->Paragraph_AboutUs ?? '-')) !!}</p>
+          <p id="parafAbout">{!! nl2br(e(Str::limit($dataPtges->Paragraph_AboutUs ?? '-', 200))) !!}</p>
           <a href="/About" class="btn">Learn More</a>
         </div>
         <div class="image" id="imageAbout">
           @if (!empty($dataPtges->Image_AboutUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;"
+        alt="About Us Image">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
     @endif
@@ -204,14 +207,16 @@
       <div class="why">
         <div class="image-sectionwhy">
           @if (!empty($dataPtges->Image_WhyUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
     @endif
         </div>
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
-          <p id="parafWhy" style=" word-break: break-word; ">{!! nl2br(e($dataPtges->Paragraph_WhyUs ?? '-')) !!}</p>
+          <p id="parafWhy" style=" word-break: break-word; ">
+            {!! nl2br(e(Str::limit($dataPtges->Paragraph_WhyUs ?? '-', 200))) !!}
+          </p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>
           </div>
@@ -234,8 +239,12 @@
         <img src="{{ asset('storage/images/' . $service->image_service) }}"
         alt="{{ $service->title_service ?? '-' }}">
         <div class="overlay">
-        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50,'') }}</h3>
-        <p style="word-break: break-word;">{!! nl2br(e(Str::limit($service->content_service ?? '-', 150,''))) !!}</p>
+        <div class="overlay-content">
+        <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50, '') }}</h3>
+        <p style="word-break: break-word;">
+        {!! nl2br(e(Str::limit($service->content_service ?? '-', 149))) !!}
+        </p>
+        </div>
         <div class="button-container">
         <a href="{{ url('/Services?id=' . $service->id) ?? '-' }}" class="btn-modern">Read More</a>
         </div>
@@ -258,9 +267,6 @@
       </div>
     </div>
   </div>
-
-
-
 
   <!-- iklan slide -->
   <div class="logos {{ count($listiklan) > 0 ? '' : 'hidden' }}" style="margin-top:50px;">
@@ -285,8 +291,7 @@
         <div class="col-lg-5 col-md-12">
           <p class="textMaps" style="margin-top:10px; font-size:40px; font-family: sans-serif;">Contact <i
               style="color:#80AF81;">Us</i></p>
-          <p class="pt-3" style="color:#1679AB; font-size: 20px; font-family: sans-serif;">42Q2+6PH, Unnamed Road,
-            Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau</p>
+          <p style="color:#1679AB; font-size: 20px; font-family: sans-serif;">{{ $dataPtges->alamat ?? '-'}}</p>
           <div class="Contact-Us" style="font-size:17px; color:#1679AB;">
             <p><i class="ph ph-envelope fa-xl"></i> {{ $dataPtges->email ?? '-'}}</p>
             <p><i class="ph ph-phone fa-xl"></i>
@@ -315,32 +320,26 @@
         ride: 'carouselSlide'
       });
     });
+    // document.addEventListener("DOMContentLoaded", function () {
+    //   const titleElements = document.querySelectorAll("#judulCarousel");
 
-    document.addEventListener('DOMContentLoaded', function () {
-    const judulCarousel = document.getElementById('judulCarousel');
-    const parafCarousel = document.getElementById('parafCarousel');
+    //   titleElements.forEach(title => {
+    //     const maxFontSize = 50; 
+    //     const minFontSize = 30;
+    //     const baseLength = 20;   
 
-    function adjustFontSize() {
-        const titleLength = judulCarousel.innerText.length; 
-        const contentLength = parafCarousel.innerText.length; 
-        
-        if (titleLength > 30) {
-            judulCarousel.style.fontSize = 'calc(1rem + 5px)'; 
-        } else {
-            judulCarousel.style.fontSize = 'calc(1rem + 15px)'; 
-        }
+    //     const titleLength = title.textContent.length;
+    //     let fontSize = maxFontSize;
 
-        if (contentLength > 50) { 
-            parafCarousel.style.fontSize = 'calc(15px)';
-        } else {
-            parafCarousel.style.fontSize = 'calc(1rem + 5px)'; 
-        }
-    }
+    //     if (titleLength > baseLength) {
+    //       fontSize = Math.max(minFontSize, maxFontSize - (titleLength - baseLength) * 0.3);
+    //     }
 
 
-    adjustFontSize();
+    //     title.style.fontSize = `${fontSize}px`;
+    //   });
+    // });
 
-});
   </script>
 
   @endsection

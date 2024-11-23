@@ -74,7 +74,7 @@ class SupplierInvoiceController extends Controller
                         : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
                 })
                 ->addColumn('total_harga', function($row) {
-                    return number_format($row->total_harga, 2);
+                    return number_format($row->total_harga, 2, ',', '.');
                 })
                 ->addColumn('action', function($row) {
                     $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';

@@ -20,6 +20,8 @@ class HistoryTopup extends Model
         'account_id',
         'balance',
         'date',
+        'expired_date',
+        'code',
     ];
 
     // Relationship to the customer (tbl_pembeli)
@@ -46,4 +48,5 @@ class HistoryTopup extends Model
     {
         return $this->hasMany(UsagePoints::class, 'history_topup_id');
     }
+    protected $dates = ['expired_date'];
 }
