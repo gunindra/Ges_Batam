@@ -117,7 +117,6 @@ class CostumerController extends Controller
     }
 
 
-
     public function addCostumer(Request $request)
     {
 
@@ -254,5 +253,35 @@ class CostumerController extends Controller
 
         return response()->json(['new_marking' => $newMarking]);
     }
+
+    public function customerByName(Request $request)
+    {
+        $query = Customer::query();
+
+        // If a customer name filter is provided, apply it
+        if ($request->has('search') && $request->search['value'] != '') {
+            $searchTerm = $request->search['value'];
+            $query->where('nama_pembeli', 'like', "%$searchTerm%")
+                  ->orWhere('no_wa', 'like', "%$searchTerm%")
+                  ->orWhere('marking', 'like', "%$searchTerm%");
+        }
+
+        // Get the total count of records
+        $totalRecords = $query->count();
+
+        // Apply pagination
+        $customers = $query->offset($request->start)  // Offset for pagination (start)
+                        ->limit($request->length)  // Limit for pagination (length)
+                        ->get();
+
+        // Return response in DataTables format
+        return response()->json([
+            'draw' => $request->draw,  // DataTables draw count (to sync requests)
+            'recordsTotal' => $totalRecords,  // Total records (for pagination)
+            'recordsFiltered' => $totalRecords,  // Total filtered records (for search results)
+            'data' => $customers  // Customer data to populate the table
+        ]);
+    }
+
 
 }

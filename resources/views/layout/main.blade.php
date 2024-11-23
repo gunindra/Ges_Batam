@@ -220,6 +220,8 @@
                                 href="{{ route('contact') }}">Contact</a>
                             <a class="collapse-item {{ request()->routeIs('whatsapp') ? 'active' : '' }}"
                                 href="{{ route('whatsapp') }}">Whatsapp</a>
+                            <a class="collapse-item {{ request()->routeIs('wa.broadcast') ? 'active' : '' }}"
+                                href="{{ route('wa.broadcast') }}">WA Broadcast</a>
                         </div>
                     </div>
                 </li>
