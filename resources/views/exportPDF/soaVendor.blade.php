@@ -198,7 +198,7 @@
                     <tr>
                         <td class="text-center">{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}
                         </td>
-                        <td class="text-center">{{ $data->no_invoice }}</td>
+                        <td class="text-center">{{ $data->invoice_no }}</td>
                         <td class="text-right">{{ number_format($belum_bayar, 2) }}</td>
                     </tr>
                     <tr>

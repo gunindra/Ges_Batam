@@ -24,10 +24,10 @@ class SoaController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
         $customer = $request->customer;
-        
+
         $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas')
                     ->where('pembeli_id', '=', $customer);
-                    
+
 
         if ($request->startDate){
             $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
@@ -35,7 +35,7 @@ class SoaController extends Controller
         if ($request->endDate){
             $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
         }
-        
+
         $invoice = $invoice->get();
 
         $output = '<div class="card-body">
@@ -46,7 +46,7 @@ class SoaController extends Controller
                         <th width="20%" class="text-right">Jumlah Tagihan</th>
                     </thead>
                     <tbody>';
-        
+
         $belum_bayar = 0;
         foreach($invoice as $data){
             $belum_bayar = $data->total_harga - $data->total_bayar;
@@ -56,7 +56,7 @@ class SoaController extends Controller
                             <td class="text-right">' . number_format($belum_bayar, 2) . '</td>
                         </tr>';
         }
-        
+
         $output .= '</table> </div>';
 
         return $output;
@@ -67,7 +67,7 @@ class SoaController extends Controller
         try{
             $customer_id = $request->customer;
             $customer = Customer::where('id', '=', $customer_id)->first();
-            
+
             if (!$customer) {
                 return redirect()->back()->withErrors(['error' => 'Mohon Pilih Customer yang diinginkan']);
             }
@@ -85,14 +85,14 @@ class SoaController extends Controller
                 $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
                 $endDate = date('Y-m-d', strtotime($request->endDate));
             }
-            
+
             $invoice = $invoice->get();
 
             if ($invoice->isEmpty()) {
                 return redirect()->back()->withErrors(['error' => 'Tidak ada data Invoice yang ditemukan']);
             }
-            
-            $pdf = Pdf::loadView('exportPDF.soa', 
+
+            $pdf = Pdf::loadView('exportPDF.soa',
             [
                 'startDate' => $startDate,
                 'endDate' => $endDate,
@@ -108,7 +108,7 @@ class SoaController extends Controller
             if (!file_exists($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
-                
+
             if (file_exists($filePath)) {
                 unlink($filePath);
             }

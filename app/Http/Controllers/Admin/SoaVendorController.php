@@ -55,7 +55,7 @@ class SoaVendorController extends Controller
             $belum_bayar = $data->total_harga - $data->total_bayar;
             $output .='<tr>
                             <td>' . \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') . '</td>
-                            <td>' . ($data->no_invoice) . '</td>
+                            <td>' . ($data->invoice_no) . '</td>
                             <td class="text-right">' . number_format($belum_bayar, 2) . '</td>
                         </tr>';
         }
@@ -122,11 +122,22 @@ class SoaVendorController extends Controller
             $fileUrl = asset('storage/soa/' . $pdfFileName);
 
             if ($vendor->phone) {
-                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($vendor->phone, $pesan, $fileUrl);
-                $pesanTerkirim = $this->kirimPesanWhatsapp($vendor->phone, $pesan);
+                // Tambahkan kode negara 62 jika belum ada
+                $phone = $vendor->phone;
+                if (!str_starts_with($phone, '62')) {
+                    // Jika nomor dimulai dengan 0, ganti 0 dengan 62
+                    if (str_starts_with($phone, '0')) {
+                        $phone = '62' . substr($phone, 1);
+                    } else {
+                        $phone = '62' . $phone;
+                    }
+                }
+
+                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($phone, $pesan, $fileUrl);
+                $pesanTerkirim = $this->kirimPesanWhatsapp($phone, $pesan);
 
                 if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
-                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim pesan WhatsApp ke ' . $vendor->phone]);
+                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim pesan WhatsApp ke ' . $phone]);
                 }
 
                 if (file_exists($filePath)) {
@@ -135,6 +146,7 @@ class SoaVendorController extends Controller
             } else {
                 return redirect()->back()->withErrors(['error' => 'Nomor WhatsApp vendor tidak ditemukan. Mohon periksa kembali data vendor.']);
             }
+
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
