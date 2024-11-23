@@ -54,7 +54,7 @@
                     </a>
                 </li>
             @endif
-            
+
             @if (in_array(Auth::user()->role, ['superadmin', 'admin']))
                 <li class="nav-item {{ request()->routeIs('pickup') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('pickup') }}">
@@ -64,7 +64,7 @@
                 </li>
             @endif
 
-            
+
             <!-- Menu Customer -->
             @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                 <li
@@ -135,7 +135,9 @@
                             <a class="collapse-item {{ request()->routeIs('penerimaanKas') ? 'active' : '' }}"
                                 href="{{ route('penerimaanKas') }}">Penerimaan Kas Report</a>
                             <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
-                                href="{{ route('soa') }}">Statement of Account</a>
+                                href="{{ route('soa') }}">SOA Customer</a>
+                            <a class="collapse-item {{ request()->routeIs('soaVendor') ? 'active' : '' }}"
+                                href="{{ route('soaVendor') }}">SOA Vendor</a>
                         </div>
                     </div>
                 </li>
@@ -497,7 +499,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 @yield('main')
 
             </div>

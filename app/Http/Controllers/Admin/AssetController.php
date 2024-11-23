@@ -10,6 +10,7 @@ use App\Models\Jurnal;
 use App\Models\JurnalItem;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Asset::query();            
+            $data = Asset::query();
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -47,12 +48,12 @@ class AssetController extends Controller
                 ->addColumn('action', function($row){
                     $action = '
                         <a href="' . route('asset.show', $row->id) . '" class="btn btn-sm btn-primary text-white">
-                            <i class="fas fa-eye"></i>     
+                            <i class="fas fa-eye"></i>
                         </a>
                         <a class="btn btnDestroyAsset btn-sm btn-danger text-white" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
                     return $action;
                 })
-                
+
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -84,14 +85,14 @@ class AssetController extends Controller
                 'depreciation_account' => 'nullable|exists:tbl_coa,id',
                 'accumulated_account' => 'nullable|exists:tbl_coa,id',
             ]);
-            
+
             DB::beginTransaction();
             $depreciationDate = $request->input('depreciation_date');
             $acquisitionDate = $request->input('acquisition_date');
 
             $formattedDep = (new DateTime($depreciationDate))->format('Y-m-d');
             $formattedAcq = (new DateTime($depreciationDate))->format('Y-m-d');
-            
+
             $asset = new Asset();
 
             $asset->asset_code = $request->input('asset_code');
@@ -110,7 +111,7 @@ class AssetController extends Controller
 
             DB::commit();
             Log::info("Sukses menambahkan Asset: " . $request->input('asset_name'));
-            
+
             return redirect()->back()->with('success', 'Asset berhasil ditambahkan');
 
         } catch (Exception $e) {
@@ -203,12 +204,12 @@ class AssetController extends Controller
             $asset = Asset::findOrFail($id);
             $jurnal = Jurnal::where('asset_id', $id)->get();
             if ($jurnal->isNotEmpty()) {
-                
+
                 foreach ($jurnal as $journal) {
                     JurnalItem::where('jurnal_id', $journal->id)->delete();
                     $journal->delete();
                 }
-            } 
+            }
             $asset->delete();
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);

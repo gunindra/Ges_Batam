@@ -48,6 +48,7 @@ use App\Http\Controllers\{
     Admin\VendorController,
     Admin\TopupController,
     Admin\SoaController,
+    Admin\SoaVendorController,
     Admin\AssetController,
     Admin\AssetReportController,
     Admin\PenerimaanKasController,
@@ -406,10 +407,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getBalance', [BalanceController::class, 'getBalance'])->name('getBalance');
     Route::get('/report/getBalance/pdf', [BalanceController::class, 'generatePdf'])->name('balance.pdf');
 
-    //Balance
+    //Soa Customer
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
+
+    //Soa Vendor
+    Route::get('/report/soaVendor',  [SoaVendorController::class, 'index'])->name('soaVendor');
+    Route::get('/report/soaVendor/getSoaVendor',  [SoaVendorController::class, 'getSoaVendor'])->name('getSoaVendor');
+    Route::get('/report/soaVendor/soaWA', [SoaVendorController::class, 'soaWA'])->name('soaWA.vendor');
 
     //Asset
     Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
