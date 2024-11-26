@@ -284,7 +284,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/periode',  [PeriodeController::class, 'index'])->name('periode');
     Route::get('/masterdata/periode/list', [PeriodeController::class, 'getPeriode'])->name('getPeriode');
     Route::post('/masterdata/periode/store', [PeriodeController::class, 'addPeriode'])->name('addPeriode');
-
+    Route::put('/masterdata/periode/updatePeriode/{id}', [PeriodeController::class, 'updatePeriode'])->name('updatePeriode');
+    Route::delete('/masterdata/periode/deletePeriode/{id}', [PeriodeController::class, 'deletePeriode'])->name('deletePeriode');
+    Route::get('/masterdata/periode/generatePeriode', [PeriodeController::class, 'generatePeriode'])->name('generatePeriode');
+    Route::get('/periode/{id}', [PeriodeController::class, 'show']);
+    
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
     Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');

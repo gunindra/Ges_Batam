@@ -12,11 +12,20 @@ class PeriodeController extends Controller
 {
     public function index()
     {
-        return view('masterdata.periode.indexmasterperiode');
+        $listStatus = DB::table('tbl_periode')
+            ->select('status')
+            ->distinct()
+            ->get();
+
+        return view('masterdata.periode.indexmasterperiode', [
+            'listStatus' => $listStatus,
+        ]);
     }
 
     public function getPeriode(Request $request)
     {
+        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
+        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
         $query = DB::table('tbl_periode')
             ->select([
                 'periode',
@@ -27,6 +36,14 @@ class PeriodeController extends Controller
             ]);
         if ($request->status) {
             $query->where('status', $request->status);
+        }
+
+        if ($startDate) {
+            $query->where('periode_start', '>=', $startDate);
+        }
+    
+        if ($endDate) {
+            $query->where('periode_end', '<=', $endDate);
         }
 
         $query->orderBy('id', 'desc');
@@ -70,6 +87,7 @@ class PeriodeController extends Controller
             'periode' => 'required|string',
             'periodeStart' => 'required|date',
             'periodeEnd' => 'required|date',
+            'status' => 'required|string',
         ]);
 
         try {
@@ -77,7 +95,7 @@ class PeriodeController extends Controller
             $Periode->periode = $request->input('periode');
             $Periode->periode_start = Carbon::createFromFormat('d F Y', $request->input('periodeStart'))->format('Y-m-d');
             $Periode->periode_end = Carbon::createFromFormat('d F Y', $request->input('periodeEnd'))->format('Y-m-d');
-            $Periode->status = $request->input('status'); 
+            $Periode->status = $request->input('status');
             $Periode->save();
 
             return response()->json(['success' => 'Data berhasil ditambahkan']);
@@ -85,6 +103,70 @@ class PeriodeController extends Controller
             return response()->json(['error' => 'Gagal menambahkan', 'message' => $e->getMessage()]);
         }
     }
+    public function updatePeriode(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'periode' => 'required|string',
+            'periodeStart' => 'required|date',
+            'periodeEnd' => 'required|date',
+            'status' => 'required|string',
+        ]);
 
+        try {
+            $Periode = Periode::findOrFail($id);
 
+            $Periode->periode = $request->input('periode');
+            $Periode->periode_start = Carbon::parse($request->input('periodeStart'))->format('Y-m-d');
+            $Periode->periode_end = Carbon::parse($request->input('periodeEnd'))->format('Y-m-d');
+            $Periode->status = $request->input('status');
+
+            $Periode->save(); // Simpan perubahan
+
+            return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+        } catch (\Exception $e) {
+            \Log::error('Error updating periode: ' . $e->getMessage());
+            return response()->json(['error' => true, 'message' => 'Data gagal diperbarui', 'details' => $e->getMessage()]);
+        }
+    }
+
+    public function show($id)
+    {
+        $Periode = Periode::findOrFail($id);
+        return response()->json($Periode);
+    }
+    public function deletePeriode($id)
+    {
+        $Periode = Periode::findOrFail($id);
+
+        try {
+
+            $Periode->delete();
+
+            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+    public function generatePeriode()
+    {
+        $codeType = "PE";
+        $currentYear = date('y');
+
+        $lastPE = Periode::where('periode', 'like', $codeType . $currentYear . '%')
+            ->orderBy('periode', 'desc')
+            ->first();
+
+        $newSequence = 1;
+        if ($lastPE) {
+            $lastSequence = intval(substr($lastPE->periode, -4));
+            $newSequence = $lastSequence + 1;
+        }
+
+        $periode = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'status' => 'success',
+            'periode' => $periode
+        ]);
+    }
 }
