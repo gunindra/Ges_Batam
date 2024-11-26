@@ -54,6 +54,7 @@ use App\Http\Controllers\{
     Admin\AssetReportController,
     Admin\PenerimaanKasController,
     Admin\TopUpReportController,
+    Admin\PeriodeController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -278,6 +279,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/masterdata/user/update/{id}', [UserController::class, 'updateUsers'])->name('updateUsers');
     Route::delete('/masterdata/user/destroy/{id}', [UserController::class, 'destroyUsers'])->name('destroyUsers');
     Route::get('/masterdata/user/{id}', [UserController::class, 'show']);
+
+    //periode
+    Route::get('/masterdata/periode',  [PeriodeController::class, 'index'])->name('periode');
+    Route::get('/masterdata/periode/list', [PeriodeController::class, 'getPeriode'])->name('getPeriode');
+    Route::post('/masterdata/periode/store', [PeriodeController::class, 'addPeriode'])->name('addPeriode');
 
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
