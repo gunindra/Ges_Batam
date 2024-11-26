@@ -481,30 +481,30 @@
                             success: function(response) {
                                 if (response.status === 'success') {
                                     addItemRow(scannedNoResi);
-                                    console.log('Menunggu data berat dari timbangan...');
 
-                                    const ws = new WebSocket('ws://127.0.0.1:8080');
-                                    ws.onopen = function() {
-                                        console.log('Terhubung ke Aplikasi Timbangan');
-                                    };
-                                    ws.onerror = function(error) {
-                                        console.error('Error WebSocket:', error.message);
-                                    };
-                                    ws.onmessage = function(event) {
-                                        try {
-                                            const data = JSON.parse(event.data);
-                                            const weight = data.weight;
-                                            const lastWeightInput = $(
-                                                'input.beratBarang:last');
-                                            if (lastWeightInput) {
-                                                lastWeightInput.val(weight);
-                                                const row = lastWeightInput.closest('tr');
-                                                updateTotalHargaBerat(row);
-                                            }
-                                        } catch (e) {
-                                            console.error('Error parsing data:', e);
-                                        }
-                                    };
+
+                                    // const ws = new WebSocket('ws://127.0.0.1:8080');
+                                    // ws.onopen = function() {
+                                    //
+                                    // };
+                                    // ws.onerror = function(error) {
+                                    //     console.error('Error WebSocket:', error.message);
+                                    // };
+                                    // ws.onmessage = function(event) {
+                                    //     try {
+                                    //         const data = JSON.parse(event.data);
+                                    //         const weight = data.weight;
+                                    //         const lastWeightInput = $(
+                                    //             'input.beratBarang:last');
+                                    //         if (lastWeightInput) {
+                                    //             lastWeightInput.val(weight);
+                                    //             const row = lastWeightInput.closest('tr');
+                                    //             updateTotalHargaBerat(row);
+                                    //         }
+                                    //     } catch (e) {
+                                    //         console.error('Error parsing data:', e);
+                                    //     }
+                                    // };
                                 } else {
 
                                     showMessage("error", response.message);
@@ -530,7 +530,7 @@
                 const newRow = `
     <tr data-index="${itemIndex}">
         <td class="item-number">${itemIndex}</td>
-        <td name="noResi[]" >${noResi}</td> <!-- No more input field, just displaying the resi number -->
+        <td name="noResi[]">${noResi}</td> <!-- Display only -->
         <td>
             <select class="form-control selectBeratDimensi" data-index="${itemIndex}">
                 <option value="berat">Berat</option>
@@ -538,10 +538,17 @@
             </select>
         </td>
         <td class="hitungan" data-index="${itemIndex}">
-            <input type="number" class="form-control beratBarang" data-index="${itemIndex}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
+            <input type="number" class="form-control beratBarang" data-index="${itemIndex}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01" disabled>
         </td>
         <td><span class="hargaBarang">Rp. 0</span></td>
-        <td><button type="button" class="btn btn-danger remove-item"><span class="pr-2"><i class="fas fa-trash"></i></span>Hapus</button></td>
+        <td>
+            <button type="button" class="btn btn-primary toggle-ws" data-index="${itemIndex}" data-active="false">
+                <span class="pr-2"><i class="fas fa-play"></i></span> Start
+            </button>
+            <button type="button" class="btn btn-danger remove-item">
+                <span class="pr-2"><i class="fas fa-trash"></i></span> Hapus
+            </button>
+        </td>
     </tr>`;
 
                 $('#barang-list').append(newRow);
@@ -550,6 +557,61 @@
                 setRemoveItemButton();
                 attachInputEvents();
                 attachSelectChangeEvent();
+                attachWebSocketToggle();
+            }
+
+            function attachWebSocketToggle() {
+                $('.toggle-ws').off('click').on('click', function() {
+                    const button = $(this);
+                    const row = button.closest('tr');
+                    const index = button.data('index');
+                    const isActive = button.data('active');
+                    let ws = row.data('ws');
+
+                    if (!isActive) {
+
+                        ws = new WebSocket('ws://127.0.0.1:8080');
+                        row.data('ws', ws);
+
+                        ws.onopen = function() {
+
+                            button.html('<span class="pr-2"><i class="fas fa-stop"></i></span> Stop');
+                            button.data('active', true);
+                            row.find('.beratBarang').prop('disabled', false);
+                        };
+
+                        ws.onerror = function(error) {
+                            console.error('WebSocket Error:', error.message);
+                        };
+
+                        ws.onmessage = function(event) {
+                            try {
+                                const data = JSON.parse(event.data);
+                                const weight = parseFloat(data.weight);
+                                if (!isNaN(weight) && weight > 0) {
+                                    row.find('.beratBarang').val(weight);
+                                    updateTotalHargaBerat(row);
+                                } else {
+                                    console.error('Invalid weight data received:', data);
+                                }
+                            } catch (e) {
+                                console.error('Error parsing WebSocket data:', e);
+                            }
+                        };
+
+                    } else {
+
+                        if (ws) {
+                            ws.close();
+                            row.removeData('ws');
+
+                        }
+
+                        button.html('<span class="pr-2"><i class="fas fa-play"></i></span> Start');
+                        button.data('active', false);
+                        row.find('.beratBarang').prop('disabled', true);
+                    }
+                });
             }
 
             function attachSelectChangeEvent() {
@@ -559,23 +621,34 @@
                     const index = $(this).data('index');
 
                     if (selectedValue === 'berat') {
+                        // Menampilkan input berat
                         row.find('.hitungan').html(`
-                    <input type="number" class="form-control beratBarang" data-index="${index}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
-                `);
+                            <input type="number" class="form-control beratBarang" data-index="${index}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01" disabled>
+                        `);
+                        // Menampilkan tombol "Start"
+                        row.find('.toggle-ws').show();
                     } else if (selectedValue === 'dimensi') {
+                        // Menampilkan input dimensi
                         row.find('.hitungan').html(`
-                    <div class="d-flex">
-                        <input type="number" class="form-control me-1 panjangVolume" data-index="${index}" placeholder="P" min="0" step="0.01">
-                        <span class="mx-1 mt-2">×</span>
-                        <input type="number" class="form-control me-1 lebarVolume" data-index="${index}" placeholder="L" min="0" step="0.01">
-                        <span class="mx-1 mt-2">×</span>
-                        <input type="number" class="form-control me-1 tinggiVolume" data-index="${index}" placeholder="T" min="0" step="0.01">
-                        <span class="ml-2 pt-2">Cm</span>
-                    </div>
-                `);
+                            <div class="d-flex">
+                                <input type="number" class="form-control me-1 panjangVolume" data-index="${index}" placeholder="P" min="0" step="0.01">
+                                <span class="mx-1 mt-2">×</span>
+                                <input type="number" class="form-control me-1 lebarVolume" data-index="${index}" placeholder="L" min="0" step="0.01">
+                                <span class="mx-1 mt-2">×</span>
+                                <input type="number" class="form-control me-1 tinggiVolume" data-index="${index}" placeholder="T" min="0" step="0.01">
+                                <span class="ml-2 pt-2">Cm</span>
+                            </div>
+                        `);
+                        // Menyembunyikan tombol "Start"
+                        row.find('.toggle-ws').hide();
                     }
+
+                    // Pastikan input-event di-rebind setelah elemen baru dibuat
+                    attachInputEvents();
                 });
             }
+
+
 
             function attachInputEvents() {
                 $('#barang-list').off('input', '.beratBarang').on('input', '.beratBarang', function() {
@@ -708,7 +781,12 @@
 
             function setRemoveItemButton() {
                 $('.remove-item').off('click').on('click', function() {
-                    $(this).closest('tr').remove();
+                    const row = $(this).closest('tr');
+                    const ws = row.data('ws');
+                    if (ws) {
+                        ws.close();
+                    }
+                    row.remove();
                     renumberItems();
                     updateDisplayedTotalHarga();
                 });

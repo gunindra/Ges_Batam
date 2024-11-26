@@ -202,13 +202,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/content/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp');
     Route::post('/content/whatsapp/tambah', [WhatsappController::class, 'addWa'])->name('addWa');
     Route::delete('/content/whatsapp/destroy/{id}', [WhatsappController::class, 'destroyWa'])->name('destroyWa');
-    
+
     Route::prefix('content/whatsapp/broadcast')->group(function () {
         Route::get('/', [WhatsappBroadcastController::class, 'index'])->name('wa.broadcast'); // Broadcast listing
         Route::get('/new', [WhatsappBroadcastController::class, 'create'])->name('wa.broadcast.new'); // Create new broadcast
         Route::post('/store', [WhatsappBroadcastController::class, 'store'])->name('wa.broadcast.store'); // Store broadcast
         Route::post('/resend', [WhatsappBroadcastController::class, 'resend'])->name('wa.broadcast.resend'); // Resend broadcast
-        
+
         // New routes for editing and updating a broadcast
         Route::get('{id}/edit', [WhatsappBroadcastController::class, 'edit'])->name('wa.broadcast.edit'); // Edit broadcast
         Route::put('{id}', [WhatsappBroadcastController::class, 'update'])->name('wa.broadcast.update'); // Update broadcast
@@ -229,9 +229,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
     Route::get('/masterdata/costumer/destroy', [CostumerController::class, 'destroyCostumer'])->name('destroyCostumer');
     Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
-    
+
     Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
-    
+
     // Route::get('/masterdata/costumer', [CostumerController::class, 'show']);
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
