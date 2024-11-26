@@ -39,9 +39,9 @@ class InvoiceController extends Controller
     public function index()
     {
         $listDo = DB::table('tbl_resi')
-        ->select('no_do')
-        ->distinct()
-        ->get();
+            ->select('no_do')
+            ->distinct()
+            ->get();
         $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
         return view('customer.invoice.indexinvoice', [
@@ -65,7 +65,7 @@ class InvoiceController extends Controller
                 $lastYearMonth = substr($lastMarking, 0, 4);
 
                 if ($lastYearMonth === $yearMonth) {
-                    $lastNumber = (int)substr($lastMarking, 4);
+                    $lastNumber = (int) substr($lastMarking, 4);
                     $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
                 } else {
                     $newNumber = '00001';
@@ -139,7 +139,7 @@ class InvoiceController extends Controller
                 $lastYearMonth = substr($lastMarking, 0, 4);
 
                 if ($lastYearMonth === $yearMonth) {
-                    $lastNumber = (int)substr($lastMarking, 4);
+                    $lastNumber = (int) substr($lastMarking, 4);
                     $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
                 } else {
                     $newNumber = '00001';
@@ -190,10 +190,10 @@ class InvoiceController extends Controller
             ->leftJoin('tbl_resi as r', 'r.invoice_id', '=', 'a.id')
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
-                  ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
+                    ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y')"), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
             });
 
         if ($startDate && $endDate) {
@@ -209,21 +209,21 @@ class InvoiceController extends Controller
         }
 
         $query->groupBy(
-                'a.id',
-                'r.no_do',
-                'a.no_invoice',
-                'a.tanggal_invoice',
-                'a.status_bayar',
-                'b.nama_pembeli',
-                'a.alamat',
-                'a.metode_pengiriman',
-                'a.total_harga',
-                'a.matauang_id',
-                'a.rate_matauang',
-                'd.id',
-                'd.status_name',
-                'a.wa_status'
-            )
+            'a.id',
+            'r.no_do',
+            'a.no_invoice',
+            'a.tanggal_invoice',
+            'a.status_bayar',
+            'b.nama_pembeli',
+            'a.alamat',
+            'a.metode_pengiriman',
+            'a.total_harga',
+            'a.matauang_id',
+            'a.rate_matauang',
+            'd.id',
+            'd.status_name',
+            'a.wa_status'
+        )
             ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END")
             ->orderBy('a.id', 'DESC');
 
@@ -240,7 +240,7 @@ class InvoiceController extends Controller
 
                 return ($item->no_invoice ?? '-') . ' ' . $waStatusIcon;
             })
-            ->addColumn('status_bayar', function($row) {
+            ->addColumn('status_bayar', function ($row) {
                 return $row->status_bayar == 'Lunas'
                     ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
                     : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
@@ -275,7 +275,7 @@ class InvoiceController extends Controller
                 }
                 $btnExportInvoice = '<a class="btn btnExportInvoice btn-sm btn-primary text-white mr-1" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
                 $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
-            
+
                 return '<div class="d-flex">' . $btnChangeMethod . $btnExportInvoice . $btnEditInvoice . '</div>';
             })
             ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar'])
@@ -494,11 +494,11 @@ class InvoiceController extends Controller
     {
         try {
 
-        $invoiceIds = $request->input('id');
+            $invoiceIds = $request->input('id');
 
-        if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
-            throw new \Exception("Tidak ada invoice yang diterima");
-        }
+            if (!is_array($invoiceIds) || count($invoiceIds) === 0) {
+                throw new \Exception("Tidak ada invoice yang diterima");
+            }
 
             return response()->json(['success' => true, 'message' => 'Invoice berhasil dikirim']);
         } catch (\Exception $e) {
@@ -551,9 +551,9 @@ class InvoiceController extends Controller
                     'hargaIDR' => $invoice->harga,
                     'tanggal' => $invoice->tanggal_bayar,
                 ])
-                ->setPaper('A4', 'portrait')
-                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-                ->setWarnings(false);
+                    ->setPaper('A4', 'portrait')
+                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                    ->setWarnings(false);
             } catch (\Exception $e) {
                 Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
@@ -610,8 +610,8 @@ class InvoiceController extends Controller
 
         if ($invoice && $newMethod == 'Delivery' && $invoice->metode_pengiriman == 'Pickup') {
             $alamatPembeli = DB::table('tbl_alamat')
-            ->where('pembeli_id', $invoice->pembeli_id)
-            ->first();
+                ->where('pembeli_id', $invoice->pembeli_id)
+                ->first();
 
             if ($alamatPembeli) {
                 DB::table('tbl_invoice')->where('id', $invoiceId)->update([
@@ -630,27 +630,42 @@ class InvoiceController extends Controller
     }
     public function deleteoreditinvoice($id)
     {
-
         $invoice = Invoice::find($id);
         $listCurrency = DB::table('tbl_matauang')->select('id', 'nama_matauang', 'singkatan_matauang')->get();
-        $listPembeli = Customer::all();
-        $listRateVolume = DB::table('tbl_rate')->select('id', 'nilai_rate','rate_for')->get();
+        $listAlamat = DB::select("SELECT a.id,
+        a.nama_pembeli,
+        a.marking,
+        a.metode_pengiriman,
+        c.id AS category_id,
+        c.minimum_rate,
+        c.maximum_rate,
+        GROUP_CONCAT(b.alamat SEPARATOR '; ') AS alamat,
+        COUNT(b.id) AS jumlah_alamat
+            FROM tbl_pembeli a
+            LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
+            JOIN tbl_category c ON a.category_id = c.id
+            GROUP BY a.id,
+                a.nama_pembeli,
+                a.marking,
+                a.metode_pengiriman,
+                c.id,
+                c.minimum_rate,
+                c.maximum_rate");
+
+
+        $listRateVolume = DB::table('tbl_rate')->select('id', 'nilai_rate', 'rate_for')->get();
+        $listRateBerat = DB::table('tbl_rate')->select('id', 'nilai_rate', 'rate_for')->get();
         $listPembagi = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')->get();
-    
-        if (!$invoice) {
-            return redirect()->route('invoice.index')->with('error', 'Invoice tidak ditemukan');
-        }
-    
-        // Kirim data invoice ke view
+
         return view('customer.invoice.deleteoreditinvoice', [
             'invoice' => $invoice,
             'listCurrency' => $listCurrency,
-            'listPembeli' => $listPembeli,
             'listRateVolume' => $listRateVolume,
             'listPembagi' => $listPembagi,
-           
-           
+            'listAlamat' => $listAlamat,
+            'listRateBerat' => $listRateBerat
         ]);
     }
-    
+
+
 }

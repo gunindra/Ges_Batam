@@ -21,7 +21,7 @@
       </div>
      
     <div class="contentwhy">
-      <p>-</p>
+      <p class="text-secondary">No Content Available</p>
     </div>
     </div>
     

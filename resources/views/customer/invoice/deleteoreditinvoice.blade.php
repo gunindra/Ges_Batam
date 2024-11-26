@@ -90,11 +90,6 @@
             <i class="fas fa-arrow-left"></i>
             Back
         </a>
-
-        <a class="btn btn-danger mb-3">
-            <i class="fas fa-trash"></i>
-            Delete
-        </a>
     </div>
     <div class="row">
         <div class="col-lg-12">
@@ -152,12 +147,13 @@
                                 <label for="customer" class="form-label fw-bold col-12">Customer</label>
                                 <select class="form-control select2singgle" id="selectCostumer" style="width: 67%">
                                     <option value="" selected disabled>Pilih Customer</option>
-                                    @foreach ($listPembeli as $pembeli)
-                                        <option value="{{ $pembeli->id }}" data-metode="{{ $pembeli->metode_pengiriman }}"
-                                            data-minrate="{{ $pembeli->minimum_rate }}"
-                                            data-maxrate="{{ $pembeli->maximum_rate }}" data-alamat="{{ $pembeli->alamat }}"
-                                            data-jumlahalamat="{{ $pembeli->jumlah_alamat }}">
-                                            {{ $pembeli->marking }} - {{ $pembeli->nama_pembeli }}
+                                    @foreach ($listAlamat as $alamat)
+                                        <option value="{{ $alamat->id }}" data-metode="{{ $alamat->metode_pengiriman }}"
+                                            data-alamat="{{ $alamat->alamat }}"
+                                            data-jumlahalamat="{{ $alamat->jumlah_alamat }}"
+                                            data-minrate="{{ $alamat->minrate ?? 0 }}"
+                                            data-maxrate="{{ $alamat->maxrate ?? 0 }}">
+                                            {{ $alamat->marking }} - {{ $alamat->nama_pembeli }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -169,7 +165,7 @@
 
                         </div>
                         <div class="col-6">
-                            <div class="mt-5" id="pickupDelivery" style="display: none;">
+                            <div class="mt-5" id="pickupDelivery">
                                 <h2></h2>
                             </div>
                         </div>
@@ -183,9 +179,9 @@
                             <label for="rateSelect" class="form-label fw-bold">Rate (Berat)</label>
                             <select class="form-control" id="rateBerat">
                                 <option value="" selected disabled>Pilih Rate</option>
-                                @foreach ($listRateVolume as $rate)
+                                @foreach ($listRateBerat as $rate)
                                     @if ($rate->rate_for == 'Berat')
-                                        <option value="{{ $rate->id }}">
+                                        <option value="{{ $rate->id }}" @if ($rate->id == $invoice->rateberat_id) selected @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
                                     @endif
@@ -214,7 +210,8 @@
                                 <option value="" selected disabled>Pilih Rate</option>
                                 @foreach ($listRateVolume as $rate)
                                     @if ($rate->rate_for == 'Volume')
-                                        <option value="{{ $rate->id }}">
+                                        <option value="{{ $rate->id }}" @if ($rate->id == $invoice->ratevolume_id) selected
+                                        @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
                                     @endif
@@ -266,8 +263,7 @@
                             <p class="mb-0">Total Harga</p>
                             <div class="box bg-light text-dark p-3 mt-2"
                                 style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
-                                <span id="total-harga" style="font-weight: bold; color: #555;">Rp.
-                                    {{ number_format($invoice->total_harga, 2, ',', '.') }}</span>
+                                <span id="total-harga" style="font-weight: bold; color: #555;">Rp.0</span>
                             </div>
                             <input type="hidden" name="" id="totalHargaValue">
                             <button id="buatInvoice" class="btn btn-primary p-3 float-right mt-3"
@@ -288,6 +284,7 @@
 <script>
     $(document).ready(function () {
         var invoice = @json($invoice);
+        console.log(invoice);
 
         $('.select2').select2();
         $('#tanggal, #tanggalBuat').datepicker({
@@ -299,7 +296,10 @@
 
         if (invoice) {
             $('#currencyInvoice').val(invoice.matauang_id).trigger('change');
-            $('#selectCostumer').val(invoice.pembeli_id).trigger('change');
+            $('#rateBerat').val(invoice.rateberat_id).trigger('change');
+            $('#rateVolume').val(invoice.ratevolume_id).trigger('change');
+            $('#pembagiVolume').val(invoice.pembagi_id).trigger('change');
+
             if (invoice.tanggal_invoice) {
                 const rawDate = new Date(invoice.tanggal_invoice);
                 $('#tanggal').datepicker('setDate', rawDate);
@@ -308,34 +308,129 @@
                 const rawDate = new Date(invoice.tanggal_buat);
                 $('#tanggalBuat').datepicker('setDate', rawDate);
             }
-            $('#rateBerat').val(invoice.nilai_rate).trigger('change');
 
+            $('#rateCurrency').val(invoice.rate_matauang).trigger('change');
+
+            const selectedMethod = invoice.metode_pengiriman;
+
+            if (selectedMethod === 'Pickup') {
+                $('#pickupDelivery').show();
+                $('#pickupDelivery h2').text('Pickup');
+            } else if (selectedMethod === 'Delivery') {
+                $('#pickupDelivery').show();
+                $('#pickupDelivery h2').text('Delivery');
+            } else {
+                $('#pickupDelivery').hide();
+            }
+
+            $(document).on('click', '.remove-item', function () {
+                $(this).closest('tr').remove();
+            });
+            $('#selectCostumer').change(function () {
+                var selectedCustomer = $(this).val();
+                var metodePengiriman = $('#selectCostumer option:selected').data('metode');
+                var alamat = $('#selectCostumer option:selected').data('alamat');
+                var jumlahAlamat = $('#selectCostumer option:selected').data('jumlahalamat');
+                var minrate = Math.floor($('#selectCostumer option:selected').data('minrate') || 0);
+                var maxrate = Math.floor($('#selectCostumer option:selected').data('maxrate') || 0);
+
+                globalMinrate = minrate;
+                globalMaxrate = maxrate;
+
+                $('#alamatError').addClass('d-none');
+
+                if (selectedCustomer) {
+                    $('#pickupDelivery').show();
+
+                    if (metodePengiriman === 'Pickup') {
+                        $('#pickupDelivery h2').text('Pick Up');
+                        $('#alamatContainer').empty();
+                    } else if (metodePengiriman === 'Delivery') {
+                        $('#pickupDelivery h2').text('Delivery');
+
+                        if (jumlahAlamat == 1) {
+                            // Jika hanya satu alamat
+                            var selectAlamat =
+                                '<label for="alamatSelect" class="form-label">Alamat</label>';
+                            selectAlamat +=
+                                '<select id="alamatSelect" class="form-control col-9" disabled>';
+                            selectAlamat += '<option value="' + alamat + '" selected>' + alamat +
+                                '</option>';
+                            selectAlamat += '</select>';
+                            $('#alamatContainer').html(selectAlamat);
+                        } else if (jumlahAlamat > 1) {
+                            // Jika lebih dari satu alamat
+                            var alamatList = alamat.split('; ');
+                            var selectAlamat =
+                                '<label for="alamatSelect" class="form-label">Alamat</label>';
+                            selectAlamat += '<select id="alamatSelect" class="form-control col-9">';
+                            selectAlamat += '<option value="" selected disabled>Pilih Alamat</option>';
+                            alamatList.forEach(function (alamatItem) {
+                                selectAlamat += '<option value="' + alamatItem + '">' + alamatItem +
+                                    '</option>';
+                            });
+                            selectAlamat += '</select>';
+                            $('#alamatContainer').html(selectAlamat);
+
+                        }
+                    }
+
+                    // Reset input barang
+                    $('#barang-list tr').each(function () {
+                        const row = $(this);
+                        row.find('.beratBarang').val('');
+                        row.find('.panjangVolume').val('');
+                        row.find('.lebarVolume').val('');
+                        row.find('.tinggiVolume').val('');
+                        updateTotalHargaBerat(row);
+                        updateTotalHargaVolume(row);
+                    });
+                } else {
+                    $('#pickupDelivery').hide();
+                    $('#alamatContainer').empty();
+                }
+            });
+
+            // Inisialisasi data dari invoice
+            if (invoice) {
+                $('#selectCostumer').val(invoice.pembeli_id).trigger('change');
+                $('#alamatSelect').val(invoice.alamat).trigger('change');
+              
+                
+            }
+
+            $('#currencyInvoice').change(function () {
+                const selectedCurrency = $(this).val();
+
+                if (selectedCurrency == '2' || selectedCurrency === '3') {
+                    $('#rateCurrencySection').show();
+                    $('#totalIdr').show();
+                } else {
+                    $('#rateCurrencySection').hide();
+                    $('#totalIdr').hide();
+                    $('#rateCurrency').val('');
+                    $('#idrCurrentCy').text('Rp. 0');
+                    $('#total-harga').text("Rp. " + parseFloat($('#totalHargaValue').val()).toLocaleString(
+                        'id-ID', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 3
+                    }));
+                }
+            });
+            const initialCurrency = '2';
+            $('#currencyInvoice option').filter(function () {
+                return $(this).text().trim() === initialCurrency;
+            }).prop('selected', true);
+
+            $('#currencyInvoice').trigger('change');
+
+
+            $('#rateCurrency').on('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
         }
-        invoice.forEach(function(invoice) {
-            const newRow = `
-               <tr data-index="${invoice.id}">
-                    <td class="item-number">${invoice}</td>
-                    <td name="noResi[]" >${noResi}</td> 
-                    <td>
-                        <select class="form-control selectBeratDimensi" data-index="${invoice}">
-                            <option value="berat">Berat</option>
-                            <option value="dimensi">Dimensi</option>
-                        </select>
-                    </td>
-                    <td class="hitungan" data-index="${itemIndex}">
-                        <input type="number" class="form-control beratBarang" data-index="${itemIndex}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
-                    </td>
-                    <td><span class="hargaBarang">Rp. 0</span></td>
-                    <td><button type="button" class="btn btn-danger remove-item"><span class="pr-2"><i class="fas fa-trash"></i></span>Hapus</button></td>
-                </tr>`;
-            $('#barang-list').append(newRow);
-        });
-
-        $(document).on('click', '.remove-item', function () {
-            $(this).closest('tr').remove();
-        });
-
     });
+
 
 </script>
 

@@ -186,7 +186,7 @@
             <h1 style="font-size:32px;">About Us</h1>
           </div>
           <h2>What they say about us</h2>
-          <p id="parafAbout">{!! nl2br(e(Str::limit($dataPtges->Paragraph_AboutUs ?? '-', 200))) !!}</p>
+          <p id="parafAbout">{!! nl2br(e(Str::limit($dataPtges->Paragraph_AboutUs ?? 'No Content Available', 200))) !!}</p>
           <a href="/About" class="btn">Learn More</a>
         </div>
         <div class="image" id="imageAbout">
@@ -215,7 +215,7 @@
         <article>
           <h3 id="judulWhy">Why Choose Us</h3>
           <p id="parafWhy" style=" word-break: break-word; ">
-            {!! nl2br(e(Str::limit($dataPtges->Paragraph_WhyUs ?? '-', 200))) !!}
+            {!! nl2br(e(Str::limit($dataPtges->Paragraph_WhyUs ?? 'No Content Available', 200))) !!}
           </p>
           <div class="buttonwhy">
             <a href="/Why">Learn More</a>

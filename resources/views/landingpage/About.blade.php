@@ -20,7 +20,7 @@
     </div>
     @else
     <div class="content-container">
-      <p>-</p>
+      <p class="text-secondary">No Content Available</p>
       <div class="imageAbout" id="imageAbout">
         <img src="{{ asset('/img/default.jpg') }}" alt="About Us Image" style="border-radius:30px; height:350px; width:500px;">
       </div>

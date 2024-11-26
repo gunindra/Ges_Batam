@@ -48,7 +48,8 @@
                             <div class="mt-3">
                                 <label for="namaVendor" class="form-label fw-bold">Nama Vendor</label>
                                 <select class="form-control select2" id="selectVendor" name="namaVendor">
-                                     <option value="{{ $debitNote->invoice->vendor->id }}" selected>{{ $vendorName }}</option>
+                                    <option value="{{ $debitNote->invoice->vendor->id }}" selected>{{ $vendorName }}
+                                    </option>
                                     @foreach ($listVendor as $vendor)
                                         @if ($vendor->name != $vendorName)
                                             <option value="{{ $vendor->id }}">
@@ -95,7 +96,7 @@
                                 <div id="accountDebitError" class="text-danger mt-1 d-none">Silahkan Pilih Account
                                     terlebih dahulu</div>
                             </div>
-                            <div class="mt-3" id="rateCurrencySection" style="display: none;">
+                            <div class="mt-3" id="rateCurrencySection">
                                 <label for="rateCurrency" class="form-label fw-bold">Rate Currency</label>
                                 <input type="text" class="form-control col-8" id="rateCurrency" value=""
                                     placeholder="Masukkan rate">
@@ -186,8 +187,8 @@
                 $('#invoiceDebit').val(debitNote.invoice_id).trigger('change');
                 $('#accountDebit').val(debitNote.account_id).trigger('change');
                 $('#currencyDebit').val(debitNote.matauang_id).trigger('change');
-                $('#rateCurrency').val(debitNote.rate_currency);
-                $('#noteDebit').val(debitNote.note);
+                $('#rateCurrency').val(debitNote.rate_currency).trigger('change');
+                $('#noteDebit').val(debitNote.note).trigger('change');
 
                 // Isi item ke dalam tabel
                 debitNote.items.forEach(function (item) {
@@ -209,13 +210,21 @@
 
             $('#currencyDebit').change(function () {
                 const selectedCurrency = $(this).val();
+
                 if (selectedCurrency !== '1') {
                     $('#rateCurrencySection').show();
                 } else {
                     $('#rateCurrencySection').hide();
+                    $('#rateCurrency').val('');
                 }
                 updateTotals();
             });
+            const initialCurrency = '2';
+            $('#currencyInvoice option').filter(function () {
+                return $(this).text().trim() === initialCurrency;
+            }).prop('selected', true);
+
+            $('#currencyInvoice').trigger('change');
 
             // Fungsi untuk menambah baris baru
             $('#add-item-button').click(function () {
