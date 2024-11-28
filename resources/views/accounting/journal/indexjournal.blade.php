@@ -138,7 +138,7 @@
                                     <div class="d-flex mb-2 mr-3 float-right">
                                         <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKK"
                                             id="">
-                                            <span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal 
+                                            <span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal
                                         </a>
                                     </div>
                                     <div class="d-flex mb-4">
@@ -268,7 +268,7 @@
                 columns: [
                     { data: 'no_journal', name: 'no_journal' },
                     { data: 'description', name: 'description' },
-                    { data: 'tanggal', name: 'tanggal' },
+                    { data: 'tanggalFormat', name: 'tanggalFormat' },
                     { data: 'totalcredit', name: 'totalcredit' },
                     { data: 'status', name: 'status' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
