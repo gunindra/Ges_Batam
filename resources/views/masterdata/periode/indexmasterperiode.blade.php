@@ -8,6 +8,26 @@
     .dataTables_filter {
         display: none;
     }
+
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
 </style>
 
 <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog" aria-labelledby="modalFilterTanggalTitle"
@@ -73,8 +93,12 @@
                 </div>
                 <div class="mt-3">
                     <label for="status" class="form-label fw-bold">Status</label>
-                    <input type="text" class="form-control" id="status" placeholder="Masukkan Status">
-                    <div id="statusError" class="text-danger mt-1 d-none">Silahkan isi Status</div>
+                    <select class="form-control" id="status">
+                        <option value="" selected disabled>Pilih Status</option>
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                    <div id="statusEditError" class="text-danger mt-1 d-none">Silahkan isi Status</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -117,7 +141,11 @@
                 </div>
                 <div class="mt-3">
                     <label for="statusEdit" class="form-label fw-bold">Status</label>
-                    <input type="text" class="form-control" id="statusEdit" placeholder="Masukkan Status">
+                    <select class="form-control" id="statusEdit">
+                        <option value="" selected disabled>Pilih Status</option>
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                    </select>
                     <div id="statusEditError" class="text-danger mt-1 d-none">Silahkan isi Status</div>
                 </div>
             </div>
@@ -153,8 +181,8 @@
                         <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                             <option value="" selected disabled>Pilih Status</option>
                             @foreach ($listStatus as $status)
-                                    <option value="{{ $status->status }}">{{ $status->status }}</option>
-                                @endforeach
+                                <option value="{{ $status->status }}">{{ $status->status }}</option>
+                            @endforeach
                         </select>
                         <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                         <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -256,11 +284,11 @@
                 zeroRecords: "No matching records found"
             }
         });
-        $('#filterStatus').change(function() {
+        $('#filterStatus').change(function () {
             table.ajax.reload();
         });
 
-        $('#txSearch').keyup(function() {
+        $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
             table.search(searchValue).draw();
         });
