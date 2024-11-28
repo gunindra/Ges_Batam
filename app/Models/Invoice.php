@@ -20,4 +20,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(Alamat::class, 'alamat_id', 'id');
     }
+
+     // Relasi ke model Resi
+     public function resi()
+     {
+         return $this->hasMany(Resi::class, 'invoice_id', 'id');
+     }
 }

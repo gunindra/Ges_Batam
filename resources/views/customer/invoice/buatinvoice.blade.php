@@ -481,30 +481,6 @@
                             success: function(response) {
                                 if (response.status === 'success') {
                                     addItemRow(scannedNoResi);
-
-
-                                    // const ws = new WebSocket('ws://127.0.0.1:8080');
-                                    // ws.onopen = function() {
-                                    //
-                                    // };
-                                    // ws.onerror = function(error) {
-                                    //     console.error('Error WebSocket:', error.message);
-                                    // };
-                                    // ws.onmessage = function(event) {
-                                    //     try {
-                                    //         const data = JSON.parse(event.data);
-                                    //         const weight = data.weight;
-                                    //         const lastWeightInput = $(
-                                    //             'input.beratBarang:last');
-                                    //         if (lastWeightInput) {
-                                    //             lastWeightInput.val(weight);
-                                    //             const row = lastWeightInput.closest('tr');
-                                    //             updateTotalHargaBerat(row);
-                                    //         }
-                                    //     } catch (e) {
-                                    //         console.error('Error parsing data:', e);
-                                    //     }
-                                    // };
                                 } else {
 
                                     showMessage("error", response.message);
@@ -619,6 +595,9 @@
                     const row = $(this).closest('tr');
                     const selectedValue = $(this).val();
                     const index = $(this).data('index');
+
+                    // Reset harga ketika opsi berubah
+                    row.find('.hargaBarang').text('Rp. 0');
 
                     if (selectedValue === 'berat') {
                         // Menampilkan input berat

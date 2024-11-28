@@ -630,7 +630,7 @@ class InvoiceController extends Controller
     }
     public function deleteoreditinvoice($id)
     {
-        $invoice = Invoice::find($id);
+        $invoice = Invoice::with('resi')->find($id);
         $listCurrency = DB::table('tbl_matauang')->select('id', 'nama_matauang', 'singkatan_matauang')->get();
         $listAlamat = DB::select("SELECT a.id,
         a.nama_pembeli,
