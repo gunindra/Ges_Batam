@@ -29,7 +29,8 @@ class JournalController extends Controller
                 'id',
                 'no_journal',
                 'tipe_kode',
-                DB::raw("DATE_FORMAT(tanggal, '%d %M %Y') AS tanggal"),
+                'tanggal',
+                DB::raw("DATE_FORMAT(tanggal, '%d %M %Y') AS tanggalFormat"),
                 'no_ref',
                 'totalcredit',
                 'status',
@@ -83,11 +84,21 @@ class JournalController extends Controller
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
-                return '
-                    <a class="btn btnUpdateJournal btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit text-white"></i></a>
+                $periodStatus = DB::table('tbl_periode')
+                    ->whereDate('periode_start', '<=', $row->tanggal)
+                    ->whereDate('periode_end', '>=', $row->tanggal)
+                    ->value('status');
+
+                if ($periodStatus == 'Closed') {
+                    return '-';
+                }
+                $btnEditInvoice = '<a class="btn btnUpdateJournal btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit text-white"></i></a>';
+
+                return $btnEditInvoice . '
                     <a class="btn btnDestroyJournal btn-sm btn-danger" data-id="' . $row->id . '"><i class="fas fa-trash text-white"></i></a>
                 ';
             })
+
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
@@ -260,7 +271,7 @@ class JournalController extends Controller
 
         $newSequence = 1;
         if ($lastBKK) {
-            $lastSequence = intval(substr($lastBKK->no_journal, -4));  
+            $lastSequence = intval(substr($lastBKK->no_journal, -4));
             $newSequence = $lastSequence + 1;
         }
 
@@ -282,7 +293,7 @@ class JournalController extends Controller
 
         $newSequence = 1;
         if ($lastBKM) {
-            $lastSequence = intval(substr($lastBKM->no_journal, -4));  
+            $lastSequence = intval(substr($lastBKM->no_journal, -4));
             $newSequence = $lastSequence + 1;
         }
 
