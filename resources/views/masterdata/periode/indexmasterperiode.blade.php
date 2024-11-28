@@ -443,13 +443,12 @@
                 $('#statusEditError').addClass('d-none');
             }
         });
-        var today = new Date();
-        $('#periodeStart, #periodeEnd,#periodeEndEdit,#periodeStartEdit').datepicker({
+        $('#periodeStart, #periodeEnd, #periodeEndEdit, #periodeStartEdit').datepicker({
             format: 'dd MM yyyy',
             todayBtn: 'linked',
             todayHighlight: true,
             autoclose: true,
-        }).datepicker('setDate', today);
+        });
 
         $(document).on('click', '.btnUpdatePeriode', function (e) {
             var periodeid = $(this).data('id');
@@ -563,7 +562,6 @@
         $(document).on('click', '.btnDestroyPeriode', function (e) {
 
             let id = $(this).data('id');
-
 
             Swal.fire({
                 title: "Apakah Kamu Yakin Ingin Hapus Periode Ini?",

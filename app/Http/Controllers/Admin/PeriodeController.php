@@ -120,7 +120,7 @@ class PeriodeController extends Controller
             $Periode->periode_end = Carbon::parse($request->input('periodeEnd'))->format('Y-m-d');
             $Periode->status = $request->input('status');
 
-            $Periode->save(); // Simpan perubahan
+            $Periode->save();
 
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
