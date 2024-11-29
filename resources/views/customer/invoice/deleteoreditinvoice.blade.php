@@ -583,6 +583,7 @@
                 }
                 attachInputEvents();
                 attachWebSocketToggle();
+                updateDisplayedTotalHarga();
             });
         }
 
