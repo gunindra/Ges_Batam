@@ -26,7 +26,7 @@
     }
 </style>
 
-<div class="container-fluid" id="container-wrapper" data-id="{{ $debitNote->id }}">
+<div class="container-fluid" id="container-wrapper">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Edit Debit Note</h1>
         <ol class="breadcrumb">
@@ -208,8 +208,8 @@
                 updateTotals();
             }
 
-            $('#currencyDebit').change(function () {
-                const selectedCurrency = $(this).val();
+            function handleCurrencyChange() {
+                const selectedCurrency = $('#currencyDebit').val();
 
                 if (selectedCurrency !== '1') {
                     $('#rateCurrencySection').show();
@@ -217,16 +217,14 @@
                     $('#rateCurrencySection').hide();
                     $('#rateCurrency').val('');
                 }
-                updateTotals();
-            });
-            const initialCurrency = '2';
-            $('#currencyInvoice option').filter(function () {
-                return $(this).text().trim() === initialCurrency;
-            }).prop('selected', true);
+                updateTotals(); 
+            }
 
-            $('#currencyInvoice').trigger('change');
-
-            // Fungsi untuk menambah baris baru
+           
+            $('#currencyDebit').change(handleCurrencyChange);
+           
+            handleCurrencyChange();
+     
             $('#add-item-button').click(function () {
                 const newRow = `
                 <tr>
@@ -298,7 +296,6 @@
             $('#selectVendor').trigger('change');
 
             $('#updateDebit').click(function () {
-                const id = $('#container-wrapper').data('id');
                 const invoiceDebit = $('#invoiceDebit').val();
                 const accountDebit = $('#accountDebit').val();
                 const currencyDebit = $('#currencyDebit').val();

@@ -418,6 +418,28 @@
             table.search(searchValue).draw();
         });
 
+        var today = new Date();
+        var nextYear = new Date(today);
+        nextYear.setFullYear(today.getFullYear() + 1);
+
+        $('#tanggal,#tanggalExpired').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        }).datepicker('setDate', today);
+
+        $('#tanggalExpired').datepicker('setDate', nextYear);
+
+        $('#tanggal').on('changeDate', function () {
+            var selectedDate = $(this).datepicker('getDate');
+            if (selectedDate) {
+                var expiredDate = new Date(selectedDate);
+                expiredDate.setFullYear(selectedDate.getFullYear() + 1);
+                $('#tanggalExpired').datepicker('setDate', expiredDate);
+            }
+        });
+
 
         $('#saveFilterTanggal').on('click', function () {
             table.ajax.reload();
@@ -468,7 +490,7 @@
 
         // Reset pesan error
         function resetErrorMessages() {
-            $('.text-danger').text(''); // Menghapus semua pesan error
+            $('.text-danger').text(''); 
         }
 
         $('#topupModal').on('show.bs.modal', function () {
@@ -478,7 +500,7 @@
                 url: "{{ route('get-customers') }}",
                 method: 'GET',
                 success: function (response) {
-
+                    $('#customerSelect').empty(); 
                     customerSelect.append('<option value="">Pilih Pengguna</option>');
                     $.each(response, function (index, customer) {
                         customerSelect.append(
@@ -495,31 +517,6 @@
                     });
                 }
             });
-
-            // Ambil daftar harga
-            // $.ajax({
-            //     url: "{{ route('get-price-points') }}",
-            //     method: 'GET',
-            //     success: function(response) {
-            //         pricePerKgDropdown.empty();
-            //         pricePerKgDropdown.append('<option value="">Pilih Harga</option>');
-            //         pricePerKgDropdown.append(
-            //             '<option value="new">Tambah Harga Baru</option>');
-            //         $.each(response, function(index, price) {
-            //             pricePerKgDropdown.append(
-            //                 `<option value="${price.price_per_kg}" data-id="${price.id}">Rp ${price.price_per_kg} - Berlaku Sejak: ${price.effective_date}</option>`
-            //             );
-            //         });
-            //     },
-            //     error: function() {
-            //         Swal.fire({
-            //             icon: 'error',
-            //             title: 'Error!',
-            //             text: 'Gagal mengambil data harga.',
-            //             confirmButtonText: 'OK'
-            //         });
-            //     }
-            // });
         });
 
         pricePerKgInput.on('input', function () {
@@ -530,28 +527,6 @@
 
         remainingPointsInput.on('input', function () {
             calculateTotal();
-        });
-
-        var today = new Date();
-        var nextYear = new Date(today);
-        nextYear.setFullYear(today.getFullYear() + 1);
-
-        $('#tanggal,#tanggalExpired').datepicker({
-            format: 'dd MM yyyy',
-            todayBtn: 'linked',
-            todayHighlight: true,
-            autoclose: true,
-        }).datepicker('setDate', today);
-
-        $('#tanggalExpired').datepicker('setDate', nextYear);
-
-        $('#tanggal').on('changeDate', function () {
-            var selectedDate = $(this).datepicker('getDate');
-            if (selectedDate) {
-                var expiredDate = new Date(selectedDate);
-                expiredDate.setFullYear(selectedDate.getFullYear() + 1);
-                $('#tanggalExpired').datepicker('setDate', expiredDate);
-            }
         });
 
         function calculateTotal() {

@@ -207,6 +207,8 @@
                                         <th>Status Pembayaran</th>
                                         <th>Harga</th>
                                         <th>Status</th>
+                                        <th>Created by</th>
+                                        <th>Updated by</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -302,6 +304,22 @@
             },
             orderable: false,
             searchable: false
+        },
+        {
+            data: 'user',
+            name: 'user',
+            render: function (data, type, row) {
+                return data
+                    ? `${data} (${row.created_at ?? '-'})`
+                    : '-';
+            }
+        },
+        {
+            data: 'updated_at',
+            name: 'updated_at',
+            render: function (data, type, row) {
+                return data ? data : '-';
+            }
         },
         {
             data: 'action',

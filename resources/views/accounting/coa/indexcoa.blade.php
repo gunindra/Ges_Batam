@@ -483,6 +483,18 @@
                     }
                 });
             });
+            $('#modalTambahCOA').on('hidden.bs.modal', function() {
+                $('#groupAccount,#minimumRateCategory,#maximumRateCategory').val('');
+                if (!$('#nameCategoryError').hasClass('d-none')) {
+                    $('#nameCategoryError').addClass('d-none');
+                }
+                if (!$('#minimumRateCategoryError').hasClass('d-none')) {
+                    $('#minimumRateCategoryError').addClass('d-none');
+                }
+                if (!$('#maximumRateCategoryError').hasClass('d-none')) {
+                    $('#maximumRateCategoryError').addClass('d-none');
+                }
+            });
         });
     </script>
 @endsection
