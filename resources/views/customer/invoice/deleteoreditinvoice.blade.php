@@ -565,27 +565,20 @@
                 row.find('.hargaBarang').text('Rp. 0');
                 if (selectedValue === 'berat') {
                     row.find('.hitungan').html(`
-                                <input type="number" class="form-control beratBarang" data-index="${index}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01" disabled>
-                            `);
-                    if (row.find('.toggle-ws').length === 0) {
-                        row.find('td:last-child').prepend(`
-                        <button type="button" class="btn btn-sm btn-primary toggle-ws" data-index="${index}" data-active="false">
-                            <span class="pr-2"><i class="fas fa-play"></i></span> Start
-                        </button>
+                        <input type="number" class="form-control beratBarang" disabled data-index="${index}" name="beratBarang[]" placeholder="Masukkan Berat (Kg)" min="0" step="0.01">
                     `);
-                    }
-
+                    row.find('.toggle-ws').show();
                 } else if (selectedValue === 'dimensi') {
                     row.find('.hitungan').html(`
-                            <div class="d-flex">
-                                <input type="number" class="form-control me-1 panjangVolume" data-index="${index}" placeholder="P" min="0" step="0.01">
-                                <span class="mx-1 mt-2">×</span>
-                                <input type="number" class="form-control me-1 lebarVolume" data-index="${index}" placeholder="L" min="0" step="0.01">
-                                <span class="mx-1 mt-2">×</span>
-                                <input type="number" class="form-control me-1 tinggiVolume" data-index="${index}" placeholder="T" min="0" step="0.01">
-                                <span class="ml-2 pt-2">Cm</span>
-                            </div>
-                        `);
+                        <div class="d-flex">
+                            <input type="number" class="form-control me-1 panjangVolume" data-index="${index}" placeholder="P" min="0" step="0.01">
+                            <span class="mx-1 mt-2">×</span>
+                            <input type="number" class="form-control me-1 lebarVolume" data-index="${index}" placeholder="L" min="0" step="0.01">
+                            <span class="mx-1 mt-2">×</span>
+                            <input type="number" class="form-control me-1 tinggiVolume" data-index="${index}" placeholder="T" min="0" step="0.01">
+                            <span class="ml-2 pt-2">Cm</span>
+                        </div>
+                    `);
                     row.find('.toggle-ws').hide();
                 }
                 attachInputEvents();
@@ -852,7 +845,7 @@
                 const lebarVal = $(this).find('.lebarVolume').val();
                 const tinggiVal = $(this).find('.tinggiVolume').val();
 
-              
+
                 if (selectedValue === 'berat' && (!berat || !rateBerat)) {
                     showMessage("error", 'Pastikan rate berat sudah dipilih.');
                     validTable = false;
