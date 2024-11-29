@@ -315,10 +315,12 @@
             }
         },
         {
-            data: 'updated_at',
-            name: 'updated_at',
+            data: 'user_update',
+            name: 'user_update',
             render: function (data, type, row) {
-                return data ? data : '-';
+                return data
+                    ? `${data} (${row.updated_at ?? '-'})`
+                    : '-';
             }
         },
         {

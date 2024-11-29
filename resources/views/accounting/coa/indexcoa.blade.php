@@ -484,15 +484,35 @@
                 });
             });
             $('#modalTambahCOA').on('hidden.bs.modal', function() {
-                $('#groupAccount,#minimumRateCategory,#maximumRateCategory').val('');
-                if (!$('#nameCategoryError').hasClass('d-none')) {
-                    $('#nameCategoryError').addClass('d-none');
+                $('#groupAccount,#codeAccountID,#nameAccount,#descriptionAccount,#defaultPosisi').val('');
+                $('#setGroup').prop('checked', false);
+
+                if (!$('#errGroupAccount').hasClass('d-none')) {
+                    $('#errGroupAccount').addClass('d-none');
                 }
-                if (!$('#minimumRateCategoryError').hasClass('d-none')) {
-                    $('#minimumRateCategoryError').addClass('d-none');
+                if (!$('#errCodeAccountID').hasClass('d-none')) {
+                    $('#errCodeAccountID').addClass('d-none');
                 }
-                if (!$('#maximumRateCategoryError').hasClass('d-none')) {
-                    $('#maximumRateCategoryError').addClass('d-none');
+                if (!$('#errNameAccount').hasClass('d-none')) {
+                    $('#errNameAccount').addClass('d-none');
+                }
+                if (!$('#errDefaultPosisi').hasClass('d-none')) {
+                    $('#errDefaultPosisi').addClass('d-none');
+                }
+            });
+            $('#modalUpdateCOA').on('hidden.bs.modal', function() {
+                $('#editCodeAccountID,#editNameAccount,#editDescriptionAccount,#editDefaultPosisi').val('');
+                if (!$('#errEditGroupAccount').hasClass('d-none')) {
+                    $('#errEditGroupAccount').addClass('d-none');
+                }
+                if (!$('#errEditCodeAccountID').hasClass('d-none')) {
+                    $('#errEditCodeAccountID').addClass('d-none');
+                }
+                if (!$('#errEditNameAccount').hasClass('d-none')) {
+                    $('#errEditNameAccount').addClass('d-none');
+                }
+                if (!$('#errEditDefaultPosisi').hasClass('d-none')) {
+                    $('#errEditDefaultPosisi').addClass('d-none');
                 }
             });
         });

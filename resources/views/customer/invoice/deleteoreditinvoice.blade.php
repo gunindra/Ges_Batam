@@ -181,7 +181,7 @@
                                 <option value="" selected disabled>Pilih Rate</option>
                                 @foreach ($listRateBerat as $rate)
                                     @if ($rate->rate_for == 'Berat')
-                                        <option value="{{ $rate->id }}" data-nilai-rate="{{ $rate->nilai_rate }}"  @if ($rate->id == $invoice->rateberat_id) selected @endif>
+                                        <option value="{{ $rate->id }}" data-nilai-rate="{{ $rate->nilai_rate }}" @if ($rate->id == $invoice->rateberat_id) selected @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
                                     @endif
@@ -194,7 +194,7 @@
                             <select class="form-control" id="pembagiVolume">
                                 <option value="" selected disabled>Pilih Pembagi</option>
                                 @foreach ($listPembagi as $pembagi)
-                                    <option value="{{ $pembagi->id }}"  data-nilai-pembagi="{{ $pembagi->nilai_pembagi }}">
+                                    <option value="{{ $pembagi->id }}" data-nilai-pembagi="{{ $pembagi->nilai_pembagi }}">
                                         {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}
                                     </option>
                                 @endforeach
@@ -210,8 +210,7 @@
                                 <option value="" selected disabled>Pilih Rate</option>
                                 @foreach ($listRateVolume as $rate)
                                     @if ($rate->rate_for == 'Volume')
-                                        <option value="{{ $rate->id }}" data-nilai-ratevolume="{{ $rate->nilai_rate }}"  @if ($rate->id == $invoice->ratevolume_id) selected
-                                        @endif>
+                                        <option value="{{ $rate->id }}" data-nilai-ratevolume="{{ $rate->nilai_rate }}" @if ($rate->id == $invoice->ratevolume_id) selected @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
                                     @endif
@@ -804,7 +803,9 @@
         });
 
 
-        $('#updateInvoice').click(function () {
+        $('#updateInvoice').click(function (e) {
+            e.preventDefault();
+
             const id = $(this).data('id');
             const noInvoice = $('#noInvoice').text();
             const tanggal = $('#tanggal').val();
@@ -825,24 +826,64 @@
             const tinggi = [];
             const hargaBarang = [];
 
+            if (tanggal === '') {
+                $('#tanggalError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#tanggalError').addClass('d-none');
+            }
+
+
+            if (!tanggal) {
+                Swal.fire({
+                    title: "Validasi Gagal",
+                    text: "Tanggal tidak boleh kosong.",
+                    icon: "error"
+                });
+                return;
+            }
+
+            // Validasi Tabel Barang
+            let validTable = true;
             $('#barang-list tr').each(function () {
+                const selectedValue = $(this).find('.selectBeratDimensi').val();
+                const berat = $(this).find('.beratBarang').val();
+                const panjangVal = $(this).find('.panjangVolume').val();
+                const lebarVal = $(this).find('.lebarVolume').val();
+                const tinggiVal = $(this).find('.tinggiVolume').val();
+
+              
+                if (selectedValue === 'berat' && (!berat || !rateBerat)) {
+                    showMessage("error", 'Pastikan rate berat sudah dipilih.');
+                    validTable = false;
+                    return false;
+                }
+
+                if (selectedValue === 'dimensi' && (panjang || lebar || tinggi) && (!rateVolume || !
+                    pembagiVolume)) {
+                    showMessage("error",
+                        'Pastikan rate volume serta pembagi volume sudah diisi.');
+                        validTable = false;
+                    return false;
+                }
+
+                if (!berat && (!panjang || !lebar || !tinggi)) {
+                    showMessage("error", 'Silakan masukkan berat atau dimensi yang valid.');
+                    validTable = false;
+                    return false;
+                }
+
                 noResi.push($(this).find('[name="noResi[]"]').text());
-                beratBarang.push($(this).find('.beratBarang').val());
-                panjang.push($(this).find('.panjangVolume').val());
-                lebar.push($(this).find('.lebarVolume').val());
-                tinggi.push($(this).find('.tinggiVolume').val());
+                beratBarang.push(berat);
+                panjang.push(panjangVal);
+                lebar.push(lebarVal);
+                tinggi.push(tinggiVal);
                 hargaBarang.push($(this).find('.hargaBarang').text().replace(/[^0-9,-]+/g, "").trim());
             });
 
-            console.log("noResi", noResi);
-            console.log("beratBarang", beratBarang);
-            console.log("panjang", panjang);
-            console.log("lebar", lebar);
-            console.log("tinggi", tinggi);
-            console.log("hargaBarang", hargaBarang);
-
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
+            // Kirim Data via AJAX
             $.ajax({
                 type: "POST",
                 url: '/invoice/editinvoice/' + id,
@@ -879,18 +920,9 @@
                         });
                     }
                 },
-                error: function (xhr) {
-                    let errorMessage = "Gagal membuat invoice.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                    Swal.fire({
-                        title: errorMessage,
-                        icon: "error"
-                    });
-                }
             });
         });
+
 
     });
 </script>

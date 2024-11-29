@@ -947,19 +947,7 @@
                 e.preventDefault();
                 return;
             }
-            if (!validateForm()) {
-                e.preventDefault();
-                return;
-            }
 
-
-            if (!isValid) {
-                Swal.fire({
-                    title: "Periksa input yang masih kosong.",
-                    icon: "error"
-                });
-                return;
-            }
             if (!isValid) {
                 Swal.fire({
                     title: "Periksa input yang masih kosong.",

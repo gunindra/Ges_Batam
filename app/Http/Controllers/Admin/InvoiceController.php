@@ -187,7 +187,8 @@ class InvoiceController extends Controller
                 'a.status_bayar',
                 DB::raw("DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s') AS created_at_formatted"),
                 DB::raw("DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s') AS updated_at_formatted"),
-                'a.user'
+                'a.user',
+                'a.user_update'
             )
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
@@ -230,7 +231,8 @@ class InvoiceController extends Controller
             'a.wa_status',
             'a.created_at',
             'a.updated_at',
-            'a.user'
+            'a.user',
+            'a.user_update',
         )
             ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END")
             ->orderBy('a.id', 'DESC');
@@ -294,7 +296,7 @@ class InvoiceController extends Controller
 
                 // Check if period status is 'Closed', if so, disable the "Edit" button
                 $btnEditInvoice = '';
-                if ($periodStatus != 'Open') {
+                if ($periodStatus != 'Closed') {
                     $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
                 }
 
@@ -495,7 +497,7 @@ class InvoiceController extends Controller
     $pembagiVolume = $request->input('pembagiVolume');
     $hargaBarang = $request->input('hargaBarang');
     $totalharga = $request->input('totalharga');
-    $user = Auth::user()->name;
+    $user_update = Auth::user()->name;
 
     $date = DateTime::createFromFormat('j F Y', $tanggal);
     $formattedDate = $date ? $date->format('Y-m-d') : null;
@@ -521,7 +523,7 @@ class InvoiceController extends Controller
             'ratevolume_id' => DB::table('tbl_rate')->where('nilai_rate', $rateVolume)->where('rate_for', 'Volume')->value('id'),
             'pembagi_id' => DB::table('tbl_pembagi')->where('nilai_pembagi', $pembagiVolume)->value('id'),
             'updated_at' => now(),
-            'user' => $user,
+            'user_update' => $user_update,
         ];
 
         $updateInvoice = DB::table('tbl_invoice')->where('id', $id)->update($dataToUpdate);
