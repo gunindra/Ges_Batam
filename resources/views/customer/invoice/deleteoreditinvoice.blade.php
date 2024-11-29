@@ -850,7 +850,7 @@
                     noInvoice: noInvoice,
                     noResi: noResi,
                     tanggal: tanggal,
-                    customer: selectCostumer, // Perbaikan
+                    customer: selectCostumer,
                     currencyInvoice: currencyInvoice,
                     rateCurrency: rateCurrency,
                     beratBarang: beratBarang,
@@ -858,7 +858,7 @@
                     lebar: lebar,
                     tinggi: tinggi,
                     metodePengiriman: metodePengiriman,
-                    alamat: alamatSelect, // Perbaikan
+                    alamat: alamatSelect,
                     totalharga: totalharga,
                     hargaBarang: hargaBarang,
                     rateBerat: rateBerat,

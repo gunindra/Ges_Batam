@@ -480,136 +480,152 @@ class InvoiceController extends Controller
         }
     }
     public function editInvoice(Request $request, $id)
-    {
-        $noInvoice = $request->input('noInvoice');
-        $noResi = $request->input('noResi');
-        $tanggal = $request->input('tanggal');
-        $customer = $request->input('customer');
-        $currencyInvoice = $request->input('currencyInvoice');
-        $metodePengiriman = $request->input('metodePengiriman');
-        $rateCurrency = $request->input('rateCurrency');
-        $beratBarang = $request->input('beratBarang');
-        $alamatTujuan = $request->input('alamat');
-        $rateBerat = $request->input('rateBerat');
-        $rateVolume = $request->input('rateVolume');
-        $pembagiVolume = $request->input('pembagiVolume');
-        $hargaBarang = $request->input('hargaBarang');
-        $totalharga = $request->input('totalharga');
+{
+    $noInvoice = $request->input('noInvoice');
+    $noResi = $request->input('noResi');
+    $tanggal = $request->input('tanggal');
+    $customer = $request->input('customer');
+    $currencyInvoice = $request->input('currencyInvoice');
+    $metodePengiriman = $request->input('metodePengiriman');
+    $rateCurrency = $request->input('rateCurrency');
+    $beratBarang = $request->input('beratBarang');
+    $alamatTujuan = $request->input('alamat');
+    $rateBerat = $request->input('rateBerat');
+    $rateVolume = $request->input('rateVolume');
+    $pembagiVolume = $request->input('pembagiVolume');
+    $hargaBarang = $request->input('hargaBarang');
+    $totalharga = $request->input('totalharga');
+    $user = Auth::user()->name;
 
-        $date = DateTime::createFromFormat('j F Y', $tanggal);
-        $formattedDate = $date ? $date->format('Y-m-d') : null;
+    $date = DateTime::createFromFormat('j F Y', $tanggal);
+    $formattedDate = $date ? $date->format('Y-m-d') : null;
 
-        DB::beginTransaction();
+    DB::beginTransaction();
+    try {
+        Log::info("Memulai proses edit invoice untuk Invoice ID: {$id}");
+
+        // Update data pada tbl_invoice
+        Log::info("Memperbarui data pada tabel tbl_invoice untuk Invoice ID: {$id}");
+        $updateInvoice = DB::table('tbl_invoice')->where('id', $id)->update([
+            'no_invoice' => $noInvoice,
+            'tanggal_invoice' => $formattedDate,
+            'pembeli_id' => $customer,
+            'metode_pengiriman' => $metodePengiriman,
+            'alamat' => $alamatTujuan,
+            'matauang_id' => $currencyInvoice,
+            'rate_matauang' => $rateCurrency,
+            'total_harga' => $totalharga,
+            'rateberat_id' => DB::table('tbl_rate')->where('nilai_rate', $rateBerat)->where('rate_for', 'Berat')->value('id'),
+            'ratevolume_id' => DB::table('tbl_rate')->where('nilai_rate', $rateVolume)->where('rate_for', 'Volume')->value('id'),
+            'pembagi_id' => DB::table('tbl_pembagi')->where('nilai_pembagi', $pembagiVolume)->value('id'),
+            'updated_at' => now(),
+            'user' => $user,
+        ]);
+
+        if (!$updateInvoice) {
+            throw new \Exception("Gagal memperbarui data invoice untuk Invoice ID: {$id}");
+        }
+        Log::info("Berhasil memperbarui data tbl_invoice untuk Invoice ID: {$id}");
+
+        // Hapus data resi lama
+        Log::info("Menghapus data resi lama untuk Invoice ID: {$id}");
+        DB::table('tbl_resi')->where('invoice_id', $id)->delete();
+        Log::info("Berhasil menghapus data resi lama untuk Invoice ID: {$id}");
+
+        // Tambah ulang data resi
+        foreach ($noResi as $index => $resi) {
+
+            $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
+            DB::table('tbl_resi')->insert([
+                'invoice_id' => $id,
+                'no_resi' => $resi,
+                'no_do' => $noDo,
+                'berat' => $beratBarang[$index] ?? null,
+                'harga' => $hargaBarang[$index] ?? null,
+                'created_at' => now(),
+            ]);
+        }
+        Log::info("Berhasil menambahkan ulang data resi untuk Invoice ID: {$id}");
+
+        // Update transaksi terakhir pembeli
+        Log::info("Memperbarui transaksi terakhir untuk Pembeli ID: {$customer}");
+        DB::table('tbl_pembeli')->where('id', $customer)->update(['transaksi_terakhir' => now()]);
+        Log::info("Berhasil memperbarui transaksi terakhir untuk Pembeli ID: {$customer}");
+
+        // Ambil pengaturan akun
+        Log::info("Mengambil pengaturan akun dari tbl_account_settings");
+        $accountSettings = DB::table('tbl_account_settings')->first();
+        if (!$accountSettings) {
+            Log::error("Pengaturan akun tidak ditemukan.");
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        $salesAccountId = $accountSettings->sales_account_id;
+        $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
+
+        if (is_null($salesAccountId) || is_null($receivableSalesAccountId)) {
+            Log::error("sales_account_id atau receivable_sales_account_id kosong di pengaturan akun.");
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        // Update jurnal
         try {
-            // Update data pada tbl_invoice
-            $updateInvoice = DB::table('tbl_invoice')->where('id', $id)->update([
-                'no_invoice' => $noInvoice,
-                'tanggal_invoice' => $formattedDate,
-                'pembeli_id' => $customer,
-                'metode_pengiriman' => $metodePengiriman,
-                'alamat' => $alamatTujuan,
-                'matauang_id' => $currencyInvoice,
-                'rate_matauang' => $rateCurrency,
-                'total_harga' => $totalharga,
-                'rateberat_id' => DB::table('tbl_rate')->where('nilai_rate', $rateBerat)->where('rate_for', 'Berat')->value('id'),
-                'ratevolume_id' => DB::table('tbl_rate')->where('nilai_rate', $rateVolume)->where('rate_for', 'Volume')->value('id'),
-                'pembagi_id' => DB::table('tbl_pembagi')->where('nilai_pembagi', $pembagiVolume)->value('id'),
+            Log::info("Memperbarui jurnal untuk Invoice ID: {$id}");
+            $jurnal = DB::table('tbl_jurnal')->where('invoice_id', $id)->first();
+
+            if (!$jurnal) {
+                throw new \Exception("Jurnal untuk Invoice ID: {$id} tidak ditemukan.");
+            }
+
+            DB::table('tbl_jurnal_item')->where('jurnal_id', $jurnal->id)->delete();
+
+            DB::table('tbl_jurnal')->where('id', $jurnal->id)->update([
+                'totaldebit' => $totalharga,
+                'totalcredit' => $totalharga,
                 'updated_at' => now(),
             ]);
 
-            if (!$updateInvoice) {
-                throw new \Exception("Gagal memperbarui data invoice.");
-            }
+            // Tambah jurnal item
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $receivableSalesAccountId;
+            $jurnalItemDebit->description = "Debit untuk Invoice {$noInvoice}";
+            $jurnalItemDebit->debit = $totalharga;
+            $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->save();
 
-            // Hapus data resi lama terkait invoice
-            DB::table('tbl_resi')->where('invoice_id', $id)->delete();
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $salesAccountId;
+            $jurnalItemCredit->description = "Kredit untuk Invoice {$noInvoice}";
+            $jurnalItemCredit->debit = 0;
+            $jurnalItemCredit->credit = $totalharga;
+            $jurnalItemCredit->save();
 
-            // Tambah ulang data resi
-            foreach ($noResi as $index => $resi) {
-                DB::table('tbl_resi')->insert([
-                    'invoice_id' => $id,
-                    'no_resi' => $resi,
-                    'berat' => $beratBarang[$index] ?? null,
-                    'harga' => $hargaBarang[$index] ?? null,
-                    'created_at' => now(),
-                ]);
-            }
+            Log::info("Jurnal untuk Invoice ID: {$id} berhasil diperbarui.");
 
-
-            // Update transaksi terakhir pembeli
-            DB::table('tbl_pembeli')->where('id', $customer)->update(['transaksi_terakhir' => now()]);
-
-            $accountSettings = DB::table('tbl_account_settings')->first();
-            if (!$accountSettings) {
-                Log::error("Gagal menemukan pengaturan akun. Silakan cek Account setting.");
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
-                ], 400);
-            }
-
-            $salesAccountId = $accountSettings->sales_account_id;
-            $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
-
-            if (is_null($salesAccountId) || is_null($receivableSalesAccountId)) {
-                Log::error("sales_account_id atau receivable_sales_account_id kosong di pengaturan akun.");
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
-                ], 400);
-            }
-
-            try {
-                Log::info("Memperbarui jurnal untuk invoice {$noInvoice}");
-
-                $jurnal = DB::table('tbl_jurnal')->where('invoice_id', $id)->first();
-
-                if (!$jurnal) {
-                    throw new \Exception("Jurnal untuk Invoice {$noInvoice} tidak ditemukan.");
-                }
-
-                DB::table('tbl_jurnal_item')->where('jurnal_id', $jurnal->id)->delete();
-
-                DB::table('tbl_jurnal')->where('id', $jurnal->id)->update([
-                    'totaldebit' => $totalharga,
-                    'totalcredit' => $totalharga,
-                    'updated_at' => now(),
-                ]);
-
-                $jurnalItemDebit = new JurnalItem();
-                $jurnalItemDebit->jurnal_id = $jurnal->id;
-                $jurnalItemDebit->code_account = $receivableSalesAccountId;
-                $jurnalItemDebit->description = "Debit untuk Invoice {$noInvoice}";
-                $jurnalItemDebit->debit = $totalharga;
-                $jurnalItemDebit->credit = 0;
-                $jurnalItemDebit->save();
-
-                $jurnalItemCredit = new JurnalItem();
-                $jurnalItemCredit->jurnal_id = $jurnal->id;
-                $jurnalItemCredit->code_account = $salesAccountId;
-                $jurnalItemCredit->description = "Kredit untuk Invoice {$noInvoice}";
-                $jurnalItemCredit->debit = 0;
-                $jurnalItemCredit->credit = $totalharga;
-                $jurnalItemCredit->save();
-
-                Log::info("Jurnal untuk invoice {$noInvoice} berhasil diperbarui.");
-
-            } catch (\Exception $e) {
-                Log::error("Gagal menambahkan jurnal: " . $e->getMessage());
-                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
-            }
-
-            DB::commit();
-            Log::info("Proses tambainvoice selesai dengan sukses.");
-
-            DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'Invoice berhasil diperbarui.'], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Gagal memperbarui Invoice. Error: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => 'Gagal memperbarui Invoice. Silakan coba lagi.'], 500);
+            Log::error("Gagal memperbarui jurnal: " . $e->getMessage());
+            throw new \Exception('Gagal memperbarui jurnal: ' . $e->getMessage());
         }
+
+        DB::commit();
+        Log::info("Proses edit invoice untuk Invoice ID: {$id} selesai dengan sukses.");
+
+        return response()->json(['status' => 'success', 'message' => 'Invoice berhasil diperbarui.'], 200);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error("Terjadi kesalahan dalam proses edit invoice untuk Invoice ID: {$id}. Error: " . $e->getMessage());
+        return response()->json(['status' => 'error', 'message' => 'Gagal memperbarui Invoice. Silakan coba lagi.'], 500);
     }
+}
+
 
     public function kirimPesanWaPembeli(Request $request)
     {
