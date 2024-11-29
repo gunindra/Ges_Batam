@@ -848,12 +848,12 @@
 
 
                 if (selectedValue === 'berat' && (!berat || !rateBerat)) {
-                    showMessage("error", 'Pastikan rate berat sudah dipilih.');
+                    showMessage("error", 'Pastikan berat sudah dimasukkan.');
                     validTable = false;
                     return false;
                 }
 
-                if (selectedValue === 'dimensi' && (panjang || lebar || tinggi) && (!rateVolume || !
+                if (selectedValue === 'dimensi' && (panjangVal || lebarVal || tinggiVal) && (!rateVolume || !
                     pembagiVolume)) {
                     showMessage("error",
                         'Pastikan rate volume serta pembagi volume sudah diisi.');
@@ -861,7 +861,7 @@
                     return false;
                 }
 
-                if (!berat && (!panjang || !lebar || !tinggi)) {
+                if (!berat && (!panjangVal || !lebarVal || !tinggiVal)) {
                     showMessage("error", 'Silakan masukkan berat atau dimensi yang valid.');
                     validTable = false;
                     return false;
