@@ -75,7 +75,7 @@
 
 
 <!---Container Fluid-->
-<div class="container-fluid" id="container-wrapper" data-id="{{ $invoice->id }}">
+<div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Edit Invoice</h1>
         <ol class="breadcrumb">
@@ -151,8 +151,8 @@
                                         <option value="{{ $alamat->id }}" data-metode="{{ $alamat->metode_pengiriman }}"
                                             data-alamat="{{ $alamat->alamat }}"
                                             data-jumlahalamat="{{ $alamat->jumlah_alamat }}"
-                                            data-minrate="{{ $alamat->minrate ?? 0 }}"
-                                            data-maxrate="{{ $alamat->maxrate ?? 0 }}">
+                                            data-minrate="{{ $alamat->minimum_rate ?? 0 }}"
+                                            data-maxrate="{{ $alamat->maximum_rate ?? 0 }}">
                                             {{ $alamat->marking }} - {{ $alamat->nama_pembeli }}
                                         </option>
                                     @endforeach
@@ -181,7 +181,7 @@
                                 <option value="" selected disabled>Pilih Rate</option>
                                 @foreach ($listRateBerat as $rate)
                                     @if ($rate->rate_for == 'Berat')
-                                        <option value="{{ $rate->id }}" @if ($rate->id == $invoice->rateberat_id) selected @endif>
+                                        <option value="{{ $rate->id }}" data-nilai-rate="{{ $rate->nilai_rate }}"  @if ($rate->id == $invoice->rateberat_id) selected @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
                                     @endif
@@ -194,7 +194,7 @@
                             <select class="form-control" id="pembagiVolume">
                                 <option value="" selected disabled>Pilih Pembagi</option>
                                 @foreach ($listPembagi as $pembagi)
-                                    <option value="{{ $pembagi->id }}">
+                                    <option value="{{ $pembagi->id }}"  data-nilai-pembagi="{{ $pembagi->nilai_pembagi }}">
                                         {{ number_format($pembagi->nilai_pembagi, 0, ',', '.') }}
                                     </option>
                                 @endforeach
@@ -210,7 +210,7 @@
                                 <option value="" selected disabled>Pilih Rate</option>
                                 @foreach ($listRateVolume as $rate)
                                     @if ($rate->rate_for == 'Volume')
-                                        <option value="{{ $rate->id }}" @if ($rate->id == $invoice->ratevolume_id) selected
+                                        <option value="{{ $rate->id }}" data-nilai-ratevolume="{{ $rate->nilai_rate }}"  @if ($rate->id == $invoice->ratevolume_id) selected
                                         @endif>
                                             {{ number_format($rate->nilai_rate, 0, ',', '.') }}
                                         </option>
@@ -325,6 +325,9 @@
             $(this).closest('tr').remove();
         });
 
+        let globalMinrate = 0;
+        let globalMaxrate = 0;
+
         $('#selectCostumer').change(function () {
             var selectedCustomer = $(this).val();
             var metodePengiriman = $('#selectCostumer option:selected').data('metode');
@@ -389,6 +392,10 @@
         });
 
         if (invoice) {
+
+            $('#updateInvoice').attr('data-id', invoice.id);
+
+
             $('#selectCostumer').val(invoice.pembeli_id).trigger('change');
             $('#alamatSelect').val(invoice.alamat).trigger('change');
         }
@@ -620,19 +627,25 @@
 
         function updateTotalHargaBerat(row) {
             const berat = parseFloat(row.find('.beratBarang').val()) || 0;
-            const hargaPerKg = parseFloat($('#rateBerat').val()) || 0;
+            const hargaPerKg = parseFloat($('#rateBerat option:selected').data('nilai-rate')) || 0;
+
 
             if (berat > 0 && hargaPerKg) {
-                let totalHarga = berat * hargaPerKg;
-                totalHarga = Math.max(totalHarga, globalMinrate);
+                if (berat < 2 && globalMinrate > 0) {
+                    totalHarga = globalMinrate;
+                } else {
+                    totalHarga = berat * hargaPerKg;
+                    totalHarga = Math.max(totalHarga, globalMinrate);
+                }
+
                 if (globalMaxrate > 0) {
                     totalHarga = Math.min(totalHarga, globalMaxrate);
                 }
+
                 row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
             } else {
                 row.find('.hargaBarang').text("Rp. 0");
             }
-
             updateDisplayedTotalHarga();
         }
 
@@ -641,8 +654,8 @@
             const lebar = parseFloat(row.find('.lebarVolume').val()) || 0;
             const tinggi = parseFloat(row.find('.tinggiVolume').val()) || 0;
             const volume = panjang * lebar * tinggi;
-            const pembagi = parseFloat($('#pembagiVolume').val()) || 1;
-            const rate = parseFloat($('#rateVolume').val()) || 1;
+            const pembagi = parseFloat($('#pembagiVolume option:selected').data('nilai-pembagi')) || 0;
+            const rate = parseFloat($('#rateVolume option:selected').data('nilai-ratevolume')) || 0;
 
             if (volume > 0 && rate) {
                 let totalHargaVolume = (volume / pembagi) * rate;
@@ -789,78 +802,96 @@
                 event.preventDefault();
             }
         });
+
+
         $('#updateInvoice').click(function () {
-            const id = $('#container-wrapper').data('id');
+            const id = $(this).data('id');
             const noInvoice = $('#noInvoice').text();
             const tanggal = $('#tanggal').val();
             const currencyInvoice = $('#currencyInvoice').val();
             const rateCurrency = $('#rateCurrency').val();
             const selectCostumer = $('#selectCostumer').val();
-            var metodePengiriman = $('#selectCostumer option:selected').data('metode');            
+            const metodePengiriman = $('#selectCostumer option:selected').data('metode');
             const alamatSelect = $('#alamatSelect').val();
             const rateBerat = $('#rateBerat').val();
             const pembagiVolume = $('#pembagiVolume').val();
             const rateVolume = $('#rateVolume').val();
             let totalharga = $('#totalHargaValue').val();
-            console.log(totalharga);
-            
 
-            let barangData = [];
+            const noResi = [];
+            const beratBarang = [];
+            const panjang = [];
+            const lebar = [];
+            const tinggi = [];
+            const hargaBarang = [];
+
             $('#barang-list tr').each(function () {
-                const noResi = $(this).find('[name="noResi[]"]').text();
-                const hargaBarang = $(this).find('.hargaBarang').text().replace(/[^0-9,-]+/g, "")
-                .trim(); 
-                const selectBeratDimensi = $(this).find('select.selectBeratDimensi').val(); 
-                const beratBarang = $(this).find('input.beratBarang').val(); 
-                const panjangVolume = $(this).find('input.panjangVolume').val(); 
-                const lebarVolume = $(this).find('input.lebarVolume').val(); 
-                const tinggiVolume = $(this).find('input.tinggiVolume').val(); 
-
-                barangData.push({
-                    noResi,
-                    selectBeratDimensi,
-                    beratBarang,
-                    panjangVolume,
-                    lebarVolume,
-                    tinggiVolume,
-                    hargaBarang,
-                });
+                noResi.push($(this).find('[name="noResi[]"]').text());
+                beratBarang.push($(this).find('.beratBarang').val());
+                panjang.push($(this).find('.panjangVolume').val());
+                lebar.push($(this).find('.lebarVolume').val());
+                tinggi.push($(this).find('.tinggiVolume').val());
+                hargaBarang.push($(this).find('.hargaBarang').text().replace(/[^0-9,-]+/g, "").trim());
             });
 
-            const InvoiceData = {
-                invoiceId: id,
-                noInvoice: noInvoice,
-                tanggal: tanggal,
-                currencyInvoice: currencyInvoice,
-                rateCurrency: rateCurrency,
-                selectCostumer: selectCostumer,
-                metodePengiriman:metodePengiriman,
-                alamatSelect: alamatSelect,
-                rateBerat: rateBerat,
-                pembagiVolume: pembagiVolume,
-                rateVolume: rateVolume,
-                totalharga: totalharga,
-                barangData: barangData, 
-            };
+            console.log("noResi", noResi);
+            console.log("beratBarang", beratBarang);
+            console.log("panjang", panjang);
+            console.log("lebar", lebar);
+            console.log("tinggi", tinggi);
+            console.log("hargaBarang", hargaBarang);
+
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
             $.ajax({
+                type: "POST",
                 url: '/invoice/editinvoice/' + id,
-                type: 'POST',
-                data: InvoiceData,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
+                data: {
+                    noInvoice: noInvoice,
+                    noResi: noResi,
+                    tanggal: tanggal,
+                    customer: selectCostumer, // Perbaikan
+                    currencyInvoice: currencyInvoice,
+                    rateCurrency: rateCurrency,
+                    beratBarang: beratBarang,
+                    panjang: panjang,
+                    lebar: lebar,
+                    tinggi: tinggi,
+                    metodePengiriman: metodePengiriman,
+                    alamat: alamatSelect, // Perbaikan
+                    totalharga: totalharga,
+                    hargaBarang: hargaBarang,
+                    rateBerat: rateBerat,
+                    rateVolume: rateVolume,
+                    pembagiVolume: pembagiVolume,
+                    _token: csrfToken
                 },
-                dataType: 'json',
                 success: function (response) {
-                    showMessage('success', 'Invoice berhasil diupdate!').then(() => {
-                        window.location.reload();
+                    if (response.status === 'success') {
+                        showMessage("success", "Invoice berhasil dibuat").then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Gagal membuat invoice",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    let errorMessage = "Gagal membuat invoice.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        title: errorMessage,
+                        icon: "error"
                     });
-                },
-                error: function (xhr, status, error) {
-                    showMessage('error', 'Terjadi kesalahan saat mengupdate data.');
-                },
+                }
             });
         });
+
     });
 </script>
 
