@@ -813,9 +813,9 @@
             const selectCostumer = $('#selectCostumer').val();
             const metodePengiriman = $('#selectCostumer option:selected').data('metode');
             const alamatSelect = $('#alamatSelect').val();
-            const rateBerat = $('#rateBerat').val();
-            const pembagiVolume = $('#pembagiVolume').val();
-            const rateVolume = $('#rateVolume').val();
+            const rateBerat = parseFloat($('#rateBerat option:selected').data('nilai-rate')) || 0;
+            const pembagiVolume = parseFloat($('#pembagiVolume option:selected').data('nilai-pembagi')) || 0;
+            const rateVolume = parseFloat($('#rateVolume option:selected').data('nilai-ratevolume')) || 0;
             let totalharga = $('#totalHargaValue').val();
 
             const noResi = [];

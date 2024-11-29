@@ -504,9 +504,11 @@ class InvoiceController extends Controller
     try {
         Log::info("Memulai proses edit invoice untuk Invoice ID: {$id}");
 
+
+
         // Update data pada tbl_invoice
         Log::info("Memperbarui data pada tabel tbl_invoice untuk Invoice ID: {$id}");
-        $updateInvoice = DB::table('tbl_invoice')->where('id', $id)->update([
+        $dataToUpdate = [
             'no_invoice' => $noInvoice,
             'tanggal_invoice' => $formattedDate,
             'pembeli_id' => $customer,
@@ -520,7 +522,9 @@ class InvoiceController extends Controller
             'pembagi_id' => DB::table('tbl_pembagi')->where('nilai_pembagi', $pembagiVolume)->value('id'),
             'updated_at' => now(),
             'user' => $user,
-        ]);
+        ];
+
+        $updateInvoice = DB::table('tbl_invoice')->where('id', $id)->update($dataToUpdate);
 
         if (!$updateInvoice) {
             throw new \Exception("Gagal memperbarui data invoice untuk Invoice ID: {$id}");
@@ -583,7 +587,7 @@ class InvoiceController extends Controller
                 throw new \Exception("Jurnal untuk Invoice ID: {$id} tidak ditemukan.");
             }
 
-            DB::table('tbl_jurnal_item')->where('jurnal_id', $jurnal->id)->delete();
+            DB::table('tbl_jurnal_items')->where('jurnal_id', $jurnal->id)->delete();
 
             DB::table('tbl_jurnal')->where('id', $jurnal->id)->update([
                 'totaldebit' => $totalharga,
