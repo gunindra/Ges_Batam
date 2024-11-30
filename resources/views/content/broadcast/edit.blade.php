@@ -12,6 +12,12 @@
             <li class="breadcrumb-item active" aria-current="page">Edit Broadcast Whatsapp</li>
         </ol>
     </div>
+    <div class="d-flex justify-content-between">
+        <a class="btn btn-primary mb-3" href="{{ route('wa.broadcast') }}">
+            <i class="fas fa-arrow-left"></i>
+            Back
+        </a>
+    </div>
     <div class="row mb-3 d-flex">
         <div class="col-xl-12">
             <form action="{{ route('wa.broadcast.update', $broadcast->id) }}" method="POST" enctype="multipart/form-data">

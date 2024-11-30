@@ -306,21 +306,27 @@
             searchable: false
         },
         {
-            data: 'user',
-            name: 'user',
+            data: 'created_at',
+            name: 'created_at',
             render: function (data, type, row) {
-                return data
-                    ? `${data} (${row.created_at ?? '-'})`
-                    : '-';
+                if (data) {
+                    return row.user
+                        ? `${data} (${row.user})`
+                        : `${data}`;
+                }
+                return '-';
             }
         },
         {
-            data: 'user_update',
-            name: 'user_update',
+            data: 'updated_at',
+            name: 'updated_at',
             render: function (data, type, row) {
-                return data
-                    ? `${data} (${row.updated_at ?? '-'})`
-                    : '-';
+                if (data) {
+                    return row.user_update
+                        ? `${data} (${row.user_update})`
+                        : `${data}`;
+                }
+                return '-';
             }
         },
         {
