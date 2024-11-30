@@ -266,7 +266,7 @@
                             </div>
                             <input type="hidden" name="" id="totalHargaValue">
                             <button id="updateInvoice" class="btn btn-primary p-3 float-right mt-3"
-                                style="width: 100%;">Buat
+                                style="width: 100%;">Update
                                 Invoice</button>
                         </div>
                     </div>

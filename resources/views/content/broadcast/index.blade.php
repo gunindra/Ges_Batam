@@ -5,6 +5,13 @@
 @section('main')
 
 <div class="container-fluid" id="container-wrapper">
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Broadcast</h1>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Content</li>
+            <li class="breadcrumb-item active" aria-current="page">Broadcast</li>
+        </ol>
+    </div>
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
@@ -55,7 +62,16 @@
                 { data: 'recipients', className: "text-center" },
                 { data: 'status', className: "text-center" },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
-            ]
+            ],
+            order: [],
+            language: {
+                processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>', // Custom spinner saat processing
+                info: "_START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "Showing 0 to 0 of 0 entries",
+                emptyTable: "No data available in table",
+                loadingRecords: "Loading...",
+                zeroRecords: "No matching records found"
+            }
         });
 
     });

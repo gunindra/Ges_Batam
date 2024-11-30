@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Customer;
 use App\Models\WhatsappBroadcast;
 use App\Models\WhatsappBroadcastDetail;
 

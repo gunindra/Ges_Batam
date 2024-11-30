@@ -343,7 +343,6 @@
         });
         $('#modalTambahTracking').on('hidden.bs.modal', function() {
             $('#noDeliveryOrder,#keterangan,#noResi').val('');
-            $('#tags').inputTags('reset');
             if (!$('#noDeliveryOrderError').hasClass('d-none')) {
                 $('#noDeliveryOrderError').addClass('d-none');
 

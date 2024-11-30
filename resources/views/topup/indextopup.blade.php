@@ -107,14 +107,21 @@
 
                         <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
                         <p><strong>Harga per 1kg kuota:</strong>
+                            @php $foundRate = false; @endphp
                             @foreach ($listRateVolume as $rate)
                                 @if ($rate->rate_for == 'Topup')
+                                    @php        $foundRate = true; @endphp
                                     <input type="text" id="pricePerKg" class="form-control"
                                         value="{{ number_format($rate->nilai_rate, 0, ',', '.') }}" disabled>
                                 @endif
                             @endforeach
+
+                            @if (!$foundRate)
+                                <input type="text" id="pricePerKg" class="form-control" placeholder="Masukkan topup di halaman rate" disabled>
+                            @endif
                             <span id="pricePerKgError" class="text-danger"></span>
                         </p>
+
 
                         <p><strong>Nomor voucher:</strong>
                             <input type="text" id="Voucher" class="form-control" placeholder="Masukkan Voucher">
@@ -223,49 +230,49 @@
                     </div>
                     <div id="containerPurchaseTop-up">
                         <div class="table-responsive">
-                        <table class="table align-items-center table-flush table-hover" id="tableTopup">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Marking</th>
-                                    <th>Nama Costumer</th>
-                                    <th>Voucher</th>
-                                    <th>Nominal Top Up</th>
-                                    <th>Kuota Top Up</th>
-                                    <th>Harga (1kg)</th>
-                                    <th>Nama Akun Jurnal</th>
-                                    <th>Tanggal</th>
-                                    <th>Tanggal Expired</th>
-                                    <th>Status</th>
-                                    <th>Action</th> <!-- Kolom untuk penanda poin -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{-- <tr>
-                                    <td>001</td>
-                                    <td>John Doe</td>
-                                    <td>100.000</td>
-                                    <td>50.000</td>
-                                    <td>Jurnal A</td>
-                                    <td><span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>
-                                    </td>
-                                    <td>2024-10-23</td>
-                                    <td><span class="badge text-white bg-success">Masuk</span></td>
-                                    <!-- Penanda poin masuk -->
-                                </tr>
-                                <tr>
-                                    <td>002</td>
-                                    <td>Jane Smith</td>
-                                    <td>50.000</td>
-                                    <td>25.000</td>
-                                    <td>Jurnal B</td>
-                                    <td><span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum
-                                            Lunas</span></td>
-                                    <td>2024-10-22</td>
-                                    <td><span class="badge text-white bg-danger">Keluar</span></td>
-                                    <!-- Penanda poin keluar -->
-                                </tr> --}}
-                            </tbody>
-                        </table>
+                            <table class="table align-items-center table-flush table-hover" id="tableTopup">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Marking</th>
+                                        <th>Nama Costumer</th>
+                                        <th>Voucher</th>
+                                        <th>Nominal Top Up</th>
+                                        <th>Kuota Top Up</th>
+                                        <th>Harga (1kg)</th>
+                                        <th>Nama Akun Jurnal</th>
+                                        <th>Tanggal</th>
+                                        <th>Tanggal Expired</th>
+                                        <th>Status</th>
+                                        <th>Action</th> <!-- Kolom untuk penanda poin -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{-- <tr>
+                                        <td>001</td>
+                                        <td>John Doe</td>
+                                        <td>100.000</td>
+                                        <td>50.000</td>
+                                        <td>Jurnal A</td>
+                                        <td><span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>
+                                        </td>
+                                        <td>2024-10-23</td>
+                                        <td><span class="badge text-white bg-success">Masuk</span></td>
+                                        <!-- Penanda poin masuk -->
+                                    </tr>
+                                    <tr>
+                                        <td>002</td>
+                                        <td>Jane Smith</td>
+                                        <td>50.000</td>
+                                        <td>25.000</td>
+                                        <td>Jurnal B</td>
+                                        <td><span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum
+                                                Lunas</span></td>
+                                        <td>2024-10-22</td>
+                                        <td><span class="badge text-white bg-danger">Keluar</span></td>
+                                        <!-- Penanda poin keluar -->
+                                    </tr> --}}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -490,7 +497,7 @@
 
         // Reset pesan error
         function resetErrorMessages() {
-            $('.text-danger').text(''); 
+            $('.text-danger').text('');
         }
 
         $('#topupModal').on('show.bs.modal', function () {
@@ -500,7 +507,7 @@
                 url: "{{ route('get-customers') }}",
                 method: 'GET',
                 success: function (response) {
-                    $('#customerSelect').empty(); 
+                    $('#customerSelect').empty();
                     customerSelect.append('<option value="">Pilih Pengguna</option>');
                     $.each(response, function (index, customer) {
                         customerSelect.append(
@@ -580,7 +587,7 @@
             }
 
             if (!priceId) {
-                $('#pricePerKgError').text('Silahkan pilih harga.');
+                $('#pricePerKgError').text('Silahkan pilih harga di halaman rate.');
                 hasError = true;
             }
 
