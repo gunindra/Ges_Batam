@@ -174,6 +174,7 @@ class CreditNoteController extends Controller
 
             $jurnal->tanggal = now();
             $jurnal->no_ref = $invoice_id;
+            $jurnal->tipe_kode = $codeType;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Invoice {$invoice_id}";
             $jurnal->totaldebit = $request->totalKeseluruhan;
