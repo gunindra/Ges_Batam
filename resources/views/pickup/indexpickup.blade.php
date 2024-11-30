@@ -4,6 +4,30 @@
 
 @section('main')
 
+    <!-- Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Admin Verification</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="adminPassword">Enter Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Password" required>
+                            <small id="error-message" class="text-danger mt-2 d-none">Password Yang dimasukkan salah
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="submitPassword" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -67,26 +91,69 @@
 
                         <!-- Save Button Centered -->
                         <div class="mt-4 text-center">
-                            <button id="save" class="btn btn-success mt-3 w-50" >Submit</button>
+                            <button id="save" class="btn btn-success mt-3 w-50">Submit</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
-
-
-
 @endsection
-@section('script')
+@section('script')|
+
+    <script>
+        $(document).ready(function() {
+            $('#passwordModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+
+
+            $('#adminPassword').on('keypress', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#submitPassword').click();
+                }
+            });
+
+            $('#submitPassword').on('click', function(e) {
+                e.preventDefault();
+
+                const enteredPassword = $('#adminPassword').val();
+                $.ajax({
+                    url: '{{ route('cekPassPickup') }}',
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        password: enteredPassword
+                    },
+                    success: function(response) {
+                        if (response.valid) {
+                            $('#passwordModal').modal(
+                                'hide');
+                        } else {
+                            $('#error-message').removeClass(
+                                'd-none');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Terjadi kesalahan saat memproses permintaan.',
+                        });
+                    }
+                });
+            });
+        });
+    </script>
     <script>
         $(document).ready(function() {
 
-                $('#selectResi').select2({
-                    placeholder: 'Pilih No.Invoice',
-                    allowClear: true
-                });
+
+            $('#selectResi').select2({
+                placeholder: 'Pilih No.Invoice',
+                allowClear: true
+            });
             // Setup for selectResi
             $('#selectResi').on('change', function() {
                 var selectedInvoices = $(this).val();

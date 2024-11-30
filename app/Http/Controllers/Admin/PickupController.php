@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class PickupController extends Controller
 {
@@ -37,6 +38,41 @@ class PickupController extends Controller
             ->whereIn('invoice_id', $invoiceIds)
             ->count();
         return response()->json(['count' => $count]);
+    }
+
+
+    public function checkPassword(Request $request)
+    {
+        // Validasi input dengan pesan bahasa Indonesia
+        $request->validate([
+            'password' => 'required'
+        ], [
+            'password.required' => 'Kolom password wajib diisi.'
+        ]);
+
+        // Ambil data user yang sedang login
+        $user = Auth::user();
+
+        // Jika user tidak ditemukan (belum login)
+        if (!$user) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Pengguna tidak ditemukan. Silakan login terlebih dahulu.'
+            ], 401);
+        }
+
+        // Cek apakah password cocok
+        if (Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'valid' => true,
+                'message' => 'Password sesuai.'
+            ]);
+        } else {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Password yang Anda masukkan salah.'
+            ]);
+        }
     }
 
 
