@@ -26,26 +26,26 @@
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">Kode Pembayaran</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
-                bgcolor="#b9bab8">No Invoice</th>
+                bgcolor="#b9bab8">Marking</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">Tanggal Bayar</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
-                bgcolor="#b9bab8">Jumlah</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
+                <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">Metode Pembayaran</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
-                bgcolor="#b9bab8">Status Bayar</th>
+                bgcolor="#b9bab8">Nominal</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
+                bgcolor="#b9bab8">Diskon</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($payments as $payment)
             <tr>
                 <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->kode_pembayaran }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->no_invoice }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->tanggal_bayar }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->amount }}</td>
+                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->marking }}</td>
+                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->tanggal_buat }}</td>
                 <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->payment_method }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->status_bayar }}</td>
+                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->total_amount }}</td>
+                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->discount }}</td>
             </tr>
         @endforeach
     </tbody>

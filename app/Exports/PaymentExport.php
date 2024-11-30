@@ -21,18 +21,28 @@ class PaymentExport implements FromView
 
     public function view(): View
     {
-        $query = DB::table('tbl_payment_customer as a')
-            ->join('tbl_invoice as b', 'a.invoice_id', '=', 'b.id')
+            $query = DB::table('tbl_payment_customer as a')
+            ->join('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
+            ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
-            ->select([
+            ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
+            ->select(
+                'a.id',
                 'a.kode_pembayaran',
-                'b.no_invoice',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
-                'a.amount',
-                'c.name as payment_method', // Menggunakan 'name' dari tbl_coa
-                'b.status_bayar',
-                'a.id'
-            ]);
+                'd.marking',
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
+                'c.name as payment_method',
+                DB::raw('SUM(f.amount) as total_amount'),
+                'a.discount'
+            )
+            ->groupBy(
+                'a.id',
+                'a.kode_pembayaran',
+                'd.marking',
+                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
+                'c.name',
+                'a.discount'
+            );
 
         if (!empty($this->status)) {
             $query->where('c.name', $this->status); // Filter berdasarkan nama metode pembayaran
