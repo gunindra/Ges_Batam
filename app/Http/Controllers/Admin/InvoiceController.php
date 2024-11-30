@@ -296,7 +296,7 @@ class InvoiceController extends Controller
 
                 // Check if period status is 'Closed', if so, disable the "Edit" button
                 $btnEditInvoice = '';
-                if ($periodStatus != 'Open') {
+                if ($periodStatus != 'Closed') {
                     $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
                 }
 
