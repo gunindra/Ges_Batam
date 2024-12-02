@@ -209,6 +209,10 @@ class InvoiceController extends Controller
             $query->where('d.status_name', 'LIKE', $status);
         }
 
+        if ($request->has('payment_status') && $request->payment_status !== null) {
+            $query->where('status_bayar', $request->payment_status);
+        }
+
         if ($NoDo) {
             $query->where('r.no_do', 'LIKE', $NoDo);
         }
