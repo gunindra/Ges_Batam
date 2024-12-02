@@ -24,6 +24,7 @@
                 <div class="card-body">
                     <div class="d-flex mb-2 mr-3 float-right">
                         <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
+                        <button class="btn btn-primary mr-2" id="btnExportOngoingInvoice">Export Pdf</button>
                     </div>
                     <div class="float-left d-flex">
                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
@@ -185,6 +186,57 @@
                 }
             });
         });
+        $(document).on('click', '#btnExportOngoingInvoice', function (e) {
+            let id = $(this).data('id');
+            let NoDo = $('#filterNoDO').val();
+            let Customer = $('#filterCustomer').val();
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('exportOngoingPdf') }}",
+                data: {
+                    id: id,
+                    no_do: NoDo,
+                    nama_pembeli: Customer
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export Invoice';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            });
+        });
+
         $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
             table.search(searchValue).draw();

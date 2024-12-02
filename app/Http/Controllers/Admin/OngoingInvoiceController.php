@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\OngoingInvoiceExport;
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Log;
+use Str;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -113,5 +116,81 @@ class OngoingInvoiceController extends Controller
 
         return Excel::download(new OngoingInvoiceExport($NoDo, $Customer), 'OngoingInvoice.xlsx');
     }
+    public function exportOngoingPdf(Request $request)
+    {
+        $NoDo = $request->no_do;
+        $Customer = $request->nama_pembeli;
+        
+        try {
+            $query = DB::table('tbl_pengantaran')
+                ->select(
+                    'tbl_invoice.no_invoice',
+                    'tbl_resi.no_do',
+                    'tbl_supir.nama_supir',
+                    DB::raw("DATE_FORMAT(tbl_pengantaran.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
+                    DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                    'tbl_invoice.alamat',
+                    'tbl_pembeli.nama_pembeli AS nama_pembeli',
+                    'tbl_status.status_name AS status_transaksi'
+                )
+                ->leftJoin('tbl_supir', 'tbl_pengantaran.supir_id', '=', 'tbl_supir.id')
+                ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
+                ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
+                ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+                ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+                ->whereIn('tbl_status.id', [1, 4]);
+    
+            if ($Customer) {
+                $query->where('tbl_pembeli.nama_pembeli', 'LIKE', $Customer);
+            }
+    
+            if ($NoDo) {
+                $query->where('tbl_resi.no_do', 'LIKE', $NoDo);
+            }
+    
+            $query->orderBy('tbl_pengantaran.id', 'desc');
+            $ongoingData = $query->get();
+    
+            if ($ongoingData->isEmpty()) {
+                return response()->json(['error' => 'No ongoing invoices found'], 404);
+            }
+            
+            try {
+                $pdf = pdf::loadView('exportPDF.ongoinginvoicepdf', [
+                    'ongoingData' => $ongoingData,
+                    'NoDo' => $NoDo,
+                    'Customer' => $Customer,
+                   
+                    
+                ])
+                    ->setPaper('A4', 'portrait')
+                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                    ->setWarnings(false);
+            } catch (\Exception $e) {
+                Log::error('Error generating ongoing invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
+    
+            // Save PDF to storage
+            try {
+                $fileName = 'ongoing_invoices_' . (string) Str::uuid() . '.pdf';
+                $filePath = storage_path('app/public/ongoinginvoice/' . $fileName);
+                $pdf->save($filePath);
+            } catch (\Exception $e) {
+                Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to save PDF'], 500);
+            }
+    
+            // Return the URL of the saved PDF
+            $url = asset('storage/ongoinginvoice/' . $fileName);
+            return response()->json(['url' => $url]);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating ongoing invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the ongoing invoice PDF'], 500);
+        }
+    }
+    
 
 }
