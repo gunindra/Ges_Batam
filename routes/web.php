@@ -411,8 +411,11 @@ Route::middleware(['auth'])->group(function () {
     //Report
     //OngoingInvoice
     Route::get('/report/ongoinginvoice', [OngoingInvoiceController::class, 'index'])->name('ongoingInvoice');
+    Route::get('/report/ongoinginvoice/getlistOngoing', [OngoingInvoiceController::class, 'getlistOngoing'])->name('getlistOngoing');
+
     //UnpaidInvoice
     Route::get('/report/unpaidinvoice', [UnpaidInvoiceController::class, 'index'])->name('unpaidInvoice');
+
     //ProfitLoss
     Route::get('/report/profitloss', [ProfitLossController::class, 'index'])->name('profitloss');
     Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
