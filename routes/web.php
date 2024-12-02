@@ -413,6 +413,8 @@ Route::middleware(['auth'])->group(function () {
     //OngoingInvoice
     Route::get('/report/ongoinginvoice', [OngoingInvoiceController::class, 'index'])->name('ongoingInvoice');
     Route::get('/report/ongoinginvoice/getlistOngoing', [OngoingInvoiceController::class, 'getlistOngoing'])->name('getlistOngoing');
+    Route::get('/report/ongoinginvoice/export', [OngoingInvoiceController::class, 'export'])->name('ExportOngoingInvoice');
+    Route::get('/report/ongoinginvoice/exportPdf', [OngoingInvoiceController::class, 'exportOngoingPdf'])->name('exportOngoingPdf');
 
     //UnpaidInvoice
     Route::get('/report/unpaidinvoice', [UnpaidInvoiceController::class, 'index'])->name('unpaidInvoice');

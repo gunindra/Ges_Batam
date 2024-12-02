@@ -288,6 +288,16 @@
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
+            var now = new Date();
+            var day = String(now.getDate()).padStart(2, '0');
+            var month = now.toLocaleString('default', { month: 'long' });
+            var year = now.getFullYear();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            var filename = `Payment Customers_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+
             $.ajax({
                 url: "{{ route('exportPayment') }}",
                 type: 'GET',
@@ -305,7 +315,7 @@
                     });
                     var link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = "Payment Customers.xlsx";
+                    link.download = filename;
                     link.click();
                 },
                 error: function() {
