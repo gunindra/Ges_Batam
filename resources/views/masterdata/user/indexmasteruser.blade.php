@@ -410,7 +410,7 @@
         }
         if (passwordUsers.length > 0) {
 
-            if (passwordUsers.length < 8) {
+            if (passwordUsers.length < 6) {
                 $('#passwordUsersErrorEdit').removeClass('d-none');
                 isValid = false;
             } else {
