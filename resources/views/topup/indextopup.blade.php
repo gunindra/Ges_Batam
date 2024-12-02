@@ -117,7 +117,8 @@
                             @endforeach
 
                             @if (!$foundRate)
-                                <input type="text" id="pricePerKg" class="form-control" placeholder="Masukkan topup di halaman rate" disabled>
+                                <input type="text" id="pricePerKg" class="form-control"
+                                    placeholder="Masukkan topup di halaman rate" disabled>
                             @endif
                             <span id="pricePerKgError" class="text-danger"></span>
                         </p>
@@ -447,7 +448,6 @@
             }
         });
 
-
         $('#saveFilterTanggal').on('click', function () {
             table.ajax.reload();
             $('#modalFilterTanggal').modal('hide');
@@ -499,7 +499,6 @@
         function resetErrorMessages() {
             $('.text-danger').text('');
         }
-
         $('#topupModal').on('show.bs.modal', function () {
             resetErrorMessages();
 
@@ -507,12 +506,13 @@
                 url: "{{ route('get-customers') }}",
                 method: 'GET',
                 success: function (response) {
-                    $('#customerSelect').empty();
-                    customerSelect.append('<option value="">Pilih Pengguna</option>');
+                    $('#customerSelect').append('<option value="">Pilih Pengguna</option>');
                     $.each(response, function (index, customer) {
-                        customerSelect.append(
-                            `<option value="${customer.id}">${customer.nama_pembeli} (Marking: ${customer.marking})</option>`
-                        );
+                        if ($('#customerSelect option[value="' + customer.id + '"]').length === 0) {
+                            $('#customerSelect').append(
+                                `<option value="${customer.id}">${customer.nama_pembeli} (Marking: ${customer.marking})</option>`
+                            );
+                        }
                     });
                 },
                 error: function () {
