@@ -2,24 +2,48 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\OngoingInvoiceExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class OngoingInvoiceController extends Controller
 {
     public function index()
     {
-        return view('Report.OngoingInvoice.indexongoinginvoice');
+        $listDo = DB::table('tbl_pengantaran')
+        ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
+        ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
+        ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+        ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+        ->whereIn('tbl_status.id', [1, 4])
+        ->select('tbl_resi.no_do')
+        ->distinct()
+        ->get();
+
+    $listCustomer = DB::table('tbl_pengantaran')
+        ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
+        ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
+        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+        ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+        ->whereIn('tbl_status.id', [1, 4])
+        ->select('tbl_pembeli.nama_pembeli')
+        ->distinct()
+        ->get();
+        return view('Report.OngoingInvoice.indexongoinginvoice', [
+            'listCustomer' => $listCustomer,
+            'listDo' => $listDo,
+        ]);
     }
 
 
     public function getlistOngoing(Request $request)
     {
-
-
+        $NoDo = $request->no_do;
+        $Customer = $request->nama_pembeli;
         $query = DB::table('tbl_pengantaran')
             ->select(
                 'tbl_invoice.no_invoice',
@@ -39,9 +63,14 @@ class OngoingInvoiceController extends Controller
             ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->whereIn('tbl_status.id', [1, 4]);
 
-        if ($request->status) {
-            $query->where('tbl_status.status', $request->status);
+        if ($Customer) {
+            $query->where('tbl_pembeli.nama_pembeli', 'LIKE', $Customer);
         }
+
+        if ($NoDo) {
+            $query->where('tbl_resi.no_do', 'LIKE', $NoDo);
+        }
+
 
         $query->orderBy('tbl_pengantaran.id', 'desc');
 
@@ -76,6 +105,13 @@ class OngoingInvoiceController extends Controller
             // })
             ->rawColumns(['status_transaksi', 'action'])
             ->make(true);
+    }
+    public function export(Request $request)
+    {
+        $NoDo = $request->no_do;
+        $Customer = $request->nama_pembeli;
+
+        return Excel::download(new OngoingInvoiceExport($NoDo, $Customer), 'OngoingInvoice.xlsx');
     }
 
 }
