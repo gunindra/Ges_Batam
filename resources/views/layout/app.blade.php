@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport"
-    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
     {{-- <link href="img/logo/logo.png" rel="icon"> --}}
     <title>PT. GES | @yield('title')</title>
     <link href="{{ asset('RuangAdmin/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -57,20 +57,72 @@
     <script src="js/signature_pad.umd.min.js"></script>
     <script src="js/app.js"></script>
     <script>
-        function showMessage(type, message) {
+        $(document).ready(function() {
 
-            if (!type || type === '' || !message || message === '') {
-                return;
+            function showMessage(type, message) {
+                if (!type || type === '' || !message || message === '') {
+                    return;
+                }
+                return Swal.fire({
+                    icon: type,
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+
             }
 
-            return Swal.fire({
-                icon: type,
-                title: message,
-                showConfirmButton: false,
-                timer: 2000
-            })
+            function loadNotifications() {
+                $.ajax({
+                    url: '{{ route('unpaidInvoices') }}',
+                    method: 'GET',
+                    success: function(data) {
+                        const notificationContainer = $('#invoice-notifications');
+                        const badgeCounter = $('#unpaid-count');
+                        notificationContainer.empty();
+                        badgeCounter.text(data.length);
 
-        }
+                        if (data.length === 0) {
+                            notificationContainer.html(
+                                '<p class="dropdown-item text-center small text-gray-500">No unpaid invoices</p>'
+                                );
+                            return;
+                        }
+
+                        data.forEach(function(invoice) {
+                            // Format amount due (Rp)
+                            const formattedAmountDue = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            }).format(invoice.amount_due);
+
+                            const notificationItem = `
+                    <a class="dropdown-item d-flex align-items-center" href="/invoice/${invoice.id}">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-danger">
+                                <i class="fas fa-file-invoice-dollar text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="small text-gray-500">${invoice.formatted_due_date}</div>
+                            <span class="font-weight-bold">Invoice ${invoice.no_invoice} is unpaid (${formattedAmountDue})</span>
+                        </div>
+                    </a>
+                `;
+                            notificationContainer.append(notificationItem);
+                        });
+                    },
+                    error: function() {
+                        console.error('Failed to load unpaid invoices');
+                    }
+                });
+            }
+
+            loadNotifications();
+            // Uncomment to reload notifications every 10 minutes (600000 ms)
+            // setInterval(loadNotifications, 600000);
+
+        });
     </script>
 
     @yield('script')

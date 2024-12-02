@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Matauang;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -842,6 +843,21 @@ class InvoiceController extends Controller
             'listAlamat' => $listAlamat,
             'listRateBerat' => $listRateBerat
         ]);
+    }
+
+
+    public function unpaidInvoices()
+    {
+        $invoices = Invoice::where('status_bayar', 'Belum lunas')->get(['id', 'no_invoice', 'tanggal_invoice', 'total_harga', 'total_bayar']);
+        $invoices = $invoices->map(function($invoice) {
+            $invoice->formatted_due_date = Carbon::parse($invoice->tanggal_invoice)->translatedFormat('d F Y');
+            $invoice->due_date = $invoice->formatted_due_date;
+            $invoice->amount_due = $invoice->total_harga - $invoice->total_bayar;
+
+            return $invoice;
+        });
+
+        return response()->json($invoices);
     }
 
 
