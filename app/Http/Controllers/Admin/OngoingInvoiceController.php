@@ -171,8 +171,6 @@ class OngoingInvoiceController extends Controller
                 Log::error('Error generating ongoing invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
-
-
             try {
                 $folderPath = storage_path('app/public/ongoinginvoice');
 
