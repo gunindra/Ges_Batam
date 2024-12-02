@@ -146,6 +146,7 @@ Route::middleware(['auth'])->group(function () {
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
     Route::get('/pickup/jumlahresipickup', [PickupController::class, 'jumlahresipickup'])->name('jumlahresipickup');
+    Route::post('/pickup/cekPassPickup', [PickupController::class, 'checkPassword'])->name('cekPassPickup');
 
     // Pembayaran
     Route::get('/payment', [PaymentController::class, 'index'])->name('payment');
@@ -290,7 +291,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/masterdata/periode/deletePeriode/{id}', [PeriodeController::class, 'deletePeriode'])->name('deletePeriode');
     Route::get('/masterdata/periode/generatePeriode', [PeriodeController::class, 'generatePeriode'])->name('generatePeriode');
     Route::get('/periode/{id}', [PeriodeController::class, 'show']);
-    
+
     //role
     Route::get('/masterdata/role', [RoleController::class, 'index'])->name('role');
     Route::get('/masterdata/role/list', [RoleController::class, 'getlistRole'])->name('getlistRole');
