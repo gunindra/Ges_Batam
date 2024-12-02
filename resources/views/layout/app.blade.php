@@ -57,9 +57,7 @@
     <script src="js/signature_pad.umd.min.js"></script>
     <script src="js/app.js"></script>
     <script>
-        $(document).ready(function() {
-
-            function showMessage(type, message) {
+           function showMessage(type, message) {
                 if (!type || type === '' || !message || message === '') {
                     return;
                 }
@@ -71,6 +69,11 @@
                 })
 
             }
+
+
+        $(document).ready(function() {
+
+
 
             function loadNotifications() {
                 $.ajax({

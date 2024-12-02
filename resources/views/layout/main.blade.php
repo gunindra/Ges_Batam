@@ -307,6 +307,7 @@
                             </form>
                         </div>
                     </li> --}}
+                    @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                     <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -324,6 +325,7 @@
                             <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View All Invoices</a>
                         </div>
                     </li>
+                    @endif
                     {{-- <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
