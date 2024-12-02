@@ -120,7 +120,7 @@ class OngoingInvoiceController extends Controller
     {
         $NoDo = $request->no_do;
         $Customer = $request->nama_pembeli;
-        
+
         try {
             $query = DB::table('tbl_pengantaran')
                 ->select(
@@ -140,29 +140,29 @@ class OngoingInvoiceController extends Controller
                 ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
                 ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
                 ->whereIn('tbl_status.id', [1, 4]);
-    
+
             if ($Customer) {
                 $query->where('tbl_pembeli.nama_pembeli', 'LIKE', $Customer);
             }
-    
+
             if ($NoDo) {
                 $query->where('tbl_resi.no_do', 'LIKE', $NoDo);
             }
-    
+
             $query->orderBy('tbl_pengantaran.id', 'desc');
             $ongoingData = $query->get();
-    
+
             if ($ongoingData->isEmpty()) {
                 return response()->json(['error' => 'No ongoing invoices found'], 404);
             }
-            
+
             try {
                 $pdf = pdf::loadView('exportPDF.ongoinginvoicepdf', [
                     'ongoingData' => $ongoingData,
                     'NoDo' => $NoDo,
                     'Customer' => $Customer,
-                   
-                    
+
+
                 ])
                     ->setPaper('A4', 'portrait')
                     ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
@@ -171,26 +171,34 @@ class OngoingInvoiceController extends Controller
                 Log::error('Error generating ongoing invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
-    
-            // Save PDF to storage
+
+
             try {
+                $folderPath = storage_path('app/public/ongoinginvoice');
+
+                // Cek apakah folder sudah ada, jika belum maka buat folder
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0777, true); // 0777 memberikan izin penuh untuk folder dan subfolder
+                }
+
                 $fileName = 'ongoing_invoices_' . (string) Str::uuid() . '.pdf';
-                $filePath = storage_path('app/public/ongoinginvoice/' . $fileName);
+                $filePath = $folderPath . '/' . $fileName;
+
+                // Save the PDF
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
-    
             // Return the URL of the saved PDF
             $url = asset('storage/ongoinginvoice/' . $fileName);
             return response()->json(['url' => $url]);
-    
+
         } catch (\Exception $e) {
             Log::error('Error generating ongoing invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the ongoing invoice PDF'], 500);
         }
     }
-    
+
 
 }
