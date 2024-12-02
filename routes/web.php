@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\OngoingInvoiceController;
+use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     LandingPage\AboutsController,
@@ -407,6 +409,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('topup/expire/{id}', [TopupController::class, 'expireTopup'])->name('topup.expire');
 
     //Report
+    //OngoingInvoice
+    Route::get('/report/ongoinginvoice', [OngoingInvoiceController::class, 'index'])->name('ongoingInvoice');
+    //UnpaidInvoice
+    Route::get('/report/unpaidinvoice', [UnpaidInvoiceController::class, 'index'])->name('unpaidInvoice');
     //ProfitLoss
     Route::get('/report/profitloss', [ProfitLossController::class, 'index'])->name('profitloss');
     Route::get('/report/getProfitOrLoss', [ProfitLossController::class, 'getProfitOrLoss'])->name('getProfitOrLoss');
