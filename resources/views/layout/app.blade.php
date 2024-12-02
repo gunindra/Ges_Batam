@@ -95,20 +95,19 @@
                                 style: 'currency',
                                 currency: 'IDR'
                             }).format(invoice.amount_due);
-
                             const notificationItem = `
-                    <a class="dropdown-item d-flex align-items-center" href="/invoice/${invoice.id}">
-                        <div class="mr-3">
-                            <div class="icon-circle bg-danger">
-                                <i class="fas fa-file-invoice-dollar text-white"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small text-gray-500">${invoice.formatted_due_date}</div>
-                            <span class="font-weight-bold">Invoice ${invoice.no_invoice} is unpaid (${formattedAmountDue})</span>
-                        </div>
-                    </a>
-                `;
+                                        <div class="dropdown-item d-flex align-items-center">
+                                            <div class="mr-3">
+                                                <div class="icon-circle bg-danger">
+                                                    <i class="fas fa-file-invoice-dollar text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="small text-gray-500">${invoice.formatted_due_date}</div>
+                                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} is unpaid (${formattedAmountDue})</span>
+                                            </div>
+                                        </div>
+                            `;
                             notificationContainer.append(notificationItem);
                         });
                     },
