@@ -142,6 +142,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
     Route::get('/invoice/cekResiInvoice', [InvoiceController::class, 'cekResiInvoice'])->name('cekResiInvoice');
     Route::get('/invoice/updatedeletepage/{id}', [InvoiceController::class, 'deleteoreditinvoice'])->name('deleteoreditinvoice');
+    Route::get('/invoice/notifikasiInvoice', [InvoiceController::class, 'unpaidInvoices'])->name('unpaidInvoices');
 
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');
