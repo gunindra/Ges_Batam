@@ -353,5 +353,29 @@ class TopupController extends Controller
         }
 
     }
+
+    public function topupNotification()
+    {
+        $now = Carbon::now();
+
+        $lowQuota = HistoryTopup::selectRaw('customer_id, SUM(balance) as total_balance')
+            ->groupBy('customer_id')
+            ->havingRaw('SUM(balance) < 0.2 * SUM(remaining_points)')
+            ->with('customer')
+            ->get();
+
+        $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonth())
+            ->with('customer')
+            ->get();
+
+        $notifications = [
+            'low_quota' => $lowQuota,
+            'nearing_expiry' => $nearingExpiry,
+        ];
+
+        return response()->json($notifications);
+    }
+
+
 }
 

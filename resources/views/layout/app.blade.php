@@ -57,37 +57,42 @@
     <script src="js/signature_pad.umd.min.js"></script>
     <script src="js/app.js"></script>
     <script>
-           function showMessage(type, message) {
-                if (!type || type === '' || !message || message === '') {
-                    return;
-                }
-                return Swal.fire({
-                    icon: type,
-                    title: message,
-                    showConfirmButton: false,
-                    timer: 2000
-                })
-
+        function showMessage(type, message) {
+            if (!type || type === '' || !message || message === '') {
+                return;
             }
+            return Swal.fire({
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 2000
+            })
+
+        }
 
 
         $(document).ready(function() {
+            /**
+             * Function to load unpaid invoice notifications
+             */
             function loadNotifications() {
                 $.ajax({
-                    url: '{{ route('unpaidInvoices') }}',
+                    url: '{{ route('unpaidInvoices') }}', // Ganti dengan route Anda
                     method: 'GET',
                     success: function(data) {
                         const notificationContainer = $('#invoice-notifications');
-                        const badgeCounter = $('#unpaid-count');
+                        const badgeCounter = $('#unpaid-invoice-count');
                         notificationContainer.empty();
-                        badgeCounter.text(data.length);
 
-                        // if (data.length === 0) {
-                        //     notificationContainer.html(
-                        //         '<p class="dropdown-item py-2 text-center small text-gray-500">No unpaid invoices</p>'
-                        //         );
-                        //     return;
-                        // }
+                        if (data.length === 0) {
+                            badgeCounter.hide();
+                            notificationContainer.html(
+                                '<p class="dropdown-item py-2 text-center small text-gray-500">No unpaid invoices</p>'
+                            );
+                            return;
+                        }
+
+                        badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
                             const formattedAmountDue = new Intl.NumberFormat('id-ID', {
@@ -95,28 +100,130 @@
                                 currency: 'IDR'
                             }).format(invoice.amount_due);
                             const notificationItem = `
-                                      <div class="dropdown-item d-flex align-items-center">
-                                            <div class="mr-3">
-                                                <div class="icon-circle bg-danger">
-                                                    <i class="fas fa-file-invoice-dollar text-white"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="small text-gray-500">${invoice.formatted_due_date}</div>
-                                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} belum dibayar (${formattedAmountDue})</span>
-                                            </div>
-                                        </div>
-                            `;
+                        <div class="dropdown-item d-flex align-items-center">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-danger">
+                                    <i class="fas fa-file-invoice-dollar text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="small text-gray-500">${invoice.formatted_due_date}</div>
+                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} belum dibayar (${formattedAmountDue})</span>
+                            </div>
+                        </div>
+                    `;
                             notificationContainer.append(notificationItem);
                         });
                     },
                     error: function() {
                         console.error('Failed to load unpaid invoices');
+                        $('#invoice-notifications').html(
+                            '<p class="dropdown-item py-2 text-center small text-danger">Failed to load invoices</p>'
+                        );
                     }
                 });
             }
 
+            /**
+             * Function to load quota notifications
+             */
+            function loadKuotaNotifications() {
+                $.ajax({
+                    url: '{{ route('topupNotification') }}', // Ganti dengan route Anda
+                    method: 'GET',
+                    success: function(data) {
+                        const notificationContainer = $('#kuota-notifications');
+                        const badgeCounter = $('#unpaid-kuota-count');
+                        notificationContainer.empty();
+
+                        let totalNotifications = 0;
+
+                        if (data.low_quota && data.low_quota.length > 0) {
+                            data.low_quota.forEach(function(item) {
+                                if (item.customer) {
+                                    const notificationItem = `
+                                <div class="dropdown-item d-flex align-items-center">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-donate text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">Pembeli: ${item.customer.name}</div>
+                                        <span class="font-weight-bold">Total saldo rendah (${item.total_balance} Kuota)</span>
+                                    </div>
+                                </div>
+                            `;
+                                    notificationContainer.append(notificationItem);
+                                    totalNotifications++;
+                                }
+                            });
+                        }
+
+                        // Tampilkan notifikasi mendekati expired (nearing_expiry)
+                        if (data.nearing_expiry && data.nearing_expiry.length > 0) {
+                            data.nearing_expiry.forEach(function(item) {
+                                if (item.customer) {
+                                    const notificationItem = `
+                                <div class="dropdown-item d-flex align-items-center">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-danger">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">${formatDate(item.expired_date)}</div>
+                                        <span class="font-weight-bold">Kuota ${item.customer.name} akan expired (1 bulan)</span>
+                                    </div>
+                                </div>
+                            `;
+                                    notificationContainer.append(notificationItem);
+                                    totalNotifications++;
+                                }
+                            });
+                        }
+
+                        // Perbarui badge counter
+                        if (totalNotifications > 0) {
+                            badgeCounter.text(totalNotifications)
+                        .show(); // Tampilkan badge jika ada notifikasi
+                        } else {
+                            badgeCounter.hide(); // Sembunyikan badge jika tidak ada notifikasi
+                            notificationContainer.html(
+                                '<p class="dropdown-item py-2 text-center small text-gray-500">Tidak ada notifikasi kuota</p>'
+                            );
+                        }
+                    },
+                    error: function() {
+                        console.error('Gagal memuat notifikasi kuota');
+                        $('#kuota-notifications').html(
+                            '<p class="dropdown-item py-2 text-center small text-danger">Failed to load kuota notifications</p>'
+                        );
+                    }
+                });
+            }
+
+            /**
+             * Helper function to format date
+             */
+            function formatDate(dateString) {
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+                return new Date(dateString).toLocaleDateString('id-ID', options);
+            }
+
+            // Load notifications on page load
             loadNotifications();
+            loadKuotaNotifications();
+
+            // Optional: Refresh notifications periodically (e.g., every 60 seconds)
+            // setInterval(function() {
+            //     loadNotifications();
+            //     loadKuotaNotifications();
+            // }, 60000); // 60,000 ms = 60 seconds
         });
     </script>
 

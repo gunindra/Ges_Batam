@@ -406,6 +406,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/topup/cancel', [TopupController::class, 'cancleTopup'])->name('cancleTopup');
     Route::get('/generateCodeVoucher', [TopupController::class, 'generateCodeVoucher'])->name('generateCodeVoucher');
     Route::post('topup/expire/{id}', [TopupController::class, 'expireTopup'])->name('topup.expire');
+    Route::get('/topup/topupNotification', [TopupController::class, 'topupNotification'])->name('topupNotification');
 
     //Report
     //OngoingInvoice

@@ -285,62 +285,49 @@
                 </button>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow mx-1">
-                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="invoiceDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Unpaid Invoices">
                             <i class="fas fa-bell fa-fw"></i>
-                            <span class="badge badge-danger badge-counter" id="unpaid-count">0</span>
+                            <span class="badge badge-danger badge-counter" id="unpaid-invoice-count">0</span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="alertsDropdown">
+                            aria-labelledby="invoiceDropdown">
                             <h6 class="dropdown-header">
                                 Unpaid Invoices
                             </h6>
                             <div id="invoice-notifications" style="max-height: 300px; overflow-y: auto;">
+                                {{-- <p class="dropdown-item text-center small text-gray-500">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading unpaid invoices...
+                                </p> --}}
+
                                 <p class="dropdown-item text-center small text-gray-500">No unpaid invoices</p>
                             </div>
-                            <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View
-                                All Invoices</a>
+                            <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View All Invoices</a>
                         </div>
                     </li>
+
                     <li class="nav-item dropdown no-arrow mx-1">
-                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="kuotaDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Kuota Notifications">
                             <i class="fas fa-comment-dollar"></i>
-                            <span class="badge badge-danger badge-counter" id="unpaid-count">2</span>
+                            <span class="badge badge-danger badge-counter" id="unpaid-kuota-count">0</span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="alertsDropdown">
+                            aria-labelledby="kuotaDropdown">
                             <h6 class="dropdown-header">
                                 Kuota
                             </h6>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="mr-3">
-                                    <div class="icon-circle bg-danger">
-                                        <i class="fas fa-exclamation-triangle text-white"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="small text-gray-500">December 7, 2019</div>
-                                    <b>Kuota Tandrio akan expired (1 bulan)</b>
-                                </div>
-                            </a>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="mr-3">
-                                    <div class="icon-circle bg-warning">
-                                    <i class="fas fa-donate text-white"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="small text-gray-500">December 2, 2019</div>
-                                    <b>Kuota Tandrio tersisa sedikit (300 Kuota)</b>
-                                </div>
-                            </a>
-                            <!-- <div id="kuota-notifications" style="max-height: 300px; overflow-y: auto;">
-                                <p class="dropdown-item text-center small text-gray-500">No kuota</p>
-                            </div> -->
-                            <a class="dropdown-item text-center small text-gray-500" href="">View all Kuota</a>
+                            <div id="kuota-notifications" style="max-height: 300px; overflow-y: auto;">
+                                {{-- <p class="dropdown-item text-center small text-gray-500">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading kuota notifications...
+                                </p> --}}
+
+                                <p class="dropdown-item text-center small text-gray-500">No data kuota</p>
+                            </div>
+                            <a class="dropdown-item text-center small text-gray-500" href="#">View all Kuota</a>
                         </div>
                     </li>
+
                     <!-- <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
