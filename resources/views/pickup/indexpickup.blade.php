@@ -131,6 +131,7 @@
                     Swal.showLoading();
                 }
             });
+
             $.ajax({
                 url: '{{ route('cekPassPickup') }}',
                 method: 'POST',
@@ -139,6 +140,7 @@
                     password: enteredPassword
                 },
                 success: function (response) {
+                    Swal.close();
                     if (response.valid) {
                         $('#passwordModal').modal('hide');
 
@@ -148,17 +150,24 @@
                             text: 'Password valid, proses berhasil.',
                         });
                     } else {
-                        $('#error-message').removeClass('d-none');
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Gagal',
+                            text: 'Password salah. Silakan coba lagi.',
+                        });
                     }
                 },
                 error: function () {
+                    Swal.close();
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Terjadi kesalahan saat memproses permintaan.',
+                        icon: 'error',
+                        title: 'Terjadi kesalahan',
+                        text: 'Tidak dapat memproses permintaan. Silakan coba lagi nanti.',
                     });
                 }
             });
         });
+
 
     });
 </script>

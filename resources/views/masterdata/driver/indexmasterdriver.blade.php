@@ -512,7 +512,7 @@
                                     if (response.success) {
                                         showMessage("success", response.message);
                                         $('#modalEditDriver').modal('hide');
-                                        getlistDriver();
+                                        getListDriver();
                                     }
                                 },
                                 error: function() {
