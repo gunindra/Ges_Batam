@@ -72,9 +72,6 @@
 
 
         $(document).ready(function() {
-
-
-
             function loadNotifications() {
                 $.ajax({
                     url: '{{ route('unpaidInvoices') }}',
@@ -85,21 +82,20 @@
                         notificationContainer.empty();
                         badgeCounter.text(data.length);
 
-                        if (data.length === 0) {
-                            notificationContainer.html(
-                                '<p class="dropdown-item text-center small text-gray-500">No unpaid invoices</p>'
-                                );
-                            return;
-                        }
+                        // if (data.length === 0) {
+                        //     notificationContainer.html(
+                        //         '<p class="dropdown-item py-2 text-center small text-gray-500">No unpaid invoices</p>'
+                        //         );
+                        //     return;
+                        // }
 
                         data.forEach(function(invoice) {
-                            // Format amount due (Rp)
                             const formattedAmountDue = new Intl.NumberFormat('id-ID', {
                                 style: 'currency',
                                 currency: 'IDR'
                             }).format(invoice.amount_due);
                             const notificationItem = `
-                                        <div class="dropdown-item d-flex align-items-center">
+                                      <div class="dropdown-item d-flex align-items-center">
                                             <div class="mr-3">
                                                 <div class="icon-circle bg-danger">
                                                     <i class="fas fa-file-invoice-dollar text-white"></i>
@@ -107,7 +103,7 @@
                                             </div>
                                             <div>
                                                 <div class="small text-gray-500">${invoice.formatted_due_date}</div>
-                                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} is unpaid (${formattedAmountDue})</span>
+                                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} belum dibayar (${formattedAmountDue})</span>
                                             </div>
                                         </div>
                             `;
@@ -121,9 +117,6 @@
             }
 
             loadNotifications();
-            // Uncomment to reload notifications every 10 minutes (600000 ms)
-            // setInterval(loadNotifications, 600000);
-
         });
     </script>
 
