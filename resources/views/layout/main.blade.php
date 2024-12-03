@@ -118,7 +118,7 @@
         <!-- Menu Report -->
         @if (Auth::user()->role === 'superadmin')
             <li
-                class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('unpaidInvoice') || request()->routeIs('soaVendor') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport" aria-expanded="true"
                     aria-controls="listreport">
                     <i class="fas fa-file-alt fa-lg"></i>
@@ -139,8 +139,6 @@
                             href="{{ route('soaVendor') }}">SOA Vendor</a>
                         <a class="collapse-item {{ request()->routeIs('ongoingInvoice') ? 'active' : '' }}"
                             href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
-                        <a class="collapse-item {{ request()->routeIs('unpaidInvoice') ? 'active' : '' }}"
-                            href="{{ route('unpaidInvoice') }}">Unpaid Invoice</a>
                     </div>
                 </div>
             </li>
@@ -307,7 +305,6 @@
                             </form>
                         </div>
                     </li> --}}
-                    @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                     <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -322,35 +319,60 @@
                             <div id="invoice-notifications" style="max-height: 300px; overflow-y: auto;">
                                 <p class="dropdown-item text-center small text-gray-500">No unpaid invoices</p>
                             </div>
-                            <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View All Invoices</a>
+                            <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View
+                                All Invoices</a>
                         </div>
                     </li>
-                    @endif
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-comment-dollar"></i>
+                            <span class="badge badge-danger badge-counter" id="unpaid-count">2</span>
+                        </a>
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header">
+                                Kuota
+                            </h6>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-danger">
+                                        <i class="fas fa-exclamation-triangle text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">December 7, 2019</div>
+                                    <b>Kuota Tandrio akan expired (1 bulan)</b>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-warning">
+                                    <i class="fas fa-donate text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">December 2, 2019</div>
+                                    <b>Kuota Tandrio tersisa sedikit (300 Kuota)</b>
+                                </div>
+                            </a>
+                            <!-- <div id="kuota-notifications" style="max-height: 300px; overflow-y: auto;">
+                                <p class="dropdown-item text-center small text-gray-500">No kuota</p>
+                            </div> -->
+                            <a class="dropdown-item text-center small text-gray-500" href="">View all Kuota</a>
+                        </div>
+                    </li>
                     {{-- <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-envelope fa-fw"></i>
-                            <span class="badge badge-warning badge-counter">2</span>
+                            <span class="badge badge-warning badge-counter">1</span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="messagesDropdown">
                             <h6 class="dropdown-header">
                                 Message Center
                             </h6>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="dropdown-list-image mr-3">
-                                    <img class="rounded-circle" src="{{ asset('RuangAdmin/img/man.png') }}"
-                                        style="max-width: 60px" alt="">
-                                    <div class="status-indicator bg-success"></div>
-                                </div>
-                                <div class="font-weight-bold">
-                                    <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                        problem
-                                        I've been
-                                        having.</div>
-                                    <div class="small text-gray-500">Udin Cilok · 58m</div>
-                                </div>
-                            </a>
                             <a class="dropdown-item d-flex align-items-center" href="#">
                                 <div class="dropdown-list-image mr-3">
                                     <img class="rounded-circle" src="{{ asset('RuangAdmin/img/girl.png') }}"
@@ -415,7 +437,7 @@
                             </a>
                             <a class="dropdown-item text-center small text-gray-500" href="#">View All Taks</a>
                         </div>
-                    </li> --}}
+                    </li>  -->
                     <div class="topbar-divider d-none d-sm-block"></div>
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
