@@ -149,7 +149,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">Pembeli: ${item.customer.name}</div>
+                                        <div class="small text-gray-500">Pembeli: ${item.customer.nama_pembeli}</div>
                                         <span class="font-weight-bold">Total saldo rendah (${item.total_balance} Kuota)</span>
                                     </div>
                                 </div>
@@ -173,7 +173,7 @@
                                     </div>
                                     <div>
                                         <div class="small text-gray-500">${formatDate(item.expired_date)}</div>
-                                        <span class="font-weight-bold">Kuota ${item.customer.name} akan expired (1 bulan)</span>
+                                        <span class="font-weight-bold">Kuota ${item.customer.nama_pembeli} akan expired (1 bulan)</span>
                                     </div>
                                 </div>
                             `;
