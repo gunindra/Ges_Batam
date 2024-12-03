@@ -624,7 +624,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: errorMessage,
+                        text: 'Gagal melakukan top-up.',
                         confirmButtonText: 'OK'
                     });
                 }
