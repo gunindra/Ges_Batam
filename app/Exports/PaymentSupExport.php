@@ -23,37 +23,41 @@ class PaymentSupExport implements FromView
     {
         // Query untuk export data pembayaran supplier
         $query = DB::table('tbl_payment_sup as a')
-            ->join('tbl_sup_invoice as b', 'a.invoice_id', '=', 'b.id')
-            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
-            ->select([
+        ->join('tbl_payment_invoice_sup as d', 'a.id', '=', 'd.payment_id')
+        ->join('tbl_sup_invoice as b', 'd.invoice_id', '=', 'b.id')
+        ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
+        ->select([
+            'a.id',
+                'a.kode_pembayaran',
                 'a.kode_pembayaran',
                 'b.invoice_no',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
-                'a.amount',
-                'c.name as payment_method', // Menggunakan 'name' dari tbl_coa
-                'b.status_bayar',
-                'a.id'
-            ]);
+            'a.kode_pembayaran',
+                'b.invoice_no',
+            DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
+            'c.name as payment_method',
+            DB::raw("SUM(d.amount) as total_amount"), 
+            'd.amount', 
+            'b.invoice_no',
+        ])
+        ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date', 'c.name', 'd.amount', 'b.invoice_no'); 
+    
 
-        // Filter berdasarkan metode pembayaran (status)
+
         if (!empty($this->status)) {
-            $query->where('c.name', $this->status); // Filter berdasarkan nama metode pembayaran
+            $query->where('c.name', $this->status);
         }
 
-        // Filter berdasarkan rentang tanggal pembayaran
+
         if (!empty($this->startDate) && !empty($this->endDate)) {
             $startDate = date('Y-m-d', strtotime($this->startDate));
             $endDate = date('Y-m-d', strtotime($this->endDate));
             $query->whereBetween('a.payment_date', [$startDate, $endDate]);
         }
 
-        // Urutkan berdasarkan ID terbaru
         $query->orderBy('a.id', 'desc');
 
-        // Ambil data hasil query
         $payments = $query->get();
 
-        // Return view untuk di-export ke Excel
         return view('exportExcel.paymentSup', [
             'payments' => $payments,
             'startDate' => $this->startDate,

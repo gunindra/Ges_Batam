@@ -28,13 +28,11 @@
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">No Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
-                bgcolor="#b9bab8">Tanggal Bayar</th>
+                bgcolor="#b9bab8">Tanggal Payment</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">Jumlah</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
                 bgcolor="#b9bab8">Metode Pembayaran</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 10px; white-space: normal;"
-                bgcolor="#b9bab8">Status Bayar</th>
         </tr>
     </thead>
     <tbody>
@@ -43,9 +41,8 @@
                 <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->kode_pembayaran }}</td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->invoice_no }}</td>
                 <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->tanggal_bayar }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->amount }}</td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->total_amount }}</td>
                 <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->payment_method }}</td>
-                <td  style="text-align:left;font-size:11px;border:1px solid black; padding: 10px">{{ $payment->status_bayar }}</td>
             </tr>
         @endforeach
     </tbody>
