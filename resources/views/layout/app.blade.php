@@ -108,7 +108,7 @@
                             </div>
                             <div>
                                 <div class="small text-gray-500">${invoice.formatted_due_date}</div>
-                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} belum dibayar (${formattedAmountDue})</span>
+                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} Belum lunas (${formattedAmountDue})</span>
                             </div>
                         </div>
                     `;
@@ -150,7 +150,7 @@
                                     </div>
                                     <div>
                                         <div class="small text-gray-500">Pembeli: ${item.customer.nama_pembeli}</div>
-                                        <span class="font-weight-bold">Total saldo rendah (${item.total_balance} Kuota)</span>
+                                        <span class="font-weight-bold">Saldo kuota menipis (${item.total_balance}) Silahakan melakukan Isi ulang</span>
                                     </div>
                                 </div>
                             `;

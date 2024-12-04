@@ -284,22 +284,17 @@
                     <i class="fa fa-bars"></i>
                 </button>
                 <ul class="navbar-nav ml-auto">
+
                     <li class="nav-item dropdown no-arrow mx-1">
                         <a class="nav-link dropdown-toggle" href="#" id="invoiceDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Unpaid Invoices">
                             <i class="fas fa-bell fa-fw"></i>
-                            <span class="badge badge-danger badge-counter" id="unpaid-invoice-count">0</span>
+                            <span class="badge badge-danger badge-counter" id="unpaid-invoice-count" style="display: none;">0</span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="invoiceDropdown">
-                            <h6 class="dropdown-header">
-                                Unpaid Invoices
-                            </h6>
+                            <h6 class="dropdown-header">Unpaid Invoices</h6>
                             <div id="invoice-notifications" style="max-height: 300px; overflow-y: auto;">
-                                {{-- <p class="dropdown-item text-center small text-gray-500">
-                                    <i class="fas fa-spinner fa-spin"></i> Loading unpaid invoices...
-                                </p> --}}
-
                                 <p class="dropdown-item text-center small text-gray-500">No unpaid invoices</p>
                             </div>
                             <a class="dropdown-item text-center small text-gray-500" href="{{ route('invoice') }}">View All Invoices</a>
@@ -310,100 +305,19 @@
                         <a class="nav-link dropdown-toggle" href="#" id="kuotaDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Kuota Notifications">
                             <i class="fas fa-comment-dollar"></i>
-                            <span class="badge badge-danger badge-counter" id="unpaid-kuota-count">0</span>
+                            <span class="badge badge-danger badge-counter" id="unpaid-kuota-count" style="display: none;">0</span>
                         </a>
                         <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="kuotaDropdown">
-                            <h6 class="dropdown-header">
-                                Kuota
-                            </h6>
+                            <h6 class="dropdown-header">Kuota</h6>
                             <div id="kuota-notifications" style="max-height: 300px; overflow-y: auto;">
-                                {{-- <p class="dropdown-item text-center small text-gray-500">
-                                    <i class="fas fa-spinner fa-spin"></i> Loading kuota notifications...
-                                </p> --}}
-
                                 <p class="dropdown-item text-center small text-gray-500">No data kuota</p>
                             </div>
                             <a class="dropdown-item text-center small text-gray-500" href="#">View all Kuota</a>
                         </div>
                     </li>
 
-                    <!-- <li class="nav-item dropdown no-arrow mx-1">
-                        <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-envelope fa-fw"></i>
-                            <span class="badge badge-warning badge-counter">1</span>
-                        </a>
-                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="messagesDropdown">
-                            <h6 class="dropdown-header">
-                                Message Center
-                            </h6>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="dropdown-list-image mr-3">
-                                    <img class="rounded-circle" src="{{ asset('RuangAdmin/img/girl.png') }}"
-                                        style="max-width: 60px" alt="">
-                                    <div class="status-indicator bg-default"></div>
-                                </div>
-                                <div>
-                                    <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                        told me
-                                        that people
-                                        say this to all dogs, even if they aren't good...</div>
-                                    <div class="small text-gray-500">Jaenab · 2w</div>
-                                </div>
-                            </a>
-                            <a class="dropdown-item text-center small text-gray-500" href="#">Read More
-                                Messages</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown no-arrow mx-1">
-                        <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-tasks fa-fw"></i>
-                            <span class="badge badge-success badge-counter">3</span>
-                        </a>
-                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="messagesDropdown">
-                            <h6 class="dropdown-header">
-                                Task
-                            </h6>
-                            <a class="dropdown-item align-items-center" href="#">
-                                <div class="mb-3">
-                                    <div class="small text-gray-500">Design Button
-                                        <div class="small float-right"><b>50%</b></div>
-                                    </div>
-                                    <div class="progress" style="height: 12px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%"
-                                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </a>
-                            <a class="dropdown-item align-items-center" href="#">
-                                <div class="mb-3">
-                                    <div class="small text-gray-500">Make Beautiful Transitions
-                                        <div class="small float-right"><b>30%</b></div>
-                                    </div>
-                                    <div class="progress" style="height: 12px;">
-                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 30%"
-                                            aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </a>
-                            <a class="dropdown-item align-items-center" href="#">
-                                <div class="mb-3">
-                                    <div class="small text-gray-500">Create Pie Chart
-                                        <div class="small float-right"><b>75%</b></div>
-                                    </div>
-                                    <div class="progress" style="height: 12px;">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 75%"
-                                            aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </a>
-                            <a class="dropdown-item text-center small text-gray-500" href="#">View All Taks</a>
-                        </div>
-                    </li>  -->
+
                     <div class="topbar-divider d-none d-sm-block"></div>
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"

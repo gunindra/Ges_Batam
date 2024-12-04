@@ -587,18 +587,20 @@ class PaymentController extends Controller
                     ]);
                 }
 
-                $sudahBayar = $invoice->total_bayar;
-                $jumlahKeseluruhan = $newNominal + $sudahBayar + $poinMargin;
+                $finalTotal = $totalNominal + $totalPayment + $poinMargin;
 
-                $invoice->update([
-                    'total_bayar' => $jumlahKeseluruhan,
-                ]);
-
-                if ($invoice->total_harga == $invoice->total_bayar){
-                    $invoice->update([
-                        'status_bayar' => 'Lunas',
-                    ]);
+                $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+                if ($finalTotal > $invoice->total_harga) {
+                    Log::warning("Total bayar melebihi total harga untuk invoice {$invoice->no_invoice}");
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Total bayar tidak dapat melebihi total harga.'
+                    ], 400);
                 }
+                $invoice->total_bayar = $finalTotal;
+                $invoice->status_bayar = ($invoice->total_bayar == $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
+                $invoice->save();
                 DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
             }
 
