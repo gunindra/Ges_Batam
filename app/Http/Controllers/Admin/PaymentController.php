@@ -326,6 +326,14 @@ class PaymentController extends Controller
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
             $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id;
 
+            $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+
+            if (empty($currentPointPrice)) {
+                Log::error("Rate for 'Topup' not found.");
+                return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+            }
+
+            $currentPointPrice = $currentPointPrice[0]->nilai_rate;
             if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount) || is_null($paymentDiscountAccount)) {
                 return response()->json([
                     'status' => 'error',
@@ -387,11 +395,27 @@ class PaymentController extends Controller
                 $paymentInvoice->save();
 
                 $invoice->total_bayar += $allocatedAmount;
-                if ($totalEffectivePayment >= $remainingAmount) {
+
+
+                $totalUsedPoin = $request->amountPoin; // Asumsi poin terpakai dari request
+                $newNominal = $totalUsedPoin * $currentPointPrice;
+
+                // Margin poin dihitung
+                $poinMargin = $newNominal - $totalPayment;
+
+                // Tambahkan atau kurangi margin pada total_bayar
+                if ($poinMargin > 0) {
+                    $invoice->total_bayar += $poinMargin;
+                } elseif ($poinMargin < 0) {
+                    $invoice->total_bayar -= abs($poinMargin);
+                }
+
+                if ($invoice->total_bayar >= $invoice->total_harga) {
                     $invoice->status_bayar = 'Lunas';
                 } else {
                     $invoice->status_bayar = 'Belum Lunas';
                 }
+
                 $invoice->save();
 
                 $totalPayment -= $allocatedAmount;
@@ -403,6 +427,7 @@ class PaymentController extends Controller
 
                 $invoiceList[] = $invoice->no_invoice;
             }
+
 
             if ($totalPayment > 0) {
                 Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
@@ -428,16 +453,7 @@ class PaymentController extends Controller
                 $totalNominal = 0;
                 $remainingPoin = $request->amountPoin;
 
-                $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
 
-                // Pastikan hasil query tidak kosong
-                if (empty($currentPointPrice)) {
-                    Log::error("Rate for 'Topup' not found.");
-                    return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
-                }
-
-                // Ambil nilai rate dari query result
-                $currentPointPrice = $currentPointPrice[0]->nilai_rate;
 
                 foreach ($topups as $topup) {
                     if ($remainingPoin <= 0) break;
@@ -498,6 +514,7 @@ class PaymentController extends Controller
                 $newNominal = $totalUsedPoin * $currentPointPrice;
 
                 $poinMargin = $newNominal - $totalNominal;
+
 
                 // Log informasi margin
                 Log::info("Margin Poin Calculated", [
@@ -587,20 +604,20 @@ class PaymentController extends Controller
                     ]);
                 }
 
-                $finalTotal = $totalNominal + $totalPayment + $poinMargin;
+                // $finalTotal = $totalNominal + $totalPayment + $poinMargin;
 
-                $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
-                if ($finalTotal > $invoice->total_harga) {
-                    Log::warning("Total bayar melebihi total harga untuk invoice {$invoice->no_invoice}");
-                    DB::rollBack();
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Total bayar tidak dapat melebihi total harga.'
-                    ], 400);
-                }
-                $invoice->total_bayar = $finalTotal;
-                $invoice->status_bayar = ($invoice->total_bayar == $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
-                $invoice->save();
+                // $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+                // if ($finalTotal > $invoice->total_harga) {
+                //     Log::warning("Total bayar melebihi total harga untuk invoice {$invoice->no_invoice}");
+                //     DB::rollBack();
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Total bayar tidak dapat melebihi total harga.'
+                //     ], 400);
+                // }
+                // $invoice->total_bayar = $finalTotal;
+                // $invoice->status_bayar = ($invoice->total_bayar == $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
+                // $invoice->save();
                 DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
             }
 

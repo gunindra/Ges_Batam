@@ -23,7 +23,8 @@
     <meta name="twitter:title" content="PT. GES Logistic - Pengiriman Cepat dan Ekonomis dari Cina">
     <meta name="twitter:description" content="Layanan pengiriman cepat dan hemat dari Cina ke Indonesia bersama GesBatam.">
     <meta name="twitter:image" content="https://www.gesbatam.com/img/logo4.png">
-    
+    <link rel="icon" type="image/x-icon" href="{{ asset('/logo.svg') }}">
+
     <title>@yield('title')</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet">

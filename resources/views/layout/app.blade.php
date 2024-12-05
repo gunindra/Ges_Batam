@@ -11,6 +11,8 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
     {{-- <link href="img/logo/logo.png" rel="icon"> --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('/logo.svg') }}">
+
     <title>PT. GES | @yield('title')</title>
     <link href="{{ asset('RuangAdmin/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('RuangAdmin/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet" type="text/css">
