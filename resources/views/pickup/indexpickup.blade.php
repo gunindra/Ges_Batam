@@ -177,7 +177,9 @@
 
         $('#selectResi').select2({
             placeholder: 'Pilih No.Invoice',
-            allowClear: true
+            allowClear: true,
+            width: 'resolve',
+            closeOnSelect: false
         });
         // Setup for selectResi
         $('#selectResi').on('change', function () {

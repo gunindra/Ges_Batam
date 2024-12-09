@@ -335,7 +335,9 @@
         $('.select2').select2();
         $('#selectInvoice').select2({
             placeholder: "Pilih Invoice",
-            allowClear: true
+            allowClear: true,
+            width: 'resolve',
+            closeOnSelect: false
         });
 
         // Set tanggal saat ini
