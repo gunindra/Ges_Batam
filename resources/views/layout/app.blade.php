@@ -137,12 +137,9 @@
                 });
             }
 
-            /**
-             * Function to load quota notifications
-             */
             function loadKuotaNotifications() {
                 $.ajax({
-                    url: '{{ route('topupNotification') }}', // Ganti dengan route Anda
+                    url: '{{ route('topupNotification') }}',
                     method: 'GET',
                     success: function(data) {
                         const notificationContainer = $('#kuota-notifications');
@@ -175,7 +172,6 @@
                             });
                         }
 
-                        // Tampilkan notifikasi mendekati expired (nearing_expiry)
                         if (data.nearing_expiry && data.nearing_expiry.length > 0) {
                             data.nearing_expiry.forEach(function(item) {
                                 if (item.customer) {

@@ -339,10 +339,6 @@ class TopupController extends Controller
             $jurnalItemCredit->credit = 0;
             $jurnalItemCredit->save();
 
-
-
-
-
             DB::commit();
 
             return response()->json(['success' => true, 'message' => 'Top-up expired successfully.']);
