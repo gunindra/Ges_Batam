@@ -364,10 +364,9 @@ class TopupController extends Controller
             ->groupBy('customer_id')
             ->havingRaw('SUM(balance) < 0.2 * SUM(tbl_history_topup.remaining_points)')
             ->with('customer')
+
             ->get();
-
-
-        $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonth())
+            $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonths(2))
             ->with('customer')
             ->get();
 

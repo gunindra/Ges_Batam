@@ -162,8 +162,10 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">Pembeli: ${item.customer.nama_pembeli}</div>
-                                        <span class="font-weight-bold">Saldo kuota menipis (${item.total_balance}) Silahakan melakukan Isi ulang</span>
+                                         <div>
+                                            <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
+                                        </div>
+                                        Saldo kuota (<span class="font-weight-bold">${item.total_balance}</span>) sudah dibawah 20%
                                     </div>
                                 </div>
                             `;
@@ -185,8 +187,10 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">${formatDate(item.expired_date)}</div>
-                                        <span class="font-weight-bold">Kuota ${item.customer.nama_pembeli} akan expired (1 bulan)</span>
+                                         <div>
+                                            <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
+                                        </div>
+                                       Kuota akan expired pada tanggal <span class="font-weight-bold">${formatDate(item.expired_date)}</span>
                                     </div>
                                 </div>
                             `;
@@ -196,12 +200,11 @@
                             });
                         }
 
-                        // Perbarui badge counter
                         if (totalNotifications > 0) {
                             badgeCounter.text(totalNotifications)
-                        .show(); // Tampilkan badge jika ada notifikasi
+                        .show();
                         } else {
-                            badgeCounter.hide(); // Sembunyikan badge jika tidak ada notifikasi
+                            badgeCounter.hide();
                             notificationContainer.html(
                                 '<p class="dropdown-item py-2 text-center small text-gray-500">Tidak ada notifikasi kuota</p>'
                             );

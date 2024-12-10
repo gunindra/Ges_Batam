@@ -321,7 +321,7 @@
                                     <div id="kuota-notifications" style="max-height: 300px; overflow-y: auto;">
                                         <p class="dropdown-item text-center small text-gray-500">No data kuota</p>
                                     </div>
-                                    <a class="dropdown-item text-center small text-gray-500" href="#">View all
+                                    <a class="dropdown-item text-center small text-gray-500" href="{{ route('topuppage') }}">View all
                                         Kuota</a>
                                 </div>
                             </li>
