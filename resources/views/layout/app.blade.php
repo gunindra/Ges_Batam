@@ -97,10 +97,16 @@
                         badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
+                            const rawAmountDue = parseFloat(invoice.total_sisa_bayar.replace(
+                                /\./g, '').replace(',', '.'));
+
+                            // Format kembali ke mata uang
                             const formattedAmountDue = new Intl.NumberFormat('id-ID', {
                                 style: 'currency',
                                 currency: 'IDR'
-                            }).format(invoice.amount_due);
+                            }).format(rawAmountDue);
+
+
                             const notificationItem = `
                         <div class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
@@ -109,8 +115,13 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="small text-gray-500">${invoice.formatted_due_date}</div>
-                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} Belum lunas (${formattedAmountDue})</span>
+                                <div>
+                                    <strong>${invoice.nama_pembeli} (${invoice.marking})</strong>
+                                </div>
+                                <div class="mt-1">
+                                    <span>Total tagihan : ${formattedAmountDue}</span>
+                                </div>
+                                 <div class="small text-gray-500">Tagihan telah melewati 1 minggu</div>
                             </div>
                         </div>
                     `;
