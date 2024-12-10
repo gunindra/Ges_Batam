@@ -60,6 +60,8 @@ class LoginController extends Controller
                 return route('supir');
             case 'customer':
             case 'admin':
+            case 'pickup':
+                return route('pickup');
             case 'supervisor':
                 return route('tracking');
             default:
