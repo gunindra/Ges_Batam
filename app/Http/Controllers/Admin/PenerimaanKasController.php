@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\KasReportExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,7 @@ use App\Models\Payment;
 use App\Models\COA;
 use App\Traits\WhatsappTrait;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PenerimaanKasController extends Controller
 {
@@ -43,7 +45,7 @@ class PenerimaanKasController extends Controller
                             ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
 
         if ($request->customer) {    
-            $payment->where('tbl_payment_customer.customer_id', '=', $request->customer);
+            $payment->where('tbl_payment_customer.id', '=', $request->customer);
         }
 
         if ($request->payment) {    
@@ -117,5 +119,14 @@ class PenerimaanKasController extends Controller
 
         $pdf = PDF::loadHTML($htmlOutput);
         return $pdf->download('Penerimaan Kas Report.pdf');
+    }
+    public function exportKasReport(Request $request)
+    {
+        $startDate = $request->input('startDate');
+        $customer = $request->nama_pembeli;
+        $endDate = $request->input('endDate');
+        $account = $request->name;
+
+        return Excel::download(new KasReportExport($startDate, $endDate,$customer,$account), 'Penerimaan_Kas.xlsx');
     }
 }

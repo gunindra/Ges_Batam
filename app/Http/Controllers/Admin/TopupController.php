@@ -55,7 +55,7 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'account'])
-            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'expired_date', 'balance', 'status'])
+            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date','expired_date', 'balance', 'status'])
             ->orderBy('id', 'desc');
 
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
@@ -355,10 +355,8 @@ class TopupController extends Controller
         $now = Carbon::now();
 
         $lowQuota = HistoryTopup::selectRaw('customer_id, SUM(balance) as total_balance')
-            ->join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_history_topup.customer_id')
-            ->selectRaw('SUM(tbl_history_topup.remaining_points) as total_remaining_points')
             ->groupBy('customer_id')
-            ->havingRaw('SUM(balance) < 0.2 * SUM(tbl_history_topup.remaining_points)')
+            ->havingRaw('SUM(balance) < 0.2 * SUM(remaining_points)')
             ->with('customer')
 
             ->get();

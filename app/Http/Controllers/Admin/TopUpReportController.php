@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\AssetReportExport;
+use App\Exports\TopupReportExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,7 @@ use App\Models\Asset;
 use App\Models\HistoryTopup;
 use App\Traits\WhatsappTrait;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TopUpReportController extends Controller
 {
@@ -87,5 +90,13 @@ class TopUpReportController extends Controller
 
         $pdf = PDF::loadHTML($htmlOutput);
         return $pdf->download('Top Up Report.pdf');
+    }
+    public function exportTopupReport(Request $request)
+    {
+        $startDate = $request->input('startDate');
+        $customer = $request->nama_pembeli;
+        $endDate = $request->input('endDate');
+
+        return Excel::download(new TopupReportExport($customer, $startDate, $endDate), 'topup_report.xlsx');
     }
 }
