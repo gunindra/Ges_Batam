@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -43,37 +43,39 @@ class PickupController extends Controller
 
     public function checkPassword(Request $request)
     {
-        // Validasi input dengan pesan bahasa Indonesia
         $request->validate([
-            'password' => 'required'
+            'password' => 'required',
+            'username' => 'required',
         ], [
-            'password.required' => 'Kolom password wajib diisi.'
+            'password.required' => 'Kolom password wajib diisi.',
+            'username.required' => 'Kolom username wajib diisi.',
         ]);
 
-        // Ambil data user yang sedang login
-        $user = Auth::user();
+        // Cek pengguna berdasarkan username
+        $user = User::where('name', $request->username)
+                    ->whereIn('role', ['superadmin', 'admin'])
+                    ->first();
 
-        // Jika user tidak ditemukan (belum login)
         if (!$user) {
             return response()->json([
                 'valid' => false,
-                'message' => 'Pengguna tidak ditemukan. Silakan login terlebih dahulu.'
-            ], 401);
+                'message' => 'Username tidak ditemukan atau role tidak valid.',
+            ], 404);
         }
 
-        // Cek apakah password cocok
         if (Hash::check($request->password, $user->password)) {
             return response()->json([
                 'valid' => true,
-                'message' => 'Password sesuai.'
+                'message' => 'Password sesuai.',
             ]);
         } else {
             return response()->json([
                 'valid' => false,
-                'message' => 'Password yang Anda masukkan salah.'
+                'message' => 'Password yang Anda masukkan salah.',
             ]);
         }
     }
+
 
 
 

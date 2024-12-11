@@ -333,7 +333,7 @@
                         let invoiceDetails = data.invoice_details.split(';');
                         invoiceDetails.forEach(function (detail) {
                             let [invoice, amount] = detail.split('(');
-                            amount = amount.replace(')', ''); 
+                            amount = amount.replace(')', '');
                             $('#invoicesup-details-table tbody').append(`
                         <tr>
                             <td>${invoice}</td>
