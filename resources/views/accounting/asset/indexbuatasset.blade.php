@@ -100,6 +100,28 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 col-6">
+                                    <label for="depreciationAccount" class="form-label fw-bold">Asset Account</label>
+                                    <select class="form-control select2" name="asset_account"required>
+                                        <option value="">Pilih Akun</option>
+                                        @foreach ($account as $coa)
+                                            <option value="{{ $coa->id }}">
+                                                {{ $coa->code_account_id }} - {{ $coa->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mt-3 col-6">
+                                    <label for="depreciationAccount" class="form-label fw-bold">Expense Account</label>
+                                    <select class="form-control select2" name="expense_account"required>
+                                        <option value="">Pilih Akun</option>
+                                        @foreach ($account as $coa)
+                                            <option value="{{ $coa->id }}">
+                                                {{ $coa->code_account_id }} - {{ $coa->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mt-3 col-6">
                                     <label for="depreciationAccount" class="form-label fw-bold">Depreciation Account</label>
                                     <select class="form-control select2" name="depreciation_account"required>
                                         <option value="">Pilih Akun</option>

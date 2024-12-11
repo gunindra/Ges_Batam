@@ -43,7 +43,7 @@ class EquityController extends Controller
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                 LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                WHERE coa.id = 81
+                                WHERE coa.id = 79 --MODAL DISETOR
                                 GROUP BY coa_id, account_name");
 
         $additionalCapital = DB::select("SELECT coa.name AS account_name,
@@ -69,7 +69,7 @@ class EquityController extends Controller
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        WHERE coa.id = 82
+                                        WHERE coa.id = 80 --TAMBAHAN MODAL DISETOR
                                         GROUP BY coa_id, account_name");
 
         $returnedProfit = DB::select("SELECT coa.name AS account_name,
@@ -95,7 +95,7 @@ class EquityController extends Controller
                                     FROM tbl_coa coa
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                    WHERE coa.id = 84
+                                    WHERE coa.id = 82 -- Saldo Laba Ditahan
                                     GROUP BY coa_id, account_name");
 
         $currentYearProfit = DB::select("SELECT coa.name AS account_name,
@@ -121,7 +121,7 @@ class EquityController extends Controller
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        WHERE coa.id = 85
+                                        WHERE coa.id = 83 --Saldo Laba Tahun Berjalan
                                         GROUP BY coa_id, account_name");
 
         $dividen = DB::select("SELECT coa.name AS account_name,
@@ -147,7 +147,7 @@ class EquityController extends Controller
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                 LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                WHERE coa.id = 87
+                                WHERE coa.id = 85 --PREV ATAU DEVIDEN
                                 GROUP BY coa_id, account_name");
 
         $output = '<table class="table table-vcenter card-table">

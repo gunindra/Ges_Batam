@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Asset;
 use App\Models\Payment;
+use App\Models\PaymentAccount;
 use App\Models\COA;
 use App\Traits\WhatsappTrait;
 use Carbon\Carbon;
@@ -20,7 +21,15 @@ class PenerimaanKasController extends Controller
     public function index() {
 
         $customers = Customer::where('status', '=', 1)->get();
-        $payment = COA::whereIn('parent_id', [3, 7])->get();
+        $paymentAccountCoaIds = PaymentAccount::pluck('coa_id');
+
+        // Fetch payment based on parent_id and matching coa_id in payment_account
+        $payment = COA::where('set_as_group', 0)
+                        ->where(function ($query) use ($paymentAccountCoaIds) {
+                            $query->whereIn('parent_id', $paymentAccountCoaIds)
+                                ->orWhereIn('id', $paymentAccountCoaIds);
+                        })
+                        ->get();
         return view('Report.PenerimaanKas.indexpenerimaankas', [
             'customers' => $customers,
             'payment' => $payment
