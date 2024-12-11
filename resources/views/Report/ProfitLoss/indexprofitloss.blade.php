@@ -11,7 +11,7 @@
                 <li class="breadcrumb-item active" aria-current="page">Profit / Loss</li>
             </ol>
         </div>
-        
+
         <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
             aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -40,7 +40,7 @@
                                     <button type="button" id="comparison" class="btn btn-info">Comparison</button>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -79,158 +79,252 @@
 
 @endsection
 @section('script')
-<script>
-    $(document).ready(function() {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+    <script>
+        $(document).ready(function() {
+            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div>`;
 
-        const getProfitOrLoss = () => {
-            const txtSearch = $('#txSearch').val();
-            const filterStatus = $('#filterStatus').val();
-            const startDate = $('#startDate').val();
-            const endDate = $('#endDate').val();
-            const compareStart = $('#compareStart').val();
-            const compareEnd = $('#compareEnd').val();
+            // const getProfitOrLoss = () => {
+            //     const startDate = $('#startDate').val();
+            //     const endDate = $('#endDate').val();
+            //     const compareStart = $('#compareStart').val();
+            //     const compareEnd = $('#compareEnd').val();
 
-            // Validate if comparison dates are shown and not filled (only if comparison is active)
-            if ($('#compareStart').is(':visible') && (!compareStart || !compareEnd)) {
-                alert("Both comparison start and end dates are required.");
-                return; // Prevent the request if validation fails
-            }
+            //     // Validate if comparison dates are shown and not filled (only if comparison is active)
+            //     if ($('#compareStart').is(':visible') && (!compareStart || !compareEnd)) {
+            //         alert("Both comparison start and end dates are required.");
+            //         return; // Prevent the request if validation fails
+            //     }
 
-            $.ajax({
-                url: "{{ route('getProfitOrLoss') }}",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch,
-                    status: filterStatus,
-                    startDate: startDate,
-                    endDate: endDate,
-                    compareStart: compareStart,
-                    compareEnd: compareEnd,
-                },
-                beforeSend: () => {
-                    $('#containerProfitLoss').html(loadSpin);
-                }
-            })
-            .done(res => {
-                $('#containerProfitLoss').html(res);
-            });
-        }
+            //     $.ajax({
+            //             url: "{{ route('getProfitOrLoss') }}",
+            //             method: "GET",
+            //             data: {
+            //                 startDate: startDate,
+            //                 endDate: endDate,
+            //                 compareStart: compareStart,
+            //                 compareEnd: compareEnd,
+            //             },
+            //             beforeSend: () => {
+            //                 $('#containerProfitLoss').html(loadSpin);
+            //             }
+            //         })
+            //         .done(res => {
+            //             $('#containerProfitLoss').html(res);
+            //         });
+            // }
 
-        getProfitOrLoss();
+            function getProfitOrLoss(startDate, endDate, comparisons) {
 
-        flatpickr("#startDate", {
-            dateFormat: "d M Y",
-            onChange: function(selectedDates, dateStr, instance) {
-                $("#endDate").flatpickr({
-                    dateFormat: "d M Y",
-                    minDate: dateStr
+                // Log data untuk debug (opsional)
+                console.log("Memproses Profit atau Loss:");
+                console.log("Tanggal Utama:", {
+                    startDate,
+                    endDate
                 });
+                console.log("Tanggal Comparison:", comparisons);
+                $.ajax({
+                        url: "{{ route('getProfitOrLoss') }}",
+                        method: "GET",
+                        data: {
+                            startDate: startDate,
+                            endDate: endDate,
+                            comparisons: comparisons,
+                        },
+                        beforeSend: () => {
+                            $('#containerProfitLoss').html(loadSpin);
+                        }
+                    })
+                    .done(res => {
+                        $('#containerProfitLoss').html(res);
+                    });
+
+
             }
-        });
 
-        flatpickr("#endDate", {
-            dateFormat: "d MM Y",
-            onChange: function(selectedDates, dateStr, instance) {
-                var startDate = new Date($('#startDate').val());
-                var endDate = new Date(dateStr);
-                if (endDate < startDate) {
-                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                    $('#endDate').val('');
-                }
-            }
-        });
+            getProfitOrLoss();
 
-        $(document).on('click', '#filterTanggal', function(e) {
-            $('#modalFilterTanggal').modal('show');
-        });
-
-        $('#comparison').click(function() {
-            // Hide the "Comparison" button
-            this.style.display = "none";
-
-            // Create a new div element for the additional date range
-            const newDateRange = document.createElement("div");
-            newDateRange.classList.add("mt-3");
-            newDateRange.setAttribute("id", "extraDateRange"); // Assign ID for easy removal
-
-            // Add label and date range inputs for the new date range
-            newDateRange.innerHTML = `
-                <label for="Tanggal" class="form-label fw-bold">Tanggal Comparison:</label>
-                <div class="d-flex align-items-center">
-                    <input type="date" id="compareStart" class="form-control" placeholder="Pilih tanggal mulai" style="width: 200px;" required>
-                    <span class="mx-2">sampai</span>
-                    <input type="date" id="compareEnd" class="form-control" placeholder="Pilih tanggal akhir" style="width: 200px;" required>
-                </div>
-                <div class="mt-3">
-                    <button type="button" id="cancelComparison" class="btn btn-danger">Cancel Comparison</button>
-                </div>
-            `;
-
-            // Append the new date range and "Cancel Comparison" button to the modal body
-            document.querySelector("#modalFilterTanggal .modal-body .col-12").appendChild(newDateRange);
-
-            // Add event listener for the "Cancel Comparison" button
-            document.getElementById("cancelComparison").addEventListener("click", function() {
-                // Remove the additional date range
-                document.getElementById("extraDateRange").remove();
-
-                // Show the "Comparison" button again
-                document.getElementById("comparison").style.display = "inline-block";
-            });
-
-            flatpickr("#compareStart", {
+            flatpickr("#startDate", {
                 dateFormat: "d M Y",
-                onChange: function(selectedDates, compareStr, instance) {
-                    $("#compareEnd").flatpickr({
+                onChange: function(selectedDates, dateStr, instance) {
+                    $("#endDate").flatpickr({
                         dateFormat: "d M Y",
-                        minDate: compareStr
+                        minDate: dateStr
                     });
                 }
             });
 
-            flatpickr("#compareEnd", {
+            flatpickr("#endDate", {
                 dateFormat: "d MM Y",
-                onChange: function(selectedDates, compareStr, instance) {
-                    var compareStart = new Date($('#compareStart').val());
-                    var compareEnd = new Date(compareStr);
-                    if (compareEnd < compareStart) {
-                        showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                        $('#compareEnd').val('');
+                onChange: function(selectedDates, dateStr, instance) {
+                    var startDate = new Date($('#startDate').val());
+                    var endDate = new Date(dateStr);
+                    if (endDate < startDate) {
+                        showwMassage(error,
+                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                        $('#endDate').val('');
                     }
                 }
             });
+
+            $(document).on('click', '#filterTanggal', function(e) {
+                $('#modalFilterTanggal').modal('show');
+            });
+
+            let comparisonCount = 0; // Counter untuk jumlah perbandingan
+            const maxComparisons = 6; // Batas maksimum perbandingan
+
+            $('#comparison').click(function() {
+                if (comparisonCount >= maxComparisons) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Batas Maksimum!',
+                        text: 'Anda hanya dapat menambahkan hingga 6 perbandingan.',
+                    });
+                    return;
+                }
+
+                comparisonCount++;
+
+                // Hide the "Comparison" button if the maximum is reached
+                if (comparisonCount === maxComparisons) {
+                    $(this).hide();
+                }
+
+                // Create a new div element for the additional date range
+                const newDateRange = $(`
+        <div class="mt-3" id="extraDateRange-${comparisonCount}">
+            <label class="form-label fw-bold">Tanggal Comparison ${comparisonCount}:</label>
+            <div class="d-flex align-items-center">
+                <input type="date" id="compareStart-${comparisonCount}" class="form-control" placeholder="Pilih tanggal mulai" style="width: 200px;" required>
+                <span class="mx-2">sampai</span>
+                <input type="date" id="compareEnd-${comparisonCount}" class="form-control" placeholder="Pilih tanggal akhir" style="width: 200px;" required>
+            </div>
+            <button type="button" class="btn btn-danger mt-2 btn-cancel" data-id="${comparisonCount}">Cancel Comparison</button>
+        </div>
+    `);
+
+                // Append the new date range and "Cancel Comparison" button to the modal body
+                $("#modalFilterTanggal .modal-body .col-12").append(newDateRange);
+
+                // Add Flatpickr for date inputs
+                flatpickr(`#compareStart-${comparisonCount}`, {
+                    dateFormat: "d M Y",
+                    onChange: function(selectedDates, compareStr) {
+                        $(`#compareEnd-${comparisonCount}`).flatpickr({
+                            dateFormat: "d M Y",
+                            minDate: compareStr
+                        });
+                    }
+                });
+
+                flatpickr(`#compareEnd-${comparisonCount}`, {
+                    dateFormat: "d M Y",
+                    onChange: function(selectedDates, compareStr) {
+                        const compareStart = new Date($(`#compareStart-${comparisonCount}`)
+                            .val());
+                        const compareEnd = new Date(compareStr);
+                        if (compareEnd < compareStart) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Tanggal Salah!',
+                                text: 'Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.',
+                            });
+                            $(`#compareEnd-${comparisonCount}`).val('');
+                        }
+                    }
+                });
+            });
+
+            // Handle Cancel Comparison button click
+            $(document).on('click', '.btn-cancel', function() {
+                const id = $(this).data('id');
+                $(`#extraDateRange-${id}`).remove();
+                comparisonCount--;
+
+                // Show the "Comparison" button if below maximum
+                if (comparisonCount < maxComparisons) {
+                    $('#comparison').show();
+                }
+            });
+
+            // // Validation before saving
+            // $('#saveFilterTanggal').click(function() {
+            //     const startDate = $('#startDate').val();
+            //     const endDate = $('#endDate').val();
+            //     const compareStart = $('#compareStart').val();
+            //     const compareEnd = $('#compareEnd').val();
+
+            //     if (!startDate || !endDate) {
+            //         alert("Silahkan Masukkan Semua Kolom Tanggal");
+            //         return;
+            //     }
+            //     // Validate comparison start and end only if comparison is active (fields are visible)
+            //     if ($('#compareStart').is(':visible') && (!startDate || !endDate)) {
+            //         alert("Silahkan Masukkan Semua Kolom Tanggal");
+            //         return; // Prevent saving if validation fails
+            //     }
+
+            //     // Proceed with saving and closing the modal
+            //     getProfitOrLoss();
+            //     $('#modalFilterTanggal').modal('hide');
+            // });
+
+            $('#saveFilterTanggal').click(function() {
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+
+                if (!startDate || !endDate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Tidak Lengkap',
+                        text: 'Silahkan Masukkan Tanggal Mulai dan Akhir.',
+                    });
+                    return;
+                }
+
+                const comparisons = [];
+                $('[id^=extraDateRange-]').each(function() {
+                    const id = $(this).attr('id').split('-')[1];
+                    const compareStart = $(`#compareStart-${id}`).val();
+                    const compareEnd = $(`#compareEnd-${id}`).val();
+
+                    if (!compareStart || !compareEnd) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Data Tidak Lengkap',
+                            text: `Silahkan lengkapi tanggal untuk Comparison ${id}.`,
+                        });
+                        return false;
+                    }
+
+                    comparisons.push({
+                        start: compareStart,
+                        end: compareEnd,
+                    });
+                });
+
+                if ($('.swal2-container').length > 0) {
+                    return;
+                }
+
+                console.log("Tanggal Utama:", {
+                    startDate,
+                    endDate
+                });
+                console.log("Tanggal Comparison:", comparisons);
+
+                // Panggil fungsi getProfitOrLoss dengan parameter lengkap
+                getProfitOrLoss(startDate, endDate, comparisons);
+
+                $('#modalFilterTanggal').modal('hide');
+            });
+
+            $('#Print').on('click', function(e) {
+                e.preventDefault();
+                window.location.href = '{{ route('profitLoss.pdf') }}';
+            });
         });
-
-        // Validation before saving
-        $('#saveFilterTanggal').click(function() {
-            const startDate = $('#startDate').val();
-            const endDate = $('#endDate').val();
-            const compareStart = $('#compareStart').val();
-            const compareEnd = $('#compareEnd').val();
-
-            if(!startDate || !endDate){
-                alert("Silahkan Masukkan Semua Kolom Tanggal");
-                return;
-            }
-            // Validate comparison start and end only if comparison is active (fields are visible)
-            if ($('#compareStart').is(':visible') && (!startDate || !endDate)) {
-                alert("Silahkan Masukkan Semua Kolom Tanggal");
-                return; // Prevent saving if validation fails
-            }
-
-            // Proceed with saving and closing the modal
-            getProfitOrLoss();
-            $('#modalFilterTanggal').modal('hide');
-        });
-
-        $('#Print').on('click', function(e) {
-            e.preventDefault();
-            window.location.href = '{{ route('profitLoss.pdf') }}';
-        });
-    });
-
     </script>
 @endsection
