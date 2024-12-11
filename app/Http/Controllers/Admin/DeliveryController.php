@@ -950,6 +950,9 @@ class DeliveryController extends Controller
             'customer_signature' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
+        $verifiedUsername = $request->input('verified_username');
+
+
         DB::beginTransaction();
 
         try {
@@ -989,7 +992,7 @@ class DeliveryController extends Controller
                     ->update([
                         'bukti_pengantaran' => $adminSignaturePath,
                         'tanda_tangan' => $customerSignaturePath,
-                        'keterangan' => 'Barang Telah Selesai Di Pickup Costumer',
+                        'keterangan' => "Barang Telah Selesai Di Pickup Costumer. Invoice di proses oleh admin: $verifiedUsername",
                         'updated_at' => now(),
                     ]);
 

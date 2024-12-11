@@ -26,4 +26,9 @@ class Invoice extends Model
      {
          return $this->hasMany(Resi::class, 'invoice_id', 'id');
      }
+
+     public function pembeli()
+     {
+        return $this->belongsTo(Customer::class, 'pembeli_id', 'id');
+     }
 }

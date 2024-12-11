@@ -56,6 +56,7 @@
                                 <option value="admin">Admin</option>
                                 <option value="superadmin">SuperAdmin</option>
                                 <option value="supervisor">Supervisor</option>
+                                <option value="pickup">Pickup</option>
                             </select>
                             <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                         </div>
@@ -119,6 +120,7 @@
                             <option value="admin">Admin</option>
                             <option value="superadmin">SuperAdmin</option>
                             <option value="supervisor">Supervisor</option>
+                            <option value="pickup">Pickup</option>
                         </select>
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>

@@ -388,22 +388,23 @@ class PaymentController extends Controller
                 }
 
                 $totalTagihanInvoice = $remainingAmount;
+                $kuota = $allocatedAmount / $currentPointPrice;
                 $paymentInvoice = new PaymentInvoice();
                 $paymentInvoice->payment_id = $payment->id;
                 $paymentInvoice->invoice_id = $invoice->id;
                 $paymentInvoice->amount = $allocatedAmount;
+                $paymentInvoice->kuota = $kuota;
                 $paymentInvoice->save();
 
                 $invoice->total_bayar += $allocatedAmount;
 
 
-                $totalUsedPoin = $request->amountPoin; // Asumsi poin terpakai dari request
+                $totalUsedPoin = $request->amountPoin;
                 $newNominal = $totalUsedPoin * $currentPointPrice;
 
-                // Margin poin dihitung
                 $poinMargin = $newNominal - $totalPayment;
 
-                // Tambahkan atau kurangi margin pada total_bayar
+
                 if ($poinMargin > 0) {
                     $invoice->total_bayar += $poinMargin;
                 } elseif ($poinMargin < 0) {

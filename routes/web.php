@@ -454,16 +454,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
     Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
     Route::get('/report/assetReport/pdf', [AssetReportController::class, 'generatePdf'])->name('assetReport.pdf');
-
+    Route::get('/report/assetReport/export', [AssetReportController::class, 'exportAssetReport'])->name('exportReport');
     //PenerimaaKas
     Route::get('/report/penerimaanKas',  [PenerimaanKasController::class, 'index'])->name('penerimaanKas');
     Route::get('/report/getPenerimaanKas',  [PenerimaanKasController::class, 'getPenerimaanKas'])->name('getPenerimaanKas');
     Route::get('/report/penerimaanKas/pdf', [PenerimaanKasController::class, 'generatePdf'])->name('penerimaanKas.pdf');
+    Route::get('/report/penerimaanKas/export', [PenerimaanKasController::class, 'exportKasReport'])->name('exportKasReport');
 
     //Top Up Report
     Route::get('/report/topUpReport',  [TopUpReportController::class, 'index'])->name('topUpReport');
     Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
     Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
+    Route::get('/report/topUpReport/export', [TopUpReportController::class, 'exportTopupReport'])->name('exportTopupReport');
 });
 
 

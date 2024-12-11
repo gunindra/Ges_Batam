@@ -43,8 +43,8 @@
                                     <label for="payment" class="form-label fw-bold">Payment:</label>
                                     <select class="form-control select2" id="payment">
                                         <option value="" selected disabled>Pilih Payment</option>
-                                        @foreach ($payment as $payment)
-                                            <option value="{{ $payment->id }}">{{$payment->code_account_id}} - {{$payment->name}}</option>
+                                        @foreach ($payment as $account)
+                                            <option value="{{ $account->id }}">{{$account->code_account_id}} - {{$account->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -75,6 +75,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
+                        <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
                             <a class="btn btn-success mr-1" style="color:white;" id="print"><span class="pr-2"><i class="fas fa-print"></i></span>Print</a>
                         </div>
                         <div class="d-flex mb-2 mr-3 mb-4">
@@ -168,6 +169,51 @@
                 e.preventDefault
                 window.location.href = '{{ route('penerimaanKas.pdf') }}';
             });
+            $('#exportBtn').on('click', function () {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var customer = $('#customer').val();
+            var account = $('#payment').val();
+
+            var now = new Date();
+            var day = String(now.getDate()).padStart(2, '0');
+            var month = now.toLocaleString('default', { month: 'long' });
+            var year = now.getFullYear();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            var filename = `Penerimaan Kas_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+
+            $.ajax({
+                url: "{{ route('exportKasReport') }}",
+                type: 'GET',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate,
+                    nama_pembeli: customer,
+                    name: account,
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    var blob = new Blob([data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                },
+                error: function () {
+                    Swal.fire({
+                        title: "Export failed!",
+                        icon: "error"
+                    });
+                }
+            });
+        });
 
         });
         // Store the sorting order for each column

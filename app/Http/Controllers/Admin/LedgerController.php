@@ -101,7 +101,7 @@ class LedgerController extends Controller
         foreach ($ledgerAccounts as $data) {
             if (!empty($data['journal_entries']) || $data['beginning_balance'] != 0 || $data['ending_balance'] != 0) {
                 $output .= '<tr>
-                                <td>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</td>
+                                <td><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
                                 <td><b>BEGINING BALANCE</b></td>
                                 <td class="text-right"><b>  </b></td>';
                 $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';

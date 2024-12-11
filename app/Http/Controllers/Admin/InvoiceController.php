@@ -848,21 +848,28 @@ class InvoiceController extends Controller
 
     public function unpaidInvoices()
     {
-        $invoices = Invoice::where('status_bayar', 'Belum lunas')
-        ->where('tanggal_buat', '<', Carbon::now()->subWeek())
-        ->get(['id', 'no_invoice', 'tanggal_buat', 'total_harga', 'total_bayar']);
+        $unpaidInvoices = Invoice::selectRaw(
+            'pembeli_id, SUM(IFNULL(total_harga, 0) - IFNULL(total_bayar, 0)) as total_sisa_bayar'
+        )
+            ->where('status_bayar', 'Belum lunas')
+            ->where('tanggal_buat', '<', Carbon::now()->subWeek())
+            ->groupBy('pembeli_id')
+            ->with('pembeli:id,nama_pembeli,marking')
+            ->get();
 
-
-        $invoices = $invoices->map(function($invoice) {
-            $invoice->formatted_due_date = Carbon::parse($invoice->tanggal_buat)->translatedFormat('d F Y');
-            $invoice->due_date = $invoice->formatted_due_date;
-            $invoice->amount_due = $invoice->total_harga - $invoice->total_bayar;
-
-            return $invoice;
+        $unpaidInvoices = $unpaidInvoices->map(function ($item) {
+            return [
+                'pembeli_id' => $item->pembeli_id,
+                'nama_pembeli' => $item->pembeli->nama_pembeli ?? 'Unknown',
+                'marking' => $item->pembeli->marking ?? 'N/A',
+                'total_sisa_bayar' => number_format($item->total_sisa_bayar, 2, ',', '.'),
+            ];
         });
 
-        return response()->json($invoices);
+        return response()->json($unpaidInvoices);
     }
+
+
 
 
 }
