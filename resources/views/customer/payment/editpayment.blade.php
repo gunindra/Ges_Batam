@@ -234,7 +234,7 @@
         $('#selectMethod').val(payment.payment_method_id).trigger('change');
         $('#discountPayment').val(payment.discount).trigger('change');
         $('#keteranganPayment').val(payment.Keterangan).trigger('change');
-        $('#payment').val(payment.paymentInvoices.amount).trigger('change');
+        $('#payment').val(payment.payment_invoices.amount).trigger('change');
 
 
         const paymentDate = new Date(payment.payment_date);
