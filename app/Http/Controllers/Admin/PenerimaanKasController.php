@@ -22,7 +22,7 @@ class PenerimaanKasController extends Controller
     public function index() {
 
         $customers = Customer::where('status', '=', 1)->get();
-        $payment = COA::whereIn('parent_id', [3, 7])->get();
+        $payment = COA::whereIn('parent_id',  [3, 7])->get();
         return view('Report.PenerimaanKas.indexpenerimaankas', [
             'customers' => $customers,
             'payment' => $payment
@@ -33,7 +33,7 @@ class PenerimaanKasController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
-        
+
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : Carbon::now()->startOfMonth();
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
@@ -44,11 +44,11 @@ class PenerimaanKasController extends Controller
                             ->whereDate('tbl_payment_customer.payment_date', '>=', $startDate)
                             ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
 
-        if ($request->customer) {    
+        if ($request->customer) {
             $payment->where('tbl_payment_customer.id', '=', $request->customer);
         }
 
-        if ($request->payment) {    
+        if ($request->payment) {
             $payment->where('tbl_payment_customer.payment_method_id', '=', $request->payment);
         }
 
@@ -64,7 +64,7 @@ class PenerimaanKasController extends Controller
             SUM(tbl_payment_invoice.amount) as total_amount
         ")
         ->groupBy(
-            'tbl_payment_customer.id', 
+            'tbl_payment_customer.id',
             'tbl_payment_customer.payment_buat',
             'tbl_payment_customer.payment_date',
             'tbl_payment_customer.kode_pembayaran',
@@ -76,14 +76,14 @@ class PenerimaanKasController extends Controller
         // Get the results
         $payments = $payment->get();
 
-        
+
         $output = '
-                    <h5 style="text-align:center; width:100%">' 
-                        . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - ' 
-                        . \Carbon\Carbon::parse($endDate)->format('d M Y') . 
+                    <h5 style="text-align:center; width:100%">'
+                        . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
+                        . \Carbon\Carbon::parse($endDate)->format('d M Y') .
                     '</h5>
 
-                    <div class="card-body">   
+                    <div class="card-body">
                     <table class="table" id="penerimaanKasTable" width="100%">
                     <thead>
                         <th onclick="sortTable(0)" width="10%" style="text-align:center;">No</th>
@@ -95,7 +95,7 @@ class PenerimaanKasController extends Controller
                         <th onclick="sortTable(6)" width="15%" style="text-align:right;">Total</th>
                     </thead>
                     <tbody>';
-        
+
         foreach($payments as $data){
             $output .='<tr>
                             <td style="text-align:center;">' . $data->kode_pembayaran . ' </td>
@@ -107,7 +107,7 @@ class PenerimaanKasController extends Controller
                             <td style="text-align:right;">' . number_format($data->total_amount - $data->discount, 2) . '</td>
                         </tr>';
         }
-        
+
         $output .= '</table> </div>';
 
         return $output;
@@ -122,14 +122,11 @@ class PenerimaanKasController extends Controller
     }
     public function exportKasReport(Request $request)
     {
-        $startDate = $request->input('startDate');
-        
-        $idname = $request->nama_pembeli;
-        $q = DB::table('tbl_pembeli')->where('id', $idname)->first();
-        $customer = $q->nama_pembeli;
 
+        $startDate = $request->input('startDate');
+        $customer = $request->nama_pembeli ?? '-';
         $endDate = $request->input('endDate');
-        $account = $request->name;
+        $account = $request->name ?? '-';
 
         return Excel::download(new KasReportExport($startDate, $endDate,$customer,$account), 'Penerimaan_Kas.xlsx');
     }

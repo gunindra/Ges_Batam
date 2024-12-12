@@ -18,8 +18,8 @@ class KasReportExport implements FromView, WithEvents
 
     public function __construct($startDate, $endDate,$customer,$account)
     {
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
+       $this->startDate = $startDate ?: now()->startOfMonth()->format('Y-m-d');
+        $this->endDate = $endDate ?: now()->endOfMonth()->format('Y-m-d');
         $this->customer = $customer;
         $this->account = $account;
     }
@@ -29,6 +29,13 @@ class KasReportExport implements FromView, WithEvents
      */
     public function view(): View
     {
+         $customerName =DB::table('tbl_pembeli')
+            ->where('id', $this->customer)
+            ->value('nama_pembeli');
+
+        $accountName =DB::table('tbl_coa')
+            ->where('id',  $this->account )
+            ->value('name');
         // Query dasar untuk mengambil data asset
         $payment = Payment::join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
@@ -39,13 +46,13 @@ class KasReportExport implements FromView, WithEvents
                         ->whereDate('tbl_payment_customer.payment_date', '<=', $this->endDate);
             }
 
-        if ($this->customer) {
-            $payment->where('tbl_payment_customer.id', '=', $this->customer);
-        }
+            if ($this->customer && $this->customer !== '-') {
+                $payment->where('tbl_payment_customer.pembeli_id', '=', $this->customer);
+            }
 
-        if ($this->account) {
-            $payment->where('tbl_payment_customer.id', '=', $this->account);
-        }
+            if ($this->account && $this->account !== '-') {
+                $payment->where('tbl_payment_customer.payment_method_id', '=', $this->account);
+            }
 
             $payment->selectRaw("
             tbl_payment_customer.kode_pembayaran as kode_pembayaran,
@@ -74,8 +81,8 @@ class KasReportExport implements FromView, WithEvents
             'payments' => $payments,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'customer' => $this->customer,
-            'account' => $this->account
+            'customer' => $customerName,
+            'account' => $accountName
         ]);
     }
 
