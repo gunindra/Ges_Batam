@@ -15,11 +15,11 @@ class TopupReportExport implements FromView, WithEvents
     protected $startDate;
     protected $endDate;
 
-    public function __construct($customer,$startDate, $endDate)
+    public function __construct($customer, $startDate, $endDate)
     {
         $this->customer = $customer;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
+        $this->startDate = $startDate ?: now()->startOfMonth()->format('Y-m-d');
+        $this->endDate = $endDate ?: now()->endOfMonth()->format('Y-m-d');
     }
 
     /**
@@ -28,31 +28,27 @@ class TopupReportExport implements FromView, WithEvents
     public function view(): View
     {
         $topup = HistoryTopup::where('status', '!=', 'cancel');
-        if ($this->customer){
+
+        if ($this->customer !== '-') {
             $topup->where('customer_id', '=', $this->customer);
         }
 
-        // if ($this->namacustomer){
-        //     $topup->where('nama_pembeli', '=', $this->namacustomer);
-        // }
+        $topup->whereDate('date', '>=', $this->startDate);
+        $topup->whereDate('date', '<=', $this->endDate);
 
-        if ( $this->startDate){
-            $startDate = date('Y-m-d', strtotime( $this->startDate));
-            $topup->whereDate('date', '>=', $startDate);    
-        }
-        if ($this->endDate){
-            $endDate = date('Y-m-d', strtotime($this->endDate));
-            $topup->whereDate('date', '<=', $endDate);
-        }
-     
         $topup = $topup->get();
+        $customerName = '-';
+        if ($this->customer !== '-') {
+            $customerData = DB::table('tbl_pembeli')->where('id', $this->customer)->first();
+            $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+        }
 
         return view('exportExcel.topupreport', [
             'topup' => $topup,
-            'customer' => $this->customer,
+            'customer' => $customerName,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-        ]);    
+        ]);
     }
 
     public function registerEvents(): array
@@ -65,5 +61,4 @@ class TopupReportExport implements FromView, WithEvents
             },
         ];
     }
-}    
-
+}
