@@ -107,19 +107,16 @@
 
                         <!-- Dropdown untuk memilih harga per poin atau tambah harga baru -->
                         <p><strong>Harga per 1kg kuota:</strong>
-                            @php $foundRate = false; @endphp
-                            @foreach ($listRateVolume as $rate)
-                                @if ($rate->rate_for == 'Topup')
-                                    @php        $foundRate = true; @endphp
-                                    <input type="text" id="pricePerKg" class="form-control"
-                                        value="{{ number_format($rate->nilai_rate, 0, ',', '.') }}" disabled>
-                                @endif
-                            @endforeach
-
-                            @if (!$foundRate)
-                                <input type="text" id="pricePerKg" class="form-control"
-                                    placeholder="Masukkan topup di halaman rate" disabled>
-                            @endif
+                        <select class="form-control" id="pricePerKg">
+                                <option value="" selected disabled>Pilih Rate Topup</option>
+                                @foreach ($listRateVolume as $rate)
+                                    @if ($rate->rate_for == 'Topup')
+                                        <option value="{{ $rate->nilai_rate }}">
+                                            {{ number_format($rate->nilai_rate, 0, ',', '.') }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
                             <span id="pricePerKgError" class="text-danger"></span>
                         </p>
 
@@ -527,7 +524,7 @@
         });
 
         pricePerKgInput.on('input', function () {
-            const inputValue = $(this).val().trim();
+           const selectedPrice = $(this).val(); 
             calculateTotal();
         });
 
@@ -538,7 +535,7 @@
 
         function calculateTotal() {
             const remainingPoints = parseFloat(remainingPointsInput.val()) || 0;
-            const pricePerKg = parseFloat(pricePerKgInput.val().replace(/\./g, '').replace(',', '.')) || 0; // Converting input to a valid number
+            const pricePerKg = parseFloat(pricePerKgInput.val()) || 0;
             const topupAmount = remainingPoints * pricePerKg;
             totalCostDisplay.text(topupAmount ? `Rp ${topupAmount.toLocaleString()}` : 'Rp 0');
         }
@@ -553,7 +550,7 @@
             const tanggal = $('#tanggal').val();
             const tanggalExpired = $('#tanggalExpired').val();
             const Voucher = $('#Voucher').val();
-            const priceId = pricePerKgInput.val().replace(/\./g, '');
+            const priceId = pricePerKgInput.val();
             const topupAmount = parseFloat(totalCostDisplay.text().replace(/[^0-9.-]+/g, '')) || 0;
 
             let hasError = false;

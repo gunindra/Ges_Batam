@@ -41,7 +41,7 @@ class SoaCustomerExport implements FromView, WithEvents
 
         $invoice = $invoice->get();
 
-        return view('exportExcel.penerimaankas', [
+        return view('exportExcel.soacustomer', [
             'invoice' => $invoice,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,

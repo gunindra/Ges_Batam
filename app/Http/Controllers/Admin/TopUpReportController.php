@@ -19,7 +19,8 @@ class TopUpReportController extends Controller
 {
     use WhatsappTrait;
 
-    public function index() {
+    public function index()
+    {
 
         $customers = Customer::where('status', '=', 1)->get();
         return view('Report.TopUpReport.indextopupreport', compact('customers'));
@@ -27,34 +28,32 @@ class TopUpReportController extends Controller
 
     public function getTopUpReport(Request $request)
     {
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $status = $request->status;
-        
+
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : Carbon::now()->startOfMonth();
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
         $topup = HistoryTopup::where('status', '!=', 'cancel');
 
-        if ($request->startDate){
+        if ($request->startDate) {
             $startDate = date('Y-m-d', strtotime($request->startDate));
-            $topup->whereDate('date', '>=', $startDate);    
+            $topup->whereDate('date', '>=', $startDate);
         }
-        if ($request->endDate){
+        if ($request->endDate) {
             $endDate = date('Y-m-d', strtotime($request->endDate));
             $topup->whereDate('date', '<=', $endDate);
         }
-        if ($request->customer){
+        if ($request->customer) {
             $topup->where('customer_id', '=', $request->customer);
         }
-        
+
         $topup = $topup->get();
 
-        
+
         $output = '
-                    <h5 style="text-align:center; width:100%">' 
-                        . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - ' 
-                        . \Carbon\Carbon::parse($endDate)->format('d M Y') . 
-                    '</h5>
+                    <h5 style="text-align:center; width:100%">'
+            . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
+            . \Carbon\Carbon::parse($endDate)->format('d M Y') .
+            '</h5>
 
                     <div class="card-body">   
                     <table class="table" width="100%">
@@ -67,9 +66,9 @@ class TopUpReportController extends Controller
                         <th width="15%" style="text-align:center;">Status</th>
                     </thead>
                     <tbody>';
-        
-        foreach($topup as $data){
-            $output .='<tr>
+
+        foreach ($topup as $data) {
+            $output .= '<tr>
                             <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
                             <td style="text-align:center;">' . ($data->customer_name) . '</td>
                             <td style="text-align:center;">' . number_format($data->remaining_points, 2) . '</td>
@@ -78,7 +77,7 @@ class TopUpReportController extends Controller
                             <td style="text-align:center;">' . ($data->status) . '</td>
                         </tr>';
         }
-        
+
         $output .= '</table> </div>';
 
         return $output;
@@ -94,9 +93,10 @@ class TopUpReportController extends Controller
     public function exportTopupReport(Request $request)
     {
         $startDate = $request->input('startDate');
-        $customer = $request->nama_pembeli;
+        $idname = $request->id;
+        $q = DB::table('tbl_pembeli')->where('id', $idname)->first();
+        $customer = $q->nama_pembeli;
         $endDate = $request->input('endDate');
-
         return Excel::download(new TopupReportExport($customer, $startDate, $endDate), 'topup_report.xlsx');
     }
 }

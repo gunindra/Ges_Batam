@@ -123,7 +123,11 @@ class PenerimaanKasController extends Controller
     public function exportKasReport(Request $request)
     {
         $startDate = $request->input('startDate');
-        $customer = $request->nama_pembeli;
+        
+        $idname = $request->nama_pembeli;
+        $q = DB::table('tbl_pembeli')->where('id', $idname)->first();
+        $customer = $q->nama_pembeli;
+
         $endDate = $request->input('endDate');
         $account = $request->name;
 

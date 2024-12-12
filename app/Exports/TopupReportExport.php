@@ -29,8 +29,12 @@ class TopupReportExport implements FromView, WithEvents
     {
         $topup = HistoryTopup::where('status', '!=', 'cancel');
         if ($this->customer){
-                $topup->where('customer_id', '=', $this->customer);
+            $topup->where('customer_id', '=', $this->customer);
         }
+
+        // if ($this->namacustomer){
+        //     $topup->where('nama_pembeli', '=', $this->namacustomer);
+        // }
 
         if ( $this->startDate){
             $startDate = date('Y-m-d', strtotime( $this->startDate));
@@ -41,7 +45,6 @@ class TopupReportExport implements FromView, WithEvents
             $topup->whereDate('date', '<=', $endDate);
         }
      
-        
         $topup = $topup->get();
 
         return view('exportExcel.topupreport', [

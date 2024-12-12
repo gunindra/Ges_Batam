@@ -97,16 +97,10 @@
                         badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
-                            const rawAmountDue = parseFloat(invoice.total_sisa_bayar.replace(
-                                /\./g, '').replace(',', '.'));
-
-                            // Format kembali ke mata uang
                             const formattedAmountDue = new Intl.NumberFormat('id-ID', {
                                 style: 'currency',
                                 currency: 'IDR'
-                            }).format(rawAmountDue);
-
-
+                            }).format(invoice.amount_due);
                             const notificationItem = `
                         <div class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
@@ -115,13 +109,8 @@
                                 </div>
                             </div>
                             <div>
-                                <div>
-                                    <strong>${invoice.nama_pembeli} (${invoice.marking})</strong>
-                                </div>
-                                <div class="mt-1">
-                                    <span>Total tagihan : ${formattedAmountDue}</span>
-                                </div>
-                                 <div class="small text-gray-500">Tagihan telah melewati 1 minggu</div>
+                                <div class="small text-gray-500">${invoice.formatted_due_date}</div>
+                                <span class="font-weight-bold">Invoice ${invoice.no_invoice} Belum lunas (${formattedAmountDue})</span>
                             </div>
                         </div>
                     `;
@@ -137,9 +126,12 @@
                 });
             }
 
+            /**
+             * Function to load quota notifications
+             */
             function loadKuotaNotifications() {
                 $.ajax({
-                    url: '{{ route('topupNotification') }}',
+                    url: '{{ route('topupNotification') }}', // Ganti dengan route Anda
                     method: 'GET',
                     success: function(data) {
                         const notificationContainer = $('#kuota-notifications');
@@ -159,10 +151,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                         <div>
-                                            <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
-                                        </div>
-                                        Saldo kuota (<span class="font-weight-bold">${item.total_balance}</span>) sudah dibawah 20%
+                                        <div class="small text-gray-500">Pembeli: ${item.customer.nama_pembeli}</div>
+                                        <span class="font-weight-bold">Saldo kuota menipis (${item.total_balance}) Silahkan melakukan Isi ulang</span>
                                     </div>
                                 </div>
                             `;
@@ -172,6 +162,7 @@
                             });
                         }
 
+                        // Tampilkan notifikasi mendekati expired (nearing_expiry)
                         if (data.nearing_expiry && data.nearing_expiry.length > 0) {
                             data.nearing_expiry.forEach(function(item) {
                                 if (item.customer) {
@@ -183,10 +174,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                         <div>
-                                            <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
-                                        </div>
-                                       Kuota akan expired pada tanggal <span class="font-weight-bold">${formatDate(item.expired_date)}</span>
+                                        <div class="small text-gray-500">${formatDate(item.expired_date)}</div>
+                                        <span class="font-weight-bold">Kuota ${item.customer.nama_pembeli} akan expired (1 bulan)</span>
                                     </div>
                                 </div>
                             `;
@@ -196,11 +185,12 @@
                             });
                         }
 
+                        // Perbarui badge counter
                         if (totalNotifications > 0) {
                             badgeCounter.text(totalNotifications)
-                        .show();
+                        .show(); // Tampilkan badge jika ada notifikasi
                         } else {
-                            badgeCounter.hide();
+                            badgeCounter.hide(); // Sembunyikan badge jika tidak ada notifikasi
                             notificationContainer.html(
                                 '<p class="dropdown-item py-2 text-center small text-gray-500">Tidak ada notifikasi kuota</p>'
                             );

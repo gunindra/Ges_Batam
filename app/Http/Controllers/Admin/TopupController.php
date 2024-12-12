@@ -33,7 +33,6 @@ class TopupController extends Controller
         $coas = COA::all();
         $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
 
-
         return view('topup.indextopup', [
             'coas' => $coas,
             'listRateVolume' => $listRateVolume,
@@ -55,7 +54,7 @@ class TopupController extends Controller
     public function getData(Request $request)
     {
         $query = HistoryTopup::with(['customer', 'account'])
-            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date','expired_date', 'balance', 'status'])
+            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'expired_date', 'balance', 'status'])
             ->orderBy('id', 'desc');
 
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
@@ -339,6 +338,10 @@ class TopupController extends Controller
             $jurnalItemCredit->credit = 0;
             $jurnalItemCredit->save();
 
+
+
+
+
             DB::commit();
 
             return response()->json(['success' => true, 'message' => 'Top-up expired successfully.']);
@@ -355,12 +358,15 @@ class TopupController extends Controller
         $now = Carbon::now();
 
         $lowQuota = HistoryTopup::selectRaw('customer_id, SUM(balance) as total_balance')
+            ->join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_history_topup.customer_id')
+            ->selectRaw('SUM(tbl_history_topup.remaining_points) as total_remaining_points')
             ->groupBy('customer_id')
-            ->havingRaw('SUM(balance) < 0.2 * SUM(remaining_points)')
+            ->havingRaw('SUM(balance) < 0.2 * SUM(tbl_history_topup.remaining_points)')
             ->with('customer')
-
             ->get();
-            $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonths(2))
+
+
+        $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonth())
             ->with('customer')
             ->get();
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\SoaCustomerExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -8,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Traits\WhatsappTrait;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SoaController extends Controller
 {
@@ -131,5 +133,15 @@ class SoaController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+    public function exportSoaCustomerReport(Request $request)
+    {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $idname = $request->nama_pembeli;
+        $q = DB::table('tbl_pembeli')->where('id', $idname)->first();
+        $customer = $q->nama_pembeli;
+
+        return Excel::download(new SoaCustomerExport($startDate, $endDate,$customer), 'Soa_Customer.xlsx');
     }
 }
