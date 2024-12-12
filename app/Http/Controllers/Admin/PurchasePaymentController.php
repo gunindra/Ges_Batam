@@ -63,7 +63,8 @@ class PurchasePaymentController extends Controller
         $query->orderBy('a.id', 'desc');
         return DataTables::of($query)
             ->addColumn('action', function ($row) {
-                return '<a class="btn btnviewPaymentDetails btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white ml-1">Detail</span></a>';
+                return '<a class="btn btnviewPaymentDetails btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white ml-1">Detail</span></a>
+                <a class="btn btnEditPaymentPurchase btn-sm btn-secondary text-white" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>';
             })
             ->rawColumns(['action'])
             ->make(true);
@@ -380,6 +381,14 @@ class PurchasePaymentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $paymentSup,
+        ]);
+    }
+    public function editpurchasepayment($id)
+    {
+        $payment = PaymentSup::find($id);
+
+        return view('vendor.purchasepayment.editpurchasepayment', [
+            'payment' => $payment,
         ]);
     }
 

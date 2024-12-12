@@ -381,6 +381,12 @@
                 }
             });
         });
+        $(document).on('click', '.btnEditPaymentPurchase', function(e) {
+                let id = $(this).data('id');
+                let url = "{{ route('editpurchasepayment', ':id') }}";
+                url = url.replace(':id', id);
+                window.location.href = url;
+            });
     });
 </script>
 @endsection

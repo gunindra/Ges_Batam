@@ -114,6 +114,7 @@ class PaymentController extends Controller
             ->addColumn('action', function ($row) {
                 return '
                     <a class="btn btnDetailPaymet btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white"> Detail</span></a>
+                    <a class="btn btnEditPayment btn-sm btn-secondary text-white" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>
                 ';
             })
             ->make(true);
@@ -320,7 +321,7 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-            $salesAccountId = $accountSettings->receivable_sales_account_id;
+            $salesAccountId = $accountSettings->sales_account_id;
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
@@ -388,23 +389,22 @@ class PaymentController extends Controller
                 }
 
                 $totalTagihanInvoice = $remainingAmount;
-                $kuota = $allocatedAmount / $currentPointPrice;
                 $paymentInvoice = new PaymentInvoice();
                 $paymentInvoice->payment_id = $payment->id;
                 $paymentInvoice->invoice_id = $invoice->id;
                 $paymentInvoice->amount = $allocatedAmount;
-                $paymentInvoice->kuota = $kuota;
                 $paymentInvoice->save();
 
                 $invoice->total_bayar += $allocatedAmount;
 
 
-                $totalUsedPoin = $request->amountPoin;
+                $totalUsedPoin = $request->amountPoin; // Asumsi poin terpakai dari request
                 $newNominal = $totalUsedPoin * $currentPointPrice;
 
+                // Margin poin dihitung
                 $poinMargin = $newNominal - $totalPayment;
 
-
+                // Tambahkan atau kurangi margin pada total_bayar
                 if ($poinMargin > 0) {
                     $invoice->total_bayar += $poinMargin;
                 } elseif ($poinMargin < 0) {
@@ -722,7 +722,7 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        $salesAccountId = $accountSettings->receivable_sales_account_id;
+        $salesAccountId = $accountSettings->sales_account_id;
         $paymentMethodId = $request->paymentMethod;
         $receivableSalesAccount = COA::find($paymentMethodId);
 
@@ -914,6 +914,15 @@ class PaymentController extends Controller
             'invoices' => $invoices
         ]);
     }
+    public function editpayment($id)
+    {
+        $payment = Payment::with(['paymentInvoices', 'paymentCustomerItems'])->findOrFail($id);
+        $coas = COA::all();
 
-
+        return view('customer.payment.editpayment', [
+            'payment' => $payment,
+            'coas' => $coas,
+        ]);
+    }
+    
 }

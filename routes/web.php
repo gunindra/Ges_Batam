@@ -158,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
     Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
-
+    Route::get('/payment/updatepayment/{id}', [PaymentController::class, 'editpayment'])->name('editpayment');
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -320,6 +320,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/purchasePayment/export', [PurchasePaymentController::class, 'export'])->name('getSupInvoiceExport');
     Route::post('/vendor/purchasePayment/payment', [PurchasePaymentController::class, 'store'])->name('paymentSup');
     Route::get('/vendor/purchasePayment/getInvoiceSupDetail', [PurchasePaymentController::class, 'getInvoiceSupDetail'])->name('getInvoiceSupDetail');
+    Route::get('/vendor/purchasePayment/{id}', [PurchasePaymentController::class, 'editpurchasepayment'])->name('editpurchasepayment');
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');

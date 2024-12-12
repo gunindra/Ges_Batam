@@ -326,6 +326,12 @@
                 }
             });
         });
+        $(document).on('click', '.btnEditPayment', function(e) {
+                let id = $(this).data('id');
+                let url = "{{ route('editpayment', ':id') }}";
+                url = url.replace(':id', id);
+                window.location.href = url;
+            });
 
         $(document).on('click', '.btnDetailPaymet', function(e) {
             e.preventDefault();
