@@ -157,9 +157,10 @@ class SoaVendorController extends Controller
     {
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        $idname = $request->name;
-        $q = DB::table('tbl_vendors')->where('id', $idname)->first();
-        $customer = $q->name;
+        // $idname = $request->name;
+        // $q = DB::table('tbl_vendors')->where('id', $idname)->first();
+        // $customer = $q->name;
+        $customer = $request->name ?? '-';
 
         return Excel::download(new SoaVendorExport($startDate, $endDate,$customer), 'Soa_Vendor.xlsx');
     }

@@ -29,9 +29,11 @@ class SoaVendorExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = SupInvoice::where('status_bayar', '=', 'Belum Lunas')
-            ->where('vendor_id', '=', $this->customer);
+        $invoice = SupInvoice::where('status_bayar', '=', 'Belum Lunas');
 
+        if ($this->customer !== '-') {
+            $invoice->where('vendor_id', '=', $this->customer);
+        }
 
         if ($this->startDate) {
             $invoice->whereDate('tanggal', '>=', date('Y-m-d', strtotime($this->startDate)));
@@ -41,11 +43,17 @@ class SoaVendorExport implements FromView, WithEvents
         }
 
         $invoice = $invoice->get();
+
+        $customerName = '-';
+        if ($this->customer !== '-') {
+            $customerData = DB::table('tbl_vendors')->where('id', $this->customer)->first();
+            $customerName = $customerData ? $customerData->name : 'Unknown';
+        }
         return view('exportExcel.soavendor', [
             'invoice' => $invoice,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'customer' => $this->customer,
+            'customer' => $customerName,
         ]);
     }
 

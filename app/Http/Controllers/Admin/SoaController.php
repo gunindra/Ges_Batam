@@ -138,9 +138,7 @@ class SoaController extends Controller
     {
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        $idname = $request->nama_pembeli;
-        $q = DB::table('tbl_pembeli')->where('id', $idname)->first();
-        $customer = $q->nama_pembeli;
+        $customer = $request->nama_pembeli ?? '-';
 
         return Excel::download(new SoaCustomerExport($startDate, $endDate,$customer), 'Soa_Customer.xlsx');
     }
