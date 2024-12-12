@@ -287,6 +287,9 @@ class InvoiceController extends Controller
                 return $item->created_at_formatted ?? '-';
             })
             ->addColumn('updated_at', function ($item) {
+                if (!$item->user_update) {
+                    return '-';
+                }
                 return $item->updated_at_formatted ?? '-';
             })
             ->addColumn('action', function ($item) {

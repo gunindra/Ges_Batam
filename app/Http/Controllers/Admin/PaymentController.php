@@ -320,7 +320,7 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-            $salesAccountId = $accountSettings->sales_account_id;
+            $salesAccountId = $accountSettings->receivable_sales_account_id;
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
@@ -722,7 +722,7 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        $salesAccountId = $accountSettings->sales_account_id;
+        $salesAccountId = $accountSettings->receivable_sales_account_id;
         $paymentMethodId = $request->paymentMethod;
         $receivableSalesAccount = COA::find($paymentMethodId);
 

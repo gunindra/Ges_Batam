@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tbl_payment_invoice', function (Blueprint $table) {
-            $table->decimal('kuota', 15, 2)->after('amount');
+            $table->decimal('kuota', 15, 2)->nullable()->after('amount');
         });
     }
 
