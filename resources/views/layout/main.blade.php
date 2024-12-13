@@ -141,6 +141,8 @@
                                 href="{{ route('soaVendor') }}">SOA Vendor</a>
                             <a class="collapse-item {{ request()->routeIs('ongoingInvoice') ? 'active' : '' }}"
                                 href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
+                            <a class="collapse-item {{ request()->routeIs('piutang') ? 'active' : '' }}"
+                                href="{{ route('piutang') }}">Piutang</a>
                         </div>
                     </div>
                 </li>

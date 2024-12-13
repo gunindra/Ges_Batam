@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\OngoingInvoiceController;
+use App\Http\Controllers\Admin\PiutangController;
 use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
@@ -466,6 +467,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
     Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
     Route::get('/report/topUpReport/export', [TopUpReportController::class, 'exportTopupReport'])->name('exportTopupReport');
+
+    //piutang
+    Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang');
+    Route::get('/report/piutang', [PiutangController::class, 'getpiutang'])->name('getlistPiutang');
+    Route::get('/report/piutang/export', [PiutangController::class, 'exportPiutangReport'])->name('exportPiutangReport');
+    Route::get('/report/piutang/exportPdf', [PiutangController::class, 'exportPiutangPdf'])->name('exportPiutangPdf');
 });
 
 
