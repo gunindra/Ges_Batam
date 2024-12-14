@@ -121,7 +121,7 @@
                                 <div class="mt-1">
                                     <span>Total tagihan : ${formattedAmountDue}</span>
                                 </div>
-                                 <div class="small text-gray-500">Tagihan telah melewati 1 minggu</div>
+                                 <div class="small text-gray-500">Tagihan telah melewati 2 bulan</div>
                             </div>
                         </div>
                     `;

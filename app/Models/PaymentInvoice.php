@@ -14,6 +14,7 @@ class PaymentInvoice extends Model
     protected $fillable = [
         'payment_id',
         'invoice_id',
+        'kuota',
         'amount',
     ];
 

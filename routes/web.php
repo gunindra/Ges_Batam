@@ -158,7 +158,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
     Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
+    Route::get('/payment/getInvoiceByMarkingEdit', [PaymentController::class, 'getInvoiceByMarkingEdit'])->name('getInvoiceByMarkingEdit');
     Route::get('/payment/updatepayment/{id}', [PaymentController::class, 'editpayment'])->name('editpayment');
+    Route::post('/payment/updatepayment/update', [PaymentController::class, 'update'])->name('editpayment.update');
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -234,7 +236,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
     Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
     // Route::get('/masterdata/costumer', [CostumerController::class, 'show']);
-    
+
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
     Route::get('/masterdata/driver/list', [DriverController::class, 'getlistDriver'])->name('getlistDriver');

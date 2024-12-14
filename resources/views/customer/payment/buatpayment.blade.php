@@ -218,7 +218,6 @@
 @section('script')
 <script>
     $(document).ready(function () {
-        // Handle marking selection change
         $('#selectMarking').on('change', function () {
             const marking = $(this).val();
             if (marking) {
@@ -226,8 +225,6 @@
             }
         });
 
-        // Load invoices based on marking
-        // Fungsi untuk memuat invoice berdasarkan marking
         function loadInvoicesByMarking(marking) {
             $.ajax({
                 url: "{{ route('getInvoiceByMarking') }}",
@@ -280,7 +277,6 @@
             updateTotals();
         });
 
-        // Fungsi untuk menghitung total
         function updateTotals() {
             let totalDebit = 0;
             $('#items-container tr').each(function () {
@@ -295,13 +291,11 @@
             $('#total_payment').val(grandTotal.toFixed(0));
         }
 
-        // Event handler untuk tombol hapus
         $(document).on('click', '.removeItemButton', function () {
             $(this).closest('tr').remove();
             updateTotals();
         });
 
-        // Update total saat input nilai debit
         $(document).on('input', 'input[name="debit"]', function () {
             updateTotals();
         });
@@ -310,8 +304,6 @@
             updateTotals();
         });
 
-
-        // Generate kode pembayaran
         function generateKodePembayaran() {
             $.ajax({
                 url: "{{ route('generateKodePembayaran') }}",
@@ -340,7 +332,6 @@
             closeOnSelect: false
         });
 
-        // Set tanggal saat ini
         const today = new Date();
         $('#tanggalPayment').datepicker({
             format: 'dd MM yyyy',
@@ -358,7 +349,6 @@
             locale: "id",
         });
 
-        // Muat detail invoice saat dipilih
         $('#selectInvoice').on('change', function () {
             const invoiceNo = $(this).val();
             if (invoiceNo) {
@@ -378,6 +368,8 @@
                     $('#previewInvoiceNumber').text(invoice.no_invoice.replace(/;/g, ', '));
                     $('#previewInvoiceAmount').text(invoice.total_harga);
                     $('#previewTotalPaid').text(invoice.total_bayar);
+                    $('#previewTotalWeight').text(invoice.total_berat);
+                    $('#previewTotalDimension').text(invoice.total_dimensi);
                     $('#previewRemainingPayment').text(invoice.sisa_bayar);
                 },
                 error: function () {
@@ -386,7 +378,6 @@
             });
         }
 
-        // Handle payment method change
         $('#selectMethod').on('change', function () {
             const selectedMethod = $(this).val();
             const sectionPoin = $('#section_poin');
@@ -447,58 +438,48 @@
             });
         });
 
-        // Submit payment
         $('#buatPayment').click(function (e) {
             e.preventDefault();
 
-            // Reset semua pesan error
-            $(".text-danger").addClass("d-none");
+            $("#errKodePayment, #errMarkingPayment, #errInvoicePayment, #errTanggalPayment, #errMethodPayment, #erramountPoin, #errAmountPayment").addClass("d-none");
 
             let isValid = true;
 
-            // Validasi Kode Payment
             if (!$("#KodePayment").val().trim()) {
                 $("#errKodePayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Marking
             if (!$("#selectMarking").val()) {
                 $("#errMarkingPayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Invoice
             if (!$("#selectInvoice").val()) {
                 $("#errInvoicePayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Tanggal Payment
             if (!$("#tanggalPayment").val().trim()) {
                 $("#errTanggalPayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Payment Method
             if (!$("#selectMethod").val()) {
                 $("#errMethodPayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Amount Poin (jika poin aktif)
             if (!$("#section_poin").hasClass("d-none") && !$("#amountPoin").val().trim()) {
                 $("#erramountPoin").removeClass("d-none");
                 isValid = false;
             }
 
-            // Validasi Payment Amount
             if (!$("#payment").val().trim()) {
                 $("#errAmountPayment").removeClass("d-none");
                 isValid = false;
             }
 
-            // Kumpulkan data dari setiap row dalam bentuk array objek
             let items = [];
             $('#items-container tr').each(function () {
                 let account = $(this).find('select[name="account"]').val();
