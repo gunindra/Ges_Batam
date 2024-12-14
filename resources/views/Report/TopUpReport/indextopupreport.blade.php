@@ -36,7 +36,8 @@
                                     <option value="" selected disabled>Pilih Customer</option>
                                     @foreach ($customers as $customer)
                                         <option value="{{ $customer->id }}">{{ $customer->marking }} -
-                                            {{$customer->nama_pembeli}}</option>
+                                            {{$customer->nama_pembeli}}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -160,9 +161,63 @@
             getTopUpReport();
             $('#modalFilterTanggal').modal('hide');
         });
-        $('#Print').on('click', function (e) {
-            e.preventDefault
-            window.location.href = '{{ route('topUpReport.pdf') }}';
+        $(document).on('click', '#Print', function (e) {
+            let id = $(this).data('id');
+            let startDate = $('#startDate').val();
+            let endDate = $('#endDate').val();
+            let customer = $('#customer').val();
+
+            console.log("Button #Print clicked");
+            console.log("ID:", id);
+            console.log("Start Date:", startDate);
+            console.log("End Date:", endDate);
+            console.log("Customer:", customer);
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('topUpReport.pdf') }}",
+                data: {
+                    id: id,
+                    startDate: startDate,
+                    endDate: endDate,
+                    nama_pembeli: customer
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export Topup Report';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            });
         });
         $('#exportBtn').on('click', function () {
             var startDate = $('#startDate').val();

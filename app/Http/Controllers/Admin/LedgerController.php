@@ -13,7 +13,7 @@ class LedgerController extends Controller
     public function index()
     {
         $listCode = DB::table('tbl_coa')
-            ->select('tbl_coa.id','tbl_coa.code_account_id', 'tbl_coa.name')
+            ->select('tbl_coa.id', 'tbl_coa.code_account_id', 'tbl_coa.name')
             ->distinct()
             ->join('tbl_jurnal_items', 'tbl_coa.id', '=', 'tbl_jurnal_items.code_account')
             ->join('tbl_jurnal', 'tbl_jurnal.id', '=', 'tbl_jurnal_items.jurnal_id')
@@ -32,7 +32,7 @@ class LedgerController extends Controller
         $coaQuery = DB::table('tbl_coa')
             ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
             ->when($filterCode, function ($query, $filterCode) {
-                return $query->where('tbl_coa.id', $filterCode);
+                return $query->whereIn('tbl_coa.id', $filterCode); 
             })
             ->orderBy('tbl_coa.code_account_id', 'ASC')
             ->get();
@@ -70,16 +70,16 @@ class LedgerController extends Controller
                 ? $beginningBalance + $totalDebit - $totalCredit
                 : $beginningBalance + $totalCredit - $totalDebit;
 
-                if (!empty($journalQuery) || $beginningBalance != 0) {
-                    $ledgerAccounts[] = [
-                        'coa_id' => $coa->coa_id,
-                        'account_name' => $coa->account_name,
-                        'code' => $coa->code,
-                        'beginning_balance' => $beginningBalance,
-                        'ending_balance' => $endingBalance,
-                        'journal_entries' => $journalQuery,
-                    ];
-                }
+            if (!empty($journalQuery) || $beginningBalance != 0) {
+                $ledgerAccounts[] = [
+                    'coa_id' => $coa->coa_id,
+                    'account_name' => $coa->account_name,
+                    'code' => $coa->code,
+                    'beginning_balance' => $beginningBalance,
+                    'ending_balance' => $endingBalance,
+                    'journal_entries' => $journalQuery,
+                ];
+            }
 
         }
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\SoaVendorExport;
 use App\Http\Controllers\Controller;
 use App\Models\SupInvoice;
 use App\Models\Vendor;
@@ -10,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Traits\WhatsappTrait;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SoaVendorController extends Controller
 {
@@ -150,5 +152,16 @@ class SoaVendorController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+    public function exportSoaVendorReport(Request $request)
+    {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        // $idname = $request->name;
+        // $q = DB::table('tbl_vendors')->where('id', $idname)->first();
+        // $customer = $q->name;
+        $customer = $request->name ?? '-';
+
+        return Excel::download(new SoaVendorExport($startDate, $endDate,$customer), 'Soa_Vendor.xlsx');
     }
 }

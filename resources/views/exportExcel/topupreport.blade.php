@@ -41,7 +41,7 @@
         @foreach ($topup as $topups)
             <tr>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $topups->date }}
+                    {{\Carbon\Carbon::parse( $topups->date)->format('d M Y') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $topups->customer_name }}

@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\CheckUserActivity;
 

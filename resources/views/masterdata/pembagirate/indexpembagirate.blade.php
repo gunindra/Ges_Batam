@@ -599,9 +599,6 @@
                                  if (response.error) {
                                 showMessage("error",
                                     "Terjadi kesalahan, coba lagi nanti");
-                                 }else{
-                                    showMessage("error",
-                                    "Hanya boleh ada satu data yang kategori topup");
                                  }
                             }
                         });
@@ -702,9 +699,6 @@
                                 if (response.error) {
                                 showMessage("error",
                                     "Terjadi kesalahan, coba lagi nanti");
-                                 }else{
-                                    showMessage("error",
-                                    "Hanya boleh ada satu data yang kategori topup");
                                  }
                             }
                         });

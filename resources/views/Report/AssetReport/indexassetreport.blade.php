@@ -145,10 +145,56 @@
                 getAssetReport();
                 $('#modalFilterTanggal').modal('hide');
             });
-            $('#Print').on('click', function(e) {
-                e.preventDefault
-                window.location.href = '{{ route('assetReport.pdf') }}';
+            $(document).on('click', '#Print', function (e) {
+            let id = $(this).data('id');
+            let startDate = $('#startDate').val();
+            let endDate = $('#endDate').val();
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('assetReport.pdf') }}",
+                data: {
+                    id: id,
+                    startDate: startDate,
+                    endDate: endDate,
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export asset';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            });
+        });
             $('#exportBtn').on('click', function() {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\OngoingInvoiceController;
+use App\Http\Controllers\Admin\PiutangController;
 use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
@@ -447,12 +448,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
-
+    Route::get('/report/getSoa/export', [SoaController::class, 'exportSoaCustomerReport'])->name('exportSoaCustomer');
     //Soa Vendor
     Route::get('/report/soaVendor',  [SoaVendorController::class, 'index'])->name('soaVendor');
     Route::get('/report/soaVendor/getSoaVendor',  [SoaVendorController::class, 'getSoaVendor'])->name('getSoaVendor');
     Route::get('/report/soaVendor/soaWA', [SoaVendorController::class, 'soaWA'])->name('soaWA.vendor');
-
+    Route::get('/report/soaVendor/export', [SoaVendorController::class, 'exportSoaVendorReport'])->name('exportSoaVendor');
     //Asset
     Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
     Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
@@ -469,6 +470,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
     Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
     Route::get('/report/topUpReport/export', [TopUpReportController::class, 'exportTopupReport'])->name('exportTopupReport');
+
+    //piutang
+    Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang');
+    Route::get('/report/piutang', [PiutangController::class, 'getpiutang'])->name('getlistPiutang');
+    Route::get('/report/piutang/export', [PiutangController::class, 'exportPiutangReport'])->name('exportPiutangReport');
+    Route::get('/report/piutang/exportPdf', [PiutangController::class, 'exportPiutangPdf'])->name('exportPiutangPdf');
 });
 
 

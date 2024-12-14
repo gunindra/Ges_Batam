@@ -13,7 +13,9 @@ use App\Models\Asset;
 use App\Models\HistoryTopup;
 use App\Traits\WhatsappTrait;
 use Carbon\Carbon;
+use Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Str;
 
 class TopUpReportController extends Controller
 {
@@ -29,7 +31,7 @@ class TopUpReportController extends Controller
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
-        
+
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : Carbon::now()->startOfMonth();
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
@@ -37,7 +39,7 @@ class TopUpReportController extends Controller
 
         if ($request->startDate){
             $startDate = date('Y-m-d', strtotime($request->startDate));
-            $topup->whereDate('date', '>=', $startDate);    
+            $topup->whereDate('date', '>=', $startDate);
         }
         if ($request->endDate){
             $endDate = date('Y-m-d', strtotime($request->endDate));
@@ -46,17 +48,17 @@ class TopUpReportController extends Controller
         if ($request->customer){
             $topup->where('customer_id', '=', $request->customer);
         }
-        
+
         $topup = $topup->get();
 
-        
+
         $output = '
-                    <h5 style="text-align:center; width:100%">' 
-                        . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - ' 
-                        . \Carbon\Carbon::parse($endDate)->format('d M Y') . 
+                    <h5 style="text-align:center; width:100%">'
+                        . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
+                        . \Carbon\Carbon::parse($endDate)->format('d M Y') .
                     '</h5>
 
-                    <div class="card-body">   
+                    <div class="card-body">
                     <table class="table" width="100%">
                     <thead>
                         <th width="20%" style="text-align:center;">Topup Date</th>
@@ -67,7 +69,7 @@ class TopUpReportController extends Controller
                         <th width="15%" style="text-align:center;">Status</th>
                     </thead>
                     <tbody>';
-        
+
         foreach($topup as $data){
             $output .='<tr>
                             <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
@@ -78,23 +80,82 @@ class TopUpReportController extends Controller
                             <td style="text-align:center;">' . ($data->status) . '</td>
                         </tr>';
         }
-        
+
         $output .= '</table> </div>';
 
         return $output;
     }
-
     public function generatePdf(Request $request)
     {
-        $htmlOutput = $this->getTopUpReport($request);
-
-        $pdf = PDF::loadHTML($htmlOutput);
-        return $pdf->download('Top Up Report.pdf');
+        $startDate = $request->input('startDate') ? Carbon::parse($request->input('startDate'))->format('d M Y') : '-';
+        $endDate = $request->input('endDate') ? Carbon::parse($request->input('endDate'))->format('d M Y') : '-';
+        $customer = $request->nama_pembeli ?? null;
+    
+        try {
+            // Query Topup
+            $topupQuery = HistoryTopup::where('status', '!=', 'cancel');
+    
+            // Tambahkan filter customer jika tersedia
+            if (!is_null($customer)) {
+                $topupQuery->where('customer_id', '=', $customer);
+            }
+    
+            // Tambahkan filter tanggal jika diisi
+            if ($startDate !== '-') {
+                $topupQuery->whereDate('date', '>=', Carbon::parse($request->input('startDate')));
+            }
+    
+            if ($endDate !== '-') {
+                $topupQuery->whereDate('date', '<=', Carbon::parse($request->input('endDate')));
+            }
+    
+            $topup = $topupQuery->get();
+    
+            // Ambil nama pembeli jika customer ID diberikan
+            $customerName = '-';
+            if (!is_null($customer)) {
+                $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
+                $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+            }
+    
+            // Generate PDF
+            $pdf = pdf::loadView('exportPDF.topupreport', [
+                'topup' => $topup,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'customer' => $customerName,
+            ])
+            ->setPaper('A4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+            ->setWarnings(false);
+    
+            // Buat folder untuk menyimpan PDF jika belum ada
+            $folderPath = storage_path('app/public/topupreports');
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+    
+            // Tentukan nama file untuk PDF
+            $fileName = 'topup_report_' . (string) Str::uuid() . '.pdf';
+            $filePath = $folderPath . '/' . $fileName;
+    
+            // Simpan PDF
+            $pdf->save($filePath);
+    
+            // Kembalikan URL PDF yang dihasilkan
+            $url = asset('storage/topupreports/' . $fileName);
+            return response()->json(['url' => $url]);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating Asset Report PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
+        }
     }
-    public function exportTopupReport(Request $request)
+    
+        public function exportTopupReport(Request $request)
     {
         $startDate = $request->input('startDate');
-        $customer = $request->nama_pembeli;
+        $customer = $request->nama_pembeli ?? '-';
         $endDate = $request->input('endDate');
 
         return Excel::download(new TopupReportExport($customer, $startDate, $endDate), 'topup_report.xlsx');

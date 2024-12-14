@@ -52,7 +52,15 @@ class AssetReportExport implements FromView, WithEvents
         }
     
         // Ambil hasil query
-        $asset = $query->get();
+        $asset = $query->get()
+
+        ->map(function ($asset) {
+            // Adjusting the balance calculation                  
+            // Use the correct beginning balance from the subquery
+            $asset->beginning_balance = $asset->acquisition_price - $asset->total_credit_before;
+            $asset->ending_balance = $asset->beginning_balance - $asset->total_credit;
+            return $asset;
+        });
     
         // Return view dengan data asset dan tanggal
         return view('exportExcel.assetreport', [

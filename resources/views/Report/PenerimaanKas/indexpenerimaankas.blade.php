@@ -165,10 +165,60 @@
                 getPenerimaanKas();
                 $('#modalFilterTanggal').modal('hide');
             });
-            $('#print').on('click', function(e) {
-                e.preventDefault
-                window.location.href = '{{ route('penerimaanKas.pdf') }}';
+            $(document).on('click', '#print', function (e) {
+            let id = $(this).data('id');
+            let startDate = $('#startDate').val();
+            let endDate = $('#endDate').val();
+            let customer = $('#customer').val();
+            let account = $('#payment').val();
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('penerimaanKas.pdf') }}",
+                data: {
+                    id: id,
+                    startDate: startDate,
+                    endDate: endDate,
+                    nama_pembeli: customer,
+                    name: account,
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export Penerimaan Kas Report';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            });
+        });
             $('#exportBtn').on('click', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
