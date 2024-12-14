@@ -94,32 +94,45 @@
                             return;
                         }
 
+
+                        console.log(data);
                         badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
-                            const formattedAmountDue = new Intl.NumberFormat('id-ID', {
-                                style: 'currency',
-                                currency: 'IDR'
-                            }).format(invoice.amount_due);
-                            const notificationItem = `
-                        <div class="dropdown-item d-flex align-items-center">
-                            <div class="mr-3">
-                                <div class="icon-circle bg-danger">
-                                    <i class="fas fa-file-invoice-dollar text-white"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <div>
-                                    <strong>${invoice.nama_pembeli} (${invoice.marking})</strong>
-                                </div>
-                                <div class="mt-1">
-                                    <span>Total tagihan : ${formattedAmountDue}</span>
-                                </div>
-                                 <div class="small text-gray-500">Tagihan telah melewati 2 bulan</div>
-                            </div>
-                        </div>
-                    `;
-                            notificationContainer.append(notificationItem);
+                                                    // Konversi total_sisa_bayar ke angka
+                            const rawAmount = invoice.total_sisa_bayar.replace(/\./g, '').replace(',', '.');
+                            const amountDue = parseFloat(rawAmount);
+
+                            if (!isNaN(amountDue)) {
+                                // Format angka dengan Intl.NumberFormat
+                                const formattedAmountDue = new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR'
+                                }).format(amountDue);
+
+                                // Tambahkan ke container
+                                const notificationItem = `
+                                    <div class="dropdown-item d-flex align-items-center">
+                                        <div class="mr-3">
+                                            <div class="icon-circle bg-danger">
+                                                <i class="fas fa-file-invoice-dollar text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div>
+                                                <strong>${invoice.nama_pembeli} (${invoice.marking})</strong>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span>Total tagihan : ${formattedAmountDue}</span>
+                                            </div>
+                                            <div class="small text-gray-500">Tagihan telah melewati 2 bulan</div>
+                                        </div>
+                                    </div>
+                                `;
+                                notificationContainer.append(notificationItem);
+                            } else {
+                                console.error(`Invalid total_sisa_bayar for invoice: `, invoice);
+                            }
                         });
                     },
                     error: function() {
