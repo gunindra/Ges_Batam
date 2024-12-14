@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Payment;
+use Carbon\Carbon;
 use DB;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -18,8 +19,8 @@ class KasReportExport implements FromView, WithEvents
 
     public function __construct($startDate, $endDate,$customer,$account)
     {
-       $this->startDate = $startDate ?: now()->startOfMonth()->format('Y-m-d');
-        $this->endDate = $endDate ?: now()->endOfMonth()->format('Y-m-d');
+       $this->startDate = $startDate;
+        $this->endDate = $endDate;
         $this->customer = $customer;
         $this->account = $account;
     }
@@ -41,9 +42,16 @@ class KasReportExport implements FromView, WithEvents
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
             ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
             ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id');
-            if ($this->startDate && $this->endDate) {
-                $payment->whereDate('tbl_payment_customer.payment_date', '>=', $this->startDate)
-                        ->whereDate('tbl_payment_customer.payment_date', '<=', $this->endDate);
+            if ( $this->startDate && $this->endDate) {
+                $startDateCarbon = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
+                $endDateCarbon = Carbon::createFromFormat('d M Y', $this->endDate)->endOfDay();
+                $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+    
+                $this->startDate = $startDateCarbon->format('d F Y'); 
+                $this->endDate = $endDateCarbon->format('d F Y');     
+            } else {
+                $this->startDate = '-';
+                $this->endDate = '-';
             }
 
             if ($this->customer && $this->customer !== '-') {
@@ -76,6 +84,18 @@ class KasReportExport implements FromView, WithEvents
 
         // Get the results
         $payments = $payment->get();
+
+        $customerName = '-';
+        if ($this->customer !== '-') {
+            $customerData = DB::table('tbl_pembeli')->where('id', $this->customer)->first();
+            $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+        }
+
+        $accountName = '-';
+        if ($this->account !== '-') {
+            $accountData = DB::table('tbl_coa')->where('id', $this->account)->first();
+            $accountName = $accountData ? $accountData->name : 'Unknown';
+        }
 
         return view('exportExcel.penerimaankas', [
             'payments' => $payments,

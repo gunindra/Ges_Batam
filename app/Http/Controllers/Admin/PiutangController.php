@@ -69,7 +69,7 @@ class PiutangController extends Controller
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
         $customer = $request->nama_pembeli ?? '-';
-
+    
         try {
             $query = DB::table('tbl_invoice as invoice')->select(
                 'invoice.id',
@@ -79,31 +79,37 @@ class PiutangController extends Controller
             )
                 ->where('invoice.status_bayar', '=', 'Belum Lunas')
                 ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
-
+    
             $query->orderBy('invoice.tanggal_invoice', 'desc');
-
+    
             if ($customer !== '-') {
                 $query->where('pembeli.id', '=', $customer);
             }
-
+    
             if ($request->startDate && $request->endDate) {
-                $startDate = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
-                $endDate = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
-                $query->whereBetween('invoice.tanggal_buat', [$startDate, $endDate]);
+                $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
+                $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
+                $query->whereBetween('invoice.tanggal_buat', [$startDateCarbon, $endDateCarbon]);
+    
+                $startDate = $startDateCarbon->format('d F Y'); 
+                $endDate = $endDateCarbon->format('d F Y');     
+            } else {
+                $startDate = '-';
+                $endDate = '-';
             }
-
+    
             $piutang = $query->get();
-
+    
             $customerName = '-';
             if ($customer !== '-') {
                 $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
                 $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
             }
-
+    
             if ($piutang->isEmpty()) {
                 return response()->json(['error' => 'No Piutang report found'], 404);
             }
-
+    
             try {
                 $pdf = pdf::loadView('exportPDF.piutang', [
                     'piutang' => $piutang,
@@ -120,28 +126,29 @@ class PiutangController extends Controller
             }
             try {
                 $folderPath = storage_path('app/public/piutang');
-
+    
                 if (!file_exists($folderPath)) {
                     mkdir($folderPath, 0777, true);
                 }
-
+    
                 $fileName = 'piutang_report' . (string) Str::uuid() . '.pdf';
                 $filePath = $folderPath . '/' . $fileName;
-
+    
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
-
+    
             $url = asset('storage/piutang/' . $fileName);
             return response()->json(['url' => $url]);
-
+    
         } catch (\Exception $e) {
             Log::error('Error generating piutang report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the piutang report PDF'], 500);
         }
     }
+    
 
 
 }
