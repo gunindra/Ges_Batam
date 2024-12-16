@@ -4,6 +4,49 @@
 
 @section('main')
 
+    <style>
+        /* Style responsif untuk modal dan tabel di perangkat tablet */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                max-width: 90%;
+                /* Mengatur modal agar lebih lebar di perangkat kecil */
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                /* Membuat tabel bisa scroll horizontal */
+            }
+
+            .modal-content {
+                padding: 10px;
+                /* Menambah padding di dalam modal untuk responsivitas */
+            }
+
+            #tableDetailInvoice {
+                font-size: 14px;
+                /* Menyesuaikan ukuran font tabel agar tidak terlalu besar */
+            }
+
+            .modal-header {
+                padding: 10px 15px;
+                /* Memastikan header modal tetap rapat */
+            }
+
+            .modal-footer {
+                padding: 10px 15px;
+                /* Memastikan footer modal tetap rapat */
+            }
+        }
+
+        /* Agar modal tetap responsif pada layar lebih besar dari tablet */
+        @media (min-width: 768px) {
+            .modal-dialog {
+                max-width: 80%;
+            }
+        }
+    </style>
+
+
     <!-- Modal -->
     <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -32,6 +75,42 @@
         </div>
     </div>
 
+    <!-- Modal Detail Invoice -->
+    <div class="modal fade" id="detailInvoiceModal" tabindex="-1" aria-labelledby="detailInvoiceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailInvoiceModalLabel">Detail Invoice</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="table-responsive">
+                            <table id="tableDetailInvoice" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>No Resi</th>
+                                        <th>No DO</th>
+                                        <th>Harga</th>
+                                        <th>Quantity</th> <!-- Kolom baru untuk Quantity -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data akan dimasukkan secara dinamis -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -59,6 +138,7 @@
                         <div class="text-center mt-3">
                             <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
                             <p class="text-muted">Jumlah Resi</p>
+                            <button class="btn btn-primary" id="detailInvoice">Detail Invoice</button>
                         </div>
                     </div>
                 </div>
@@ -194,6 +274,7 @@
             // Setup for selectResi
             $('#selectResi').on('change', function() {
                 var selectedInvoices = $(this).val();
+                $('#detailInvoice').data('selected-invoices', selectedInvoices);
                 if (selectedInvoices.length > 0) {
                     $.ajax({
                         url: '{{ route('jumlahresi') }}',
@@ -212,6 +293,88 @@
                     $('#pointValue').text(0);
                 }
             });
+
+            $(document).on('click', '#detailInvoice', function() {
+                var selectedInvoices = $(this).data('selected-invoices');
+
+                if (selectedInvoices && selectedInvoices.length > 0) {
+
+
+                    $('#detailInvoiceModal').modal('show');
+                    // Inisialisasi DataTable jika belum ada
+                    if (!$.fn.DataTable.isDataTable('#tableDetailInvoice')) {
+                        $('#tableDetailInvoice').DataTable({
+                            serverSide: true,
+                            processing: true,
+                            ajax: {
+                                url: "{{ route('getDetailInvoice') }}", // URL endpoint ke backend
+                                method: 'GET',
+                                data: function(d) {
+                                    // Pastikan `selectedInvoices` adalah array
+                                    d.invoice_ids = selectedInvoices || [];
+                                }
+                            },
+                            columns: [{
+                                    data: 'no_resi',
+                                    name: 'no_resi'
+                                }, // Kolom nomor resi
+                                {
+                                    data: 'no_do',
+                                    name: 'no_do'
+                                }, // Kolom nomor DO
+                                {
+                                    data: 'berat_or_volume',
+                                    name: 'berat_or_volume'
+                                }, // Berat/Volume
+                                {
+                                    data: 'harga',
+                                    name: 'harga',
+                                    render: function(data, type, row) {
+                                        // Format angka ke dalam format mata uang
+                                        return new Intl.NumberFormat('id-ID', {
+                                            style: 'currency',
+                                            currency: 'IDR'
+                                        }).format(data);
+                                    }
+                                },
+                            ],
+                            order: [], // Tidak ada pengurutan default
+                            lengthChange: false, // Nonaktifkan opsi untuk mengubah jumlah baris yang ditampilkan
+                            language: {
+                                processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+                                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                                // infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                                emptyTable: "Tidak ada data yang tersedia",
+                                loadingRecords: "Sedang memuat...",
+                                zeroRecords: "Tidak ditemukan data yang sesuai",
+                                paginate: {
+                                    first: "Pertama",
+                                    last: "Terakhir",
+                                    next: "Berikutnya",
+                                    previous: "Sebelumnya"
+                                }
+                            }
+                        });
+                    } else {
+                        // Refresh DataTable jika sudah diinisialisasi
+                        $('#tableDetailInvoice').DataTable().ajax.reload(); // Memperbaiki elemen target
+                    }
+                } else {
+                    // Menampilkan pesan SweetAlert jika tidak ada invoice yang dipilih
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan!',
+                        text: 'Tidak ada invoice yang dipilih!',
+                    });
+                }
+            });
+
+            $(document).on('click', '#closeModal', function() {
+                $('#detailInvoiceModal').modal('hide');
+            });
+
+
+
 
             // Initialize signature pads for admin and customer
             let canvas1 = document.getElementById('signature-pad-1');
