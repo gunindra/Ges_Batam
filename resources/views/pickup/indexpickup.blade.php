@@ -23,7 +23,7 @@
             }
 
             #tableDetailInvoice {
-                font-size: 12px;
+                font-size: 14px;
                 /* Menyesuaikan ukuran font tabel agar tidak terlalu besar */
             }
 
@@ -81,7 +81,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="detailInvoiceModalLabel">Detail Modal</h5>
+                    <h5 class="modal-title" id="detailInvoiceModalLabel">Detail Invoice</h5>
                 </div>
                 <div class="modal-body">
                     <div class="container">
