@@ -145,6 +145,138 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mt-3">
+                        <label for="OperatingRevenue" class="form-label fw-bold">Operating Revenue Account</label>
+                            <select class="form-control" id="OperatingRevenue" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedOperatingRevenue)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="OperatingExpense" class="form-label fw-bold">Operating Expense Account</label>
+                            <select class="form-control" id="OperatingExpense" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedOperatingExpense)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="NonOperatingRevenue" class="form-label fw-bold">Non Operating Revenue Account</label>
+                            <select class="form-control" id="NonOperatingRevenue" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedNonOperatingRevenue)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="NonOperatingExpense" class="form-label fw-bold">Non Operating Expense Account</label>
+                            <select class="form-control" id="NonOperatingExpense" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedNonOperatingExpense)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="CapitalAccount" class="form-label fw-bold">Capital Account</label>
+                            <select class="form-control" id="CapitalAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedCapitalAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="AdditionalCapitalAccount" class="form-label fw-bold">Additional Capital Account</label>
+                            <select class="form-control" id="AdditionalCapitalAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedAdditionalCapitalAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="ReturnedProfitAccount" class="form-label fw-bold">Returned Profit Account</label>
+                            <select class="form-control" id="ReturnedProfitAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedReturnedProfitAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="CurrentProfitAccount" class="form-label fw-bold">Curren Year Profit Account</label>
+                            <select class="form-control" id="CurrentProfitAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedCurrentProfitAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="DevidenAccount" class="form-label fw-bold">Deviden Account</label>
+                            <select class="form-control" id="DevidenAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedDevidenAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="InvestingAccount" class="form-label fw-bold">Investing Account</label>
+                            <select class="form-control" id="InvestingAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedInvestingAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                        <label for="FinancingAccount" class="form-label fw-bold">Financing Account</label>
+                            <select class="form-control" id="FinancingAccount" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedFinancingAccount)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -183,6 +315,51 @@
                 placeholder: 'Pilih Akun',
                 allowClear: true
             });
+            $('#OperatingRevenue').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#OperatingExpense').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#NonOperatingRevenue').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#NonOperatingExpense').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#CapitalAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#AdditionalCapitalAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#ReturnedProfitAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#CurrentProfitAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#DevidenAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#InvestingAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            $('#FinancingAccount').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
+            
             $('select').on('change', function() {
                 const dropdownName = $(this).attr('name');
                 const selectedValue = $(this).val();
@@ -207,7 +384,19 @@
                 discount_purchase_account_id: $('#DiscountPurchase').val(),
                 purchase_profit_rate_account_id: $('#PurchaseRate').val(),
                 purchase_loss_rate_account_id: $('#PurchaseLoss').val(),
-                coa_id: $("#PaymentAccount").val()  
+                coa_id: $("#PaymentAccount").val(),
+                operating_revenue : $("#OperatingRevenue").val(),
+                operating_expense : $("#OperatingExpense").val(),
+                non_operating_revenue : $("#NonOperatingRevenue").val(),
+                non_operating_expense : $("#NonOperatingExpense").val(),
+                capital : $("#CapitalAccount").val(),
+                additional_capital : $("#AdditionalCapitalAccount").val(),
+                returned_profit : $("#ReturnedProfitAccount").val(),
+                current_profit : $("#CurrentProfitAccount").val(),
+                deviden : $("#DevidenAccount").val(),
+                investing : $("#InvestingAccount").val(),
+                financing : $("#FinancingAccount").val()
+                
             };
 
             Swal.fire({

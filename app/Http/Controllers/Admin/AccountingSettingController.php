@@ -19,9 +19,81 @@ class AccountingSettingController extends Controller
             ->pluck('coa_id') 
             ->toArray();
 
+        $savedOperatingRevenue = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Operating Revenue')
+            ->pluck('coa_id') 
+            ->toArray();
+
+        $savedOperatingExpense = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Operating Expense')
+            ->pluck('coa_id') 
+            ->toArray();
+
+        $savedNonOperatingRevenue = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Non Operating Revenue')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedNonOperatingExpense = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Non Operating Expense')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedCapitalAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Capital')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedAdditionalCapitalAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Additional Capital')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedReturnedProfitAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Returned Profit')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedCurrentProfitAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Current Profit')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedDevidenAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Deviden')
+            ->pluck('coa_id') 
+            ->toArray();
+        
+        $savedInvestingAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Investing')
+            ->pluck('coa_id') 
+            ->toArray();
+
+        $savedFinancingAccount = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Financing')
+            ->pluck('coa_id') 
+            ->toArray();
+
         $createdAtStatus = $accountSettings ? $accountSettings->id : null;
 
-        return view('accounting.accountingSetting.indexaccountsetting', compact('coas', 'accountSettings', 'createdAtStatus', 'savedPaymentAccounts'));
+        return view('accounting.accountingSetting.indexaccountsetting',
+                    compact('coas', 
+                            'accountSettings', 
+                            'createdAtStatus', 
+                            'savedPaymentAccounts',
+                            'savedOperatingRevenue',
+                            'savedOperatingExpense',
+                            'savedNonOperatingRevenue',
+                            'savedNonOperatingExpense',
+                            'savedCapitalAccount',
+                            'savedAdditionalCapitalAccount',
+                            'savedReturnedProfitAccount',
+                            'savedCurrentProfitAccount',
+                            'savedDevidenAccount',
+                            'savedInvestingAccount',
+                            'savedFinancingAccount'
+                            )
+                    );
     }
 
 
@@ -43,6 +115,8 @@ class AccountingSettingController extends Controller
             'purchase_loss_rate_account_id' => 'nullable',
             'coa_id' => 'nullable|array',
             'coa_id.*' => 'exists:tbl_coa,id',
+            'operating_revenue' => 'nullable|array',
+            'operating_revenue.*' => 'exists:tbl_coa,id',
         ]);
 
 
@@ -64,7 +138,154 @@ class AccountingSettingController extends Controller
                 );
             }
         }
-    
+
+        if (empty($request->operating_revenue)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Operating Revenue')
+                ->delete();
+        } else {
+            foreach ($request->operating_revenue as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Operating Revenue'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        
+        if (empty($request->operating_expense)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Operating Expense')
+                ->delete();
+        } else {
+            foreach ($request->operating_expense as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Operating Expense'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+
+        if (empty($request->non_operating_revenue)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Non Operating Revenue')
+                ->delete();
+        } else {
+            foreach ($request->non_operating_revenue as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Non Operating Revenue'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->non_operating_expense)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Non Operating Expense')
+                ->delete();
+        } else {
+            foreach ($request->non_operating_expense as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Non Operating Expense'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->capital)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Capital')
+                ->delete();
+        } else {
+            foreach ($request->capital as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Capital'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->additional_capital)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Addtional Capital')
+                ->delete();
+        } else {
+            foreach ($request->additional_capital as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Additional Capital'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->returned_profit)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Returned Profit}')
+                ->delete();
+        } else {
+            foreach ($request->returned_profit as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Returned Profit'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->current_profit)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Current Profit')
+                ->delete();
+        } else {
+            foreach ($request->current_profit as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Current Profit'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        if (empty($request->deviden)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Deviden')
+                ->delete();
+        } else {
+            foreach ($request->deviden as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Deviden'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+
+        if (empty($request->investing)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Investing')
+                ->delete();
+        } else {
+            foreach ($request->investing as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Investing'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
+        
+        if (empty($request->financing)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Financing')
+                ->delete();
+        } else {
+            foreach ($request->financing as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'Financing'],
+                    ['updated_at' => now()]
+                );
+            }
+        }
 
 
         return response()->json(['success' => 'Data berhasil disimpan']);
