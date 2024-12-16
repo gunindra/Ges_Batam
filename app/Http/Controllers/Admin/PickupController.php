@@ -6,6 +6,7 @@ use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\DataTables;
 
 class PickupController extends Controller
 {
@@ -40,6 +41,33 @@ class PickupController extends Controller
         return response()->json(['count' => $count]);
     }
 
+    public function getDetailInvoice(Request $request)
+    {
+        $invoiceIds = $request->input('invoice_ids');
+        if (is_array($invoiceIds) && !empty($invoiceIds)) {
+            $getData = DB::table('tbl_resi')
+                ->whereIn('invoice_id', $invoiceIds)
+                ->get();
+
+            $processedData = $getData->map(function ($item) {
+                if (!is_null($item->berat)) {
+                    $item->berat_or_volume = $item->berat . ' kg';
+                } elseif (!is_null($item->panjang) && !is_null($item->lebar) && !is_null($item->tinggi)) {
+                    $volume = $item->panjang * $item->lebar * $item->tinggi;
+                    $item->berat_or_volume = $volume . ' m³';
+                } else {
+                    $item->berat_or_volume = '-';
+                }
+                return $item;
+            });
+
+            return DataTables::of($processedData)->make(true);
+        } else {
+            return response()->json([
+                'data' => []
+            ]);
+        }
+    }
 
     public function checkPassword(Request $request)
     {
