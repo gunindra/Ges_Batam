@@ -37,6 +37,7 @@ class PenerimaanKasController extends Controller
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
 
+
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : Carbon::now()->startOfMonth();
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
@@ -48,7 +49,7 @@ class PenerimaanKasController extends Controller
             ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
 
         if ($request->customer) {
-            $payment->where('tbl_payment_customer.id', '=', $request->customer);
+            $payment->where('tbl_payment_customer.pembeli_id', '=', $request->customer);
         }
 
         if ($request->payment) {
@@ -78,7 +79,6 @@ class PenerimaanKasController extends Controller
 
         // Get the results
         $payments = $payment->get();
-
 
         $output = '
                     <h5 style="text-align:center; width:100%">'
@@ -140,9 +140,9 @@ class PenerimaanKasController extends Controller
                 $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
                 $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
                 $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
-    
-                $startDate = $startDateCarbon->format('d F Y'); 
-                $endDate = $endDateCarbon->format('d F Y');     
+
+                $startDate = $startDateCarbon->format('d F Y');
+                $endDate = $endDateCarbon->format('d F Y');
             } else {
                 $startDate = '-';
                 $endDate = '-';
