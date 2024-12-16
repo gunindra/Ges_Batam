@@ -9,19 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('tbl_payment_invoice', function (Blueprint $table) {
-            $table->decimal('kuota', 15, 2)->nullable()->after('amount');
+        Schema::table('tbl_payment_items', function (Blueprint $table) {
+            $table->string('tipe');
         });
     }
 
     /**
      * Reverse the migrations.
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('tbl_payment_invoice', function (Blueprint $table) {
+        Schema::table('tbl_payment_items', function (Blueprint $table) {
             $table->dropColumn('kuota');
         });
     }

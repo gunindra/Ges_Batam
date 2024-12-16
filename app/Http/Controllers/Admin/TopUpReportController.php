@@ -14,8 +14,10 @@ use App\Models\Asset;
 use App\Models\HistoryTopup;
 use App\Traits\WhatsappTrait;
 use Carbon\Carbon;
+use Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Collection;
+use Str;
 
 class TopUpReportController extends Controller
 {
@@ -158,15 +160,75 @@ class TopUpReportController extends Controller
 
     public function generatePdf(Request $request)
     {
-        $htmlOutput = $this->getTopUpReport($request);
-
-        $pdf = PDF::loadHTML($htmlOutput);
-        return $pdf->download('Top Up Report.pdf');
+        $startDate = $request->input('startDate') ? Carbon::parse($request->input('startDate'))->format('d M Y') : '-';
+        $endDate = $request->input('endDate') ? Carbon::parse($request->input('endDate'))->format('d M Y') : '-';
+        $customer = $request->nama_pembeli ?? null;
+    
+        try {
+            // Query Topup
+            $topupQuery = HistoryTopup::where('status', '!=', 'cancel');
+    
+            // Tambahkan filter customer jika tersedia
+            if (!is_null($customer)) {
+                $topupQuery->where('customer_id', '=', $customer);
+            }
+    
+            // Tambahkan filter tanggal jika diisi
+            if ($startDate !== '-') {
+                $topupQuery->whereDate('date', '>=', Carbon::parse($request->input('startDate')));
+            }
+    
+            if ($endDate !== '-') {
+                $topupQuery->whereDate('date', '<=', Carbon::parse($request->input('endDate')));
+            }
+    
+            $topup = $topupQuery->get();
+    
+            // Ambil nama pembeli jika customer ID diberikan
+            $customerName = '-';
+            if (!is_null($customer)) {
+                $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
+                $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+            }
+    
+            // Generate PDF
+            $pdf = pdf::loadView('exportPDF.topupreport', [
+                'topup' => $topup,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'customer' => $customerName,
+            ])
+            ->setPaper('A4', 'portrait')
+            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+            ->setWarnings(false);
+    
+            // Buat folder untuk menyimpan PDF jika belum ada
+            $folderPath = storage_path('app/public/topupreports');
+            if (!file_exists($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+    
+            // Tentukan nama file untuk PDF
+            $fileName = 'topup_report_' . (string) Str::uuid() . '.pdf';
+            $filePath = $folderPath . '/' . $fileName;
+    
+            // Simpan PDF
+            $pdf->save($filePath);
+    
+            // Kembalikan URL PDF yang dihasilkan
+            $url = asset('storage/topupreports/' . $fileName);
+            return response()->json(['url' => $url]);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating Asset Report PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
+        }
     }
-    public function exportTopupReport(Request $request)
+    
+        public function exportTopupReport(Request $request)
     {
         $startDate = $request->input('startDate');
-        $customer = $request->nama_pembeli;
+        $customer = $request->nama_pembeli ?? '-';
         $endDate = $request->input('endDate');
 
         return Excel::download(new TopupReportExport($customer, $startDate, $endDate), 'topup_report.xlsx');

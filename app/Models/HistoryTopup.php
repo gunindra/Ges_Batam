@@ -24,13 +24,10 @@ class HistoryTopup extends Model
         'code',
     ];
 
-    // Relationship to the customer (tbl_pembeli)
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
     }
-
-
     // Relationship to the price point
     public function pricePerKg()
     {

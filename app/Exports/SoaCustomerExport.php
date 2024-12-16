@@ -16,7 +16,7 @@ class SoaCustomerExport implements FromView, WithEvents
     protected $endDate;
     protected $customer;
 
-    public function __construct($startDate, $endDate,$customer)
+    public function __construct($startDate, $endDate, $customer)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
@@ -28,24 +28,31 @@ class SoaCustomerExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas')
-                    ->where('pembeli_id', '=', $this->customer);
+        $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas');
 
+        if ($this->customer !== '-') {
+            $invoice->where('pembeli_id', '=', $this->customer);
+        }
 
-        if ($this->startDate){
+        if ($this->startDate) {
             $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));
         }
-        if ($this->endDate){
+        if ($this->endDate) {
             $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($this->endDate)));
         }
 
         $invoice = $invoice->get();
+        $customerName = '-';
+        if ($this->customer !== '-') {
+            $customerData = DB::table('tbl_pembeli')->where('id', $this->customer)->first();
+            $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+        }
 
-        return view('exportExcel.penerimaankas', [
+        return view('exportExcel.soacustomer', [
             'invoice' => $invoice,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'customer' => $this->customer,
+            'customer' => $customerName,
         ]);
     }
 

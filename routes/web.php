@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\OngoingInvoiceController;
+use App\Http\Controllers\Admin\PiutangController;
 use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
@@ -158,7 +159,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payment/generateKodePembayaran', [PaymentController::class, 'generateKodePembayaran'])->name('generateKodePembayaran');
     Route::get('/getInvoiceByMarking', [PaymentController::class, 'getInvoiceByMarking'])->name('getInvoiceByMarking');
     Route::get('/payment/getInvoiceDetail', [PaymentController::class, 'getInvoiceDetail'])->name('getInvoiceDetail');
-
+    Route::get('/payment/getInvoiceByMarkingEdit', [PaymentController::class, 'getInvoiceByMarkingEdit'])->name('getInvoiceByMarkingEdit');
+    Route::get('/payment/updatepayment/{id}', [PaymentController::class, 'editpayment'])->name('editpayment');
+    Route::post('/payment/updatepayment/update', [PaymentController::class, 'update'])->name('editpayment.update');
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
@@ -234,7 +237,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
     Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
     // Route::get('/masterdata/costumer', [CostumerController::class, 'show']);
-    
+
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
     Route::get('/masterdata/driver/list', [DriverController::class, 'getlistDriver'])->name('getlistDriver');
@@ -320,6 +323,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/purchasePayment/export', [PurchasePaymentController::class, 'export'])->name('getSupInvoiceExport');
     Route::post('/vendor/purchasePayment/payment', [PurchasePaymentController::class, 'store'])->name('paymentSup');
     Route::get('/vendor/purchasePayment/getInvoiceSupDetail', [PurchasePaymentController::class, 'getInvoiceSupDetail'])->name('getInvoiceSupDetail');
+    Route::get('/vendor/purchasePayment/{id}', [PurchasePaymentController::class, 'editpurchasepayment'])->name('editpurchasepayment');
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
@@ -444,12 +448,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/soa',  [SoaController::class, 'index'])->name('soa');
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
-
+    Route::get('/report/getSoa/export', [SoaController::class, 'exportSoaCustomerReport'])->name('exportSoaCustomer');
     //Soa Vendor
     Route::get('/report/soaVendor',  [SoaVendorController::class, 'index'])->name('soaVendor');
     Route::get('/report/soaVendor/getSoaVendor',  [SoaVendorController::class, 'getSoaVendor'])->name('getSoaVendor');
     Route::get('/report/soaVendor/soaWA', [SoaVendorController::class, 'soaWA'])->name('soaWA.vendor');
-
+    Route::get('/report/soaVendor/export', [SoaVendorController::class, 'exportSoaVendorReport'])->name('exportSoaVendor');
     //Asset
     Route::get('/report/assetReport',  [AssetReportController::class, 'index'])->name('assetReport');
     Route::get('/report/getAssetReport',  [AssetReportController::class, 'getAssetReport'])->name('getAssetReport');
@@ -466,6 +470,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/getTopUpReport',  [TopUpReportController::class, 'getTopUpReport'])->name('getTopUpReport');
     Route::get('/report/topUpReport/pdf', [TopUpReportController::class, 'generatePdf'])->name('topUpReport.pdf');
     Route::get('/report/topUpReport/export', [TopUpReportController::class, 'exportTopupReport'])->name('exportTopupReport');
+
+    //piutang
+    Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang');
+    Route::get('/report/piutang', [PiutangController::class, 'getpiutang'])->name('getlistPiutang');
+    Route::get('/report/piutang/export', [PiutangController::class, 'exportPiutangReport'])->name('exportPiutangReport');
+    Route::get('/report/piutang/exportPdf', [PiutangController::class, 'exportPiutangPdf'])->name('exportPiutangPdf');
 });
 
 

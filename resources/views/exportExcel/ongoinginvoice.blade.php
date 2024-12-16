@@ -40,7 +40,7 @@
                     {{ $OngoingInvoices->no_invoice }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $OngoingInvoices->tanggal_buat }}
+                    {{\Carbon\Carbon::parse( $OngoingInvoices->tanggal_buat) ->format('d M Y')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $OngoingInvoices->nama_pembeli }}
@@ -52,7 +52,7 @@
                     {{ $OngoingInvoices->nama_supir }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $OngoingInvoices->tanggal_pengantaran }}
+                    {{ \Carbon\Carbon::parse( $OngoingInvoices->tanggal_pengantaran )->format('d M Y')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $OngoingInvoices->status_transaksi }}

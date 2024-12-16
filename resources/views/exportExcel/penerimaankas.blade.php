@@ -1,7 +1,7 @@
 <table>
     <thead>
         <tr>
-            <td style="text-align:center;font-size:14px; font-weight: bold; padding: 14px" colspan="6">Asset Report</td>
+            <td style="text-align:center;font-size:14px; font-weight: bold; padding: 14px" colspan="6">Penerimaan Kas Report</td>
         </tr>
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">Start Date:</td>
@@ -16,13 +16,13 @@
             </td>
         </tr>
         <tr>
-            <td style="text-align:left;font-size:11px;padding: 14px;">Start Date:</td>
+            <td style="text-align:left;font-size:11px;padding: 14px;">Nama Customer:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
                 {{ $customer ? $customer : '-' }}
             </td>
         </tr>
         <tr>
-            <td style="text-align:left;font-size:11px;padding: 14px;">End Date:</td>
+            <td style="text-align:left;font-size:11px;padding: 14px;">Metode Pembayaran:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
                 {{ $account ? $account : '-' }}
             </td>
@@ -52,10 +52,10 @@
                     {{ $kas->kode_pembayaran }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $kas->created_date }}
+                    {{ \Carbon\Carbon::parse( $kas->created_date)->format('d M Y')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $kas->payment_date }}
+                    {{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:i')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->customer_name }}
@@ -67,7 +67,7 @@
                     {{ $kas->no_invoice_with_amount }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{number_format($kas->total_amount - $kas->discount, 2)}}
+                    {{ $kas->total_amount - $kas->discount }}
                 </td>
             </tr>
         @endforeach

@@ -287,6 +287,9 @@ class InvoiceController extends Controller
                 return $item->created_at_formatted ?? '-';
             })
             ->addColumn('updated_at', function ($item) {
+                if (!$item->user_update) {
+                    return '-';
+                }
                 return $item->updated_at_formatted ?? '-';
             })
             ->addColumn('action', function ($item) {
@@ -852,7 +855,7 @@ class InvoiceController extends Controller
             'pembeli_id, SUM(IFNULL(total_harga, 0) - IFNULL(total_bayar, 0)) as total_sisa_bayar'
         )
             ->where('status_bayar', 'Belum lunas')
-            ->where('tanggal_buat', '<', Carbon::now()->subWeek())
+            ->where('tanggal_buat', '<', Carbon::now()->subMonths(2)) // Ubah ke 2 bulan
             ->groupBy('pembeli_id')
             ->with('pembeli:id,nama_pembeli,marking')
             ->get();
