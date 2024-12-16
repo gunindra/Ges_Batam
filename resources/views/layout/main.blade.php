@@ -119,7 +119,7 @@
         <!-- Menu Report -->
         @if (Auth::user()->role === 'superadmin')
             <li
-                class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor') ? 'active' : '' }}">
+                class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor')|| request()->routeIs('piutang') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport" aria-expanded="true"
                     aria-controls="listreport">
                     <i class="fas fa-file-alt fa-lg"></i>
@@ -140,6 +140,8 @@
                             href="{{ route('soaVendor') }}">SOA Vendor</a>
                         <a class="collapse-item {{ request()->routeIs('ongoingInvoice') ? 'active' : '' }}"
                             href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
+                        <a class="collapse-item {{ request()->routeIs('piutang') ? 'active' : '' }}"
+                            href="{{ route('piutang') }}">Piutang</a>
                     </div>
                 </div>
             </li>
