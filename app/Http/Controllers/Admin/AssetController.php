@@ -104,10 +104,12 @@ class AssetController extends Controller
             $asset->estimated_age = $request->input('estimated_age');
             $asset->depreciation_account = $request->input('depreciation_account');
             $asset->accumulated_account = $request->input('accumulated_account');
+            $asset->asset_account = $request->input('asset_account');
+            $asset->expense_account = $request->input('expense_account');
             $asset->save();
             Log::info("Membuat jurnal untuk Asset " . $request->input('asset_name'));
-
             $this->createJournalForAsset($request, $asset);
+            $this->createJournalForDepreciation($request, $asset);
 
             DB::commit();
             Log::info("Sukses menambahkan Asset: " . $request->input('asset_name'));
@@ -131,8 +133,60 @@ class AssetController extends Controller
             $noRef = $asset->asset_code ? $asset->asset_code : '-';
             $price = intval(str_replace(',', '', $asset->acquisition_price));
             $residue = intval(str_replace(',', '', $asset->residue_value));
+            // Create Jurnal
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'JU';
+            $jurnal->tanggal = $asset->depreciation_date;
+            $jurnal->no_ref = $noRef;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnal->totaldebit = $price;
+            $jurnal->totalcredit = $price;
+            $jurnal->asset_id = $asset->id;
+            $jurnal->save();
+
+            // Debit Jurnal Item
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $asset->asset_account;
+            $jurnalItemDebit->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnalItemDebit->debit = $price;
+            $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->save();
+
+            // Credit Jurnal Item
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $asset->expense_account;
+            $jurnalItemCredit->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnalItemCredit->debit = 0;
+            $jurnalItemCredit->credit = $price;
+            $jurnalItemCredit->save();
+
+            Log::info("Jurnal untuk Asset " . $asset->asset_name . " berhasil dibuat.");
+
+
+        } catch (Exception $e) {
+            Log::error("Gagal membuat jurnal untuk Asset: " . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
+        }
+    }
+
+    public function createJournalForDepreciation($request, $asset)
+    {
+        try {
+            // Extract necessary data from the request and asset
+            $request->merge(['code_type' => 'JU']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+            $jurnalDate = Carbon::parse($asset->depreciation_date)->endOfMonth()->format('Y-m-d');
+            $noRef = $asset->asset_code ? $asset->asset_code : '-';
+            $price = intval(str_replace(',', '', $asset->acquisition_price));
+            $residue = intval(str_replace(',', '', $asset->residue_value));
             $age = $asset->estimated_age;
-            $totalPerMonth = ($price - $residue) / $age;
+            $result = ($price - $residue) / $age;
+            var_dump($result);  // Check the result before rounding
+            $totalPerMonth = (int) ceil($result);;
 
             // Create Jurnal
             $jurnal = new Jurnal();
@@ -141,7 +195,7 @@ class AssetController extends Controller
             $jurnal->tanggal = $jurnalDate;
             $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnal->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
             $jurnal->totaldebit = $totalPerMonth;
             $jurnal->totalcredit = $totalPerMonth;
             $jurnal->asset_id = $asset->id;
@@ -151,7 +205,7 @@ class AssetController extends Controller
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
             $jurnalItemDebit->code_account = $asset->depreciation_account;
-            $jurnalItemDebit->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnalItemDebit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
             $jurnalItemDebit->debit = $totalPerMonth;
             $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
@@ -160,16 +214,16 @@ class AssetController extends Controller
             $jurnalItemCredit = new JurnalItem();
             $jurnalItemCredit->jurnal_id = $jurnal->id;
             $jurnalItemCredit->code_account = $asset->accumulated_account;
-            $jurnalItemCredit->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnalItemCredit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $totalPerMonth;
             $jurnalItemCredit->save();
 
-            Log::info("Jurnal untuk Asset " . $asset->asset_name . " berhasil dibuat.");
+            Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
 
 
         } catch (Exception $e) {
-            Log::error("Gagal membuat jurnal untuk Asset: " . $e->getMessage());
+            Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
         }
     }

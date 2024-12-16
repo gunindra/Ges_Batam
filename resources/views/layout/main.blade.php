@@ -91,62 +91,59 @@
                 </li>
             @endif
 
-            <!-- Menu Accounting -->
-            @if (Auth::user()->role === 'superadmin')
-                <li
-                    class="nav-item {{ request()->routeIs('coa') || request()->routeIs('journal') || request()->routeIs('accountingSetting') ? 'active' : '' }}">
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listMenuAccounting"
-                        aria-expanded="true" aria-controls="listMenuAccounting">
-                        <i class="fas fa-money-bill-wave-alt"></i>
-                        <span>Accounting</span>
-                    </a>
-                    <div id="listMenuAccounting" class="collapse" aria-labelledby="headingBootstrap"
-                        data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Accounting</h6>
-                            <a class="collapse-item {{ request()->routeIs('coa') ? 'active' : '' }}"
-                                href="{{ route('coa') }}">COA</a>
-                            <a class="collapse-item {{ request()->routeIs('journal') ? 'active' : '' }}"
-                                href="{{ route('journal') }}">Journal</a>
-                            <a class="collapse-item {{ request()->routeIs('asset') ? 'active' : '' }}"
-                                href="{{ route('asset') }}">Asset</a>
-                            <a class="collapse-item {{ request()->routeIs('accountingSetting') ? 'active' : '' }}"
-                                href="{{ route('accountingSetting') }}">Accounting Setting</a>
-                        </div>
+        <!-- Menu Accounting -->
+        @if (Auth::user()->role === 'superadmin')
+            <li
+                class="nav-item {{ request()->routeIs('coa') || request()->routeIs('journal') || request()->routeIs('accountingSetting') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listMenuAccounting"
+                    aria-expanded="true" aria-controls="listMenuAccounting">
+                    <i class="fas fa-money-bill-wave-alt"></i>
+                    <span>Accounting</span>
+                </a>
+                <div id="listMenuAccounting" class="collapse" aria-labelledby="headingBootstrap"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Accounting</h6>
+                        <a class="collapse-item {{ request()->routeIs('coa') ? 'active' : '' }}"
+                            href="{{ route('coa') }}">COA</a>
+                        <a class="collapse-item {{ request()->routeIs('journal') ? 'active' : '' }}"
+                            href="{{ route('journal') }}">Journal</a>
+                        <a class="collapse-item {{ request()->routeIs('asset') ? 'active' : '' }}"
+                            href="{{ route('asset') }}">Asset</a>
+                        <a class="collapse-item {{ request()->routeIs('accountingSetting') ? 'active' : '' }}"
+                            href="{{ route('accountingSetting') }}">Accounting Setting</a>
                     </div>
-                </li>
-            @endif
-            <!-- Menu Report -->
-            @if (Auth::user()->role === 'superadmin')
-                <li
-                    class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor') ? 'active' : '' }}">
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport"
-                        aria-expanded="true" aria-controls="listreport">
-                        <i class="fas fa-file-alt fa-lg"></i>
-                        <span>Report</span>
-                    </a>
-                    <div id="listreport" class="collapse" aria-labelledby="headingBootstrap"
-                        data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Report</h6>
-                            <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
-                                href="{{ route('assetReport') }}">Asset Report</a>
-                            <a class="collapse-item {{ request()->routeIs('topUpReport') ? 'active' : '' }}"
-                                href="{{ route('topUpReport') }}">Top Up Report</a>
-                            <a class="collapse-item {{ request()->routeIs('penerimaanKas') ? 'active' : '' }}"
-                                href="{{ route('penerimaanKas') }}">Penerimaan Kas Report</a>
-                            <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
-                                href="{{ route('soa') }}">SOA Customer</a>
-                            <a class="collapse-item {{ request()->routeIs('soaVendor') ? 'active' : '' }}"
-                                href="{{ route('soaVendor') }}">SOA Vendor</a>
-                            <a class="collapse-item {{ request()->routeIs('ongoingInvoice') ? 'active' : '' }}"
-                                href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
-                            <a class="collapse-item {{ request()->routeIs('piutang') ? 'active' : '' }}"
-                                href="{{ route('piutang') }}">Piutang</a>
-                        </div>
+                </div>
+            </li>
+        @endif
+        <!-- Menu Report -->
+        @if (Auth::user()->role === 'superadmin')
+            <li
+                class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport" aria-expanded="true"
+                    aria-controls="listreport">
+                    <i class="fas fa-file-alt fa-lg"></i>
+                    <span>Report</span>
+                </a>
+                <div id="listreport" class="collapse" aria-labelledby="headingBootstrap" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Report</h6>
+                        <a class="collapse-item {{ request()->routeIs('assetReport') ? 'active' : '' }}"
+                            href="{{ route('assetReport') }}">Asset Report</a>
+                        <a class="collapse-item {{ request()->routeIs('topUpReport') ? 'active' : '' }}"
+                            href="{{ route('topUpReport') }}">Top Up Report</a>
+                        <a class="collapse-item {{ request()->routeIs('penerimaanKas') ? 'active' : '' }}"
+                            href="{{ route('penerimaanKas') }}">Penerimaan Kas Report</a>
+                        <a class="collapse-item {{ request()->routeIs('soa') ? 'active' : '' }}"
+                            href="{{ route('soa') }}">SOA Customer</a>
+                        <a class="collapse-item {{ request()->routeIs('soaVendor') ? 'active' : '' }}"
+                            href="{{ route('soaVendor') }}">SOA Vendor</a>
+                        <a class="collapse-item {{ request()->routeIs('ongoingInvoice') ? 'active' : '' }}"
+                            href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
                     </div>
-                </li>
-            @endif
+                </div>
+            </li>
+        @endif
 
             <!-- Menu Accounting Report -->
             @if (Auth::user()->role === 'superadmin')
