@@ -187,7 +187,7 @@
 @endsection
 @section('script')|
 
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             $('#passwordModal').modal({
                 backdrop: 'static',
@@ -260,7 +260,7 @@
 
 
         });
-    </script> --}}
+    </script>
     <script>
         $(document).ready(function() {
 
