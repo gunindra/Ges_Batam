@@ -230,51 +230,44 @@ class PaymentController extends Controller
     }
 
 
-
     public function amountPoin(Request $request)
     {
         $invoiceNo = $request->invoiceNo;
         $amountPoin = $request->amountPoin;
+        $previousPoin = $request->previousPoin ?? 0;
 
         $invoice = DB::table('tbl_invoice')->where('no_invoice', $invoiceNo)->first();
+
         if (!$invoice) {
             return response()->json(['error' => 'Invoice tidak ditemukan'], 404);
         }
+
         $customerId = $invoice->pembeli_id;
 
-        $topups = DB::table('tbl_history_topup')
-            ->where('customer_id', $customerId)
-            ->where('balance', '>', 0)
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $customer = Customer::find($customerId);
+        $sisaPoin = $customer->sisa_poin + $previousPoin;
 
-        $remainingPoin = $amountPoin;
-        $totalNominal = 0;
-
-        foreach ($topups as $topup) {
-            if ($remainingPoin <= 0) {
-                break;
-            }
-
-            if ($topup->balance >= $remainingPoin) {
-                $nominal = $remainingPoin * $topup->price_per_kg;
-                $totalNominal += $nominal;
-
-                $remainingPoin = 0;
-            } else {
-                $nominal = $topup->balance * $topup->price_per_kg;
-                $totalNominal += $nominal;
-                $remainingPoin -= $topup->balance;
-            }
-        }
-        if ($remainingPoin > 0) {
+        if ($amountPoin > $sisaPoin) {
             return response()->json(['error' => 'Poin tidak mencukupi'], 400);
         }
+
+        $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+
+        if (empty($currentPointPrice)) {
+            Log::error("Rate for 'Topup' not found.");
+            return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+        }
+
+        $currentPointPrice = $currentPointPrice[0]->nilai_rate;
+
+        $totalNominal = $amountPoin * $currentPointPrice;
+
         return response()->json([
             'message' => 'Nominal berhasil dihitung.',
             'total_nominal' => $totalNominal
         ]);
     }
+
 
 
     public function store(Request $request)
@@ -794,6 +787,7 @@ class PaymentController extends Controller
 
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
+            $jurnal->payment_id = $payment->id;
             $jurnal->tipe_kode = 'BKM';
             $jurnal->tanggal = $tanggalPayment;
             $jurnal->no_ref = $noRef;
@@ -939,7 +933,66 @@ class PaymentController extends Controller
 
     public function update(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
+
+         // Validasi input yang diterima
+        $validated = $request->validate([
+            'invoice' => 'required|array',
+            // 'kode' => 'required|string',
+            'tanggalPayment' => 'required|date',
+            // 'tanggalPaymentBuat' => 'required',
+            'paymentAmount' => 'required|numeric',
+            'discountPayment' => 'nullable|numeric',
+            'paymentMethod' => 'required|integer',
+            'amountPoin' => 'nullable|numeric',
+            'keterangan' => 'nullable|string',
+            'items' => 'nullable|array',
+            'items.*.account' => 'required|integer',
+            'items.*.item_desc' => 'required|string',
+            'items.*.nominal' => 'required|numeric',
+        ]);
+
+        $accountSettings = DB::table('tbl_account_settings')->first();
+        if (!$accountSettings) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        $salesAccountId = $accountSettings->sales_account_id;
+        $paymentMethodId = $request->paymentMethod;
+        $receivableSalesAccount = COA::find($paymentMethodId);
+        $poinMarginAccount = $accountSettings->discount_sales_account_id;
+        $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id;
+        $discount = $request->discountPayment ?? 0;
+        $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+
+        if (empty($currentPointPrice)) {
+            Log::error("Rate for 'Topup' not found.");
+            return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+        }
+
+        $currentPointPrice = $currentPointPrice[0]->nilai_rate;
+        if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount) || is_null($paymentDiscountAccount)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+            ], 400);
+        }
+
+        $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+        $payment = Payment::findOrFail($request->paymentId);
+
+        // dd( $payment);
+
+        // Update menggunakan array
+        $payment->update([
+            'payment_date' => $tanggalPayment,
+            'payment_method_id' => $paymentMethodId,
+            'discount' => $discount,
+            'Keterangan' => $request->keterangan,
+        ]);
     }
 
 

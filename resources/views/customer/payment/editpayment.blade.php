@@ -223,6 +223,8 @@
     <script>
         $(document).ready(function() {
             var payment = @json($payment);
+            console.log("isi payment", payment);
+
 
             let paymentInvoice = payment.payment_invoices
             $('#selectMarking').on('change', function() {
@@ -331,7 +333,7 @@
                     const newRow = `
                             <tr>
                                 <td>
-                                    <select class="form-control select2-single" name="account[]" style="width: 30vw;" required>
+                                    <select class="form-control select2-single" name="account" style="width: 30vw;" required>
                                         <option value="">Pilih Akun</option>
                                         @foreach ($coas as $coa)
                                             <option value="{{ $coa->id }}" ${item.coa_id === {{ $coa->id }} ? 'selected' : ''}>
@@ -351,7 +353,7 @@
                                     <input type="text" class="form-control"name="item_desc" value="${item.description}" placeholder="Input Description" required>
                                 </td>
                                 <td>
-                                    <input type="number" class="form-control"  name="debit"  value="${item.nominal}" placeholder="0.00" required>
+                                    <input type="number" class="form-control"  name="nominal"  value="${item.nominal}" placeholder="0.00" required>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
@@ -387,7 +389,7 @@
                     </td>
 
                     <td>
-                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+                        <input type="number" class="form-control" name="nominal" value="0" placeholder="0.00" required>
                     </td>
                     <td>
                         <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
@@ -401,7 +403,7 @@
             function updateTotals() {
                 let totalDebit = 0;
                 $('#items-container tr').each(function() {
-                    const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                    const debitValue = parseFloat($(this).find('input[name="nominal"]').val()) || 0;
                     totalDebit += debitValue;
                 });
 
@@ -417,7 +419,7 @@
                 updateTotals();
             });
 
-            $(document).on('input', 'input[name="debit"]', function() {
+            $(document).on('input', 'input[name="nominal"]', function() {
                 updateTotals();
             });
 
@@ -430,20 +432,39 @@
             $('#tanggalPaymentBuat').val(payment.payment_buat).trigger('change');
             $('#discountPayment').val(payment.discount).trigger('change');
             $('#keteranganPayment').val(payment.Keterangan).trigger('change');
-            let totalPoin = paymentInvoice.reduce((total, item) => {
-                return total + parseFloat(item.kuota);
-            }, 0);
-            $('#amountPoin').val(totalPoin).trigger('change');
-            let totalAmount = paymentInvoice.reduce((total, item) => {
-                return total + parseFloat(item.amount);
-            }, 0);
-            $('#payment').val(totalAmount).trigger('change');
+            let hasKuota = paymentInvoice.some(item => item.kuota !== null);
+            if (!hasKuota) {
+                // Jika semua kuota bernilai null
+                let totalAmount = paymentInvoice.reduce((total, item) => {
+                    return total + parseFloat(item.amount);
+                }, 0);
+                // Format angka dengan tanda ribuan
+                let formattedAmount = totalAmount.toLocaleString();
+                $('#payment').val(formattedAmount).trigger('change');
+                console.log("yang didapat dari response", totalAmount);
+                console.log("isi dari input payment", $('#payment').val());
+
+            } else {
+                // Jika ada kuota yang tidak null
+                let totalPoin = paymentInvoice.reduce((total, item) => {
+                    return total + (item.kuota ? parseFloat(item.kuota) : 0);
+                }, 0);
+                $('#amountPoin').val(totalPoin).trigger('change');
+
+                let totalAmount = paymentInvoice.reduce((total, item) => {
+                    return total + parseFloat(item.amount);
+                }, 0);
+                $('#payment').val(totalAmount).trigger('change');
+            }
             $('#selectMarking').trigger('change');
             $('#selectMethod').trigger('change');
 
             $('#submitAmountPoin').on('click', function() {
                 const invoiceNo = $('#selectInvoice').val();
                 const amountPoin = $('#amountPoin').val();
+                let previousPoin = paymentInvoice.reduce((total, item) => {
+                    return total + parseFloat(item.kuota);
+                }, 0);
 
                 if (!amountPoin) {
                     showMessage('error', 'Silahkan masukkan nominal poin terlebih dahulu.');
@@ -461,7 +482,8 @@
                     type: 'GET',
                     data: {
                         amountPoin,
-                        invoiceNo
+                        invoiceNo,
+                        previousPoin
                     },
                     success: function(response) {
                         if (response.total_nominal) {
@@ -494,7 +516,6 @@
                 defaultDate: new Date(),
                 minuteIncrement: 1,
                 time_24hr: true,
-                locale: "id",
             });
 
             $('#editPayment').click(function(e) {
@@ -545,12 +566,14 @@
                 $('#items-container tr').each(function() {
                     let account = $(this).find('select[name="account"]').val();
                     let itemDesc = $(this).find('input[name="item_desc"]').val();
-                    let debit = $(this).find('input[name="debit"]').val();
+                    let nominal = $(this).find('input[name="nominal"]').val();
+                    let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
 
                     items.push({
                         account: account,
+                        tipeAccount: tipeAccount,
                         item_desc: itemDesc,
-                        debit: debit
+                        nominal: nominal
                     });
                 });
 
@@ -562,11 +585,11 @@
 
                     const data = {
                         paymentId: paymentId,
-                        kode: $('#KodePayment').val(),
+                        // kode: $('#KodePayment').val(),
                         invoice: $('#selectInvoice').val(),
                         marking: $('#selectMarking').val(),
                         tanggalPayment: $('#tanggalPayment').val(),
-                        tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
+                        // tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
                         paymentAmount: parseFloat($('#payment').val()) || 0,
                         discountPayment: parseFloat($('#discountPayment').val()) || 0,
                         paymentMethod: $('#selectMethod').val(),
