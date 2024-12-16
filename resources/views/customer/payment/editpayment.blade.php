@@ -438,10 +438,12 @@
                 let totalAmount = paymentInvoice.reduce((total, item) => {
                     return total + parseFloat(item.amount);
                 }, 0);
-                // Format angka dengan tanda ribuan
-                let formattedAmount = totalAmount.toLocaleString();
-                $('#payment').val(formattedAmount).trigger('change');
+
                 console.log("yang didapat dari response", totalAmount);
+                // Format angka dengan tanda ribuan
+                // let formattedAmount = totalAmount.toLocaleString();
+                $('#payment').val(totalAmount).trigger('change');
+
                 console.log("isi dari input payment", $('#payment').val());
 
             } else {

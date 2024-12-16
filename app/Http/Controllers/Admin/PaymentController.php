@@ -933,7 +933,6 @@ class PaymentController extends Controller
 
     public function update(Request $request)
     {
-        // dd($request->all());
 
          // Validasi input yang diterima
         $validated = $request->validate([
@@ -986,13 +985,87 @@ class PaymentController extends Controller
 
         // dd( $payment);
 
-        // Update menggunakan array
         $payment->update([
             'payment_date' => $tanggalPayment,
             'payment_method_id' => $paymentMethodId,
             'discount' => $discount,
             'Keterangan' => $request->keterangan,
         ]);
+
+        PaymentInvoice::where('payment_id', $request->paymentId)->delete();
+
+        $totalPayment = $request->paymentAmount;
+        $invoiceList = [];
+        foreach ($request->invoice as $noInvoice) {
+            $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
+
+            $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
+            $allocatedAmount = min($totalPayment, $remainingAmount);
+
+            if ($allocatedAmount > $remainingAmount) {
+                Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pembayaran melebihi jumlah yang tersisa. Pembayaran dibatalkan.'
+                ], 400);
+            }
+
+            if ($allocatedAmount <= 0) {
+                Log::info("Invoice {$noInvoice} sudah lunas.");
+                continue;
+            }
+
+            $paymentInvoice = new PaymentInvoice();
+            $paymentInvoice->payment_id = $payment->id;
+            $paymentInvoice->invoice_id = $invoice->id;
+            $paymentInvoice->amount = $allocatedAmount;
+            $paymentInvoice->save();
+
+            $invoice->total_bayar += $allocatedAmount;
+            $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+            $invoice->save();
+
+            $totalPayment -= $allocatedAmount;
+            if ($totalPayment <= 0) {
+                break;
+            }
+
+            $invoiceList[] = $invoice->no_invoice;
+        }
+
+        if ($totalPayment > 0) {
+            Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pembayaran tidak dapat diproses karena sisa dana melebihi jumlah yang harus dibayar.'
+            ], 400);
+        }
+
+
+        $noRef = implode(', ', $request->invoice);
+
+
+        $jurnal = Jurnal::where('payment_id', $request->paymentId)->firstOrFail();
+
+        $jurnal->update([
+            'tanggal' => $tanggalPayment,
+            'no_ref' => $noRef,
+            'description' =>"Jurnal untuk Invoice: " . $noRef,
+            'totalcredit' =>$request->paymentAmount,
+            'totaldebit' => $request->paymentAmount,
+        ]);
+
+
+
+        $jurnal->tanggal = $tanggalPayment;
+        $jurnal->no_ref = $noRef;
+        $jurnal->status = 'Approve';
+        $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
+        $jurnal->totaldebit = $request->paymentAmount;
+        $jurnal->totalcredit = $request->paymentAmount;
+
+        return response()->json(['success' => true, 'message' => 'Payments successfully created and invoices updated']);
     }
 
 
