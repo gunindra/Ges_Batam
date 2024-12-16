@@ -26,15 +26,12 @@ class PenerimaanKasController extends Controller
     {
 
         $customers = Customer::where('status', '=', 1)->get();
-        $paymentAccountCoaIds = PaymentAccount::pluck('coa_id');
 
-        // Fetch payment based on parent_id and matching coa_id in payment_account
-        $payment = COA::where('set_as_group', 0)
-                        ->where(function ($query) use ($paymentAccountCoaIds) {
-                            $query->whereIn('parent_id', $paymentAccountCoaIds)
-                                ->orWhereIn('id', $paymentAccountCoaIds);
-                        })
-                        ->get();
+        $payment = DB::table('tbl_payment_account')
+        ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
+        ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+        ->get();
+                        
         return view('Report.PenerimaanKas.indexpenerimaankas', [
             'customers' => $customers,
             'payment' => $payment

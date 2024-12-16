@@ -77,15 +77,18 @@
                         <div class="col-md-6">
                             <div class="mt-3">
                                 <label for="Invoice" class="form-label fw-bold">Vendor</label>
-                                <select class="form-control select2" id="selectVendor">
-                                    <option value="" selected disabled>Pilih Vendor</option>
-
+                                <select class="form-control select2" id="selectVendor" disabled>
+                                    @foreach ($listVendor as $vendor)
+                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $selectedVendorId ? 'selected' : '' }}>
+                                            {{ $vendor->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
                             </div>
                             <div class="mt-3">
                                 <label for="Invoice" class="form-label fw-bold">No. Voucher</label>
-                                <select id="selectInvoice" name="invoices[]" class="form-control" multiple>
+                                <select id="selectInvoice" name="invoices[]" class="form-control" multiple disabled>
                                 </select>
                                 <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
                                 </div>
@@ -105,7 +108,11 @@
                                 <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
                                 <select class="form-control select2" id="selectMethod">
                                     <option value="" selected disabled>Pilih Metode Pembayaran</option>
-
+                                    @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}" {{ $coa->id == $payment->paymentMethod->id ? 'selected' : '' }}>
+                                            {{ $coa->code_account_id }} - {{ $coa->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Metode</div>
                             </div>
@@ -198,16 +205,85 @@
         $(document).ready(function () {
             var payment = @json($payment);
 
+            $('#selectVendor').on('change', function () {
+                const name = $(this).val();
+                let invoiceId = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
+
+                if (name) {
+                    loadInvoicesByName(name, invoiceId);
+                }
+            });
+
+            $('#selectInvoice').select2({
+                placeholder: "Pilih Invoice",
+                allowClear: true,
+                width: 'resolve',
+                closeOnSelect: false
+            });
+
+
             $('.select2').select2();
-            $('#tanggalPayment, #tanggalPaymentBuat').datepicker({
+            $('#tanggalPayment').datepicker({
                 format: 'dd MM yyyy',
                 todayBtn: 'linked',
                 todayHighlight: true,
                 autoclose: true,
             });
 
-            $('#selectVendor').val(payment.kode_pembayaran).trigger('change');
+            $('#tanggalPayment').val(payment.payment_date).trigger('change');
+            $('#keteranganPaymentSup').val(payment.Keterangan).trigger('change');
+            let totalAmount = payment.payment_invoices_sup
+                .reduce((total, item) => {
+                    return total + parseFloat(item.amount);
+                }, 0);
+            $('#payment').val(totalAmount).trigger('change');
+            $('#selectMethod').trigger('change');
 
+
+
+            const paymentDate = new Date(payment.payment_date);
+            $('#tanggalPayment').datepicker({
+                format: 'dd MM yyyy',
+                todayBtn: 'linked',
+                todayHighlight: true,
+                autoclose: true,
+            }).datepicker('setDate', paymentDate);
+
+
+            function loadInvoicesByName(name, invoiceId) {
+                $.ajax({
+                    url: "{{ route('getInvoiceByNameEdit') }}",
+                    type: 'GET',
+                    data: {
+                        name,
+                        invoiceId
+                    },
+                    success: function (response) {
+                        const $selectInvoice = $('#selectInvoice').empty();
+                        let selectedInvoices = [];
+
+                        if (response.success) {
+                            response.invoices.forEach(invoice_no => {
+                                $selectInvoice.append(
+                                    `<option value="${invoice_no}">${invoice_no}</option>`
+                                );
+                                selectedInvoices.push(
+                                    invoice_no);
+                            });
+
+                            $selectInvoice.val(selectedInvoices).trigger('change');
+                        } else {
+                            $selectInvoice.append(
+                                '<option value="" disabled>No invoices available</option>'
+                            );
+                        }
+                    },
+                    error: function () {
+                        showMessage('error!', 'Gagal memuat invoice.');
+                    }
+                });
+            }
+            $('#selectVendor').trigger('change');
         });
     </script>
     @endsection

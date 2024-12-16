@@ -33,4 +33,8 @@ class PaymentSup extends Model
     {
         return $this->belongsTo(COA::class, 'payment_method_id');
     }
+    public function paymentInvoicesSup()
+    {
+        return $this->hasMany(PaymentSupInvoice::class, 'payment_id');
+    }
 }

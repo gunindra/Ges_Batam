@@ -385,12 +385,43 @@ class PurchasePaymentController extends Controller
     }
     public function editpurchasepayment($id)
     {
-        $payment = PaymentSup::find($id);
+        $payment = PaymentSup::with(['paymentInvoicesSup'])->findOrFail($id);
+        $coas = COA::all();
+        $listInvoice = SupInvoice::where('status_bayar', 'Belum Lunas')
+            ->select('invoice_no')
+            ->get();
+        $selectedVendorId = $payment->selectVendor;
+
+        $listVendor = Vendor::select('id', 'name')
+            ->get();
+
 
         return view('vendor.purchasepayment.editpurchasepayment', [
             'payment' => $payment,
+            'coas' => $coas,
+            'listInvoice' => $listInvoice,
+            'listVendor' => $listVendor,
+            'selectedVendorId' => $selectedVendorId
         ]);
     }
-
-
+    public function getInvoiceByNameEdit(Request $request)
+    {
+        $name = $request->input('name');
+        $invoiceId = $request->input('invoiceId');
+    
+        $noInvoices = SupInvoice::whereIn('id', $invoiceId)
+            ->pluck('invoice_no');
+    
+        if ($noInvoices->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'invoices' => $noInvoices
+            ]);
+        }
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'No invoices found.'
+        ]);
+    }
 }
