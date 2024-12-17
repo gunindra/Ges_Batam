@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use App\Models\ReportAccount;
+
 class EquityController extends Controller
 {
     public function index() {
@@ -19,6 +21,27 @@ class EquityController extends Controller
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : date('Y-m-01');
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : date('Y-m-t');
+
+        $capitalAccounts = ReportAccount::where('type', '=', 'Capital')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $additionalCapitalAccounts = ReportAccount::where('type', '=', 'Additional Capital')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $returnedProfitAccounts = ReportAccount::where('type', '=', 'Returned Profit')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $CurrentProfitAccounts = ReportAccount::where('type', '=', 'Current Profit')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $DevidenAccounts = ReportAccount::where('type', '=', 'Deviden')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $capitalAccount = implode(',', $capitalAccounts);
+        $additionalCapitalAccounts = implode(',', $additionalCapitalAccounts);
+        $returnedProfitAccount = implode(',', $returnedProfitAccounts);
+        $CurrentProfitAccount = implode(',', $CurrentProfitAccounts);
+        $DevidenAccount = implode(',', $DevidenAccounts);
 
         $capital = DB::select("SELECT coa.name AS account_name,
                                     coa.id AS coa_id,
@@ -43,7 +66,7 @@ class EquityController extends Controller
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                 LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                WHERE coa.id = 79 --MODAL DISETOR
+                                WHERE coa.id IN ($capitalAccount)
                                 GROUP BY coa_id, account_name");
 
         $additionalCapital = DB::select("SELECT coa.name AS account_name,
@@ -69,7 +92,7 @@ class EquityController extends Controller
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        WHERE coa.id = 80 --TAMBAHAN MODAL DISETOR
+                                        WHERE coa.id IN ($additionalCapitalAccounts)
                                         GROUP BY coa_id, account_name");
 
         $returnedProfit = DB::select("SELECT coa.name AS account_name,
@@ -95,7 +118,7 @@ class EquityController extends Controller
                                     FROM tbl_coa coa
                                     LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                    WHERE coa.id = 82 -- Saldo Laba Ditahan
+                                    WHERE coa.id IN ($returnedProfitAccount)
                                     GROUP BY coa_id, account_name");
 
         $currentYearProfit = DB::select("SELECT coa.name AS account_name,
@@ -121,7 +144,7 @@ class EquityController extends Controller
                                         FROM tbl_coa coa
                                         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        WHERE coa.id = 83 --Saldo Laba Tahun Berjalan
+                                        WHERE coa.id IN ($CurrentProfitAccount)
                                         GROUP BY coa_id, account_name");
 
         $dividen = DB::select("SELECT coa.name AS account_name,
@@ -147,7 +170,7 @@ class EquityController extends Controller
                                 FROM tbl_coa coa
                                 LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
                                 LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                WHERE coa.id = 85 --PREV ATAU DEVIDEN
+                                WHERE coa.id IN ($DevidenAccount)
                                 GROUP BY coa_id, account_name");
 
         $output = '<table class="table table-vcenter card-table">
