@@ -193,7 +193,7 @@
                 <tbody id="items-container"></tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2">
+                        <td colspan="3">
                             <button type="button" class="btn btn-primary" id="add-item-button">Add Item</button>
                         </td>
                         <td>
@@ -260,6 +260,13 @@
                             @foreach ($coas as $coa)
                                 <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
                             @endforeach
+                        </select>
+                    </td>
+                    <td>
+                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                            <option value="" disabled>Pilih Akun</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
                         </select>
                     </td>
                     <td>
@@ -485,11 +492,13 @@
                 let account = $(this).find('select[name="account"]').val();
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
+                let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
 
                 items.push({
                     account: account,
                     item_desc: itemDesc,
-                    debit: debit
+                    debit: debit,
+                    tipeAccount: tipeAccount
                 });
             });
 
