@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Models\ReportAccount;
 
 class CashFlowController extends Controller
 {
@@ -21,6 +21,21 @@ class CashFlowController extends Controller
         $status = $request->status;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : date('Y-m-01');
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : date('Y-m-t');
+        
+        $investings = ReportAccount::where('type', '=', 'Investing')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        $financings = ReportAccount::where('type', '=', 'Financing')
+                            ->pluck('coa_id') 
+                            ->toArray();
+        
+        // Combine IDs from both accounts
+        $excludedIds = array_merge($investings, $financings);
+        
+        // Convert the array to a comma-separated string for the SQL query
+        $operations = implode(',', $excludedIds);
+        $investing = implode(',', $investings);
+        $financing = implode(',', $financings);
 
         $operationsAccount = DB::select("SELECT coa.name AS account_name,
             coa.id AS coa_id,
@@ -53,8 +68,8 @@ class CashFlowController extends Controller
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-        WHERE coa.parent_id NOT IN (35, 80, 83, 86)
-        AND coa.id NOT IN (35, 80, 83, 86)
+        WHERE coa.parent_id NOT IN ($operations)
+        AND coa.set_as_group = 0
         GROUP BY coa_id, account_name
         HAVING grand_total != 0");
 
@@ -89,7 +104,8 @@ class CashFlowController extends Controller
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-        WHERE coa.parent_id = 35
+        WHERE coa.parent_id IN ($investing)
+        AND coa.set_as_group = 0
         GROUP BY coa_id, account_name
         HAVING grand_total != 0");
 
@@ -124,7 +140,8 @@ class CashFlowController extends Controller
         FROM tbl_coa coa
         LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-        WHERE coa.parent_id IN (80, 83, 86)
+        WHERE coa.parent_id IN ($financing)
+        AND coa.set_as_group = 0
         GROUP BY coa_id, account_name
         HAVING grand_total != 0");
         $total_beginning_balance = 0;
