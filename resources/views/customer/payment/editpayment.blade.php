@@ -223,8 +223,6 @@
     <script>
         $(document).ready(function() {
             var payment = @json($payment);
-            console.log("isi payment", payment);
-
 
             let paymentInvoice = payment.payment_invoices
             $('#selectMarking').on('change', function() {

@@ -7,7 +7,7 @@
     @if($dataPtges)
     <div class="content-containerwhy">
       <div class="imageWhy">
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image" loading="lazy" class="lazyload">
       </div>
       <div class="contentwhy">
         <h2 id="judulWhy">Why Choose Us</h2>

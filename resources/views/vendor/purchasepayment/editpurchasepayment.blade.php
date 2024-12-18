@@ -201,26 +201,25 @@
 
     @endsection
     @section('script')
-    <script>
+    <!-- <script>
         $(document).ready(function () {
             var payment = @json($payment);
 
-            $('#selectVendor').on('change', function () {
-                const name = $(this).val();
-                let invoiceId = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
+            console.log('ini payment', payment);
 
-                if (name) {
-                    loadInvoicesByName(name, invoiceId);
+
+            $('#selectVendor').on('change', function () {
+                const idVendor = $(this).val();
+
+                let invoiceIds = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
+
+
+                if (idVendor) {
+                    loadInvoicesByName(idVendor, invoiceIds);
+                } else {
+                    $('#selectInvoice').empty().append('<option value="" disabled>Select a vendor first</option>');
                 }
             });
-
-            $('#selectInvoice').select2({
-                placeholder: "Pilih Invoice",
-                allowClear: true,
-                width: 'resolve',
-                closeOnSelect: false
-            });
-
 
             $('.select2').select2();
             $('#tanggalPayment').datepicker({
@@ -249,41 +248,144 @@
                 autoclose: true,
             }).datepicker('setDate', paymentDate);
 
-
-            function loadInvoicesByName(name, invoiceId) {
+            function loadInvoicesByName(idVendor, invoiceIds) {
                 $.ajax({
-                    url: "{{ route('getInvoiceByNameEdit') }}",
-                    type: 'GET',
+                 
                     data: {
-                        name,
-                        invoiceId
+                        idVendor: idVendor,
+                        invoiceIds: invoiceIds
+                    },
+                    beforeSend: function () {
+                        $('#selectInvoice').html('<option value="" disabled>Loading...</option>');
                     },
                     success: function (response) {
                         const $selectInvoice = $('#selectInvoice').empty();
-                        let selectedInvoices = [];
-
                         if (response.success) {
-                            response.invoices.forEach(invoice_no => {
+                            response.invoices.forEach(invoice => {
                                 $selectInvoice.append(
-                                    `<option value="${invoice_no}">${invoice_no}</option>`
+                                    `<option value="${invoice.invoice_no}">${invoice.invoice_no}</option>`
                                 );
-                                selectedInvoices.push(
-                                    invoice_no);
                             });
-
-                            $selectInvoice.val(selectedInvoices).trigger('change');
                         } else {
-                            $selectInvoice.append(
-                                '<option value="" disabled>No invoices available</option>'
-                            );
+                            $selectInvoice.append('<option value="" disabled>No Voucher available</option>');
                         }
                     },
                     error: function () {
-                        showMessage('error!', 'Gagal memuat invoice.');
+                        showMessage('error!', 'Failed to load Voucher.');
+                        $('#selectInvoice').empty().append(
+                            '<option value="" disabled>Error loading Voucher</option>');
                     }
                 });
             }
+
+
+
             $('#selectVendor').trigger('change');
+            $('.select2').select2();
+            $('#selectInvoice').select2({
+                placeholder: "Pilih Invoice",
+                allowClear: true,
+                width: 'resolve',
+                closeOnSelect: false
+            });
         });
+    </script> -->
+
+    <script>
+        var payment = @json($payment);
+
+        console.log('ini payment', payment);
+        $('.select2').select2();
+        $('#tanggalPayment').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        });
+
+        $('#tanggalPayment').val(payment.payment_date).trigger('change');
+        $('#keteranganPaymentSup').val(payment.Keterangan).trigger('change');
+        let totalAmount = payment.payment_invoices_sup
+            .reduce((total, item) => {
+                return total + parseFloat(item.amount);
+            }, 0);
+        $('#payment').val(totalAmount).trigger('change');
+        $('#selectMethod').trigger('change');
+
+
+
+        const paymentDate = new Date(payment.payment_date);
+        $('#tanggalPayment').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        }).datepicker('setDate', paymentDate);
+
+
+
+        $('#selectVendor').on('change', function () {
+            const idVendor = $(this).val();
+
+            let invoiceIds = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
+
+
+            if (idVendor) {
+                loadInvoicesByName(idVendor, invoiceIds);
+            } else {
+                $('#selectInvoice').empty().append('<option value="" disabled>Select a vendor first</option>');
+            }
+        });
+
+        function loadInvoicesByName(idVendor, invoiceIds) {
+            $.ajax({
+                url: "{{ route('getInoviceByVendor') }}",
+                type: 'GET',
+                data: {
+                    idVendor: idVendor,
+                    invoiceIds: invoiceIds
+                },
+                beforeSend: function () {
+                    $('#selectInvoice').html('<option value="" disabled>Loading...</option>');
+                },
+                success: function (response) {
+                    const $selectInvoice = $('#selectInvoice').empty();
+                    let selectedInvoices = [];
+
+                    console.log(response);
+
+                    if (response.success) {
+                        response.invoices.forEach(invoice => {
+                            $selectInvoice.append(
+                                `<option value="${invoice.invoice_no}">${invoice.invoice_no}</option>`
+                            );
+                            selectedInvoices.push(invoice.invoice_no);
+                        });
+
+                        $selectInvoice.val(selectedInvoices).trigger('change');
+                    } else {
+                        $selectInvoice.append(
+                            '<option value="" disabled>No invoices available</option>'
+                        );
+                    }
+                },
+
+                error: function () {
+                    showMessage('error!', 'Failed to load Voucher.');
+                    $('#selectInvoice').empty().append(
+                        '<option value="" disabled>Error loading Voucher</option>');
+                }
+            });
+        }
+
+        $('#selectVendor').trigger('change');
+        $('.select2').select2();
+        $('#selectInvoice').select2({
+            placeholder: "Pilih Invoice",
+            allowClear: true,
+            width: 'resolve',
+            closeOnSelect: false
+        });
+
     </script>
     @endsection
