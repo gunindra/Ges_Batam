@@ -22,7 +22,7 @@
     <div class="controls">
       <a class="btn-Go btn btn-primary" href="{{ $popup->Link_Popup }}"
       style="text-decoration:none; color:white; width:150px;">
-      Learn More
+      Click Here
       </a>
     </div>
   @endif
@@ -192,7 +192,7 @@
         <div class="image" id="imageAbout">
           @if (!empty($dataPtges->Image_AboutUs))
         <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;"
-        alt="About Us Image" loading="lazy">
+        alt="About Us Image" loading="lazy" class="lazyload">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
     @endif
@@ -207,7 +207,7 @@
       <div class="why">
         <div class="image-sectionwhy">
           @if (!empty($dataPtges->Image_WhyUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image" loading="lazy">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image" loading="lazy" class="lazyload">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
     @endif
@@ -237,7 +237,7 @@
       <div class="col-md-4 mb-4">
       <div class="box">
         <img src="{{ asset('storage/images/' . $service->image_service) }}"
-        alt="{{ $service->title_service ?? '-' }}" loading="lazy">
+        alt="{{ $service->title_service ?? '-' }}" loading="lazy" class="lazyload">
         <div class="overlay">
         <div class="overlay-content">
         <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50, '') }}</h3>
@@ -273,7 +273,7 @@
     <div class="logos-slide">
       @foreach($listiklan as $iklan)
       <img src="{{ asset('storage/images/' . $iklan->image_Advertisement) }}"
-      alt="{{ $iklan->title_Advertisement ?? '-' }}" loading="lazy">
+      alt="{{ $iklan->title_Advertisement ?? '-' }}" loading="lazy" class="lazyload">
     @endforeach
     </div>
   </div>
@@ -286,7 +286,7 @@
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.0312703091595!2d103.99927157494255!3d1.1380710622200323!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98b04082b3703%3A0x182bec3b6cdd92d5!2sGES%20PT%20Global%20Expedisi%20Solusi!5e0!3m2!1sen!2sid!4v1724405271539!5m2!1sen!2sid"
             width="90%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"></iframe>
+            referrerpolicy="no-referrer-when-downgrade" title="Google Maps Location"></iframe>
         </div>
         <div class="col-lg-5 col-md-12">
           <p class="textMaps" style="margin-top:10px; font-size:40px; font-family: sans-serif;">Contact <i
