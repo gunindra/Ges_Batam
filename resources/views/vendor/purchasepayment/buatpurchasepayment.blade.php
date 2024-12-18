@@ -151,6 +151,7 @@
                             <thead>
                                 <tr>
                                     <th>Code Account</th>
+                                    <th>Tipe Account</th>
                                     <th>Description</th>
                                     <th>Nominal</th>
                                     <th>Action</th>
@@ -165,6 +166,7 @@
                                         <button type="button" class="btn btn-primary" id="add-item-button">Add
                                             Item</button>
                                     </td>
+                                    <td></td>
                                     <td></td>
                                     <td>
                                         <label>Total:</label>
@@ -300,6 +302,13 @@
                             @foreach ($coas as $coa)
                                 <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
                             @endforeach
+                        </select>
+                    </td>
+                     <td>
+                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                            <option value="" disabled>Pilih Akun</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
                         </select>
                     </td>
                     <td>

@@ -160,6 +160,7 @@ class PurchasePaymentController extends Controller
             // If invoiceIds is provided, select invoices based on those ids
             $invoices = SupInvoice::where('vendor_id', $idVendor)
                 ->whereIn('id', $invoiceIds) // Filter by invoiceIds
+                ->where('status_bayar', '<>', 'Lunas') // Exclude invoices with status "Lunas"
                 ->get(['invoice_no']);
         } else {
             // If no invoiceIds, select all invoices for the vendor
