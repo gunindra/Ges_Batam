@@ -9,7 +9,7 @@ class PaymentCustomerItems extends Model
 {
     use HasFactory;
     protected $table = 'tbl_payment_items';
-    protected $fillable = ['payment_id', 'coa_id', 'description', 'nominal'];
+    protected $fillable = ['payment_id', 'coa_id', 'description', 'nominal', 'tipe', 'jurnal_item_id'];
 
     /**
      * Relationship with Payment.

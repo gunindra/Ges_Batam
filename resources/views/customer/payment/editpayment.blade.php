@@ -119,13 +119,14 @@
                             <label for="paymentMethod" class="form-label fw-bold">Metode Pembayaran</label>
                             <select class="form-control select2" id="selectMethod">
                                 <option value="" selected disabled>Pilih Metode Pembayaran</option>
-                                @foreach ($coas as $coa)
-                                    <option value="{{ $coa->id }}"
-                                        {{ $coa->id == $payment->paymentMethod->id ? 'selected' : '' }}>
-                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                @foreach ($savedPaymentAccounts as $account)
+                                    <option value="{{ $account->coa_id }}"
+                                        {{ $account->coa_id == $payment->paymentMethod->id ? 'selected' : '' }}>
+                                        {{ $account->code_account_id }} - {{ $account->name }}
                                     </option>
                                 @endforeach
                             </select>
+
                             <div id="errMethodPayment" class="text-danger mt-1 d-none">Silahkan Pilih Metode</div>
                         </div>
 
@@ -316,13 +317,15 @@
                     sectionPoin.removeClass("d-none");
                     paymentInput.prop("disabled", true);
                     discountInput.prop("disabled", true);
+                    paymentInput.val("");
+                    discountInput.val("");
                 } else {
                     sectionPoin.addClass("d-none");
                     paymentInput.prop("disabled", false);
                     discountInput.prop("disabled", false);
                     $('#amountPoin').val("");
-                    paymentInput.val("");
-                    discountInput.val("");
+                    // paymentInput.val("");
+                    // discountInput.val("");
                 }
             });
 
@@ -341,12 +344,12 @@
                                     </select>
                                 </td>
                                 <td>
-                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
-                            <option value="" disabled>Pilih Akun</option>
-                            <option value="Credit">Credit</option>
-                            <option value="Debit">Debit</option>
-                        </select>
-                    </td>
+                                    <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                                        <option value="" disabled>Pilih Akun</option>
+                                        <option value="Credit" ${item.tipe === 'Credit' ? 'selected' : ''}>Credit</option>
+                                        <option value="Debit" ${item.tipe === 'Debit' ? 'selected' : ''}>Debit</option>
+                                    </select>
+                                </td>
                                 <td>
                                     <input type="text" class="form-control"name="item_desc" value="${item.description}" placeholder="Input Description" required>
                                 </td>
