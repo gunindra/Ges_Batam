@@ -24,12 +24,6 @@
                         <div id="titleHeroPageError" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
                     </div>
                     <div class="mt-3">
-                        <label for="contentHeroPage" class="form-label fw-bold">Content</label>
-                        <textarea class="form-control" id="contentHeroPage" rows="3"
-                            placeholder="Masukkan content"></textarea>
-                        <div id="contentHeroPageError" class="text-danger mt-1 d-none">Silahkan isi Content</div>
-                    </div>
-                    <div class="mt-3">
                         <label for="imageHeroPage" class="form-label fw-bold">Gambar</label>
                         <input type="file" class="form-control" id="imageHeroPage" value="">
                         <div id="imageHeroPageError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
@@ -60,12 +54,6 @@
                         <input type="text" class="form-control" id="titleHeroPageEdit" value=""
                             placeholder="Masukkan judul Hero page">
                         <div id="titleHeroPageErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Judul</div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="contentHeroPage" class="form-label fw-bold">Content</label>
-                        <textarea class="form-control" id="contentHeroPageEdit" rows="3"
-                            placeholder="Masukkan content"></textarea>
-                        <div id="contentHeroPageErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Content</div>
                     </div>
                     <div class="mt-3">
                         <label for="imageHeroPage" class="form-label fw-bold">Gambar</label>
@@ -173,7 +161,6 @@
 
         $('#saveHeroPage').click(function () {
             var titleHeroPage = $('#titleHeroPage').val().trim();
-            var contentHeroPage = $('#contentHeroPage').val().trim();
             var imageHeroPage = $('#imageHeroPage')[0].files[0];
 
             var isValid = true;
@@ -183,12 +170,6 @@
                 isValid = false;
             } else {
                 $('#titleHeroPageError').addClass('d-none');
-            }
-            if (contentHeroPage === '') {
-                $('#contentHeroPageError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#contentHeroPageError').addClass('d-none');
             }
             if (imageHeroPage) {
                 var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -227,7 +208,6 @@
 
                         var formData = new FormData();
                         formData.append('titleHeroPage', titleHeroPage);
-                        formData.append('contentHeroPage', contentHeroPage);
                         formData.append('imageHeroPage', imageHeroPage);
                         formData.append('_token', '{{ csrf_token() }}');
 
@@ -322,7 +302,6 @@
                 method: 'GET',
                 success: function (response) {
                     $('#titleHeroPageEdit').val(response.title_heropage);
-                    $('#contentHeroPageEdit').val(response.content_heropage);
                     $('#textNamaEdit').text(response.image_heropage);
                     $('#modalEditHeropage').modal('show');
                     $('#saveEditHeroPage').data('id', heropageid);
@@ -336,7 +315,6 @@
         $('#saveEditHeroPage').on('click', function () {
             var heropageid = $(this).data('id');
             var titleHeroPage = $('#titleHeroPageEdit').val();
-            var contentHeroPage = $('#contentHeroPageEdit').val();
             var imageHeroPage = $('#imageHeroPageEdit')[0].files[0];
 
             let isValid = true;
@@ -346,13 +324,6 @@
                 isValid = false;
             } else {
                 $('#titleHeroPageErrorEdit').addClass('d-none');
-            }
-
-            if (contentHeroPage === '') {
-                $('#contentHeroPageErrorEdit').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#contentHeroPageErrorEdit').addClass('d-none');
             }
 
             if (imageHeroPage) {
@@ -393,7 +364,6 @@
                         });
                         var formData = new FormData();
                         formData.append('titleHeroPage', titleHeroPage);
-                        formData.append('contentHeroPage', contentHeroPage);
                         if (imageHeroPage) {
                             formData.append('imageHeroPage', imageHeroPage);
                         }
@@ -430,13 +400,9 @@
             }
         });
         $('#modalTambahHeropage').on('hidden.bs.modal', function () {
-            $('#titleHeroPage,#contentHeroPage,#imageHeroPage').val('');
+            $('#titleHeroPage,#imageHeroPage').val('');
             if (!$('#titleHeroPageError').hasClass('d-none')) {
                 $('#titleHeroPageError').addClass('d-none');
-
-            }
-            if (!$('#contentHeroPageError').hasClass('d-none')) {
-                $('#contentHeroPageError').addClass('d-none');
 
             }
             if (!$('#imageHeroPageError').hasClass('d-none')) {
@@ -445,13 +411,9 @@
             }
         });
         $('#modalEditHeropage').on('hidden.bs.modal', function () {
-            $('#titleHeroPageEdit,#contentHeroPageEdit,#imageHeroPageEdit').val('');
+            $('#titleHeroPageEdit,#imageHeroPageEdit').val('');
             if (!$('#titleHeroPageErrorEdit').hasClass('d-none')) {
                 $('#titleHeroPageErrorEdit').addClass('d-none');
-
-            }
-            if (!$('#contentHeroPageErrorEdit').hasClass('d-none')) {
-                $('#contentHeroPageErrorEdit').addClass('d-none');
 
             }
             if (!$('#imageHeroPageErrorEdit').hasClass('d-none')) {
