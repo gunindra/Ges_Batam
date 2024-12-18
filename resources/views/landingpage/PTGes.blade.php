@@ -7,7 +7,7 @@
     <button id="close-popup" class="close-button">x</button>
 
     @if($popup->Image_Popup)
-    <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image">
+    <img src="{{ asset('storage/images/' . $popup->Image_Popup) }}" alt="Popup Image" class="popup-image lazyload" loading="lazy">
   @endif
 
     @if($popup->title_Popup)
@@ -35,8 +35,8 @@
       <div class="carousel-inner">
       @foreach($listheropage as $index => $heropage)
       <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-      <img class="d-block w-100 carousel-image" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
-      alt="{{ $heropage->title_heropage }}">
+      <img class="d-block w-100 carousel-image lazyload" src="{{ asset('storage/images/' . $heropage->image_heropage) }}"
+      alt="{{ $heropage->title_heropage }}" loading="lazy">
       <div class="carousel-caption">
       <h5 id="judulCarousel" class="responsive-title">
         {{ $heropage->title_heropage }}
@@ -93,7 +93,7 @@
       @foreach($listinformation as $info)
       <div class="box-gallery">
       <img src="{{ asset('storage/images/' . $info->image_informations) }}"
-      alt="{{ $info->title_informations ?? '-'}}" class="img-fluid">
+      alt="{{ $info->title_informations ?? '-'}}" class="img-fluid lazyload" loading="lazy">
       <div class="img-text">
       <div class="contentGallery">
         <h2 id="titleContent">{{ Str::limit($info->title_informations ?? '-', 120, '') }}</h2>
@@ -192,7 +192,7 @@
         <div class="image" id="imageAbout">
           @if (!empty($dataPtges->Image_AboutUs))
         <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" style="border-radius:30px;"
-        alt="About Us Image">
+        alt="About Us Image" loading="lazy">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available" style="border-radius:30px;">
     @endif
@@ -207,7 +207,7 @@
       <div class="why">
         <div class="image-sectionwhy">
           @if (!empty($dataPtges->Image_WhyUs))
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_WhyUs) }}" id="imageWhy" alt="Why Us Image" loading="lazy">
       @else
       <img src="{{ asset('/img/Default.jpg') }}" alt="No Image Available">
     @endif
@@ -237,7 +237,7 @@
       <div class="col-md-4 mb-4">
       <div class="box">
         <img src="{{ asset('storage/images/' . $service->image_service) }}"
-        alt="{{ $service->title_service ?? '-' }}">
+        alt="{{ $service->title_service ?? '-' }}" loading="lazy">
         <div class="overlay">
         <div class="overlay-content">
         <h3 style="word-break: break-word;">{{ Str::limit($service->title_service ?? '-', 50, '') }}</h3>
@@ -273,7 +273,7 @@
     <div class="logos-slide">
       @foreach($listiklan as $iklan)
       <img src="{{ asset('storage/images/' . $iklan->image_Advertisement) }}"
-      alt="{{ $iklan->title_Advertisement ?? '-' }}">
+      alt="{{ $iklan->title_Advertisement ?? '-' }}" loading="lazy">
     @endforeach
     </div>
   </div>
@@ -320,25 +320,7 @@
         ride: 'carouselSlide'
       });
     });
-    // document.addEventListener("DOMContentLoaded", function () {
-    //   const titleElements = document.querySelectorAll("#judulCarousel");
-
-    //   titleElements.forEach(title => {
-    //     const maxFontSize = 50; 
-    //     const minFontSize = 30;
-    //     const baseLength = 20;   
-
-    //     const titleLength = title.textContent.length;
-    //     let fontSize = maxFontSize;
-
-    //     if (titleLength > baseLength) {
-    //       fontSize = Math.max(minFontSize, maxFontSize - (titleLength - baseLength) * 0.3);
-    //     }
-
-
-    //     title.style.fontSize = `${fontSize}px`;
-    //   });
-    // });
+   
 
   </script>
 
