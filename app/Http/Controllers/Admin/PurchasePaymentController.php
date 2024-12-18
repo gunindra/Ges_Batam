@@ -140,8 +140,14 @@ class PurchasePaymentController extends Controller
 
     public function getInoviceByVendor(Request $request)
     {
-        $idVendor = $request->input('idVendor');
+        // Get all request data
+        // dd($request->all());
 
+        $idVendor = $request->input('idVendor');
+        $invoiceIds = $request->input('invoiceIds'); 
+        // dd($invoiceIds);// Assuming invoiceIds is passed as an array
+
+        // Check if idVendor is provided
         if (!$idVendor) {
             return response()->json([
                 'success' => false,
@@ -149,8 +155,19 @@ class PurchasePaymentController extends Controller
             ], 400);
         }
 
-        $invoices = SupInvoice::where('vendor_id', $idVendor)->get(['invoice_no']);
+        // Check if invoiceIds are provided
+        if ($invoiceIds && count($invoiceIds) > 0) {
+            // If invoiceIds is provided, select invoices based on those ids
+            $invoices = SupInvoice::where('vendor_id', $idVendor)
+                ->whereIn('id', $invoiceIds) // Filter by invoiceIds
+                ->get(['invoice_no']);
+        } else {
+            // If no invoiceIds, select all invoices for the vendor
+            $invoices = SupInvoice::where('vendor_id', $idVendor)
+                ->get(['invoice_no']);
+        }
 
+        // If no invoices are found
         if ($invoices->isEmpty()) {
             return response()->json([
                 'success' => false,
@@ -158,11 +175,13 @@ class PurchasePaymentController extends Controller
             ]);
         }
 
+        // Return the invoices
         return response()->json([
             'success' => true,
             'invoices' => $invoices,
         ]);
     }
+
 
 
 
@@ -189,6 +208,7 @@ class PurchasePaymentController extends Controller
 
         try {
             $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
+           
             $vendor = Vendor::findOrFail($invoice->vendor_id);
             $vendorAccountId = $vendor->account_id;
 
@@ -196,14 +216,14 @@ class PurchasePaymentController extends Controller
                 throw new \Exception('Akun vendor tidak ditemukan.');
             }
 
-            $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
+            // $totalBayarBaru = $invoice->total_bayar + $request->paymentAmount;
 
-            if ($totalBayarBaru > $invoice->total_harga) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Total pembayaran melebihi total harga invoice.'
-                ], 400);
-            }
+            // if ($totalBayarBaru > $invoice->total_harga) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Total pembayaran melebihi total harga invoice.'
+            //     ], 400);
+            // }
 
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
             $codeType = "VP";
@@ -262,7 +282,11 @@ class PurchasePaymentController extends Controller
             }
 
             if ($totalPayment > 0) {
-                throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+                // throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+                return response()->json([
+                            'status' => 'error',
+                            'message' => 'Total pembayaran melebihi total harga invoice.'
+                        ], 400);
             }
 
             $noRef = implode(', ', $request->invoice);
@@ -346,6 +370,7 @@ class PurchasePaymentController extends Controller
             $request->endDate
         ), 'Payment_Suppiler.xlsx');
     }
+    
     public function getInvoiceSupDetail(Request $request)
     {
         $id = $request->id;
@@ -404,24 +429,38 @@ class PurchasePaymentController extends Controller
             'selectedVendorId' => $selectedVendorId
         ]);
     }
-    public function getInvoiceByNameEdit(Request $request)
+    public function getInvoiceByNameEdits(Request $request)
     {
-        $name = $request->input('name');
-        $invoiceId = $request->input('invoiceId');
-    
-        $noInvoices = SupInvoice::whereIn('id', $invoiceId)
-            ->pluck('invoice_no');
-    
-        if ($noInvoices->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'invoices' => $noInvoices
-            ]);
-        }
-    
-        return response()->json([
-            'success' => false,
-            'message' => 'No invoices found.'
-        ]);
+        dd($request->all());
+        // $idVendor = $request->input('idVendor');
+
+        // // dd($idVendor);
+
+        // if (!$idVendor) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Vendor ID is required',
+        //     ], 400);
+        // }
+
+        // $invoices = SupInvoice::where('vendor_id', $idVendor)->get(['invoice_no']);
+
+        // if ($invoices->isEmpty()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'No invoices found for this vendor',
+        //     ]);
+        // }
+
+        // return response()->json([
+        //     'success' => true,
+        //     'invoices' => $invoices,
+        // ]);
     }
+
+    public function getInoviceByVendorEdit(Request $request)
+    {
+        dd($request->all());
+    }
+
 }

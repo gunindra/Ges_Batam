@@ -15,7 +15,7 @@
         </p>
       </div>
       <div class="imageAbout" id="imageAbout">
-        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;">
+        <img src="{{ asset('storage/images/' . $dataPtges->Image_AboutUs) }}" alt="About Us Image" style="border-radius:30px;" loading="lazy" class="lazyload">
       </div>
     </div>
     @else

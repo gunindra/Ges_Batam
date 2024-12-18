@@ -292,6 +292,25 @@
                 }
             });
         });
+        
+        $(document).on('click', '.btnUpdateInformations', function (e) {
+            var informationid = $(this).data('id');
+            $.ajax({
+                url: '/content/informations/' + informationid,
+                method: 'GET',
+                success: function (response) {
+                    $('#titleInformationsEdit').val(response.title_informations);
+                    $('#contentInformationsEdit').val(response.content_informations);
+                    $('#textNamaEdit').text(response.image_informations);
+                    $('#modalEditInformations').modal('show');
+                    $('#saveEditInformations').data('id', informationid);
+                },
+                error: function () {
+                    showMessage("error",
+                        "Terjadi kesalahan saat mengambil data informations");
+                }
+            });
+        });
 
         $('#saveEditInformations').on('click', function () {
             var informationid = $(this).data('id');
@@ -301,7 +320,6 @@
 
             let isValid = true;
             var errorMessage = '';
-
 
             if (titleInformations === '') {
                 $('#titleInformationsErrorEdit').removeClass('d-none');
@@ -487,127 +505,4 @@
 
 @endsection
 
-<!-- $(document).on('click', '.btnUpdateInformations', function (e) {
-//e.preventDefault();
-let id = $(this).data('id');
-let title_informations = $(this).data('title_informations');
-let content_informations = $(this).data('content_informations');
-let image_informations = $(this).data('image_informations');
 
-$('#titleInformationsEdit').val(title_informations);
-$('#contentInformationsEdit').val(content_informations);
-$('#textNamaEdit').text(image_informations);
-$('#informationsIdEdit').val(id);
-
-$(document).on('click', '#saveEditInformations', function (e) {
-
-let id = $('#informationsIdEdit').val();
-let titleInformations = $('#titleInformationsEdit').val();
-let contentInformations = $('#contentInformationsEdit').val();
-let imageInformations = $('#imageInformationsEdit')[0].files[0];
-const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-let isValid = true;
-
-if (titleInformations === '') {
-$('#titleInformationsErrorEdit').removeClass('d-none');
-isValid = false;
-} else {
-$('#titleInformationsErrorEdit').addClass('d-none');
-}
-
-if (contentInformations === '') {
-$('#contentInformationsErrorEdit').removeClass('d-none');
-isValid = false;
-} else {
-$('#contentInformationsErrorEdit').addClass('d-none');
-}
-
-if (imageInformations) {
-var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
-if (!validExtensions.includes(imageInformations.type)) {
-$('#imageInformationsErrorEdit').text('Hanya file JPG, JPEG, atau PNG yang diizinkan, dan gambar tidak boleh
-kosong.').removeClass('d-none');
-isValid = false;
-} else {
-$('#imageInformationsErrorEdit').addClass('d-none');
-}
-} else if (imageInformations === 0 && $('#textNamaEdit').text() === '') {
-$('#imageInformationsErrorEdit').removeClass('d-none');
-isValid = false;
-} else {
-$('#imageInformationsErrorEdit').addClass('d-none');
-}
-
-if (isValid) {
-Swal.fire({
-title: "Apakah Anda yakin?",
-icon: 'question',
-showCancelButton: true,
-confirmButtonColor: '#5D87FF',
-cancelButtonColor: '#49BEFF',
-confirmButtonText: 'Ya',
-cancelButtonText: 'Tidak',
-reverseButtons: true
-}).then((result) => {
-if (result.isConfirmed) {
-let formData = new FormData();
-formData.append('id', id);
-formData.append('titleInformations', titleInformations);
-formData.append('contentInformations', contentInformations);
-if (imageInformations) {
-formData.append('imageInformations', imageInformations);
-}
-formData.append('_token', csrfToken);
-Swal.fire({
-title: 'Loading...',
-text: 'Please wait while we process update your data.',
-allowOutsideClick: false,
-didOpen: () => {
-Swal.showLoading();
-}
-});
-$.ajax({
-type: 'PUT',
-url: '/content/informations/update/' + id,
-data: {
-titleInformations: $('#titleInformations').val(),
-contentInformations: $('#contentInformations').val(),
-imageInformations: $('#imageInformations').val(),
-_token: '{{ csrf_token() }}',
-},
-contentType: false,
-processData: false,
-success: function (response) {
-Swal.close();
-
-if (response.url) {
-window.open(response.url, '_blank');
-} else if (response.error) {
-Swal.fire({
-icon: 'error',
-title: 'Error',
-text: response.error
-});
-}
-if (response.status === 'success') {
-showMessage("success", "Data berhasil diperbarui");
-getlistInformations();
-$('#modalEditInformations').modal('hide');
-} else {
-Swal.fire({
-title: "Gagal memperbarui",
-icon: "error"
-});
-}
-}
-});
-}
-});
-} else {
-showMessage("error", "Silakan periksa input yang kosong");
-}
-});
-
-$('#modalEditInformations').modal('show');
-}); -->
