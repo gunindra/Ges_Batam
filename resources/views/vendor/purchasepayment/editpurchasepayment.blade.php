@@ -152,6 +152,7 @@
                             <thead>
                                 <tr>
                                     <th>Code Account</th>
+                                    <th>Tipe Account</th>
                                     <th>Description</th>
                                     <th>Nominal</th>
                                     <th>Action</th>
@@ -166,6 +167,7 @@
                                         <button type="button" class="btn btn-primary" id="add-item-button">Add
                                             Item</button>
                                     </td>
+                                    <td></td>
                                     <td></td>
                                     <td>
                                         <label>Total:</label>
@@ -276,17 +278,6 @@
                             '<option value="" disabled>Error loading Voucher</option>');
                     }
                 });
-            }
-
-
-
-            $('#selectVendor').trigger('change');
-            $('.select2').select2();
-            $('#selectInvoice').select2({
-                placeholder: "Pilih Invoice",
-                allowClear: true,
-                width: 'resolve',
-                closeOnSelect: false
             });
         });
     </script> -->
@@ -312,8 +303,6 @@
         $('#payment').val(totalAmount).trigger('change');
         $('#selectMethod').trigger('change');
 
-
-
         const paymentDate = new Date(payment.payment_date);
         $('#tanggalPayment').datepicker({
             format: 'dd MM yyyy',
@@ -323,6 +312,64 @@
         }).datepicker('setDate', paymentDate);
 
 
+        $('#add-item-button').click(function () {
+            var newRow = `
+                <tr>
+                    <td>
+                        <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
+                            <option value="">Pilih Akun</option>
+                            @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}" {{ $coa->id == $payment->paymentMethod->id ? 'selected' : '' }}>
+                                            {{ $coa->code_account_id }} - {{ $coa->name }}
+                                        </option>
+                            @endforeach
+                        </select>
+                    </td>
+                     <td>
+                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                            <option value="" disabled>Pilih Akun</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                    </td>
+                </tr>`;
+            $('#items-container').append(newRow);
+            $('.select2singgle').last().select2();
+            $('.removeItemButton').show();
+            updateTotals();
+        });
+        $(document).on('click', '.removeItemButton', function () {
+            if ($('#items-container tr').length > 0) {
+                $(this).closest('tr').remove();
+            }
+
+            if ($('#items-container tr').length === 0) {
+                $('.removeItemButton').hide();
+            }
+
+            updateTotals();
+        });
+        function updateTotals() {
+            let totalDebit = 0;
+            $('#items-container tr').each(function () {
+                const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                totalDebit += debitValue;
+            });
+            const paymentAmount = parseFloat($('#payment').val()) || 0;
+            // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
+
+            const grandTotal = totalDebit + paymentAmount;
+            $('#total_payment').val(grandTotal.toFixed(0));
+        }
 
         $('#selectVendor').on('change', function () {
             const idVendor = $(this).val();
@@ -385,6 +432,8 @@
             allowClear: true,
             width: 'resolve',
             closeOnSelect: false
+
+           
         });
 
     </script>

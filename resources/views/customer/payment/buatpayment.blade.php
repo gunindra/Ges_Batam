@@ -185,6 +185,7 @@
                 <thead>
                     <tr>
                         <th>Code Account</th>
+                        <th>Tipe Account</th>
                         <th>Description</th>
                         <th>Nominal</th>
                         <th>Action</th>
@@ -204,6 +205,9 @@
                     </tr>
                 </tfoot>
             </table>
+            <div id="tableError" class="alert alert-danger d-none">
+                Harap isi semua kolom di tabel sebelum melanjutkan.
+            </div>
         </div>
     </div>
 
@@ -307,7 +311,7 @@
             updateTotals();
         });
 
-        $('#payment, #discountPayment').on('input change', function() {
+        $('#payment, #discountPayment').on('input change', function () {
             updateTotals();
         });
 
@@ -493,6 +497,17 @@
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
                 let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
+
+                if (!account || !itemDesc || !debit || !tipeAccount) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    $('#tableError').removeClass('d-none');
+                } else {
+                    $('#tableError').addClass('d-none');
+                }
+
 
                 items.push({
                     account: account,

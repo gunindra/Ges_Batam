@@ -30,18 +30,20 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <div id="errGroupAccount" class="text-danger mt-1 d-none">Please select a group account</div>
+                            <div id="errGroupAccount" class="text-danger mt-1 d-none">Silahkan pilih group account</div>
                         </div>
                         <div class="mt-3">
                             <label for="codeAccountID" class="form-label fw-bold">Code Account ID*</label>
                             <input type="text" class="form-control" id="codeAccountID" placeholder="Input Account ID"
                                 required>
-                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
+                            <div id="errCodeAccountID" class="text-danger mt-1 d-none">
+                            Silahkan Masukkan Code Account
+                            </div>
                         </div>
                         <div class="mt-3">
-                            <label for="nameAccount" class="form-label fw-bold">Name*</label>
+                            <label for="nameAccount" class="form-label fw-bold">Nama*</label>
                             <input type="text" class="form-control" id="nameAccount" placeholder="Input Name" required>
-                            <div id="errNameAccount" class="text-danger mt-1 d-none">This field is required</div>
+                            <div id="errNameAccount" class="text-danger mt-1 d-none">  Silahkan Masukkan Nama</div>
                         </div>
                         <div class="mt-3">
                             <label for="descriptionAccount" class="form-label fw-bold">Description</label>
@@ -61,7 +63,7 @@
                                 <option value="Debit">Debit</option>
                                 <option value="Credit">Credit</option>
                             </select>
-                            <div id="errDefaultPosisi" class="text-danger mt-1 d-none">This field is required</div>
+                            <div id="errDefaultPosisi" class="text-danger mt-1 d-none">Silahkan Pilih Posisi</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -102,13 +104,13 @@
                             <label for="editCodeAccountID" class="form-label fw-bold">Code Account ID*</label>
                             <input type="text" class="form-control" id="editCodeAccountID"
                                 placeholder="Input Account ID" required>
-                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">This field is required</div>
+                            <div id="errEditCodeAccountID" class="text-danger mt-1 d-none">Silahkan Masukkan Code Account</div>
                         </div>
                         <div class="mt-3">
                             <label for="editNameAccount" class="form-label fw-bold">Name*</label>
                             <input type="text" class="form-control" id="editNameAccount" placeholder="Input Name"
                                 required>
-                            <div id="errEditNameAccount" class="text-danger mt-1 d-none">This field is required</div>
+                            <div id="errEditNameAccount" class="text-danger mt-1 d-none">Silahkan Masukkan Nama</div>
                         </div>
                         <div class="mt-3">
                             <label for="editDescriptionAccount" class="form-label fw-bold">Description</label>

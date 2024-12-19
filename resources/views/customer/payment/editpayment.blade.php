@@ -189,7 +189,7 @@
                     <thead>
                         <tr>
                             <th>Code Account</th>
-                            <th>Tipe</th>
+                            <th>Tipe Account</th>
                             <th>Description</th>
                             <th>Nominal</th>
                             <th>Action</th>
@@ -198,7 +198,7 @@
                     <tbody id="items-container"></tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4">
+                            <td colspan="3">
                                 <button type="button" class="btn btn-primary" id="add-item-button">Add Item</button>
                             </td>
                             <td>
@@ -209,6 +209,9 @@
                         </tr>
                     </tfoot>
                 </table>
+                <div id="tableError" class="alert alert-danger d-none">
+                Harap isi semua kolom di tabel sebelum melanjutkan.
+            </div>
             </div>
         </div>
 
@@ -571,6 +574,16 @@
                     let itemDesc = $(this).find('input[name="item_desc"]').val();
                     let nominal = $(this).find('input[name="nominal"]').val();
                     let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
+
+                    if (!account || !itemDesc || !nominal || !tipeAccount) {
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    $('#tableError').removeClass('d-none');
+                } else {
+                    $('#tableError').addClass('d-none');
+                }
 
                     items.push({
                         account: account,

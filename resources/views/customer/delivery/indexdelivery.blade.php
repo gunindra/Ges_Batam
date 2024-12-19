@@ -132,7 +132,7 @@
                                 <input id="txSearch" type="text" style="width: 200px; min-width: 200px;"
                                     class="form-control rounded-3" placeholder="Search">
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
-                                    <option value="" selected disabled>Pilih Filter</option>
+                                    <option value="" selected disabled>Pilih Status</option>
                                     <option value="Ready For Pickup">Ready For Pickup</option>
                                     <option value="Out For Delivery">Out For Delivery</option>
                                     <option value="Delivering">Delivering</option>
