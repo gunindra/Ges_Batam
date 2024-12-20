@@ -182,8 +182,8 @@
                         <tfoot>
                             <tr>
                                 <td>
-                                    <!-- <div id="tableError" class="text-danger mt-1 mb-2 d-none">Silahkan isi semua field
-                                        pada tabel sebelum melanjutkan.</div> -->
+                                    <div id="tableError" class="text-danger mt-1 mb-2 d-none">Silahkan isi semua field
+                                        pada tabel sebelum melanjutkan.</div>
                                     <button type="button" class="btn btn-primary" id="add-item-button">Add
                                         Item</button>
                                 </td>
@@ -197,9 +197,6 @@
                             </tr>
                         </tfoot>
                     </table>
-                    <div id="tableError" class="alert alert-danger d-none">
-                Harap isi semua kolom di tabel sebelum melanjutkan.
-            </div>
                     <div class="col-12 mt-5">
                         <div class="col-4 float-right">
                             <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
