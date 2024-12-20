@@ -150,33 +150,34 @@
                             <span>Manual Jurnal</span>
                         </div>
 
-                        <div class="table-responsive mt-3">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Code Account</th>
-                                        <th>Description</th>
-                                        <th>Nominal</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="items-container">
+                    <div class="table-responsive mt-3">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Code Account</th>
+                                    <th>Tipe Account</th>
+                                    <th>Description</th>
+                                    <th>Nominal</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-container">
 
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td>
-                                            <button type="button" class="btn btn-primary" id="add-item-button">Add
-                                                Item</button>
-                                        </td>
-                                        <td></td>
-                                        <td>
-                                            <label>Total:</label>
-                                            <input type="text" class="form-control" id="total_payment"
-                                                name="total_debit" value="" disabled>
-                                        </td>
-                                    </tr>
-                                    {{-- <tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-primary" id="add-item-button">Add
+                                            Item</button>
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <label>Total:</label>
+                                        <input type="text" class="form-control" id="total_payment" name="total_debit"
+                                            value="" disabled>
+                                    </td>
+                                </tr>
+                                {{-- <tr>
                                     <td colspan="4">
                                         <div class="col-5 mt-3">
                                             <label for="keteranganPayment" class="form-label fw-bold">Keterangan</label>
@@ -235,10 +236,129 @@
                 autoclose: true,
             }).datepicker('setDate', paymentDate);
 
+            function loadInvoicesByName(idVendor, invoiceIds) {
+                $.ajax({
+
+                    data: {
+                        idVendor: idVendor,
+                        invoiceIds: invoiceIds
+                    },
+                    beforeSend: function () {
+                        $('#selectInvoice').html('<option value="" disabled>Loading...</option>');
+                    },
+                    success: function (response) {
+                        const $selectInvoice = $('#selectInvoice').empty();
+                        if (response.success) {
+                            response.invoices.forEach(invoice => {
+                                $selectInvoice.append(
+                                    `<option value="${invoice.invoice_no}">${invoice.invoice_no}</option>`
+                                );
+                            });
+                        } else {
+                            $selectInvoice.append('<option value="" disabled>No Voucher available</option>');
+                        }
+                    },
+                    error: function () {
+                        showMessage('error!', 'Failed to load Voucher.');
+                        $('#selectInvoice').empty().append(
+                            '<option value="" disabled>Error loading Voucher</option>');
+                    }
+                });
+            });
+        });
+    </script> -->
+
+    <script>
+        var payment = @json($payment);
+
+        console.log('ini payment', payment);
+        $('.select2').select2();
+        $('#tanggalPayment').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        });
+
+        $('#tanggalPayment').val(payment.payment_date).trigger('change');
+        $('#keteranganPaymentSup').val(payment.Keterangan).trigger('change');
+        let totalAmount = payment.payment_invoices_sup
+            .reduce((total, item) => {
+                return total + parseFloat(item.amount);
+            }, 0);
+        $('#payment').val(totalAmount).trigger('change');
+        $('#selectMethod').trigger('change');
+
+        const paymentDate = new Date(payment.payment_date);
+        $('#tanggalPayment').datepicker({
+            format: 'dd MM yyyy',
+            todayBtn: 'linked',
+            todayHighlight: true,
+            autoclose: true,
+        }).datepicker('setDate', paymentDate);
 
 
-            $('#selectVendor').on('change', function() {
-                const idVendor = $(this).val();
+        $('#add-item-button').click(function () {
+            var newRow = `
+                <tr>
+                    <td>
+                        <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
+                            <option value="">Pilih Akun</option>
+                            @foreach ($coas as $coa)
+                                        <option value="{{ $coa->id }}" {{ $coa->id == $payment->paymentMethod->id ? 'selected' : '' }}>
+                                            {{ $coa->code_account_id }} - {{ $coa->name }}
+                                        </option>
+                            @endforeach
+                        </select>
+                    </td>
+                     <td>
+                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                            <option value="" disabled>Pilih Akun</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                    </td>
+                </tr>`;
+            $('#items-container').append(newRow);
+            $('.select2singgle').last().select2();
+            $('.removeItemButton').show();
+            updateTotals();
+        });
+        $(document).on('click', '.removeItemButton', function () {
+            if ($('#items-container tr').length > 0) {
+                $(this).closest('tr').remove();
+            }
+
+            if ($('#items-container tr').length === 0) {
+                $('.removeItemButton').hide();
+            }
+
+            updateTotals();
+        });
+        function updateTotals() {
+            let totalDebit = 0;
+            $('#items-container tr').each(function () {
+                const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                totalDebit += debitValue;
+            });
+            const paymentAmount = parseFloat($('#payment').val()) || 0;
+            // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
+
+            const grandTotal = totalDebit + paymentAmount;
+            $('#total_payment').val(grandTotal.toFixed(0));
+        }
+
+        $('#selectVendor').on('change', function () {
+            const idVendor = $(this).val();
 
                 let invoiceIds = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
 

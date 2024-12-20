@@ -225,7 +225,7 @@
                         <td>{{ $no++ }}</td>
                         <td> {{ $kas->kode_pembayaran }}</td>
                         <td> {{ \Carbon\Carbon::parse( $kas->created_date)->format('d M Y')}}</td>
-                        <td>{{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:i')}}</td>
+                        <td>{{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y')}}</td>
                         <td>{{ $kas->customer_name }}</td>
                         <td>{{ $kas->payment_method }}</td>
                         <td>{{ $kas->no_invoice_with_amount }}</td>

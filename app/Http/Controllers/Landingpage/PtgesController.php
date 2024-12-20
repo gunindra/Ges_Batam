@@ -20,7 +20,7 @@ class PtgesController extends Controller
 
         $dataPtges = DB::table('tbl_ptges')->select('Image_AboutUs','Paragraph_AboutUs', DB::raw('LEFT(Paragraph_AboutUs, 250) AS Paragraph_AboutUs'),'Image_WhyUs','Paragraph_WhyUs', DB::raw('LEFT(Paragraph_WhyUs, 250) AS Paragraph_WhyUs'),'alamat','email','phone','phones')->first();
 
-        $listheropage = DB::select("SELECT id, title_heropage AS title_heropage, content_heropage AS content_heropage, image_heropage FROM tbl_heropage");
+        $listheropage = DB::select("SELECT id, title_heropage AS title_heropage, image_heropage FROM tbl_heropage");
 
         $popup = DB::table('tbl_popup')->first();
 

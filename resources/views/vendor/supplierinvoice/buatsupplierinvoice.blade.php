@@ -197,7 +197,6 @@
                             </tr>
                         </tfoot>
                     </table>
-
                     <div class="col-12 mt-5">
                         <div class="col-4 float-right">
                             <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"

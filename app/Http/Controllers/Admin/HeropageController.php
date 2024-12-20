@@ -22,7 +22,6 @@ class HeropageController extends Controller
                         <thead class="thead-light">
                             <tr>
                                 <th>Judul</th>
-                                <th>Content</th>
                                 <th>Gambar</th>
                                 <th>Action</th>
                             </tr>
@@ -34,10 +33,9 @@ class HeropageController extends Controller
             $output .= '
                 <tr>
                     <td>' . ($item->title_heropage ?? '-') . '</td>
-                    <td>' . nl2br(e($item->content_heropage ?? '-')) . '</td>
                     <td><img src="' . asset($imagePath) . '" alt="Image" width="100px" height="100px"></td>
                     <td>
-                        <a class="btn btnUpdateHeroPage btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_heropage="' . $item->title_heropage . '" data-content_heropage="' . $item->content_heropage . '" data-image_heropage="' . $item->image_heropage . '"><i class="fas fa-edit"></i></a>
+                        <a class="btn btnUpdateHeroPage btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-title_heropage="' . $item->title_heropage . '" data-image_heropage="' . $item->image_heropage . '"><i class="fas fa-edit"></i></a>
                         <a class="btn btnDestroyHeroPage btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
@@ -51,13 +49,11 @@ class HeropageController extends Controller
     {
         $request->validate([
             'titleHeroPage' => 'required|string|max:255|unique:tbl_heropage,title_heropage',
-            'contentHeroPage' => 'required|string',
             'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png|',
         ]);
         try {
             $heroPage = new HeroPage();
             $heroPage->title_heropage = $request->input('titleHeroPage');
-            $heroPage->content_heropage = $request->input('contentHeroPage');
 
             if ($request->hasFile('imageHeroPage')) {
                 $uniqueId = uniqid('Heropage_', true);
@@ -96,13 +92,11 @@ class HeropageController extends Controller
     {
         $validated = $request->validate([
             'titleHeroPage' => 'required|string|max:255',
-            'contentHeroPage' => 'required|string',
             'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png',
         ]);
         try {
             $heroPage = HeroPage::findOrFail($id);
             $heroPage->title_heropage = $request->input('titleHeroPage');
-            $heroPage->content_heropage = $request->input('contentHeroPage');
 
             if ($request->hasFile('imageHeroPage')) {
                 if ($heroPage->image_heropage) {

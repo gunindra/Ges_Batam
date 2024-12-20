@@ -12,7 +12,6 @@ class HeroPage extends Model
     protected $table = 'tbl_heropage'; 
     protected $fillable = [
         'title_heropage',
-        'content_heropage',
         'image_heropage',
     ];
 }
