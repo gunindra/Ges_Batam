@@ -157,15 +157,15 @@ class PurchasePaymentController extends Controller
 
         if ($invoiceIds && count($invoiceIds) > 0) {
             $invoiceIds = PaymentSupInvoice::whereIn('invoice_id', $invoiceIds)
-            ->pluck('invoice_id');
+                ->pluck('invoice_id');
 
             $invoices = SupInvoice::whereIn('id', $invoiceIds)
                 ->get(['id', 'invoice_no']);
 
-            } else {
+        } else {
             $invoices = SupInvoice::where('vendor_id', $idVendor)
-            ->where('status_bayar', 'Belum Lunas')
-            ->get(['invoice_no']);
+                ->where('status_bayar', 'Belum Lunas')
+                ->get(['invoice_no']);
         }
 
         if ($invoices->isEmpty()) {
@@ -186,8 +186,6 @@ class PurchasePaymentController extends Controller
 
     public function store(Request $request)
     {
-
-
         // Validasi input
         $validated = $request->validate([
             'invoice' => 'required|array',
@@ -200,6 +198,7 @@ class PurchasePaymentController extends Controller
             'items.*.account' => 'required|integer',
             'items.*.item_desc' => 'required|string',
             'items.*.debit' => 'required|numeric',
+            'items.*.tipeAccount' => 'required',
         ]);
 
 
@@ -283,9 +282,9 @@ class PurchasePaymentController extends Controller
             if ($totalPayment > 0) {
                 // throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
                 return response()->json([
-                            'status' => 'error',
-                            'message' => 'Total pembayaran melebihi total harga invoice.'
-                        ], 400);
+                    'status' => 'error',
+                    'message' => 'Total pembayaran melebihi total harga invoice.'
+                ], 400);
             }
 
             $noRef = implode(', ', $request->invoice);
@@ -328,6 +327,7 @@ class PurchasePaymentController extends Controller
                             'coa_id' => $item['account'],
                             'description' => $item['item_desc'],
                             'nominal' => $item['debit'],
+                            'tipeAccount' => $item['tipeAccount'],
                         ]);
 
                         $jurnalItem = new JurnalItem();
@@ -335,13 +335,24 @@ class PurchasePaymentController extends Controller
                         $jurnalItem->code_account = $item['account'];
                         $jurnalItem->description = $item['item_desc'];
                         $jurnalItem->debit = $item['debit'];
-                        $jurnalItem->credit = 0;
+
+                        if ($item['tipeAccount'] === 'Debit') {
+                            $jurnalItem->debit = $item['debit'];
+                            $jurnalItem->credit = 0;
+                        } elseif ($item['tipeAccount'] === 'Credit') {
+                            $jurnalItem->debit = 0;
+                            $jurnalItem->credit = $item['debit'];
+                        } else {
+                            $jurnalItem->debit = 0;
+                            $jurnalItem->credit = 0;
+                        }
                         $jurnalItem->save();
 
                         Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
                             'account' => $item['account'],
                             'description' => $item['item_desc'],
                             'nominal' => $item['debit'],
+                            'tipeAccount' => $item['tipeAccount'],
                         ]);
                     }
                 }
@@ -462,133 +473,143 @@ class PurchasePaymentController extends Controller
         dd($request->all());
     }
 
-    public function update(Request $request, $id)
-{
+    public function update(Request $request)
+    {
 
-    dd($request->all());
-    // Validasi input
-    $validated = $request->validate([
-        'invoice' => 'required|array',
-        'tanggalPayment' => 'required|date',
-        'paymentAmount' => 'required|numeric',
-        'paymentMethod' => 'required|integer',
-        'keteranganPaymentSup' => 'nullable|string',
-        'items' => 'nullable|array',
-        'items.*.account' => 'required|integer',
-        'items.*.item_desc' => 'required|string',
-        'items.*.debit' => 'required|numeric',
-    ]);
+        // dd($request->all());
+        // Validasi input
+        $validated = $request->validate([
+            'invoice' => 'required|array',
+            'tanggalPayment' => 'required|date',
+            'paymentAmount' => 'required|numeric',
+            'paymentMethod' => 'required|integer',
+            'keteranganPaymentSup' => 'nullable|string',
+            'items' => 'nullable|array',
+            'items.*.account' => 'required|integer',
+            'items.*.item_desc' => 'required|string',
+            'items.*.debit' => 'required|numeric',
+        ]);
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        // Ambil data pembayaran lama
-        $payment = PaymentSup::findOrFail($id);
-        $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $id)->get();
+        try {
+            // Ambil data pembayaran lama
+            $payment = PaymentSup::findOrFail($request->paymentId);
+            $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->get();
 
-        // Kembalikan perubahan pada invoice lama
-        foreach ($oldInvoices as $oldInvoice) {
-            $invoice = SupInvoice::findOrFail($oldInvoice->invoice_id);
-            $invoice->total_bayar -= $oldInvoice->amount;
-            $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
-            $invoice->save();
-        }
-
-        // Hapus alokasi lama
-        DB::table('tbl_payment_invoice_sup')->where('payment_id', $id)->delete();
-
-        // Perbarui data pembayaran
-        $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-        $payment->payment_date = $tanggalPayment;
-        $payment->payment_method_id = $request->paymentMethod;
-        $payment->Keterangan = $request->keteranganPaymentSup;
-        $payment->save();
-
-        // Alokasikan pembayaran ke invoice baru
-        $totalPayment = $request->paymentAmount;
-        foreach ($request->invoice as $noInvoice) {
-            $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
-            $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
-
-            if ($remainingAmount <= 0) {
-                Log::info("Invoice {$noInvoice} sudah lunas.");
-                continue;
+            // Kembalikan perubahan pada invoice lama
+            foreach ($oldInvoices as $oldInvoice) {
+                $invoice = SupInvoice::findOrFail($oldInvoice->invoice_id);
+                $invoice->total_bayar -= $oldInvoice->amount;
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->save();
             }
 
-            $allocatedAmount = min($totalPayment, $remainingAmount);
-            DB::table('tbl_payment_invoice_sup')->insert([
-                'payment_id' => $payment->id,
-                'invoice_id' => $invoice->id,
-                'amount' => $allocatedAmount,
-            ]);
+            // Hapus alokasi lama
+            DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->delete();
 
-            $invoice->total_bayar += $allocatedAmount;
-            $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
-            $invoice->save();
+            // Perbarui data pembayaran
+            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $payment->payment_date = $tanggalPayment;
+            $payment->payment_method_id = $request->paymentMethod;
+            $payment->Keterangan = $request->keteranganPaymentSup;
+            $payment->save();
 
-            $totalPayment -= $allocatedAmount;
+            // Alokasikan pembayaran ke invoice baru
+            $totalPayment = $request->paymentAmount;
+            foreach ($request->invoice as $noInvoice) {
+                $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
+                $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
 
-            if ($totalPayment <= 0) {
-                break;
-            }
-        }
+                if ($remainingAmount <= 0) {
+                    Log::info("Invoice {$noInvoice} sudah lunas.");
+                    continue;
+                }
 
-        if ($totalPayment > 0) {
-            throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
-        }
-
-        // Perbarui jurnal jika ada
-        $jurnal = Jurnal::where('no_ref', implode(', ', $request->invoice))->firstOrFail();
-        $jurnal->tanggal = $tanggalPayment;
-        $jurnal->totaldebit = $request->paymentAmount;
-        $jurnal->totalcredit = $request->paymentAmount;
-        $jurnal->save();
-
-        // Perbarui jurnal items
-        JurnalItem::where('jurnal_id', $jurnal->id)->delete();
-
-        // $jurnalItemDebit = new JurnalItem();
-        // $jurnalItemDebit->jurnal_id = $jurnal->id;
-        // $jurnalItemDebit->code_account = $vendor->account_id;
-        // $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
-        // $jurnalItemDebit->debit = $request->paymentAmount;
-        // $jurnalItemDebit->credit = 0;
-        // $jurnalItemDebit->save();
-
-        // $jurnalItemCredit = new JurnalItem();
-        // $jurnalItemCredit->jurnal_id = $jurnal->id;
-        // $jurnalItemCredit->code_account = $request->paymentMethod;
-        // $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
-        // $jurnalItemCredit->debit = 0;
-        // $jurnalItemCredit->credit = $request->paymentAmount;
-        // $jurnalItemCredit->save();
-
-        if ($request->has('items') && is_array($request->items)) {
-            foreach ($request->items as $item) {
-                DB::table('tbl_payment_sup_items')->insert([
+                $allocatedAmount = min($totalPayment, $remainingAmount);
+                DB::table('tbl_payment_invoice_sup')->insert([
                     'payment_id' => $payment->id,
-                    'coa_id' => $item['account'],
-                    'description' => $item['item_desc'],
-                    'nominal' => $item['debit'],
+                    'invoice_id' => $invoice->id,
+                    'amount' => $allocatedAmount,
                 ]);
 
-                $jurnalItem = new JurnalItem();
-                $jurnalItem->jurnal_id = $jurnal->id;
-                $jurnalItem->code_account = $item['account'];
-                $jurnalItem->description = $item['item_desc'];
-                $jurnalItem->debit = $item['debit'];
-                $jurnalItem->credit = 0;
-                $jurnalItem->save();
-            }
-        }
+                $invoice->total_bayar += $allocatedAmount;
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->save();
 
-        DB::commit();
-        return response()->json(['success' => true, 'message' => 'Payment successfully updated']);
-    } catch (\Exception $e) {
-        DB::rollback();
-        return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+                $totalPayment -= $allocatedAmount;
+
+                if ($totalPayment <= 0) {
+                    break;
+                }
+            }
+
+            if ($totalPayment > 0) {
+                throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+            }
+
+            // Perbarui jurnal jika ada
+            $jurnal = Jurnal::where('no_ref', implode(', ', $request->invoice))->firstOrFail();
+            $jurnal->tanggal = $tanggalPayment;
+            $jurnal->totaldebit = $request->paymentAmount;
+            $jurnal->totalcredit = $request->paymentAmount;
+            $jurnal->save();
+
+            // Perbarui jurnal items
+            JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+
+            // $jurnalItemDebit = new JurnalItem();
+            // $jurnalItemDebit->jurnal_id = $jurnal->id;
+            // $jurnalItemDebit->code_account = $vendor->account_id;
+            // $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
+            // $jurnalItemDebit->debit = $request->paymentAmount;
+            // $jurnalItemDebit->credit = 0;
+            // $jurnalItemDebit->save();
+
+            // $jurnalItemCredit = new JurnalItem();
+            // $jurnalItemCredit->jurnal_id = $jurnal->id;
+            // $jurnalItemCredit->code_account = $request->paymentMethod;
+            // $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
+            // $jurnalItemCredit->debit = 0;
+            // $jurnalItemCredit->credit = $request->paymentAmount;
+            // $jurnalItemCredit->save();
+
+            DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
+            
+            if ($request->has('items') && is_array($request->items)) {
+                foreach ($request->items as $item) {
+                    DB::table('tbl_payment_sup_items')->insert([
+                        'payment_id' => $payment->id,
+                        'coa_id' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'nominal' => $item['debit'],
+                        'tipeAccount' => $item['tipeAccount'],
+                    ]);
+
+                    $jurnalItem = new JurnalItem();
+                    $jurnalItem->jurnal_id = $jurnal->id;
+                    $jurnalItem->code_account = $item['account'];
+                    $jurnalItem->description = $item['item_desc'];
+                    // $jurnalItem->debit = $item['debit'];
+                    // $jurnalItem->credit = 0;
+                    if ($item['tipeAccount'] === 'Debit') {
+                        $jurnalItem->debit = $item['debit'];
+                        $jurnalItem->credit = 0;
+                    } elseif ($item['tipeAccount'] === 'Credit') {
+                        $jurnalItem->debit = 0;
+                        $jurnalItem->credit = $item['debit'];
+                    }
+                    $jurnalItem->save();
+                }
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Payment successfully updated']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+        }
     }
-}
 
 
 }

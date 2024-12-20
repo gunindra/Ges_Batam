@@ -28,21 +28,26 @@
                             Note: Check "Send to all customer" to broadcast message to all current active customer.
                         </div>
                         <div class="mt-3">
-                            <label for="messageWa" name="media" class="form-label fw-bold">Media (Optional, Max 4 MB)</label>
-                            <input type="file" class="form-control"/>
+                            <label for="messageWa" name="media" class="form-label fw-bold">Media (Optional, Max 4
+                                MB)</label>
+                            <input type="file" class="form-control" />
+                            <div id="mediaError" class="text-danger mt-1 d-none">Silahkan pilih Gambar</div>
                         </div>
                         <div class="mt-3">
                             <label for="messageWa" class="form-label fw-bold">Pesan Broadcast</label>
-                                <textarea class="form-control" id="message" name="message" rows="5" required
-                                    placeholder="Masukkan Pesan WhatsApp">{{ isset($waData->Message_wa) ? $waData->Message_wa : '' }}</textarea>
+                            <textarea class="form-control" id="message" name="message" rows="5"
+                                placeholder="Masukkan Pesan WhatsApp">{{ isset($waData->Message_wa) ? $waData->Message_wa : '' }}</textarea>
+                            <div id="messageWaError" class="text-danger mt-1 d-none">Silahkan isi Pesan</div>
                         </div>
                         <div class="mt-3">
                             <div>
                                 Recipients
-                                <button type="button" class="btn btn-sm btn-secondary float-right ml-3" data-toggle="modal" data-target="#mdlSearchCustomer">Search From Customer</button>
-                                <button type="button" onclick="addRow()" class="btn btn-sm btn-info float-right">Add Recipient</button>
+                                <button type="button" class="btn btn-sm btn-secondary float-right ml-3"
+                                    data-toggle="modal" data-target="#mdlSearchCustomer">Search From Customer</button>
+                                <button type="button" onclick="addRow()" class="btn btn-sm btn-info float-right">Add
+                                    Recipient</button>
                             </div>
-                            <input type="checkbox" name="send_to_all_customer"/>Send to all customer
+                            <input type="checkbox" name="send_to_all_customer" />Send to all customer
                             <table class="table mt-3">
                                 <thead>
                                     <tr>
@@ -54,8 +59,7 @@
                                 <tbody id="items-container">
                                 </tbody>
                             </table>
-
-                            
+                            <div id="tableError" class="text-danger mt-2 d-none">    Silakan isi table dengan lengkap dan pastikan nomor telepon terdiri dari 13 digit. Mohon periksa kembali nomor yang Anda masukkan serta pilih customer.
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">
                             <span class="pr-3"><i class="fas fa-save"></i></span> Send Broadcast
@@ -71,13 +75,12 @@
 <div class="modal fade" id="mdlSearchCustomer">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-    
+
             <!-- Modal Header -->
             <div class="modal-header">
                 <h4 class="modal-title">Find Customer</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-    
+
             <!-- Modal body -->
             <div class="modal-body">
                 <div class="row">
@@ -97,14 +100,14 @@
                         </table>
                     </div>
                 </div>
-                
+
             </div>
-    
+
             <!-- Modal footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
-    
+
         </div>
     </div>
 </div>
@@ -113,14 +116,14 @@
 @section('script')
 <script>
     addRow();
-    function addRow(recipient='', phone='62'){
+    function addRow(recipient = '', phone = '62') {
         var newRow = `
             <tr>
                 <td>
-                    <input type="text" class="form-control" name="name[]" placeholder="Recipient Name" value="${recipient}" required>
+                    <input type="text" class="form-control" name="name[]" placeholder="Recipient Name" value="${recipient}" >
                 </td>
                 <td>
-                    <input type="tel" class="form-control" name="phone[]" value="${phone}" placeholder="62" required>
+                    <input type="tel" class="form-control" name="phone[]" value="${phone}" placeholder="62" >
                 </td>
                 <td>
                     <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
@@ -133,15 +136,15 @@
         $(this).closest('tr').remove();
     });
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#customerTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: '/masterdata/costumer/listbyname',
                 type: 'GET',
-                data: function(d) {
-                    
+                data: function (d) {
+
                 }
             },
             columns: [
@@ -150,16 +153,73 @@
                 { data: 'no_wa' },
                 {
                     data: 'id',
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return '<button class="btn btn-success" onclick="addRow(\'' + row.nama_pembeli + '\', \'' + row.no_wa + '\')">Select</button>';
                     }
                 }
             ]
         });
 
-        $('#searchCustomerBtn').on('click', function() {
-            table.draw(); 
+        $('#searchCustomerBtn').on('click', function () {
+            table.draw();
         });
+
+        $('form').on('submit', function (e) {
+            let isValid = true;
+            const message = $('#message').val().trim();
+
+            // Validate message field
+            if (!message) {
+                $('#messageWaError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#messageWaError').addClass('d-none');
+            }
+
+            // Validate media (file input)
+            const media = $('input[type="file"]').val();
+            if (!media) {
+                $('#mediaError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#mediaError').addClass('d-none');
+            }
+
+            // Table validation for name, phone, and phone length
+            let isTableValid = true;
+            $('#items-container tr').each(function () {
+                const name = $(this).find('input[name="name[]"]').val();
+                const phone = $(this).find('input[name="phone[]"]').val();
+
+                // Check if name or phone is missing
+                if (!name || !phone) {
+                    isTableValid = false;
+                }
+
+                // Validate phone number length
+                if (phone && phone.length !== 13) {
+                    isTableValid = false;
+                    // Display phone length error
+                    $('#tableError').removeClass('d-none');
+                } else {
+                    $('#tableError').addClass('d-none');
+                }
+            });
+
+            // Show table validation error if any row is invalid
+            if (!isTableValid) {
+                $('#tableError').removeClass('d-none');  // Show table error
+                isValid = false;  // Prevent form submission
+            } else {
+                $('#tableError').addClass('d-none');  // Hide table error
+            }
+
+            // Prevent form submission if any validation fails
+            if (!isValid) {
+                e.preventDefault();  // Prevent the form from submitting
+            }
+        });
+
     });
 
 </script>

@@ -186,6 +186,9 @@
                                 </tr> --}}
                             </tfoot>
                         </table>
+                        <div id="tableError" class="alert alert-danger d-none">
+                            Harap isi semua kolom di tabel sebelum melanjutkan.
+                        </div>
                     </div>
                     <div class="col-12 mt-4 mb-5">
                         <div class="col-4 float-right">
@@ -392,11 +395,23 @@
                 let account = $(this).find('select[name="account"]').val();
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
+                let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
+
+                if (!account || !itemDesc || !debit || !tipeAccount) {
+                    valid = false;
+                }
+
+                if (!valid) {
+                    $('#tableError').removeClass('d-none');
+                } else {
+                    $('#tableError').addClass('d-none');
+                }
 
                 items.push({
                     account: account,
                     item_desc: itemDesc,
-                    debit: debit
+                    debit: debit,
+                    tipeAccount: tipeAccount
                 });
             });
 
@@ -410,7 +425,7 @@
                         paymentAmount: paymentAmount,
                         paymentMethod: paymentMethod,
                         items: items,
-                        keteranganPaymentSup : keteranganPaymentSup,
+                        keteranganPaymentSup: keteranganPaymentSup,
                         totalAmmount: totalAmmount,
                         _token: '{{ csrf_token() }}'
                     },

@@ -171,6 +171,7 @@
                                             Item</button>
                                     </td>
                                     <td></td>
+                                    <td></td>
                                     <td>
                                         <label>Total:</label>
                                         <input type="text" class="form-control" id="total_payment" name="total_debit"
@@ -205,70 +206,8 @@
 
     @endsection
     @section('script')
-        <script>
-            var payment = @json($payment);
-
-            console.log('ini payment', payment);
-            $('.select2').select2();
-            $('#tanggalPayment').datepicker({
-                format: 'dd MM yyyy',
-                todayBtn: 'linked',
-                todayHighlight: true,
-                autoclose: true,
-            });
-
-            $('#tanggalPayment').val(payment.payment_date).trigger('change');
-            $('#keteranganPaymentSup').val(payment.Keterangan).trigger('change');
-            let totalAmount = payment.payment_invoices_sup
-                .reduce((total, item) => {
-                    return total + parseFloat(item.amount);
-                }, 0);
-            $('#payment').val(totalAmount).trigger('change');
-            $('#selectMethod').trigger('change');
-
-
-
-            const paymentDate = new Date(payment.payment_date);
-            $('#tanggalPayment').datepicker({
-                format: 'dd MM yyyy',
-                todayBtn: 'linked',
-                todayHighlight: true,
-                autoclose: true,
-            }).datepicker('setDate', paymentDate);
-
-            function loadInvoicesByName(idVendor, invoiceIds) {
-                $.ajax({
-
-                    data: {
-                        idVendor: idVendor,
-                        invoiceIds: invoiceIds
-                    },
-                    beforeSend: function () {
-                        $('#selectInvoice').html('<option value="" disabled>Loading...</option>');
-                    },
-                    success: function (response) {
-                        const $selectInvoice = $('#selectInvoice').empty();
-                        if (response.success) {
-                            response.invoices.forEach(invoice => {
-                                $selectInvoice.append(
-                                    `<option value="${invoice.invoice_no}">${invoice.invoice_no}</option>`
-                                );
-                            });
-                        } else {
-                            $selectInvoice.append('<option value="" disabled>No Voucher available</option>');
-                        }
-                    },
-                    error: function () {
-                        showMessage('error!', 'Failed to load Voucher.');
-                        $('#selectInvoice').empty().append(
-                            '<option value="" disabled>Error loading Voucher</option>');
-                    }
-                });
-            });
-        });
-    </script> -->
-
     <script>
+        $(document).ready(function() {
         var payment = @json($payment);
 
         console.log('ini payment', payment);
@@ -286,7 +225,7 @@
             .reduce((total, item) => {
                 return total + parseFloat(item.amount);
             }, 0);
-        $('#payment').val(totalAmount).trigger('change');
+       
         $('#selectMethod').trigger('change');
 
         const paymentDate = new Date(payment.payment_date);
@@ -296,66 +235,6 @@
             todayHighlight: true,
             autoclose: true,
         }).datepicker('setDate', paymentDate);
-
-
-        $('#add-item-button').click(function () {
-            var newRow = `
-                <tr>
-                    <td>
-                        <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
-                            <option value="">Pilih Akun</option>
-                            @foreach ($coas as $coa)
-                                        <option value="{{ $coa->id }}" {{ $coa->id == $payment->paymentMethod->id ? 'selected' : '' }}>
-                                            {{ $coa->code_account_id }} - {{ $coa->name }}
-                                        </option>
-                            @endforeach
-                        </select>
-                    </td>
-                     <td>
-                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
-                            <option value="" disabled>Pilih Akun</option>
-                            <option value="Credit">Credit</option>
-                            <option value="Debit">Debit</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-                    </td>
-                    <td>
-                        <input type="number" class="form-control" name="debit" value="0" placeholder="0.00" required>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-                    </td>
-                </tr>`;
-            $('#items-container').append(newRow);
-            $('.select2singgle').last().select2();
-            $('.removeItemButton').show();
-            updateTotals();
-        });
-        $(document).on('click', '.removeItemButton', function () {
-            if ($('#items-container tr').length > 0) {
-                $(this).closest('tr').remove();
-            }
-
-            if ($('#items-container tr').length === 0) {
-                $('.removeItemButton').hide();
-            }
-
-            updateTotals();
-        });
-        function updateTotals() {
-            let totalDebit = 0;
-            $('#items-container tr').each(function () {
-                const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
-                totalDebit += debitValue;
-            });
-            const paymentAmount = parseFloat($('#payment').val()) || 0;
-            // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
-
-            const grandTotal = totalDebit + paymentAmount;
-            $('#total_payment').val(grandTotal.toFixed(0));
-        }
 
         $('#selectVendor').on('change', function () {
             const idVendor = $(this).val();
@@ -457,7 +336,7 @@
                 $('#previewTotalPaid').text('-');
                 $('#previewRemainingPayment').text('-');
             }
-
+ 
             // Load items ke tabel
             loadItems(payment);
 
@@ -477,10 +356,17 @@
                     </select>
                 </td>
                 <td>
+                    <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                        <option value="" disabled>Pilih Akun</option>
+                        <option value="Credit" ${item.tipeAccount === 'Credit' ? 'selected' : ''}>Credit</option>
+                        <option value="Debit" ${item.tipeAccount === 'Debit' ? 'selected' : ''}>Debit</option>
+                    </select>
+                    </td>
+                <td>
                     <input type="text" class="form-control" name="item_desc" value="${item.description}" required>
                 </td>
                 <td>
-                    <input type="number" class="form-control" name="debit" value="${item.description}" required>
+                    <input type="number" class="form-control" name="debit" value="${item.nominal}" required>
                 </td>
                 <td>
                     <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
@@ -509,6 +395,13 @@
                 </select>
             </td>
             <td>
+                         <select class="form-control" name="tipeAccount" id="tipeAccount" required>
+                            <option value="" disabled>Pilih Akun</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </select>
+                    </td>
+            <td>
                 <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
             </td>
             <td>
@@ -529,8 +422,13 @@
                 updateTotals();
             });
 
+
             // Update total saat nilai debit berubah
             $(document).on('input', 'input[name="debit"]', function() {
+                updateTotals();
+            });
+
+            $('#payment').on('input change', function () {
                 updateTotals();
             });
 
@@ -543,29 +441,18 @@
                 });
                 $('#total_payment').val(totalDebit.toFixed(2));
             }
+            $('#payment').val(totalAmount).trigger('change');
 
             // Kirim data ke server
-            $('#buatPayment').click(function(e) {
+            $('#editPayment').click(function(e) {
                 e.preventDefault();
+                const paymentId = payment.id;
 
                 const invoice = $('#selectInvoice').val();
                 const tanggalPayment = $('#tanggalPayment').val();
                 const paymentAmount = $('#payment').val();
                 const paymentMethod = $('#selectMethod').val();
                 const keteranganPaymentSup = $('#keteranganPaymentSup').val();
-
-                let items = [];
-                $('#items-container tr').each(function() {
-                    const account = $(this).find('select[name="account"]').val();
-                    const itemDesc = $(this).find('input[name="item_desc"]').val();
-                    const debit = $(this).find('input[name="debit"]').val();
-
-                    items.push({
-                        account,
-                        item_desc: itemDesc,
-                        debit
-                    });
-                });
 
                 // Validasi input
                 let valid = true;
@@ -586,12 +473,56 @@
                     $('#errMethodPayment').removeClass('d-none');
                     valid = false;
                 }
+                let items = [];
+                $('#items-container tr').each(function() {
+                    const account = $(this).find('select[name="account"]').val();
+                    const itemDesc = $(this).find('input[name="item_desc"]').val();
+                    const debit = $(this).find('input[name="debit"]').val();
+                    let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
+
+                        if (!account || !itemDesc || !debit || !tipeAccount) {
+                            valid = false;
+                        }
+
+                        if (!valid) {
+                            $('#tableError').removeClass('d-none');
+                        } else {
+                            $('#tableError').addClass('d-none');
+                        }
+
+                    items.push({
+                        account: account,
+                        item_desc: itemDesc,
+                        debit: debit,
+                        tipeAccount: tipeAccount
+                    });
+                });
 
                 if (valid) {
+                    Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are saving the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                     $.ajax({
-                        url: "{{ route('paymentSup') }}",
+                        url: "{{ route('editpaymentsup.update') }}",
                         method: 'POST',
                         data: {
+                            paymentId,
                             invoice,
                             tanggalPayment,
                             paymentAmount,
@@ -601,18 +532,28 @@
                             _token: '{{ csrf_token() }}'
                         },
                         success: function(response) {
+                            Swal.close();
+                            $('#buatPayment').prop('disabled', false).text('Buat Payment');
                             if (response.success) {
-                                alert('Payment berhasil dibuat!');
-                                location.reload();
+                                showMessage('success', 'Payment berhasil dibuat').then(() =>
+                                    location.reload());
                             } else {
-                                alert('Gagal membuat payment!');
+                                showMessage('error', response.message);
                             }
                         },
-                        error: function() {
-                            alert('Terjadi kesalahan!');
+                        error: function(xhr) {
+                            Swal.close();
+                            $('#buatPayment').prop('disabled', false).text('Buat Payment');
+                            const errorMsg = xhr.responseJSON?.message ||
+                                'Error tidak diketahui terjadi';
+                            showMessage('error', errorMsg);
                         }
                     });
                 }
+                })
+                }
             });
+            
+        });
         </script>
     @endsection
