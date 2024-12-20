@@ -79,23 +79,22 @@
                                     <label for="Invoice" class="form-label fw-bold">Vendor</label>
                                     <select class="form-control select2" id="selectVendor" disabled>
                                         @foreach ($listVendor as $vendor)
-                                            <option value="{{ $vendor->id }}"
-                                                {{ $vendor->id == $selectedVendorId ? 'selected' : '' }}>
-                                                {{ $vendor->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
+                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $selectedVendorId ? 'selected' : '' }}>
+                                            {{ $vendor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="Invoice" class="form-label fw-bold">No. Voucher</label>
+                                <select id="selectInvoice" name="invoices[]" class="form-control" multiple disabled>
+                                </select>
+                                <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
                                 </div>
-                                <div class="mt-3">
-                                    <label for="Invoice" class="form-label fw-bold">No. Voucher</label>
-                                    <select id="selectInvoice" name="invoices[]" class="form-control" multiple disabled>
-                                    </select>
-                                    <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
+                            </div>
+                            <div class="mt-3">
+                                <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
                                     <input type="text" class="form-control" id="tanggalPayment"
                                         placeholder="Pilih Tanggal">
                                     <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
@@ -122,9 +121,9 @@
                                 <div class="input-group mt-3">
                                     <label for="keteranganPaymentSup" class="form-label fw-bold p-1">Keterangan</label>
                                 </div>
-                                <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea" placeholder="Masukkan keterangan"
-                                    rows="4"></textarea>
-                            </div>
+                            <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
+                                placeholder="Masukkan keterangan" rows="4"></textarea>
+                        </div>
 
                             <div class="col-md-6">
                                 <h5 class="fw-bold mt-3">Preview Invoice</h5>
@@ -171,6 +170,7 @@
                                             Item</button>
                                     </td>
                                     <td></td>
+                                    <td></td>
                                     <td>
                                         <label>Total:</label>
                                         <input type="text" class="form-control" id="total_payment" name="total_debit"
@@ -205,10 +205,26 @@
 
     @endsection
     @section('script')
-        <script>
+    <!-- <script>
+        $(document).ready(function () {
             var payment = @json($payment);
 
             console.log('ini payment', payment);
+
+
+            $('#selectVendor').on('change', function () {
+                const idVendor = $(this).val();
+
+                let invoiceIds = payment.payment_invoices_sup.map(invoice => invoice.invoice_id);
+
+
+                if (idVendor) {
+                    loadInvoicesByName(idVendor, invoiceIds);
+                } else {
+                    $('#selectInvoice').empty().append('<option value="" disabled>Select a vendor first</option>');
+                }
+            });
+
             $('.select2').select2();
             $('#tanggalPayment').datepicker({
                 format: 'dd MM yyyy',
@@ -385,7 +401,7 @@
                         const $selectInvoice = $('#selectInvoice').empty();
                         let selectedInvoices = [];
 
-                        console.log(response);
+                    console.log(response);
 
                         if (response.success) {
                             response.invoices.forEach(invoice => {
@@ -395,13 +411,13 @@
                                 selectedInvoices.push(invoice.invoice_no);
                             });
 
-                            $selectInvoice.val(selectedInvoices).trigger('change');
-                        } else {
-                            $selectInvoice.append(
-                                '<option value="" disabled>No invoices available</option>'
-                            );
-                        }
-                    },
+                        $selectInvoice.val(selectedInvoices).trigger('change');
+                    } else {
+                        $selectInvoice.append(
+                            '<option value="" disabled>No invoices available</option>'
+                        );
+                    }
+                },
 
                     error: function() {
                         showMessage('error!', 'Failed to load Voucher.');
@@ -421,45 +437,10 @@
             });
 
 
-            $('#selectInvoice').on('change', function() {
-                var invoiceNo = $(this).val();
-                if (invoiceNo) {
-                    $.ajax({
-                        url: "{{ route('getSupInvoiceAmount') }}",
-                        type: 'GET',
-                        data: {
-                            no_invoice: invoiceNo
-                        },
-                        success: function(response) {
-                            if (response.success) {
-
-                                $('#previewInvoiceNumber').text(
-                                    response.data.invoice_numbers.replaceAll(';', ', ')
-                                );
-                                $('#previewInvoiceAmount').text(response.data.total_harga);
-                                $('#previewTotalPaid').text(response.data.total_bayar);
-                                $('#previewRemainingPayment').text(response.data
-                                    .sisa_bayar);
-                            } else {
-                                // alert(response.message || 'Data tidak ditemukan');
-                                resetPreview();
-                            }
-                        },
-                    });
-                } else {
-                    resetPreview();
-                }
-            });
-
-            function resetPreview() {
-                $('#previewInvoiceNumber').text('-');
-                $('#previewInvoiceAmount').text('-');
-                $('#previewTotalPaid').text('-');
-                $('#previewRemainingPayment').text('-');
-            }
 
             // Load items ke tabel
             loadItems(payment);
+
 
             // Fungsi menampilkan items dari data backend
             function loadItems(payment) {
@@ -487,132 +468,37 @@
                 </td>
             </tr>`;
                     $('#items-container').append(newRow);
-                });
 
-                // Inisialisasi Select2
-                $('.select2singgle').select2();
 
-                // Update total
-                updateTotals();
-            }
+            // Load items ke tabel
 
-            // Fungsi menambah item manual
-            $('#add-item-button').click(function() {
-                var newRow = `
-        <tr>
-            <td>
-                <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
-                    <option value="">Pilih Akun</option>
-                     @foreach ($coas as $coa)
-                                <option value="{{ $coa->id }}">{{ $coa->code_account_id }} - {{ $coa->name }}</option>
-                            @endforeach
-                </select>
-            </td>
-            <td>
-                <input type="text" class="form-control" name="item_desc" placeholder="Input Description" required>
-            </td>
-            <td>
-                <input type="number" class="form-control" name="debit" value="0.00" required>
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
-            </td>
-        </tr>`;
-                $('#items-container').append(newRow);
-                $('.select2singgle').last().select2();
-                updateTotals();
-            });
 
-            // Hapus baris item
-            $(document).on('click', '.removeItemButton', function() {
-                $(this).closest('tr').remove();
-                updateTotals();
-            });
+            // Fungsi menampilkan items dari data backend
+            function loadItems(payment) {
+                $('#items-container').empty();
+                payment.payment_sup_item.forEach((item) => {
+                    var newRow = `
+            <tr>
+                <td>
+                    <select class="form-control select2singgle" name="account" style="width: 30vw;" required>
+                         @foreach ($coas as $coa)
+                                            <option value="{{ $coa->id }}" ${item.coa_id === {{ $coa->id }} ? 'selected' : ''}>
+                                                {{ $coa->code_account_id }} - {{ $coa->name }}
+                                            </option>
+                                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="item_desc" value="${item.description}" required>
+                </td>
+        <td>
+                 <input type="number" class="form-control" name="debit" value="${item.description}" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button>
+                </td>
+            </tr>`;
+                    $('#items-container').append(newRow);
 
-            // Update total saat nilai debit berubah
-            $(document).on('input', 'input[name="debit"]', function() {
-                updateTotals();
-            });
 
-            // Fungsi menghitung total
-            function updateTotals() {
-                let totalDebit = 0;
-                $('#items-container tr').each(function() {
-                    const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
-                    totalDebit += debitValue;
-                });
-                $('#total_payment').val(totalDebit.toFixed(2));
-            }
-
-            // Kirim data ke server
-            $('#buatPayment').click(function(e) {
-                e.preventDefault();
-
-                const invoice = $('#selectInvoice').val();
-                const tanggalPayment = $('#tanggalPayment').val();
-                const paymentAmount = $('#payment').val();
-                const paymentMethod = $('#selectMethod').val();
-                const keteranganPaymentSup = $('#keteranganPaymentSup').val();
-
-                let items = [];
-                $('#items-container tr').each(function() {
-                    const account = $(this).find('select[name="account"]').val();
-                    const itemDesc = $(this).find('input[name="item_desc"]').val();
-                    const debit = $(this).find('input[name="debit"]').val();
-
-                    items.push({
-                        account,
-                        item_desc: itemDesc,
-                        debit
-                    });
-                });
-
-                // Validasi input
-                let valid = true;
-                $('.text-danger').addClass('d-none');
-                if (!invoice) {
-                    $('#errInvoicePayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!tanggalPayment) {
-                    $('#errTanggalPayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!paymentAmount) {
-                    $('#errAmountPayment').removeClass('d-none');
-                    valid = false;
-                }
-                if (!paymentMethod) {
-                    $('#errMethodPayment').removeClass('d-none');
-                    valid = false;
-                }
-
-                if (valid) {
-                    $.ajax({
-                        url: "{{ route('paymentSup') }}",
-                        method: 'POST',
-                        data: {
-                            invoice,
-                            tanggalPayment,
-                            paymentAmount,
-                            paymentMethod,
-                            items,
-                            keteranganPaymentSup,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                alert('Payment berhasil dibuat!');
-                                location.reload();
-                            } else {
-                                alert('Gagal membuat payment!');
-                            }
-                        },
-                        error: function() {
-                            alert('Terjadi kesalahan!');
-                        }
-                    });
-                }
-            });
-        </script>
     @endsection
