@@ -416,47 +416,70 @@
             });
 
             if (valid) {
-                $.ajax({
-                    url: "{{ route('paymentSup') }}",
-                    method: 'POST',
-                    data: {
-                        invoice: invoice,
-                        tanggalPayment: tanggalPayment,
-                        paymentAmount: paymentAmount,
-                        paymentMethod: paymentMethod,
-                        items: items,
-                        keteranganPaymentSup: keteranganPaymentSup,
-                        totalAmmount: totalAmmount,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showMessage("success", "Payment berhasil dibuat").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        let responseJSON = xhr.responseJSON;
-                        if (responseJSON && responseJSON.message) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan!',
-                                text: responseJSON.message
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan!',
-                                text: 'Error tidak diketahui terjadi'
-                            });
-                        }
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are saving the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            url: "{{ route('paymentSup') }}",
+                            method: 'POST',
+                            data: {
+                                invoice: invoice,
+                                tanggalPayment: tanggalPayment,
+                                paymentAmount: paymentAmount,
+                                paymentMethod: paymentMethod,
+                                items: items,
+                                keteranganPaymentSup: keteranganPaymentSup,
+                                totalAmmount: totalAmmount,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "Payment berhasil dibuat").then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal!',
+                                        text: response.message
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.close();
+                                let responseJSON = xhr.responseJSON;
+                                if (responseJSON && responseJSON.message) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Terjadi Kesalahan!',
+                                        text: responseJSON.message
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Terjadi Kesalahan!',
+                                        text: 'Error tidak diketahui terjadi'
+                                    });
+                                }
+                            }
+                        });
                     }
                 });
             }
