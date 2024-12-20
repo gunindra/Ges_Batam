@@ -37,4 +37,8 @@ class PaymentSup extends Model
     {
         return $this->hasMany(PaymentSupInvoice::class, 'payment_id');
     }
+    public function paymentSupItem()
+    {
+        return $this->hasMany(PaymentSupItem::class, 'payment_id');
+    }
 }

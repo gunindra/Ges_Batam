@@ -22,6 +22,6 @@ class PaymentSupInvoice extends Model
     {
         return $this->belongsTo(PaymentSup::class, 'payment_id');
     }
-    
+
 
 }
