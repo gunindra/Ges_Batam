@@ -79,23 +79,22 @@
                                     <label for="Invoice" class="form-label fw-bold">Vendor</label>
                                     <select class="form-control select2" id="selectVendor" disabled>
                                         @foreach ($listVendor as $vendor)
-                                            <option value="{{ $vendor->id }}"
-                                                {{ $vendor->id == $selectedVendorId ? 'selected' : '' }}>
-                                                {{ $vendor->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
+                                        <option value="{{ $vendor->id }}" {{ $vendor->id == $selectedVendorId ? 'selected' : '' }}>
+                                            {{ $vendor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="Invoice" class="form-label fw-bold">No. Voucher</label>
+                                <select id="selectInvoice" name="invoices[]" class="form-control" multiple disabled>
+                                </select>
+                                <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
                                 </div>
-                                <div class="mt-3">
-                                    <label for="Invoice" class="form-label fw-bold">No. Voucher</label>
-                                    <select id="selectInvoice" name="invoices[]" class="form-control" multiple disabled>
-                                    </select>
-                                    <div id="errInvoicePayment" class="text-danger mt-1 d-none">Silahkan Pilih No. Voucher
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
+                            </div>
+                            <div class="mt-3">
+                                <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
                                     <input type="text" class="form-control" id="tanggalPayment"
                                         placeholder="Pilih Tanggal">
                                     <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
@@ -122,9 +121,9 @@
                                 <div class="input-group mt-3">
                                     <label for="keteranganPaymentSup" class="form-label fw-bold p-1">Keterangan</label>
                                 </div>
-                                <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea" placeholder="Masukkan keterangan"
-                                    rows="4"></textarea>
-                            </div>
+                            <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
+                                placeholder="Masukkan keterangan" rows="4"></textarea>
+                        </div>
 
                             <div class="col-md-6">
                                 <h5 class="fw-bold mt-3">Preview Invoice</h5>
@@ -264,7 +263,7 @@
                         const $selectInvoice = $('#selectInvoice').empty();
                         let selectedInvoices = [];
 
-                        console.log(response);
+                    console.log(response);
 
                         if (response.success) {
                             response.invoices.forEach(invoice => {
@@ -274,13 +273,13 @@
                                 selectedInvoices.push(invoice.invoice_no);
                             });
 
-                            $selectInvoice.val(selectedInvoices).trigger('change');
-                        } else {
-                            $selectInvoice.append(
-                                '<option value="" disabled>No invoices available</option>'
-                            );
-                        }
-                    },
+                        $selectInvoice.val(selectedInvoices).trigger('change');
+                    } else {
+                        $selectInvoice.append(
+                            '<option value="" disabled>No invoices available</option>'
+                        );
+                    }
+                },
 
                     error: function() {
                         showMessage('error!', 'Failed to load Voucher.');
@@ -336,9 +335,10 @@
                 $('#previewTotalPaid').text('-');
                 $('#previewRemainingPayment').text('-');
             }
- 
+
             // Load items ke tabel
             loadItems(payment);
+
 
             // Fungsi menampilkan items dari data backend
             function loadItems(payment) {
