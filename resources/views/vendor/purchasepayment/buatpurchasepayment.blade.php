@@ -120,6 +120,7 @@
                             </div>
                             <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
                                 placeholder="Masukkan keterangan" rows="4"></textarea>
+                                <input type="text" id="grandtotal">
                         </div>
 
                         <div class="col-md-6">
@@ -128,10 +129,6 @@
                                 style="background-color: #f9f9f9;">
                                 <p><strong class="text-primary">Nomor Invoice :</strong> <span
                                         id="previewInvoiceNumber">-</span></p>
-                                <p><strong class="text-primary">Tanggal Invoice :</strong> <span
-                                        id="previewInvoiceDate">-</span></p>
-                                <p><strong class="text-primary">Status Invoice :</strong> <span
-                                        id="previewInvoiceStatus">-</span></p>
                                 <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
                                         class="fw-bold text-success">-</span></p>
                                 <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
@@ -353,7 +350,8 @@
             // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
 
             const grandTotal = totalDebit + paymentAmount;
-            $('#total_payment').val(grandTotal.toFixed(0));
+            $('#total_payment').val(totalDebit);
+            $('#grandtotal').val(grandTotal.toFixed(0));
         }
 
         $(document).on('input', 'input[name="debit"]', function () {

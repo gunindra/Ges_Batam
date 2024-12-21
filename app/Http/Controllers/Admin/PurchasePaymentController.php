@@ -245,7 +245,21 @@ class PurchasePaymentController extends Controller
             $payment->payment_method_id = $request->paymentMethod;
             $payment->kode_pembayaran = $newKodePembayaran;
             $payment->Keterangan = $request->keteranganPaymentSup;
+
+            Log::info('Saving PaymentSup data', [
+                'payment_date' => $tanggalPayment,
+                'payment_method_id' => $request->paymentMethod,
+                'kode_pembayaran' => $newKodePembayaran,
+                'keterangan' => $request->keteranganPaymentSup,
+            ]);
+            
             $payment->save();
+            
+            // Tambahkan log setelah berhasil menyimpan
+            Log::info('PaymentSup data saved successfully', [
+                'id' => $payment->id,
+                'kode_pembayaran' => $payment->kode_pembayaran,
+            ]);
 
 
             $totalPayment = $request->paymentAmount;
@@ -289,26 +303,32 @@ class PurchasePaymentController extends Controller
 
             $noRef = implode(', ', $request->invoice);
 
-            try {
+    
                 $request->merge(['code_type' => 'BKK']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
+                $jurnal->payment_id = $payment->id;
                 $jurnal->tipe_kode = 'BKK';
                 $jurnal->tanggal = $tanggalPayment;
                 $jurnal->no_ref = $noRef;
                 $jurnal->status = 'Approve';
                 $jurnal->description = "Jurnal untuk Invoice {$noRef}";
-                $jurnal->totaldebit = $request->paymentAmount;
-                $jurnal->totalcredit = $request->paymentAmount;
+                $totalJurnalAmount = $request->paymentAmount;
+                $jurnal->totaldebit = $request->totalAmmount;
+                $jurnal->totalcredit = $request->totalAmmount;
+                Log::info('Payment id data:', [
+                    'id' => $payment->id,
+                ]);
+    
                 $jurnal->save();
 
                 $jurnalItemDebit = new JurnalItem();
                 $jurnalItemDebit->jurnal_id = $jurnal->id;
                 $jurnalItemDebit->code_account = $vendorAccountId;
                 $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
-                $jurnalItemDebit->debit = $request->paymentAmount;
+                $jurnalItemDebit->debit = $totalJurnalAmount;
                 $jurnalItemDebit->credit = 0;
                 $jurnalItemDebit->save();
 
@@ -317,10 +337,27 @@ class PurchasePaymentController extends Controller
                 $jurnalItemCredit->code_account = $request->paymentMethod;
                 $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
                 $jurnalItemCredit->debit = 0;
-                $jurnalItemCredit->credit = $request->totalAmmount;
+                $jurnalItemCredit->credit = $totalJurnalAmount;
                 $jurnalItemCredit->save();
 
                 if ($request->has('items') && is_array($request->items)) {
+
+                    $items = $request->input('items');
+
+                    $totalDebit = 0;
+                    $totalCredit = 0;
+    
+                    foreach ($items as $item) {
+                        if ($item['tipeAccount'] == 'Debit') {
+                            $totalDebit += $item['debit'];
+                        } elseif ($item['tipeAccount'] == 'Credit') {
+                            $totalCredit += $item['debit'];
+                        }
+                    }
+                    $idpenjualan = COA::find(84);
+                    $balanceAmount = $totalDebit - $totalCredit;
+
+
                     foreach ($request->items as $item) {
                         DB::table('tbl_payment_sup_items')->insert([
                             'payment_id' => $payment->id,
@@ -342,11 +379,27 @@ class PurchasePaymentController extends Controller
                         } elseif ($item['tipeAccount'] === 'Credit') {
                             $jurnalItem->debit = 0;
                             $jurnalItem->credit = $item['debit'];
-                        } else {
-                            $jurnalItem->debit = 0;
-                            $jurnalItem->credit = 0;
                         }
                         $jurnalItem->save();
+
+                        if ($balanceAmount !== 0) {
+                            $jurnalItemBalance = new JurnalItem();
+                            $jurnalItemBalance->jurnal_id = $jurnal->id;
+                            $jurnalItemBalance->code_account = $idpenjualan->id;
+                            $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
+        
+                            if ($balanceAmount > 0) {
+                                // Jika debit lebih besar, tambahkan kredit
+                                $jurnalItemBalance->debit = 0;
+                                $jurnalItemBalance->credit = $balanceAmount;
+                            } else {
+                                // Jika kredit lebih besar, tambahkan debit
+                                $jurnalItemBalance->debit = abs($balanceAmount);
+                                $jurnalItemBalance->credit = 0;
+                            }
+        
+                            $jurnalItemBalance->save();
+                        }
 
                         Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
                             'account' => $item['account'],
@@ -356,11 +409,6 @@ class PurchasePaymentController extends Controller
                         ]);
                     }
                 }
-
-
-            } catch (\Exception $e) {
-                throw new \Exception('Gagal menambahkan jurnal: ' . $e->getMessage());
-            }
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Payment successfully created and invoice updated']);

@@ -833,7 +833,7 @@ class PaymentController extends Controller
                     }
                 }
 
-                $idpenjualan = COA::find(87);
+                $idpenjualan = COA::find(84);
                 $balanceAmount = $totalDebit - $totalCredit;
 
                 foreach ($items as $item) {
