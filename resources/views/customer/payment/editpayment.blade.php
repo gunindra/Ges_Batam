@@ -156,6 +156,8 @@
                         </div>
                         <textarea id="keteranganPayment" class="form-control" aria-label="With textarea" placeholder="Masukkan keterangan"
                             rows="4"></textarea>
+
+                            <input type="hidden" id="grandtotal">
                     </div>
                 </div>
             </div>
@@ -414,8 +416,9 @@
                 const paymentAmount = parseFloat($('#payment').val()) || 0;
                 const discountPayment = parseFloat($('#discountPayment').val()) || 0;
 
-                const grandTotal = totalDebit + paymentAmount;
-                $('#total_payment').val(grandTotal.toFixed(0));
+                const grandTotal = totalDebit + paymentAmount + discountPayment;
+                $('#total_payment').val(totalDebit);
+                $('#grandtotal').val(grandTotal);
             }
 
             $(document).on('click', '.removeItemButton', function() {
@@ -594,50 +597,63 @@
                 });
 
                 if (isValid) {
-                    const totalforntend = parseFloat($('#total_payment').val()) || 0;
-                    const backendDiscout = parseFloat($('#discountPayment').val()) || 0;
+                    Swal.fire({
+                        title: "Apakah Kamu Yakin?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
 
-                    const totalAmmount = totalforntend + backendDiscout
+                            const data = {
+                                paymentId : paymentId,
+                                // kode: $('#KodePayment').val(),
+                                invoice: $('#selectInvoice').val(),
+                                marking: $('#selectMarking').val(),
+                                tanggalPayment: $('#tanggalPayment').val(),
+                                // tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
+                                paymentAmount: parseFloat($('#payment').val()) || 0,
+                                discountPayment: parseFloat($('#discountPayment').val()) || 0,
+                                paymentMethod: $('#selectMethod').val(),
+                                amountPoin: $('#amountPoin').val(),
+                                keterangan: $('#keteranganPayment').val(),
+                                totalAmmount: $('#grandtotal').val(),
+                                items: items,
+                                _token: '{{ csrf_token() }}'
+                            };
 
-                    const data = {
-                        paymentId: paymentId,
-                        // kode: $('#KodePayment').val(),
-                        invoice: $('#selectInvoice').val(),
-                        marking: $('#selectMarking').val(),
-                        tanggalPayment: $('#tanggalPayment').val(),
-                        // tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
-                        paymentAmount: parseFloat($('#payment').val()) || 0,
-                        discountPayment: parseFloat($('#discountPayment').val()) || 0,
-                        paymentMethod: $('#selectMethod').val(),
-                        amountPoin: $('#amountPoin').val(),
-                        keterangan: $('#keteranganPayment').val(),
-                        totalAmmount: totalAmmount,
-                        items: items,
-                        _token: '{{ csrf_token() }}'
-                    }
-
-                    $.ajax({
-                        url: "{{ route('editpayment.update') }}",
-                        method: 'POST',
-                        data,
-                        beforeSend: function() {
-                            $('#buatPayment').prop('disabled', true).text('Proses...');
-                        },
-                        success: function(response) {
-                            $('#buatPayment').prop('disabled', false).text('Buat Payment');
-                            if (response.success) {
-                                showMessage('success', 'Payment berhasil dibuat').then(() =>
-                                    location.reload());
-                            } else {
-                                showMessage('error', response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            $('#buatPayment').prop('disabled', false).text('Buat Payment');
-                            const errorMsg = xhr.responseJSON?.message ||
-                                'Error tidak diketahui terjadi';
-                            showMessage('error', errorMsg);
-                        }
+                            $.ajax({
+                                url: "{{ route('editpayment.update') }}",
+                                method: 'POST',
+                                data: data,
+                                beforeSend: function() {
+                                    $('#editPayment').prop('disabled', true).text(
+                                        'Proses...');
+                                },
+                                success: function(response) {
+                                    $('#editPayment').prop('disabled', false).text(
+                                        'Buat Payment');
+                                    if (response.success) {
+                                        showMessage('success',
+                                            'Payment berhasil dibuat').then(() =>
+                                            location.reload());
+                                    } else {
+                                        showMessage('error', response.message);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    $('#editPayment').prop('disabled', false).text(
+                                        'Buat Payment');
+                                    const errorMsg = xhr.responseJSON?.message ||
+                                        'Error tidak diketahui terjadi';
+                                    showMessage('error', errorMsg);
+                                }
+                            });
+                        };
                     });
 
                 }
