@@ -252,9 +252,9 @@ class PurchasePaymentController extends Controller
                 'kode_pembayaran' => $newKodePembayaran,
                 'keterangan' => $request->keteranganPaymentSup,
             ]);
-            
+
             $payment->save();
-            
+
             // Tambahkan log setelah berhasil menyimpan
             Log::info('PaymentSup data saved successfully', [
                 'id' => $payment->id,
@@ -303,7 +303,7 @@ class PurchasePaymentController extends Controller
 
             $noRef = implode(', ', $request->invoice);
 
-    
+
                 $request->merge(['code_type' => 'BKK']);
                 $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
@@ -321,7 +321,7 @@ class PurchasePaymentController extends Controller
                 Log::info('Payment id data:', [
                     'id' => $payment->id,
                 ]);
-    
+
                 $jurnal->save();
 
                 $jurnalItemDebit = new JurnalItem();
@@ -346,7 +346,7 @@ class PurchasePaymentController extends Controller
 
                     $totalDebit = 0;
                     $totalCredit = 0;
-    
+
                     foreach ($items as $item) {
                         if ($item['tipeAccount'] == 'Debit') {
                             $totalDebit += $item['debit'];
@@ -387,7 +387,7 @@ class PurchasePaymentController extends Controller
                             $jurnalItemBalance->jurnal_id = $jurnal->id;
                             $jurnalItemBalance->code_account = $idpenjualan->id;
                             $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
-        
+
                             if ($balanceAmount > 0) {
                                 // Jika debit lebih besar, tambahkan kredit
                                 $jurnalItemBalance->debit = 0;
@@ -397,7 +397,7 @@ class PurchasePaymentController extends Controller
                                 $jurnalItemBalance->debit = abs($balanceAmount);
                                 $jurnalItemBalance->credit = 0;
                             }
-        
+
                             $jurnalItemBalance->save();
                         }
 
@@ -623,7 +623,7 @@ class PurchasePaymentController extends Controller
             // $jurnalItemCredit->save();
 
             DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
-            
+
             if ($request->has('items') && is_array($request->items)) {
                 foreach ($request->items as $item) {
                     DB::table('tbl_payment_sup_items')->insert([
