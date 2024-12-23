@@ -120,7 +120,7 @@
                             </div>
                             <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
                                 placeholder="Masukkan keterangan" rows="4"></textarea>
-                                <input type="text" id="grandtotal">
+                                <input type="hidden" id="grandtotal">
                         </div>
 
                         <div class="col-md-6">

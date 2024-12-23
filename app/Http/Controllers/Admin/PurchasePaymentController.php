@@ -264,6 +264,7 @@ class PurchasePaymentController extends Controller
 
             $totalPayment = $request->paymentAmount;
             $invoiceList = [];
+            DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->delete();
 
             foreach ($request->invoice as $noInvoice) {
                 $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
@@ -541,6 +542,10 @@ class PurchasePaymentController extends Controller
         DB::beginTransaction();
 
         try {
+            $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
+
+            $vendor = Vendor::findOrFail($invoice->vendor_id);
+            $vendorAccountId = $vendor->account_id;
             // Ambil data pembayaran lama
             $payment = PaymentSup::findOrFail($request->paymentId);
             $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->get();
@@ -595,34 +600,44 @@ class PurchasePaymentController extends Controller
             if ($totalPayment > 0) {
                 throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
             }
+            $noRef = implode(', ', $request->invoice);
 
-            // Perbarui jurnal jika ada
-            $jurnal = Jurnal::where('no_ref', implode(', ', $request->invoice))->firstOrFail();
-            $jurnal->tanggal = $tanggalPayment;
-            $jurnal->totaldebit = $request->paymentAmount;
-            $jurnal->totalcredit = $request->paymentAmount;
-            $jurnal->save();
 
-            // Perbarui jurnal items
-            JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+                $jurnal = Jurnal::where('payment_id', $payment->id)->first();
+                $jurnal->update([
+                    'payment_id' => $payment->id,
+                    'tanggal' => $tanggalPayment,
+                    'no_ref' => $noRef,
+                    'totaldebit' => $request->totalAmount,
+                    'totalcredit' => $request->totalAmount,
+                ]);
+                Log::info('Payment id data:', [
+                    'id' => $payment->id,
+                ]);
+                $totalJurnalAmount = $request->paymentAmount;
 
-            // $jurnalItemDebit = new JurnalItem();
-            // $jurnalItemDebit->jurnal_id = $jurnal->id;
-            // $jurnalItemDebit->code_account = $vendor->account_id;
-            // $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
-            // $jurnalItemDebit->debit = $request->paymentAmount;
-            // $jurnalItemDebit->credit = 0;
-            // $jurnalItemDebit->save();
+                $jurnal->save();
+                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
 
-            // $jurnalItemCredit = new JurnalItem();
-            // $jurnalItemCredit->jurnal_id = $jurnal->id;
-            // $jurnalItemCredit->code_account = $request->paymentMethod;
-            // $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
-            // $jurnalItemCredit->debit = 0;
-            // $jurnalItemCredit->credit = $request->paymentAmount;
-            // $jurnalItemCredit->save();
+                $jurnalItemDebit = new JurnalItem();
+                $jurnalItemDebit->jurnal_id = $jurnal->id;
+                $jurnalItemDebit->code_account = $vendorAccountId;
+                $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
+                $jurnalItemDebit->debit = $totalJurnalAmount;
+                $jurnalItemDebit->credit = 0;
+                $jurnalItemDebit->save();
+
+                $jurnalItemCredit = new JurnalItem();
+                $jurnalItemCredit->jurnal_id = $jurnal->id;
+                $jurnalItemCredit->code_account = $request->paymentMethod;
+                $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
+                $jurnalItemCredit->debit = 0;
+                $jurnalItemCredit->credit = $totalJurnalAmount;
+                $jurnalItemCredit->save();
+
 
             DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
+            $idpenjualan = COA::find(84);
 
             if ($request->has('items') && is_array($request->items)) {
                 foreach ($request->items as $item) {
@@ -638,17 +653,37 @@ class PurchasePaymentController extends Controller
                     $jurnalItem->jurnal_id = $jurnal->id;
                     $jurnalItem->code_account = $item['account'];
                     $jurnalItem->description = $item['item_desc'];
-                    // $jurnalItem->debit = $item['debit'];
-                    // $jurnalItem->credit = 0;
+                    $jurnalItem->debit = $item['debit'];
+
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['debit'];
                         $jurnalItem->credit = 0;
-                    } elseif ($item['tipeAccount'] === 'Credit') {
+                    } else if ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['debit'];
                     }
                     $jurnalItem->save();
+                    
+                    if ($balanceAmount !== 0) {
+                        $jurnalItemBalance = new JurnalItem();
+                        $jurnalItemBalance->jurnal_id = $jurnal->id;
+                        $jurnalItemBalance->code_account = $idpenjualan->id;
+                        $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
+
+                        if ($balanceAmount > 0) {
+                            // Jika debit lebih besar, tambahkan kredit
+                            $jurnalItemBalance->debit = 0;
+                            $jurnalItemBalance->credit = $balanceAmount;
+                        } else {
+                            // Jika kredit lebih besar, tambahkan debit
+                            $jurnalItemBalance->debit = abs($balanceAmount);
+                            $jurnalItemBalance->credit = 0;
+                        }
+
+                        $jurnalItemBalance->save();
+                    }
                 }
+
             }
 
             DB::commit();
