@@ -1,8 +1,6 @@
-@extends('layout.main')
+<?php $__env->startSection('title', 'Pickup'); ?>
 
-@section('title', 'Pickup')
-
-@section('main')
+<?php $__env->startSection('main'); ?>
 
     <style>
         /* Style responsif untuk modal dan tabel di perangkat tablet */
@@ -46,7 +44,7 @@
         }
     </style>
 
- {{-- Pickup --}}
+ 
     <!-- Modal -->
     <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -128,11 +126,12 @@
                         <div class="d-flex justify-content-center mb-2 mr-3 mt-3">
                             <select class="form-control" id="selectResi" style="width: 800px;" multiple="multiple">
                                 <option value="" disabled>Pilih No.Invoice</option>
-                                @foreach ($listInvoice as $Invoice)
-                                    <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}
-                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})
+                                <?php $__currentLoopData = $listInvoice; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $Invoice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($Invoice->invoice_id); ?>"><?php echo e($Invoice->no_invoice); ?>
+
+                                        (<?php echo e($Invoice->marking); ?> - <?php echo e($Invoice->nama_pembeli); ?>)
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div class="text-center mt-3">
@@ -184,8 +183,8 @@
             </div>
         </div>
     </div>
-@endsection
-@section('script')|
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>|
 
     <script>
         $(document).ready(function() {
@@ -218,7 +217,7 @@
                 });
 
                 $.ajax({
-                    url: '{{ route('cekPassPickup') }}',
+                    url: '<?php echo e(route('cekPassPickup')); ?>',
                     method: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
@@ -277,7 +276,7 @@
                 $('#detailInvoice').data('selected-invoices', selectedInvoices);
                 if (selectedInvoices.length > 0) {
                     $.ajax({
-                        url: '{{ route('jumlahresi') }}',
+                        url: '<?php echo e(route('jumlahresi')); ?>',
                         type: 'GET',
                         data: {
                             invoice_ids: selectedInvoices
@@ -307,7 +306,7 @@
                             serverSide: true,
                             processing: true,
                             ajax: {
-                                url: "{{ route('getDetailInvoice') }}", // URL endpoint ke backend
+                                url: "<?php echo e(route('getDetailInvoice')); ?>", // URL endpoint ke backend
                                 method: 'GET',
                                 data: function(d) {
                                     // Pastikan `selectedInvoices` adalah array
@@ -483,7 +482,7 @@
                     // Send AJAX only after all blobs are ready
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route('updateStatus') }}',
+                        url: '<?php echo e(route('updateStatus')); ?>',
                         data: formData,
                         processData: false,
                         contentType: false,
@@ -510,4 +509,6 @@
             });
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/pickup/indexpickup.blade.php ENDPATH**/ ?>
