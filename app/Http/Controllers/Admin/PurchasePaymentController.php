@@ -264,7 +264,6 @@ class PurchasePaymentController extends Controller
 
             $totalPayment = $request->paymentAmount;
             $invoiceList = [];
-            DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->delete();
 
             foreach ($request->invoice as $noInvoice) {
                 $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
@@ -418,6 +417,7 @@ class PurchasePaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
     }
+
 
 
 
@@ -608,8 +608,8 @@ class PurchasePaymentController extends Controller
                     'payment_id' => $payment->id,
                     'tanggal' => $tanggalPayment,
                     'no_ref' => $noRef,
-                    'totaldebit' => $request->totalAmount,
-                    'totalcredit' => $request->totalAmount,
+                    'totaldebit' => $request->totalAmmount,
+                    'totalcredit' => $request->totalAmmount,
                 ]);
                 Log::info('Payment id data:', [
                     'id' => $payment->id,
@@ -639,7 +639,25 @@ class PurchasePaymentController extends Controller
             DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
             $idpenjualan = COA::find(84);
 
+
             if ($request->has('items') && is_array($request->items)) {
+
+                $items = $request->input('items');
+
+                $totalDebit = 0;
+                $totalCredit = 0;
+
+                foreach ($items as $item) {
+                    if ($item['tipeAccount'] == 'Debit') {
+                        $totalDebit += $item['debit'];
+                    } elseif ($item['tipeAccount'] == 'Credit') {
+                        $totalCredit += $item['debit'];
+                    }
+                }
+                $idpenjualan = COA::find(84);
+                $balanceAmount = $totalDebit - $totalCredit;
+
+
                 foreach ($request->items as $item) {
                     DB::table('tbl_payment_sup_items')->insert([
                         'payment_id' => $payment->id,
@@ -658,12 +676,12 @@ class PurchasePaymentController extends Controller
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['debit'];
                         $jurnalItem->credit = 0;
-                    } else if ($item['tipeAccount'] === 'Credit') {
+                    } elseif ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['debit'];
                     }
                     $jurnalItem->save();
-                    
+
                     if ($balanceAmount !== 0) {
                         $jurnalItemBalance = new JurnalItem();
                         $jurnalItemBalance->jurnal_id = $jurnal->id;
@@ -682,8 +700,14 @@ class PurchasePaymentController extends Controller
 
                         $jurnalItemBalance->save();
                     }
-                }
 
+                    Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
+                        'account' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'nominal' => $item['debit'],
+                        'tipeAccount' => $item['tipeAccount'],
+                    ]);
+                }
             }
 
             DB::commit();

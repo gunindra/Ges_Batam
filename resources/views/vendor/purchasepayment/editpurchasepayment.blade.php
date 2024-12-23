@@ -123,6 +123,8 @@
                                 </div>
                             <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
                                 placeholder="Masukkan keterangan" rows="4"></textarea>
+
+                                <input type="hidden" id="grandtotal">
                         </div>
 
                             <div class="col-md-6">
@@ -220,7 +222,7 @@
             .reduce((total, item) => {
                 return total + parseFloat(item.amount);
             }, 0);
-       
+
         $('#selectMethod').trigger('change');
 
         const paymentDate = new Date(payment.payment_date);
@@ -428,15 +430,19 @@
                 updateTotals();
             });
 
-            // Fungsi menghitung total
             function updateTotals() {
-                let totalDebit = 0;
-                $('#items-container tr').each(function() {
-                    const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
-                    totalDebit += debitValue;
-                });
-                $('#total_payment').val(totalDebit.toFixed(2));
-            }
+            let totalDebit = 0;
+            $('#items-container tr').each(function () {
+                const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
+                totalDebit += debitValue;
+            });
+            const paymentAmount = parseFloat($('#payment').val()) || 0;
+            // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
+
+            const grandTotal = totalDebit + paymentAmount;
+            $('#total_payment').val(totalDebit);
+            $('#grandtotal').val(grandTotal.toFixed(0));
+        }
             $('#payment').val(totalAmount).trigger('change');
 
             // Kirim data ke server
@@ -449,6 +455,7 @@
                 const paymentAmount = $('#payment').val();
                 const paymentMethod = $('#selectMethod').val();
                 const keteranganPaymentSup = $('#keteranganPaymentSup').val();
+                let totalAmmount = parseFloat($('#grandtotal').val()) || 0;
 
                 // Validasi input
                 let valid = true;
@@ -525,6 +532,7 @@
                             paymentMethod,
                             items,
                             keteranganPaymentSup,
+                            totalAmmount: totalAmmount,
                             _token: '{{ csrf_token() }}'
                         },
                         success: function(response) {
@@ -549,7 +557,7 @@
                 })
                 }
             });
-            
+
         });
         </script>
     @endsection
