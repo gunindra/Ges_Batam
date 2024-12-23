@@ -4,9 +4,11 @@
 /public/hot
 /public/storage
 /storage/*
-/storage/*.key
-/storage/frameworks/views
-/storage/frameworks/cache
+!/storage/framework/
+!/storage/framework/cache/
+!/storage/framework/views/
+!/storage/framework/cache/.gitkeep
+!/storage/framework/views/.gitkeep
 /vendor
 .env
 .env.backup

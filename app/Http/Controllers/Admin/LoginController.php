@@ -59,13 +59,14 @@ class LoginController extends Controller
             case 'driver':
                 return route('supir');
             case 'customer':
+                return route('tracking');
             case 'admin':
-            case 'pickup':
-                return route('pickup');
             case 'supervisor':
                 return route('tracking');
+            case 'pickup':
+                return route('pickup');
             default:
-                return route('default.page');
+                return route('tracking');
         }
     }
 
