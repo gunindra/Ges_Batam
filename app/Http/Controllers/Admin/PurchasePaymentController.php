@@ -309,7 +309,11 @@ class PurchasePaymentController extends Controller
 
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
+<<<<<<< HEAD
                 $jurnal->payment_id = $payment->id;
+=======
+                $jurnal->payment_id_sup = $payment->id;
+>>>>>>> tandrio
                 $jurnal->tipe_kode = 'BKK';
                 $jurnal->tanggal = $tanggalPayment;
                 $jurnal->no_ref = $noRef;
@@ -417,6 +421,7 @@ class PurchasePaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
         }
     }
+
 
 
 
@@ -541,10 +546,21 @@ class PurchasePaymentController extends Controller
         DB::beginTransaction();
 
         try {
+<<<<<<< HEAD
             // Ambil data pembayaran lama
             $payment = PaymentSup::findOrFail($request->paymentId);
             $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->get();
 
+=======
+            $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
+
+            $vendor = Vendor::findOrFail($invoice->vendor_id);
+            $vendorAccountId = $vendor->account_id;
+            // Ambil data pembayaran lama
+            $payment = PaymentSup::findOrFail($request->paymentId);
+            $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->get();
+
+>>>>>>> tandrio
             // Kembalikan perubahan pada invoice lama
             foreach ($oldInvoices as $oldInvoice) {
                 $invoice = SupInvoice::findOrFail($oldInvoice->invoice_id);
@@ -595,6 +611,7 @@ class PurchasePaymentController extends Controller
             if ($totalPayment > 0) {
                 throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
             }
+<<<<<<< HEAD
 
             // Perbarui jurnal jika ada
             $jurnal = Jurnal::where('no_ref', implode(', ', $request->invoice))->firstOrFail();
@@ -623,8 +640,66 @@ class PurchasePaymentController extends Controller
             // $jurnalItemCredit->save();
 
             DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
+            if ($request->has('items') && is_array($request->items)) {
+=======
+            $noRef = implode(', ', $request->invoice);
+
+
+                $jurnal = Jurnal::where('payment_id_sup', $payment->id)->first();
+                $jurnal->update([
+                    'tanggal' => $tanggalPayment,
+                    'no_ref' => $noRef,
+                    'totaldebit' => $request->totalAmmount,
+                    'totalcredit' => $request->totalAmmount,
+                ]);
+                Log::info('Payment id data:', [
+                    'id' => $payment->id,
+                ]);
+                $totalJurnalAmount = $request->paymentAmount;
+
+                $jurnal->save();
+                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+
+                $jurnalItemDebit = new JurnalItem();
+                $jurnalItemDebit->jurnal_id = $jurnal->id;
+                $jurnalItemDebit->code_account = $vendorAccountId;
+                $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
+                $jurnalItemDebit->debit = $totalJurnalAmount;
+                $jurnalItemDebit->credit = 0;
+                $jurnalItemDebit->save();
+
+                $jurnalItemCredit = new JurnalItem();
+                $jurnalItemCredit->jurnal_id = $jurnal->id;
+                $jurnalItemCredit->code_account = $request->paymentMethod;
+                $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
+                $jurnalItemCredit->debit = 0;
+                $jurnalItemCredit->credit = $totalJurnalAmount;
+                $jurnalItemCredit->save();
+
+
+            DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
+            $idpenjualan = COA::find(84);
+
 
             if ($request->has('items') && is_array($request->items)) {
+
+                $items = $request->input('items');
+
+                $totalDebit = 0;
+                $totalCredit = 0;
+
+                foreach ($items as $item) {
+                    if ($item['tipeAccount'] == 'Debit') {
+                        $totalDebit += $item['debit'];
+                    } elseif ($item['tipeAccount'] == 'Credit') {
+                        $totalCredit += $item['debit'];
+                    }
+                }
+                $idpenjualan = COA::find(84);
+                $balanceAmount = $totalDebit - $totalCredit;
+
+
+>>>>>>> tandrio
                 foreach ($request->items as $item) {
                     DB::table('tbl_payment_sup_items')->insert([
                         'payment_id' => $payment->id,
@@ -638,8 +713,13 @@ class PurchasePaymentController extends Controller
                     $jurnalItem->jurnal_id = $jurnal->id;
                     $jurnalItem->code_account = $item['account'];
                     $jurnalItem->description = $item['item_desc'];
+<<<<<<< HEAD
                     // $jurnalItem->debit = $item['debit'];
                     // $jurnalItem->credit = 0;
+=======
+                    $jurnalItem->debit = $item['debit'];
+
+>>>>>>> tandrio
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['debit'];
                         $jurnalItem->credit = 0;
@@ -648,6 +728,35 @@ class PurchasePaymentController extends Controller
                         $jurnalItem->credit = $item['debit'];
                     }
                     $jurnalItem->save();
+<<<<<<< HEAD
+=======
+
+                    if ($balanceAmount !== 0) {
+                        $jurnalItemBalance = new JurnalItem();
+                        $jurnalItemBalance->jurnal_id = $jurnal->id;
+                        $jurnalItemBalance->code_account = $idpenjualan->id;
+                        $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
+
+                        if ($balanceAmount > 0) {
+                            // Jika debit lebih besar, tambahkan kredit
+                            $jurnalItemBalance->debit = 0;
+                            $jurnalItemBalance->credit = $balanceAmount;
+                        } else {
+                            // Jika kredit lebih besar, tambahkan debit
+                            $jurnalItemBalance->debit = abs($balanceAmount);
+                            $jurnalItemBalance->credit = 0;
+                        }
+
+                        $jurnalItemBalance->save();
+                    }
+
+                    Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
+                        'account' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'nominal' => $item['debit'],
+                        'tipeAccount' => $item['tipeAccount'],
+                    ]);
+>>>>>>> tandrio
                 }
             }
 

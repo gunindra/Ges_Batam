@@ -120,6 +120,7 @@
                             </div>
                             <textarea id="keteranganPaymentSup" class="form-control" aria-label="With textarea"
                                 placeholder="Masukkan keterangan" rows="4"></textarea>
+                                <input type="hidden" id="grandtotal">
                         </div>
 
                         <div class="col-md-6">
@@ -128,10 +129,6 @@
                                 style="background-color: #f9f9f9;">
                                 <p><strong class="text-primary">Nomor Invoice :</strong> <span
                                         id="previewInvoiceNumber">-</span></p>
-                                <p><strong class="text-primary">Tanggal Invoice :</strong> <span
-                                        id="previewInvoiceDate">-</span></p>
-                                <p><strong class="text-primary">Status Invoice :</strong> <span
-                                        id="previewInvoiceStatus">-</span></p>
                                 <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
                                         class="fw-bold text-success">-</span></p>
                                 <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
@@ -186,6 +183,9 @@
                                 </tr> --}}
                             </tfoot>
                         </table>
+                        <div id="tableError" class="alert alert-danger d-none">
+                            Harap isi semua kolom di tabel sebelum melanjutkan.
+                        </div>
                     </div>
                     <div class="col-12 mt-4 mb-5">
                         <div class="col-4 float-right">
@@ -350,7 +350,8 @@
             // const discountPayment = parseFloat($('#discountPayment').val()) || 0;
 
             const grandTotal = totalDebit + paymentAmount;
-            $('#total_payment').val(grandTotal.toFixed(0));
+            $('#total_payment').val(totalDebit);
+            $('#grandtotal').val(grandTotal.toFixed(0));
         }
 
         $(document).on('input', 'input[name="debit"]', function () {
@@ -392,56 +393,91 @@
                 let account = $(this).find('select[name="account"]').val();
                 let itemDesc = $(this).find('input[name="item_desc"]').val();
                 let debit = $(this).find('input[name="debit"]').val();
+                let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
+
+                if (!account || !itemDesc || !debit || !tipeAccount) {
+                    valid = false;
+                }
+
+                if (!valid) {
+                    $('#tableError').removeClass('d-none');
+                } else {
+                    $('#tableError').addClass('d-none');
+                }
 
                 items.push({
                     account: account,
                     item_desc: itemDesc,
-                    debit: debit
+                    debit: debit,
+                    tipeAccount: tipeAccount
                 });
             });
 
             if (valid) {
-                $.ajax({
-                    url: "{{ route('paymentSup') }}",
-                    method: 'POST',
-                    data: {
-                        invoice: invoice,
-                        tanggalPayment: tanggalPayment,
-                        paymentAmount: paymentAmount,
-                        paymentMethod: paymentMethod,
-                        items: items,
-                        keteranganPaymentSup : keteranganPaymentSup,
-                        totalAmmount: totalAmmount,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            showMessage("success", "Payment berhasil dibuat").then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        let responseJSON = xhr.responseJSON;
-                        if (responseJSON && responseJSON.message) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan!',
-                                text: responseJSON.message
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan!',
-                                text: 'Error tidak diketahui terjadi'
-                            });
-                        }
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are saving the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            url: "{{ route('paymentSup') }}",
+                            method: 'POST',
+                            data: {
+                                invoice: invoice,
+                                tanggalPayment: tanggalPayment,
+                                paymentAmount: paymentAmount,
+                                paymentMethod: paymentMethod,
+                                items: items,
+                                keteranganPaymentSup: keteranganPaymentSup,
+                                totalAmmount: totalAmmount,
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "Payment berhasil dibuat").then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal!',
+                                        text: response.message
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.close();
+                                let responseJSON = xhr.responseJSON;
+                                if (responseJSON && responseJSON.message) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Terjadi Kesalahan!',
+                                        text: responseJSON.message
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Terjadi Kesalahan!',
+                                        text: 'Error tidak diketahui terjadi'
+                                    });
+                                }
+                            }
+                        });
                     }
                 });
             }
