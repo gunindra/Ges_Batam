@@ -381,32 +381,32 @@ class PurchasePaymentController extends Controller
                             $jurnalItem->credit = $item['debit'];
                         }
                         $jurnalItem->save();
-
-                        if ($balanceAmount !== 0) {
-                            $jurnalItemBalance = new JurnalItem();
-                            $jurnalItemBalance->jurnal_id = $jurnal->id;
-                            $jurnalItemBalance->code_account = $idpenjualan->id;
-                            $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
-
-                            if ($balanceAmount > 0) {
-                                // Jika debit lebih besar, tambahkan kredit
-                                $jurnalItemBalance->debit = 0;
-                                $jurnalItemBalance->credit = $balanceAmount;
-                            } else {
-                                // Jika kredit lebih besar, tambahkan debit
-                                $jurnalItemBalance->debit = abs($balanceAmount);
-                                $jurnalItemBalance->credit = 0;
-                            }
-
-                            $jurnalItemBalance->save();
-                        }
-
                         Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
                             'account' => $item['account'],
                             'description' => $item['item_desc'],
                             'nominal' => $item['debit'],
                             'tipeAccount' => $item['tipeAccount'],
                         ]);
+
+                    }
+
+                    if ($balanceAmount !== 0) {
+                        $jurnalItemBalance = new JurnalItem();
+                        $jurnalItemBalance->jurnal_id = $jurnal->id;
+                        $jurnalItemBalance->code_account = $idpenjualan->id;
+                        $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
+
+                        if ($balanceAmount > 0) {
+                            // Jika debit lebih besar, tambahkan kredit
+                            $jurnalItemBalance->debit = 0;
+                            $jurnalItemBalance->credit = $balanceAmount;
+                        } else {
+                            // Jika kredit lebih besar, tambahkan debit
+                            $jurnalItemBalance->debit = abs($balanceAmount);
+                            $jurnalItemBalance->credit = 0;
+                        }
+
+                        $jurnalItemBalance->save();
                     }
                 }
 
@@ -634,13 +634,10 @@ class PurchasePaymentController extends Controller
                 $jurnalItemCredit->credit = $totalJurnalAmount;
                 $jurnalItemCredit->save();
 
-
-            DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
-            $idpenjualan = COA::find(84);
-
-
             if ($request->has('items') && is_array($request->items)) {
 
+
+                DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
                 $items = $request->input('items');
 
                 $totalDebit = 0;
@@ -681,24 +678,6 @@ class PurchasePaymentController extends Controller
                     }
                     $jurnalItem->save();
 
-                    if ($balanceAmount !== 0) {
-                        $jurnalItemBalance = new JurnalItem();
-                        $jurnalItemBalance->jurnal_id = $jurnal->id;
-                        $jurnalItemBalance->code_account = $idpenjualan->id;
-                        $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
-
-                        if ($balanceAmount > 0) {
-                            // Jika debit lebih besar, tambahkan kredit
-                            $jurnalItemBalance->debit = 0;
-                            $jurnalItemBalance->credit = $balanceAmount;
-                        } else {
-                            // Jika kredit lebih besar, tambahkan debit
-                            $jurnalItemBalance->debit = abs($balanceAmount);
-                            $jurnalItemBalance->credit = 0;
-                        }
-
-                        $jurnalItemBalance->save();
-                    }
 
                     Log::info('Jurnal item untuk custom items berhasil ditambahkan.', [
                         'account' => $item['account'],
@@ -707,7 +686,29 @@ class PurchasePaymentController extends Controller
                         'tipeAccount' => $item['tipeAccount'],
                     ]);
                 }
+
+                if ($balanceAmount !== 0) {
+                    $jurnalItemBalance = new JurnalItem();
+                    $jurnalItemBalance->jurnal_id = $jurnal->id;
+                    $jurnalItemBalance->code_account = $idpenjualan->id;
+                    $jurnalItemBalance->description = 'Adjustment to balance debit and credit';
+
+                    if ($balanceAmount > 0) {
+                        // Jika debit lebih besar, tambahkan kredit
+                        $jurnalItemBalance->debit = 0;
+                        $jurnalItemBalance->credit = $balanceAmount;
+                    } else {
+                        // Jika kredit lebih besar, tambahkan debit
+                        $jurnalItemBalance->debit = abs($balanceAmount);
+                        $jurnalItemBalance->credit = 0;
+                    }
+
+                    $jurnalItemBalance->save();
+                }
             }
+
+
+
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Payment successfully updated']);
