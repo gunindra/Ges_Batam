@@ -309,7 +309,7 @@ class PurchasePaymentController extends Controller
 
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
-                $jurnal->payment_id = $payment->id;
+                $jurnal->payment_id_sup = $payment->id;
                 $jurnal->tipe_kode = 'BKK';
                 $jurnal->tanggal = $tanggalPayment;
                 $jurnal->no_ref = $noRef;
@@ -603,9 +603,8 @@ class PurchasePaymentController extends Controller
             $noRef = implode(', ', $request->invoice);
 
 
-                $jurnal = Jurnal::where('payment_id', $payment->id)->first();
+                $jurnal = Jurnal::where('payment_id_sup', $payment->id)->first();
                 $jurnal->update([
-                    'payment_id' => $payment->id,
                     'tanggal' => $tanggalPayment,
                     'no_ref' => $noRef,
                     'totaldebit' => $request->totalAmmount,
