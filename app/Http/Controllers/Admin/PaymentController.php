@@ -76,6 +76,7 @@ class PaymentController extends Controller
                 'a.id',
                 'a.kode_pembayaran',
                 'd.marking',
+                'a.payment_buat',
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
                 'c.name as payment_method',
                 DB::raw('SUM(f.amount) as total_amount'),
@@ -106,16 +107,28 @@ class PaymentController extends Controller
 
         $payments = $query->get();
 
-
         return DataTables::of($payments)
             ->editColumn('payment_date', function ($row) {
                 return $row->tanggal_buat;
             })
             ->addColumn('action', function ($row) {
-                return '
-                    <a class="btn btnDetailPaymet btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white"> Detail</span></a>
-                    <a class="btn btnEditPayment btn-sm btn-secondary text-white" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>
-                ';
+                $periodStatus = DB::table('tbl_periode')
+                    ->whereDate('periode_start', '<=', $row->payment_buat)
+                    ->whereDate('periode_end', '>=', $row->payment_buat)
+                    ->value('status');
+
+                $btnDetail = '<a class="btn btnDetailPaymet btn-primary btn-sm mr-1" data-id="' . $row->id . '">
+                                <i class="fas fa-eye text-white"></i>
+                                <span class="text-white"> Detail</span>
+                              </a>';
+                if ($periodStatus == 'Closed') {
+                    return $btnDetail;
+                }
+                $btnEdit = '<a class="btn btnEditPayment btn-sm btn-secondary text-white" data-id="' . $row->id . '">
+                              <i class="fas fa-edit"></i>
+                            </a>';
+
+                return $btnDetail . $btnEdit;
             })
             ->make(true);
     }

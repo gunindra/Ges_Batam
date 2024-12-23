@@ -45,6 +45,7 @@ class PurchasePaymentController extends Controller
             ->select([
                 'a.id',
                 'a.kode_pembayaran',
+                'a.payment_date',
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
                 'c.name as payment_method',
                 DB::raw("SUM(d.amount) as total_amount")
@@ -63,12 +64,29 @@ class PurchasePaymentController extends Controller
 
         $query->orderBy('a.id', 'desc');
         return DataTables::of($query)
-            ->addColumn('action', function ($row) {
-                return '<a class="btn btnviewPaymentDetails btn-primary btn-sm" data-id="' . $row->id . '"><i class="fas fa-eye text-white"></i><span class="text-white ml-1">Detail</span></a>
-                <a class="btn btnEditPaymentPurchase btn-sm btn-secondary text-white" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>';
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+        ->addColumn('action', function ($row) {
+            $periodStatus = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $row->payment_date)
+                ->whereDate('periode_end', '>=', $row->payment_date)
+                ->value('status');
+
+            $btnDetail = '<a class="btn btnviewPaymentDetails btn-primary btn-sm mr-1" data-id="' . $row->id . '">
+                            <i class="fas fa-eye text-white"></i>
+                            <span class="text-white ml-1">Detail</span>
+                          </a>';
+
+            if ($periodStatus == 'Closed') {
+                return $btnDetail;
+            }
+
+            $btnEdit = '<a class="btn btnEditPaymentPurchase btn-sm btn-secondary text-white" data-id="' . $row->id . '">
+                          <i class="fas fa-edit"></i>
+                        </a>';
+
+            return $btnDetail . $btnEdit;
+        })
+        ->rawColumns(['action'])
+        ->make(true);
     }
 
 
