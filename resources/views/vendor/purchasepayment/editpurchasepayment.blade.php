@@ -188,6 +188,8 @@
                                 </tr> --}}
                                 </tfoot>
                             </table>
+                            <div id="tableError" class="alert alert-danger d-none">
+                            Harap isi semua kolom di tabel sebelum melanjutkan.
                         </div>
                         <div class="col-12 mt-4 mb-5">
                             <div class="col-4 float-right">
