@@ -1,16 +1,12 @@
 <?php
 
-use App\Http\Controllers\Admin\OngoingInvoiceController;
-use App\Http\Controllers\Admin\PiutangController;
-use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    LandingPage\AboutsController,
-    LandingPage\PtgesController,
-    LandingPage\ServicesController,
-    LandingPage\SlideController,
-    LandingPage\TrackingController,
-    LandingPage\WhysController,
+    Landingpage\AboutsController,
+    Landingpage\PtgesController,
+    Landingpage\ServicesController,
+    Landingpage\TrackingController,
+    Landingpage\WhysController,
     Admin\AboutController,
     Admin\InformationsController,
     Admin\HeropageController,
@@ -29,7 +25,6 @@ use App\Http\Controllers\{
     Admin\InvoiceController,
     Admin\CostumerController,
     Admin\DriverController,
-    Admin\RekeningController,
     Admin\ProfileController,
     Admin\PickupController,
     Admin\PaymentController,
@@ -57,7 +52,9 @@ use App\Http\Controllers\{
     Admin\AssetReportController,
     Admin\PenerimaanKasController,
     Admin\TopUpReportController,
-    Admin\PeriodeController
+    Admin\PeriodeController,
+    Admin\OngoingInvoiceController,
+    Admin\PiutangController
 };
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
