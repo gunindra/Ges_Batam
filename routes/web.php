@@ -307,7 +307,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/purchasePayment/{id}', [PurchasePaymentController::class, 'editpurchasepayment'])->name('editpurchasepayment');
     Route::get('/vendor/purchasePayment/getInoviceByVendorEdit', [PurchasePaymentController::class, 'getInoviceByVendorEdit'])->name('getInoviceByVendorEdit');
     Route::post('/vendor/purchasePayment/updatepayment', [PurchasePaymentController::class, 'update'])->name('editpaymentsup.update');
-    
+
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');
