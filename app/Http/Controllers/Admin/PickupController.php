@@ -13,20 +13,23 @@ class PickupController extends Controller
     public function index()
     {
         $listInvoice = DB::table('tbl_pengantaran_detail as a')
-       ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
-       ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
-       ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
-       ->select(
-           'a.invoice_id',
-           'b.metode_pengiriman',
-           'b.no_invoice',
-           'e.marking',
-           'e.nama_pembeli'
-       )
-       ->whereNull('a.bukti_pengantaran')
-       ->whereNull('a.tanda_tangan')
-       ->where('b.metode_pengiriman', 'Pickup')
-       ->get();
+        ->join('tbl_invoice as b', 'b.id', '=', 'a.invoice_id')
+        ->join('tbl_pengantaran as c', 'c.id', '=', 'a.pengantaran_id')
+        ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
+        ->join('tbl_resi as r', 'r.invoice_id', '=', 'b.id')
+        ->select(
+            'a.invoice_id',
+            'b.metode_pengiriman',
+            'b.no_invoice',
+            'e.marking',
+            'e.nama_pembeli',
+            'r.no_do'
+        )
+        ->whereNull('a.bukti_pengantaran')
+        ->whereNull('a.tanda_tangan')
+        ->where('b.metode_pengiriman', 'Pickup')
+        ->get();
+
         return view('pickup.indexpickup', [
             'listInvoice' => $listInvoice
         ]);

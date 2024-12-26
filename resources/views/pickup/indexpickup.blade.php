@@ -130,7 +130,7 @@
                                 <option value="" disabled>Pilih No.Invoice</option>
                                 @foreach ($listInvoice as $Invoice)
                                     <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}
-                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})
+                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }}) | {{ $Invoice->no_do }}
                                     </option>
                                 @endforeach
                             </select>
