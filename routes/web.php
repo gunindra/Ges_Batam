@@ -5,12 +5,12 @@ use App\Http\Controllers\Admin\PiutangController;
 use App\Http\Controllers\Admin\UnpaidInvoiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    LandingPage\AboutsController,
-    LandingPage\PtgesController,
-    LandingPage\ServicesController,
-    LandingPage\SlideController,
-    LandingPage\TrackingController,
-    LandingPage\WhysController,
+    Landingpage\AboutsController,
+    Landingpage\PtgesController,
+    Landingpage\ServicesController,
+    Landingpage\SlideController,
+    Landingpage\TrackingController,
+    Landingpage\WhysController,
     Admin\AboutController,
     Admin\InformationsController,
     Admin\HeropageController,
