@@ -6,6 +6,27 @@
     .dataTables_filter {
         display: none;
     }
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+        width:470px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
 </style>
 
 <div class="container-fluid" id="container-wrapper">
@@ -16,6 +37,7 @@
             <li class="breadcrumb-item active" aria-current="page">Piutang</li>
         </ol>
     </div>
+
     <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
         aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -31,11 +53,14 @@
                         <div class="col-12">
                             <div class="mt-3">
                                 <label for="Tanggal" class="form-label fw-bold">Customer:</label>
+                                <div></div>
                                 <select class="form-control select2" id="customer">
                                     <option value="" selected disabled>Pilih Customer</option>
                                     <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($customer->id); ?>"><?php echo e($customer->marking); ?> -
-                                            <?php echo e($customer->nama_pembeli); ?></option>
+                                        <option value="<?php echo e($customer->id); ?>" data-bell="<?php echo e($customer->bell_color); ?>">
+                                            <?php echo e($customer->marking); ?> - <?php echo e($customer->nama_pembeli); ?>
+
+                                        </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
@@ -78,12 +103,18 @@
                         </button>
                     </div>
                     <div id="containerPiutang" class="table-responsive px-2">
+                        <div class="d-flex">
+                            <p class="m-2"><i class="fas fa-bell text-success"></i> : <span id="hijauCount">-</span></p>
+                            <p class="m-2"><i class="fas fa-bell text-warning"></i> : <span id="kuningCount">-</span></p>
+                            <p class="m-2"><i class="fas fa-bell text-danger"></i> : <span id="merahCount">-</span></p>
+                        </div>
                         <table class="table align-items-center table-flush table-hover" id="tablePiutang">
                             <thead class="thead-light">
                                 <tr>
                                     <th>No. Invoice</th>
                                     <th>Customer</th>
                                     <th>Tanggal</th>
+                                    <th>Umur</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -120,22 +151,23 @@
             },
             columns: [
                 {
-                data: 'no_invoice',
-                name: 'no_invoice',
-                render: function (data, type, row) {
-                    var bellIcon = '';
-                    if (row.bell_color === 'yellow') {
-                        bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>'; 
-                    } else if (row.bell_color === 'red') {
-                        bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>'; 
-                    } else if (row.bell_color === 'green') {
-                        bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>'; 
+                    data: 'no_invoice',
+                    name: 'no_invoice',
+                    render: function (data, type, row) {
+                        var bellIcon = '';
+                        if (row.bell_color === 'yellow') {
+                            bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>';
+                        } else if (row.bell_color === 'red') {
+                            bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>';
+                        } else if (row.bell_color === 'green') {
+                            bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>';
+                        }
+                        return data + bellIcon;
                     }
-                    return data + bellIcon;
-                }
-            },
+                },
                 { data: 'nama_pembeli', name: 'nama_pembeli' },
                 { data: 'tanggal_buat', name: 'tanggal_buat' },
+                { data: 'umur', name: 'umur' },
             ],
             order: [],
             lengthChange: false,
@@ -146,7 +178,24 @@
                 emptyTable: "No data available in table",
                 loadingRecords: "Loading...",
                 zeroRecords: "No matching records found"
-            }
+            },
+            drawCallback: function(settings) {
+                    // Hitung jumlah kategori
+                    var hijauCount = 0;
+                    var kuningCount = 0;
+                    var merahCount = 0;
+
+                    table.rows().every(function() {
+                        var row = this.data();
+                        if (row.bell_color === 'green') hijauCount++;
+                        if (row.bell_color === 'yellow') kuningCount++;
+                        if (row.bell_color === 'red') merahCount++;
+                    });
+
+                    $('#hijauCount').text(hijauCount);
+                    $('#kuningCount').text(kuningCount);
+                    $('#merahCount').text(merahCount);
+                }
         });
         $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
@@ -160,30 +209,67 @@
             table.ajax.reload();
             $('#modalFilterTanggal').modal('hide');
         });
+
         flatpickr("#startDate", {
-                dateFormat: "d M Y",
-                onChange: function(selectedDates, dateStr, instance) {
+            dateFormat: "d M Y",
+            onChange: function (selectedDates, dateStr, instance) {
 
-                    $("#endDate").flatpickr({
-                        dateFormat: "d M Y",
-                        minDate: dateStr
-                    });
-                }
-            });
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
+            }
+        });
 
-            flatpickr("#endDate", {
-                dateFormat: "d MM Y",
-                onChange: function(selectedDates, dateStr, instance) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date(dateStr);
-                    if (endDate < startDate) {
-                        showwMassage(error,
+        flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function (selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error,
                         "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                        $('#endDate').val('');
-                    }
+                    $('#endDate').val('');
                 }
-            });
-            $('#exportBtn').on('click', function() {
+            }
+        });
+        $('#customer').select2({
+    templateResult: function(data) {
+        if (!data.id) return data.text;
+
+        var bellColor = $(data.element).data('bell');
+        console.log('Bell Color: ', bellColor); // Cek data bell_color
+        var bellIcon = '';
+        if (bellColor === 'red') {
+            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
+        } else if (bellColor === 'yellow') {
+            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
+        } else if (bellColor === 'green') {
+            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
+        }
+
+        return $('<span>' + bellIcon + data.text + '</span>');
+    },
+    templateSelection: function(data) {
+        if (!data.id) return data.text;
+
+        var bellColor = $(data.element).data('bell');
+        var bellIcon = '';
+        if (bellColor === 'red') {
+            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
+        } else if (bellColor === 'yellow') {
+            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
+        } else if (bellColor === 'green') {
+            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
+        }
+
+        return $('<span>' + bellIcon + data.text + '</span>');
+    },
+    escapeMarkup: function(markup) {
+        return markup;
+    }
+});
+        $('#exportBtn').on('click', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
             var customer = $('#customer').val();
@@ -209,7 +295,7 @@
                 xhrFields: {
                     responseType: 'blob'
                 },
-                success: function(data) {
+                success: function (data) {
                     var blob = new Blob([data], {
                         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     });
@@ -218,7 +304,7 @@
                     link.download = filename;
                     link.click();
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         title: "Export failed!",
                         icon: "error"
@@ -282,4 +368,5 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/Report/Piutang/indexpiutang.blade.php ENDPATH**/ ?>

@@ -104,6 +104,11 @@
                         </button>
                     </div>
                     <div id="containerPiutang" class="table-responsive px-2">
+                        <div class="d-flex">
+                            <p class="m-2"><i class="fas fa-bell text-success"></i> : <span id="hijauCount">-</span></p>
+                            <p class="m-2"><i class="fas fa-bell text-warning"></i> : <span id="kuningCount">-</span></p>
+                            <p class="m-2"><i class="fas fa-bell text-danger"></i> : <span id="merahCount">-</span></p>
+                        </div>
                         <table class="table align-items-center table-flush table-hover" id="tablePiutang">
                             <thead class="thead-light">
                                 <tr>
@@ -174,7 +179,24 @@
                 emptyTable: "No data available in table",
                 loadingRecords: "Loading...",
                 zeroRecords: "No matching records found"
-            }
+            },
+            drawCallback: function(settings) {
+                    // Hitung jumlah kategori
+                    var hijauCount = 0;
+                    var kuningCount = 0;
+                    var merahCount = 0;
+
+                    table.rows().every(function() {
+                        var row = this.data();
+                        if (row.bell_color === 'green') hijauCount++;
+                        if (row.bell_color === 'yellow') kuningCount++;
+                        if (row.bell_color === 'red') merahCount++;
+                    });
+
+                    $('#hijauCount').text(hijauCount);
+                    $('#kuningCount').text(kuningCount);
+                    $('#merahCount').text(merahCount);
+                }
         });
         $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
