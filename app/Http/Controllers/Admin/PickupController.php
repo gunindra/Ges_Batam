@@ -18,7 +18,7 @@ class PickupController extends Controller
         ->join('tbl_pembeli as e', 'e.id', '=', 'b.pembeli_id')
         ->join('tbl_resi as r', 'r.invoice_id', '=', 'b.id')
         ->select(
-            'a.invoice_id',
+            DB::raw('DISTINCT a.invoice_id'),
             'b.metode_pengiriman',
             'b.no_invoice',
             'e.marking',

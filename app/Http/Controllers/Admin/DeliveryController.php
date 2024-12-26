@@ -59,11 +59,12 @@ class DeliveryController extends Controller
                 'a.metode_pengiriman',
                 'a.supir_id',
                 'e.nama_supir',
-                DB::raw("GROUP_CONCAT(b.no_invoice SEPARATOR ';') as list_no_resi"),
+                DB::raw("GROUP_CONCAT(DISTINCT pd.id SEPARATOR ';') as pengantaran_detail_id"),
+                DB::raw("GROUP_CONCAT(DISTINCT b.no_invoice SEPARATOR ';') as list_no_resi"),
                 DB::raw("GROUP_CONCAT(c.nama_pembeli SEPARATOR ';') as list_nama_pembeli"),
                 DB::raw("GROUP_CONCAT(IFNULL(b.alamat, 'Alamat Tidak Tersedia') SEPARATOR ';') as list_alamat"),
                 DB::raw("MAX(DATE_FORMAT(a.tanggal_pengantaran, '%d %M %Y')) as tanggal_pengantaran"),
-                DB::raw("COUNT(pd.id) as jumlah_invoice"),
+                DB::raw("COUNT(DISTINCT b.no_invoice) as jumlah_invoice"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.bukti_pengantaran, 'Tidak Ada Bukti') SEPARATOR ';') as list_bukti_pengantaran"),
                 DB::raw("GROUP_CONCAT(IFNULL(pd.tanda_tangan, 'Tidak Ada Tanda Tangan') SEPARATOR ';') as list_tanda_tangan"),
                 DB::raw("GROUP_CONCAT(CONCAT(s.status_name) SEPARATOR ';') as list_status_per_invoice"),
@@ -109,6 +110,8 @@ class DeliveryController extends Controller
 
         $data = $query->get();
 
+        // dd( $query );
+
         $output = '<table class="table align-items-center table-flush table-hover" id="tableDelivery">
         <thead class="thead-light">
             <tr>
@@ -124,7 +127,8 @@ class DeliveryController extends Controller
         foreach ($data as $item) {
             $btnInvoice = '
            <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
-                 data-invoices="' . htmlentities($item->list_no_resi) . '"
+                data-id="' . htmlentities($item->pengantaran_detail_id) . '"
+                data-invoices="' . htmlentities($item->list_no_resi) . '"
                 data-customers="' . htmlentities($item->list_nama_pembeli) . ' "
                 data-alamat="' . htmlentities($item->list_alamat) . ' "
                 data-bukti="' . htmlentities($item->list_bukti_pengantaran) . ' "
