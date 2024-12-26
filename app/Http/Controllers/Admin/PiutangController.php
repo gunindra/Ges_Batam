@@ -186,9 +186,6 @@ class PiutangController extends Controller
         } catch (\Exception $e) {
             Log::error('Error generating piutang report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the piutang report PDF'], 500);
-        }
-    }
-
-
-
+    }
+}
 }
