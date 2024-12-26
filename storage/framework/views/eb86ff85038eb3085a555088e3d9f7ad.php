@@ -1,22 +1,21 @@
-@extends('layout.main')
+<?php $__env->startSection('title', 'Report | Statement of Account Vendor'); ?>
 
-@section('title', 'Report | Asset Report')
-
-@section('main')
+<?php $__env->startSection('main'); ?>
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Asset Report</h1>
+            <h1 class="h3 mb-0 text-gray-800">Statement of Account Vendor</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Report</li>
-                <li class="breadcrumb-item active" aria-current="page">Asset Report</li>
+                <li class="breadcrumb-item active" aria-current="page">Statement of Account Vendor</li>
             </ol>
         </div>
-        @if ($errors->has('error'))
+        <?php if($errors->has('error')): ?>
             <div class="alert alert-danger">
-                {{ $errors->first('error') }}
+                <?php echo e($errors->first('error')); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
         <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
             aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -31,7 +30,16 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="mt-3">
-                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin munculkan bulan ini )</label>
+                                    <label for="Tanggal" class="form-label fw-bold">Vendor :</label>
+                                    <select class="form-control select2" id="customer">
+                                        <option value="" selected disabled>Pilih Vendor</option>
+                                        <?php $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($vendor->id); ?>"><?php echo e($vendor->name); ?> - 0<?php echo e($vendor->phone); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin munculkan semua )</label>
                                     <div class="d-flex align-items-center">
                                         <input type="date" id="startDate" class="form-control"
                                             placeholder="Pilih tanggal mulai" style="width: 200px;">
@@ -58,7 +66,7 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
-                            <a class="btn btn-success mr-1" style="color:white;" id="Print"><span class="pr-2"><i class="fas fa-print"></i></span>Print</a>
+                            <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
                         </div>
                         <div class="d-flex mb-2 mr-3 mb-4">
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter</button>
@@ -76,23 +84,23 @@
         </div>
     </div>
 
-@endsection
-@section('script')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>
     <script>
         $(document).ready(function() {
             const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div> `;
 
-            const getAssetReport = () => {
+            const getSOA = () => {
                 const txtSearch = $('#txSearch').val();
                 const filterStatus = $('#filterStatus').val();
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const customer = $('#customer').val();
-                
+
                 $.ajax({
-                        url: "{{ route('getAssetReport') }}",
+                        url: "<?php echo e(route('getSoaVendor')); ?>",
                         method: "GET",
                         data: {
                             txSearch: txtSearch,
@@ -111,7 +119,7 @@
                     })
             }
 
-            getAssetReport();
+            getSOA();
 
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
@@ -142,62 +150,23 @@
             });
 
             $('#saveFilterTanggal').click(function() {
-                getAssetReport();
+                getSOA();
                 $('#modalFilterTanggal').modal('hide');
             });
-            $(document).on('click', '#Print', function (e) {
-            let id = $(this).data('id');
-            let startDate = $('#startDate').val();
-            let endDate = $('#endDate').val();
+            $('#sendWA').on('click', function(e) {
+                e.preventDefault
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+                const vendor = $('#customer').val();
 
-            Swal.fire({
-                title: 'Loading...',
-                text: 'Please wait while we process your request.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+                // Construct URL with query parameters
+                const pdfUrl = `<?php echo e(route('soaWA.vendor')); ?>?startDate=${startDate}&endDate=${endDate}&vendor=${vendor}`;
+                window.location.href = pdfUrl;
             });
-
-            $.ajax({
-                type: "GET",
-                url: "{{ route('assetReport.pdf') }}",
-                data: {
-                    id: id,
-                    startDate: startDate,
-                    endDate: endDate,
-                },
-                success: function (response) {
-                    Swal.close();
-
-                    if (response.url) {
-                        window.open(response.url, '_blank');
-                    } else if (response.error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error
-                        });
-                    }
-                },
-                error: function (xhr) {
-                    Swal.close();
-
-                    let errorMessage = 'Gagal Export asset';
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage
-                    });
-                }
-            });
-        });
             $('#exportBtn').on('click', function() {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
+            var customer = $('#customer').val();
 
             var now = new Date();
             var day = String(now.getDate()).padStart(2, '0');
@@ -207,14 +176,15 @@
             var minutes = String(now.getMinutes()).padStart(2, '0');
             var seconds = String(now.getSeconds()).padStart(2, '0');
 
-            var filename = `Asset Report_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+            var filename = `Soa Vendor_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
 
             $.ajax({
-                url: "{{ route('exportReport') }}",
+                url: "<?php echo e(route('exportSoaVendor')); ?>",
                 type: 'GET',
                 data: {
                     startDate: startDate,
-                    endDate: endDate
+                    endDate: endDate,
+                    name: customer
                 },
                 xhrFields: {
                     responseType: 'blob'
@@ -236,7 +206,8 @@
                 }
             });
         });
-
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\GES\GES-Project\resources\views\Report\SoaVendor\indexSoaVendor.blade.php ENDPATH**/ ?>
