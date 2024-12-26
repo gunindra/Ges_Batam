@@ -1,8 +1,6 @@
-@extends('layout.main')
+<?php $__env->startSection('title', 'Report | Asset Report'); ?>
 
-@section('title', 'Report | Asset Report')
-
-@section('main')
+<?php $__env->startSection('main'); ?>
 
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -12,11 +10,12 @@
                 <li class="breadcrumb-item active" aria-current="page">Asset Report</li>
             </ol>
         </div>
-        @if ($errors->has('error'))
+        <?php if($errors->has('error')): ?>
             <div class="alert alert-danger">
-                {{ $errors->first('error') }}
+                <?php echo e($errors->first('error')); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
         <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
             aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -76,8 +75,8 @@
         </div>
     </div>
 
-@endsection
-@section('script')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>
     <script>
         $(document).ready(function() {
             const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
@@ -92,7 +91,7 @@
                 const customer = $('#customer').val();
                 
                 $.ajax({
-                        url: "{{ route('getAssetReport') }}",
+                        url: "<?php echo e(route('getAssetReport')); ?>",
                         method: "GET",
                         data: {
                             txSearch: txtSearch,
@@ -161,7 +160,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "{{ route('assetReport.pdf') }}",
+                url: "<?php echo e(route('assetReport.pdf')); ?>",
                 data: {
                     id: id,
                     startDate: startDate,
@@ -210,7 +209,7 @@
             var filename = `Asset Report_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
 
             $.ajax({
-                url: "{{ route('exportReport') }}",
+                url: "<?php echo e(route('exportReport')); ?>",
                 type: 'GET',
                 data: {
                     startDate: startDate,
@@ -239,4 +238,6 @@
 
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\GES\GES-Project\resources\views/Report/AssetReport/indexassetreport.blade.php ENDPATH**/ ?>

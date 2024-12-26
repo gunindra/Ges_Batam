@@ -35,36 +35,27 @@ class AssetReportController extends Controller
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
         $asset = Asset::select(
-            'tbl_assets.id',
+            'tbl_assets.id as asset_id',
             'tbl_assets.acquisition_price',
             'tbl_assets.estimated_age',
             'tbl_assets.asset_name',
             'tbl_assets.acquisition_date',
-            DB::raw('IFNULL(SUM(tbl_jurnal.totalcredit), 0) as total_credit'),
-            // // Subquery for the beginning balance
-            DB::raw("(SELECT IFNULL(SUM(totalcredit), 0) 
-                                    FROM tbl_jurnal 
-                                    WHERE tbl_jurnal.asset_id = tbl_assets.id 
-                                    AND tbl_jurnal.tanggal < '{$startDate}') as total_credit_before")
+            'tbl_jurnal.totalcredit as credit',
+            'tbl_jurnal.tanggal as tanggal',
+            'tbl_jurnal.begining_value as begining_value',
+            'tbl_jurnal.ending_value as ending_value'
         )
-            ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
-            ->whereDate('tbl_jurnal.tanggal', '>=', $startDate)
-            ->whereDate('tbl_jurnal.tanggal', '<=', $endDate)
-            ->groupBy(
-                'tbl_assets.id',
-                'tbl_assets.acquisition_price',
-                'tbl_assets.estimated_age',
-                'tbl_assets.asset_name',
-                'tbl_assets.acquisition_date'
-            )
-            ->get()
-            ->map(function ($item) {
-                // Adjusting the balance calculation                  
-                // Use the correct beginning balance from the subquery
-                $item->beginning_balance = $item->acquisition_price - $item->total_credit_before;
-                $item->ending_balance = $item->beginning_balance - $item->total_credit;
-                return $item;
-            });
+        ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+        ->whereDate('tbl_jurnal.tanggal', '>=', $startDate)
+        ->whereDate('tbl_jurnal.tanggal', '<=', $endDate)
+        ->get()
+        ->map(function ($item) {
+            // Adjusting the balance calculation
+            $item->beginning_balance = $item->acquisition_price - $item->total_credit_before;
+            $item->ending_balance = $item->beginning_balance - $item->credit;
+            return $item;
+        });
+    
 
         $output = '
                     <h5 style="text-align:center; width:100%">'
@@ -76,35 +67,33 @@ class AssetReportController extends Controller
                     <table class="table" width="100%">
                     <thead>
                         <th width="15%" style="text-left">Date</th>
-                        <th width="30%">Asset Name</th>
+                        <th width="25%">Asset Name</th>
                         <th width="15%">Estimated Age</th>
-                        <th width="20%" class="text-right">Begining Value</th>
-                        <th width="20%" class="text-right">Ending Value</th>
+                        <th width="15%" class="text-right">Begining Value</th>
+                        <th width="15%" class="text-right">Depreciation</th>
+                        <th width="15%" class="text-right">Ending Value</th>
                     </thead>
                     <tbody>';
 
-        foreach ($asset as $data) {
-            $output .= '<tr>
-                            <td>' . \Carbon\Carbon::parse($data->acquisition_date)->format('d M Y') . '</td>
-                            <td>' . ($data->asset_name) . '</td>
-                            <td class="text-center">' . ($data->estimated_age) . ' Month </td>
-                            <td class="text-right">' . number_format($data->beginning_balance, 2) . '</td>
-                            <td class="text-right">' . number_format($data->ending_balance, 2) . '</td>
-                        </tr>';
-        }
+            foreach ($asset as $data) {
+                if ($data->ending_balance != 0) { // Check if ending_balance is not 0
+                    $output .= '<tr>
+                                    <td>' . \Carbon\Carbon::parse($data->tanggal)->format('d M Y') . '</td>
+                                    <td>' . ($data->asset_name) . '</td>
+                                    <td class="text-center">' . ($data->estimated_age) . ' Month </td>
+                                    <td class="text-right">' . number_format($data->begining_value, 2) . '</td>
+                                    <td class="text-right">' . number_format($data->credit, 2) . '</td>
+                                    <td class="text-right">' . number_format($data->ending_value, 2) . '</td>
+                                </tr>';
+                }
+            }
 
         $output .= '</table> </div>';
 
         return $output;
     }
 
-    // public function generatePdf(Request $request)
-    // {
-    //     $htmlOutput = $this->getAssetReport($request);
-
-    //     $pdf = PDF::loadHTML($htmlOutput);
-    //     return $pdf->download('Asset Report.pdf');
-    // }
+    
     public function exportAssetReport(Request $request)
     {
         $startDate = $request->input('startDate');

@@ -106,6 +106,7 @@ class AssetController extends Controller
             $asset->accumulated_account = $request->input('accumulated_account');
             $asset->asset_account = $request->input('asset_account');
             $asset->expense_account = $request->input('expense_account');
+            $asset->current_value = $asset->acquisition_price;
             $asset->save();
             Log::info("Membuat jurnal untuk Asset " . $request->input('asset_name'));
             $this->createJournalForAsset($request, $asset);
@@ -117,6 +118,7 @@ class AssetController extends Controller
             return redirect()->back()->with('success', 'Asset berhasil ditambahkan');
 
         } catch (Exception $e) {
+            dd($asset->current_value);
             DB::rollBack();
             Log::error("Gagal menambahkan Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
@@ -186,7 +188,7 @@ class AssetController extends Controller
             $age = $asset->estimated_age;
             $result = ($price - $residue) / $age;
             var_dump($result);  // Check the result before rounding
-            $totalPerMonth = (int) ceil($result);;
+            $totalPerMonth = (int) ceil($result);
 
             // Create Jurnal
             $jurnal = new Jurnal();
@@ -199,8 +201,12 @@ class AssetController extends Controller
             $jurnal->totaldebit = $totalPerMonth;
             $jurnal->totalcredit = $totalPerMonth;
             $jurnal->asset_id = $asset->id;
+            $jurnal->begining_value = $asset->current_value;
+            $jurnal->ending_value = $asset->current_value - $totalPerMonth;
             $jurnal->save();
 
+            $asset->current_value = $asset->current_value - $totalPerMonth;
+            $asset->save();
             // Debit Jurnal Item
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
@@ -223,6 +229,7 @@ class AssetController extends Controller
 
 
         } catch (Exception $e) {
+            dd($e);
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
         }
