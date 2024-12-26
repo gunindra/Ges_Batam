@@ -146,6 +146,26 @@
                 </div>
             </li>
         @endif
+         <!-- Menu Report Customer-->
+         @if (Auth::user()->role === 'customer')
+         <li
+             class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor')|| request()->routeIs('piutang') ? 'active' : '' }}">
+             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport" aria-expanded="true"
+                 aria-controls="listreport">
+                 <i class="fas fa-file-alt fa-lg"></i>
+                 <span>Report</span>
+             </a>
+             <div id="listreport" class="collapse" aria-labelledby="headingBootstrap" data-parent="#accordionSidebar">
+                 <div class="bg-white py-2 collapse-inner rounded">
+                     <h6 class="collapse-header">Report</h6>
+
+                     <a class="collapse-item {{ request()->routeIs('topUpReport') ? 'active' : '' }}"
+                         href="{{ route('topUpReport') }}">Top Up Report</a>
+
+                 </div>
+             </div>
+         </li>
+     @endif
 
             <!-- Menu Accounting Report -->
             @if (Auth::user()->role === 'superadmin')
