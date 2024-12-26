@@ -127,11 +127,11 @@
                 render: function (data, type, row) {
                     var bellIcon = '';
                     if (row.bell_color === 'yellow') {
-                        bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>'; 
+                        bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>';
                     } else if (row.bell_color === 'red') {
-                        bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>'; 
+                        bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>';
                     } else if (row.bell_color === 'green') {
-                        bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>'; 
+                        bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>';
                     }
                     return data + bellIcon;
                 }
