@@ -17,28 +17,68 @@ class PiutangController extends Controller
 {
     public function index()
     {
-        $customers = Customer::where('status', '=', 1)->get();
+
+        $customers = DB::table('tbl_pembeli as pembeli')
+    ->select(
+        'pembeli.id',
+        'pembeli.nama_pembeli',
+        'pembeli.marking',
+        DB::raw("
+            CASE
+                WHEN DATEDIFF(CURDATE(), MAX(invoice.tanggal_buat)) >= 60 THEN 'red'
+                WHEN DATEDIFF(CURDATE(), MAX(invoice.tanggal_buat)) >= 30 THEN 'yellow'
+                ELSE 'green'
+            END AS bell_color
+        ")
+    )
+    ->leftJoin('tbl_invoice as invoice', 'pembeli.id', '=', 'invoice.pembeli_id')
+    ->where('pembeli.status', '=', 1)
+    ->groupBy('pembeli.id', 'pembeli.nama_pembeli', 'pembeli.marking')
+    ->get();
+
 
         return view('Report.Piutang.indexpiutang', [
             'customers' => $customers,
         ]);
+
     }
     public function getpiutang(Request $request)
     {
+        $query = DB::table('tbl_invoice as invoice')
+            ->select(
+                'invoice.id',
+                'invoice.no_invoice',
+                DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                DB::raw("
+                CASE
+                    WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 60 THEN 'red'
+                    WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN 'yellow'
+                    ELSE 'green'
+                END AS bell_color
+            "),
+                'pembeli.nama_pembeli',
+                DB::raw("
+                CASE
+                    WHEN CURDATE() < invoice.tanggal_buat THEN '-'
+                    WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()), ' tahun ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 365), ' hari'
+                        )
+                    WHEN TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()), ' bulan ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 30), ' hari'
+                        )
+                    ELSE
+                        CONCAT(DATEDIFF(CURDATE(), invoice.tanggal_buat), ' hari')
+                END AS umur
+            ")
+            )
 
-        $query = DB::table('tbl_invoice as invoice')->select(
-            'invoice.id',
-            'invoice.no_invoice',
-            DB::raw("CONCAT(DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y'), CASE WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN CONCAT(' (', FLOOR(DATEDIFF(CURDATE(), invoice.tanggal_buat) / 30), ' bulan)') ELSE '' END) as tanggal_buat"),
-            DB::raw("CASE
-                WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 60 THEN 'red'
-                WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN 'yellow'
-                ELSE 'green'
-            END as bell_color"),
-            'pembeli.nama_pembeli'
-        )
+            ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id')
             ->where('invoice.status_bayar', '=', 'Belum Lunas')
-            ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
+            ->where('pembeli.id', '=', $request->customer);
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
 
@@ -146,8 +186,8 @@ class PiutangController extends Controller
         } catch (\Exception $e) {
             Log::error('Error generating piutang report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the piutang report PDF'], 500);
-        }
-    }
+        }
+    }
 
 
 

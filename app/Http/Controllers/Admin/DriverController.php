@@ -116,7 +116,7 @@ class DriverController extends Controller
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
             'noTelponDriver' => 'required|string|max:15',
-            'simDriverEdit' => 'nullable|mimes:jpg,jpeg,png',
+            'simDriver' => 'nullable|mimes:jpg,jpeg,png',
         ]);
 
         try {
@@ -127,8 +127,8 @@ class DriverController extends Controller
             $Driver->alamat_supir = $request->input('alamatDriver');
             $Driver->no_wa = $request->input('noTelponDriver');
 
-            if ($request->hasFile('simDriverEdit')) {
-                $simDriver = $request->file('simDriverEdit');
+            if ($request->hasFile('simDriver')) {
+                $simDriver = $request->file('simDriver');
                 $fileName = 'SIM_' . time() . '_' . $simDriver->getClientOriginalName();
                 $simDriver->storeAs('public/sim', $fileName);
                 $Driver->image_sim = $fileName;
