@@ -8,6 +8,27 @@
     .dataTables_filter {
         display: none;
     }
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.25rem;
+        padding: 6px 12px;
+        width:470px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 27px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
 </style>
 
 <div class="container-fluid" id="container-wrapper">
@@ -18,6 +39,7 @@
             <li class="breadcrumb-item active" aria-current="page">Piutang</li>
         </ol>
     </div>
+
     <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
         aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -33,11 +55,13 @@
                         <div class="col-12">
                             <div class="mt-3">
                                 <label for="Tanggal" class="form-label fw-bold">Customer:</label>
+                                <div></div>
                                 <select class="form-control select2" id="customer">
                                     <option value="" selected disabled>Pilih Customer</option>
                                     @foreach ($customers as $customer)
-                                        <option value="{{ $customer->id }}">{{ $customer->marking }} -
-                                            {{$customer->nama_pembeli}}</option>
+                                        <option value="{{ $customer->id }}" data-bell="{{ $customer->bell_color }}">
+                                            {{ $customer->marking }} - {{ $customer->nama_pembeli }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -86,6 +110,7 @@
                                     <th>No. Invoice</th>
                                     <th>Customer</th>
                                     <th>Tanggal</th>
+                                    <th>Umur</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -122,22 +147,23 @@
             },
             columns: [
                 {
-                data: 'no_invoice',
-                name: 'no_invoice',
-                render: function (data, type, row) {
-                    var bellIcon = '';
-                    if (row.bell_color === 'yellow') {
-                        bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>'; 
-                    } else if (row.bell_color === 'red') {
-                        bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>'; 
-                    } else if (row.bell_color === 'green') {
-                        bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>'; 
+                    data: 'no_invoice',
+                    name: 'no_invoice',
+                    render: function (data, type, row) {
+                        var bellIcon = '';
+                        if (row.bell_color === 'yellow') {
+                            bellIcon = ' <i class="fas fa-bell text-warning ml-1"></i>';
+                        } else if (row.bell_color === 'red') {
+                            bellIcon = ' <i class="fas fa-bell text-danger ml-1"></i>';
+                        } else if (row.bell_color === 'green') {
+                            bellIcon = ' <i class="fas fa-bell text-success ml-1"></i>';
+                        }
+                        return data + bellIcon;
                     }
-                    return data + bellIcon;
-                }
-            },
+                },
                 { data: 'nama_pembeli', name: 'nama_pembeli' },
                 { data: 'tanggal_buat', name: 'tanggal_buat' },
+                { data: 'umur', name: 'umur' },
             ],
             order: [],
             lengthChange: false,
@@ -162,30 +188,67 @@
             table.ajax.reload();
             $('#modalFilterTanggal').modal('hide');
         });
+
         flatpickr("#startDate", {
-                dateFormat: "d M Y",
-                onChange: function(selectedDates, dateStr, instance) {
+            dateFormat: "d M Y",
+            onChange: function (selectedDates, dateStr, instance) {
 
-                    $("#endDate").flatpickr({
-                        dateFormat: "d M Y",
-                        minDate: dateStr
-                    });
-                }
-            });
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
+            }
+        });
 
-            flatpickr("#endDate", {
-                dateFormat: "d MM Y",
-                onChange: function(selectedDates, dateStr, instance) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date(dateStr);
-                    if (endDate < startDate) {
-                        showwMassage(error,
+        flatpickr("#endDate", {
+            dateFormat: "d MM Y",
+            onChange: function (selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error,
                         "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                        $('#endDate').val('');
-                    }
+                    $('#endDate').val('');
                 }
-            });
-            $('#exportBtn').on('click', function() {
+            }
+        });
+        $('#customer').select2({
+    templateResult: function(data) {
+        if (!data.id) return data.text;
+
+        var bellColor = $(data.element).data('bell');
+        console.log('Bell Color: ', bellColor); // Cek data bell_color
+        var bellIcon = '';
+        if (bellColor === 'red') {
+            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
+        } else if (bellColor === 'yellow') {
+            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
+        } else if (bellColor === 'green') {
+            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
+        }
+
+        return $('<span>' + bellIcon + data.text + '</span>');
+    },
+    templateSelection: function(data) {
+        if (!data.id) return data.text;
+
+        var bellColor = $(data.element).data('bell');
+        var bellIcon = '';
+        if (bellColor === 'red') {
+            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
+        } else if (bellColor === 'yellow') {
+            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
+        } else if (bellColor === 'green') {
+            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
+        }
+
+        return $('<span>' + bellIcon + data.text + '</span>');
+    },
+    escapeMarkup: function(markup) {
+        return markup;
+    }
+});
+        $('#exportBtn').on('click', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
             var customer = $('#customer').val();
@@ -211,7 +274,7 @@
                 xhrFields: {
                     responseType: 'blob'
                 },
-                success: function(data) {
+                success: function (data) {
                     var blob = new Blob([data], {
                         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     });
@@ -220,7 +283,7 @@
                     link.download = filename;
                     link.click();
                 },
-                error: function() {
+                error: function () {
                     Swal.fire({
                         title: "Export failed!",
                         icon: "error"
