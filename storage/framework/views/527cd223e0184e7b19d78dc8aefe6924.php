@@ -1,8 +1,6 @@
-@extends('layout.main')
+<?php $__env->startSection('title', 'Delivery'); ?>
 
-@section('title', 'Delivery')
-
-@section('main')
+<?php $__env->startSection('main'); ?>
 
 
     <div class="modal fade" id="modalConfirmasiPengantaran" tabindex="-1" role="dialog"
@@ -44,14 +42,14 @@
                     <div class="mt-3">
                         <label for="pembayaranStatus" class="form-label fw-bold">Bukti Pengantaran :</label>
                         <div class="containerFoto">
-                            {{-- <img src="storage/app/bukti_pembayaran/1.jpg" alt=""> --}}
+                            
                         </div>
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
-                    {{-- <button type="button" id="saveFilePengantaran" class="btn btn-primary">Save</button> --}}
+                    
                 </div>
             </div>
         </div>
@@ -128,7 +126,7 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 justify-content-between align-items-center">
                             <div class="d-flex">
-                                {{-- Search --}}
+                                
                                 <input id="txSearch" type="text" style="width: 200px; min-width: 200px;"
                                     class="form-control rounded-3" placeholder="Search">
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
@@ -140,15 +138,15 @@
                                 </select>
                                 <select class="form-control ml-2" id="filtermarking" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Marking</option>
-                                    @foreach ($listmarking as $marking)
-                                        <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $listmarking; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $marking): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($marking->marking); ?>"><?php echo e($marking->marking); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <select class="form-control ml-2" id="filternodo" style="width: 200px;">
                                     <option value="" selected disabled>Pilih NoDo</option>
-                                    @foreach ($listnodo as $nodo)
-                                        <option value="{{ $nodo->no_do }}">{{ $nodo->no_do }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $listnodo; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $nodo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($nodo->no_do); ?>"><?php echo e($nodo->no_do); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -156,49 +154,11 @@
                                     Reset
                                 </button>
                             </div>
-                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span
+                            <a class="btn btn-primary" href="<?php echo e(route('addDelivery')); ?>" id=""><span
                                     class="pr-2"><i class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
-                            {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>No Resi</th>
-                                    <th>Tanggal</th>
-                                    <th>Driver</th>
-                                    <th>Pengiriman</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>B0230123</td>
-                                    <td>24 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>Delivery</td>
-                                    <td>Rp. 10.000</td>
-                                    <td><span class="badge badge-success">Done</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>B0234043</td>
-                                    <td>28 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>Delivery</td>
-                                    <td>Rp. 12.000</td>
-                                    <td><span class="badge badge-info">Delivery</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
+                            
                         </div>
                     </div>
                 </div>
@@ -209,9 +169,9 @@
     </div>
     <!---Container Fluid-->
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script>
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                 <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
@@ -226,7 +186,7 @@
             const filternodo = $('#filternodo').val();
 
             $.ajax({
-                    url: "{{ route('getlistDelivery') }}",
+                    url: "<?php echo e(route('getlistDelivery')); ?>",
                     method: "GET",
                     data: {
                         txSearch: txtSearch,
@@ -315,7 +275,7 @@
             e.preventDefault();
             let namafoto = $(this).data('bukti');
             $.ajax({
-                url: "{{ route('detailBuktiPengantaran') }}",
+                url: "<?php echo e(route('detailBuktiPengantaran')); ?>",
                 method: 'GET',
                 data: {
                     namafoto: namafoto,
@@ -367,7 +327,7 @@
 
                     $.ajax({
                         type: "GET",
-                        url: "{{ route('updateStatus') }}",
+                        url: "<?php echo e(route('updateStatus')); ?>",
                         data: {
                             id: pengantaranId,
                         },
@@ -416,7 +376,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "{{ route('exportPDFDelivery') }}",
+                url: "<?php echo e(route('exportPDFDelivery')); ?>",
                 data: {
                     id: pengantaranId,
                 },
@@ -453,16 +413,16 @@
         });
 
         $(document).on('click', '.show-invoice-modal', function() {
-            var invoiceNumbers = $(this).data('invoices');
-            var marking = $(this).data('marking').trim();
-            var customerNames = $(this).data('customers').trim();
-            var noDo = $(this).data('no-do').trim();
-            var addresses = $(this).data('alamat').trim();
-            var buktiPengantaran = $(this).data('bukti').trim();
-            var tandaTangan = $(this).data('tanda').trim();
-            var metodePengiriman = $(this).data('metode').trim();
-            var keterangan = $(this).data('keterangan').trim();
-            var statusInvoice = $(this).data('status').trim();
+            var invoiceNumbers = $(this).data('invoices'); 
+            var marking = $(this).data('marking').trim(); 
+            var customerNames = $(this).data('customers').trim(); 
+            var noDo = $(this).data('no-do').trim(); 
+            var addresses = $(this).data('alamat').trim(); 
+            var buktiPengantaran = $(this).data('bukti').trim(); 
+            var tandaTangan = $(this).data('tanda').trim(); 
+            var metodePengiriman = $(this).data('metode').trim(); 
+            var keterangan = $(this).data('keterangan').trim(); 
+            var statusInvoice = $(this).data('status').trim(); 
 
             // Pastikan pemisahnya sesuai dengan ';'
             if (typeof invoiceNumbers !== 'string') {
@@ -626,7 +586,7 @@
 
                             $.ajax({
                                 type: "POST",
-                                url: "{{ route('confirmasiPengantaran') }}",
+                                url: "<?php echo e(route('confirmasiPengantaran')); ?>",
                                 data: formData,
                                 contentType: false,
                                 processData: false,
@@ -662,4 +622,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/customer/delivery/indexdelivery.blade.php ENDPATH**/ ?>

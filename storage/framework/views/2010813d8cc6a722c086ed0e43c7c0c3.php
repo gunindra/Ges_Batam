@@ -1,8 +1,6 @@
-@extends('layout.main')
+<?php $__env->startSection('title', 'Report | Piutang'); ?>
 
-@section('title', 'Report | Piutang')
-
-@section('main')
+<?php $__env->startSection('main'); ?>
 <style>
     .dataTables_length,
     .dataTables_filter {
@@ -58,11 +56,12 @@
                                 <div></div>
                                 <select class="form-control select2" id="customer">
                                     <option value="" selected disabled>Pilih Customer</option>
-                                    @foreach ($customers as $customer)
-                                        <option value="{{ $customer->id }}" data-bell="{{ $customer->bell_color }}">
-                                            {{ $customer->marking }} - {{ $customer->nama_pembeli }}
+                                    <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $customer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($customer->id); ?>" data-bell="<?php echo e($customer->bell_color); ?>">
+                                            <?php echo e($customer->marking); ?> - <?php echo e($customer->nama_pembeli); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div class="mt-3">
@@ -126,15 +125,15 @@
         </div>
     </div>
 </div>
-@endsection
-@section('script')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>
 <script>
     $(document).ready(function () {
         var table = $('#tablePiutang').DataTable({
             serverSide: true,
             processing: true,
             ajax: {
-                url: "{{ route('getlistPiutang') }}",
+                url: "<?php echo e(route('getlistPiutang')); ?>",
                 type: 'GET',
                 data: function (d) {
                     d.startDate = $('#startDate').val();
@@ -286,7 +285,7 @@
             var filename = `Piutang_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
 
             $.ajax({
-                url: "{{ route('exportPiutangReport') }}",
+                url: "<?php echo e(route('exportPiutangReport')); ?>",
                 type: 'GET',
                 data: {
                     startDate: startDate,
@@ -330,7 +329,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "{{ route('exportPiutangPdf') }}",
+                url: "<?php echo e(route('exportPiutangPdf')); ?>",
                 data: {
                     id: id,
                     startDate: startDate,
@@ -368,4 +367,6 @@
 
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/Report/Piutang/indexpiutang.blade.php ENDPATH**/ ?>
