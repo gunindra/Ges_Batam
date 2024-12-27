@@ -11,6 +11,7 @@ use App\Models\UsagePoints;
 use Carbon\Carbon;
 use App\Models\COA;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Controllers\Admin\JournalController;
@@ -67,7 +68,7 @@ class PaymentController extends Controller
 
     public function getPaymentData(Request $request)
     {
-            $query = DB::table('tbl_payment_customer as a')
+        $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
             ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
@@ -80,7 +81,9 @@ class PaymentController extends Controller
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
                 'c.name as payment_method',
                 DB::raw('SUM(f.amount) as total_amount'),
-                'a.discount'
+                'a.discount',
+                'a.createdby',
+                'a.updateby'
             )
             ->groupBy(
                 'a.id',
@@ -89,10 +92,10 @@ class PaymentController extends Controller
                 'a.payment_buat',
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
                 'c.name',
-                'a.discount'
+                'a.discount',
+                'a.createdby',
+                'a.updateby'
             );
-
-
 
         if (!empty($request->status)) {
             $query->where('c.name', $request->status);
@@ -133,6 +136,7 @@ class PaymentController extends Controller
             })
             ->make(true);
     }
+
 
 
 
@@ -370,6 +374,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $discount;
             $payment->Keterangan = $request->keterangan;
+            $payment->createby = Auth::user()->name;
             $payment->save();
 
             $invoiceList = [];
@@ -731,6 +736,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
             $payment->Keterangan = $request->keterangan;
+            $payment->createby = Auth::user()->name;
             $payment->save();
 
             $invoiceList = [];

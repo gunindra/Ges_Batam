@@ -134,6 +134,8 @@
                                         <th>Metode Pembayaran</th>
                                         <th>Nominal</th>
                                         <th>Diskon</th>
+                                        <th>Create By</th>
+                                        <th>Update By</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -219,6 +221,20 @@
                     }
                 },
                 {
+                    data: 'createdby',
+                    name: 'a.createdby',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                {
+                    data: 'updateby',
+                    name: 'a.updateby',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                {
                     data: 'action',
                     name: 'action',
                     searchable: false,
@@ -290,7 +306,9 @@
 
             var now = new Date();
             var day = String(now.getDate()).padStart(2, '0');
-            var month = now.toLocaleString('default', { month: 'long' });
+            var month = now.toLocaleString('default', {
+                month: 'long'
+            });
             var year = now.getFullYear();
             var hours = String(now.getHours()).padStart(2, '0');
             var minutes = String(now.getMinutes()).padStart(2, '0');
@@ -327,11 +345,11 @@
             });
         });
         $(document).on('click', '.btnEditPayment', function(e) {
-                let id = $(this).data('id');
-                let url = "{{ route('editpayment', ':id') }}";
-                url = url.replace(':id', id);
-                window.location.href = url;
-            });
+            let id = $(this).data('id');
+            let url = "{{ route('editpayment', ':id') }}";
+            url = url.replace(':id', id);
+            window.location.href = url;
+        });
 
         $(document).on('click', '.btnDetailPaymet', function(e) {
             e.preventDefault();
