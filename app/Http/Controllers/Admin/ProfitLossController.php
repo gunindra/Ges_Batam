@@ -114,16 +114,15 @@ class ProfitLossController extends Controller
         $operatingRevenue = DB::select($query);
 
         $output = '
-        <h5 style="text-align:center; width:100%">'
-            . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
-            . \Carbon\Carbon::parse($endDate)->format('d M Y') .
-        '</h5>
         <div class="card-body">
             <table class="table" width="100%">
                 <thead>
                     <tr>
                         <th>Account Name</th>
-                        <th>Total</th>';
+                        <th>'
+                         . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
+                         . \Carbon\Carbon::parse($endDate)->format('d M Y') .'
+                        </th>';
 
         foreach ($comparisons as $index => $comparison) {
             $output .= '<th>'

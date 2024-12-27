@@ -477,7 +477,7 @@
         });
 
         pricePerKgInput.on('input', function () {
-           const selectedPrice = $(this).val(); 
+           const selectedPrice = $(this).val();
             calculateTotal();
         });
 
@@ -694,4 +694,5 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/topup/indextopup.blade.php ENDPATH**/ ?>
