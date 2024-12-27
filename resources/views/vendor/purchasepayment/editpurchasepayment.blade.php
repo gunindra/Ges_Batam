@@ -448,7 +448,7 @@
                         if (accountType === 'Debit') {
                             totalDebit += debitValue; // Tambahkan nilai untuk Debit
                         } else if (accountType === 'Credit') {
-                            totalDebit -= debitValue; // Kurangi nilai untuk Credit
+                            totalDebit -=  Math.abs(debitValue); // Kurangi nilai untuk Credit
                         }
                     });
 

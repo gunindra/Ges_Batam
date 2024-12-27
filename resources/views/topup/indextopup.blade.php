@@ -602,7 +602,13 @@
                     price_per_kg: priceId || null,
                     coa_id: coaId
                 },
+                beforeSend: function () {
+                    $('#confirmTopUp').prop('disabled', true).text(
+                        'Proses...');
+                },
                 success: function (response) {
+                    $('#confirmTopUp').prop('disabled', false).text(
+                        'Konfirmasi Top-Up ');
                     Swal.fire({
                         icon: 'success',
                         title: 'Sukses!',
