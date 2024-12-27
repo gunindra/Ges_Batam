@@ -99,8 +99,9 @@
                         badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
-                                                    // Konversi total_sisa_bayar ke angka
-                            const rawAmount = invoice.total_sisa_bayar.replace(/\./g, '').replace(',', '.');
+                            // Konversi total_sisa_bayar ke angka
+                            const rawAmount = invoice.total_sisa_bayar.replace(/\./g, '')
+                                .replace(',', '.');
                             const amountDue = parseFloat(rawAmount);
 
                             if (!isNaN(amountDue)) {
@@ -131,7 +132,8 @@
                                 `;
                                 notificationContainer.append(notificationItem);
                             } else {
-                                console.error(`Invalid total_sisa_bayar for invoice: `, invoice);
+                                console.error(`Invalid total_sisa_bayar for invoice: `,
+                                    invoice);
                             }
                         });
                     },
@@ -158,6 +160,8 @@
 
                         let totalNotifications = 0;
 
+                        console.log(data);
+
                         if (data.low_quota && data.low_quota.length > 0) {
                             data.low_quota.forEach(function(item) {
                                 if (item.customer) {
@@ -169,8 +173,12 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">Pembeli: ${item.customer.nama_pembeli}</div>
-                                        <span class="font-weight-bold">Saldo kuota menipis (${item.total_balance}) Silahkan melakukan Isi ulang</span>
+                                        <div>
+                                                <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
+                                            </div>
+                                            <div class="mt-1">
+                                                 <span>Saldo kuota Dibawah 20% (${item.total_balance}) Silahkan melakukan Isi ulang</span>
+                                            </div>
                                     </div>
                                 </div>
                             `;
@@ -192,8 +200,12 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">${formatDate(item.expired_date)}</div>
-                                        <span class="font-weight-bold">Kuota ${item.customer.nama_pembeli} akan expired (1 bulan)</span>
+                                        <div>
+                                            <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
+                                        </div>
+                                         <div class="mt-1">
+                                                 <span>Kuota akan expired Pada Tanggal :(${formatDate(item.expired_date)})</span>
+                                            </div>
                                     </div>
                                 </div>
                             `;
@@ -206,7 +218,7 @@
                         // Perbarui badge counter
                         if (totalNotifications > 0) {
                             badgeCounter.text(totalNotifications)
-                        .show(); // Tampilkan badge jika ada notifikasi
+                                .show(); // Tampilkan badge jika ada notifikasi
                         } else {
                             badgeCounter.hide(); // Sembunyikan badge jika tidak ada notifikasi
                             notificationContainer.html(

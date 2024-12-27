@@ -400,7 +400,7 @@
                 const paymentInput = $('#payment');
                 const discountInput = $('#discountPayment');
 
-                if (selectedMethod === "162") {
+                if (selectedMethod === "159") {
                     sectionPoin.removeClass("d-none");
                     paymentInput.prop("disabled", true);
                     discountInput.prop("disabled", true);

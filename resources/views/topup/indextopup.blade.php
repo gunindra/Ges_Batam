@@ -524,7 +524,7 @@
         });
 
         pricePerKgInput.on('input', function () {
-           const selectedPrice = $(this).val(); 
+           const selectedPrice = $(this).val();
             calculateTotal();
         });
 
