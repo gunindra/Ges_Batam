@@ -6,12 +6,13 @@
     .dataTables_filter {
         display: none;
     }
+
     .select2-container--default .select2-selection--single {
         height: 40px;
         border: 1px solid #d1d3e2;
         border-radius: 0.25rem;
         padding: 6px 12px;
-        width:470px;
+        width: 470px;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -26,7 +27,6 @@
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
     }
-
 </style>
 
 <div class="container-fluid" id="container-wrapper">
@@ -105,7 +105,8 @@
                     <div id="containerPiutang" class="table-responsive px-2">
                         <div class="d-flex">
                             <p class="m-2"><i class="fas fa-bell text-success"></i> : <span id="hijauCount">-</span></p>
-                            <p class="m-2"><i class="fas fa-bell text-warning"></i> : <span id="kuningCount">-</span></p>
+                            <p class="m-2"><i class="fas fa-bell text-warning"></i> : <span id="kuningCount">-</span>
+                            </p>
                             <p class="m-2"><i class="fas fa-bell text-danger"></i> : <span id="merahCount">-</span></p>
                         </div>
                         <table class="table align-items-center table-flush table-hover" id="tablePiutang">
@@ -179,23 +180,23 @@
                 loadingRecords: "Loading...",
                 zeroRecords: "No matching records found"
             },
-            drawCallback: function(settings) {
-                    // Hitung jumlah kategori
-                    var hijauCount = 0;
-                    var kuningCount = 0;
-                    var merahCount = 0;
+            drawCallback: function (settings) {
+                // Hitung jumlah kategori
+                var hijauCount = 0;
+                var kuningCount = 0;
+                var merahCount = 0;
 
-                    table.rows().every(function() {
-                        var row = this.data();
-                        if (row.bell_color === 'green') hijauCount++;
-                        if (row.bell_color === 'yellow') kuningCount++;
-                        if (row.bell_color === 'red') merahCount++;
-                    });
+                table.rows().every(function () {
+                    var row = this.data();
+                    if (row.bell_color === 'green') hijauCount++;
+                    if (row.bell_color === 'yellow') kuningCount++;
+                    if (row.bell_color === 'red') merahCount++;
+                });
 
-                    $('#hijauCount').text(hijauCount);
-                    $('#kuningCount').text(kuningCount);
-                    $('#merahCount').text(merahCount);
-                }
+                $('#hijauCount').text(hijauCount);
+                $('#kuningCount').text(kuningCount);
+                $('#merahCount').text(merahCount);
+            }
         });
         $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
@@ -234,41 +235,25 @@
             }
         });
         $('#customer').select2({
-    templateResult: function(data) {
-        if (!data.id) return data.text;
+            templateResult: function (data) {
+                if (!data.id) return data.text;
 
-        var bellColor = $(data.element).data('bell');
-        console.log('Bell Color: ', bellColor); // Cek data bell_color
-        var bellIcon = '';
-        if (bellColor === 'red') {
-            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
-        } else if (bellColor === 'yellow') {
-            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
-        } else if (bellColor === 'green') {
-            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
-        }
+                // Get the bell color from the data-bell attribute
+                var bellColor = $(data.element).data('bell');
+                var bellIcon = '';
 
-        return $('<span>' + bellIcon + data.text + '</span>');
-    },
-    templateSelection: function(data) {
-        if (!data.id) return data.text;
+                // Prioritize the bell colors based on the given conditions
+                if (bellColor === 'red') {
+                    bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
+                } else if (bellColor === 'yellow') {
+                    bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
+                } else if (bellColor === 'green') {
+                    bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
+                }
 
-        var bellColor = $(data.element).data('bell');
-        var bellIcon = '';
-        if (bellColor === 'red') {
-            bellIcon = '<i class="fas fa-bell text-danger mr-2"></i>';
-        } else if (bellColor === 'yellow') {
-            bellIcon = '<i class="fas fa-bell text-warning mr-2"></i>';
-        } else if (bellColor === 'green') {
-            bellIcon = '<i class="fas fa-bell text-success mr-2"></i>';
-        }
-
-        return $('<span>' + bellIcon + data.text + '</span>');
-    },
-    escapeMarkup: function(markup) {
-        return markup;
-    }
-});
+                return $('<span>' + bellIcon + data.text + '</span>');
+            }
+        });
         $('#exportBtn').on('click', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
@@ -368,5 +353,4 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layout.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\ilono\OneDrive\Desktop\Project SAC\pt-ges-project\resources\views/Report/Piutang/indexpiutang.blade.php ENDPATH**/ ?>

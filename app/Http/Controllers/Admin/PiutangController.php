@@ -19,22 +19,41 @@ class PiutangController extends Controller
     {
 
         $customers = DB::table('tbl_pembeli as pembeli')
-    ->select(
-        'pembeli.id',
-        'pembeli.nama_pembeli',
-        'pembeli.marking',
-        DB::raw("
-            CASE
-                WHEN DATEDIFF(CURDATE(), MAX(invoice.tanggal_buat)) >= 60 THEN 'red'
-                WHEN DATEDIFF(CURDATE(), MAX(invoice.tanggal_buat)) >= 30 THEN 'yellow'
-                ELSE 'green'
-            END AS bell_color
-        ")
-    )
-    ->leftJoin('tbl_invoice as invoice', 'pembeli.id', '=', 'invoice.pembeli_id')
-    ->where('pembeli.status', '=', 1)
-    ->groupBy('pembeli.id', 'pembeli.nama_pembeli', 'pembeli.marking')
-    ->get();
+            ->select(
+                'pembeli.id',
+                'pembeli.nama_pembeli',
+                'pembeli.marking',
+                DB::raw("MAX(invoice_data.tanggal_buat) AS tanggal_buat"),
+                DB::raw("
+                    CASE
+                        WHEN MAX(CASE WHEN invoice_data.bell_priority = 1 THEN 1 ELSE 0 END) = 1 THEN 'red'
+                        WHEN MAX(CASE WHEN invoice_data.bell_priority = 2 THEN 1 ELSE 0 END) = 1 THEN 'yellow'
+                        ELSE 'green'
+                    END AS bell_color
+                ")
+            )
+            ->leftJoinSub(
+                DB::table('tbl_invoice as invoice')
+                    ->select(
+                        'invoice.pembeli_id',
+                        'invoice.tanggal_buat',
+                        DB::raw("
+                            CASE
+                                WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 60 THEN 1 -- red priority
+                                WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN 2 -- yellow priority
+                                ELSE 3 -- green priority
+                            END AS bell_priority
+                        ")
+                    ),
+                'invoice_data',
+                'pembeli.id',
+                '=',
+                'invoice_data.pembeli_id'
+            )
+            ->where('pembeli.status', '=', 1)
+            ->groupBy('pembeli.id', 'pembeli.nama_pembeli', 'pembeli.marking')
+            ->get();
+
 
 
         return view('Report.Piutang.indexpiutang', [
