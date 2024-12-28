@@ -394,13 +394,14 @@
                 });
             }
 
+            let kuotaid = @json($kuotaid);
             $('#selectMethod').on('change', function() {
                 const selectedMethod = $(this).val();
                 const sectionPoin = $('#section_poin');
                 const paymentInput = $('#payment');
                 const discountInput = $('#discountPayment');
 
-                if (selectedMethod === "159") {
+                if (selectedMethod === kuotaid) {
                     sectionPoin.removeClass("d-none");
                     paymentInput.prop("disabled", true);
                     discountInput.prop("disabled", true);
