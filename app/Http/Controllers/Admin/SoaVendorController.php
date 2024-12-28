@@ -30,7 +30,7 @@ class SoaVendorController extends Controller
         $status = $request->status;
         $customer = $request->customer;
 
-        $invoice = SupInvoice::where('status_bayar', '=', 'Belum Lunas')
+        $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas')
                     ->where('vendor_id', '=', $customer);
 
 
@@ -78,7 +78,7 @@ class SoaVendorController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Mohon pilih Vendor yang diinginkan']);
             }
 
-            $invoice = SupInvoice::where('status_bayar', '=', 'Belum Lunas')
+            $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas')
                 ->where('vendor_id', '=', $vendor_id);
 
             $startDate = '';

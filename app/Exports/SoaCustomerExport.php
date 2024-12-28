@@ -28,7 +28,7 @@ class SoaCustomerExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas');
+        $invoice = Invoice::where('status_bayar', '=', 'Belum lunas');
 
         if ($this->customer !== '-') {
             $invoice->where('pembeli_id', '=', $this->customer);

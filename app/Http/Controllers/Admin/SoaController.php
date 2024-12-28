@@ -27,7 +27,7 @@ class SoaController extends Controller
         $status = $request->status;
         $customer = $request->customer;
 
-        $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas')
+        $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
                     ->where('pembeli_id', '=', $customer);
 
 
@@ -74,7 +74,7 @@ class SoaController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Mohon Pilih Customer yang diinginkan']);
             }
 
-            $invoice = Invoice::where('status_bayar', '=', 'Belum Lunas')
+            $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
                         ->where('pembeli_id', '=', $customer_id);
             $startDate = '';
             $endDate = '';

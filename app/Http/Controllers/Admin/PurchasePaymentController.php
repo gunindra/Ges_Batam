@@ -97,7 +97,7 @@ class PurchasePaymentController extends Controller
 
         $coas = COA::all();
 
-        $listInvoice = SupInvoice::where('status_bayar', 'Belum Lunas')
+        $listInvoice = SupInvoice::where('status_bayar', 'Belum lunas')
             ->select('invoice_no')
             ->get();
 
@@ -182,7 +182,7 @@ class PurchasePaymentController extends Controller
 
         } else {
             $invoices = SupInvoice::where('vendor_id', $idVendor)
-                ->where('status_bayar', 'Belum Lunas')
+                ->where('status_bayar', 'Belum lunas')
                 ->get(['invoice_no']);
         }
 
@@ -300,7 +300,7 @@ class PurchasePaymentController extends Controller
                 ]);
 
                 $invoice->total_bayar += $allocatedAmount;
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
 
                 $totalPayment -= $allocatedAmount;
@@ -489,7 +489,7 @@ class PurchasePaymentController extends Controller
     {
         $payment = PaymentSup::with(['paymentInvoicesSup', 'paymentSupItem'])->findOrFail($id);
         $coas = COA::all();
-        $listInvoice = SupInvoice::where('status_bayar', 'Belum Lunas')
+        $listInvoice = SupInvoice::where('status_bayar', 'Belum lunas')
             ->select('invoice_no')
             ->get();
         $selectedVendorId = $payment->selectVendor;
@@ -572,7 +572,7 @@ class PurchasePaymentController extends Controller
             foreach ($oldInvoices as $oldInvoice) {
                 $invoice = SupInvoice::findOrFail($oldInvoice->invoice_id);
                 $invoice->total_bayar -= $oldInvoice->amount;
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
             }
 
@@ -605,7 +605,7 @@ class PurchasePaymentController extends Controller
                 ]);
 
                 $invoice->total_bayar += $allocatedAmount;
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
 
                 $totalPayment -= $allocatedAmount;

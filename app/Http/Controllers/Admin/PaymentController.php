@@ -60,7 +60,7 @@ class PaymentController extends Controller
         $coas = COA::all();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
-                                    WHERE status_bayar = 'Belum Lunas'");
+                                    WHERE status_bayar = 'Belum lunas'");
 
         $listMarking = DB::select("SELECT nama_pembeli, marking FROM tbl_pembeli");
 
@@ -428,7 +428,7 @@ class PaymentController extends Controller
                 if ($invoice->total_bayar >= $invoice->total_harga) {
                     $invoice->status_bayar = 'Lunas';
                 } else {
-                    $invoice->status_bayar = 'Belum Lunas';
+                    $invoice->status_bayar = 'Belum lunas';
                 }
 
                 $invoice->save();
@@ -779,7 +779,7 @@ class PaymentController extends Controller
                 $paymentInvoice->save();
 
                 $invoice->total_bayar += $allocatedAmount + ($request->discountPayment ?? 0);
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
 
                 $totalPayment -= $allocatedAmount;
@@ -971,7 +971,7 @@ class PaymentController extends Controller
         $id = $request->input('id');
         $invoices = Invoice::join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
             ->where('tbl_pembeli.marking', $marking)
-            ->where('tbl_invoice.status_bayar', 'Belum Lunas')
+            ->where('tbl_invoice.status_bayar', 'Belum lunas')
             ->select('tbl_invoice.no_invoice')
             ->get();
 
@@ -1001,7 +1001,7 @@ class PaymentController extends Controller
             ->purchase_profit_rate_account_id;
 
         // Fetch list of unpaid invoices
-        $listInvoice = Invoice::where('status_bayar', 'Belum Lunas')->pluck('no_invoice');
+        $listInvoice = Invoice::where('status_bayar', 'Belum lunas')->pluck('no_invoice');
 
         // Fetch list of buyers and markings
         $listMarking = DB::table('tbl_pembeli')->select('nama_pembeli', 'marking')->get();
@@ -1142,7 +1142,7 @@ class PaymentController extends Controller
             foreach ($oldPaymentInvoices as $oldPaymentInvoice) {
                 $oldInvoice = Invoice::findOrFail($oldPaymentInvoice->invoice_id);
                 $oldInvoice->total_bayar -= $oldPaymentInvoice->amount;
-                $oldInvoice->status_bayar = $oldInvoice->total_bayar >= $oldInvoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $oldInvoice->status_bayar = $oldInvoice->total_bayar >= $oldInvoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $oldInvoice->save();
                 Log::info('Invoice lama berhasil diperbarui.', ['oldInvoice' => $oldInvoice]);
             }
@@ -1172,7 +1172,7 @@ class PaymentController extends Controller
                 );
 
                 $invoice->total_bayar += $allocatedAmount;
-                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
                 Log::info('Invoice berhasil diperbarui.', ['invoice' => $invoice, 'allocatedAmount' => $allocatedAmount]);
 

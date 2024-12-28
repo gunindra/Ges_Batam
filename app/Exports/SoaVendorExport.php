@@ -29,7 +29,7 @@ class SoaVendorExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = SupInvoice::where('status_bayar', '=', 'Belum Lunas');
+        $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas');
 
         if ($this->customer !== '-') {
             $invoice->where('vendor_id', '=', $this->customer);
