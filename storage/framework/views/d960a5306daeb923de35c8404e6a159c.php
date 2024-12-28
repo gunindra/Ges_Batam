@@ -394,13 +394,15 @@
                 });
             }
 
+            let kuotaid = <?php echo json_encode($kuotaid, 15, 512) ?>;
+            kuotaid = String(kuotaid);
             $('#selectMethod').on('change', function() {
                 const selectedMethod = $(this).val();
                 const sectionPoin = $('#section_poin');
                 const paymentInput = $('#payment');
                 const discountInput = $('#discountPayment');
 
-                if (selectedMethod === "159") {
+                if (selectedMethod === kuotaid) {
                     sectionPoin.removeClass("d-none");
                     paymentInput.prop("disabled", true);
                     discountInput.prop("disabled", true);

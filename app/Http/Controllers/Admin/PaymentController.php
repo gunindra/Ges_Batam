@@ -537,6 +537,7 @@ class PaymentController extends Controller
 
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
+                $jurnal->payment_id = $payment->id;
                 $jurnal->tipe_kode = 'BKM';
                 $jurnal->tanggal = now();
                 $jurnal->no_ref = $invoiceNumbers;
@@ -1058,7 +1059,7 @@ class PaymentController extends Controller
             'amountPoin' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string|max:255',
             'totalAmmount' => 'required|numeric|min:0',
-            'items' => 'required|array|min:1',
+            'items' => 'nullable|array|min:1',
             'items.*.account' => 'required|integer',
             'items.*.tipeAccount' => 'required|in:Debit,Credit',
             'items.*.item_desc' => 'required|string|max:255',
@@ -1083,6 +1084,7 @@ class PaymentController extends Controller
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
             $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id;
+            $poinMarginAccount = $accountSettings->discount_sales_account_id;
 
             Log::info('Cek akun pengaturan.', [
                 'salesAccountId' => $salesAccountId,
@@ -1093,6 +1095,21 @@ class PaymentController extends Controller
 
             if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($paymentDiscountAccount)) {
                 Log::error('Akun pengaturan tidak lengkap.');
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
+                ], 400);
+            }
+
+            $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+
+            if (empty($currentPointPrice)) {
+                Log::error("Rate for 'Topup' not found.");
+                return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+            }
+
+            $currentPointPrice = $currentPointPrice[0]->nilai_rate;
+            if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
@@ -1114,6 +1131,9 @@ class PaymentController extends Controller
                 'Keterangan' => $request->keterangan,
                 'updateby' => Auth::user()->name,
             ]);
+
+            $payment->updateby = Auth::user()->name;
+            $payment->save();
             Log::info('Payment berhasil diperbarui.', ['payment' => $payment]);
 
             $oldPaymentInvoices = PaymentInvoice::where('payment_id', $payment->id)->get();
@@ -1141,10 +1161,14 @@ class PaymentController extends Controller
                 $allocatedAmount = min($totalPayment, $remainingAmount);
 
                 if ($allocatedAmount <= 0) continue;
-
+                $totalTagihanInvoice = $remainingAmount;
+                $kuota = $allocatedAmount / $currentPointPrice;
                 PaymentInvoice::updateOrCreate(
                     ['payment_id' => $payment->id, 'invoice_id' => $invoice->id],
-                    ['amount' => $allocatedAmount]
+                    [
+                        'amount' => $allocatedAmount,
+                        'kuota' => $kuota ?? 0
+                    ]
                 );
 
                 $invoice->total_bayar += $allocatedAmount;
@@ -1165,6 +1189,7 @@ class PaymentController extends Controller
 
             $noRef = implode(', ', $request->invoice);
             $jurnal = Jurnal::where('payment_id', $request->paymentId)->firstOrFail();
+
             $jurnal->update([
                 'tanggal' => $tanggalPayment,
                 'no_ref' => $noRef,
@@ -1172,10 +1197,166 @@ class PaymentController extends Controller
                 'totaldebit' => $request->totalAmmount,
                 'totalcredit' => $request->totalAmmount,
             ]);
-
             $totalJurnalAmount = $request->paymentAmount;
 
+            DB::table('tbl_payment_items')->where('payment_id', $payment->id)->delete();
             JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+            if ($request->amountPoin) {
+                $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+                $paymentMethodId = $request->paymentMethod;
+
+                $topups = DB::table('tbl_history_topup')
+                    ->where('customer_id', $invoice->pembeli_id)
+                    ->where('balance', '>', 0)
+                    ->orderBy('created_at', 'asc')
+                    ->get();
+
+                $totalUsedPoin = 0;
+                $totalNominal = 0;
+                $remainingPoin = $request->amountPoin;
+
+
+
+                foreach ($topups as $topup) {
+                    if ($remainingPoin <= 0) break;
+
+                    if ($topup->balance >= $remainingPoin) {
+                        $nominal = $remainingPoin * $topup->price_per_kg;
+                        $totalNominal += $nominal;
+                        $totalUsedPoin += $remainingPoin;
+
+                        DB::table('tbl_history_topup')->where('id', $topup->id)->decrement('balance', $remainingPoin);
+
+                        UsagePoints::create([
+                            'customer_id' => $invoice->pembeli_id,
+                            'history_topup_id' => $topup->id,
+                            'used_points' => $remainingPoin,
+                            'price_per_kg' => $topup->price_per_kg,
+                            'usage_date' => now(),
+                        ]);
+
+                        $remainingPoin = 0;
+                    } else {
+                        $nominal = $topup->balance * $topup->price_per_kg;
+                        $totalNominal += $nominal;
+                        $totalUsedPoin += $topup->balance;
+
+                        DB::table('tbl_history_topup')->where('id', $topup->id)->update(['balance' => 0]);
+
+                        UsagePoints::create([
+                            'customer_id' => $invoice->pembeli_id,
+                            'history_topup_id' => $topup->id,
+                            'used_points' => $topup->balance,
+                            'price_per_kg' => $topup->price_per_kg,
+                            'usage_date' => now(),
+                        ]);
+
+                        $remainingPoin -= $topup->balance;
+                    }
+                }
+
+                if ($remainingPoin > 0) {
+                    Log::error("Remaining points after topup insufficient", ['remainingPoin' => $remainingPoin]);
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Poin tidak mencukupi untuk pembayaran ini.'
+                    ], 400);
+                }
+
+                $newNominal = $totalUsedPoin * $currentPointPrice;
+
+                $poinMargin = $newNominal - $totalNominal;
+
+                Log::info("Margin Poin Calculated", [
+                    'totalUsedPoin' => $totalUsedPoin,
+                    'currentPointPrice' => $currentPointPrice,
+                    'newNominal' => $newNominal,
+                    'totalNominal' => $totalNominal,
+                    'poinMargin' => $poinMargin,
+                ]);
+
+                $invoiceNumbers = is_array($request->invoice) ? implode(', ', $request->invoice) : $request->invoice;
+
+                $journalItems = [];
+
+                if ($poinMargin > 0) {
+                    $journalItems[] = [
+                        'code_account' => $salesAccountId,
+                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                        'debit' => $totalTagihanInvoice,
+                        'credit' => 0,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $paymentMethodId,
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'debit' => 0,
+                        'credit' => $newNominal,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $accountSettings->discount_sales_account_id,
+                        'description' => "Margin Poin Positif untuk Invoice " . $invoiceNumbers,
+                        'debit' => $poinMargin,
+                        'credit' => 0,
+                    ];
+                } elseif ($poinMargin < 0) {
+                    $journalItems[] = [
+                        'code_account' => $salesAccountId,
+                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                        'debit' => $totalTagihanInvoice + abs($poinMargin),
+                        'credit' => 0,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $paymentMethodId,
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'debit' => 0,
+                        'credit' => $newNominal,
+                    ];
+                } elseif ($poinMargin == 0) {
+                    Log::info("Case: Point Margin is Zero");
+                    $journalItems[] = [
+                        'code_account' => $salesAccountId,
+                        'description' => "Debit untuk Invoice " .  $invoiceNumbers,
+                        'debit' => $totalNominal,
+                        'credit' => 0,
+                    ];
+                    $journalItems[] = [
+                        'code_account' => $paymentMethodId,
+                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'debit' => 0,
+                        'credit' => $totalNominal,
+                    ];
+                }
+
+                // Simpan item jurnal
+                foreach ($journalItems as $item) {
+                    JurnalItem::create([
+                        'jurnal_id' => $jurnal->id,
+                        'code_account' => $item['code_account'],
+                        'description' => $item['description'],
+                        'debit' => $item['debit'],
+                        'credit' => $item['credit']
+                    ]);
+                }
+
+                // $finalTotal = $totalNominal + $totalPayment + $poinMargin;
+
+                // $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
+                // if ($finalTotal > $invoice->total_harga) {
+                //     Log::warning("Total bayar melebihi total harga untuk invoice {$invoice->no_invoice}");
+                //     DB::rollBack();
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Total bayar tidak dapat melebihi total harga.'
+                //     ], 400);
+                // }
+                // $invoice->total_bayar = $finalTotal;
+                // $invoice->status_bayar = ($invoice->total_bayar == $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
+                // $invoice->save();
+                DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
+            }
+
+
 
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
@@ -1210,9 +1391,6 @@ class PaymentController extends Controller
 
             if ($request->has('items') && is_array($request->items)) {
                 $items = $request->input('items');
-
-                DB::table('tbl_payment_items')->where('payment_id', $payment->id)->delete();
-
 
                 $totalDebit = 0;
                 $totalCredit = 0;
