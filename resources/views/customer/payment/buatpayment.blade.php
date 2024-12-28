@@ -395,6 +395,7 @@
             }
 
             let kuotaid = @json($kuotaid);
+            kuotaid = String(kuotaid);
             $('#selectMethod').on('change', function() {
                 const selectedMethod = $(this).val();
                 const sectionPoin = $('#section_poin');
