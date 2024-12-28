@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use DateTime;
@@ -856,6 +857,7 @@ class DeliveryController extends Controller
         }
     }
 
+
     public function exportPDF(Request $request)
     {
         $id = $request->input('id');
@@ -930,8 +932,14 @@ class DeliveryController extends Controller
         }
 
         try {
+            // Cek dan buat folder jika tidak ada
+            $folderPath = storage_path('app/public/delivery');
+            if (!File::exists($folderPath)) {
+                File::makeDirectory($folderPath, 0755, true);
+            }
+
             $fileName = 'Delivery' . (string) Str::uuid() . '.pdf';
-            $filePath = storage_path('app/public/delivery/' . $fileName);
+            $filePath = $folderPath . '/' . $fileName;
             $pdf->save($filePath);
         } catch (\Exception $e) {
             Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
@@ -946,6 +954,7 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Failed to send PDF URL'], 500);
         }
     }
+
 
     public function updateStatus(Request $request)
     {
