@@ -27,9 +27,9 @@ class PiutangReportExport implements FromView
             'invoice.id',
             'invoice.no_invoice',
             DB::raw("CONCAT(DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y'),CASE WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN CONCAT(' (', FLOOR(DATEDIFF(CURDATE(), invoice.tanggal_buat) / 30), ' bulan)')ELSE ''END) as tanggal_buat"),
-            'pembeli.nama_pembeli',                  
+            'pembeli.nama_pembeli',
         )
-        ->where('invoice.status_bayar', '=', 'Belum Lunas')
+        ->where('invoice.status_bayar', '=', 'Belum lunas')
         ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
@@ -50,7 +50,7 @@ class PiutangReportExport implements FromView
             $customerData = DB::table('tbl_pembeli')->where('id', $this->customer)->first();
             $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
         }
-        
+
         return view('exportExcel.piutangreport', [
             'piutang' => $piutang,
             'startDate' => $this->startDate,

@@ -44,7 +44,8 @@ class PiutangController extends Controller
                                 ELSE 3 -- green priority
                             END AS bell_priority
                         ")
-                    ),
+                    )
+                    ->where('invoice.status_bayar', 'Belum lunas'),
                 'invoice_data',
                 'pembeli.id',
                 '=',
@@ -53,8 +54,6 @@ class PiutangController extends Controller
             ->where('pembeli.status', '=', 1)
             ->groupBy('pembeli.id', 'pembeli.nama_pembeli', 'pembeli.marking')
             ->get();
-
-
 
         return view('Report.Piutang.indexpiutang', [
             'customers' => $customers,
@@ -96,7 +95,7 @@ class PiutangController extends Controller
             )
 
             ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id')
-            ->where('invoice.status_bayar', '=', 'Belum Lunas')
+            ->where('invoice.status_bayar', '=', 'Belum lunas')
             ->where('pembeli.id', '=', $request->customer);
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
@@ -136,7 +135,7 @@ class PiutangController extends Controller
                 DB::raw("CONCAT(DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y'),CASE WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN CONCAT(' (', FLOOR(DATEDIFF(CURDATE(), invoice.tanggal_buat) / 30), ' bulan)')ELSE ''END) as tanggal_buat"),
                 'pembeli.nama_pembeli',
             )
-                ->where('invoice.status_bayar', '=', 'Belum Lunas')
+                ->where('invoice.status_bayar', '=', 'Belum lunas')
                 ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
 
             $query->orderBy('invoice.tanggal_invoice', 'desc');

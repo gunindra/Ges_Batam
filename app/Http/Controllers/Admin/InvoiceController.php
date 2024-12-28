@@ -258,7 +258,7 @@ class InvoiceController extends Controller
             ->addColumn('status_bayar', function ($row) {
                 return $row->status_bayar == 'Lunas'
                     ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
-                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
+                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum lunas</span>';
             })
             ->addColumn('status_badge', function ($item) {
                 $statusBadgeClass = match ($item->status_name) {

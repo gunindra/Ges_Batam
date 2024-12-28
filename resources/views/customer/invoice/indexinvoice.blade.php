@@ -39,7 +39,7 @@
                         <select class="form-control" id="filterPaymentStatus">
                             <option value="" selected disabled>Pilih Status Pembayaran</option>
                             <option value="Lunas">Lunas</option>
-                            <option value="Belum Lunas">Belum Lunas</option>
+                            <option value="Belum lunas">Belum Lunas</option>
                         </select>
                     </div>
                 </div>
