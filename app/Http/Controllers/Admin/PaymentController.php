@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\AccountSettings;
 use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\PaymentInvoice;
@@ -51,6 +52,11 @@ class PaymentController extends Controller
         ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
         ->get();
 
+        $kuotaid = AccountSettings::query()
+        ->select('purchase_profit_rate_account_id')
+        ->first()
+        ->purchase_profit_rate_account_id;
+
         $coas = COA::all();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
@@ -62,7 +68,8 @@ class PaymentController extends Controller
             'listInvoice' => $listInvoice,
             'savedPaymentAccounts' => $savedPaymentAccounts,
             'listMarking' => $listMarking,
-            'coas' => $coas
+            'coas' => $coas,
+            'kuotaid' => $kuotaid
         ]);
     }
 
@@ -987,6 +994,11 @@ class PaymentController extends Controller
             ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
             ->get();
 
+        $kuotaid = AccountSettings::query()
+            ->select('purchase_profit_rate_account_id')
+            ->first()
+            ->purchase_profit_rate_account_id;
+
         // Fetch list of unpaid invoices
         $listInvoice = Invoice::where('status_bayar', 'Belum Lunas')->pluck('no_invoice');
 
@@ -1002,6 +1014,7 @@ class PaymentController extends Controller
             'savedPaymentAccounts' => $savedPaymentAccounts,
             'listMarking' => $listMarking,
             'coas' => $coas,
+            'kuotaid' => $kuotaid,
         ]);
     }
 
