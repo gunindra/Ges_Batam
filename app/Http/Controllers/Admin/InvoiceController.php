@@ -16,6 +16,7 @@ use App\Traits\WhatsappTrait;
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
+use Illuminate\Support\Facades\File;
 use Log;
 use Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -687,7 +688,6 @@ class InvoiceController extends Controller
         }
     }
 
-
     public function exportPdf(Request $request)
     {
         $id = $request->input('id');
@@ -720,7 +720,6 @@ class InvoiceController extends Controller
 
             $invoice = $invoice[0];
 
-
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $id)
                 ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
@@ -741,8 +740,14 @@ class InvoiceController extends Controller
             }
 
             try {
+                // Cek dan buat folder jika tidak ada
+                $folderPath = storage_path('app/public/invoice');
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0755, true);
+                }
+
                 $fileName = 'invoice_' . (string) Str::uuid() . '.pdf';
-                $filePath = storage_path('app/public/invoice/' . $fileName);
+                $filePath = $folderPath . '/' . $fileName;
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
@@ -757,7 +762,6 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
-
 
 
     public function cekResiInvoice(Request $request)
