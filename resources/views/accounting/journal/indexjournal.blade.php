@@ -136,8 +136,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="d-flex mb-2 mr-3 float-right">
-                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKK"
-                                            id="">
+                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKK" id="">
                                             <span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal
                                         </a>
                                     </div>
@@ -145,7 +144,7 @@
                                         <!-- Search -->
                                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                             class="form-control rounded-3" placeholder="Search">
-                                        <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                                        <select class="form-control ml-2" id="filterStatusBkk" style="width: 200px;">
                                             <option value="" selected disabled>Pilih Filter</option>
                                             @foreach ($uniqueStatuses as $status)
                                                 <option value="{{ $status->status }}">{{ $status->status }}</option>
@@ -186,14 +185,14 @@
                             <div class="card mb-4">
                                 <div class="card-body">
                                     <div class="d-flex mb-2 mr-3 float-right">
-                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKM" id=""><span
-                                                class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal</a>
+                                        <a class="btn btn-primary" href="{{ route('addjournal') }}?code_type=BKM"
+                                            id=""><span class="pr-2"><i class="fas fa-plus"></i></span>Buat Journal</a>
                                     </div>
                                     <div class="d-flex mb-4">
                                         <!-- Search -->
                                         <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                             class="form-control rounded-3" placeholder="Search">
-                                        <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
+                                        <select class="form-control ml-2" id="filterStatusBkm" style="width: 200px;">
                                             <option value="" selected disabled>Pilih Filter</option>
                                             @foreach ($uniqueStatuses as $status)
                                                 <option value="{{ $status->status }}">{{ $status->status }}</option>
@@ -305,7 +304,6 @@
                 tableBKM.draw();
             }
         });
-
         $('#txSearch').keyup(function () {
             tableGeneral.search($(this).val()).draw();
         });
@@ -380,7 +378,9 @@
                             showMessage("success", response.message)
                                 .then(
                                     () => {
-                                        table.ajax.reload();
+                                        tableGeneral.ajax.reload(),
+                                            tableBKK.ajax.reload(),
+                                            tableBKM.ajax.reload();
                                     });
                         },
                         error: function (xhr, status, error) {
