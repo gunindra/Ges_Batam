@@ -374,7 +374,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $discount;
             $payment->Keterangan = $request->keterangan;
-            $payment->createby = Auth::user()->name;
+            $payment->createdby = Auth::user()->name;
             $payment->save();
 
             $invoiceList = [];
@@ -736,7 +736,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
             $payment->Keterangan = $request->keterangan;
-            $payment->createby = Auth::user()->name;
+            $payment->createdby = Auth::user()->name;
             $payment->save();
 
             $invoiceList = [];
@@ -1095,6 +1095,7 @@ class PaymentController extends Controller
                 'payment_method_id' => $request->paymentMethod,
                 'discount' => $request->discountPayment ?? 0,
                 'Keterangan' => $request->keterangan,
+                'updateby' => Auth::user()->name,
             ]);
             Log::info('Payment berhasil diperbarui.', ['payment' => $payment]);
 
