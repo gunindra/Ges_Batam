@@ -9,3 +9,4 @@ app(Schedule::class)->command('journal:create-monthly')->monthlyOn(28, '23:59') 
                                                         ->when(function () {
                                                             return Carbon::now()->endOfMonth()->isToday();
                                                         });
+app(Schedule::class)->command('queue:work --daemon')->everyMinute();
