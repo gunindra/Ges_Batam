@@ -24,6 +24,7 @@ class JournalController extends Controller
 
     public function getjournalData(Request $request)
     {
+
         $query = DB::table('tbl_jurnal')
             ->select(
                 'id',
@@ -36,9 +37,8 @@ class JournalController extends Controller
                 'status',
                 'description'
             )
-            ->orderBy('id','desc');
+            ->orderBy('id', 'desc');
 
-        // Filter by tipe_kode
         if ($request->tipe_kode) {
             $query->where('tipe_kode', $request->tipe_kode);
         }
@@ -51,17 +51,17 @@ class JournalController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->excludeTypes && is_array($request->excludeTypes)) {
-            $query->whereNotIn('tipe_kode', $request->excludeTypes);
-        }
-
         if ($request->startDate && $request->endDate) {
             $startDate = date('Y-m-d', strtotime($request->startDate));
             $endDate = date('Y-m-d', strtotime($request->endDate));
             $query->whereBetween('tanggal', [$startDate, $endDate]);
         }
 
+        // Integrasi dengan DataTables
         return DataTables::of($query)
+            ->filterColumn('tanggalFormat', function ($query, $keyword) {
+                $query->whereRaw("DATE_FORMAT(tanggal, '%d %M %Y') LIKE ?", ["%{$keyword}%"]);
+            })
             ->editColumn('totalcredit', function ($row) {
                 return 'Rp ' . number_format($row->totalcredit, 0, ',', '.');
             })
@@ -98,10 +98,10 @@ class JournalController extends Controller
                     <a class="btn btnDestroyJournal btn-sm btn-danger" data-id="' . $row->id . '"><i class="fas fa-trash text-white"></i></a>
                 ';
             })
-
             ->rawColumns(['status', 'action'])
             ->make(true);
     }
+
 
 
 
