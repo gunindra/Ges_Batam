@@ -139,6 +139,10 @@
                             </tbody>
 
                         </table>
+                        <div id="tableError" class="text-danger mt-2 d-none">
+                            Silahkan isi semua field pada tabel sebelum melanjutkan.
+                        </div>
+
                         <br>
                         <button type="button" class="btn btn-primary" id="add-item-button">Add
                             Item</button>
@@ -196,10 +200,10 @@
 
                 $('#items-container tr').each(function () {
                     const harga = parseFloat($(this).find('input[name="harga"]').val()) || 0;
-                    totalKeseluruhan += harga; 
+                    totalKeseluruhan += harga;
                 });
 
-                $('#Total').val(totalKeseluruhan.toFixed(2));  
+                $('#Total').val(totalKeseluruhan.toFixed(2));
             };
 
             $('#add-item-button').click(function () {
@@ -230,12 +234,12 @@
                 if ($('#items-container tr').length === 1) {
                     $('.removeItemButton').hide();
                 }
- 
+
                 updateTotals();
             });
 
             $(document).on('input', 'input[name="harga"]', function () {
-                updateTotals();  
+                updateTotals();
             });
 
             $('#buatCredit').click(function () {
@@ -245,55 +249,104 @@
                 const noteCredit = $('#noteCredit').val();
                 const rateCurrency = $('#rateCurrency').val();
                 const items = [];
+                $('.error-message').remove();
+
+                let isValid = true;
+
+                if (!invoiceCredit) {
+                    $('#invoiceCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#invoiceCreditError').addClass('d-none');
+                }
+
+                if (!accountCredit) {
+                    $('#accountCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#accountCreditError').addClass('d-none');
+                }
+
+                if (!currencyCredit) {
+                    $('#currencyCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#currencyCreditError').addClass('d-none');
+
+                }
+                if (!rateCurrency) {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
+
+                }
 
                 $('#items-container tr').each(function () {
                     const noresi = $(this).find('input[name="noresi"]').val();
                     const deskripsi = $(this).find('input[name="deskripsi"]').val();
                     const harga = $(this).find('input[name="harga"]').val();
 
+                    if (!noresi || !deskripsi || !harga) {
+                        isValid = false;
+                    } else {
+                        isValid = true;
+                    }
+
+                    if (!isValid) {
+                        $('#tableError').removeClass('d-none');
+                    } else {
+                        $('#tableError').addClass('d-none');
+                    }
+
+
                     items.push({
                         noresi: noresi,
                         deskripsi: deskripsi,
-                        harga: harga
+                        harga: harga,
                     });
                 });
+                if (isValid) {
+                    const creditNoteData = {
+                        invoiceCredit: invoiceCredit,
+                        accountCredit: accountCredit,
+                        currencyCredit: currencyCredit,
+                        rateCurrency: rateCurrency,
+                        noteCredit: noteCredit,
+                        items: items,
+                        totalKeseluruhan: $('#Total').val()
+                    };
 
-                const creditNoteData = {
-                    invoiceCredit: invoiceCredit,
-                    accountCredit: accountCredit,
-                    currencyCredit: currencyCredit,
-                    rateCurrency: rateCurrency,
-                    noteCredit: noteCredit,
-                    items: items,
-                    totalKeseluruhan: $('#Total').val()
-                };
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                const csrfToken = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: "{{ route('credit-note.store')}}",
-                    type: 'POST',
-                    data: creditNoteData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    dataType: 'json',
-                    success: function (response) {
-                        showMessage('success', 'Credit Note berhasil disimpan!')
-                            .then(() => {
-                                location.reload();
+                    $.ajax({
+                        url: "{{ route('credit-note.store')}}",
+                        type: 'POST',
+                        data: creditNoteData,
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        dataType: 'json',
+
+                        success: function (response) {
+                            Swal.fire({
+                                title: 'Success',
+                                text: 'Debit Note berhasil disimpan!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();
                             });
-                    },
-                    error: function (xhr) {
-                        let errorMessage = "Gagal membuat invoice.";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
+                        },
+                        error: function (xhr) {
+                            let errorMessage = "Gagal membuat invoice.";
+                            Swal.fire({
+                                title: errorMessage,
+                                icon: "error"
+                            });
                         }
-                        Swal.fire({
-                            title: errorMessage,
-                            icon: "error"
-                        });
-                    }
-                });
+                    });
+                }
             });
         });
 

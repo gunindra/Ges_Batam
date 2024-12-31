@@ -141,8 +141,11 @@
                                     </td>
                                 </tr> --}}
                             </tbody>
-
                         </table>
+                        <div id="tableError" class="text-danger mt-2 d-none">
+                            Silahkan isi semua field pada tabel sebelum melanjutkan.
+                        </div>
+
                         <br>
                         <button type="button" class="btn btn-primary" id="add-item-button">Add
                             Item</button>
@@ -169,7 +172,7 @@
                                 {{-- <button id="publish" class="btn btn-success p-3 float-right mt-3"
                                     style="width: 100%;">Publish</button> --}}
                                 <button id="buatCredit" class="btn btn-primary p-3 float-right mt-3"
-                                    style="width: 100%;">Update</button>
+                                    style="width: 100%;">Update Credit</button>
                             </div>
                         </div>
                     </div>
@@ -274,12 +277,56 @@
                 const noteCredit = $('#noteCredit').val();
                 const rateCurrency = $('#rateCurrency').val();
                 const items = [];
+                $('.error-message').remove();
+
+                let isValid = true;
+
+                if (!invoiceCredit) {
+                    $('#invoiceCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#invoiceCreditError').addClass('d-none');
+                }
+
+                if (!accountCredit) {
+                    $('#accountCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#accountCreditError').addClass('d-none');
+                }
+
+                if (!currencyCredit) {
+                    $('#currencyCreditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#currencyCreditError').addClass('d-none');
+
+                }
+                if (!rateCurrency) {
+                    $('#rateCurrencyError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#rateCurrencyError').addClass('d-none');
+
+                }
 
                 $('#items-container tr').each(function () {
                     const noresi = $(this).find('input[name="noresi"]').val();
                     const deskripsi = $(this).find('input[name="deskripsi"]').val();
                     const harga = $(this).find('input[name="harga"]').val();
                     const total = $(this).find('input[name="item-subtotal"]').val();
+
+                    if (!noresi || !deskripsi || !harga  ) {
+                        isValid = false;
+                    } else {
+                        isValid = true;
+                    }
+
+                    if (!isValid) {
+                        $('#tableError').removeClass('d-none');
+                    } else {
+                        $('#tableError').addClass('d-none');
+                    }
 
                     items.push({
                         noresi: noresi,
@@ -288,7 +335,7 @@
                         total: total
                     });
                 });
-
+                if (isValid) {
                 const creditNoteData = {
                     creditNoteId: creditNote ? creditNote.id : null,  // Mengirim creditNoteId jika ada
                     invoiceCredit: invoiceCredit,
@@ -311,15 +358,20 @@
                     },
                     dataType: 'json',
                     success: function (response) {
-                        showMessage('success', 'Credit Note berhasil disimpan!')
-                            .then(() => {
-                                location.reload();
+                        Swal.fire({
+                                title: 'Success',
+                                text: 'Debit Note berhasil disimpan!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();
                             });
-                    },
+                        },
                     error: function (xhr, status, error) {
                         showMessage('error', 'Terjadi kesalahan saat menyimpan data.');
                     }
                 });
+            }
             });
         });
     </script>
