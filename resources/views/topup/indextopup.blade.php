@@ -620,6 +620,8 @@
                     });
                 },
                 error: function (xhr) {
+                    $('#confirmTopUp').prop('disabled', false).text(
+                        'Konfirmasi Top-Up ');
                     let errorMessage = 'Gagal melakukan top-up.';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
