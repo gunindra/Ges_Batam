@@ -116,14 +116,6 @@
             // }
 
             function getProfitOrLoss(startDate, endDate, comparisons) {
-
-                // Log data untuk debug (opsional)
-                console.log("Memproses Profit atau Loss:");
-                console.log("Tanggal Utama:", {
-                    startDate,
-                    endDate
-                });
-                console.log("Tanggal Comparison:", comparisons);
                 $.ajax({
                         url: "{{ route('getProfitOrLoss') }}",
                         method: "GET",
@@ -308,12 +300,6 @@
                 if ($('.swal2-container').length > 0) {
                     return;
                 }
-
-                console.log("Tanggal Utama:", {
-                    startDate,
-                    endDate
-                });
-                console.log("Tanggal Comparison:", comparisons);
 
                 // Panggil fungsi getProfitOrLoss dengan parameter lengkap
                 getProfitOrLoss(startDate, endDate, comparisons);

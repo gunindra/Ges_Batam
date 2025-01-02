@@ -299,7 +299,6 @@
                                 code_type: selectedType,
                             },
                             success: function (response) {
-                                console.log('Data berhasil dikirim:', response);
                                 $('#noJournal').val(response.no_journal);
                             },
                             error: function (xhr) {
@@ -471,7 +470,6 @@
         $('#approveJournal').click(function () {
             var journal = valueJournal('Approve');
 
-            console.log(journal);
 
             $.ajax({
                 url: "{{ route('storeJurnal') }}",
@@ -481,7 +479,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
-                    console.log('Journal approved successfully:', response);
                     showMessage("success", response.message)
                         .then(
                             () => {

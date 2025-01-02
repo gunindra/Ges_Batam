@@ -188,9 +188,6 @@
             var creditNote = @json($creditNote);
             var coas = @json($coas);
 
-            console.log("isi credit note", creditNote);
-            console.log("isi coas note", coas);
-
             // Inisialisasi select2
             $('.select2').select2();
 

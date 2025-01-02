@@ -324,8 +324,6 @@
                     if (response.status === 'success') {
                         let imageUrl = response.url;
 
-                        console.log(imageUrl);
-
                         $('#modalBuktiPengantaran').find('.containerFoto').html(
                             '<img src="' + imageUrl + '" class="img-fluid">');
                     } else {

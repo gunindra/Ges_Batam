@@ -395,9 +395,6 @@
             const revenues = [];
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-
-            console.log("Ini label dan revenue",labels, revenues);
-
             const monthName = selectedDate.toLocaleString('default', {
                 month: 'short'
             });

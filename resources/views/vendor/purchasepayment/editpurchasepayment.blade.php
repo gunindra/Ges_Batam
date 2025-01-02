@@ -210,7 +210,6 @@
             $(document).ready(function() {
                 var payment = @json($payment);
 
-                console.log('ini payment', payment);
                 $('.select2').select2();
                 $('#tanggalPayment').datepicker({
                     format: 'dd MM yyyy',
@@ -264,8 +263,6 @@
                         success: function(response) {
                             const $selectInvoice = $('#selectInvoice').empty();
                             let selectedInvoices = [];
-
-                            console.log(response);
 
                             if (response.success) {
                                 response.invoices.forEach(invoice => {

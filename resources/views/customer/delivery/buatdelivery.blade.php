@@ -584,7 +584,6 @@
 
             $(this).closest('tr').remove();
             updateRowNumbers();
-            console.log(enteredResis);
         });
 
         $('#buatDelivery').on('click', function (e) {

@@ -94,8 +94,6 @@
                             return;
                         }
 
-
-                        console.log(data);
                         badgeCounter.text(data.length).show();
 
                         data.forEach(function(invoice) {
@@ -159,8 +157,6 @@
                         notificationContainer.empty();
 
                         let totalNotifications = 0;
-
-                        console.log(data);
 
                         if (data.low_quota && data.low_quota.length > 0) {
                             data.low_quota.forEach(function(item) {
