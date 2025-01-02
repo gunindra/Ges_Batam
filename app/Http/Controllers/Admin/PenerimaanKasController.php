@@ -109,7 +109,7 @@ class PenerimaanKasController extends Controller
             $output .= '<tr>
                             <td style="text-align:center;">' . $data->kode_pembayaran . ' </td>
                             <td style="text-align:center;">' . \Carbon\Carbon::parse($data->created_date)->format('d M Y') . '</td>
-                            <td style="text-align:center;">' . \Carbon\Carbon::parse($data->payment_date)->format('d M Y H:m') . '</td>
+                            <td style="text-align:center;">' . \Carbon\Carbon::parse($data->payment_date)->format('d M Y H:i') . '</td>
                             <td style="text-align:center;">' . $data->customer_name . ' </td>
                             <td style="text-align:center;">' . $data->payment_method . '</td>
                             <td style="text-align:center;">' . $data->no_invoice_with_amount . '</td>
