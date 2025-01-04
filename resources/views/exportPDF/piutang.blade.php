@@ -209,6 +209,7 @@
                     <th>No. Invoice</th>
                     <th>Customer</th>
                     <th>Tanggal</th>
+                    <th>Umur</th>
                 </tr>
             </thead>
             <tbody>
@@ -221,6 +222,7 @@
                         <td>{{ $piutangs->no_invoice }}</td>
                         <td>{{ $piutangs->nama_pembeli}}</td>
                         <td>{{ $piutangs->tanggal_buat }}</td>
+                        <td>{{ $piutangs->umur }}</td>
                     </tr>
                 @endforeach
             </tbody>

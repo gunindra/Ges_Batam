@@ -30,6 +30,8 @@
                 bgcolor="#b9bab8">Customer</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">Tanggal</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
+                bgcolor="#b9bab8">Umur</th>
         </tr>
     </thead>
     <tbody>
@@ -43,6 +45,9 @@
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{$piutangs->tanggal_buat}}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{$piutangs->umur}}
                 </td>
             </tr>
         @endforeach
