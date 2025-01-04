@@ -725,12 +725,12 @@
             let noTelp = $(this).data('notelp');
             noTelp = String(noTelp);
             let noTelpWithoutCode = noTelp.slice(2);
-            let alamat = $(this).data('alamat');
+            let alamat = $(this).data('alamat') || '';
             let category = $(this).data('category');
             let pengiriman = $(this).data('metode_pengiriman');
 
             // Memisahkan string alamat menjadi array
-            let alamatArray = alamat.split(';');
+            let alamatArray = typeof alamat === 'string' ? alamat.split(';') : [];
 
             // Kosongkan container alamat dan tambahkan textarea sesuai jumlah alamat
             $('#alamatContainerEdit').empty();
