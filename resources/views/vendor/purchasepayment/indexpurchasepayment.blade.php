@@ -115,8 +115,9 @@
                             class="form-control rounded-3" placeholder="Search">
                         <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                             <option value="" selected disabled>Pilih Filter</option>
-                            <option value="Lunas">Lunas</option>
-                            <option value="Belum lunas">Belum Lunas</option>
+                            @foreach ($listPayment as $payment)
+                                <option value="{{ $payment->payment_method }}">{{ $payment->payment_method }}</option>
+                            @endforeach
                         </select>
                         <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                         <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -381,12 +382,12 @@
                 }
             });
         });
-        $(document).on('click', '.btnEditPaymentPurchase', function(e) {
-                let id = $(this).data('id');
-                let url = "{{ route('editpurchasepayment', ':id') }}";
-                url = url.replace(':id', id);
-                window.location.href = url;
-            });
+        $(document).on('click', '.btnEditPaymentPurchase', function (e) {
+            let id = $(this).data('id');
+            let url = "{{ route('editpurchasepayment', ':id') }}";
+            url = url.replace(':id', id);
+            window.location.href = url;
+        });
     });
 </script>
 @endsection

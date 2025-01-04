@@ -30,9 +30,15 @@ class PurchasePaymentController extends Controller
 
     public function index()
     {
+        $listPayment = DB::table('tbl_payment_sup as pc')
+        ->join('tbl_coa as coa', 'pc.payment_method_id', '=', 'coa.id')
+        ->select('coa.name as payment_method')
+        ->groupBy('coa.name')
+        ->get();
 
-
-        return view('vendor.purchasepayment.indexpurchasepayment');
+        return view('vendor.purchasepayment.indexpurchasepayment', [
+            'listPayment' => $listPayment,
+        ]);
     }
 
 
