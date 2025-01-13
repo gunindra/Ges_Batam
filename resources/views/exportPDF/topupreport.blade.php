@@ -197,36 +197,74 @@
         </div>
 
         <div class="title">
-            <h5>StartDate:  {{ $startDate ? $startDate : '-' }}</h5>
-            <h5>EndDate:  {{ $endDate ? $endDate : '-' }}</h5>
-            <h5>Customer:  {{ $customer ? $customer : '-' }}</h5>
+            <h5>StartDate: {{ $startDate ? $startDate : '-' }}</h5>
+            <h5>EndDate: {{ $endDate ? $endDate : '-' }}</h5>
+            <h5>Customer: {{ $customer ? $customer : '-' }}</h5>
         </div>
-
         <table>
             <thead>
-            <tr>
+                <tr>
                     <th>No.</th>
                     <th>Topup Date</th>
                     <th>Customer</th>
                     <th>In (kg)</th>
                     <th>Out (kg)</th>
                     <th>Saldo (kg)</th>
+                    <th>Value (Rp.)</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
+
+
                 @php
                     $no = 1;
                 @endphp
-                @foreach ($topup as $topups)
+                @foreach ($combined as $topups)
+                    @php
+                        $customerId = $topups->customer_id;
+                        // Initialize saldo for the customer if it doesn't exist
+if (!isset($customerSaldo[$customerId])) {
+    $customerSaldo[$customerId] = 0;
+}
+
+// Determine transaction type (topup or payment)
+if ($topups->type === 'topup') {
+    // Add points to saldo
+    $customerSaldo[$customerId] += $topups->remaining_points;
+} elseif ($topups->type === 'payment') {
+    // Subtract points from saldo
+    $customerSaldo[$customerId] -= $topups->kuota;
+}
+
+// Define the status based on transaction type
+$status = $topups->type === 'topup' ? 'IN' : 'OUT';
+                    @endphp
                     <tr>
-                        <td>{{ $no++ }}</td>
-                        <td> {{\Carbon\Carbon::parse( $topups->date)->format('d M Y') }}</td>
-                        <td> {{ $topups->customer_name }}</td>
-                        <td>{{ $topups->remaining_points }}</td>
-                        <td>{{ $topups->remaining_points - $topups->balance }}</td>
-                        <td>{{ $topups->balance }}</td>
-                        <td>{{ $topups->status }}</td>
+                        <td style="text-align:center;">{{ $no++ }}</td>
+                        <td style="text-align:center;">{{ \Carbon\Carbon::parse($topups->date)->format('d M Y') }}</td>
+                        <td style="text-align:center;">
+                            {{ $topups->customer_name ?? $topups->payment->pembeli->nama_pembeli }}
+                        </td>
+                        <td style="text-align:center;">
+                            @if ($topups->type === 'topup')
+                                {{ number_format($topups->remaining_points, 2) }}
+                            @else
+                                0
+                            @endif
+                        </td>
+                        <td style="text-align:center;">
+                            @if ($topups->type === 'payment')
+                                {{ number_format($topups->kuota, 2) }}
+                            @else
+                                0
+                            @endif
+                        </td>
+                        <td style="text-align:center;">{{ number_format($customerSaldo[$customerId], 2) }}</td>
+                        <td style="text-align:center;">
+                            {{ isset($topups->value) ? 'Rp. ' . number_format($topups->value, 2) : 'Rp. 0.00' }}
+                        </td>
+                        <td style="text-align:center;">{{ $status }}</td>
                     </tr>
                 @endforeach
             </tbody>
