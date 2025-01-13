@@ -167,12 +167,6 @@
             let endDate = $('#endDate').val();
             let customer = $('#customer').val();
 
-            console.log("Button #Print clicked");
-            console.log("ID:", id);
-            console.log("Start Date:", startDate);
-            console.log("End Date:", endDate);
-            console.log("Customer:", customer);
-
             Swal.fire({
                 title: 'Loading...',
                 text: 'Please wait while we process your request.',

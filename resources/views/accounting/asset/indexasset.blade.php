@@ -211,7 +211,6 @@
                                     text: response.error
                                 });
                             }
-                            console.log(response)
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");

@@ -275,7 +275,6 @@
     let sortOrders = {};
 
     function sortTable(columnIndex) {
-        console.log(`Sorting column: ${columnIndex}`);
 
         const table = document.getElementById("penerimaanKasTable");
         const rows = Array.from(table.rows).slice(1); // Skip the header row

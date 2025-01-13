@@ -399,7 +399,6 @@
                                     $('#modalTambahPeriode').modal('hide');
                                     showMessage("success",
                                         "Berhasil ditambahkan");
-                                    $('#modalTambahPeriode').modal('hide');
                                     table.ajax.reload();
                                 }
                             },

@@ -55,7 +55,7 @@
                     {{ \Carbon\Carbon::parse( $kas->created_date)->format('d M Y')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:i')}}
+                    {{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:m')}}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->customer_name }}

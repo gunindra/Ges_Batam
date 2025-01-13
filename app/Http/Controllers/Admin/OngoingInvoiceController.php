@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Log;
 use Str;
 use Yajra\DataTables\DataTables;
 use Maatwebsite\Excel\Facades\Excel;

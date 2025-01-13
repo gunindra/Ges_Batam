@@ -145,6 +145,13 @@
                 zeroRecords: "No matching records found"
             }
         });
+        $('#filterCustomer').change(function() {
+            table.ajax.reload();
+        });
+        $('#filterNoDO').change(function() {
+            table.ajax.reload();
+        });
+
         $('#exportBtn').on('click', function () {
             var NoDo = $('#filterNoDO').val();
             var customer = $('#filterCustomer').val();

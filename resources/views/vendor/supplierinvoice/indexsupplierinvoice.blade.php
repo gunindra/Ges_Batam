@@ -284,7 +284,6 @@
                     id: id
                 },
                 success: function (response) {
-                    console.log(response);
 
                     // Update modal title and details
                     $('#modalDetailInvoiceTitle').text('Detail Invoice: ' + response.invoice_no);

@@ -81,12 +81,12 @@ class TopUpReportController extends Controller
     $combined = $topup->concat($payment)->sortBy('date');
 
     $output = '
-        <h5 style="text-align:center; width:100%">' 
-            . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - ' 
-            . \Carbon\Carbon::parse($endDate)->format('d M Y') . 
+        <h5 style="text-align:center; width:100%">'
+            . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
+            . \Carbon\Carbon::parse($endDate)->format('d M Y') .
         '</h5>
 
-        <div class="card-body">   
+        <div class="card-body">
         <table class="table" width="100%">
         <thead>
             <th width="15%" style="text-align:center;">Date</th>
@@ -108,7 +108,7 @@ class TopUpReportController extends Controller
 
     foreach ($combined as $data) {
         $customerId = $data->customer_id;
-    
+
         if (!isset($customerSaldo[$customerId])) {
             $customerSaldo[$customerId] = 0; // Initialize saldo for the customer
         }
@@ -153,78 +153,154 @@ class TopUpReportController extends Controller
     return $output;
 }
 
-    
-
-
-
 
     public function generatePdf(Request $request)
     {
         $startDate = $request->input('startDate') ? Carbon::parse($request->input('startDate'))->format('d M Y') : '-';
         $endDate = $request->input('endDate') ? Carbon::parse($request->input('endDate'))->format('d M Y') : '-';
         $customer = $request->nama_pembeli ?? null;
-    
+
         try {
             // Query Topup
-            $topupQuery = HistoryTopup::where('status', '!=', 'cancel');
-    
+            $topupQuery = HistoryTopup::where('status', '!=', 'canceled');
+            $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
+            ->where('tbl_payment_invoice.kuota', '!=', 0);
+
+
             // Tambahkan filter customer jika tersedia
             if (!is_null($customer)) {
                 $topupQuery->where('customer_id', '=', $customer);
+                $payment->where('tbl_payment_customer.pembeli_id', '=', $customer);
             }
-    
-            // Tambahkan filter tanggal jika diisi
+
             if ($startDate !== '-') {
-                $topupQuery->whereDate('date', '>=', Carbon::parse($request->input('startDate')));
+                $topupQuery->whereDate('date', '>=', Carbon::parse($startDate));
+                $payment->whereDate('payment_buat', '>=', Carbon::parse($startDate));
             }
-    
+
             if ($endDate !== '-') {
-                $topupQuery->whereDate('date', '<=', Carbon::parse($request->input('endDate')));
+                $topupQuery->whereDate('date', '<=', Carbon::parse($endDate));
+                $payment->whereDate('payment_buat', '<=', Carbon::parse($endDate));
             }
-    
-            $topup = $topupQuery->get();
-    
+
+            $topup = $topupQuery->get()->map(function ($item) {
+                $item->type = 'topup';
+                return $item;
+            });
+
+            $payment = $payment->get()->map(function ($item) {
+                $item->type = 'payment';
+                $item->date = $item->payment_buat;
+                $item->customer_id = $item->pembeli_id;
+                return $item;
+            });
+            $combined = $topup->concat($payment)->sortBy('date');
+            $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
+            $output = '';
+            $customerSaldo = [];
+
+            foreach ($combined as $data) {
+                $customerId = $data->customer_id;
+
+                if (!isset($customerSaldo[$customerId])) {
+                    $customerSaldo[$customerId] = 0;
+                }
+
+                if ($data->type === 'topup') {
+                    $customerSaldo[$customerId] += $data->remaining_points;
+                    $value = $customerSaldo[$customerId] * ($data->price_per_kg ?? 0);
+                    $data->value = $value;
+                } elseif ($data->type === 'payment') {
+                    $customerSaldo[$customerId] -= $data->kuota;
+                    $price = ($data->kuota != 0) ? ($data->amount / $data->kuota) : 0;
+                    $value = $customerSaldo[$customerId] * $price;
+                    $data->value = $value;
+                }
+
+                // Process topup
+                if ($data->type === 'topup') {
+                    $customerSaldo[$customerId] += $data->remaining_points;
+
+                    $output .= '<tr>
+                                    <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
+                                    <td style="text-align:center;">' . $data->customer_name . '</td>
+                                    <td style="text-align:center;">' . number_format($data->remaining_points, 2) . '</td>
+                                    <td style="text-align:center;"> 0 </td>
+                                    <td style="text-align:center;">' . number_format($customerSaldo[$customerId], 2) . '</td>';
+
+                    if (!$isCustomerRole) {
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($customerSaldo[$customerId] * $data->price_per_kg, 2) . '</td>';
+                    }
+
+                    $output .= '<td style="text-align:center;"> IN </td>
+                                </tr>';
+                }
+
+                // Process payment
+                elseif ($data->type === 'payment') {
+                    $customerSaldo[$customerId] -= $data->kuota;
+                    $price = ($data->kuota != 0) ? ($data->amount / $data->kuota) : 0;
+
+                    $output .= '<tr>
+                                    <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
+                                    <td style="text-align:center;">' . $data->payment->pembeli->nama_pembeli . '</td>
+                                    <td style="text-align:center;"> 0 </td>
+                                    <td style="text-align:center;">' . number_format($data->kuota, 2) . '</td>
+                                    <td style="text-align:center;">' . number_format($customerSaldo[$customerId], 2) . '</td>';
+
+                    if (!$isCustomerRole) {
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($customerSaldo[$customerId] * $price, 2) . '</td>';
+                    }
+
+                    $output .= '<td style="text-align:center;"> OUT </td>
+                                </tr>';
+                }
+            }
+
             // Ambil nama pembeli jika customer ID diberikan
             $customerName = '-';
             if (!is_null($customer)) {
                 $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
                 $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
             }
-    
+
             // Generate PDF
             $pdf = pdf::loadView('exportPDF.topupreport', [
-                'topup' => $topup,
+                'combined' => $combined,
+                'output' => $output,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'customer' => $customerName,
+                'customerSaldo' => $customerSaldo,
+                'isCustomerRole' => $isCustomerRole,
             ])
             ->setPaper('A4', 'portrait')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
             ->setWarnings(false);
-    
+
             // Buat folder untuk menyimpan PDF jika belum ada
             $folderPath = storage_path('app/public/topupreports');
             if (!file_exists($folderPath)) {
                 mkdir($folderPath, 0777, true);
             }
-    
+
             // Tentukan nama file untuk PDF
             $fileName = 'topup_report_' . (string) Str::uuid() . '.pdf';
             $filePath = $folderPath . '/' . $fileName;
-    
+
             // Simpan PDF
             $pdf->save($filePath);
-    
+
             // Kembalikan URL PDF yang dihasilkan
             $url = asset('storage/topupreports/' . $fileName);
             return response()->json(['url' => $url]);
-    
+
         } catch (\Exception $e) {
             Log::error('Error generating Asset Report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
         }
     }
-    
+
         public function exportTopupReport(Request $request)
     {
         $startDate = $request->input('startDate');

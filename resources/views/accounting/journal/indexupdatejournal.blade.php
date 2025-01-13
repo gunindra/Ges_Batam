@@ -357,7 +357,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
-                    console.log('Journal Berhasil Di Update:', response);
                     showMessage("success", response.message)
                         .then(() => {
                             location.reload();
@@ -427,7 +426,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function (response) {
-                        console.log('Journal Berhasil Di Update:', response);
                         showMessage("success", response.message)
                             .then(() => {
                                 location.reload();

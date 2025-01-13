@@ -132,8 +132,23 @@ class PiutangController extends Controller
             $query = DB::table('tbl_invoice as invoice')->select(
                 'invoice.id',
                 'invoice.no_invoice',
-                DB::raw("CONCAT(DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y'),CASE WHEN DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 THEN CONCAT(' (', FLOOR(DATEDIFF(CURDATE(), invoice.tanggal_buat) / 30), ' bulan)')ELSE ''END) as tanggal_buat"),
+                DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                 'pembeli.nama_pembeli',
+                DB::raw("CASE WHEN CURDATE() < invoice.tanggal_buat THEN '-'
+                    WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()), ' tahun ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 365), ' hari'
+                        )
+                    WHEN TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()), ' bulan ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 30), ' hari'
+                        )
+                    ELSE
+                        CONCAT(DATEDIFF(CURDATE(), invoice.tanggal_buat), ' hari')
+                END AS umur
+            ")
             )
                 ->where('invoice.status_bayar', '=', 'Belum lunas')
                 ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');

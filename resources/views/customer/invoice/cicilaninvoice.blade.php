@@ -373,7 +373,6 @@
                     $('#buktiPembayaran').val(''); // Menghapus file yang dipilih ketika metode diubah
                 }
 
-                console.log('Metode pembayaran yang dipilih: ' + metodePembayaran);
             });
 
             $(document).on('click', '#saveCicilan', function() {
@@ -443,7 +442,6 @@
                                         text: "Terjadi kesalahan saat memproses permintaan.",
                                         icon: "error"
                                     });
-                                    console.log("AJAX error: ", error);
                                 }
                             });
                         }

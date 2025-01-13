@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery PDF</title>
+    <title>Report Delivery/Pickup PDF</title>
     <style>
         @page {
             size: A4;
@@ -247,11 +247,17 @@
             </div>
         </div>
 
+
+
         <!-- Driver and Date Information -->
         <table class="driver-info">
             <tr>
                 <td>
-                    <h2>Nama Driver: {{ $pengantaran->nama_supir }}</h2>
+                    @if ($pengantaran->metode_pengiriman === 'Pickup')
+                        <h2>Pick Up</h2>
+                    @else
+                        <h2>Nama Driver: {{ $pengantaran->nama_supir }}</h2>
+                    @endif
                 </td>
                 <td style="text-align: right;">
                     <h5>Tanggal : {{ $pengantaran->tanggal_pengantaran }}</h5>
@@ -275,7 +281,9 @@
                                 <td>
                                     <div>
                                         <h5>Penerima: {{ $invoice->nama_pembeli }}</h5>
-                                        <h5>Alamat: {{ $invoice->alamat }}</h5>
+                                        @if ($pengantaran->metode_pengiriman !== 'Pickup')
+                                            <h5>Alamat: {{ $invoice->alamat }}</h5>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -336,7 +344,11 @@
                 </td>
                 <td>
                     <div class="signature-line"></div>
-                    <div class="signature-label">Driver</div>
+                    @if ($pengantaran->metode_pengiriman === 'Pickup')
+                        <div class="signature-label">Customer</div>
+                    @else
+                        <div class="signature-label">Driver</div>
+                    @endif
                 </td>
             </tr>
         </table>
