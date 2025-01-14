@@ -11,7 +11,6 @@ class CostumerController extends Controller
 {
     public function index()
     {
-
         $listCategory = DB::select("SELECT id, category_name FROM tbl_category");
 
         return view('masterdata.costumer.indexmastercostumer', [
@@ -22,6 +21,8 @@ class CostumerController extends Controller
 
     public function getlistCostumer(Request $request)
     {
+
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
 
@@ -44,6 +45,7 @@ class CostumerController extends Controller
             ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
             ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
             ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+            ->where('tbl_pembeli.company_id', $companyId)
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', strtoupper($txSearch))
                     ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch))
@@ -121,6 +123,7 @@ class CostumerController extends Controller
     public function addCostumer(Request $request)
     {
 
+        $companyId = session('active_company_id');
         $request->validate([
             'markingCostmer' => 'required|string|max:255|unique:tbl_pembeli,marking',
             'namaCustomer' => 'required|string|max:255',

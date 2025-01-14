@@ -253,6 +253,68 @@
             //     loadKuotaNotifications();
             // }, 60000); // 60,000 ms = 60 seconds
         });
+
+        $(document).ready(function() {
+            // Trigger modal saat link 'Company' diklik
+            $('#triggerModal').on('click', function() {
+                // Tampilkan modal
+                $('#companyModal').modal('show');
+
+                // Ambil daftar perusahaan menggunakan AJAX
+                $.ajax({
+                    url: '/get-companies', // Endpoint untuk mengambil daftar perusahaan
+                    method: 'GET',
+                    success: function(data) {
+                        // Reset dropdown
+                        $('#selectCompany').empty();
+                        $('#selectCompany').append(
+                            '<option value="">Select a Company</option>'
+                        );
+                        data.companies.forEach(function(company) {
+                            $('#selectCompany').append(
+                                '<option value="' + company.id + '">' + company
+                                .name + '</option>'
+                            );
+                        });
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+
+            $('#saveCompanyBtn').on('click', function() {
+                var companyId = $('#selectCompany').val();
+                if (companyId) {
+
+                    $.ajax({
+                        url: '/set-active-company',
+                        method: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            active_company_id: companyId
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#companyModal').modal('hide');
+                                location
+                            .reload();
+                                showMessage('success', 'Company selected successfully!');
+                            } else {
+                                showMessage('error',
+                                    'Failed to select company. Please try again.');
+                            }
+                        },
+                        error: function(error) {
+                            console.log('Error:', error);
+                            showMessage('error', 'An error occurred. Please try again.');
+                        }
+                    });
+                } else {
+                    showMessage('warning', 'Please select a company.');
+                }
+            });
+        });
     </script>
 
     @yield('script')

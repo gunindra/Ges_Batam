@@ -44,31 +44,39 @@ class PurchasePaymentController extends Controller
 
     public function getPaymentSupData(Request $request)
     {
+        $search = strtolower($request->search['value']);
         $query = DB::table('tbl_payment_sup as a')
-            ->join('tbl_payment_invoice_sup as d', 'a.id', '=', 'd.payment_id')
-            ->join('tbl_sup_invoice as b', 'd.invoice_id', '=', 'b.id')
-            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
-            ->select([
-                'a.id',
-                'a.kode_pembayaran',
-                'a.payment_date',
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
-                'c.name as payment_method',
-                DB::raw("SUM(d.amount) as total_amount")
-            ])
-            ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date', 'c.name');
+        ->join('tbl_payment_invoice_sup as d', 'a.id', '=', 'd.payment_id')
+        ->join('tbl_sup_invoice as b', 'd.invoice_id', '=', 'b.id')
+        ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
+        ->select([
+            'a.id',
+            'a.kode_pembayaran',
+            'a.payment_date',
+            DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
+            'c.name as payment_method',
+            DB::raw("SUM(d.amount) as total_amount")
+        ])
+        ->where(function ($query) use ($search) {
+            $query->whereRaw("LOWER(a.kode_pembayaran) LIKE ?", ["%$search%"])
+                ->orWhereRaw("LOWER(c.name) LIKE ?", ["%$search%"])
+                ->orWhereRaw("DATE_FORMAT(a.payment_date, '%d %M %Y') LIKE ?", ["%$search%"]);
+        })
+        ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date', 'c.name')
+        ->havingRaw("CAST(SUM(d.amount) AS CHAR) LIKE ?", ["%$search%"])
+        ->orderBy('a.id', 'desc');
 
         if (!empty($request->status)) {
             $query->where('c.name', $request->status);
         }
 
         if (!empty($request->startDate) && !empty($request->endDate)) {
-            $startDate = date('Y-m-d', strtotime($request->startDate));
-            $endDate = date('Y-m-d', strtotime($request->endDate));
-            $query->whereBetween('a.payment_date', [$startDate, $endDate]);
+         $startDate = date('Y-m-d', strtotime($request->startDate));
+         $endDate = date('Y-m-d', strtotime($request->endDate));
+         $query->whereBetween('a.payment_date', [$startDate, $endDate]);
         }
 
-        $query->orderBy('a.id', 'desc');
+
         return DataTables::of($query)
         ->addColumn('action', function ($row) {
             $periodStatus = DB::table('tbl_periode')
@@ -512,39 +520,7 @@ class PurchasePaymentController extends Controller
             'selectedVendorId' => $selectedVendorId
         ]);
     }
-    public function getInvoiceByNameEdits(Request $request)
-    {
-        dd($request->all());
-        // $idVendor = $request->input('idVendor');
 
-        // // dd($idVendor);
-
-        // if (!$idVendor) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Vendor ID is required',
-        //     ], 400);
-        // }
-
-        // $invoices = SupInvoice::where('vendor_id', $idVendor)->get(['invoice_no']);
-
-        // if ($invoices->isEmpty()) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'No invoices found for this vendor',
-        //     ]);
-        // }
-
-        // return response()->json([
-        //     'success' => true,
-        //     'invoices' => $invoices,
-        // ]);
-    }
-
-    public function getInoviceByVendorEdit(Request $request)
-    {
-        dd($request->all());
-    }
 
     public function update(Request $request)
     {
