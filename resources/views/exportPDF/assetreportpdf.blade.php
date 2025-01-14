@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piutang Report</title>
+    <title>Asset Report</title>
     <style>
         @page {
             size: A4;
@@ -209,6 +209,7 @@
                     <th>Asset Name</th>
                     <th>Estimated Age</th>
                     <th>Begining Value</th>
+                    <th>Depreciation</th>
                     <th>Ending Value</th>
                 </tr>
             </thead>
@@ -219,11 +220,12 @@
                 @foreach ($assets as $assetss)
                     <tr>
                         <td>{{ $no++ }}</td>
-                        <td> {{ \Carbon\Carbon::parse($assetss->acquisition_date)->format('d M Y') }}</td>
+                        <td> {{ \Carbon\Carbon::parse($assetss->tanggal)->format('d M Y') }}</td>
                         <td> {{ $assetss->asset_name }}</td>
                         <td>{{ $assetss->estimated_age }}</td>
-                        <td>{{ $assetss->acquisition_price }}</td>
-                        <td>{{ $assetss->beginning_balance }}</td>
+                        <td>{{ $assetss->begining_value }}</td>
+                        <td>{{ number_format($assetss->credit - $assetss->begining_value, 2) }}</td>
+                        <td>{{ $assetss->ending_value }}</td>
                     </tr>
                 @endforeach
             </tbody>

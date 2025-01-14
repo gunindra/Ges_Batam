@@ -107,24 +107,24 @@ class AssetReportController extends Controller
         $endDate = $request->input('endDate');
         try {
             $query = Asset::select(
-                'tbl_assets.id',
+                'tbl_assets.id as asset_id',
                 'tbl_assets.acquisition_price',
                 'tbl_assets.estimated_age',
                 'tbl_assets.asset_name',
                 'tbl_assets.acquisition_date',
-                DB::raw('COALESCE(SUM(tbl_jurnal.totalcredit), 0) as total_credit'),
-                DB::raw("(SELECT COALESCE(SUM(totalcredit), 0) 
-                          FROM tbl_jurnal 
-                          WHERE tbl_jurnal.asset_id = tbl_assets.id) as total_credit_before")
+                DB::raw('SUM(tbl_jurnal.totalcredit) as credit'),
+                DB::raw('SUM(tbl_jurnal.begining_value) as begining_value'),
+                DB::raw('SUM(tbl_jurnal.ending_value) as ending_value')
             )
-            ->leftJoin('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+            ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
             ->groupBy(
                 'tbl_assets.id',
                 'tbl_assets.acquisition_price',
                 'tbl_assets.estimated_age',
                 'tbl_assets.asset_name',
-                'tbl_assets.acquisition_date'
+                'tbl_assets.acquisition_date',
             );
+            
     
             // Filter berdasarkan tanggal jika tersedia
             if ($request->startDate && $request->endDate) {
@@ -137,7 +137,7 @@ class AssetReportController extends Controller
             // Ambil hasil query dan proses data
             $assets = $query->get()->map(function ($asset) {
                 $asset->beginning_balance = $asset->acquisition_price - $asset->total_credit_before;
-                $asset->ending_balance = $asset->beginning_balance - $asset->total_credit;
+                $asset->ending_balance = $asset->beginning_balance - $asset->credit;
                 return $asset;
             });
     

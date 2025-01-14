@@ -25,6 +25,8 @@
                 bgcolor="#b9bab8">Estimated Age</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">Beginning Value</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
+                bgcolor="#b9bab8">Depreciation</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
                 bgcolor="#b9bab8">Ending Value</th>
 
@@ -34,7 +36,7 @@
         @foreach ($asset as $assets)
             <tr>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ \Carbon\Carbon::parse($assets->acquisition_date)->format('d M Y') }}
+                    {{ \Carbon\Carbon::parse($assets->tanggal)->format('d M Y') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $assets->asset_name }}
@@ -43,10 +45,13 @@
                     {{ $assets->estimated_age }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $assets->acquisition_price }}
+                    {{ $assets->begining_value }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $assets->beginning_balance }}
+                    {{ number_format($assets->credit - $assets->begining_value, 2) }}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ $assets->ending_value }}
                 </td>
             </tr>
         @endforeach
