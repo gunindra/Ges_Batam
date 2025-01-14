@@ -123,6 +123,7 @@ class CostumerController extends Controller
     public function addCostumer(Request $request)
     {
 
+        $companyId = session('active_company_id');
         $request->validate([
             'markingCostmer' => 'required|string|max:255|unique:tbl_pembeli,marking',
             'namaCustomer' => 'required|string|max:255',

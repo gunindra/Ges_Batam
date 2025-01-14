@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CompanyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     Landingpage\AboutsController,
@@ -88,6 +89,10 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->middlew
 
 
 Route::middleware(['auth'])->group(function () {
+
+    // Company
+    Route::get('/get-companies', [CompanyController::class, 'getCompanies']);
+    Route::post('/set-active-company', [CompanyController::class, 'setActiveCompany']);
 
     // Dashboard
     Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
