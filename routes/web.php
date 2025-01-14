@@ -55,10 +55,11 @@ use App\Http\Controllers\{
     Admin\PeriodeController,
     Admin\OngoingInvoiceController,
     Admin\PiutangController
-}; 
+};
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Middleware\SetActiveCompany;
 
 
 // Landing Page (Tidak Memerlukan Login)
@@ -226,12 +227,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/content/Advertisement/{id}', [AdvertisementController::class, 'show']);
 
     // Costumer
-    Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
-    Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
-    Route::post('/masterdata/costumer/store', [CostumerController::class, 'addCostumer'])->name('addCostumer');
-    Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
-    Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
-    Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
+    Route::middleware([SetActiveCompany::class])->group(function () {
+        Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
+        Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
+        Route::post('/masterdata/costumer/store', [CostumerController::class, 'addCostumer'])->name('addCostumer');
+        Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
+        Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
+        Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
+    });
 
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
@@ -304,7 +307,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/purchasePayment/{id}', [PurchasePaymentController::class, 'editpurchasepayment'])->name('editpurchasepayment');
     Route::get('/vendor/purchasePayment/getInoviceByVendorEdit', [PurchasePaymentController::class, 'getInoviceByVendorEdit'])->name('getInoviceByVendorEdit');
     Route::post('/vendor/purchasePayment/updatepayment', [PurchasePaymentController::class, 'update'])->name('editpaymentsup.update');
-    
+
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');

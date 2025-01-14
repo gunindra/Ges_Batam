@@ -20,7 +20,8 @@ class Customer extends Model
         'status',
         'non_active_at',
         'metode_pengiriman',
-        'user_id'
+        'user_id',
+        'company_id',
     ];
 
     public function category()
@@ -35,5 +36,10 @@ class Customer extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
     }
 }
