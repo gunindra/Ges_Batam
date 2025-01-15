@@ -138,7 +138,7 @@ class CostumerController extends Controller
             'markingCostmer.unique' => 'Marking sudah terdaftar. Gunakan marking yang berbeda.',
             'email.unique' => 'Email sudah terdaftar. Gunakan email yang berbeda.',
         ]);
-
+        // dd($companyId);
         $alamatCustomer = $request->input('alamatCustomer', []);
 
         try {
@@ -159,6 +159,7 @@ class CostumerController extends Controller
                 'category_id' => $request->input('categoryCustomer'),
                 'metode_pengiriman' => $request->input('metodePengiriman'),
                 'status' => 1,
+                'company_id'=> $companyId,
                 'created_at' => now(),
             ]);
 
