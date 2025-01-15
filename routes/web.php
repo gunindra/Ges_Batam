@@ -91,6 +91,7 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])->middlew
 Route::middleware(['auth'])->group(function () {
 
     // Company
+    Route::get('/company', [CompanyController::class, 'index'])->name('indexcompany');
     Route::get('/get-companies', [CompanyController::class, 'getCompanies']);
     Route::post('/set-active-company', [CompanyController::class, 'setActiveCompany']);
 
