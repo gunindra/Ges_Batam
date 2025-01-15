@@ -267,13 +267,20 @@
                     success: function(data) {
                         // Reset dropdown
                         $('#selectCompany').empty();
-                        $('#selectCompany').append(
-                            '<option value="">Select a Company</option>'
-                        );
+                        // $('#selectCompany').append(
+                        //     '<option value="">Select a Company</option>'
+                        // );
+
+                        // Ambil active_company_id dari respons
+                        var activeCompanyId = data.active_company_id;
+
+                        // Iterasi perusahaan dan tambahkan opsi ke dropdown
                         data.companies.forEach(function(company) {
+                            var selected = parseInt(company.id) === parseInt(
+                                activeCompanyId) ? 'selected' : '';
                             $('#selectCompany').append(
-                                '<option value="' + company.id + '">' + company
-                                .name + '</option>'
+                                '<option value="' + company.id + '" ' + selected +
+                                '>' + company.name + '</option>'
                             );
                         });
                     },
@@ -298,7 +305,7 @@
                             if (response.success) {
                                 $('#companyModal').modal('hide');
                                 location
-                            .reload();
+                                    .reload();
                                 showMessage('success', 'Company selected successfully!');
                             } else {
                                 showMessage('error',

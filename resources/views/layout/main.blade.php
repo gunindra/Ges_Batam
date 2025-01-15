@@ -439,8 +439,7 @@
                         </div>
                         <div class="modal-body">
                             <select id="selectCompany" class="form-control">
-                                <option value="">Select a Company</option>
-                                <!-- Option will be dynamically populated -->
+                                <option value="" disabled>Select a Company</option>
                             </select>
                         </div>
                         <div class="modal-footer">

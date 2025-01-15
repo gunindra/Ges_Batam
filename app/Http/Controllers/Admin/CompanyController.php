@@ -11,11 +11,12 @@ class CompanyController extends Controller
     // Mengambil daftar perusahaan
     public function getCompanies()
     {
-        // Ambil daftar perusahaan dari tabel 'tbl_company'
+        $activeCompanyId = session('active_company_id');
         $companies = DB::table('tbl_company')->get();
 
         return response()->json([
-            'companies' => $companies
+            'companies' => $companies,
+            'active_company_id' => $activeCompanyId,
         ]);
     }
 
