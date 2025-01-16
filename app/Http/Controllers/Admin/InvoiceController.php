@@ -56,6 +56,9 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
+
+
+        $companyId = session('active_company_id');
         // Mulai transaksi
         DB::beginTransaction();
         try {
@@ -91,10 +94,12 @@ class InvoiceController extends Controller
                                         FROM tbl_pembeli a
                                         LEFT JOIN tbl_alamat b ON b.pembeli_id = a.id
                                         JOIN tbl_category c ON a.category_id = c.id
+                                        WHERE a.company_id = $companyId
                                         GROUP BY a.id,
                                         a.nama_pembeli,
                                          a.marking,
                                           a.metode_pengiriman,
+                                          a.company_id,
                                            c.id,
                                             c.minimum_rate,
                                             c.maximum_rate");
