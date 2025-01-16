@@ -46,14 +46,19 @@ class TopupController extends Controller
     }
 
     public function getCustomers()
-    {
-        $customers = Customer::select('id', 'nama_pembeli', 'marking')->get();
+    {   
+        $companyId = session('active_company_id');
+        $customers = Customer::select('id', 'nama_pembeli', 'marking')
+        ->where('tbl_pembeli.company_id', $companyId)
+        ->get();
         return response()->json($customers);
     }
 
     public function getData(Request $request)
     {
+        $companyId = session('active_company_id');
         $query = HistoryTopup::with(['customer', 'account'])
+            ->where('tbl_history_topup.company_id', $companyId)
             ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'expired_date', 'balance', 'status'])
             ->orderBy('id', 'desc');
 
@@ -103,6 +108,7 @@ class TopupController extends Controller
     }
     public function storeTopup(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'customer_id' => 'required|exists:tbl_pembeli,id',
             'remaining_points' => 'required|numeric|min:1',
@@ -131,6 +137,7 @@ class TopupController extends Controller
                 'account_id' => $request->coa_id,
                 'code' => $request->code,
                 'expired_date' => $formattedDates,
+                'company_id' => $companyId,
             ]);
 
             $initialSisaPoin = $customer->sisa_poin ?? 0;

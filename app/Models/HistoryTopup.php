@@ -22,6 +22,7 @@ class HistoryTopup extends Model
         'date',
         'expired_date',
         'code',
+        'company_id',
     ];
 
     public function customer()

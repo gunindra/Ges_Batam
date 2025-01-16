@@ -165,6 +165,7 @@ class DeliveryController extends Controller
 
     public function addDelivery()
     {
+        $companyId = session('active_company_id');
         $listNoDo = DB::table('tbl_resi')
             ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->select('tbl_resi.no_do')

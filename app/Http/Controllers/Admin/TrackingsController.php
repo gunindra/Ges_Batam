@@ -26,6 +26,7 @@ class TrackingsController extends Controller
     }
     public function getTrackingData(Request $request)
     {
+        $companyId = session('active_company_id');
 
         $query = DB::table('tbl_tracking')
             ->select([
@@ -34,7 +35,9 @@ class TrackingsController extends Controller
                 'status',
                 'keterangan',
                 'id'
-            ]);
+            ])
+            ->where('tbl_tracking.company_id', $companyId);
+            
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -76,6 +79,7 @@ class TrackingsController extends Controller
 
     public function addTracking(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'noResi' => 'required|array|min:1',
             'noDeliveryOrder' => 'required|string|max:20',
@@ -90,6 +94,7 @@ class TrackingsController extends Controller
                 $Tracking->no_do = $request->input('noDeliveryOrder');
                 $Tracking->status = $request->input('status');
                 $Tracking->keterangan = $request->input('keterangan');
+                $Tracking->company_id = $companyId;
                 $Tracking->save();
             }
 
