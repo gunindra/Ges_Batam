@@ -21,6 +21,7 @@ class Asset extends Model
         'estimated_age',
         'depreciation_account',
         'accumulated_account',
+        'company_id',
     ];
     protected $casts = [
         'acquisition_price' => Money::class,

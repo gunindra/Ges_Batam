@@ -229,6 +229,7 @@ class SupplierInvoiceController extends Controller
                 'description' => "Jurnal untuk Invoice {$request->invoice_no}",
                 'totaldebit' => $totalDebit,
                 'totalcredit' => $totalDebit,
+                'company_id' => $companyId,
             ]);
 
             foreach ($request->items as $item) {

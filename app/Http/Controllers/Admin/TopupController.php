@@ -174,6 +174,7 @@ class TopupController extends Controller
             $jurnal->description = "Jurnal untuk Top-up Customer {$customer->nama_pembeli}";
             $jurnal->totaldebit = $topupAmount;
             $jurnal->totalcredit = $topupAmount;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             $jurnalItemDebit = new JurnalItem();

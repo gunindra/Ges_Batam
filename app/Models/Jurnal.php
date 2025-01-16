@@ -21,6 +21,7 @@ class Jurnal extends Model
         'description',
         'totalcredit',
         'totaldebit',
+        'company_id',
     ];
 
     // Relasi ke JurnalItem

@@ -354,6 +354,7 @@ class PurchasePaymentController extends Controller
                 $totalJurnalAmount = $request->paymentAmount;
                 $jurnal->totaldebit = $request->totalAmmount;
                 $jurnal->totalcredit = $request->totalAmmount;
+                $jurnal->company_id = $companyId;
                 Log::info('Payment id data:', [
                     'id' => $payment->id,
                 ]);

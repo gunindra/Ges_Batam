@@ -466,6 +466,7 @@ class InvoiceController extends Controller
                 $jurnal->totaldebit = $totalharga;
                 $jurnal->totalcredit = $totalharga;
                 $jurnal->invoice_id = $invoiceId;
+                $jurnal->company_id = $companyId;
                 $jurnal->save();
 
                 $jurnalItemDebit = new JurnalItem();

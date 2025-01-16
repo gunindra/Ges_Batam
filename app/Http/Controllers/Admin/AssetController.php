@@ -30,8 +30,9 @@ class AssetController extends Controller
 
     public function index(Request $request)
     {
+        $companyId = session('active_company_id');
         if ($request->ajax()) {
-            $data = Asset::query();
+            $data = Asset::query()->where('tbl_assets.company_id', $companyId);
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -71,6 +72,7 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         try {
             Log::info("Memulai proses tambah Asset dengan data: ", $request->all());
             // Validate the incoming request
@@ -107,6 +109,7 @@ class AssetController extends Controller
             $asset->asset_account = $request->input('asset_account');
             $asset->expense_account = $request->input('expense_account');
             $asset->current_value = $asset->acquisition_price;
+            $asset->company_id = $companyId;
             $asset->save();
             Log::info("Membuat jurnal untuk Asset " . $request->input('asset_name'));
             $this->createJournalForAsset($request, $asset);
@@ -127,6 +130,7 @@ class AssetController extends Controller
 
     public function createJournalForAsset($request, $asset)
     {
+        $companyId = session('active_company_id');
         try {
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
@@ -146,6 +150,7 @@ class AssetController extends Controller
             $jurnal->totaldebit = $price;
             $jurnal->totalcredit = $price;
             $jurnal->asset_id = $asset->id;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             // Debit Jurnal Item
@@ -177,6 +182,7 @@ class AssetController extends Controller
 
     public function createJournalForDepreciation($request, $asset)
     {
+        $companyId = session('active_company_id');
         try {
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
@@ -203,6 +209,7 @@ class AssetController extends Controller
             $jurnal->asset_id = $asset->id;
             $jurnal->begining_value = $asset->current_value;
             $jurnal->ending_value = $asset->current_value - $totalPerMonth;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             $asset->current_value = $asset->current_value - $totalPerMonth;

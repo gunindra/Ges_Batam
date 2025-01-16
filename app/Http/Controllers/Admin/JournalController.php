@@ -24,6 +24,7 @@ class JournalController extends Controller
 
     public function getjournalData(Request $request)
     {
+        $companyId = session('active_company_id');
 
         $query = DB::table('tbl_jurnal')
             ->select(
@@ -37,6 +38,7 @@ class JournalController extends Controller
                 'status',
                 'description'
             )
+            ->where('tbl_jurnal.company_id', $companyId)
             ->orderBy('id', 'desc');
 
         if ($request->tipe_kode) {
@@ -147,6 +149,7 @@ class JournalController extends Controller
     }
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         $validatedData = $request->validate([
             'tanggalJournal' => 'required|date',
             'codeType' => 'required|string|max:10',
@@ -173,6 +176,7 @@ class JournalController extends Controller
             $jurnal->description = $request->descriptionJournal;
             $jurnal->totaldebit = $request->totalDebit;
             $jurnal->totalcredit = $request->totalCredit;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
             foreach ($request->items as $item) {
                 $jurnalItem = new JurnalItem();

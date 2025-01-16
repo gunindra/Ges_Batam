@@ -550,6 +550,7 @@ class PaymentController extends Controller
                 $jurnal->description = "Jurnal untuk Invoice " . $invoiceNumbers;
                 $jurnal->totaldebit = $totalNominal;
                 $jurnal->totalcredit = $totalNominal;
+                $jurnal->company_id = $companyId;
                 $jurnal->save();
 
                 $journalItems = [];
@@ -825,6 +826,7 @@ class PaymentController extends Controller
             $totalJurnalAmount = $request->paymentAmount;
             $jurnal->totaldebit = $request->totalAmmount;
             $jurnal->totalcredit = $request->totalAmmount;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             $jurnalItemDebit = new JurnalItem();

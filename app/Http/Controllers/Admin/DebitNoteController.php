@@ -198,6 +198,7 @@ class DebitNoteController extends Controller
             $jurnal->description = "Jurnal untuk Invoice {$invoice_id}";
             $jurnal->totaldebit = $request->totalKeseluruhan;
             $jurnal->totalcredit = $request->totalKeseluruhan;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             JurnalItem::updateOrCreate(
