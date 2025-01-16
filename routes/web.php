@@ -88,7 +88,7 @@ Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])-
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest')->name('password.update');
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
 
     // Company
     Route::get('/company', [CompanyController::class, 'index'])->name('indexcompany');
@@ -238,15 +238,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/content/Advertisement/update/{id}', [AdvertisementController::class, 'updateAdvertisement'])->name('updateAdvertisement');
     Route::get('/content/Advertisement/{id}', [AdvertisementController::class, 'show']);
 
-    // Costumer
-    Route::middleware([SetActiveCompany::class])->group(function () {
-        Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
-        Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
-        Route::post('/masterdata/costumer/store', [CostumerController::class, 'addCostumer'])->name('addCostumer');
-        Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
-        Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
-        Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
-    });
+    Route::get('/masterdata/costumer', [CostumerController::class, 'index'])->name('costumer');
+    Route::get('/masterdata/costumer/list', [CostumerController::class, 'getlistCostumer'])->name('getlistCostumer');
+    Route::post('/masterdata/costumer/store', [CostumerController::class, 'addCostumer'])->name('addCostumer');
+    Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
+    Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
+    Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
+
 
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');
