@@ -128,8 +128,9 @@
                         </div>
                         <div class="mt-3">
                             <label for="alamatCompany" class="form-label fw-bold">Alamat</label>
-                            <input type="text" class="form-control" id="alamatCompany" value=""
-                                placeholder="Masukkan Alamat">
+                            {{-- <input type="text" class="form-control" id="alamatCompany" value=""
+                                placeholder="Masukkan Alamat"> --}}
+                            <textarea class="form-control" name="alamatCompany" id="alamatCompany" placeholder="Masukkan Alamat"></textarea>
                             <div id="alamatCompanyError" class="text-danger mt-1 d-none">Silahkan isi Alamat</div>
                         </div>
                         <div class="modal-footer">
@@ -152,23 +153,26 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="mt-3">
-                        <label for="namaCompanyEdit" class="form-label fw-bold">Nama</label>
-                        <input type="text" class="form-control" id="namaCompanyEdit" value=""
-                            placeholder="Masukkan Nama">
-                        <div id="namaCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
+                    <!-- Tambahkan modal-body untuk padding -->
+                    <div class="modal-body">
+                        <div class="mt-3">
+                            <label for="namaCompanyEdit" class="form-label fw-bold">Nama</label>
+                            <input type="text" class="form-control" id="namaCompanyEdit" placeholder="Masukkan Nama">
+                            <div id="namaCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Nama</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="logoCompanyEdit" class="form-label fw-bold">Logo</label>
+                            <input type="file" class="form-control" id="logoCompanyEdit">
+                            <div id="logoCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan Masukkan Logo</div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="alamatCompanyEdit" class="form-label fw-bold">Alamat</label>
+                            {{-- <input type="text" class="form-control" id="alamatCompanyEdit" placeholder="Masukkan Alamat"> --}}
+                            <textarea class="form-control" name="alamatCompanyEdit" id="alamatCompanyEdit"></textarea>
+                            <div id="alamatCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Alamat</div>
+                        </div>
                     </div>
-                    <div class="mt-3">
-                        <label for="logoCompanyEdit" class="form-label fw-bold">Logo</label>
-                        <input type="file" class="form-control" id="logoCompanyEdit" value="">
-                        <div id="logoCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan Masukkan Logo</div>
-                    </div>
-                    <div class="mt-3">
-                        <label for="alamatCompanyEdit" class="form-label fw-bold">Alamat</label>
-                        <input type="text" class="form-control" id="alamatCompanyEdit" value=""
-                            placeholder="Masukkan Alamat">
-                        <div id="alamatCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Alamat</div>
-                    </div>
+                    <!-- Footer untuk tombol aksi -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                         <button type="button" id="saveEditCompany" class="btn btn-primary">Save changes</button>
@@ -176,6 +180,7 @@
                 </div>
             </div>
         </div>
+
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-4">Company</h1>
             <ol class="breadcrumb">
@@ -200,30 +205,30 @@
 
                         <div id="containerCompany" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
-                                                                    <thead class="thead-light">
-                                                                        <tr>
-                                                                            <th>No.</th>
-                                                                            <th>Judul</th>
-                                                                            <th>Isi Carousel</th>
-                                                                            <th>Image</th>
-                                                                            <th>Action</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td>1.</td>
-                                                                            <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                                            <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                                            <td>
-                                                                            <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                                        class="fas fa-edit"></i></a>
-                                                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                                            <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                                            </td>
-                                                                        </tr>
+                                                                                <thead class="thead-light">
+                                                                                    <tr>
+                                                                                        <th>No.</th>
+                                                                                        <th>Judul</th>
+                                                                                        <th>Isi Carousel</th>
+                                                                                        <th>Image</th>
+                                                                                        <th>Action</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>1.</td>
+                                                                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                                                        <td>
+                                                                                        <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                                                    class="fas fa-edit"></i></a>
+                                                                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                                                        </td>
+                                                                                    </tr>
 
-                                                                    </tbody>
-                                                                </table> -->
+                                                                                </tbody>
+                                                                            </table> -->
                         </div>
                     </div>
                 </div>
@@ -281,7 +286,7 @@
             const validateSwitches = () => {
                 const activeSwitches = $('.switch-input:checked');
                 if (activeSwitches.length === 0) {
-                    showMessage("error", "Harus on 1 Kocak");
+                    showMessage("error", "Harus ada salah satu company yang active");
                     return false;
                 }
                 return true;
@@ -381,7 +386,7 @@
                             formData.append('_token', '{{ csrf_token() }}');
 
                             $.ajax({
-                                url: '/profile/company/store',
+                                url: "{{ route('tambahCompany') }}",
                                 method: 'POST',
                                 data: formData,
                                 processData: false,
@@ -390,20 +395,38 @@
                                     Swal.close();
                                     if (response.success) {
                                         showMessage("success",
-                                            "HeroPage Berhasil ditambahkan");
+                                            "Company Berhasil ditambahkan");
                                         $('#modalTambahCompany').modal('hide');
                                         getlistCompany();
                                     }
                                 },
-                                error: function(response) {
+                                error: function(xhr) {
                                     Swal.close();
-                                    if (response.status === 422) {
-                                        showMessage("error",
-                                            "Judul yang dimasukkan sudah ada. Silakan masukkan judul yang berbeda."
-                                        );
+                                    if (xhr.status === 422) {
+                                        // Ambil pesan error dari respon
+                                        var errors = xhr.responseJSON.errors;
+
+                                        if (errors.namaCompany) {
+                                            $('#namaCompanyError')
+                                                .text(errors.namaCompany[0])
+                                                .removeClass('d-none');
+                                        }
+
+                                        if (errors.alamatCompany) {
+                                            $('#alamatCompanyError')
+                                                .text(errors.alamatCompany[0])
+                                                .removeClass('d-none');
+                                        }
+
+                                        if (errors.logoCompany) {
+                                            $('#logoCompanyError')
+                                                .text(errors.logoCompany[0])
+                                                .removeClass('d-none');
+                                        }
                                     } else {
-                                        showMessage("error",
-                                            "Terjadi kesalahan, coba lagi nanti");
+                                        Swal.fire('error',
+                                            'Terjadi kesalahan saat menyimpan data.'
+                                        );
                                     }
                                 }
                             });
@@ -413,69 +436,73 @@
             });
 
 
-            $(document).on('click', '.btnDestroyCompany', function(e) {
-                let id = $(this).data('id');
+            // $(document).on('click', '.btnDestroyCompany', function(e) {
+            //     let id = $(this).data('id');
 
-                Swal.fire({
-                    title: "Apakah Anda yakin ingin menghapus ini?",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#5D87FF',
-                    cancelButtonColor: '#49BEFF',
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Loading...',
-                            text: 'Please wait while we process Delete your data.',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-                        $.ajax({
-                            type: "DELETE",
-                            url: '/profile/company/destroy' + id,
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content'),
-                                id: id,
-                            },
-                            success: function(response) {
-                                Swal.close();
+            //     Swal.fire({
+            //         title: "Apakah Anda yakin ingin menghapus ini?",
+            //         icon: 'question',
+            //         showCancelButton: true,
+            //         confirmButtonColor: '#5D87FF',
+            //         cancelButtonColor: '#49BEFF',
+            //         confirmButtonText: 'Ya',
+            //         cancelButtonText: 'Tidak',
+            //         reverseButtons: true
+            //     }).then((result) => {
+            //         if (result.isConfirmed) {
+            //             Swal.fire({
+            //                 title: 'Loading...',
+            //                 text: 'Please wait while we process Delete your data.',
+            //                 allowOutsideClick: false,
+            //                 didOpen: () => {
+            //                     Swal.showLoading();
+            //                 }
+            //             });
 
-                                if (response.url) {
-                                    window.open(response.url, '_blank');
-                                } else if (response.error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error
-                                    });
-                                }
-                                if (response.status === 'success') {
-                                    showMessage("success", "Berhasil dihapus");
-                                    getlistCompany();
-                                } else {
-                                    showMessage("error", "Gagal menghapus");
-                                }
-                            }
-                        });
-                    }
-                });
-
-            });
+            //             $.ajax({
+            //                 type: "POST",
+            //                 url: "{{ route('deleteCompany') }}",
+            //                 data: {
+            //                     _token: $('meta[name="csrf-token"]').attr('content'),
+            //                     id: id,
+            //                 },
+            //                 success: function(response) {
+            //                     Swal.close();
+            //                     if (response.status === 'success') {
+            //                         showMessage("success", response.message ||
+            //                             "Berhasil dihapus");
+            //                         getlistCompany();
+            //                     } else {
+            //                         showMessage("error", response.message ||
+            //                             "Gagal menghapus");
+            //                     }
+            //                 },
+            //                 error: function(xhr) {
+            //                     Swal.close();
+            //                     Swal.fire({
+            //                         icon: 'error',
+            //                         title: 'Error',
+            //                         text: xhr.responseJSON?.message ||
+            //                             'Terjadi kesalahan.',
+            //                     });
+            //                 }
+            //             });
+            //         }
+            //     });
+            // });
 
             $(document).on('click', '.btnUpdateCompany', function(e) {
                 var companyid = $(this).data('id');
                 $.ajax({
-                    url: '/profile/company/' + companyid,
+                    url: "{{ route('getDataCompany') }}",
                     method: 'GET',
+                    data: {
+                        id: companyid,
+                    },
                     success: function(response) {
-                        $('#namaCompanyEdit').val(response.name);
-                        $('#textNamaEdit').text(response.logo);
-                        $('#alamatCompanyEdit').val(response.alamat);
+                        $('#namaCompanyEdit').val(response.data.name);
+                        $('#textNamaEdit').text(response.data.logo);
+                        $('#alamatCompanyEdit').val(response.data.alamat);
                         $('#modalEditCompany').modal('show');
                         $('#saveEditCompany').data('id', companyid);
                     },
@@ -485,6 +512,7 @@
                     }
                 });
             });
+
             $('#saveEditCompany').on('click', function() {
                 var companyid = $(this).data('id');
                 var namaCompany = $('#namaCompanyEdit').val();
@@ -545,6 +573,7 @@
                             });
                             var formData = new FormData();
                             formData.append('namaCompany', namaCompany);
+                            formData.append('id', companyid);
                             if (logoCompany) {
                                 formData.append('logoCompany', logoCompany);
                             }
@@ -557,7 +586,7 @@
                             });
 
                             $.ajax({
-                                url: '/profile/company/update/' + companyid,
+                                url: "{{ route('updateCompany') }}",
                                 method: 'POST',
                                 processData: false,
                                 contentType: false,
@@ -581,6 +610,7 @@
                     });
                 }
             });
+
             $('#modalTambahCompany').on('hidden.bs.modal', function() {
                 $('#namaCompany,#logoCompany,#alamatCompany').val('');
                 if (!$('#namaCompanyError').hasClass('d-none')) {

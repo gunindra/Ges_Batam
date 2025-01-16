@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Company;
 
 use Illuminate\Http\Request;
 
@@ -57,9 +58,8 @@ class CompanyController extends Controller
         ';
 
         foreach ($data as $row) {
-            $logo = '<img src="' . $row->logo . '" alt="Logo" class="img-thumbnail" style="width: 50px; height: 50px;">';
+            $logo = '<img src="' . asset('storage/' . $row->logo) . '" alt="Logo" class="img-thumbnail" style="width: 70px; height: 50px;">';
             $updateBtn = '<a href="#" class="btn btnUpdateCompany btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>';
-            $deleteBtn = '<a href="#" class="btn btnDestroyCompany btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
             $switchBtn = '
             <div class="switch">
                 <input type="checkbox" id="switch' . $row->id . '" class="switch-input" data-id="' . $row->id . '" ' . ($row->is_active ? 'checked' : '') . ' />
@@ -74,7 +74,7 @@ class CompanyController extends Controller
                     <td>' . $row->name . '</td>
                     <td>' . $logo . '</td>
                     <td>' . $row->alamat . '</td>
-                    <td>' . $updateBtn . $deleteBtn . $switchBtn . '</td>
+                    <td>' . $updateBtn . $switchBtn . '</td>
                 </tr>
             ';
         }
@@ -87,30 +87,149 @@ class CompanyController extends Controller
         return $output;
     }
 
-
-
-    // Menyimpan perusahaan yang dipilih
     public function setActiveCompany(Request $request)
     {
         $request->validate([
             'id' => 'required|exists:tbl_company,id',
-            'is_active' => 'required|boolean', // Pastikan status is_active adalah boolean
+            'is_active' => 'required|boolean',
         ]);
 
-        // Matikan semua perusahaan yang aktif terlebih dahulu
         if ($request->is_active) {
             DB::table('tbl_company')->update(['is_active' => 0]);
         }
 
-        // Perbarui status aktif untuk perusahaan yang dipilih
         DB::table('tbl_company')
             ->where('id', $request->id)
             ->update(['is_active' => $request->is_active]);
 
-        // Simpan company_id yang dipilih di session
         session(['active_company_id' => $request->id]);
 
         return response()->json(['success' => true, 'message' => 'Company status updated successfully.']);
+    }
+
+
+    public function tambahCompany(Request $request)
+    {
+        $request->validate([
+            'namaCompany' => 'required|string|max:255|unique:tbl_company,name',
+            'alamatCompany' => 'required|string|max:255',
+            'logoCompany' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        try {
+            $logoPath = $request->file('logoCompany')->store('logos', 'public');
+
+            // Simpan data ke database
+            $company = Company::create([
+                'name' => $request->namaCompany,
+                'alamat' => $request->alamatCompany,
+                'logo' => $logoPath,
+            ]);
+
+            return response()->json(['success' => 'Company Berhasil ditambahkan'], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422); // Validasi gagal
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menambahkan Company: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+    public function getDataCompany(Request $request)
+    {
+        try {
+            // Validasi bahwa ID dikirimkan
+            $request->validate([
+                'id' => 'required|integer|exists:tbl_company,id',
+            ]);
+
+            // Ambil data berdasarkan ID
+            $company = Company::findOrFail($request->id);
+
+            // Kembalikan data sebagai JSON
+            return response()->json([
+                'status' => 'success',
+                'data' => $company,
+            ], 200);
+        } catch (\Exception $e) {
+            // Tangani jika terjadi kesalahan
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data Company: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateCompany(Request $request)
+    {
+
+        // dd($request->all());
+        // Validasi input
+        $request->validate([
+            'namaCompany' => 'required|string|max:255|unique:tbl_company,name,' . $request->id,
+            'alamatCompany' => 'required|string|max:255',
+            'logoCompany' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        try {
+            // Temukan perusahaan berdasarkan ID
+            $company = Company::findOrFail($request->id);
+
+            // Perbarui data
+            $company->name = $request->namaCompany;
+            $company->alamat = $request->alamatCompany;
+
+            // Periksa apakah ada file logo baru yang diunggah
+            if ($request->hasFile('logoCompany')) {
+                // Hapus logo lama jika ada
+                if ($company->logo && Storage::disk('public')->exists($company->logo)) {
+                    Storage::disk('public')->delete($company->logo);
+                }
+
+                // Simpan logo baru
+                $logoPath = $request->file('logoCompany')->store('logos', 'public');
+                $company->logo = $logoPath;
+            }
+
+            // Simpan perubahan
+            $company->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Company berhasil diperbarui.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui company: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteCompany(Request $request)
+    {
+        try {
+
+            // dd($request->all());
+            // Validasi ID perusahaan
+            $request->validate([
+                'id' => 'required|integer|exists:tbl_company,id',
+            ]);
+
+            $company = Company::findOrFail($request->id);
+            $company->delete();
+
+            if ($company->logo) {
+                $logoPath = public_path('storage/' . $company->logo);
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
+            }
+
+            return response()->json(['success' => 'Company berhasil dihapus.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal menghapus Company: ' . $e->getMessage()], 500);
+        }
     }
 
 }

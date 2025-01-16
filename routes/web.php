@@ -94,7 +94,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/company', [CompanyController::class, 'index'])->name('indexcompany');
     Route::get('/get-companies', [CompanyController::class, 'getCompanies']);
     Route::get('/company/getlistCompany', [CompanyController::class, 'getlistCompany'])->name('getlistCompany');
+    Route::get('/company/getDataCompany', [CompanyController::class, 'getDataCompany'])->name('getDataCompany');
     Route::post('/set-active-company', [CompanyController::class, 'setActiveCompany']);
+    Route::post('/company/tambahCompany', [CompanyController::class, 'tambahCompany'])->name('tambahCompany');
+    Route::post('/company/updatecompany', [CompanyController::class, 'updateCompany'])->name('updateCompany');
+    Route::post('/company/deleteCompany', [CompanyController::class, 'deleteCompany'])->name('deleteCompany');
 
 
     // Dashboard

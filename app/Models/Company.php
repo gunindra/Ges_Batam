@@ -14,7 +14,7 @@ class Company extends Model
     protected $table = 'tbl_company';
 
     protected $fillable = [
-        'name',
+        'name', 'logo', 'alamat'
     ];
 
     public function pembeli()
