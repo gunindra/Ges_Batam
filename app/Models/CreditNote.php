@@ -19,7 +19,8 @@ class CreditNote extends Model
         'rate_currency',
         'note',
         'total_keseluruhan',
-        'status_bayar'
+        'status_bayar',
+        'company_id',
     ];
 
     public function items()
