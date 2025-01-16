@@ -12,5 +12,6 @@ class Rate extends Model
     protected $fillable = [
         'nilai_rate',
         'rate_for',
+        'company_id',
     ];
 }

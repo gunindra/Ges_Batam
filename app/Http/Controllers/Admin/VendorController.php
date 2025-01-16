@@ -19,9 +19,17 @@ class VendorController extends Controller
 
     public function getVendors(Request $request)
     {
+        $companyId = session('active_company_id');
+
         if ($request->ajax()) {
             // Mengambil data vendor beserta nama akun COA terkait
-            $data = Vendor::with('account')->orderBy('id', 'desc')->get();
+            $data = Vendor::with('account')
+                ->whereHas('account', function ($query) use ($companyId) {
+                    $query->where('tbl_vendors.company_id', $companyId);
+                })
+                ->orderBy('id', 'desc')
+                ->get();
+
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -33,7 +41,7 @@ class VendorController extends Controller
                     return $row->account ? $row->account->name : 'Tidak ada akun';
                 })
                 ->addColumn('action', function ($row) {
-                    $editBtn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="edit btn btn-primary btn-sm editVendor"><i class="fas fa-edit"></i></a>';
+                    $editBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="edit btn btn-primary btn-sm editVendor"><i class="fas fa-edit"></i></a>';
                     return $editBtn;
                 })
                 ->rawColumns(['action'])
@@ -45,6 +53,7 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'name' => 'required',
             'address' => 'required',
@@ -57,6 +66,7 @@ class VendorController extends Controller
             'address' => $request->address,
             'phone' => $request->phone,
             'account_id' => $request->account_id,
+            'company_id'=> $companyId,
         ]);
 
         return response()->json(['success' => 'Vendor Berhasil ditambahkan!']);

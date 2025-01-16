@@ -165,6 +165,7 @@ class InvoiceController extends Controller
     public function getlistInvoice(Request $request)
     {
         $status = $request->status;
+        $companyId = session('active_company_id');
         $NoDo = $request->no_do;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
@@ -195,6 +196,7 @@ class InvoiceController extends Controller
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
             ->leftJoin('tbl_resi as r', 'r.invoice_id', '=', 'a.id')
+            ->where('a.company_id', $companyId)
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
                     ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
@@ -238,7 +240,7 @@ class InvoiceController extends Controller
             'a.created_at',
             'a.updated_at',
             'a.user',
-            'a.user_update'
+            'a.user_update',
         )
             ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END")
             ->orderBy('a.id', 'DESC');
@@ -316,6 +318,7 @@ class InvoiceController extends Controller
     }
     public function tambainvoice(Request $request)
     {
+        $companyId = session('active_company_id');
         $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
         $tanggal = $request->input('tanggal');
@@ -396,6 +399,7 @@ class InvoiceController extends Controller
                 'status_id' => 1,
                 'created_at' => now(),
                 'user' => $user,
+                'company_id' => $companyId,
             ]);
 
             Log::info("Berhasil menyimpan invoice dengan ID: {$invoiceId}");

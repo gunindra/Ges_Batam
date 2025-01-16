@@ -15,9 +15,11 @@ class CategoryController extends Controller
     public function getlistCategory(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $companyId = session('active_company_id');
 
         $data = DB::table('tbl_category')
             ->select('id', 'category_name', 'minimum_rate', 'maximum_rate')
+            ->where('tbl_category.company_id', $companyId)
             ->get();
 
         $output = '
@@ -56,6 +58,8 @@ class CategoryController extends Controller
 
     public function addCategory(Request $request)
     {
+        $companyId = session('active_company_id');
+
         $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
@@ -69,6 +73,8 @@ class CategoryController extends Controller
             $Category->category_name = $request->input('nameCategory');
             $Category->minimum_rate = $request->input('minimumRateCategory');
             $Category->maximum_rate = $request->input('maximumRateCategory');
+            $Category->company_id = $companyId;
+            
 
             $Category->save();
 

@@ -20,10 +20,12 @@ class DriverController extends Controller
 
     public function getlistDriver(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $data = DB::table('tbl_supir')
             ->select('id', 'nama_supir', 'alamat_supir', 'no_wa', 'image_sim')
+            ->where('tbl_supir.company_id', $companyId)
             ->where(function ($query) use ($txSearch) {
                 $query->where(DB::raw('UPPER(nama_supir)'), 'LIKE', $txSearch)
                     ->orWhere(DB::raw('UPPER(alamat_supir)'), 'LIKE', $txSearch)
@@ -62,6 +64,8 @@ class DriverController extends Controller
 
     public function addDriver(Request $request)
     {
+        $companyId = session('active_company_id');
+
         $validator = Validator::make($request->all(), [
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
@@ -92,6 +96,7 @@ class DriverController extends Controller
             $Driver->nama_supir = $request->input('namaDriver');
             $Driver->alamat_supir = $request->input('alamatDriver');
             $Driver->no_wa = $request->input('noTelponDriver');
+            $Driver->company_id = $companyId;
             $Driver->user_id = $user->id;
 
             if ($request->hasFile('simDriver')) {

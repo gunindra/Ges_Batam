@@ -14,6 +14,7 @@ class Category extends Model
         'category_name',
         'minimum_rate',
         'maximum_rate',
+        'company_id',
     ];
 
 }
