@@ -47,6 +47,8 @@ class PaymentController extends Controller
 
     public function addPayment()
     {
+
+        $companyId = session('active_company_id');
         $savedPaymentAccounts = DB::table('tbl_payment_account')
         ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
         ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
@@ -62,7 +64,7 @@ class PaymentController extends Controller
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum lunas'");
 
-        $listMarking = DB::select("SELECT nama_pembeli, marking FROM tbl_pembeli");
+        $listMarking = DB::select("SELECT nama_pembeli, marking FROM tbl_pembeli WHERE tbl_pembeli.company_id = $companyId");
 
         return view('customer.payment.buatpayment', [
             'listInvoice' => $listInvoice,

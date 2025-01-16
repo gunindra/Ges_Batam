@@ -198,7 +198,11 @@ class DeliveryController extends Controller
             ->where('i.status_id', 1)
             ->where('i.metode_pengiriman', 'Pickup')
             ->get();
-        $listSopir = DB::select("SELECT id, nama_supir, no_wa FROM tbl_supir");
+        $listSopir = DB::select("SELECT id,
+        nama_supir,
+        no_wa
+        FROM tbl_supir
+        WHERE tbl_supir.company_id = $companyId");
 
         return view('customer.delivery.buatdelivery', [
             'listSupir' => $listSopir,
@@ -233,7 +237,7 @@ class DeliveryController extends Controller
         c.no_do,
         b.marking,
         a.metode_pengiriman,
-        a.status_id,
+        a.status_id
       FROM tbl_invoice AS a
       JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
       JOIN tbl_resi AS c ON a.id = c.invoice_id
