@@ -55,8 +55,10 @@ class DebitNoteController extends Controller
 
     public function getDebitNotes(Request $request)
     {
+        $companyId = session('active_company_id');
         if ($request->ajax()) {
-            $debitNotes = DebitNote::with(['invoice', 'coa', 'matauang', 'items']);
+            $debitNotes = DebitNote::with(['invoice', 'coa', 'matauang', 'items'])
+            ->where('tbl_debit_note.company_id', $companyId);
 
             if ($request->startDate && $request->endDate) {
                 $startDate = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
@@ -94,7 +96,7 @@ class DebitNoteController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        $companyId = session('active_company_id');
         // Validate the input
         $request->validate([
             'invoiceDebit' => 'required|string',
@@ -173,6 +175,7 @@ class DebitNoteController extends Controller
             $debitNote->rate_currency = $request->rateCurrency;
             $debitNote->note = $request->noteDebit;
             $debitNote->total_keseluruhan = $request->totalKeseluruhan;
+            $debitNote->company_id = $companyId;
             $debitNote->save();
 
             $debitNote->items()->delete();

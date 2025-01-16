@@ -44,8 +44,10 @@ class PurchasePaymentController extends Controller
 
     public function getPaymentSupData(Request $request)
     {
+        $companyId = session('active_company_id');
         $search = strtolower($request->search['value']);
         $query = DB::table('tbl_payment_sup as a')
+        ->where('a.company_id', $companyId)
         ->join('tbl_payment_invoice_sup as d', 'a.id', '=', 'd.payment_id')
         ->join('tbl_sup_invoice as b', 'd.invoice_id', '=', 'b.id')
         ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
@@ -218,6 +220,7 @@ class PurchasePaymentController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         // Validasi input
         $validated = $request->validate([
             'invoice' => 'required|array',
@@ -277,6 +280,7 @@ class PurchasePaymentController extends Controller
             $payment->payment_method_id = $request->paymentMethod;
             $payment->kode_pembayaran = $newKodePembayaran;
             $payment->Keterangan = $request->keteranganPaymentSup;
+            $payment->company_id = $companyId;
 
             Log::info('Saving PaymentSup data', [
                 'payment_date' => $tanggalPayment,

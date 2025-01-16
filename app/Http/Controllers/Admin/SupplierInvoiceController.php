@@ -38,10 +38,12 @@ class SupplierInvoiceController extends Controller
 
     public function getListSupplierInvoice(Request $request)
     {
+        $companyId = session('active_company_id');
         if ($request->ajax()) {
 
             // Join with tbl_vendors to get the vendor name and with tbl_matauang to get currency abbreviation
             $data = SupInvoice::join('tbl_matauang', 'tbl_sup_invoice.matauang_id', '=', 'tbl_matauang.id')
+                ->where('tbl_sup_invoice.company_id', $companyId)
                 ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id')
                 ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Select vendor name
                 ->orderBy('id', 'desc')
@@ -56,37 +58,37 @@ class SupplierInvoiceController extends Controller
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('invoice_no', function($row) {
+                ->addColumn('invoice_no', function ($row) {
                     return $row->invoice_no;
                 })
-                ->addColumn('vendor', function($row) {
+                ->addColumn('vendor', function ($row) {
                     return $row->vendor_name;
                 })
-                ->addColumn('tanggal', function($row) {
+                ->addColumn('tanggal', function ($row) {
                     return Carbon::parse($row->tanggal)->format('d F Y');
                 })
-                ->addColumn('matauang', function($row) {
+                ->addColumn('matauang', function ($row) {
                     return $row->singkatan_matauang;
                 })
-                ->addColumn('status_bayar', function($row) {
+                ->addColumn('status_bayar', function ($row) {
                     return $row->status_bayar == 'Lunas'
                         ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
                         : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum Lunas</span>';
                 })
-                ->addColumn('total_harga', function($row) {
+                ->addColumn('total_harga', function ($row) {
                     return number_format($row->total_harga, 2, ',', '.');
                 })
-                ->addColumn('action', function($row) {
-                    $btn = '<a href="javascript:void(0)" data-id="'.$row->id.'" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
                     return $btn;
                 })
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $searchValue = $request->search['value'];
-                        $query->where(function($q) use ($searchValue) {
+                        $query->where(function ($q) use ($searchValue) {
                             $q->where('tbl_sup_invoice.invoice_no', 'like', "%{$searchValue}%")
-                              ->orWhere('tbl_vendors.name', 'like', "%{$searchValue}%")
-                              ->orWhere('tbl_matauang.singkatan_matauang', 'like', "%{$searchValue}%");
+                                ->orWhere('tbl_vendors.name', 'like', "%{$searchValue}%")
+                                ->orWhere('tbl_matauang.singkatan_matauang', 'like', "%{$searchValue}%");
                         });
                     }
                 })
@@ -104,10 +106,10 @@ class SupplierInvoiceController extends Controller
         $listVendor = Vendor::pluck('name', 'id');
 
         return view('vendor.supplierinvoice.buatsupplierinvoice', [
-                'listCurrency' => $listCurrency,
-                'coas' => $coas,
-                'listVendor' => $listVendor,
-            ]);
+            'listCurrency' => $listCurrency,
+            'coas' => $coas,
+            'listVendor' => $listVendor,
+        ]);
 
     }
 
@@ -130,7 +132,7 @@ class SupplierInvoiceController extends Controller
 
                 if ($lastYearMonth === $yearMonth) {
 
-                    $lastNumber = (int)substr($lastMarking, 6);
+                    $lastNumber = (int) substr($lastMarking, 6);
                     $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
                 } else {
                     $newNumber = '0001';
@@ -161,6 +163,7 @@ class SupplierInvoiceController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'invoice_no' => 'required|unique:tbl_sup_invoice,invoice_no',
             'tanggal' => 'required|date',
@@ -180,7 +183,7 @@ class SupplierInvoiceController extends Controller
 
             // Ensure all debit values are numeric and calculate the total debit
             $totalDebit = array_sum(array_map(function ($item) {
-                return (float)$item['debit'];
+                return (float) $item['debit'];
             }, $request->items));
 
             // Fetch the vendor's account ID to use as the credit account
@@ -199,6 +202,7 @@ class SupplierInvoiceController extends Controller
                 'no_ref' => $request->noReferenceVendor,
                 'matauang_id' => $request->matauang_id,
                 'total_harga' => $totalDebit,
+                'company_id' => $companyId,
                 'total_bayar' => 0,
             ]);
 
@@ -208,7 +212,7 @@ class SupplierInvoiceController extends Controller
                     'invoice_id' => $supInvoice->id,
                     'coa_id' => $item['account'],
                     'description' => $item['itemDesc'],
-                    'debit' => (float)$item['debit'], // Cast debit to float to avoid string issues
+                    'debit' => (float) $item['debit'], // Cast debit to float to avoid string issues
                     'credit' => 0,
                 ]);
             }
@@ -232,7 +236,7 @@ class SupplierInvoiceController extends Controller
                     'jurnal_id' => $jurnal->id,
                     'code_account' => $item['account'],
                     'description' => "Debit untuk Invoice {$request->invoice_no}",
-                    'debit' => (float)$item['debit'],
+                    'debit' => (float) $item['debit'],
                     'credit' => 0,
                 ]);
             }

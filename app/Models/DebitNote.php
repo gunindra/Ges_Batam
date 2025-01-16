@@ -18,7 +18,8 @@ class DebitNote extends Model
         'matauang_id',
         'note',
         'total_keseluruhan',
-        'rate_currency'
+        'rate_currency',
+        'company_id',
     ];
 
     // Relasi ke tabel Invoice

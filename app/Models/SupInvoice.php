@@ -23,6 +23,7 @@ class SupInvoice extends Model
         'total_harga',
         'created_at',
         'updated_at',
+        'company_id',
     ];
 
     // Relasi dengan model TblSupInvoiceItems

@@ -19,7 +19,8 @@ class PaymentSup extends Model
         'payment_method_id',
         'Keterangan',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'company_id',
     ];
 
     // Relasi dengan tabel tbl_sup_invoice
