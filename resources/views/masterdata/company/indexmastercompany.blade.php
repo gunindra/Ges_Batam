@@ -314,7 +314,9 @@
                         _token: "{{ csrf_token() }}"
                     },
                     success: (res) => {
-                        console.log(res.message);
+                        showMessage("success", "Berhasil mengganti company").then(() => {
+                            location.reload();
+                        });
                     },
                     error: (err) => {
                         console.error(err);
