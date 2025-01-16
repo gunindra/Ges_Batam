@@ -282,6 +282,13 @@
 
             getlistCompany();
 
+            $('#txSearch').keyup(function(e) {
+                var inputText = $(this).val();
+                if (inputText.length >= 1 || inputText.length == 0) {
+                    getlistCompany();
+                }
+            })
+
 
             const validateSwitches = () => {
                 const activeSwitches = $('.switch-input:checked');

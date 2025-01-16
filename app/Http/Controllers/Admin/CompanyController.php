@@ -28,22 +28,26 @@ class CompanyController extends Controller
         ]);
     }
 
-    public function getlistCompany()
+    public function getlistCompany(Request $request)
     {
+        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $query = DB::table('tbl_company')
         ->select([
             'id',
             'name',
             'logo',
             'alamat',
-            'is_active', // Pastikan kolom ini ada di database
+            'is_active',
         ])
+        ->where(function ($query) use ($txSearch) {
+            $query->where(DB::raw('UPPER(name)'), 'LIKE', $txSearch)
+                ->orWhere(DB::raw('UPPER(alamat)'), 'LIKE', $txSearch);
+        })
         ->orderBy('id', 'desc');
 
 
         $data = $query->get();
 
-        // Buat output tabel secara manual
         $output = '
             <table id="tableCompany" class="table align-items-center table-flush table-hover">
                <thead class="thead-light">
