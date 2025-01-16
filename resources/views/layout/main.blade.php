@@ -8,7 +8,15 @@
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
                     <div class="bukuslogo py-2 px-3" style="background-color: white; border-radius: 10px;">
-                        <img src="{{ asset('RuangAdmin/img/logo/logo4.png') }}">
+                        @php
+                            $activeCompanyId = session('active_company_id');
+                            $company = \App\Models\Company::find($activeCompanyId);
+                            $logoPath = $company
+                                ? asset('storage/' . $company->logo)
+                                : asset('RuangAdmin/img/logo/default.png');
+                        @endphp
+                        {{-- <img src="{{ asset('RuangAdmin/img/logo/logo4.png') }}"> --}}
+                        <img src="{{ $logoPath }}" alt="Company Logo">
                     </div>
                 </div>
             </a>
@@ -373,7 +381,7 @@
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
-                                <a class="dropdown-item" href="{{ route('indexcompany')}}">
+                                <a class="dropdown-item" href="{{ route('indexcompany') }}">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Company
                                 </a>

@@ -45,8 +45,8 @@ class CompanyController extends Controller
 
         // Buat output tabel secara manual
         $output = '
-            <table id="tableCompany" class="table table-bordered table-striped">
-                <thead>
+            <table id="tableCompany" class="table align-items-center table-flush table-hover">
+               <thead class="thead-light">
                     <tr>
                         <th>Name</th>
                         <th>Logo</th>
