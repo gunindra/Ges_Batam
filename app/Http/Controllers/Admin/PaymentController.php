@@ -75,6 +75,7 @@ class PaymentController extends Controller
 
     public function getPaymentData(Request $request)
     {
+        $companyId = session('active_company_id');
         $query = DB::table('tbl_payment_customer as a')
             ->join('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
             ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
@@ -92,6 +93,7 @@ class PaymentController extends Controller
                 'a.createdby',
                 'a.updateby'
             )
+            ->where('a.company_id', $companyId)
             ->groupBy(
                 'a.id',
                 'a.kode_pembayaran',
@@ -297,6 +299,8 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
+
 
         $validated = $request->validate([
             'invoice' => 'required|array',
@@ -382,6 +386,7 @@ class PaymentController extends Controller
             $payment->discount = $discount;
             $payment->Keterangan = $request->keterangan;
             $payment->createdby = Auth::user()->name;
+            $payment->company_id = $companyId;
             $payment->save();
 
             $invoiceList = [];
@@ -705,6 +710,7 @@ class PaymentController extends Controller
     private function processNormalPayment($request)
     {
 
+        $companyId = session('active_company_id');
         // dd($request->all());
 
         Log::info('Mulai proses pembayaran normal', ['request' => $request->all()]);
@@ -748,6 +754,7 @@ class PaymentController extends Controller
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
             $payment->Keterangan = $request->keterangan;
+            $payment->company_id = $companyId;
             $payment->createdby = Auth::user()->name;
             $payment->save();
 

@@ -49,8 +49,10 @@ class CreditNoteController extends Controller
 
     public function getCreditNotes(Request $request)
     {
+        $companyId = session('active_company_id');
         if ($request->ajax()) {
             $creditNotes = DB::table('tbl_credit_note AS cn')
+                ->where('cn.company_id', $companyId)
                 ->join('tbl_invoice AS inv', 'cn.invoice_id', '=', 'inv.id')
                 ->join('tbl_coa AS coa', 'cn.account_id', '=', 'coa.id')
                 ->join('tbl_matauang AS mu', 'cn.matauang_id', '=', 'mu.id')
@@ -95,6 +97,7 @@ class CreditNoteController extends Controller
 
     public function store(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'invoiceCredit' => 'required|string|max:255',
             'accountCredit' => 'required|string|max:255',
@@ -169,6 +172,7 @@ class CreditNoteController extends Controller
             $creditNote->rate_currency = $request->rateCurrency;
             $creditNote->note = $request->noteCredit;
             $creditNote->total_keseluruhan = $request->totalKeseluruhan;
+            $creditNote->company_id = $companyId;
             $creditNote->save();
 
 
