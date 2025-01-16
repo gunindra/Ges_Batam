@@ -93,7 +93,9 @@ Route::middleware(['auth'])->group(function () {
     // Company
     Route::get('/company', [CompanyController::class, 'index'])->name('indexcompany');
     Route::get('/get-companies', [CompanyController::class, 'getCompanies']);
+    Route::get('/company/getlistCompany', [CompanyController::class, 'getlistCompany'])->name('getlistCompany');
     Route::post('/set-active-company', [CompanyController::class, 'setActiveCompany']);
+
 
     // Dashboard
     Route::get('/dashboardnew', [DashboardController::class, 'index'])->name('dashboard');
