@@ -15,6 +15,7 @@ class Driver extends Model
         'alamat_supir',
         'no_wa',
         'image_sim',
+        'company_id',
     ];
 
     public function user()

@@ -11,7 +11,7 @@ class Vendor extends Model
 
     protected $table = 'tbl_vendors';
 
-    protected $fillable = ['name', 'address', 'phone', 'account_id'];
+    protected $fillable = ['name', 'address', 'phone', 'account_id','company_id'];
 
     public function account()
     {

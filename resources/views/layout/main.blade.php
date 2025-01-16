@@ -255,7 +255,6 @@
                                 <!-- Hanya Superadmin yang dapat melihat Periode -->
                                 <a class="collapse-item {{ request()->routeIs('periode') ? 'active' : '' }}"
                                     href="{{ route('periode') }}">Periode</a>
-                                <a class="collapse-item" href="#" id="triggerModal">Company</a>
                             @endif
                         </div>
                     </div>
@@ -426,29 +425,6 @@
 
             </div>
 
-            <!-- Modal -->
-            <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="companyModalLabel">Select Company</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <select id="selectCompany" class="form-control">
-                                <option value="" disabled>Select a Company</option>
-                            </select>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="saveCompanyBtn">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Footer -->
             <footer class="sticky-footer bg-white">

@@ -16,8 +16,10 @@ class PembagirateController extends Controller
     public function getlistPembagi(Request $request)
     {
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
+        $companyId = session('active_company_id');
 
-        $data = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')->get();
+        $data = DB::table('tbl_pembagi')->select('id', 'nilai_pembagi')
+        ->where('tbl_pembagi.company_id', $companyId)->get();
 
 
         // dd($q);
@@ -53,12 +55,15 @@ class PembagirateController extends Controller
     }
     public function addPembagi(Request $request)
     {
+        $companyId = session('active_company_id');
+
         $request->validate([
             'nilaiPembagi' => 'required|numeric',
         ]);
         try {
             $Pembagi = new Pembagi();
             $Pembagi->nilai_pembagi = $request->input('nilaiPembagi');
+            $Pembagi->company_id = $companyId;
 
 
             $Pembagi->save();
@@ -107,10 +112,12 @@ class PembagirateController extends Controller
     }
     public function getlistRate(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
 
         $data = DB::table('tbl_rate')
             ->select('id', 'nilai_rate', 'rate_for')
+            ->where('tbl_rate.company_id', $companyId)
             ->get();
 
         $output = '<table class="table align-items-center table-flush table-hover" id="tableRate">
@@ -145,6 +152,7 @@ class PembagirateController extends Controller
 
     public function addRate(Request $request)
     {
+        $companyId = session('active_company_id');
         $request->validate([
             'nilaiRate' => 'required|numeric',
             'forRate' => 'required|in:Berat,Volume,Topup',
@@ -153,6 +161,7 @@ class PembagirateController extends Controller
             $Rate = new Rate();
             $Rate->nilai_rate = $request->input('nilaiRate');
             $Rate->rate_for = $request->input('forRate');
+            $Rate->company_id = $companyId;
 
             $Rate->save();
 

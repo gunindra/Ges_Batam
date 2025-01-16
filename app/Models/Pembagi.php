@@ -12,5 +12,6 @@ class Pembagi extends Model
     protected $table = 'tbl_pembagi'; 
     protected $fillable = [
         'nilai_pembagi',
+        'company_id',
     ];
 }

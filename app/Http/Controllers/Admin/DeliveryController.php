@@ -53,6 +53,7 @@ class DeliveryController extends Controller
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
         $filtermarking = $request->marking ?? '';
         $filternodo = $request->no_do ?? '';
+        $companyId = session('active_company_id');
 
         $query = DB::table('tbl_pengantaran as a')
             ->select(
@@ -73,6 +74,7 @@ class DeliveryController extends Controller
                 DB::raw("GROUP_CONCAT(r.no_do SEPARATOR ';') as list_no_do"),
                 DB::raw("GROUP_CONCAT(c.marking SEPARATOR ';') as list_marking")
             )
+            ->where('a.company_id', $companyId)
             ->join('tbl_pengantaran_detail as pd', 'a.id', '=', 'pd.pengantaran_id')
             ->join('tbl_invoice as b', 'pd.invoice_id', '=', 'b.id')
             ->join('tbl_pembeli as c', 'b.pembeli_id', '=', 'c.id')
@@ -212,6 +214,7 @@ class DeliveryController extends Controller
 
         $filterMarking = $request->marking ?? '';
         $filterNoDo = $request->no_do ?? '';
+        $companyId = session('active_company_id');
 
         if ($request->filter_date) {
             [$startDate, $endDate] = explode(' - ', $request->filter_date);
@@ -229,7 +232,7 @@ class DeliveryController extends Controller
         c.no_do,
         b.marking,
         a.metode_pengiriman,
-        a.status_id
+        a.status_id,
       FROM tbl_invoice AS a
       JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
       JOIN tbl_resi AS c ON a.id = c.invoice_id
@@ -296,6 +299,7 @@ class DeliveryController extends Controller
 
         $filterMarkingPickup = $request->marking ?? '';
         $filterNoDoPickup = $request->no_do ?? '';
+        $companyId = session('active_company_id');
 
         if ($request->filter_date) {
             [$startDate, $endDate] = explode(' - ', $request->filter_date);
@@ -616,6 +620,7 @@ class DeliveryController extends Controller
         $resiList = $request->input('resi_list');
         $tanggalPickup = $request->input('tanggal');
         $driverId = $request->input('driver_id');
+        $companyId = session('active_company_id');
 
         $date = DateTime::createFromFormat('j F Y', $tanggalPickup);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
@@ -638,6 +643,7 @@ class DeliveryController extends Controller
                 'metode_pengiriman' => 'Delivery',
                 'supir_id' => $driverId,
                 'tanggal_pengantaran' => $formattedDate,
+                'company_id' => $companyId,
                 // 'status_id' => 4,
                 'created_at' => now(),
             ]);
@@ -690,6 +696,7 @@ class DeliveryController extends Controller
     {
         $resiList = $request->input('resi_list');
         $tanggalPickup = $request->input('tanggal');
+        $companyId = session('active_company_id');
 
         $date = DateTime::createFromFormat('j F Y', $tanggalPickup);
         $formattedDate = $date ? $date->format('Y-m-d') : null;
@@ -707,6 +714,7 @@ class DeliveryController extends Controller
             $pengantaranId = DB::table('tbl_pengantaran')->insertGetId([
                 'metode_pengiriman' => 'Pickup',
                 'tanggal_pengantaran' => $formattedDate,
+                'company_id' => $companyId,
                 // 'status_id' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
