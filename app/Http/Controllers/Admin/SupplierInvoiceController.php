@@ -100,10 +100,11 @@ class SupplierInvoiceController extends Controller
 
     public function addSupplierInvoice()
     {
-
+        $companyId = session('active_company_id');
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $coas = COA::all();
-        $listVendor = Vendor::pluck('name', 'id');
+        $listVendor = Vendor::where('company_id', $companyId)
+        ->pluck('name', 'id');
 
         return view('vendor.supplierinvoice.buatsupplierinvoice', [
             'listCurrency' => $listCurrency,

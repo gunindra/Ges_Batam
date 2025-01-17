@@ -36,9 +36,10 @@ class CreditNoteController extends Controller
 
     public function addCreditNote()
     {
+        $companyId = session('active_company_id');
         $coas = COA::all();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-        $listInvoice = DB::select("SELECT id, no_invoice FROM tbl_invoice");
+        $listInvoice = DB::select("SELECT id, no_invoice FROM tbl_invoice WHERE tbl_invoice.company_id = $companyId");
 
         return view('customer.creditnote.buatcreditnote', [
             'listCurrency' => $listCurrency,

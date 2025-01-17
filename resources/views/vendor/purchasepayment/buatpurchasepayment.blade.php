@@ -79,8 +79,8 @@
                                 <label for="Invoice" class="form-label fw-bold">Vendor</label>
                                 <select class="form-control select2" id="selectVendor">
                                     <option value="" selected disabled>Pilih Vendor</option>
-                                    @foreach ($listVendor as $vendor)
-                                        <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                    @foreach ($listVendor as $id => $name)
+                                        <option value="{{ $id }}">{{ $name }}</option>
                                     @endforeach
                                 </select>
                                 <div id="errVendorPayment" class="text-danger mt-1 d-none">Silahkan Pilih Vendor</div>

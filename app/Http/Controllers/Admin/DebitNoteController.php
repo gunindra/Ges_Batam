@@ -40,10 +40,11 @@ class DebitNoteController extends Controller
 
     public function addDebitNote()
     {
+        $companyId = session('active_company_id');
         $coas = COA::all();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-        $listInvoice = DB::select("SELECT id, invoice_no FROM tbl_sup_invoice");
-        $listVendor = DB::select("SELECT name FROM tbl_vendors");
+        $listInvoice = DB::select("SELECT id, invoice_no FROM tbl_sup_invoice WHERE tbl_sup_invoice.company_id = $companyId");
+        $listVendor = DB::select("SELECT name FROM tbl_vendors WHERE tbl_vendors.company_id = $companyId");
 
         return view('vendor.debitnote.buatdebitnote', [
             'listCurrency' => $listCurrency,
@@ -282,29 +283,29 @@ class DebitNoteController extends Controller
         try {
             $vendorId = $request->vendor_id;
             $selectedInvoice = $request->selectedinvoice;
-    
+
             if (is_null($selectedInvoice)) {
                 return response()->json(['success' => false, 'message' => 'No invoice selected.']);
             }
-    
+
             $invoiceSelect = DebitNote::where('invoice_id', $selectedInvoice)->first();
-    
+
             if ($invoiceSelect) {
                 $invoiceNo = $invoiceSelect->invoice->invoice_no;
             } else {
                 $invoiceNo = null;
             }
-    
+
             if (!$vendorId) {
                 return response()->json(['success' => false, 'message' => 'Vendor not found.']);
             }
-    
+
             $invoices = SupInvoice::where('vendor_id', $vendorId)->get(['id', 'invoice_no']);
-    
+
             if ($invoices->isEmpty()) {
                 return response()->json(['success' => false, 'message' => 'No invoices found for this vendor.']);
             }
-    
+
             return response()->json([
                 'success' => true,
                 'invoiceNo' => $invoiceNo,
@@ -314,8 +315,8 @@ class DebitNoteController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
-    
-    
+
+
     // public function update(Request $request, $id)
     // {
     //     // Validate input data
@@ -339,15 +340,15 @@ class DebitNoteController extends Controller
     //     try {
     //         // Ambil data debit note berdasarkan id yang ada
     //         $debitNote = DebitNote::findOrFail($id);
-    
+
     //         // Simpan id invoice lama
     //         $invoice_id = $debitNote->invoice_id;
-    
+
     //         // Cek apakah invoice_no pada request berbeda dengan yang ada pada debit note
     //         if ($request->invoiceDebit != $debitNote->invoice->invoice_no) {
     //             // Cari invoice baru berdasarkan invoice_no yang diberikan
     //             $invoice = SupInvoice::where('invoice_no', $request->invoiceDebit)->first();
-    
+
     //             // Jika invoice baru tidak ditemukan, beri pesan error
     //             if (!$invoice) {
     //                 return response()->json([
@@ -355,11 +356,11 @@ class DebitNoteController extends Controller
     //                     'message' => "Invoice dengan nomor {$request->invoiceDebit} tidak ditemukan.",
     //                 ], 400);
     //             }
-    
+
     //             // Jika ditemukan invoice, update invoice_id
     //             $invoice_id = $invoice->id;
     //         }
-    
+
     //         // Ambil pengaturan akun untuk supplier purchase return
     //         $accountSettings = DB::table('tbl_account_settings')->first();
     //         if (!$accountSettings) {
@@ -368,22 +369,22 @@ class DebitNoteController extends Controller
     //                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
     //             ], 400);
     //         }
-    
+
     //         // Ambil akun pengembalian pembelian (supplier purchase return account id)
     //         $supplierPurchaseReturnAccountId = $accountSettings->supplier_purchase_return_account_id;
-    
+
     //         if (is_null($supplierPurchaseReturnAccountId)) {
     //             return response()->json([
     //                 'status' => 'error',
     //                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
     //             ], 400);
     //         }
-    
+
     //         // Cek apakah akun pengembalian pembelian valid
     //         if (!DB::table('tbl_coa')->where('id', $supplierPurchaseReturnAccountId)->exists()) {
     //             return response()->json(['error' => 'Akun pengembalian pembelian tidak valid.'], 400);
     //         }
-    
+
     //         // Update debit note dengan invoice_id yang baru atau yang lama
     //         $debitNote->invoice_id = $invoice_id;
     //         $debitNote->account_id = $request->accountDebit;
@@ -392,7 +393,7 @@ class DebitNoteController extends Controller
     //         $debitNote->note = $request->noteDebit;
     //         $debitNote->total_keseluruhan = $request->totalKeseluruhan;
     //         $debitNote->save();
-    
+
     //         $debitNote->items()->delete();
 
     //         // Kemudian buat item-item baru
@@ -405,7 +406,7 @@ class DebitNoteController extends Controller
     //                 'total' => $item['total'],
     //             ]);
     //         }
-    
+
     //         // Proses jurnal
     //         $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
     //         if (!$jurnal) {
@@ -414,14 +415,14 @@ class DebitNoteController extends Controller
     //             $lastDebitNote = DebitNote::where('no_debitnote', 'like', $codeType . $currentYear . '%')
     //                 ->orderBy('no_debitnote', 'desc')
     //                 ->first();
-    
+
     //             $newSequence = $lastDebitNote ? intval(substr($lastDebitNote->no_debitnote, -4)) + 1 : 1;
     //             $newNoDebitNote = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
-    
+
     //             $jurnal = new Jurnal();
     //             $jurnal->no_journal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
     //         }
-    
+
     //         $jurnal->tipe_kode = 'DN';
     //         $jurnal->tanggal = now();
     //         $jurnal->no_ref = $invoice_id; // Menggunakan invoice_id yang sesuai
@@ -430,7 +431,7 @@ class DebitNoteController extends Controller
     //         $jurnal->totaldebit = $request->totalKeseluruhan;
     //         $jurnal->totalcredit = $request->totalKeseluruhan;
     //         $jurnal->save();
-    
+
     //         // Update jurnal item untuk debit dan kredit
     //         JurnalItem::updateOrCreate(
     //             ['jurnal_id' => $jurnal->id, 'code_account' => $request->accountDebit],
@@ -440,7 +441,7 @@ class DebitNoteController extends Controller
     //                 'credit' => 0,
     //             ]
     //         );
-    
+
     //         JurnalItem::updateOrCreate(
     //             ['jurnal_id' => $jurnal->id, 'code_account' => $supplierPurchaseReturnAccountId],
     //             [
@@ -449,7 +450,7 @@ class DebitNoteController extends Controller
     //                 'credit' => $request->totalKeseluruhan,
     //             ]
     //         );
-    
+
 
     //         DB::commit();
     //         return response()->json(['message' => 'Debit note berhasil diperbarui!'], 200);

@@ -110,15 +110,15 @@ class PurchasePaymentController extends Controller
 
     public function addPurchasePayment()
     {
-
+        $companyId = session('active_company_id');
         $coas = COA::all();
 
         $listInvoice = SupInvoice::where('status_bayar', 'Belum lunas')
             ->select('invoice_no')
             ->get();
 
-        $listVendor = Vendor::select('id', 'name')
-            ->get();
+        $listVendor = Vendor::where('company_id', $companyId)
+            ->pluck('name', 'id');
 
         return view('vendor.purchasepayment.buatpurchasepayment', [
             'listInvoice' => $listInvoice,
