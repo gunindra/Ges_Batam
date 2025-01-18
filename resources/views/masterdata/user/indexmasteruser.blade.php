@@ -60,6 +60,18 @@
                             </select>
                             <div id="roleUsersError" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                         </div>
+                        <div class="mt-3">
+                            <label for="companyUsers" class="form-label fw-bold">Company</label>
+                            <select class="form-control" id="companyUsers" style="width: 466px;">
+                                <option value="" selected disabled>Pilih Company</option>
+                                @foreach ($listCompany as $company)
+                                        <option value="{{ $company->id }}">
+                                            {{ $company->name }}
+                                        </option>
+                                    @endforeach
+                            </select>
+                            <div id="companyError" class="text-danger mt-1 d-none">Silahkan isi Company</div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                             <button type="button" id="saveUsers" class="btn btn-primary">Save changes</button>
@@ -124,6 +136,18 @@
                         </select>
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>
+                    <div class="mt-3">
+                            <label for="companyUsersEdit" class="form-label fw-bold">Company</label>
+                            <select class="form-control" id="companyUsersEdit" style="width: 466px;">
+                                <option value="" selected disabled>Pilih Company</option>
+                                @foreach ($listCompany as $company)
+                                        <option value="{{ $company->id }}">
+                                            {{ $company->name }}
+                                        </option>
+                                    @endforeach
+                            </select>
+                            <div id="companyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Company</div>
+                        </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -235,6 +259,7 @@
             var passwordUsers = $('#passwordUsers').val();
             var passwordConfirmation = $('#passwordConfirmationUsers').val();
             var roleUsers = $('#roleUsers').val();
+            var companyUsers = $('#companyUsers').val();
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -285,6 +310,12 @@
             } else {
                 $('#roleUsersError').addClass('d-none');
             }
+            if (companyUsers === '') {
+                $('#companyError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#companyError').addClass('d-none');
+            }
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -315,6 +346,7 @@
                                 passwordUsers: passwordUsers,
                                 passwordUsers_confirmation: passwordConfirmation,
                                 roleUsers: roleUsers,
+                                companyUsers: companyUsers,
                                 _token: '{{ csrf_token() }}',
                             },
                             success: function (response) {
@@ -337,7 +369,7 @@
             }
         });
         $('#modalTambahUsers').on('hidden.bs.modal', function () {
-            $('#nameUsers,#emailUsers,#passwordUsers,#passwordConfirmationUsers,#roleUsers').val('');
+            $('#nameUsers,#emailUsers,#passwordUsers,#passwordConfirmationUsers,#roleUsers,#companyUsers').val('');
             if (!$('#nameUsersError').hasClass('d-none')) {
                 $('#nameUsersError').addClass('d-none');
             }
@@ -353,6 +385,9 @@
             if (!$('#roleUsersError').hasClass('d-none')) {
                 $('#roleUsersError').addClass('d-none');
             }
+            if (!$('#companyError').hasClass('d-none')) {
+                $('#companyError').addClass('d-none');
+            }
         });
         $(document).on('click', '.btnUpdateUsers', function (e) {
             var userid = $(this).data('id');
@@ -364,6 +399,7 @@
                     $('#emailUsersEdit').val(response.email);
                     $('#passwordUsersEdit').val(response.password);
                     $('#roleUsersEdit').val(response.role);
+                    $('#companyUsersEdit').val(response.name);
                     $('#modalEditUsers').modal('show');
                     $('#saveEditUsers').data('id', userid);
                     if (response.role === 'driver' || response.role === 'customer') {
@@ -388,6 +424,7 @@
         var passwordUsers = $('#passwordUsersEdit').val();
         var passwordConfirmation = $('#passwordConfirmationUsersEdit').val();
         var roleUsers = $('#roleUsersEdit').val();
+        var companyUsers = $('#companyUsersEdit').val();
 
         var isValid = true;
         var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -425,6 +462,12 @@
                 $('#passwordConfirmationErrorEdit').addClass('d-none');
             }
         }
+        if (companyUsers === '') {
+            $('#companyErrorEdit').removeClass('d-none');
+            isValid = false;
+        } else {
+            $('#companyErrorEdit').addClass('d-none');
+        }
 
         if (isValid) {
             Swal.fire({
@@ -455,6 +498,7 @@
                             passwordUsers: passwordUsers,
                             passwordUsers_confirmation: passwordConfirmation,
                             roleUsers: roleUsers,
+                            companyUsers: companyUsers,
                             _token: '{{ csrf_token() }}',
                         },
                         success: function (response) {
@@ -475,7 +519,7 @@
         }
     });
     $('#modalEditUsers').on('hidden.bs.modal', function () {
-        $('#nameUsersEdit,#emailUsersEdit,#passwordUsersEdit,#passwordConfirmationUsersEdit,#roleUsersEdit').val('');
+        $('#nameUsersEdit,#emailUsersEdit,#passwordUsersEdit,#passwordConfirmationUsersEdit,#roleUsersEdit,#companyUsersEdit').val('');
         if (!$('#nameUsersErrorEdit').hasClass('d-none')) {
             $('#nameUsersErrorEdit').addClass('d-none');
         }
@@ -490,6 +534,9 @@
         }
         if (!$('#roleUsersErrorEdit').hasClass('d-none')) {
             $('#roleUsersErrorEdit').addClass('d-none');
+        }
+        if (!$('#companyErrorEdit').hasClass('d-none')) {
+            $('#companyErrorEdit').addClass('d-none');
         }
     });
     $(document).on('click', '.btnDestroyUsers', function (e) {
