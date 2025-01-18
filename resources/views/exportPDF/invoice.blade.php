@@ -173,6 +173,9 @@
 <body>
     <?php
     $hargaIDR = ceil($hargaIDR / 1000) * 1000;
+
+    $activeCompanyId = session('active_company_id');
+    $company = \App\Models\Company::find($activeCompanyId);
     ?>
     <div class="container">
         <div class="header">
@@ -190,11 +193,16 @@
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
             <div class="company-info">
-                <div class="company-name">PT. GES LOGISTIC</div>
+                <div class="company-name">{{ $company->name }}</div>
                 <div class="company-address">
-                    42Q2+6PH, Unnamed Road,
-                    Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau<br>
-                    Telp: 0856-BATU-KECE (0856-2288-5323) | Email: Pt@batukerenrambut.com
+                    {{ $company->alamat }}<br>
+                    @if ($company->hp && $company->email)
+                        Telp: {{ $company->hp }} | Email: {{ $company->email }}
+                    @elseif($company->hp)
+                        Telp: {{ $company->hp }}
+                    @elseif($company->email)
+                        Email: {{ $company->email }}
+                    @endif
                 </div>
             </div>
         </div>

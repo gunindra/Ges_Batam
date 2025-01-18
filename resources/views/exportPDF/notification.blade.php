@@ -417,6 +417,10 @@
     $hargaIDR = ceil($hargaIDR / 1000) * 1000;
     ?>
     <div class="container">
+        <?php
+        $activeCompanyId = session('active_company_id');
+        $company = \App\Models\Company::find($activeCompanyId);
+        ?>
         <div class="header">
             <div class="logo-container">
                 <?php
@@ -432,11 +436,16 @@
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
             <div class="company-info">
-                <div class="company-name">PT. GES LOGISTIC</div>
+                <div class="company-name">{{ $company->name }}</div>
                 <div class="company-address">
-                    42Q2+6PH, Unnamed Road,
-                    Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau<br>
-                    Telp: 0856-BATU-KECE (0856-2288-5323) | Email: Pt@batukerenrambut.com
+                    {{ $company->alamat }}<br>
+                    @if ($company->hp && $company->email)
+                        Telp: {{ $company->hp }} | Email: {{ $company->email }}
+                    @elseif($company->hp)
+                        Telp: {{ $company->hp }}
+                    @elseif($company->email)
+                        Email: {{ $company->email }}
+                    @endif
                 </div>
             </div>
         </div>
@@ -508,7 +517,8 @@
                 <?php
                 if ($statusPembayaran === 'Belum lunas') {
                 ?>
-                    <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+                <p class="text-right" style="margin-top: 20px;">Total Harga:
+                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
                 <?php
                 } else {
                     // Only show the paid stamp if it is 'invoice'
@@ -521,16 +531,18 @@
                         $base64 = '';
                     }
                 ?>
-                    <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
-                        <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
-                    </div>
-                    <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+                <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
+                    <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
+                </div>
+                <p class="text-right" style="margin-top: 20px;">Total Harga:
+                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
                 <?php
                 }
                 ?>
             @else
                 <!-- When it's not an invoice, just display total price -->
-                <p class="text-right" style="margin-top: 20px;">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
+                <p class="text-right" style="margin-top: 20px;">Total Harga:
+                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
             @endif
         </div>
     </div>
@@ -539,4 +551,3 @@
 
 
 </html>
-
