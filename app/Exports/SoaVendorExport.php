@@ -29,20 +29,28 @@ class SoaVendorExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas');
+        $companyId = session('active_company_id');
+        $invoice = collect(); // Inisialisasi koleksi kosong
 
-        if ($this->customer !== '-') {
-            $invoice->where('vendor_id', '=', $this->customer);
-        }
+        // Hanya jalankan query jika tanggal tersedia
+        if ($this->startDate || $this->endDate) {
+            $query = SupInvoice::where('status_bayar', '=', 'Belum lunas')
+            ->where('tbl_sup_invoice.company_id', $companyId);
 
-        if ($this->startDate) {
-            $invoice->whereDate('tanggal', '>=', date('Y-m-d', strtotime($this->startDate)));
-        }
-        if ($this->endDate) {
-            $invoice->whereDate('tanggal', '<=', date('Y-m-d', strtotime($this->endDate)));
-        }
+            if ($this->customer !== '-') {
+                $query->where('vendor_id', '=', $this->customer);
+            }
 
-        $invoice = $invoice->get();
+            if ($this->startDate) {
+                $query->whereDate('tanggal', '>=', date('Y-m-d', strtotime($this->startDate)));
+            }
+
+            if ($this->endDate) {
+                $query->whereDate('tanggal', '<=', date('Y-m-d', strtotime($this->endDate)));
+            }
+
+            $invoice = $query->get(); // Ambil data jika tanggal ada
+        }
 
         $customerName = '-';
         if ($this->customer !== '-') {

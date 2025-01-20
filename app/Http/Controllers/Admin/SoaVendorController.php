@@ -18,20 +18,24 @@ class SoaVendorController extends Controller
     use WhatsappTrait;
 
     public function index() {
-
-        $vendors = Vendor::select('id', 'name', 'phone')->get();
+        $companyId = session('active_company_id');
+        $vendors = Vendor::select('id', 'name', 'phone')
+        ->where('tbl_vendors.company_id', $companyId)
+        ->get();
 
         return view('Report.SoaVendor.indexSoaVendor', compact('vendors'));
     }
 
     public function getSoaVendor(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
         $customer = $request->customer;
 
         $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas')
-                    ->where('vendor_id', '=', $customer);
+                    ->where('vendor_id', '=', $customer)
+                    ->where('tbl_sup_invoice.company_id', $companyId);
 
 
         if ($request->startDate){
@@ -71,6 +75,7 @@ class SoaVendorController extends Controller
     public function soaWA(Request $request)
     {
         try {
+            $companyId = session('active_company_id');
             $vendor_id = $request->vendor;
             $vendor = Vendor::where('id', '=', $vendor_id)->first();
 
@@ -79,7 +84,8 @@ class SoaVendorController extends Controller
             }
 
             $invoice = SupInvoice::where('status_bayar', '=', 'Belum lunas')
-                ->where('vendor_id', '=', $vendor_id);
+                ->where('vendor_id', '=', $vendor_id)
+                ->where('tbl_sup_invoice.company_id', $companyId);
 
             $startDate = '';
             $endDate = '';
