@@ -46,7 +46,7 @@ class TopupController extends Controller
     }
 
     public function getCustomers()
-    {   
+    {
         $companyId = session('active_company_id');
         $customers = Customer::select('id', 'nama_pembeli', 'marking')
         ->where('tbl_pembeli.company_id', $companyId)

@@ -39,21 +39,30 @@
     </thead>
     <tbody>
         @foreach ($topup as $topups)
+            @php
+                // Filter pembayaran yang terkait dengan customer_id dan tanggal topup
+                $relatedPayments = $payment->filter(function ($paymentItem) use ($topups) {
+                    return $paymentItem->customer_id == $topups->customer_id &&
+                        \Carbon\Carbon::parse($paymentItem->payment_date)->isSameDay($topups->date);
+                });
+
+                $outKg = $relatedPayments->sum('remaining_points');
+            @endphp
             <tr>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{\Carbon\Carbon::parse( $topups->date)->format('d M Y') }}
+                    {{ \Carbon\Carbon::parse($topups->date)->format('d M Y') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $topups->customer_name }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $topups->remaining_points }}
+                    {{ $topups->remaining_points }}  <!-- In (kg) -->
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $topups->remaining_points - $topups->balance }}
+                    {{ $outKg }}  <!-- Out (kg) -->
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $topups->balance }}
+                    {{ $topups->balance }}  <!-- Saldo (kg) -->
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $topups->status }}

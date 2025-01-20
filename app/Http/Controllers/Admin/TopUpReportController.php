@@ -31,15 +31,30 @@ class TopUpReportController extends Controller
 
     public function getTopUpReport(Request $request)
 {
+    // dd($request->all());
+    $companyId = session('active_company_id');
     $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
     $status = $request->status;
 
-    $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : Carbon::now()->startOfMonth();
-    $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
+    $startDate = $request->startDate
+    ? Carbon::parse($request->startDate)->format('Y-m-d')
+    : Carbon::now()->startOfMonth()->format('Y-m-d');
 
-    $topup = HistoryTopup::where('tbl_history_topup.status', '!=', 'canceled');
+    $endDate = $request->endDate
+    ? Carbon::parse($request->endDate)->format('Y-m-d')
+    : Carbon::now()->endOfMonth()->format('Y-m-d');
+
+    $topup = HistoryTopup::where('tbl_history_topup.status', '!=', 'canceled')
+    ->where('tbl_history_topup.company_id', $companyId)
+    ->whereDate('date', '>=', $startDate) // Filter default tanggal
+    ->whereDate('date', '<=', $endDate);
+
     $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-                              ->where('tbl_payment_invoice.kuota', '!=', 0);
+        ->where('tbl_payment_invoice.kuota', '!=', 0)
+        ->where('tbl_payment_customer.company_id', $companyId)
+        ->whereDate('payment_buat', '>=', $startDate) // Filter default tanggal
+        ->whereDate('payment_buat', '<=', $endDate);
+
 
     $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
     if ($isCustomerRole) {
@@ -58,7 +73,7 @@ class TopUpReportController extends Controller
     if ($request->endDate) {
         $endDate = date('Y-m-d', strtotime($request->endDate));
         $topup->whereDate('date', '<=', $endDate);
-        $payment->whereDate('payment_buat', '<=', $startDate);
+        $payment->whereDate('payment_buat', '<=', $endDate);
     }
     if ($request->customer) {
         $topup->where('customer_id', '=', $request->customer);
@@ -156,15 +171,18 @@ class TopUpReportController extends Controller
 
     public function generatePdf(Request $request)
     {
+        $companyId = session('active_company_id');
         $startDate = $request->input('startDate') ? Carbon::parse($request->input('startDate'))->format('d M Y') : '-';
         $endDate = $request->input('endDate') ? Carbon::parse($request->input('endDate'))->format('d M Y') : '-';
         $customer = $request->nama_pembeli ?? null;
 
         try {
             // Query Topup
-            $topupQuery = HistoryTopup::where('status', '!=', 'canceled');
+            $topupQuery = HistoryTopup::where('status', '!=', 'canceled')
+            ->where('tbl_history_topup.company_id', $companyId);
             $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-            ->where('tbl_payment_invoice.kuota', '!=', 0);
+            ->where('tbl_payment_invoice.kuota', '!=', 0)
+            ->where('tbl_payment_customer.company_id', $companyId);
 
 
             // Tambahkan filter customer jika tersedia
