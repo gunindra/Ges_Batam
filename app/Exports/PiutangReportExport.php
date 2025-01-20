@@ -23,6 +23,7 @@ class PiutangReportExport implements FromView
 
     public function view(): View
     {
+        $companyId = session('active_company_id');
         $query = DB::table('tbl_invoice as invoice')->select(
             'invoice.id',
             'invoice.no_invoice',
@@ -44,6 +45,7 @@ class PiutangReportExport implements FromView
                 END AS umur
             ")
         )
+        ->where('invoice.company_id', $companyId)
         ->where('invoice.status_bayar', '=', 'Belum lunas')
         ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
 

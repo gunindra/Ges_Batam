@@ -17,7 +17,7 @@ class PiutangController extends Controller
 {
     public function index()
     {
-
+        $companyId = session('active_company_id');
         $customers = DB::table('tbl_pembeli as pembeli')
             ->select(
                 'pembeli.id',
@@ -51,6 +51,7 @@ class PiutangController extends Controller
                 '=',
                 'invoice_data.pembeli_id'
             )
+            ->where('pembeli.company_id', $companyId)
             ->where('pembeli.status', '=', 1)
             ->groupBy('pembeli.id', 'pembeli.nama_pembeli', 'pembeli.marking')
             ->get();
@@ -62,6 +63,7 @@ class PiutangController extends Controller
     }
     public function getpiutang(Request $request)
     {
+        $companyId = session('active_company_id');
         $query = DB::table('tbl_invoice as invoice')
             ->select(
                 'invoice.id',
@@ -93,7 +95,7 @@ class PiutangController extends Controller
                 END AS umur
             ")
             )
-
+            ->where('invoice.company_id', $companyId)
             ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id')
             ->where('invoice.status_bayar', '=', 'Belum lunas')
             ->where('pembeli.id', '=', $request->customer);
@@ -124,6 +126,7 @@ class PiutangController extends Controller
     }
     public function exportPiutangPdf(Request $request)
     {
+        $companyId = session('active_company_id');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
         $customer = $request->nama_pembeli ?? '-';
@@ -150,6 +153,7 @@ class PiutangController extends Controller
                 END AS umur
             ")
             )
+            ->where('invoice.company_id', $companyId)
                 ->where('invoice.status_bayar', '=', 'Belum lunas')
                 ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
 

@@ -44,6 +44,7 @@ class OngoingInvoiceController extends Controller
 
     public function getlistOngoing(Request $request)
     {
+        $companyId = session('active_company_id');
         $NoDo = $request->no_do;
         $Customer = $request->nama_pembeli;
         $query = DB::table('tbl_pengantaran')
@@ -57,6 +58,7 @@ class OngoingInvoiceController extends Controller
                 'tbl_pembeli.nama_pembeli AS nama_pembeli',
                 'tbl_status.status_name AS status_transaksi'
             )
+            ->where('tbl_pengantaran.company_id', $companyId)
             ->leftJoin('tbl_supir', 'tbl_pengantaran.supir_id', '=', 'tbl_supir.id')
             ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
             ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
@@ -119,6 +121,7 @@ class OngoingInvoiceController extends Controller
     {
         $NoDo = $request->no_do;
         $Customer = $request->nama_pembeli;
+        $companyId = session('active_company_id');
 
         try {
             $query = DB::table('tbl_pengantaran')
@@ -132,6 +135,7 @@ class OngoingInvoiceController extends Controller
                     'tbl_pembeli.nama_pembeli AS nama_pembeli',
                     'tbl_status.status_name AS status_transaksi'
                 )
+                ->where('tbl_pengantaran.company_id', $companyId)
                 ->leftJoin('tbl_supir', 'tbl_pengantaran.supir_id', '=', 'tbl_supir.id')
                 ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
                 ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')

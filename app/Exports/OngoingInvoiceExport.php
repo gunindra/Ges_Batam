@@ -25,6 +25,7 @@ class OngoingInvoiceExport implements FromView, WithEvents
      */
     public function view(): View
     {
+        $companyId = session('active_company_id');
         $query = DB::table('tbl_pengantaran')
             ->select(
                 'tbl_invoice.no_invoice',
@@ -36,6 +37,7 @@ class OngoingInvoiceExport implements FromView, WithEvents
                 'tbl_pembeli.nama_pembeli AS nama_pembeli',
                 'tbl_status.status_name AS status_transaksi'
             )
+            ->where('tbl_pengantaran.company_id', $companyId)
             ->leftJoin('tbl_supir', 'tbl_pengantaran.supir_id', '=', 'tbl_supir.id')
             ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
             ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
