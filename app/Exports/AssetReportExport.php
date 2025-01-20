@@ -25,6 +25,7 @@ class AssetReportExport implements FromView, WithEvents
      */
     public function view(): View
     {
+        $companyId = session('active_company_id');
         // Query dasar untuk mengambil data asset
         $query = Asset::select(
                 'tbl_assets.id as asset_id',
@@ -37,6 +38,7 @@ class AssetReportExport implements FromView, WithEvents
                 DB::raw('SUM(tbl_jurnal.ending_value) as ending_value')
             )
             ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+            ->where('tbl_assets.company_id', $companyId)
         ->groupBy(
             'tbl_assets.id',
             'tbl_assets.acquisition_price',
@@ -44,29 +46,29 @@ class AssetReportExport implements FromView, WithEvents
             'tbl_assets.asset_name',
             'tbl_assets.acquisition_date'
         );
-    
+
         // Jika rentang tanggal tersedia, filter berdasarkan tanggal
         if ($this->startDate && $this->endDate) {
             $query->whereBetween('tbl_jurnal.tanggal', [$this->startDate, $this->endDate]);
         }
-    
+
         // Ambil hasil query
         $asset = $query->get()
 
         ->map(function ($asset) {
-            // Adjusting the balance calculation                  
+            // Adjusting the balance calculation
             // Use the correct beginning balance from the subquery
             $asset->beginning_balance = $asset->acquisition_price - $asset->total_credit_before;
             $asset->ending_balance = $asset->beginning_balance - $asset->credit;
             return $asset;
         });
-    
+
         // Return view dengan data asset dan tanggal
         return view('exportExcel.assetreport', [
             'asset' => $asset,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-        ]);    
+        ]);
     }
 
     public function registerEvents(): array
@@ -79,5 +81,5 @@ class AssetReportExport implements FromView, WithEvents
             },
         ];
     }
-}    
+}
 

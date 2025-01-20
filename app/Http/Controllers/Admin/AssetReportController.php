@@ -98,8 +98,22 @@ class AssetReportController extends Controller
 
     public function exportAssetReport(Request $request)
     {
+
+        // Pastikan format yang diterima adalah 'd M Y' (misalnya '01 Jan 2025')
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
+
+        // Periksa jika input tanggal ada
+        if ($startDate && $endDate) {
+            // Ubah tanggal menjadi format yang bisa digunakan dalam query
+            $startDate = Carbon::createFromFormat('d M Y', $startDate)->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('d M Y', $endDate)->format('Y-m-d');
+        } else {
+            // Tentukan default tanggal jika tidak ada input tanggal
+            $startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
 
         return Excel::download(new AssetReportExport($startDate, $endDate), 'asset_report.xlsx');
     }
