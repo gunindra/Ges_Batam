@@ -133,6 +133,14 @@
                             <textarea class="form-control" name="alamatCompany" id="alamatCompany" placeholder="Masukkan Alamat"></textarea>
                             <div id="alamatCompanyError" class="text-danger mt-1 d-none">Silahkan isi Alamat</div>
                         </div>
+                        <div class="mt-3">
+                            <label for="hpCompany" class="form-label fw-bold">Telepon (HP)</label>
+                            <input type="number" class="form-control" id="hpCompany" placeholder="Masukkan Nomor Telepon">
+                        </div>
+                        <div class="mt-3">
+                            <label for="emailCompany" class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" id="emailCompany" placeholder="Masukkan Email">
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                             <button type="button" id="saveCompany" class="btn btn-primary">Save changes</button>
@@ -171,6 +179,16 @@
                             <textarea class="form-control" name="alamatCompanyEdit" id="alamatCompanyEdit"></textarea>
                             <div id="alamatCompanyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Alamat</div>
                         </div>
+                        <div class="mt-3">
+                            <label for="hpCompanyEdit" class="form-label fw-bold">Telepon (HP)</label>
+                            <input type="number" class="form-control" id="hpCompanyEdit"
+                                placeholder="Masukkan Nomor Telepon">
+                        </div>
+                        <div class="mt-3">
+                            <label for="emailCompanyEdit" class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" id="emailCompanyEdit"
+                                placeholder="Masukkan Email">
+                        </div>
                     </div>
                     <!-- Footer untuk tombol aksi -->
                     <div class="modal-footer">
@@ -184,8 +202,8 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-4">Company</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item">Master Data</li>
-                <li class="breadcrumb-item active" aria-current="page">Company</li>
+                <li class="breadcrumb-item">Company</li>
+                {{-- <li class="breadcrumb-item active" aria-current="page">Company</li> --}}
             </ol>
         </div>
         <div class="row mb-3">
@@ -205,30 +223,30 @@
 
                         <div id="containerCompany" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
-                                                                                <thead class="thead-light">
-                                                                                    <tr>
-                                                                                        <th>No.</th>
-                                                                                        <th>Judul</th>
-                                                                                        <th>Isi Carousel</th>
-                                                                                        <th>Image</th>
-                                                                                        <th>Action</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    <tr>
-                                                                                        <td>1.</td>
-                                                                                        <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                                                        <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                                                        <td>
-                                                                                        <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                                                    class="fas fa-edit"></i></a>
-                                                                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                                                        </td>
-                                                                                    </tr>
+                                                                                        <thead class="thead-light">
+                                                                                            <tr>
+                                                                                                <th>No.</th>
+                                                                                                <th>Judul</th>
+                                                                                                <th>Isi Carousel</th>
+                                                                                                <th>Image</th>
+                                                                                                <th>Action</th>
+                                                                                            </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td>1.</td>
+                                                                                                <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                                                                <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                                                                <td>
+                                                                                                <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                                                            class="fas fa-edit"></i></a>
+                                                                                                <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                                                                <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                                                                </td>
+                                                                                            </tr>
 
-                                                                                </tbody>
-                                                                            </table> -->
+                                                                                        </tbody>
+                                                                                    </table> -->
                         </div>
                     </div>
                 </div>
@@ -338,7 +356,8 @@
                 var namaCompany = $('#namaCompany').val().trim();
                 var logoCompany = $('#logoCompany')[0].files[0];
                 var alamatCompany = $('#alamatCompany').val().trim();
-
+                var hpCompany = $('#hpCompany').val().trim();
+                var emailCompany = $('#emailCompany').val().trim();
                 var isValid = true;
 
                 if (namaCompany === '') {
@@ -392,6 +411,8 @@
                             formData.append('namaCompany', namaCompany);
                             formData.append('logoCompany', logoCompany);
                             formData.append('alamatCompany', alamatCompany);
+                            formData.append('hpCompany', hpCompany);
+                            formData.append('emailCompany', emailCompany);
                             formData.append('_token', '{{ csrf_token() }}');
 
                             $.ajax({
@@ -433,8 +454,8 @@
                                                 .removeClass('d-none');
                                         }
                                     } else {
-                                        Swal.fire('error',
-                                            'Terjadi kesalahan saat menyimpan data.'
+                                        Swal.fire("error",
+                                            "Terjadi kesalahan saat menyimpan data."
                                         );
                                     }
                                 }
@@ -512,6 +533,8 @@
                         $('#namaCompanyEdit').val(response.data.name);
                         $('#textNamaEdit').text(response.data.logo);
                         $('#alamatCompanyEdit').val(response.data.alamat);
+                        $('#hpCompanyEdit').val(response.data.hp);
+                        $('#emailCompanyEdit').val(response.data.email);
                         $('#modalEditCompany').modal('show');
                         $('#saveEditCompany').data('id', companyid);
                     },
@@ -527,6 +550,8 @@
                 var namaCompany = $('#namaCompanyEdit').val();
                 var logoCompany = $('#logoCompanyEdit')[0].files[0];
                 var alamatCompany = $('#alamatCompanyEdit').val();
+                var hpCompany = $('#hpCompanyEdit').val().trim();
+                var emailCompany = $('#emailCompanyEdit').val().trim();
 
                 let isValid = true;
 
@@ -546,9 +571,6 @@
                     } else {
                         $('#logoCompanyErrorEdit').addClass('d-none');
                     }
-                } else if ($('#textNamaEdit').text() === '') {
-                    $('#logoCompanyErrorEdit').removeClass('d-none');
-                    isValid = false;
                 } else {
                     $('#logoCompanyErrorEdit').addClass('d-none');
                 }
@@ -587,6 +609,8 @@
                                 formData.append('logoCompany', logoCompany);
                             }
                             formData.append('alamatCompany', alamatCompany);
+                            formData.append('hpCompany', hpCompany);
+                            formData.append('emailCompany', emailCompany);
                             $.ajaxSetup({
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
@@ -621,7 +645,7 @@
             });
 
             $('#modalTambahCompany').on('hidden.bs.modal', function() {
-                $('#namaCompany,#logoCompany,#alamatCompany').val('');
+                $('#namaCompany,#logoCompany,#alamatCompany,#hpCompany,#emailCompany').val('');
                 if (!$('#namaCompanyError').hasClass('d-none')) {
                     $('#namaCompanyError').addClass('d-none');
 

@@ -27,6 +27,7 @@ class AssetReportController extends Controller
 
     public function getAssetReport(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
         $customer = $request->customer;
@@ -46,6 +47,7 @@ class AssetReportController extends Controller
             'tbl_jurnal.ending_value as ending_value'
         )
         ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+        ->where('tbl_assets.company_id', $companyId)
         ->whereDate('tbl_jurnal.tanggal', '>=', $startDate)
         ->whereDate('tbl_jurnal.tanggal', '<=', $endDate)
         ->get()
@@ -55,7 +57,7 @@ class AssetReportController extends Controller
             $item->ending_balance = $item->beginning_balance - $item->credit;
             return $item;
         });
-    
+
 
         $output = '
                     <h5 style="text-align:center; width:100%">'
@@ -63,7 +65,7 @@ class AssetReportController extends Controller
             . \Carbon\Carbon::parse($endDate)->format('d M Y') .
             '</h5>
 
-                    <div class="card-body">   
+                    <div class="card-body">
                     <table class="table" width="100%">
                     <thead>
                         <th width="15%" style="text-left">Date</th>
@@ -93,7 +95,7 @@ class AssetReportController extends Controller
         return $output;
     }
 
-    
+
     public function exportAssetReport(Request $request)
     {
         $startDate = $request->input('startDate');
@@ -103,6 +105,8 @@ class AssetReportController extends Controller
     }
     public function generatePdf(Request $request)
     {
+
+        $companyId = session('active_company_id');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
         try {
@@ -117,6 +121,7 @@ class AssetReportController extends Controller
                 DB::raw('SUM(tbl_jurnal.ending_value) as ending_value')
             )
             ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+            ->where('tbl_assets.company_id', $companyId)
             ->groupBy(
                 'tbl_assets.id',
                 'tbl_assets.acquisition_price',
@@ -124,8 +129,8 @@ class AssetReportController extends Controller
                 'tbl_assets.asset_name',
                 'tbl_assets.acquisition_date',
             );
-            
-    
+
+
             // Filter berdasarkan tanggal jika tersedia
             if ($request->startDate && $request->endDate) {
                 $query->whereBetween('tbl_jurnal.tanggal', [
@@ -133,19 +138,19 @@ class AssetReportController extends Controller
                     Carbon::parse($request->endDate)->format('Y-m-d')
                 ]);
             }
-    
+
             // Ambil hasil query dan proses data
             $assets = $query->get()->map(function ($asset) {
                 $asset->beginning_balance = $asset->acquisition_price - $asset->total_credit_before;
                 $asset->ending_balance = $asset->beginning_balance - $asset->credit;
                 return $asset;
             });
-    
+
             // Pastikan data tidak kosong
             if ($assets->isEmpty()) {
                 return response()->json(['error' => 'No data available for the selected date range'], 404);
             }
-    
+
             // Generate PDF
             $pdf = pdf::loadView('exportPDF.assetreportpdf', [
                 'assets' => $assets,
@@ -155,27 +160,27 @@ class AssetReportController extends Controller
             ->setPaper('A4', 'portrait')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
             ->setWarnings(false);
-    
+
             // Buat folder untuk menyimpan PDF jika belum ada
             $folderPath = storage_path('app/public/assetreports');
             if (!file_exists($folderPath)) {
                 mkdir($folderPath, 0777, true);
             }
-    
+
             // Tentukan nama file untuk PDF
             $fileName = 'assets_report_' . (string) Str::uuid() . '.pdf';
             $filePath = $folderPath . '/' . $fileName;
-    
+
             // Simpan PDF
             $pdf->save($filePath);
-    
+
             // Kembalikan URL PDF yang dihasilkan
             $url = asset('storage/assetreports/' . $fileName);
             return response()->json(['url' => $url]);
-    
+
         } catch (\Exception $e) {
             Log::error('Error generating Asset Report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
         }
     }
-}    
+}

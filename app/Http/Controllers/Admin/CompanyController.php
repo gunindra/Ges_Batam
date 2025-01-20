@@ -37,6 +37,8 @@ class CompanyController extends Controller
             'name',
             'logo',
             'alamat',
+            'hp',
+            'email',
             'is_active',
         ])
         ->where(function ($query) use ($txSearch) {
@@ -55,6 +57,8 @@ class CompanyController extends Controller
                         <th>Name</th>
                         <th>Logo</th>
                         <th>Alamat</th>
+                        <th>Telepon</th>
+                        <th>Email</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -78,6 +82,8 @@ class CompanyController extends Controller
                     <td>' . $row->name . '</td>
                     <td>' . $logo . '</td>
                     <td>' . $row->alamat . '</td>
+                    <td>' . $row->hp . '</td>
+                    <td>' . $row->email . '</td>
                     <td>' . $updateBtn . $switchBtn . '</td>
                 </tr>
             ';
@@ -114,11 +120,17 @@ class CompanyController extends Controller
 
     public function tambahCompany(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
             'namaCompany' => 'required|string|max:255|unique:tbl_company,name',
             'alamatCompany' => 'required|string|max:255',
             'logoCompany' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'hpCompany' => 'nullable|string|max:20',
+            'emailCompany' => 'nullable|email|max:255',
         ]);
+
+
 
         try {
             $logoPath = $request->file('logoCompany')->store('logos', 'public');
@@ -128,6 +140,8 @@ class CompanyController extends Controller
                 'name' => $request->namaCompany,
                 'alamat' => $request->alamatCompany,
                 'logo' => $logoPath,
+                'hp' => $request->hpCompany,
+                'email' => $request->emailCompany,
             ]);
 
             return response()->json(['success' => 'Company Berhasil ditambahkan'], 200);
@@ -173,6 +187,8 @@ class CompanyController extends Controller
             'namaCompany' => 'required|string|max:255|unique:tbl_company,name,' . $request->id,
             'alamatCompany' => 'required|string|max:255',
             'logoCompany' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'hpCompany' => 'nullable|string|max:20',
+            'emailCompany' => 'nullable|email|max:255',
         ]);
 
         try {
@@ -182,6 +198,8 @@ class CompanyController extends Controller
             // Perbarui data
             $company->name = $request->namaCompany;
             $company->alamat = $request->alamatCompany;
+            $company->hp = $request->hpCompany;
+            $company->email = $request->emailCompany;
 
             // Periksa apakah ada file logo baru yang diunggah
             if ($request->hasFile('logoCompany')) {
@@ -202,6 +220,10 @@ class CompanyController extends Controller
                 'success' => true,
                 'message' => 'Company berhasil diperbarui.'
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'errors' => $e->errors()
+            ], 422); // Validasi gagal
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
