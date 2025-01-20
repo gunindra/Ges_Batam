@@ -17,18 +17,23 @@ class SoaController extends Controller
 
     public function index() {
 
-        $customers = Customer::where('status', '=', 1)->get();
+        $companyId = session('active_company_id');
+        $customers = Customer::where('status', '=', 1)
+        ->where('tbl_pembeli.company_id', $companyId)
+        ->get();
         return view('Report.Soa.indexbalance', compact('customers'));
     }
 
     public function getSoa(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
         $customer = $request->customer;
 
         $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
-                    ->where('pembeli_id', '=', $customer);
+                    ->where('pembeli_id', '=', $customer)
+                    ->where('tbl_invoice.company_id', $companyId);
 
 
         if ($request->startDate){
@@ -67,6 +72,7 @@ class SoaController extends Controller
     public function soaWA(Request $request)
     {
         try{
+            $companyId = session('active_company_id');
             $customer_id = $request->customer;
             $customer = Customer::where('id', '=', $customer_id)->first();
 
@@ -75,7 +81,8 @@ class SoaController extends Controller
             }
 
             $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
-                        ->where('pembeli_id', '=', $customer_id);
+                        ->where('pembeli_id', '=', $customer_id)
+                        ->where('tbl_invoice.company_id', $companyId);
             $startDate = '';
             $endDate = '';
 
