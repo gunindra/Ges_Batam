@@ -25,13 +25,19 @@ class PenerimaanKasController extends Controller
     public function index()
     {
 
-        $customers = Customer::where('status', '=', 1)->get();
+        $companyId = session('active_company_id');
+
+        $customers = Customer::where('status', '=', 1)
+        ->where('tbl_pembeli.company_id', $companyId)
+        ->get();
 
         $payment = DB::table('tbl_payment_account')
         ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
         ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+
+
         ->get();
-                        
+
         return view('Report.PenerimaanKas.indexpenerimaankas', [
             'customers' => $customers,
             'payment' => $payment
@@ -40,6 +46,7 @@ class PenerimaanKasController extends Controller
 
     public function getPenerimaanKas(Request $request)
     {
+        $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
         $status = $request->status;
 
@@ -51,6 +58,7 @@ class PenerimaanKasController extends Controller
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
             ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
             ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+            ->where('tbl_payment_customer.company_id', $companyId)
             ->whereDate('tbl_payment_customer.payment_date', '>=', $startDate)
             ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
 
@@ -123,10 +131,14 @@ class PenerimaanKasController extends Controller
     }
     public function generatePdf(Request $request)
     {
+
+        $companyId = session('active_company_id');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
         $customer = $request->nama_pembeli ?? '-';
         $account = $request->name ?? '-';
+
+
 
         try {
             $customerName = DB::table('tbl_pembeli')
@@ -140,19 +152,27 @@ class PenerimaanKasController extends Controller
             $payment = Payment::join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
                 ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
                 ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-                ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id');
+                ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+                ->where('tbl_payment_customer.company_id', $companyId);
 
-            if ($request->startDate && $request->endDate) {
-                $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
-                $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
-                $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+                if ($request->startDate && $request->endDate) {
+                    $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
+                    $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
 
-                $startDate = $startDateCarbon->format('d F Y');
-                $endDate = $endDateCarbon->format('d F Y');
-            } else {
-                $startDate = '-';
-                $endDate = '-';
-            }
+                    $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+
+                    $startDate = $startDateCarbon->format('d F Y');
+                    $endDate = $endDateCarbon->format('d F Y');
+                } else {
+                    $startDateCarbon = now()->startOfMonth();
+                    $endDateCarbon = now()->endOfMonth();
+
+                    $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+
+                    $startDate = $startDateCarbon->format('d F Y');
+                    $endDate = $endDateCarbon->format('d F Y');
+                }
+
 
             if ($customer && $customer !== '-') {
                 $payment->where('tbl_payment_customer.pembeli_id', '=', $customer);
