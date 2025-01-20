@@ -30,7 +30,9 @@ class KasReportExport implements FromView, WithEvents
      */
     public function view(): View
     {
-         $customerName =DB::table('tbl_pembeli')
+
+        $companyId = session('active_company_id');
+        $customerName =DB::table('tbl_pembeli')
             ->where('id', $this->customer)
             ->value('nama_pembeli');
 
@@ -41,17 +43,23 @@ class KasReportExport implements FromView, WithEvents
         $payment = Payment::join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
             ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-            ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id');
+            ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+            ->where('tbl_payment_customer.company_id', $companyId);
             if ( $this->startDate && $this->endDate) {
                 $startDateCarbon = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
                 $endDateCarbon = Carbon::createFromFormat('d M Y', $this->endDate)->endOfDay();
                 $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
-    
-                $this->startDate = $startDateCarbon->format('d F Y'); 
-                $this->endDate = $endDateCarbon->format('d F Y');     
+
+                $this->startDate = $startDateCarbon->format('d F Y');
+                $this->endDate = $endDateCarbon->format('d F Y');
             } else {
-                $this->startDate = '-';
-                $this->endDate = '-';
+                $startDateCarbon = now()->startOfMonth();
+                $endDateCarbon = now()->endOfMonth();
+
+                $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+
+                $this->startDate  = $startDateCarbon->format('d F Y');
+                $this->endDate = $endDateCarbon->format('d F Y');
             }
 
             if ($this->customer && $this->customer !== '-') {

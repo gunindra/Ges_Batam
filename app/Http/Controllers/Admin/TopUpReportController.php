@@ -46,13 +46,13 @@ class TopUpReportController extends Controller
 
     $topup = HistoryTopup::where('tbl_history_topup.status', '!=', 'canceled')
     ->where('tbl_history_topup.company_id', $companyId)
-    ->whereDate('date', '>=', $startDate) // Filter default tanggal
+    ->whereDate('date', '>=', $startDate)
     ->whereDate('date', '<=', $endDate);
 
     $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
         ->where('tbl_payment_invoice.kuota', '!=', 0)
         ->where('tbl_payment_customer.company_id', $companyId)
-        ->whereDate('payment_buat', '>=', $startDate) // Filter default tanggal
+        ->whereDate('payment_buat', '>=', $startDate)
         ->whereDate('payment_buat', '<=', $endDate);
 
 

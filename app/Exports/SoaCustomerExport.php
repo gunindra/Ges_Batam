@@ -28,20 +28,28 @@ class SoaCustomerExport implements FromView, WithEvents
      */
     public function view(): View
     {
-        $invoice = Invoice::where('status_bayar', '=', 'Belum lunas');
+        $companyId = session('active_company_id');
+        $invoice = collect();
 
-        if ($this->customer !== '-') {
-            $invoice->where('pembeli_id', '=', $this->customer);
+        if ($this->startDate || $this->endDate) {
+            $query = Invoice::where('status_bayar', '=', 'Belum lunas')
+                ->where('tbl_invoice.company_id', $companyId);
+
+            if ($this->customer !== '-') {
+                $query->where('pembeli_id', '=', $this->customer);
+            }
+
+            if ($this->startDate) {
+                $query->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));
+            }
+
+            if ($this->endDate) {
+                $query->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($this->endDate)));
+            }
+
+            $invoice = $query->get();
         }
 
-        if ($this->startDate) {
-            $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));
-        }
-        if ($this->endDate) {
-            $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($this->endDate)));
-        }
-
-        $invoice = $invoice->get();
         $customerName = '-';
         if ($this->customer !== '-') {
             $customerData = DB::table('tbl_pembeli')->where('id', $this->customer)->first();
@@ -50,11 +58,12 @@ class SoaCustomerExport implements FromView, WithEvents
 
         return view('exportExcel.soacustomer', [
             'invoice' => $invoice,
-            'startDate' => $this->startDate,
-            'endDate' => $this->endDate,
+            'startDate' => $this->startDate ?? '-',
+            'endDate' => $this->endDate ?? '-',
             'customer' => $customerName,
         ]);
     }
+
 
     public function registerEvents(): array
     {
