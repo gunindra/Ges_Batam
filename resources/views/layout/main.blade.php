@@ -255,8 +255,10 @@
                                 href="{{ route('category') }}">Category</a>
                             {{-- <a class="collapse-item {{ request()->routeIs('role') ? 'active' : '' }}"
                             href="{{ route('role') }}">Role</a> --}}
-                            <a class="collapse-item {{ request()->routeIs('user') ? 'active' : '' }}"
-                                href="{{ route('user') }}">User</a>
+                            @if (Auth::user()->role === 'superadmin')
+                                <a class="collapse-item {{ request()->routeIs('user') ? 'active' : '' }}"
+                                    href="{{ route('user') }}">User</a>
+                            @endif
                             <a class="collapse-item {{ request()->routeIs('vendor') ? 'active' : '' }}"
                                 href="{{ route('vendor') }}">Vendor</a>
                             @if (Auth::user()->role === 'superadmin')
@@ -381,10 +383,12 @@
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
-                                <a class="dropdown-item" href="{{ route('indexcompany') }}">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Company
-                                </a>
+                                @if (Auth::user()->role === 'superadmin')
+                                    <a class="dropdown-item" href="{{ route('indexcompany') }}">
+                                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Company
+                                    </a>
+                                @endif
                                 {{-- <a class="dropdown-item" href="{{ route('verification.notice') }}">
                                 <i class="fas fa-envelope fa-sm fa-fw mr-2 text-gray-400"></i>
                                 Verify Account

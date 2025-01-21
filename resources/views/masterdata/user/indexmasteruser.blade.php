@@ -52,7 +52,7 @@
                         <div class="mt-3">
                             <label for="roleUsers" class="form-label fw-bold">Role</label>
                             <select class="form-control" id="roleUsers" style="width: 466px;">
-                                <option value="" selected disabled>Pilih Status</option>
+                                <option value="" selected disabled>Pilih Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="superadmin">SuperAdmin</option>
                                 <option value="supervisor">Supervisor</option>
@@ -64,6 +64,7 @@
                             <label for="companyUsers" class="form-label fw-bold">Company</label>
                             <select class="form-control" id="companyUsers" style="width: 466px;">
                                 <option value="" selected disabled>Pilih Company</option>
+                                <option value="null">Semua Company</option>
                                 @foreach ($listCompany as $company)
                                         <option value="{{ $company->id }}">
                                             {{ $company->name }}
@@ -128,7 +129,7 @@
                     <div class="mt-3">
                         <label for="roleUsersEdit" class="form-label fw-bold">Role</label>
                         <select class="form-control" id="roleUsersEdit" style="width: 466px;">
-                            <option value="" selected disabled>Pilih Status</option>
+                            <option value="" selected disabled>Pilih Role</option>
                             <option value="admin">Admin</option>
                             <option value="superadmin">SuperAdmin</option>
                             <option value="supervisor">Supervisor</option>
@@ -140,6 +141,7 @@
                             <label for="companyUsersEdit" class="form-label fw-bold">Company</label>
                             <select class="form-control" id="companyUsersEdit" style="width: 466px;">
                                 <option value="" selected disabled>Pilih Company</option>
+                                <option value="null">Semua Company</option>
                                 @foreach ($listCompany as $company)
                                         <option value="{{ $company->id }}">
                                             {{ $company->name }}
@@ -260,6 +262,7 @@
             var passwordConfirmation = $('#passwordConfirmationUsers').val();
             var roleUsers = $('#roleUsers').val();
             var companyUsers = $('#companyUsers').val();
+            companyUsers = companyUsers === 'null' ? null : companyUsers;
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -399,16 +402,18 @@
                     $('#emailUsersEdit').val(response.email);
                     $('#passwordUsersEdit').val(response.password);
                     $('#roleUsersEdit').val(response.role);
-                    $('#companyUsersEdit').val(response.name);
+                    $('#companyUsersEdit').val(response.company_id);
                     $('#modalEditUsers').modal('show');
                     $('#saveEditUsers').data('id', userid);
                     if (response.role === 'driver' || response.role === 'customer') {
                         $('#roleUsersEdit').hide();
                         $('#roleUsersEdit').val('');
                         $('label[for="roleUsersEdit"]').hide();
+                        $('label[for="companyUsersEdit"]').hide();
                     } else {
                         $('#roleUsersEdit').show();
                         $('label[for="roleUsersEdit"]').show();
+                        $('label[for="companyUsersEdit"]').show();
                     }
                 },
                 error: function () {
@@ -425,6 +430,7 @@
         var passwordConfirmation = $('#passwordConfirmationUsersEdit').val();
         var roleUsers = $('#roleUsersEdit').val();
         var companyUsers = $('#companyUsersEdit').val();
+        companyUsers = companyUsers === 'null' ? null : companyUsers;
 
         var isValid = true;
         var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

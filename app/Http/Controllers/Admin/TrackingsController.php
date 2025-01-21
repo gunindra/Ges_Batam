@@ -37,7 +37,7 @@ class TrackingsController extends Controller
                 'id'
             ])
             ->where('tbl_tracking.company_id', $companyId);
-            
+
         if ($request->status) {
             $query->where('status', $request->status);
         }

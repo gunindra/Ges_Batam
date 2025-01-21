@@ -34,7 +34,8 @@ class UserController extends Controller
             'tbl_users.email',
             'tbl_users.password',
             'tbl_users.role',
-            'tbl_company.name as company_name'
+            'tbl_company.name as company_name',
+            'tbl_users.company_id'
         )
         ->leftJoin('tbl_company', 'tbl_users.company_id', '=', 'tbl_company.id') // Menyesuaikan nama kolom FK
         ->where(function ($q) use ($txSearch) {
@@ -60,13 +61,15 @@ class UserController extends Controller
                     <tbody>';
 
     foreach ($data as $item) {
+
+        $companyName = $item->company_id === null ? 'Semua Company' : ($item->company_name ?? '-');
         $output .=
             '
             <tr>
                 <td class="">' . ($item->name ?? '-') . '</td>
                 <td class="">' . ($item->email ?? '-') . '</td>
                 <td class="">' . ($item->role ?? '-') . '</td>
-                <td class="">' . ($item->company_name ?? '-') . '</td>
+                  <td class="">' . $companyName . '</td>
              <td>
                     <a class="btn btnUpdateUsers btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-name="' . $item->name . '" data-email="' . $item->email . '" data-role="' . $item->role . '"><i class="fas fa-edit"></i></a>
                     <a class="btn btnDestroyUsers btn-sm btn-danger text-white" data-id="' . $item->id . '"><i class="fas fa-trash"></i></a>
@@ -94,7 +97,7 @@ public function addUsers(Request $request)
         $User->email = $request->input('emailUsers');
         $User->password = bcrypt($request->input('passwordUsers'));
         $User->role = $request->input('roleUsers');
-        $User->company_id = $request->input('companyUsers'); 
+        $User->company_id = $request->input('companyUsers');
 
         $User->save();
 
@@ -124,6 +127,7 @@ public function updateUsers(Request $request, $id)
         $User = User::findOrFail($id);
         $User->name = $request->input('nameUsers');
         $User->email = $request->input('emailUsers');
+        $User->company_id = $request->input('companyUsers');
 
         if ($request->filled('passwordUsers')) {
             $User->password = bcrypt($request->input('passwordUsers'));
@@ -131,10 +135,6 @@ public function updateUsers(Request $request, $id)
 
         if ($request->input('roleUsers') !== null) {
             $User->role = $request->input('roleUsers');
-        }
-
-        if ($request->input('companyUsers') !== null) {
-            $User->company_id = $request->input('companyUsers'); 
         }
 
         $User->update($validated);
