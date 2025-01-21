@@ -140,7 +140,9 @@
                         <div class="mt-3">
                             <label for="emailCompany" class="form-label fw-bold">Email</label>
                             <input type="email" class="form-control" id="emailCompany" placeholder="Masukkan Email">
+                            <div id="emailCompanyError" class="text-danger d-none"></div>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
                             <button type="button" id="saveCompany" class="btn btn-primary">Save changes</button>
@@ -188,6 +190,7 @@
                             <label for="emailCompanyEdit" class="form-label fw-bold">Email</label>
                             <input type="email" class="form-control" id="emailCompanyEdit"
                                 placeholder="Masukkan Email">
+                            <div id="emailCompanyErrorEdit" class="text-danger d-none"></div>
                         </div>
                     </div>
                     <!-- Footer untuk tombol aksi -->
@@ -223,30 +226,30 @@
 
                         <div id="containerCompany" class="table-responsive px-2">
                             <!-- <table class="table align-items-center table-flush table-hover" id="tableCarousel">
-                                                                                        <thead class="thead-light">
-                                                                                            <tr>
-                                                                                                <th>No.</th>
-                                                                                                <th>Judul</th>
-                                                                                                <th>Isi Carousel</th>
-                                                                                                <th>Image</th>
-                                                                                                <th>Action</th>
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            <tr>
-                                                                                                <td>1.</td>
-                                                                                                <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
-                                                                                                <td><img src="/img/Aboutus.jpg" width="50px"></td>
-                                                                                                <td>
-                                                                                                <a href="#" class="btn btn-sm btn-secondary"><i
-                                                                                                            class="fas fa-edit"></i></a>
-                                                                                                <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                                                                                <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
-                                                                                                </td>
-                                                                                            </tr>
+                                                                                                            <thead class="thead-light">
+                                                                                                                <tr>
+                                                                                                                    <th>No.</th>
+                                                                                                                    <th>Judul</th>
+                                                                                                                    <th>Isi Carousel</th>
+                                                                                                                    <th>Image</th>
+                                                                                                                    <th>Action</th>
+                                                                                                                </tr>
+                                                                                                            </thead>
+                                                                                                            <tbody>
+                                                                                                                <tr>
+                                                                                                                    <td>1.</td>
+                                                                                                                    <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio natus aspernatur eligendi, aperiam voluptatibus quia! Facere eveniet consequuntur nostrum molestias, asperiores cupiditate quibusdam dolore molestiae quod modi? Assumenda, tenetur repudiandae?</td>
+                                                                                                                    <td><img src="/img/Aboutus.jpg" width="50px"></td>
+                                                                                                                    <td>
+                                                                                                                    <a href="#" class="btn btn-sm btn-secondary"><i
+                                                                                                                                class="fas fa-edit"></i></a>
+                                                                                                                    <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                                                                                                    <a href="#" class="btn btn-sm btn-primary btnGambar"><i class="fas fa-eye"></i></a>
+                                                                                                                    </td>
+                                                                                                                </tr>
 
-                                                                                        </tbody>
-                                                                                    </table> -->
+                                                                                                            </tbody>
+                                                                                                        </table> -->
                         </div>
                     </div>
                 </div>
@@ -386,6 +389,15 @@
                     $('#alamatCompanyError').addClass('d-none');
                 }
 
+                if (emailCompany !== '' && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(emailCompany)) {
+                    $('#emailCompanyError')
+                        .text('Masukkan Format Email Yang Benar.')
+                        .removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#emailCompanyError').addClass('d-none');
+                }
+
                 if (isValid) {
                     Swal.fire({
                         title: 'Apakah Anda yakin?',
@@ -451,6 +463,12 @@
                                         if (errors.logoCompany) {
                                             $('#logoCompanyError')
                                                 .text(errors.logoCompany[0])
+                                                .removeClass('d-none');
+                                        }
+
+                                        if (errors.emailCompany) {
+                                            $('#emailCompanyError')
+                                                .text(errors.emailCompany[0])
                                                 .removeClass('d-none');
                                         }
                                     } else {
@@ -582,6 +600,13 @@
                     $('#alamatCompanyErrorEdit').addClass('d-none');
                 }
 
+                if (emailCompany !== '' && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(emailCompany)) {
+                    $('#emailCompanyErrorEdit').text('Masukkan Format Email Yang Benar.').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#emailCompanyErrorEdit').addClass('d-none');
+                }
+
                 if (isValid) {
                     Swal.fire({
                         title: 'Apakah Anda yakin?',
@@ -627,18 +652,48 @@
                                 success: function(response) {
                                     Swal.close();
                                     if (response.success) {
-                                        showMessage("success", response
-                                            .message);
+                                        showMessage("success", response.message);
                                         $('#modalEditCompany').modal('hide');
                                         getlistCompany();
                                     }
                                 },
-                                error: function(response) {
+                                error: function(xhr) {
                                     Swal.close();
-                                    showMessage("error",
-                                        "Terjadi kesalahan, coba lagi nanti");
+                                    if (xhr.status === 422) {
+                                        // Ambil pesan error dari server
+                                        var errors = xhr.responseJSON.errors;
+
+                                        if (errors.namaCompany) {
+                                            $('#namaCompanyErrorEdit').text(errors
+                                                .namaCompany[0]).removeClass(
+                                                'd-none');
+                                        }
+
+                                        if (errors.alamatCompany) {
+                                            $('#alamatCompanyErrorEdit').text(errors
+                                                .alamatCompany[0]).removeClass(
+                                                'd-none');
+                                        }
+
+                                        if (errors.logoCompany) {
+                                            $('#logoCompanyErrorEdit').text(errors
+                                                .logoCompany[0]).removeClass(
+                                                'd-none');
+                                        }
+
+                                        if (errors.emailCompany) {
+                                            $('#emailCompanyErrorEdit').text(errors
+                                                .emailCompany[0]).removeClass(
+                                                'd-none');
+                                        }
+                                    } else {
+                                        showMessage("error", xhr.status === 500 ?
+                                            "Kesalahan server. Silakan coba lagi nanti." :
+                                            "Terjadi kesalahan, coba lagi nanti.");
+                                    }
                                 }
                             });
+
                         }
                     });
                 }
@@ -657,6 +712,9 @@
                 if (!$('#alamatCompanyError').hasClass('d-none')) {
                     $('#alamatCompanyError').addClass('d-none');
 
+                }
+                if (!$('#emailCompanyError').hasClass('d-none')) {
+                    $('#emailCompanyError').addClass('d-none');
                 }
             });
             $('#modalEditCompany').on('hidden.bs.modal', function() {
