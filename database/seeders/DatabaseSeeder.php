@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             TipePembayaranSeeder::class,
             UserSeeder::class,
             COASeeder::class,
+            CompanySeeder::class,
         ]);
     }
 }
