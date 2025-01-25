@@ -3,7 +3,12 @@
 @section('title', 'Master Data | Costumer')
 
 @section('main')
-
+<style>
+    .dataTables_length,
+    .dataTables_filter {
+        display: none;
+    }
+</style>
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <!-- Modal Tambah Customer -->
@@ -296,8 +301,8 @@
                     <div class="float-left ps-4">
                         <select class="form-control ml-2" id="filterStatus" name="status" style="width: 200px;">
                             <option value="" selected disabled>Pilih Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Non Active</option>
+                            <option value="Active">Active</option>
+                            <option value="Non Active">Non Active</option>
                         </select>
                     </div>
                     <div class="float-left ps-4">
@@ -307,41 +312,20 @@
                         </button>
                     </div>
                     <div id="containerCustomer" class="table-responsive px-3">
-                        {{-- <table class="table align-items-center table-flush table-hover" id="tableCostumer">
+                        <table id="tableCustomer" class="table align-items-center table-flush table-hover">
                             <thead class="thead-light">
                                 <tr>
+                                    <th>Marking</th>
                                     <th>Nama</th>
+                                    <th>Pengiriman</th>
                                     <th>Alamat</th>
-                                    <th>No. Telp</th>
-                                    <th>Category</th>
+                                    <th>Transaksi Terakhir</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Ilham</td>
-                                    <td>Jl.Central Legenda poin blok j No. 13 </td>
-                                    <td>0893483478283</td>
-                                    <td><span class="badge badge-primary">VIP</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-primary">Show point</a>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Tio</td>
-                                    <td>Jl.Central Legenda poin blok j No. 12 </td>
-                                    <td>08123476282221</td>
-                                    <td>Normal</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-primary">Show point</a>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -355,52 +339,78 @@
 @section('script')
 <script>
     $(document).ready(function () {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-            </div> `;
-
-        const getListCustomer = () => {
-            const txtSearch = $('#txSearch').val();
-            const filterStatus = $('#filterStatus').val();
-
-            $.ajax({
+        var table = $('#tableCustomer').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
                 url: "{{ route('getlistCostumer') }}",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch,
-                    status: filterStatus
+                method: 'GET',
+                data: function (d) {
+                    d.status = $('#filterStatus').val();
                 },
-                beforeSend: () => {
-                    $('#containerCustomer').html(loadSpin)
-                }
-            })
-                .done(res => {
-                    $('#containerCustomer').html(res)
-                    $('#tableCostumer').DataTable({
-                        searching: false,
-                        lengthChange: false,
-                        "bSort": true,
-                        "aaSorting": [],
-                        pageLength: 7,
-                        "lengthChange": false,
-                        responsive: true,
-                        language: {
-                            search: ""
-                        }
+                error: function (xhr, error, thrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load customer data. Please try again!',
+                        confirmButtonText: 'OK'
                     });
-                })
-        }
-
-        getListCustomer();
-
-        $('#txSearch').keyup(function (e) {
-            var inputText = $(this).val();
-            if (inputText.length >= 1 || inputText.length == 0) {
-                getListCustomer();
+                }
+            },
+            columns: [{
+                data: 'marking',
+                name: 'marking'
+            },
+            {
+                data: 'nama_pembeli',
+                name: 'nama_pembeli'
+            },
+            {
+                data: 'metode_pengiriman',
+                name: 'metode_pengiriman',
+            },
+            {
+                data: 'alamat_cell',
+                name: 'alamat_cell',
+            },
+            {
+                data: 'tanggal_bayar',
+                name: 'tanggal_bayar',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                },
+                searchable: false,
+                orderable: false
+            },
+            {
+                data: 'status_cell',
+                name: 'status_cell',
+            },
+            {
+                data: 'action',
+                name: 'action',
+                searchable: false,
+                orderable: false
+            }
+            ],
+            lengthChange: false,
+            pageLength: 7,
+            language: {
+                processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+                info: "_START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "Showing 0 to 0 of 0 entries",
+                emptyTable: "No data available in table",
+                loadingRecords: "Loading...",
+                zeroRecords: "No matching records found"
             }
         });
+
+        $('#txSearch').keyup(function (e) {
+            var searchValue = $(this).val();
+            table.search(searchValue).draw();
+        });
         $('#filterStatus').change(function () {
-            getListCustomer();
+            table.ajax.reload();
         });
 
 
@@ -604,7 +614,7 @@
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Data Berhasil Disimpan");
-                                    getListCustomer();
+                                    table.ajax.reload();
                                     $('#modalTambahCustomer').modal('hide');
                                 } else {
                                     Swal.fire({
@@ -912,7 +922,7 @@
 
                                 if (response.status === 'success') {
                                     showMessage("success", "Data Berhasil Diubah");
-                                    getListCustomer();
+                                    table.ajax.reload();
                                     $('#modalEditCustomer').modal('hide');
                                 } else {
                                     Swal.fire({
