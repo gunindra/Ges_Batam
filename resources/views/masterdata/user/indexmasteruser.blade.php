@@ -3,6 +3,13 @@
 @section('title', 'Master Data | User')
 
 @section('main')
+<style>
+    .dataTables_length,
+    .dataTables_filter {
+        display: none;
+    }
+</style>
+
 <!---Container Fluid-->
 <div class="container-fluid" id="container-wrapper">
     <div class="modal fade" id="modalTambahUsers" tabindex="-1" role="dialog" aria-labelledby="modalTambahUsersTitle"
@@ -66,10 +73,10 @@
                                 <option value="" selected disabled>Pilih Company</option>
                                 <option value="null">Semua Company</option>
                                 @foreach ($listCompany as $company)
-                                        <option value="{{ $company->id }}">
-                                            {{ $company->name }}
-                                        </option>
-                                    @endforeach
+                                    <option value="{{ $company->id }}">
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <div id="companyError" class="text-danger mt-1 d-none">Silahkan isi Company</div>
                         </div>
@@ -138,18 +145,18 @@
                         <div id="roleUsersErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Role</div>
                     </div>
                     <div class="mt-3">
-                            <label for="companyUsersEdit" class="form-label fw-bold">Company</label>
-                            <select class="form-control" id="companyUsersEdit" style="width: 466px;">
-                                <option value="" selected disabled>Pilih Company</option>
-                                <option value="null">Semua Company</option>
-                                @foreach ($listCompany as $company)
-                                        <option value="{{ $company->id }}">
-                                            {{ $company->name }}
-                                        </option>
-                                    @endforeach
-                            </select>
-                            <div id="companyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Company</div>
-                        </div>
+                        <label for="companyUsersEdit" class="form-label fw-bold">Company</label>
+                        <select class="form-control" id="companyUsersEdit" style="width: 466px;">
+                            <option value="" selected disabled>Pilih Company</option>
+                            <option value="null">Semua Company</option>
+                            @foreach ($listCompany as $company)
+                                <option value="{{ $company->id }}">
+                                    {{ $company->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div id="companyErrorEdit" class="text-danger mt-1 d-none">Silahkan isi Company</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
@@ -195,6 +202,18 @@
                                     class="fas fa-plus"></i></span>Tambah User</button>
                     </div>
                     <div id="containerUser" class="table-responsive px-3 ">
+                        <table id="tableUser" class="table align-items-center table-flush table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Company</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -208,51 +227,69 @@
 @section('script')
 <script>
     $(document).ready(function () {
-        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-            </div> `;
 
-        const getListUser = () => {
-            const txtSearch = $('#txSearch').val();
-            const filterRole = $('#filterRole').val();
-
-            $.ajax({
+        var table = $('#tableUser').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
                 url: "{{ route('getlistUser') }}",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch,
-                    role: filterRole
+                method: 'GET',
+                data: function (d) {
+                    d.role = $('#filterRole').val();
                 },
-                beforeSend: () => {
-                    $('#containerUser').html(loadSpin)
-                }
-            })
-                .done(res => {
-                    $('#containerUser').html(res)
-                    $('#tableUser').DataTable({
-                        searching: false,
-                        lengthChange: false,
-                        "bSort": true,
-                        "aaSorting": [],
-                        pageLength: 7,
-                        "lengthChange": false,
-                        responsive: true,
-                        language: {
-                            search: ""
-                        }
+                error: function (xhr, error, thrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load user data. Please try again!',
+                        confirmButtonText: 'OK'
                     });
-                })
-        }
-
-        getListUser();
-        $('#txSearch').keyup(function (e) {
-            var inputText = $(this).val();
-            if (inputText.length >= 1 || inputText.length == 0) {
-                getListUser();
+                }
+            },
+            columns: [{
+                data: 'name',
+                name: 'name'
+            },
+            {
+                data: 'email',
+                name: 'email'
+            },
+            {
+                data: 'role',
+                name: 'role',
+            },
+            {
+                data: 'company_name',
+                name: 'company_name',
+                searchable: false,
+                orderable: false
+            },
+            {
+                data: 'action',
+                name: 'action',
+                searchable: false,
+                orderable: false
+            }
+            ],
+            lengthChange: false,
+            pageLength: 7,
+            language: {
+                processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+                info: "_START_ to _END_ of _TOTAL_ entries",
+                infoEmpty: "Showing 0 to 0 of 0 entries",
+                emptyTable: "No data available in table",
+                loadingRecords: "Loading...",
+                zeroRecords: "No matching records found"
             }
         });
+
+        $('#txSearch').keyup(function() {
+            var searchValue = $(this).val();
+            table.search(searchValue).draw();
+        });
+
         $('#filterRole').change(function () {
-            getListUser();
+            table.ajax.reload();
         });
 
         $('#saveUsers').click(function () {
@@ -358,7 +395,7 @@
                                     showMessage("success",
                                         "Berhasil ditambahkan");
                                     $('#modalTambahUsers').modal('hide');
-                                    getListUser();
+                                    table.ajax.reload();
                                 }
                             },
                             error: function (response) {
@@ -421,63 +458,135 @@
                         "Terjadi kesalahan saat mengambil data");
                 }
             });
-    });
-    $('#saveEditUsers').on('click', function () {
-        var userid = $(this).data('id');
-        var nameUsers = $('#nameUsersEdit').val();
-        var emailUsers = $('#emailUsersEdit').val();
-        var passwordUsers = $('#passwordUsersEdit').val();
-        var passwordConfirmation = $('#passwordConfirmationUsersEdit').val();
-        var roleUsers = $('#roleUsersEdit').val();
-        var companyUsers = $('#companyUsersEdit').val();
-        companyUsers = companyUsers === 'null' ? null : companyUsers;
+        });
+        $('#saveEditUsers').on('click', function () {
+            var userid = $(this).data('id');
+            var nameUsers = $('#nameUsersEdit').val();
+            var emailUsers = $('#emailUsersEdit').val();
+            var passwordUsers = $('#passwordUsersEdit').val();
+            var passwordConfirmation = $('#passwordConfirmationUsersEdit').val();
+            var roleUsers = $('#roleUsersEdit').val();
+            var companyUsers = $('#companyUsersEdit').val();
+            companyUsers = companyUsers === 'null' ? null : companyUsers;
 
-        var isValid = true;
-        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            var isValid = true;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (nameUsers === '') {
-            $('#nameUsersErrorEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#nameUsersErrorEdit').addClass('d-none');
-        }
-        if (emailUsers === '') {
-            $('#emailUsersErrorEdit').text('Silahkan isi Email').removeClass('d-none');
-            isValid = false;
-        } else if (!emailRegex.test(emailUsers)) {
-            $('#emailUsersErrorEdit').text('Format Email tidak valid').removeClass('d-none');
-            isValid = false;
-        } else if (!emailUsers.endsWith('@gmail.com')) {
-            $('#emailUsersErrorEdit').text('Email harus menggunakan @gmail.com').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#emailUsersErrorEdit').addClass('d-none');
-        }
-        if (passwordUsers.length > 0) {
-
-            if (passwordUsers.length < 6) {
-                $('#passwordUsersErrorEdit').removeClass('d-none');
+            if (nameUsers === '') {
+                $('#nameUsersErrorEdit').removeClass('d-none');
                 isValid = false;
             } else {
+                $('#nameUsersErrorEdit').addClass('d-none');
+            }
+            if (emailUsers === '') {
+                $('#emailUsersErrorEdit').text('Silahkan isi Email').removeClass('d-none');
+                isValid = false;
+            } else if (!emailRegex.test(emailUsers)) {
+                $('#emailUsersErrorEdit').text('Format Email tidak valid').removeClass('d-none');
+                isValid = false;
+            } else if (!emailUsers.endsWith('@gmail.com')) {
+                $('#emailUsersErrorEdit').text('Email harus menggunakan @gmail.com').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (passwordUsers.length > 0) {
+
+                if (passwordUsers.length < 6) {
+                    $('#passwordUsersErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#passwordUsersErrorEdit').addClass('d-none');
+                }
+                if (passwordUsers !== passwordConfirmation) {
+                    $('#passwordConfirmationErrorEdit').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#passwordConfirmationErrorEdit').addClass('d-none');
+                }
+            }
+            if (companyUsers === '') {
+                $('#companyErrorEdit').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#companyErrorEdit').addClass('d-none');
+            }
+
+            if (isValid) {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Loading...',
+                            text: 'Please wait while we are updating the data.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        $.ajax({
+                            url: '/masterdata/user/update/' + userid,
+                            method: 'PUT',
+                            data: {
+                                nameUsers: nameUsers,
+                                emailUsers: emailUsers,
+                                passwordUsers: passwordUsers,
+                                passwordUsers_confirmation: passwordConfirmation,
+                                roleUsers: roleUsers,
+                                companyUsers: companyUsers,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.success) {
+                                    showMessage("success", "Berhasil diperbarui");
+                                    $('#modalEditUsers').modal('hide');
+                                    table.ajax.reload();
+                                }
+                            },
+                            error: function (response) {
+                                Swal.close();
+                                showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        $('#modalEditUsers').on('hidden.bs.modal', function () {
+            $('#nameUsersEdit,#emailUsersEdit,#passwordUsersEdit,#passwordConfirmationUsersEdit,#roleUsersEdit,#companyUsersEdit').val('');
+            if (!$('#nameUsersErrorEdit').hasClass('d-none')) {
+                $('#nameUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#emailUsersErrorEdit').hasClass('d-none')) {
+                $('#emailUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#passwordUsersErrorEdit').hasClass('d-none')) {
                 $('#passwordUsersErrorEdit').addClass('d-none');
             }
-            if (passwordUsers !== passwordConfirmation) {
-                $('#passwordConfirmationErrorEdit').removeClass('d-none');
-                isValid = false;
-            } else {
+            if (!$('#passwordConfirmationErrorEdit').hasClass('d-none')) {
                 $('#passwordConfirmationErrorEdit').addClass('d-none');
             }
-        }
-        if (companyUsers === '') {
-            $('#companyErrorEdit').removeClass('d-none');
-            isValid = false;
-        } else {
-            $('#companyErrorEdit').addClass('d-none');
-        }
+            if (!$('#roleUsersErrorEdit').hasClass('d-none')) {
+                $('#roleUsersErrorEdit').addClass('d-none');
+            }
+            if (!$('#companyErrorEdit').hasClass('d-none')) {
+                $('#companyErrorEdit').addClass('d-none');
+            }
+        });
+        $(document).on('click', '.btnDestroyUsers', function (e) {
+            let id = $(this).data('id');
 
-        if (isValid) {
             Swal.fire({
-                title: 'Apakah Anda yakin?',
+                title: "Apakah Kamu Yakin Ingin Hapus Ini?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#5D87FF',
@@ -489,116 +598,44 @@
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Loading...',
-                        text: 'Please wait while we are updating the data.',
+                        text: 'Please wait while we process delete your user.',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
                         }
                     });
                     $.ajax({
-                        url: '/masterdata/user/update/' + userid,
-                        method: 'PUT',
+                        type: "DELETE",
+                        url: '/masterdata/user/destroy/' + id,
                         data: {
-                            nameUsers: nameUsers,
-                            emailUsers: emailUsers,
-                            passwordUsers: passwordUsers,
-                            passwordUsers_confirmation: passwordConfirmation,
-                            roleUsers: roleUsers,
-                            companyUsers: companyUsers,
-                            _token: '{{ csrf_token() }}',
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            id: id,
                         },
                         success: function (response) {
                             Swal.close();
-                            if (response.success) {
-                                showMessage("success", "Berhasil diperbarui");
-                                $('#modalEditUsers').modal('hide');
-                                getListUser();
+
+                            if (response.url) {
+                                window.open(response.url, '_blank');
+                            } else if (response.error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.error
+                                });
                             }
-                        },
-                        error: function (response) {
-                            Swal.close();
-                            showMessage("error", "Terjadi kesalahan, coba lagi nanti");
+                            if (response.status === 'success') {
+                                showMessage("success",
+                                    "Berhasil menghapus");
+                                getListUser();
+                            } else {
+                                showMessage("error", "Gagal menghapus");
+                            }
                         }
                     });
                 }
             });
-        }
-    });
-    $('#modalEditUsers').on('hidden.bs.modal', function () {
-        $('#nameUsersEdit,#emailUsersEdit,#passwordUsersEdit,#passwordConfirmationUsersEdit,#roleUsersEdit,#companyUsersEdit').val('');
-        if (!$('#nameUsersErrorEdit').hasClass('d-none')) {
-            $('#nameUsersErrorEdit').addClass('d-none');
-        }
-        if (!$('#emailUsersErrorEdit').hasClass('d-none')) {
-            $('#emailUsersErrorEdit').addClass('d-none');
-        }
-        if (!$('#passwordUsersErrorEdit').hasClass('d-none')) {
-            $('#passwordUsersErrorEdit').addClass('d-none');
-        }
-        if (!$('#passwordConfirmationErrorEdit').hasClass('d-none')) {
-            $('#passwordConfirmationErrorEdit').addClass('d-none');
-        }
-        if (!$('#roleUsersErrorEdit').hasClass('d-none')) {
-            $('#roleUsersErrorEdit').addClass('d-none');
-        }
-        if (!$('#companyErrorEdit').hasClass('d-none')) {
-            $('#companyErrorEdit').addClass('d-none');
-        }
-    });
-    $(document).on('click', '.btnDestroyUsers', function (e) {
-        let id = $(this).data('id');
 
-        Swal.fire({
-            title: "Apakah Kamu Yakin Ingin Hapus Ini?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#5D87FF',
-            cancelButtonColor: '#49BEFF',
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Tidak',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Loading...',
-                    text: 'Please wait while we process delete your user.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                $.ajax({
-                    type: "DELETE",
-                    url: '/masterdata/user/destroy/' + id,
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        id: id,
-                    },
-                    success: function (response) {
-                        Swal.close();
-
-                        if (response.url) {
-                            window.open(response.url, '_blank');
-                        } else if (response.error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.error
-                            });
-                        }
-                        if (response.status === 'success') {
-                            showMessage("success",
-                                "Berhasil menghapus");
-                            getListUser();
-                        } else {
-                            showMessage("error", "Gagal menghapus");
-                        }
-                    }
-                });
-            }
         });
-
-    });
     });
     $(document).ready(function () {
         $('#togglePassword').on('click', function () {

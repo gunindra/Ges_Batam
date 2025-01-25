@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
+use Yajra\DataTables\Facades\DataTables;
 
 class CostumerController extends Controller
 {
@@ -20,45 +21,46 @@ class CostumerController extends Controller
     }
 
     public function getlistCostumer(Request $request)
-    {
+{
+    $companyId = session('active_company_id');
+    $txSearch = $request->txSearch;
+    $status = $request->status;
 
-        $companyId = session('active_company_id');
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $status = $request->status;
-
-        $query = DB::table('tbl_pembeli')
-            ->select(
-                'tbl_pembeli.id',
-                'tbl_pembeli.marking',
-                'tbl_pembeli.nama_pembeli',
-                DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
-                DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
-                'tbl_pembeli.no_wa',
-                'tbl_pembeli.sisa_poin',
-                'tbl_pembeli.metode_pengiriman',
-                DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
-                'tbl_pembeli.status',
-                'tbl_pembeli.category_id',
-                'tbl_category.category_name',
-                'tbl_users.email',
-            )
-            ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
-            ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
-            ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
-            ->where('tbl_pembeli.company_id', $companyId)
-            ->where(function ($q) use ($txSearch) {
-                $q->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', strtoupper($txSearch))
-                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', strtoupper($txSearch))
-                    ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', strtoupper($txSearch));
+    $query = DB::table('tbl_pembeli')
+        ->select(
+            'tbl_pembeli.id',
+            'tbl_pembeli.marking',
+            'tbl_pembeli.nama_pembeli',
+            DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
+            DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
+            'tbl_pembeli.no_wa',
+            'tbl_pembeli.sisa_poin',
+            'tbl_pembeli.metode_pengiriman',
+            DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
+            'tbl_pembeli.status',
+            'tbl_pembeli.category_id',
+            'tbl_category.category_name',
+            'tbl_users.email'
+        )
+        ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
+        ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
+        ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+        ->where('tbl_pembeli.company_id', $companyId)
+        ->when($txSearch, function ($q) use ($txSearch) {
+            $q->where(function ($query) use ($txSearch) {
+                $query->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                    ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', '%' . strtoupper($txSearch) . '%');
             });
-
-        if ($status === '1') {
-            $query->where('tbl_pembeli.status', 1);
-        } elseif ($status === '0') {
-            $query->where('tbl_pembeli.status', 0);
-        }
-
-        $data = $query->groupBy(
+        })
+        ->when($status, function ($q) use ($status) {
+            if ($status === 'Active') {
+                $q->where('tbl_pembeli.status', 1);
+            } elseif ($status === 'Non Active') {
+                $q->where('tbl_pembeli.status', 0);
+            }
+        })
+        ->groupBy(
             'tbl_pembeli.id',
             'tbl_pembeli.marking',
             'tbl_pembeli.nama_pembeli',
@@ -69,55 +71,32 @@ class CostumerController extends Controller
             'tbl_pembeli.status',
             'tbl_pembeli.category_id',
             'tbl_category.category_name',
-            'tbl_users.email',
+            'tbl_users.email'
         )
-            ->orderBy('tbl_pembeli.status', 'DESC')
-            ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC')
-            ->get();
+        ->orderBy('tbl_pembeli.status', 'DESC')
+        ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC');
 
-        $output = '<table class="table align-items-center table-flush table-hover" id="tableCostumer">
-                        <thead class="thead-light">
-                        <tr>
-                            <th>Marking</th>
-                            <th>Nama</th>
-                            <th>Pengiriman</th>
-                            <th>Alamat</th>
-                            <th>Transaksi Terakhir</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                <tbody>';
-        foreach ($data as $item) {
-
-            $statusCell = ($item->status == 1)
-                ? '<td><span class="badge badge-success">Active</span></td>'
-                : '<td><span class="badge badge-danger">Non Active</span></td>';
-
-            $alamatCell = ($item->alamat_count > 1)
-                ? '<td><button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-alamat="' . htmlentities($item->alamat) . '">Lihat Alamat (' . $item->alamat_count . ')</button></td>'
-                : '<td class="">' . ($item->alamat ?? '-') . '</td>';
-
-            $output .=
-                '
-                <tr>
-                    <td class="">' . ($item->marking ?? '-') . '</td>
-                    <td class="">' . ($item->nama_pembeli ?? '-') . '</td>
-                     <td class="">' . ($item->metode_pengiriman ?? '-') . '</td>
-                    ' . $alamatCell . '
-                    <td class="">' . ($item->tanggal_bayar ?? '-') . '</td>
-                    ' . $statusCell . '
-                    <td>
-                        <a  class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '"  data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
-                        <a  class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '"  data-metode_pengiriman="' . $item->metode_pengiriman . '"  data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
-                    </td>
-                </tr>
+    return DataTables::of($query)
+        ->addColumn('alamat_cell', function ($item) {
+            if ($item->alamat_count > 1) {
+                return '<button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-alamat="' . htmlentities($item->alamat) . '">Lihat Alamat (' . $item->alamat_count . ')</button>';
+            }
+            return $item->alamat ?? '-';
+        })
+        ->addColumn('status_cell', function ($item) {
+            return ($item->status == 1)
+                ? '<span class="badge badge-success">Active</span>'
+                : '<span class="badge badge-danger">Non Active</span>';
+        })
+        ->addColumn('action', function ($item) {
+            return '
+                <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
+                <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
             ';
-        }
-
-        $output .= '</tbody></table>';
-        return $output;
-    }
+        })
+        ->rawColumns(['alamat_cell', 'status_cell', 'action']) 
+        ->make(true);
+}
 
 
     public function addCostumer(Request $request)
