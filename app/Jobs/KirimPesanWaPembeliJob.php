@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,6 +36,10 @@ class KirimPesanWaPembeliJob implements ShouldQueue
     public function handle()
     {
         try {
+
+
+            $activeCompanyId = session('active_company_id');
+            $company = Company::find($activeCompanyId);
             DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'pending']);
 
             $invoice = DB::table('tbl_invoice as a')
@@ -78,6 +83,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
                 $pdf = Pdf::loadView('exportPDF.notification', [
                     'invoice' => $invoice,
+                    'company' => $company,
                     'resiData' => $resiData,
                     'hargaIDR' => $invoice->total_harga,
                     'type' => $this->type,
@@ -87,6 +93,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
                 Log::info('Invoice Data:', [
                     'invoice_id' => $invoice->id,
+                    'company' => $company,
                     'nama_pembeli' => $invoice->nama_pembeli,
                     'total_harga' => $invoice->total_harga,
                     'tanggal_invoice' => $invoice->tanggal_invoice,
