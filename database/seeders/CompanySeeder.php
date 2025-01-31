@@ -34,6 +34,7 @@ class CompanySeeder extends Seeder
                 'alamat' => '42Q2+6PH, Unnamed Road, Batu Selicin, Kec. Lubuk Baja, Kota Batam, Kepulauan Riau',
                 'hp' => '62897767432',
                 'email' => 'GESbatam@gmail.com',
+                'is_active' => 1,
             ],
         ];
 

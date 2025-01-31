@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Imports\CustomersImport;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class CostumerController extends Controller
@@ -94,7 +99,7 @@ class CostumerController extends Controller
                 <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
             ';
         })
-        ->rawColumns(['alamat_cell', 'status_cell', 'action']) 
+        ->rawColumns(['alamat_cell', 'status_cell', 'action'])
         ->make(true);
 }
 
@@ -210,9 +215,6 @@ class CostumerController extends Controller
                         }
                     }
                 }
-
-
-
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data Pelanggan berhasil diupdate'], 200);
         } catch (\Exception $e) {
@@ -268,4 +270,123 @@ class CostumerController extends Controller
     }
 
 
+
+    public function import(Request $request)
+    {
+        $companyId = session('active_company_id');
+        $invalidData = []; // Untuk menyimpan data yang tidak valid
+        $validData = [];   // Untuk menyimpan data yang valid
+
+        // Validasi manual untuk setiap baris data
+        foreach ($request->data as $index => $row) {
+            $validator = Validator::make($row, [
+                'marking_costumer' => 'required|string|max:255',
+                'email' => 'required|email',
+                'nama_customer' => 'required|string|max:255',
+                'no_telpon' => 'required|string|max:20',
+                'alamat_customer' => 'required|string',
+                'password' => 'required|string|min:6',
+                'category_customer' => 'required|exists:tbl_category,id',
+                'metode_pengiriman' => 'required|in:Delivery,Pickup',
+            ]);
+
+            $errors = [];
+
+            // Cek duplikat email
+            if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
+                $errors[] = "Email sudah digunakan.";
+            }
+
+            // Cek duplikat marking_costumer
+            if (DB::table('tbl_pembeli')->where('marking', $row['marking_costumer'])->exists()) {
+                $errors[] = "Marking customer sudah digunakan.";
+            }
+
+            // Jika validasi gagal atau ada duplikat, tambahkan ke invalidData
+            if ($validator->fails() || !empty($errors)) {
+                $row['keterangan'] = implode(" ", array_merge($validator->errors()->all(), $errors));
+                $invalidData[] = $row;
+            } else {
+                $validData[] = $row;
+            }
+        }
+
+        // Jika tidak ada data valid, langsung return
+        if (empty($validData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data valid yang dapat diimpor.',
+                'invalid_data' => $invalidData,
+            ], 400);
+        }
+
+        // Proses data yang valid dengan chunk processing
+        try {
+            $chunks = array_chunk($validData, 500); // Bagi data menjadi batch
+
+            foreach ($chunks as $chunk) {
+                foreach ($chunk as $row) {
+                    try {
+                        DB::beginTransaction(); // Mulai transaksi database
+
+                        // Insert user and get the user_id
+                        $user = User::create([
+                            'name' => $row['nama_customer'],
+                            'email' => $row['email'],
+                            'password' => Hash::make($row['password']),
+                            'role' => 'customer',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        // Insert pembeli dengan user_id yang baru dibuat
+                        $pembeliId = DB::table('tbl_pembeli')->insertGetId([
+                            'user_id' => $user->id,
+                            'marking' => $row['marking_costumer'],
+                            'nama_pembeli' => $row['nama_customer'],
+                            'no_wa' => $row['no_telpon'],
+                            'category_id' => $row['category_customer'],
+                            'metode_pengiriman' => $row['metode_pengiriman'],
+                            'status' => 1,
+                            'company_id' => $companyId,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        // Proses alamat (jika ada)
+                        $alamatCustomer = is_array($row['alamat_customer']) ? $row['alamat_customer'] : [$row['alamat_customer']];
+                        foreach ($alamatCustomer as $alamat) {
+                            if (!is_null($alamat) && trim($alamat) !== '') {
+                                DB::table('tbl_alamat')->insert([
+                                    'pembeli_id' => $pembeliId,
+                                    'alamat' => trim($alamat),
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+                            }
+                        }
+
+                        DB::commit(); // Simpan data ke database jika sukses
+                    } catch (Exception $e) {
+                        DB::rollBack(); // Batalkan transaksi jika ada error
+
+                        // Simpan data yang gagal beserta pesan error
+                        $row['keterangan'] = $e->getMessage();
+                        $invalidData[] = $row;
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil diimpor.',
+                'invalid_data' => $invalidData, // Data yang gagal tetap dikembalikan
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengimpor data: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

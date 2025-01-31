@@ -244,6 +244,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::post('/masterdata/costumer/update', [CostumerController::class, 'updateCostumer'])->name('updateCostumer');
     Route::get('/masterdata/costumer/generateMarking', [CostumerController::class, 'generateMarking'])->name('generateMarking');
     Route::get('/masterdata/costumer/listbyname', [CostumerController::class, 'customerByName'])->name('customer.filter');
+    Route::post('/masterdata/costumer/import', [CostumerController::class, 'import'])->name('costumer.import');
 
 
     // Driver
