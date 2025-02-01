@@ -237,8 +237,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                    <p id="statusValue" class="h5"></p>
-                                                                                                            </div> -->
+                                                                                                                        <p id="statusValue" class="h5"></p>
+                                                                                                                </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1070,7 +1070,8 @@
                         .map(row => ({
                             marking_costumer: row[1], // Sesuai dengan validasi backend
                             alamat_customer: row[2],
-                            no_telpon: (row[3] || '').toString().replace(/[+\-\s]/g, '').trim(), // Hapus +, -, spasi
+                            no_telpon: (row[3] || '').toString().replace(/[+\-\s]/g, '')
+                        .trim(), // Hapus +, -, spasi
                             nama_customer: row[4],
                             email: row[5],
                             password: 'password',
@@ -1154,7 +1155,8 @@
                         data: window.dataImport,
                         _token: '{{ csrf_token() }}'
                     }),
-                    contentType: "application/json",processData: false,
+                    contentType: "application/json",
+                    processData: false,
                     dataType: "JSON",
                     success: function(RES) {
                         clearInterval(interval);
@@ -1209,21 +1211,37 @@
                 });
             });
 
-            // $('#modalEditCustomer').on('hidden.bs.modal', function() {
-            //     $('#namaCustomerEdit, #alamatCustomerEdit, #noTelponEdit, #categoryCustomerEdit').val('');
-            //     if (!$('#namaCustomerErrorEdit').hasClass('d-none')) {
-            //         $('#namaCustomerErrorEdit').addClass('d-none');
+            $('#modalImportExcel').on('hidden.bs.modal', function() {
+                // Reset input file
+                $('#importFileExcel').val('');
 
-            //     }
-            //     if (!$('#alamatCustomerErrorEdit').hasClass('d-none')) {
-            //         $('#alamatCustomerErrorEdit').addClass('d-none');
+                // Sembunyikan preview data table
+                $('#previewDataTable').hide();
 
-            //     }
-            //     if (!$('#notelponCustomerErrorEdit').hasClass('d-none')) {
-            //         $('#notelponCustomerErrorEdit').addClass('d-none');
+                // Kosongkan isi tabel preview
+                $('#previewDataBody').empty();
 
-            //     }
-            // });
+                // Reset jumlah data preview
+                $('#previewDataCount').text('0');
+
+                // Sembunyikan progress bar
+                $('#progressContainer').hide();
+
+                // Reset progress bar
+                $('#progress-bar').css('width', '0%').text('0%');
+
+                // Reset status text
+                $('#status-text').text('Menunggu proses import...');
+
+                // Sembunyikan tabel data yang tertolak
+                $('#invalidDataTable').hide();
+
+                // Kosongkan isi tabel data yang tertolak
+                $('#invalidDataBody').empty();
+
+                // Reset jumlah data yang tertolak
+                $('#invalidDataCount').text('0');
+            });
 
             $('#modalEditCustomer').on('hidden.bs.modal', function() {
                 $('#namaCustomerEdit, #noTelponEdit, #categoryCustomerEdit, #markingCustomerEdit')
