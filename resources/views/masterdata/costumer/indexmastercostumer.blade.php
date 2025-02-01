@@ -237,8 +237,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                        <p id="statusValue" class="h5"></p>
-                                                                                                                </div> -->
+                                                                                                                            <p id="statusValue" class="h5"></p>
+                                                                                                                    </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1071,7 +1071,7 @@
                             marking_costumer: row[1], // Sesuai dengan validasi backend
                             alamat_customer: row[2],
                             no_telpon: (row[3] || '').toString().replace(/[+\-\s]/g, '')
-                        .trim(), // Hapus +, -, spasi
+                                .trim(), // Hapus +, -, spasi
                             nama_customer: row[4],
                             email: row[5],
                             password: 'password',

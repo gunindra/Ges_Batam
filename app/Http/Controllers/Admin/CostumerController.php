@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Database\QueryException;
 
 class CostumerController extends Controller
 {
@@ -269,13 +270,11 @@ class CostumerController extends Controller
         ]);
     }
 
-
-
     public function import(Request $request)
     {
         $companyId = session('active_company_id');
-        $invalidData = []; // Untuk menyimpan data yang tidak valid
-        $validData = [];   // Untuk menyimpan data yang valid
+        $invalidData = [];
+        $validData = [];
 
         // Validasi manual untuk setiap baris data
         foreach ($request->data as $index => $row) {
@@ -294,12 +293,12 @@ class CostumerController extends Controller
 
             // Cek duplikat email
             if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
-                $errors[] = "Email sudah digunakan.";
+                $errors[] = "Email duplicate.";
             }
 
             // Cek duplikat marking_costumer
             if (DB::table('tbl_pembeli')->where('marking', $row['marking_costumer'])->exists()) {
-                $errors[] = "Marking customer sudah digunakan.";
+                $errors[] = "Marking duplicate.";
             }
 
             // Jika validasi gagal atau ada duplikat, tambahkan ke invalidData
@@ -366,12 +365,24 @@ class CostumerController extends Controller
                             }
                         }
 
-                        DB::commit(); // Simpan data ke database jika sukses
-                    } catch (Exception $e) {
-                        DB::rollBack(); // Batalkan transaksi jika ada error
+                        DB::commit();
+                    } catch (QueryException $e) {
+                        DB::rollBack();
 
-                        // Simpan data yang gagal beserta pesan error
-                        $row['keterangan'] = $e->getMessage();
+                        $errorMessage = $e->errorInfo[2];
+
+                        if (str_contains($errorMessage, 'tbl_users_email_unique')) {
+                            $row['keterangan'] = "Email duplicate.";
+                        } elseif (str_contains($errorMessage, 'tbl_pembeli_marking_unique')) {
+                            $row['keterangan'] = "Marking duplicate.";
+                        } else {
+                            $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
+                        }
+
+                        $invalidData[] = $row;
+                    } catch (Exception $e) {
+                        DB::rollBack();
+                        $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
                         $invalidData[] = $row;
                     }
                 }
