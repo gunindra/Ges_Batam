@@ -237,8 +237,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                <p id="statusValue" class="h5"></p>
-                                                                                                                        </div> -->
+                                                                                                                                    <p id="statusValue" class="h5"></p>
+                                                                                                                            </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1138,12 +1138,9 @@
                 // Nonaktifkan tombol dan mencegah modal ditutup
                 $("#btnImportFileExcel").prop("disabled", true); // Nonaktifkan tombol import
                 $('#modalImportExcel').modal({
-                    backdrop: 'static', // Mencegah modal ditutup dengan klik di luar
-                    keyboard: false // Mencegah modal ditutup dengan tombol Esc
+                    backdrop: 'static',
+                    keyboard: false
                 });
-
-                // Menonaktifkan tombol tutup selama proses import
-                $('.close').prop('disabled', true); // Nonaktifkan tombol close
 
                 // Kirim data ke backend
                 $.ajax({
@@ -1167,13 +1164,14 @@
                                 $("#progress-bar").css("width", progress + "%")
                                     .text(progress + "%");
 
+                                // Jika progress 100%, hentikan interval dan tampilkan pesan selesai
                                 if (progress >= 100) {
                                     clearInterval(interval);
                                     $("#status-text").text("Import selesai!");
+                                    table.ajax.reload();
                                     Swal.fire("Proses import selesai!",
                                         "Data telah berhasil diimpor.",
                                         "success");
-
                                     // Tampilkan data yang gagal jika ada
                                     if (RES.invalid_data && RES.invalid_data
                                         .length > 0) {
@@ -1183,15 +1181,15 @@
                                         RES.invalid_data.forEach(function(row) {
                                             $("#invalidDataBody")
                                                 .append(`
-                                    <tr>
-                                        <td>${row.marking_costumer}</td>
-                                        <td>${row.nama_customer}</td>
-                                        <td>${row.email}</td>
-                                        <td>${row.no_telpon}</td>
-                                        <td>${row.alamat_customer}</td>
-                                        <td>${row.keterangan}</td>
-                                    </tr>
-                                `);
+                                        <tr>
+                                            <td>${row.marking_costumer}</td>
+                                            <td>${row.nama_customer}</td>
+                                            <td>${row.email}</td>
+                                            <td>${row.no_telpon}</td>
+                                            <td>${row.alamat_customer}</td>
+                                            <td>${row.keterangan}</td>
+                                        </tr>
+                                    `);
                                         });
 
                                         $("#invalidDataCount").text(RES
@@ -1204,11 +1202,9 @@
                                     $("#previewDataTable").hide();
 
                                     // Aktifkan tombol tutup setelah proses selesai
-                                    $('.close').prop('disabled',
-                                    false); // Aktifkan tombol close
+                                    $('.close').prop('disabled', false);
                                     $("#btnImportFileExcel").prop("disabled",
-                                        false
-                                        ); // Aktifkan tombol import kembali
+                                        false);
                                 }
                             });
                         }, 2000); // Polling setiap 2 detik
@@ -1223,9 +1219,8 @@
                     },
                     complete: function() {
                         // Aktifkan tombol tutup setelah proses selesai
-                        $('.close').prop('disabled', false); // Aktifkan tombol close
-                        $("#btnImportFileExcel").prop("disabled",
-                        false); // Aktifkan tombol import kembali
+                        $('.close').prop('disabled', false);
+                        $("#btnImportFileExcel").prop("disabled", false);
                     }
                 });
             });

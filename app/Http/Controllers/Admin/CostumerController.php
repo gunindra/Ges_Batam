@@ -425,6 +425,11 @@ class CostumerController extends Controller
 
             $errors = [];
 
+            if ($validator->fails()) {
+                $errors = array_merge($validator->errors()->all(), $errors);
+            }
+
+            // Check for duplicate email or marking
             if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
                 $errors[] = "Email duplicate.";
             }
@@ -433,8 +438,8 @@ class CostumerController extends Controller
                 $errors[] = "Marking duplicate.";
             }
 
-            if ($validator->fails() || !empty($errors)) {
-                $row['keterangan'] = implode(" ", array_merge($validator->errors()->all(), $errors));
+            if (!empty($errors)) {
+                $row['keterangan'] = implode(" ", $errors);
                 $invalidData[] = $row;
             } else {
                 $validData[] = $row;
@@ -449,11 +454,21 @@ class CostumerController extends Controller
             ], 400);
         }
 
-        // Generate a unique job ID
+        // Bagi data valid menjadi bagian kecil (misalnya 500 data per job)
+        $chunkSize = 200;
+        $chunks = array_chunk($validData, $chunkSize);
+
+        // Generate job ID untuk keseluruhan proses
         $jobId = Str::uuid()->toString();
 
-        // Dispatch Job and pass the jobId
-        ImportCustomerData::dispatch($validData, $companyId, $jobId);
+        // Set initial progress
+        Cache::put('job_progress_' . $jobId, 0, now()->addMinutes(5));
+        Cache::put('job_total_' . $jobId, count($chunks), now()->addMinutes(5));
+
+        // Dispatch job untuk setiap chunk data
+        foreach ($chunks as $index => $chunk) {
+            ImportCustomerData::dispatch($chunk, $companyId, $jobId, $index + 1, count($chunks));
+        }
 
         return response()->json([
             'success' => true,
@@ -468,5 +483,4 @@ class CostumerController extends Controller
         $progress = Cache::get('job_progress_' . $jobId, 0);
         return response()->json(['progress' => $progress]);
     }
-
 }
