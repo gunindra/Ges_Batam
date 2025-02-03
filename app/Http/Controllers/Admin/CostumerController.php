@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Imports\CustomersImport;
+use App\Jobs\ImportCustomerData;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Str;
 
 class CostumerController extends Controller
 {
@@ -270,14 +273,145 @@ class CostumerController extends Controller
         ]);
     }
 
+    // public function import(Request $request)
+    // {
+    //     $companyId = session('active_company_id');
+    //     $invalidData = [];
+    //     $validData = [];
+
+    //     // Validasi manual untuk setiap baris data
+    //     foreach ($request->data as $index => $row) {
+    //         $validator = Validator::make($row, [
+    //             'marking_costumer' => 'required|string|max:255',
+    //             'email' => 'required|email',
+    //             'nama_customer' => 'required|string|max:255',
+    //             'no_telpon' => 'required|string|max:20',
+    //             'alamat_customer' => 'required|string',
+    //             'password' => 'required|string|min:6',
+    //             'category_customer' => 'required|exists:tbl_category,id',
+    //             'metode_pengiriman' => 'required|in:Delivery,Pickup',
+    //         ]);
+
+    //         $errors = [];
+
+    //         // Cek duplikat email
+    //         if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
+    //             $errors[] = "Email duplicate.";
+    //         }
+
+    //         // Cek duplikat marking_costumer
+    //         if (DB::table('tbl_pembeli')->where('marking', $row['marking_costumer'])->exists()) {
+    //             $errors[] = "Marking duplicate.";
+    //         }
+
+    //         // Jika validasi gagal atau ada duplikat, tambahkan ke invalidData
+    //         if ($validator->fails() || !empty($errors)) {
+    //             $row['keterangan'] = implode(" ", array_merge($validator->errors()->all(), $errors));
+    //             $invalidData[] = $row;
+    //         } else {
+    //             $validData[] = $row;
+    //         }
+    //     }
+
+    //     // Jika tidak ada data valid, langsung return
+    //     if (empty($validData)) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Tidak ada data valid yang dapat diimpor.',
+    //             'invalid_data' => $invalidData,
+    //         ], 400);
+    //     }
+
+    //     // Proses data yang valid dengan chunk processing
+    //     try {
+    //         $chunks = array_chunk($validData, 500); // Bagi data menjadi batch
+
+    //         foreach ($chunks as $chunk) {
+    //             foreach ($chunk as $row) {
+    //                 try {
+    //                     DB::beginTransaction(); // Mulai transaksi database
+
+    //                     // Insert user and get the user_id
+    //                     $user = User::create([
+    //                         'name' => $row['nama_customer'],
+    //                         'email' => $row['email'],
+    //                         'password' => Hash::make($row['password']),
+    //                         'role' => 'customer',
+    //                         'created_at' => now(),
+    //                         'updated_at' => now(),
+    //                     ]);
+
+    //                     // Insert pembeli dengan user_id yang baru dibuat
+    //                     $pembeliId = DB::table('tbl_pembeli')->insertGetId([
+    //                         'user_id' => $user->id,
+    //                         'marking' => $row['marking_costumer'],
+    //                         'nama_pembeli' => $row['nama_customer'],
+    //                         'no_wa' => $row['no_telpon'],
+    //                         'category_id' => $row['category_customer'],
+    //                         'metode_pengiriman' => $row['metode_pengiriman'],
+    //                         'status' => 1,
+    //                         'company_id' => $companyId,
+    //                         'created_at' => now(),
+    //                         'updated_at' => now(),
+    //                     ]);
+
+    //                     // Proses alamat (jika ada)
+    //                     $alamatCustomer = is_array($row['alamat_customer']) ? $row['alamat_customer'] : [$row['alamat_customer']];
+    //                     foreach ($alamatCustomer as $alamat) {
+    //                         if (!is_null($alamat) && trim($alamat) !== '') {
+    //                             DB::table('tbl_alamat')->insert([
+    //                                 'pembeli_id' => $pembeliId,
+    //                                 'alamat' => trim($alamat),
+    //                                 'created_at' => now(),
+    //                                 'updated_at' => now(),
+    //                             ]);
+    //                         }
+    //                     }
+
+    //                     DB::commit();
+    //                 } catch (QueryException $e) {
+    //                     DB::rollBack();
+
+    //                     $errorMessage = $e->errorInfo[2];
+
+    //                     if (str_contains($errorMessage, 'tbl_users_email_unique')) {
+    //                         $row['keterangan'] = "Email duplicate.";
+    //                     } elseif (str_contains($errorMessage, 'tbl_pembeli_marking_unique')) {
+    //                         $row['keterangan'] = "Marking duplicate.";
+    //                     } else {
+    //                         $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
+    //                     }
+
+    //                     $invalidData[] = $row;
+    //                 } catch (Exception $e) {
+    //                     DB::rollBack();
+    //                     $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
+    //                     $invalidData[] = $row;
+    //                 }
+    //             }
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Data berhasil diimpor.',
+    //             'invalid_data' => $invalidData, // Data yang gagal tetap dikembalikan
+    //         ]);
+    //     } catch (Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Gagal mengimpor data: ' . $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
     public function import(Request $request)
     {
         $companyId = session('active_company_id');
         $invalidData = [];
         $validData = [];
 
-        // Validasi manual untuk setiap baris data
-        foreach ($request->data as $index => $row) {
+        // Validate each row
+        foreach ($request->data as $row) {
             $validator = Validator::make($row, [
                 'marking_costumer' => 'required|string|max:255',
                 'email' => 'required|email',
@@ -291,17 +425,14 @@ class CostumerController extends Controller
 
             $errors = [];
 
-            // Cek duplikat email
             if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
                 $errors[] = "Email duplicate.";
             }
 
-            // Cek duplikat marking_costumer
             if (DB::table('tbl_pembeli')->where('marking', $row['marking_costumer'])->exists()) {
                 $errors[] = "Marking duplicate.";
             }
 
-            // Jika validasi gagal atau ada duplikat, tambahkan ke invalidData
             if ($validator->fails() || !empty($errors)) {
                 $row['keterangan'] = implode(" ", array_merge($validator->errors()->all(), $errors));
                 $invalidData[] = $row;
@@ -310,7 +441,6 @@ class CostumerController extends Controller
             }
         }
 
-        // Jika tidak ada data valid, langsung return
         if (empty($validData)) {
             return response()->json([
                 'success' => false,
@@ -319,85 +449,24 @@ class CostumerController extends Controller
             ], 400);
         }
 
-        // Proses data yang valid dengan chunk processing
-        try {
-            $chunks = array_chunk($validData, 500); // Bagi data menjadi batch
+        // Generate a unique job ID
+        $jobId = Str::uuid()->toString();
 
-            foreach ($chunks as $chunk) {
-                foreach ($chunk as $row) {
-                    try {
-                        DB::beginTransaction(); // Mulai transaksi database
+        // Dispatch Job and pass the jobId
+        ImportCustomerData::dispatch($validData, $companyId, $jobId);
 
-                        // Insert user and get the user_id
-                        $user = User::create([
-                            'name' => $row['nama_customer'],
-                            'email' => $row['email'],
-                            'password' => Hash::make($row['password']),
-                            'role' => 'customer',
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-
-                        // Insert pembeli dengan user_id yang baru dibuat
-                        $pembeliId = DB::table('tbl_pembeli')->insertGetId([
-                            'user_id' => $user->id,
-                            'marking' => $row['marking_costumer'],
-                            'nama_pembeli' => $row['nama_customer'],
-                            'no_wa' => $row['no_telpon'],
-                            'category_id' => $row['category_customer'],
-                            'metode_pengiriman' => $row['metode_pengiriman'],
-                            'status' => 1,
-                            'company_id' => $companyId,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-
-                        // Proses alamat (jika ada)
-                        $alamatCustomer = is_array($row['alamat_customer']) ? $row['alamat_customer'] : [$row['alamat_customer']];
-                        foreach ($alamatCustomer as $alamat) {
-                            if (!is_null($alamat) && trim($alamat) !== '') {
-                                DB::table('tbl_alamat')->insert([
-                                    'pembeli_id' => $pembeliId,
-                                    'alamat' => trim($alamat),
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ]);
-                            }
-                        }
-
-                        DB::commit();
-                    } catch (QueryException $e) {
-                        DB::rollBack();
-
-                        $errorMessage = $e->errorInfo[2];
-
-                        if (str_contains($errorMessage, 'tbl_users_email_unique')) {
-                            $row['keterangan'] = "Email duplicate.";
-                        } elseif (str_contains($errorMessage, 'tbl_pembeli_marking_unique')) {
-                            $row['keterangan'] = "Marking duplicate.";
-                        } else {
-                            $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
-                        }
-
-                        $invalidData[] = $row;
-                    } catch (Exception $e) {
-                        DB::rollBack();
-                        $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
-                        $invalidData[] = $row;
-                    }
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil diimpor.',
-                'invalid_data' => $invalidData, // Data yang gagal tetap dikembalikan
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengimpor data: ' . $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Data sedang diproses. Anda akan diberitahu setelah selesai.',
+            'invalid_data' => $invalidData,
+            'job_id' => $jobId,
+        ]);
     }
+
+    public function getJobStatus($jobId)
+    {
+        $progress = Cache::get('job_progress_' . $jobId, 0);
+        return response()->json(['progress' => $progress]);
+    }
+
 }

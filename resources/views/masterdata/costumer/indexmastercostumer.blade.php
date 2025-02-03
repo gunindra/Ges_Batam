@@ -237,8 +237,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                            <p id="statusValue" class="h5"></p>
-                                                                                                                    </div> -->
+                                                                                                                                <p id="statusValue" class="h5"></p>
+                                                                                                                        </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1126,7 +1126,7 @@
                 e.preventDefault();
 
                 if (!window.dataImport || window.dataImport.length === 0) {
-                    Swal.fire("Tidak ada data untuk diimport!", "", "error");
+                    Swal.fire("Tidak ada data untuk diimpor!", "", "error");
                     return;
                 }
 
@@ -1135,17 +1135,15 @@
                 $("#progress-bar").css("width", "0%").text("0%");
                 $("#status-text").text("Sedang mengimpor data...");
 
-                $("#btnImportFileExcel").prop("disabled", true); // Nonaktifkan tombol
+                // Nonaktifkan tombol dan mencegah modal ditutup
+                $("#btnImportFileExcel").prop("disabled", true); // Nonaktifkan tombol import
+                $('#modalImportExcel').modal({
+                    backdrop: 'static', // Mencegah modal ditutup dengan klik di luar
+                    keyboard: false // Mencegah modal ditutup dengan tombol Esc
+                });
 
-                let progress = 0;
-                let interval = setInterval(() => {
-                    if (progress < 90) {
-                        progress += 10;
-                        $("#progress-bar").css("width", progress + "%").text(progress + "%");
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 500);
+                // Menonaktifkan tombol tutup selama proses import
+                $('.close').prop('disabled', true); // Nonaktifkan tombol close
 
                 // Kirim data ke backend
                 $.ajax({
@@ -1159,44 +1157,62 @@
                     processData: false,
                     dataType: "JSON",
                     success: function(RES) {
-                        clearInterval(interval);
-                        $("#progress-bar").css("width", "100%").text("100%");
-                        $("#status-text").text("Import selesai!");
+                        let jobId = RES.job_id; // Ambil job ID dari response
 
-                        if (RES.success) {
-                            Swal.fire("Proses import selesai!", RES.message, "success");
+                        // Polling untuk status job
+                        let interval = setInterval(function() {
+                            $.get("{{ url('job/status') }}/" + jobId, function(
+                            status) {
+                                let progress = status.progress;
+                                $("#progress-bar").css("width", progress + "%")
+                                    .text(progress + "%");
 
-                            // Sembunyikan tabel preview & tampilkan hasil yang ditolak jika ada
-                            if (RES.invalid_data && RES.invalid_data.length > 0) {
-                                $("#invalidDataTable").show();
-                                $("#invalidDataBody").empty();
+                                if (progress >= 100) {
+                                    clearInterval(interval);
+                                    $("#status-text").text("Import selesai!");
+                                    Swal.fire("Proses import selesai!",
+                                        "Data telah berhasil diimpor.",
+                                        "success");
 
-                                RES.invalid_data.forEach(function(row) {
-                                    $("#invalidDataBody").append(
-                                        `<tr>
-                                <td>${row.marking_costumer}</td>
-                                <td>${row.nama_customer}</td>
-                                <td>${row.email}</td>
-                                <td>${row.no_telpon}</td>
-                                <td>${row.alamat_customer}</td>
-                                <td>${row.keterangan}</td>
-                            </tr>`
-                                    );
-                                });
+                                    // Tampilkan data yang gagal jika ada
+                                    if (RES.invalid_data && RES.invalid_data
+                                        .length > 0) {
+                                        $("#invalidDataTable").show();
+                                        $("#invalidDataBody").empty();
 
-                                $("#invalidDataCount").text(RES.invalid_data.length);
-                                $("#previewDataTable").hide();
-                            } else {
-                                $("#invalidDataTable").hide();
-                                $("#previewDataTable").hide();
-                            }
+                                        RES.invalid_data.forEach(function(row) {
+                                            $("#invalidDataBody")
+                                                .append(`
+                                    <tr>
+                                        <td>${row.marking_costumer}</td>
+                                        <td>${row.nama_customer}</td>
+                                        <td>${row.email}</td>
+                                        <td>${row.no_telpon}</td>
+                                        <td>${row.alamat_customer}</td>
+                                        <td>${row.keterangan}</td>
+                                    </tr>
+                                `);
+                                        });
 
-                            table.ajax.reload();
-                        } else {
-                            Swal.fire("Gagal mengimpor data!", RES.message ||
-                                "Terjadi kesalahan.", "error");
-                            $("#status-text").text("Terjadi kesalahan dalam proses import.");
-                        }
+                                        $("#invalidDataCount").text(RES
+                                            .invalid_data.length);
+                                    } else {
+                                        $("#invalidDataTable").hide();
+                                    }
+
+                                    // Sembunyikan preview data setelah proses selesai
+                                    $("#previewDataTable").hide();
+
+                                    // Aktifkan tombol tutup setelah proses selesai
+                                    $('.close').prop('disabled',
+                                    false); // Aktifkan tombol close
+                                    $("#btnImportFileExcel").prop("disabled",
+                                        false
+                                        ); // Aktifkan tombol import kembali
+                                }
+                            });
+                        }, 2000); // Polling setiap 2 detik
+
                     },
                     error: function(XHR) {
                         clearInterval(interval);
@@ -1206,7 +1222,10 @@
                             "Terjadi kesalahan.", "error");
                     },
                     complete: function() {
-                        $("#btnImportFileExcel").prop("disabled", false);
+                        // Aktifkan tombol tutup setelah proses selesai
+                        $('.close').prop('disabled', false); // Aktifkan tombol close
+                        $("#btnImportFileExcel").prop("disabled",
+                        false); // Aktifkan tombol import kembali
                     }
                 });
             });
