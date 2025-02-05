@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             COASeeder::class,
             CompanySeeder::class,
+            AccountSettingsSeeder::class,
         ]);
     }
 }

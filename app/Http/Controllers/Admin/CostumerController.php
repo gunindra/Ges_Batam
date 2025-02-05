@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Database\QueryException;
@@ -175,6 +176,12 @@ class CostumerController extends Controller
     public function updateCostumer(Request $request)
     {
         $request->validate([
+           'markingCustomer' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('tbl_pembeli', 'marking')->ignore($request->input('id'))
+            ],
             'namaCustomer' => 'required|string|max:255',
             'noTelpon' => 'required|string|max:15',
             'categoryCustomer' => 'required|exists:tbl_category,id',
@@ -185,6 +192,7 @@ class CostumerController extends Controller
 
         $id = $request->input('id');
         $namacostumer = $request->input('namaCustomer');
+        $markingcostumer = $request->input('markingCustomer');
         $notlponcostumer = $request->input('noTelpon');
         $categoryCustomer = $request->input('categoryCustomer');
         $alamatCustomer = $request->input('alamatCustomer', []);
@@ -197,6 +205,7 @@ class CostumerController extends Controller
                 ->where('id', $id)
                 ->update([
                     'nama_pembeli' => $namacostumer,
+                    'marking' => $markingcostumer,
                     'no_wa' => $notlponcostumer,
                     'category_id' => $categoryCustomer,
                     'metode_pengiriman' => $metodePengiriman,

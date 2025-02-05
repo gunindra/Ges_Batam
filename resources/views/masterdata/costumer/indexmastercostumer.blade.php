@@ -243,8 +243,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                    <p id="statusValue" class="h5"></p>
-                                                                                                                            </div> -->
+                                                                                                                                        <p id="statusValue" class="h5"></p>
+                                                                                                                                </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -982,6 +982,7 @@
                         if (result.isConfirmed) {
                             let formData = new FormData();
                             formData.append('id', id);
+                            formData.append('markingCustomer', markingCustomerEdit);
                             formData.append('namaCustomer', namaCustomerEdit);
                             formData.append('noTelpon', noTelponCustomer);
                             formData.append('metodePengiriman', metodePengiriman);
@@ -1032,11 +1033,33 @@
                                     }
                                 },
                                 error: function(xhr) {
-                                    Swal.fire({
-                                        title: "Gagal Menambahkan Data",
-                                        text: xhr.responseJSON.message,
-                                        icon: "error",
-                                    });
+                                    if (xhr.status ===
+                                        422) { // Error validasi dari Laravel
+                                        const errors = xhr.responseJSON.errors;
+
+                                        // Tampilkan error untuk Marking Customer
+                                        if (errors.markingCustomer) {
+                                            $('#markingCustomerEditError')
+                                                .removeClass('d-none')
+                                                .text(errors.markingCustomer[
+                                                0]); // Tampilkan pesan error dari server
+                                        }
+
+                                        // Tampilkan error umum jika ada
+                                        Swal.fire({
+                                            title: "Gagal Mengupdate Data",
+                                            text: "Periksa kembali data yang diinput.",
+                                            icon: "error"
+                                        });
+                                    } else {
+                                        // Error selain validasi (500, dll.)
+                                        Swal.fire({
+                                            title: "Gagal Mengupdate Data",
+                                            text: xhr.responseJSON.message ||
+                                                "Terjadi kesalahan pada server.",
+                                            icon: "error"
+                                        });
+                                    }
                                 }
                             });
                         }
@@ -1219,10 +1242,10 @@
 
                                     // Aktifkan tombol tutup setelah proses selesai
                                     $('.close').prop('disabled',
-                                    false); // Aktifkan tombol close
+                                        false); // Aktifkan tombol close
                                     $("#btnImportFileExcel").prop("disabled",
                                         false
-                                        ); // Aktifkan tombol import kembali
+                                    ); // Aktifkan tombol import kembali
                                 }
                             });
                         }, 2000); // Polling setiap 2 detik

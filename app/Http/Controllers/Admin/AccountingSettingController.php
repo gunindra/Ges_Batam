@@ -16,70 +16,70 @@ class AccountingSettingController extends Controller
         $accountSettings = DB::table('tbl_account_settings')->first();
 
         $savedPaymentAccounts = DB::table('tbl_payment_account')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
 
         $savedOperatingRevenue = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Operating Revenue')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
 
         $savedOperatingExpense = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Operating Expense')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
 
         $savedNonOperatingRevenue = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Non Operating Revenue')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedNonOperatingExpense = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Non Operating Expense')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedCapitalAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Capital')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedAdditionalCapitalAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Additional Capital')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedReturnedProfitAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Returned Profit')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedCurrentProfitAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Current Profit')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedDevidenAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Deviden')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
-        
+
         $savedInvestingAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Investing')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
 
         $savedFinancingAccount = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Financing')
-            ->pluck('coa_id') 
+            ->pluck('coa_id')
             ->toArray();
 
         $createdAtStatus = $accountSettings ? $accountSettings->id : null;
 
         return view('accounting.accountingSetting.indexaccountsetting',
-                    compact('coas', 
-                            'accountSettings', 
-                            'createdAtStatus', 
+                    compact('coas',
+                            'accountSettings',
+                            'createdAtStatus',
                             'savedPaymentAccounts',
                             'savedOperatingRevenue',
                             'savedOperatingExpense',
@@ -152,7 +152,7 @@ class AccountingSettingController extends Controller
                 );
             }
         }
-        
+
         if (empty($request->operating_expense)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Operating Expense')
@@ -272,7 +272,7 @@ class AccountingSettingController extends Controller
                 );
             }
         }
-        
+
         if (empty($request->financing)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Financing')
