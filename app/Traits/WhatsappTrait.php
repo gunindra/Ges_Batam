@@ -36,7 +36,7 @@ trait WhatsappTrait
         Log::info('Data yang dikirim: ' . json_encode($data));
 
         try {
-            $response = Http::timeout(30)->post($url, $data);
+            $response = Http::timeout(60)->post($url, $data);
 
             if ($response->successful()) {
                 Log::info('Pesan WhatsApp berhasil dikirim ke ' . $noWa);

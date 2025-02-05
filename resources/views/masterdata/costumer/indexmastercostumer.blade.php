@@ -146,6 +146,13 @@
                             <!-- Kolom Pertama -->
                             <div class="col-md-6">
                                 <div class="mt-3">
+                                    <label for="markingCustomerEdit" class="form-label fw-bold">Marking</label>
+                                    <input type="text" class="form-control" id="markingCustomerEdit" value="">
+                                    <div id="markingCustomerEditError" class="text-danger mt-1 d-none">Silahkan isi
+                                        marking
+                                    </div>
+                                </div>
+                                <div class="mt-3">
                                     <label for="namaCustomerEdit" class="form-label fw-bold">Nama Customer</label>
                                     <input type="text" class="form-control" id="namaCustomerEdit" value=""
                                         placeholder="Masukkan nama customer">
@@ -180,7 +187,6 @@
                             </div>
                             <!-- Kolom Kedua -->
                             <div class="col-md-6">
-
                                 <div class="mt-3">
                                     <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
                                     <div class="input-group">
@@ -237,8 +243,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                <p id="statusValue" class="h5"></p>
-                                                                                                                        </div> -->
+                                                                                                                                    <p id="statusValue" class="h5"></p>
+                                                                                                                            </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -815,6 +821,7 @@
             $(document).on('click', '.btnUpdateCustomer', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
+                let marking = $(this).data('marking');
                 let nama = $(this).data('nama');
                 let noTelp = $(this).data('notelp');
                 noTelp = String(noTelp);
@@ -886,6 +893,7 @@
 
                 // Isi form edit dengan data yang diterima
                 $('#namaCustomerEdit').val(nama);
+                $('#markingCustomerEdit').val(marking);
                 $('#noTelponEdit').val(noTelpWithoutCode);
                 $('#categoryCustomerEdit').val(category);
                 $('#metodePengirimanEdit').val(pengiriman);
@@ -905,6 +913,7 @@
                 e.preventDefault();
 
                 let id = $('#customerIdEdit').val();
+                let markingCustomerEdit = $('#markingCustomerEdit').val();
                 let namaCustomerEdit = $('#namaCustomerEdit').val();
                 let noTelponInput = $('#noTelponEdit').val().trim();
                 let noTelponCustomer = '62' + noTelponInput;
@@ -914,6 +923,13 @@
 
                 let isValid = true;
 
+                // Validasi Marking Customer
+                if (markingCustomerEdit === '') {
+                    $('#markingCustomerEditError').removeClass('d-none');
+                    isValid = false;
+                } else {
+                    $('#markingCustomerEditError').addClass('d-none');
+                }
                 // Validasi Nama Customer
                 if (namaCustomerEdit === '') {
                     $('#namaCustomerErrorEdit').removeClass('d-none');
@@ -1162,7 +1178,7 @@
                         // Polling untuk status job
                         let interval = setInterval(function() {
                             $.get("{{ url('job/status') }}/" + jobId, function(
-                            status) {
+                                status) {
                                 let progress = status.progress;
                                 $("#progress-bar").css("width", progress + "%")
                                     .text(progress + "%");
@@ -1205,10 +1221,10 @@
 
                                     // Aktifkan tombol tutup setelah proses selesai
                                     $('.close').prop('disabled',
-                                    false); // Aktifkan tombol close
+                                        false); // Aktifkan tombol close
                                     $("#btnImportFileExcel").prop("disabled",
                                         false
-                                        ); // Aktifkan tombol import kembali
+                                    ); // Aktifkan tombol import kembali
                                 }
                             });
                         }, 2000); // Polling setiap 2 detik
@@ -1225,7 +1241,7 @@
                         // Aktifkan tombol tutup setelah proses selesai
                         $('.close').prop('disabled', false); // Aktifkan tombol close
                         $("#btnImportFileExcel").prop("disabled",
-                        false); // Aktifkan tombol import kembali
+                            false); // Aktifkan tombol import kembali
                     }
                 });
             });

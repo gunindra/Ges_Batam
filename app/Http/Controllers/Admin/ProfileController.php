@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\Alamat;
+use App\Models\Customer;
 use App\Models\HistoryTopup;
 use App\Models\UsagePoints;
 use Illuminate\Http\Request;
@@ -15,29 +17,77 @@ class ProfileController extends Controller
 {
     public function edit(Request $request)
     {
+        $user = $request->user();
+
+        // dd( $user->id);
+
         $listPoin = DB::table('tbl_pembeli')
-        ->where('user_id', $request->user()->id)
-        ->value('sisa_poin');
+            ->where('user_id', $user->id)
+            ->value('sisa_poin');
+
+        $customer = Customer::where('user_id', $user->id)->first();
+        $alamatList = $customer ? $customer->alamat()->get() : collect();
+
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
             'listPoin' => $listPoin,
+            'alamatList' => $alamatList,
         ]);
     }
 
     public function update(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('tbl_users')->ignore($request->user()->id)],
-            'password' => ['nullable', 'confirmed', 'min:8'],
-        ]);
+        $user = $request->user();
 
-        $request->user()->update([
+        // Validasi umum
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:tbl_users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+        ];
+
+        // Validasi alamat hanya jika role bukan customer
+        if ($user->role !== 'customer') {
+            $rules['alamatCustomer'] = 'required|array|min:1';
+            $rules['alamatCustomer.*'] = 'required|string|max:255';
+        } else {
+            $rules['alamatCustomer'] = 'nullable|array';
+            $rules['alamatCustomer.*'] = 'nullable|string|max:255';
+        }
+
+        // Custom messages
+        $messages = [
+            'alamatCustomer.required' => 'Minimal satu alamat harus diisi.',
+            'alamatCustomer.*.required' => 'Alamat tidak boleh kosong.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
+
+        // Update profil user
+        $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => $validated['password'] ? Hash::make($validated['password']) : $request->user()->password,
+            'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
         ]);
 
+        // Update alamat jika ada
+        if (isset($validated['alamatCustomer'])) {
+            $customer = Customer::where('user_id', $user->id)->first();
+            if ($customer) {
+                Alamat::where('pembeli_id', $customer->id)->delete();
+                foreach ($validated['alamatCustomer'] as $alamat) {
+                    if (!empty($alamat)) {
+                        Alamat::create([
+                            'pembeli_id' => $customer->id,
+                            'alamat' => $alamat,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // Response untuk AJAX
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Profile updated successfully!']);
         }

@@ -42,4 +42,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+
+    public function alamat()
+    {
+        return $this->hasMany(Alamat::class, 'pembeli_id');
+    }
 }

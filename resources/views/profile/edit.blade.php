@@ -55,18 +55,20 @@
                                 <label for="name">Name</label>
                                 <input id="name" class="form-control" type="text" name="name"
                                     value="{{ old('name', auth()->user()->name) }}" required autofocus>
+                                <span id="name-error" class="text-danger"></span> <!-- Error display for name -->
                             </div>
 
                             <div class="form-group">
                                 <label for="email">Email</label>
                                 <input id="email" class="form-control" type="email" name="email"
                                     value="{{ old('email', auth()->user()->email) }}" required>
+                                <span id="email-error" class="text-danger"></span> <!-- Error display for email -->
                             </div>
 
                             <div class="form-group">
                                 <label for="password">New Password (optional)</label>
                                 <input id="password" class="form-control" type="password" name="password">
-                                <span id="password-error" class="text-danger"></span>
+                                <span id="password-error" class="text-danger"></span> <!-- Error display for password -->
                             </div>
 
                             <div class="form-group">
@@ -75,7 +77,47 @@
                                     name="password_confirmation">
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                            @if (in_array(Auth::user()->role, ['customer']))
+                                <div class="form-group">
+                                    <div id="alamatContainer">
+                                        @foreach ($alamatList as $index => $alamat)
+                                            <div class="mt-3 alamat-item">
+                                                <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
+                                                <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3">{{ $alamat->alamat }}</textarea>
+
+                                                @if ($errors->has("alamatCustomer.$index"))
+                                                    <div class="text-danger mt-1">
+                                                        {{ $errors->first("alamatCustomer.$index") }}</div>
+                                                @endif
+
+                                                <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        @endforeach
+
+                                        @if ($alamatList->isEmpty())
+                                            <div class="mt-3 alamat-item">
+                                                <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
+                                                <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                                                @error('alamatCustomer.*')
+                                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                                @enderror
+                                                <button type="button"
+                                                    class="btn btn-danger btn-sm mt-2 remove-alamat-btn"
+                                                    style="display: none;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <button type="button" id="addAlamatButton" class="btn btn-secondary mt-3">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            @endif
+
+                            <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
                         </form>
                     </div>
                 </div>
@@ -100,7 +142,7 @@
                         <!-- Indikator Harga Berlaku -->
                         <div class="mb-3">
                             <p class="text-muted"></p>
-                        </div> 
+                        </div>
 
                         <!-- Progress Bar to Show Poin Usage -->
                         {{-- <div class="progress mb-3">
@@ -281,6 +323,35 @@
         });
     </script>
     <script>
+        toggleRemoveButton();
+
+        function toggleRemoveButton() {
+            const alamatItems = $('#alamatContainer').children('.alamat-item');
+            if (alamatItems.length > 1) {
+                $('.remove-alamat-btn').show();
+            } else {
+                $('.remove-alamat-btn').hide();
+            }
+        }
+
+        $('#addAlamatButton').click(function() {
+            let alamatContainer = $('#alamatContainer');
+
+            let newAlamat = `<div class="mt-3 alamat-item">
+                            <label for="alamatCustomer" class="form-label fw-bold">Alamat</label>
+                            <textarea class="form-control" name="alamatCustomer[]" placeholder="Masukkan alamat" rows="3"></textarea>
+                            <div class="text-danger mt-1 alamat-error d-none">Silahkan isi alamat customer</div>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-alamat-btn"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+            alamatContainer.append(newAlamat);
+            toggleRemoveButton();
+        });
+
+        $(document).on('click', '.remove-alamat-btn', function() {
+            $(this).closest('.alamat-item').remove();
+            toggleRemoveButton();
+        });
+
         $(document).ready(function() {
             $('#profileForm').on('submit', function(event) {
                 event.preventDefault();
@@ -290,7 +361,8 @@
                     method: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {
-                        $('#password-error').text('');
+                        clearErrors();
+
                         if (response.success) {
                             showMessage("success", response.message).then(() => {
                                 location.reload();
@@ -306,6 +378,22 @@
                             if (errors.password) {
                                 $('#password-error').text(errors.password[0]);
                             }
+
+                            if (errors.name) {
+                                $('#name-error').text(errors.name[0]);
+                            }
+
+                            if (errors.email) {
+                                $('#email-error').text(errors.email[0]);
+                            }
+
+                            if (errors['alamatCustomer.*']) {
+                                $('.alamat-error').each(function(index) {
+                                    $(this).text(errors['alamatCustomer.*'][index] ||
+                                        '').removeClass('d-none');
+                                });
+                            }
+
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -317,6 +405,13 @@
                     }
                 });
             });
+
+            function clearErrors() {
+                $('#password-error').text('');
+                $('#name-error').text('');
+                $('#email-error').text('');
+                $('.alamat-error').text('').addClass('d-none');
+            }
         });
     </script>
 @endsection
