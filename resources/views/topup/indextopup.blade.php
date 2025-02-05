@@ -92,7 +92,7 @@
 
                         <p><strong>Expired:</strong>
                             <input type="text" class="form-control col-12" id="tanggalExpired" value=""
-                                placeholder="Pilih tanggal" disabled>
+                                placeholder="Pilih tanggal">
                             <span id="tanggalExpiredError" class="text-danger"></span>
                         </p>
                     </div>
