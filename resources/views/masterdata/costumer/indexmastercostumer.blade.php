@@ -243,8 +243,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                        <p id="statusValue" class="h5"></p>
-                                                                                                                                </div> -->
+                                                                                                                                                <p id="statusValue" class="h5"></p>
+                                                                                                                                        </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1023,7 +1023,11 @@
 
                                     if (response.status === 'success') {
                                         showMessage("success", "Data Berhasil Diubah");
-                                        table.ajax.reload();
+                                        var currentPage = table.page();
+                                        table.ajax.reload(null, false);
+                                        table.one('draw', function() {
+                                            table.page(currentPage).draw(false);
+                                        });
                                         $('#modalEditCustomer').modal('hide');
                                     } else {
                                         Swal.fire({
@@ -1042,7 +1046,8 @@
                                             $('#markingCustomerEditError')
                                                 .removeClass('d-none')
                                                 .text(errors.markingCustomer[
-                                                0]); // Tampilkan pesan error dari server
+                                                    0
+                                                ]); // Tampilkan pesan error dari server
                                         }
 
                                         // Tampilkan error umum jika ada
