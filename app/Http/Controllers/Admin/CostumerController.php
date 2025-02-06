@@ -55,6 +55,7 @@ class CostumerController extends Controller
         ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
         ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
         ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+        ->whereNull('tbl_pembeli.deleted_at')
         ->where('tbl_pembeli.company_id', $companyId)
         ->when($txSearch, function ($q) use ($txSearch) {
             $q->where(function ($query) use ($txSearch) {
@@ -102,6 +103,7 @@ class CostumerController extends Controller
             return '
                 <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
                 <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-marking="' . $item->marking . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
+                <button class="btn btn-sm btn-danger text-white btnDeleteCustomer" data-id="' . $item->id . '"><i class="fas fa-trash"></i></button>
             ';
         })
         ->rawColumns(['alamat_cell', 'status_cell', 'action'])
@@ -234,6 +236,14 @@ class CostumerController extends Controller
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Gagal Mengupdate Data Pelanggan: ' . $e->getMessage()], 500);
         }
+    }
+
+
+    public function softDelete($id)
+    {
+        $customer = Customer::findOrFail($id);
+        $customer->delete();
+        return response()->json(['message' => 'Customer berhasil dihapus']);
     }
 
 

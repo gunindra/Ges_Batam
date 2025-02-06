@@ -243,8 +243,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                                <p id="statusValue" class="h5"></p>
-                                                                                                                                        </div> -->
+                                                                                                                                                                <p id="statusValue" class="h5"></p>
+                                                                                                                                                        </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -1075,6 +1075,41 @@
             });
 
 
+            $(document).on('click', '.btnDeleteCustomer', function() {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/customer/${id}/soft-delete`,
+                            type: "DELETE",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.fire("Berhasil!", response.message, "success");
+                                var currentPage = table.page();
+                                table.ajax.reload(null, false);
+                                table.one('draw', function() {
+                                    table.page(currentPage).draw(false);
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire("Gagal!", xhr.responseJSON.message, "error");
+                            }
+                        });
+                    }
+                });
+            });
             $(document).on('click', '.btnModalImportExcel', function(e) {
                 e.preventDefault();
                 $("#modalImportExcel").modal('show');

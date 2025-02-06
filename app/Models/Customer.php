@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'tbl_pembeli';
     protected $fillable = [
@@ -31,6 +32,7 @@ class Customer extends Model
     protected $dates = [
         'transaksi_terakhir',
         'non_active_at',
+        'deleted_at',
     ];
 
     public function user()
