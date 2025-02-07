@@ -760,6 +760,7 @@
                     $.ajax({
                         url: url,
                         type: 'GET',
+                        cache: false,
                         xhrFields: {
                             responseType: 'blob' // Agar respons diterima sebagai file
                         },

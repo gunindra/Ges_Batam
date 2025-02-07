@@ -394,6 +394,7 @@ class CostumerController extends Controller
         $status = $request->status;
 
         try {
+            // Ambil data pelanggan
             $customers = DB::table('tbl_pembeli')
                 ->select(
                     'tbl_pembeli.id',
@@ -450,32 +451,31 @@ class CostumerController extends Controller
                 return response()->json(['error' => 'No customers found'], 404);
             }
 
-            try {
-                $pdf = Pdf::loadView('exportPDF.customerPdf', [
-                    'customers' => $customers,
-                    'status' => $status
-                ])
-                ->setPaper('A4', 'portrait')
-                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-                ->setWarnings(false);
-            } catch (\Exception $e) {
-                Log::error('Error generating customer PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to generate PDF'], 500);
-            }
+            // Streaming Response
+            return response()->stream(function () use ($customers, $status) {
+                try {
+                    $pdf = Pdf::loadView('exportPDF.customerPdf', [
+                        'customers' => $customers,
+                        'status' => $status
+                    ])
+                    ->setPaper('A4', 'portrait')
+                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                    ->setWarnings(false);
 
-            // Nama file PDF dengan timestamp
-            $fileName = 'customerExport_' . now()->format('ymd_Hs') . '.pdf';
-
-            // Langsung download file PDF
-            return $pdf->download($fileName);
+                    echo $pdf->output();
+                } catch (\Exception $e) {
+                    Log::error('Error generating customer PDF: ' . $e->getMessage());
+                }
+            }, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="customerExport_' . now()->format('ymd_Hs') . '.pdf"',
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error generating customer report PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the customer report PDF'], 500);
         }
     }
-
-
 
 
 }
