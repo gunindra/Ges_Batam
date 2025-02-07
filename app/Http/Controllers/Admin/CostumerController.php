@@ -464,7 +464,7 @@ class CostumerController extends Controller
             }
 
             // Nama file PDF dengan timestamp
-            $fileName = 'customer_report_' . now()->format('Ymd_His') . '.pdf';
+            $fileName = 'customerExport_' . now()->format('ymd_Hs') . '.pdf';
 
             // Langsung download file PDF
             return $pdf->download($fileName);
