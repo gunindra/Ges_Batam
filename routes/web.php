@@ -247,6 +247,9 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::post('/masterdata/costumer/import', [CostumerController::class, 'import'])->name('costumer.import');
     Route::get('/job/status/{jobId}', [CostumerController::class, 'getJobStatus'])->name('job.status');
     Route::delete('/customer/{id}/soft-delete', [CostumerController::class, 'softDelete']);
+    Route::get('/customers/export', [CostumerController::class, 'exportExcel'])->name('customers.export');
+    Route::get('/export-customer-pdf', [CostumerController::class, 'exportPdf'])->name('export.customer.pdf');
+
 
     // Driver
     Route::get('/masterdata/driver', [DriverController::class, 'index'])->name('driver');

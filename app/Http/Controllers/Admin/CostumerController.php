@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\CustomerExport;
 use App\Http\Controllers\Controller;
-use App\Imports\CustomersImport;
 use App\Jobs\ImportCustomerData;
 use App\Models\User;
 use Exception;
@@ -10,12 +10,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Database\QueryException;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 use Illuminate\Support\Str;
 
 class CostumerController extends Controller
@@ -31,84 +33,84 @@ class CostumerController extends Controller
     }
 
     public function getlistCostumer(Request $request)
-{
-    $companyId = session('active_company_id');
-    $txSearch = $request->txSearch;
-    $status = $request->status;
+    {
+        $companyId = session('active_company_id');
+        $txSearch = $request->txSearch;
+        $status = $request->status;
 
-    $query = DB::table('tbl_pembeli')
-        ->select(
-            'tbl_pembeli.id',
-            'tbl_pembeli.marking',
-            'tbl_pembeli.nama_pembeli',
-            DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
-            DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
-            'tbl_pembeli.no_wa',
-            'tbl_pembeli.sisa_poin',
-            'tbl_pembeli.metode_pengiriman',
-            DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
-            'tbl_pembeli.status',
-            'tbl_pembeli.category_id',
-            'tbl_category.category_name',
-            'tbl_users.email'
-        )
-        ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
-        ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
-        ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
-        ->whereNull('tbl_pembeli.deleted_at')
-        ->where('tbl_pembeli.company_id', $companyId)
-        ->when($txSearch, function ($q) use ($txSearch) {
-            $q->where(function ($query) use ($txSearch) {
-                $query->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
-                    ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
-                    ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', '%' . strtoupper($txSearch) . '%');
-            });
-        })
-        ->when($status, function ($q) use ($status) {
-            if ($status === 'Active') {
-                $q->where('tbl_pembeli.status', 1);
-            } elseif ($status === 'Non Active') {
-                $q->where('tbl_pembeli.status', 0);
-            }
-        })
-        ->groupBy(
-            'tbl_pembeli.id',
-            'tbl_pembeli.marking',
-            'tbl_pembeli.nama_pembeli',
-            'tbl_pembeli.no_wa',
-            'tbl_pembeli.sisa_poin',
-            'tbl_pembeli.metode_pengiriman',
-            'tbl_pembeli.transaksi_terakhir',
-            'tbl_pembeli.status',
-            'tbl_pembeli.category_id',
-            'tbl_category.category_name',
-            'tbl_users.email'
-        )
-        ->orderBy('tbl_pembeli.status', 'DESC')
-        ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC');
+        $query = DB::table('tbl_pembeli')
+            ->select(
+                'tbl_pembeli.id',
+                'tbl_pembeli.marking',
+                'tbl_pembeli.nama_pembeli',
+                DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
+                DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
+                'tbl_pembeli.no_wa',
+                'tbl_pembeli.sisa_poin',
+                'tbl_pembeli.metode_pengiriman',
+                DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
+                'tbl_pembeli.status',
+                'tbl_pembeli.category_id',
+                'tbl_category.category_name',
+                'tbl_users.email'
+            )
+            ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
+            ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
+            ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+            ->whereNull('tbl_pembeli.deleted_at')
+            ->where('tbl_pembeli.company_id', $companyId)
+            ->when($txSearch, function ($q) use ($txSearch) {
+                $q->where(function ($query) use ($txSearch) {
+                    $query->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                        ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                        ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', '%' . strtoupper($txSearch) . '%');
+                });
+            })
+            ->when($status, function ($q) use ($status) {
+                if ($status === 'Active') {
+                    $q->where('tbl_pembeli.status', 1);
+                } elseif ($status === 'Non Active') {
+                    $q->where('tbl_pembeli.status', 0);
+                }
+            })
+            ->groupBy(
+                'tbl_pembeli.id',
+                'tbl_pembeli.marking',
+                'tbl_pembeli.nama_pembeli',
+                'tbl_pembeli.no_wa',
+                'tbl_pembeli.sisa_poin',
+                'tbl_pembeli.metode_pengiriman',
+                'tbl_pembeli.transaksi_terakhir',
+                'tbl_pembeli.status',
+                'tbl_pembeli.category_id',
+                'tbl_category.category_name',
+                'tbl_users.email'
+            )
+            ->orderBy('tbl_pembeli.status', 'DESC')
+            ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC');
 
-    return DataTables::of($query)
-        ->addColumn('alamat_cell', function ($item) {
-            if ($item->alamat_count > 1) {
-                return '<button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-alamat="' . htmlentities($item->alamat) . '">Lihat Alamat (' . $item->alamat_count . ')</button>';
-            }
-            return $item->alamat ?? '-';
-        })
-        ->addColumn('status_cell', function ($item) {
-            return ($item->status == 1)
-                ? '<span class="badge badge-success">Active</span>'
-                : '<span class="badge badge-danger">Non Active</span>';
-        })
-        ->addColumn('action', function ($item) {
-            return '
-                <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
-                <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-marking="' . $item->marking . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
-                <button class="btn btn-sm btn-danger text-white btnDeleteCustomer" data-id="' . $item->id . '"><i class="fas fa-trash"></i></button>
-            ';
-        })
-        ->rawColumns(['alamat_cell', 'status_cell', 'action'])
-        ->make(true);
-}
+        return DataTables::of($query)
+            ->addColumn('alamat_cell', function ($item) {
+                if ($item->alamat_count > 1) {
+                    return '<button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-alamat="' . htmlentities($item->alamat) . '">Lihat Alamat (' . $item->alamat_count . ')</button>';
+                }
+                return $item->alamat ?? '-';
+            })
+            ->addColumn('status_cell', function ($item) {
+                return ($item->status == 1)
+                    ? '<span class="badge badge-success">Active</span>'
+                    : '<span class="badge badge-danger">Non Active</span>';
+            })
+            ->addColumn('action', function ($item) {
+                return '
+                    <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
+                    <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-marking="' . $item->marking . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
+                    <button class="btn btn-sm btn-danger text-white btnDeleteCustomer" data-id="' . $item->id . '"><i class="fas fa-trash"></i></button>
+                ';
+            })
+            ->rawColumns(['alamat_cell', 'status_cell', 'action'])
+            ->make(true);
+    }
 
 
     public function addCostumer(Request $request)
@@ -292,138 +294,7 @@ class CostumerController extends Controller
         ]);
     }
 
-    // public function import(Request $request)
-    // {
-    //     $companyId = session('active_company_id');
-    //     $invalidData = [];
-    //     $validData = [];
-
-    //     // Validasi manual untuk setiap baris data
-    //     foreach ($request->data as $index => $row) {
-    //         $validator = Validator::make($row, [
-    //             'marking_costumer' => 'required|string|max:255',
-    //             'email' => 'required|email',
-    //             'nama_customer' => 'required|string|max:255',
-    //             'no_telpon' => 'required|string|max:20',
-    //             'alamat_customer' => 'required|string',
-    //             'password' => 'required|string|min:6',
-    //             'category_customer' => 'required|exists:tbl_category,id',
-    //             'metode_pengiriman' => 'required|in:Delivery,Pickup',
-    //         ]);
-
-    //         $errors = [];
-
-    //         // Cek duplikat email
-    //         if (DB::table('tbl_users')->where('email', $row['email'])->exists()) {
-    //             $errors[] = "Email duplicate.";
-    //         }
-
-    //         // Cek duplikat marking_costumer
-    //         if (DB::table('tbl_pembeli')->where('marking', $row['marking_costumer'])->exists()) {
-    //             $errors[] = "Marking duplicate.";
-    //         }
-
-    //         // Jika validasi gagal atau ada duplikat, tambahkan ke invalidData
-    //         if ($validator->fails() || !empty($errors)) {
-    //             $row['keterangan'] = implode(" ", array_merge($validator->errors()->all(), $errors));
-    //             $invalidData[] = $row;
-    //         } else {
-    //             $validData[] = $row;
-    //         }
-    //     }
-
-    //     // Jika tidak ada data valid, langsung return
-    //     if (empty($validData)) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Tidak ada data valid yang dapat diimpor.',
-    //             'invalid_data' => $invalidData,
-    //         ], 400);
-    //     }
-
-    //     // Proses data yang valid dengan chunk processing
-    //     try {
-    //         $chunks = array_chunk($validData, 500); // Bagi data menjadi batch
-
-    //         foreach ($chunks as $chunk) {
-    //             foreach ($chunk as $row) {
-    //                 try {
-    //                     DB::beginTransaction(); // Mulai transaksi database
-
-    //                     // Insert user and get the user_id
-    //                     $user = User::create([
-    //                         'name' => $row['nama_customer'],
-    //                         'email' => $row['email'],
-    //                         'password' => Hash::make($row['password']),
-    //                         'role' => 'customer',
-    //                         'created_at' => now(),
-    //                         'updated_at' => now(),
-    //                     ]);
-
-    //                     // Insert pembeli dengan user_id yang baru dibuat
-    //                     $pembeliId = DB::table('tbl_pembeli')->insertGetId([
-    //                         'user_id' => $user->id,
-    //                         'marking' => $row['marking_costumer'],
-    //                         'nama_pembeli' => $row['nama_customer'],
-    //                         'no_wa' => $row['no_telpon'],
-    //                         'category_id' => $row['category_customer'],
-    //                         'metode_pengiriman' => $row['metode_pengiriman'],
-    //                         'status' => 1,
-    //                         'company_id' => $companyId,
-    //                         'created_at' => now(),
-    //                         'updated_at' => now(),
-    //                     ]);
-
-    //                     // Proses alamat (jika ada)
-    //                     $alamatCustomer = is_array($row['alamat_customer']) ? $row['alamat_customer'] : [$row['alamat_customer']];
-    //                     foreach ($alamatCustomer as $alamat) {
-    //                         if (!is_null($alamat) && trim($alamat) !== '') {
-    //                             DB::table('tbl_alamat')->insert([
-    //                                 'pembeli_id' => $pembeliId,
-    //                                 'alamat' => trim($alamat),
-    //                                 'created_at' => now(),
-    //                                 'updated_at' => now(),
-    //                             ]);
-    //                         }
-    //                     }
-
-    //                     DB::commit();
-    //                 } catch (QueryException $e) {
-    //                     DB::rollBack();
-
-    //                     $errorMessage = $e->errorInfo[2];
-
-    //                     if (str_contains($errorMessage, 'tbl_users_email_unique')) {
-    //                         $row['keterangan'] = "Email duplicate.";
-    //                     } elseif (str_contains($errorMessage, 'tbl_pembeli_marking_unique')) {
-    //                         $row['keterangan'] = "Marking duplicate.";
-    //                     } else {
-    //                         $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
-    //                     }
-
-    //                     $invalidData[] = $row;
-    //                 } catch (Exception $e) {
-    //                     DB::rollBack();
-    //                     $row['keterangan'] = "Terjadi kesalahan saat menyimpan data.";
-    //                     $invalidData[] = $row;
-    //                 }
-    //             }
-    //         }
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Data berhasil diimpor.',
-    //             'invalid_data' => $invalidData, // Data yang gagal tetap dikembalikan
-    //         ]);
-    //     } catch (Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Gagal mengimpor data: ' . $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-    public function import(Request $request)
+      public function import(Request $request)
     {
         $companyId = session('active_company_id');
         $invalidData = [];
@@ -502,4 +373,109 @@ class CostumerController extends Controller
         $progress = Cache::get('job_progress_' . $jobId, 0);
         return response()->json(['progress' => $progress]);
     }
+
+    public function exportExcel(Request $request)
+    {
+        $companyId = session('active_company_id');
+        $txSearch = $request->txSearch;
+        $status = $request->status;
+
+        // Format nama file dengan tanggal dan waktu saat ini
+        $fileName = 'customersExport_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new CustomerExport($companyId, $txSearch, $status), $fileName);
+    }
+
+
+    public function exportPdf(Request $request)
+    {
+        $companyId = session('active_company_id');
+        $txSearch = $request->txSearch;
+        $status = $request->status;
+
+        try {
+            $customers = DB::table('tbl_pembeli')
+                ->select(
+                    'tbl_pembeli.id',
+                    'tbl_pembeli.marking',
+                    'tbl_pembeli.nama_pembeli',
+                    DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
+                    DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
+                    'tbl_pembeli.no_wa',
+                    'tbl_pembeli.sisa_poin',
+                    'tbl_pembeli.metode_pengiriman',
+                    DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
+                    'tbl_pembeli.status',
+                    'tbl_pembeli.category_id',
+                    'tbl_category.category_name',
+                    'tbl_users.email'
+                )
+                ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
+                ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
+                ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+                ->whereNull('tbl_pembeli.deleted_at')
+                ->where('tbl_pembeli.company_id', $companyId)
+                ->when($txSearch, function ($q) use ($txSearch) {
+                    $q->where(function ($query) use ($txSearch) {
+                        $query->where(DB::raw('UPPER(tbl_pembeli.nama_pembeli)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                            ->orWhere(DB::raw('UPPER(tbl_pembeli.marking)'), 'LIKE', '%' . strtoupper($txSearch) . '%')
+                            ->orWhere(DB::raw('UPPER(tbl_alamat.alamat)'), 'LIKE', '%' . strtoupper($txSearch) . '%');
+                    });
+                })
+                ->when($status, function ($q) use ($status) {
+                    if ($status === 'Active') {
+                        $q->where('tbl_pembeli.status', 1);
+                    } elseif ($status === 'Non Active') {
+                        $q->where('tbl_pembeli.status', 0);
+                    }
+                })
+                ->groupBy(
+                    'tbl_pembeli.id',
+                    'tbl_pembeli.marking',
+                    'tbl_pembeli.nama_pembeli',
+                    'tbl_pembeli.no_wa',
+                    'tbl_pembeli.sisa_poin',
+                    'tbl_pembeli.metode_pengiriman',
+                    'tbl_pembeli.transaksi_terakhir',
+                    'tbl_pembeli.status',
+                    'tbl_pembeli.category_id',
+                    'tbl_category.category_name',
+                    'tbl_users.email'
+                )
+                ->orderBy('tbl_pembeli.status', 'DESC')
+                ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC')
+                ->get();
+
+            if ($customers->isEmpty()) {
+                return response()->json(['error' => 'No customers found'], 404);
+            }
+
+            try {
+                $pdf = Pdf::loadView('exportPDF.customerPdf', [
+                    'customers' => $customers,
+                    'status' => $status
+                ])
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
+            } catch (\Exception $e) {
+                Log::error('Error generating customer PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
+
+            // Nama file PDF dengan timestamp
+            $fileName = 'customer_report_' . now()->format('Ymd_His') . '.pdf';
+
+            // Langsung download file PDF
+            return $pdf->download($fileName);
+
+        } catch (\Exception $e) {
+            Log::error('Error generating customer report PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the customer report PDF'], 500);
+        }
+    }
+
+
+
+
 }

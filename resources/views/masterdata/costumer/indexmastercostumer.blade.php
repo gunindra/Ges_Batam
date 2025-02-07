@@ -243,8 +243,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                                                <p id="statusValue" class="h5"></p>
-                                                                                                                                                        </div> -->
+                                                                                                                                                                            <p id="statusValue" class="h5"></p>
+                                                                                                                                                                    </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -374,6 +374,10 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             {{-- <button class="btn btn-primary" id="btnModalTambahCostumer">Tambah</button> --}}
+                            <a href="{{ route('customers.export', ['txSearch' => request()->txSearch, 'status' => request()->status]) }}"
+                                class="btn btn-success mr-2">Export to Excel</a>
+                            <a href="{{ route('export.customer.pdf') }}" class="btn btn-danger btn-export-pdf mr-2">Export
+                                PDF</a>
                             <button type="button" class="btn btn-primary mr-2" data-toggle="modal"
                                 data-target="#modalTambahCustomer" id="modalTambahCost"><span class="pr-2"><i
                                         class="fas fa-plus"></i></span>Tambah Customer</button>
@@ -744,6 +748,54 @@
                 }
             });
 
+            $(document).ready(function() {
+                $('.btn-export-pdf').on('click', function(e) {
+                    e.preventDefault();
+
+                    let button = $(this);
+                    let url = button.attr('href');
+
+                    button.prop('disabled', true).text('Processing...');
+
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        xhrFields: {
+                            responseType: 'blob' // Agar respons diterima sebagai file
+                        },
+                        success: function(response, status, xhr) {
+                            // Menangkap nama file dari header Content-Disposition
+                            let disposition = xhr.getResponseHeader(
+                                'Content-Disposition');
+                            let filename = 'exported.pdf';
+
+                            if (disposition) {
+                                let matches = /filename="?([^"]+)"?/.exec(disposition);
+                                if (matches && matches[1]) {
+                                    filename = matches[1];
+                                }
+                            }
+
+                            // Membuat file blob dari response
+                            let blob = new Blob([response], {
+                                type: 'application/pdf'
+                            });
+                            let link = document.createElement('a');
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            button.prop('disabled', false).text('Export PDF');
+                        },
+                        error: function() {
+                            alert('Failed to export PDF. Please try again.');
+                            button.prop('disabled', false).text('Export PDF');
+                        }
+                    });
+                });
+            });
 
 
             $('#modalTambahCustomer').on('hidden.bs.modal', function() {
@@ -1110,6 +1162,7 @@
                     }
                 });
             });
+
             $(document).on('click', '.btnModalImportExcel', function(e) {
                 e.preventDefault();
                 $("#modalImportExcel").modal('show');
