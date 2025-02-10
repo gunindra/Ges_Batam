@@ -323,6 +323,7 @@ class InvoiceController extends Controller
     }
     public function tambainvoice(Request $request)
     {
+        // dd($request->all());
         $companyId = session('active_company_id');
         $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
@@ -340,7 +341,7 @@ class InvoiceController extends Controller
         $rateVolume = $request->input('rateVolume');
         $pembagiVolume = $request->input('pembagiVolume');
         $hargaBarang = $request->input('hargaBarang');
-        $totalharga = $request->input('totalharga');
+        $totalharga = ceil($request->input('totalharga') / 1000) * 1000;
         $user = Auth::user()->name;
 
         $accountSettings = DB::table('tbl_account_settings')->first();

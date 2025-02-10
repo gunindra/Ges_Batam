@@ -264,12 +264,14 @@
                                 style="border: 1px solid; border-radius: 8px; font-size: 1.5rem;">
                                 <span id="total-harga" style="font-weight: bold; color: #555;">Rp. 0</span>
                             </div>
+                            <small class="text-muted d-block mt-1">
+                                NB: Setelah diproses total harga akan dibulatkan ke kelipatan 1000.
+                            </small>
                             <input type="hidden" name="" id="totalHargaValue">
-                            <button id="buatInvoice" class="btn btn-primary p-3 float-right mt-3"
-                                style="width: 100%;">Buat
-                                Invoice</button>
+                            <button id="buatInvoice" class="btn btn-primary p-3 float-right mt-3" style="width: 100%;">Buat Invoice</button>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
