@@ -236,6 +236,7 @@
             }
         });
         $('#customer').select2({
+            dropdownParent: $('#modalFilterTanggal'),
             templateResult: function (data) {
                 if (!data.id) return data.text;
 
