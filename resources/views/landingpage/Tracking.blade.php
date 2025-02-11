@@ -25,11 +25,13 @@
                                                 <div class="mt-1">
                                                     <label for="tags" class="form-label"
                                                         style="font-weight: bold;">Masukkan No Resi</label>
-                                                    <input type="text" class="form-control" id="tags"
-                                                        name="tags" placeholder="Masukkan nomor resi"
-                                                        style="padding: 10px; border-radius: 5px;">
-                                                    <div id="err-tags" class="text-danger d-none" style="color: red;">
-                                                        Silahkan Masukkan Nomor Resi</div>
+                                                    <div class="input-tags-wrapper">
+                                                        <input type="text" class="form-control" id="tags"
+                                                            name="tags" placeholder="Masukkan nomor resi"
+                                                            style="padding: 10px; border-radius: 5px;">
+                                                        <div id="err-tags" class="text-danger d-none"
+                                                            style="color: red;">Silahkan Masukkan Nomor Resi</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="ml-2 mt-4">
@@ -37,7 +39,13 @@
                                                 <button id="btnLacak" class="btn btn-primary"
                                                     style="padding: 10px 20px; font-weight: bold;">Lacak</button>
                                             </div>
+                                            <!-- Tombol Clear untuk membersihkan input -->
+                                            <div class="ml-2 mt-4">
+                                                <button id="btnClear" class="btn btn-danger"
+                                                    style="padding: 10px 20px; font-weight: bold;">Clear</button>
+                                            </div>
                                         </div>
+
                                     </div>
                                     <div id="trackingTableContainer" class="row mt-4 d-none">
                                         <div class="col-12">
@@ -93,6 +101,12 @@
                         }
                     });
 
+                    $("#btnClear").on("click", function() {
+                        $(".close-item").each(function() {
+                            $(this).trigger("click");
+                        });
+                    });
+
                     $('#btnLacak').click(function() {
                         let noresiTags = $('#tags').val().trim();
                         if (noresiTags === '') {
@@ -125,7 +139,7 @@
                                     $('#trackingTableContainer').removeClass('d-none');
                                 } else {
                                     $('#trackingTableContainer').removeClass(
-                                    'd-none'); // Pastikan container tetap muncul meski data kosong
+                                        'd-none'); // Pastikan container tetap muncul meski data kosong
 
                                     let emptyRow =
                                         `<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>`;
