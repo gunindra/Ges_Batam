@@ -104,6 +104,8 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
+                                <button id="action-button" class="btn btn-danger mr-2" style="display: none">Delete
+                                    Selected</button>
                                 <button type="button" class="btn btn-primary" data-toggle="modal"
                                     data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
                                             class="fas fa-plus"></i></span>Tambah Tracking</button>
@@ -127,13 +129,14 @@
                             <table class="table align-items-center table-flush table-hover" id="tableTracking">
                                 <thead class="thead-light">
                                     <tr>
+                                        <th><input type="checkbox" id="select-all"></th>
                                         <th>No. Resi</th>
                                         <th>No. DO</th>
                                         <th>Status</th>
                                         <th>Keterangan</th>
                                         @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
-                                        <th>Action</th>
-                                    @endif
+                                            <th>Action</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -196,6 +199,12 @@
         var hasActionColumn = @json($hasActionColumn);
 
         var columns = [{
+                data: 'select',
+                name: 'select',
+                orderable: false,
+                searchable: false
+            },
+            {
                 data: 'no_resi',
                 name: 'no_resi'
             },
@@ -245,6 +254,94 @@
             }
         });
 
+        $('#select-all').on('click', function() {
+            var isChecked = this.checked;
+
+            // Pilih semua checkbox di DataTables (termasuk yang ada di halaman lain)
+            table.$('.select-row').each(function() {
+                this.checked = isChecked;
+            });
+
+            toggleDeleteButton(); // Panggil fungsi untuk menampilkan tombol jika perlu
+        });
+
+        // Handle row selection
+        $('#tableTracking').on('change', '.select-row', function() {
+            var allChecked = $('#tableTracking .select-row:checked').length === $('#tableTracking .select-row')
+                .length;
+            $('#select-all').prop('checked', allChecked);
+
+            toggleDeleteButton(); // Panggil fungsi untuk menampilkan tombol jika perlu
+        });
+
+        // Function to show/hide delete button
+        function toggleDeleteButton() {
+            var selectedCount = $('#tableTracking .select-row:checked').length;
+            if (selectedCount > 0) {
+                $('#action-button').fadeIn(); // Tampilkan tombol dengan efek fade
+            } else {
+                $('#action-button').fadeOut(); // Sembunyikan tombol dengan efek fade
+            }
+        }
+
+        // Example action for selected rows
+        $('#action-button').on('click', function() {
+            var selectedIds = [];
+            $('#tableTracking .select-row:checked').each(function() {
+                selectedIds.push($(this).data('id'));
+            });
+
+            if (selectedIds.length > 0) {
+                // Show SweetAlert confirmation
+                Swal.fire({
+                    title: "Apakah Kamu Yakin?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5D87FF',
+                    cancelButtonColor: '#49BEFF',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('deleteTrackingMultipe') }}", // Endpoint to handle deletion
+                            method: 'DELETE', // Use DELETE method
+                            data: {
+                                ids: selectedIds,
+                                _token: $('meta[name="csrf-token"]').attr(
+                                    'content') // Add CSRF token
+                            },
+                            success: function(response) {
+                                // Handle success
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The selected rows have been deleted.',
+                                    'success'
+                                );
+                                location
+                                    .reload(); // Optionally reload the page to reflect changes
+                            },
+                            error: function(xhr, status, error) {
+                                // Handle error
+                                Swal.fire(
+                                    'Error!',
+                                    'An error occurred: ' + error,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire(
+                    'No rows selected!',
+                    'Please select at least one row to delete.',
+                    'info'
+                );
+            }
+        });
+
 
         $('#txSearch').keyup(function() {
             var searchValue = $(this).val();
@@ -255,7 +352,6 @@
         });
 
         $('#saveTracking').click(function() {
-
             var noDeliveryOrder = $('#noDeliveryOrder').val().trim();
             var status = $('#status').val();
             var keterangan = $('#keterangan').val();
@@ -263,6 +359,7 @@
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             var isValid = true;
 
+            // Validation
             if (noDeliveryOrder === '') {
                 $('#noDeliveryOrderError').removeClass('d-none');
                 isValid = false;
@@ -283,12 +380,14 @@
             } else {
                 $('#keteranganError').addClass('d-none');
             }
+
             if (noResi === undefined || noResi.length === 0) {
                 $('#noResiError').removeClass('d-none');
                 isValid = false;
             } else {
                 $('#noResiError').addClass('d-none');
             }
+
             if (isValid) {
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -301,7 +400,7 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-
+                        // Show loading during the process
                         Swal.fire({
                             title: 'Sedang memproses...',
                             text: 'Harap menunggu hingga proses selesai',
@@ -311,6 +410,10 @@
                                 Swal.showLoading();
                             }
                         });
+
+                        // Disable the button to prevent multiple submissions
+                        $('#saveTracking').prop('disabled', true);
+
                         $.ajax({
                             url: '/tracking/store',
                             method: 'POST',
@@ -319,28 +422,37 @@
                                 status: status,
                                 keterangan: keterangan,
                                 noResi: noResi,
-                                _token: '{{ csrf_token() }}',
+                                _token: csrfToken,
                             },
                             success: function(response) {
                                 Swal.close();
+                                $('#saveTracking').prop('disabled',
+                                false); // Re-enable the button
                                 if (response.success) {
                                     $('#modalTambahTracking').modal('hide');
-                                    showMessage("success",
-                                        "Berhasil ditambahkan");
+                                    showMessage("success", "Berhasil ditambahkan");
                                     $('#modalTambahTracking').modal('hide');
                                     table.ajax.reload();
                                 }
                             },
                             error: function(response) {
                                 Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti");
+                                $('#saveTracking').prop('disabled',
+                                false); // Re-enable the button
+                                if (response.status === 400 && response.responseJSON.error) {
+                                    showMessage("error", response.responseJSON
+                                    .error); // Handle duplicate or other errors
+                                } else {
+                                    showMessage("error",
+                                    "Terjadi kesalahan, coba lagi nanti"); // General error
+                                }
                             }
                         });
                     }
                 });
             }
         });
+
         $('#modalTambahTracking').on('hidden.bs.modal', function() {
             $('#noDeliveryOrder,#keterangan,#noResi').val('');
             if (!$('#noDeliveryOrderError').hasClass('d-none')) {

@@ -840,7 +840,7 @@
                 const hargaBarang = [];
 
                 $('#barang-list tr').each(function() {
-                    noResi.push($(this).find('[name="noResi[]"]').text());
+                    noResi.push($(this).find('[name="noResi[]"]').text().trim());
                     beratBarang.push($(this).find('.beratBarang').val());
                     panjang.push($(this).find('.panjangVolume').val());
                     lebar.push($(this).find('.lebarVolume').val());

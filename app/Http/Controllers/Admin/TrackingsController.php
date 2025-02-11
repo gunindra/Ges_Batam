@@ -30,11 +30,11 @@ class TrackingsController extends Controller
 
         $query = DB::table('tbl_tracking')
             ->select([
+                'id',
                 'no_resi',
                 'no_do',
                 'status',
-                'keterangan',
-                'id'
+                'keterangan'
             ])
             ->where('tbl_tracking.company_id', $companyId);
 
@@ -47,6 +47,12 @@ class TrackingsController extends Controller
         $data = $query->get();
 
         return DataTables::of($data)
+            ->addColumn('select', function ($row) {
+                if ($row->status === "Dalam Perjalanan") {
+                    return '<input type="checkbox" class="select-row" data-id="' . $row->id . '">';
+                }
+                return '';
+            })
             ->editColumn('status', function ($row) {
                 $statusBadgeClass = '';
                 switch ($row->status) {
@@ -70,12 +76,16 @@ class TrackingsController extends Controller
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
-                return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' .
-                    '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
+                $deleteButton = '';
+                if ($row->status == 'Dalam Perjalanan') {
+                    $deleteButton = '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
+                }
+                return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
             })
-            ->rawColumns(['status', 'action'])
+            ->rawColumns(['select', 'status', 'action'])
             ->make(true);
     }
+
 
     public function addTracking(Request $request)
     {
@@ -89,6 +99,15 @@ class TrackingsController extends Controller
 
         try {
             foreach ($request->input('noResi') as $resi) {
+                $resi = trim($resi);
+
+                $existingTracking = Tracking::where('no_resi', $resi)
+                                            ->where('company_id', $companyId)
+                                            ->first();
+
+                if ($existingTracking) {
+                    return response()->json(['error' => "No Resi {$resi} is already in the system."], 400);
+                }
                 $Tracking = new Tracking();
                 $Tracking->no_resi = $resi;
                 $Tracking->no_do = $request->input('noDeliveryOrder');
@@ -97,12 +116,13 @@ class TrackingsController extends Controller
                 $Tracking->company_id = $companyId;
                 $Tracking->save();
             }
-
-            return response()->json(['success' => 'Data berhasil ditambahkan']);
+            return response()->json(['success' => 'Data successfully added']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal menambahkan']);
+            return response()->json(['error' => 'Failed to add data'], 500);
         }
     }
+
+
 
 
     public function updateTracking(Request $request, $id)
@@ -147,5 +167,19 @@ class TrackingsController extends Controller
     {
         $Tracking = Tracking::findOrFail($id);
         return response()->json($Tracking);
+    }
+
+    public function deleteTrackingMultipe(Request $request)
+    {
+        $ids = $request->input('ids'); // Get the array of selected IDs
+
+        if (count($ids) > 0) {
+            // Delete the records from the database
+            Tracking::whereIn('id', $ids)->delete();
+
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'No IDs provided']);
+        }
     }
 }
