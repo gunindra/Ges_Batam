@@ -154,7 +154,7 @@
 
                 /**
                  * Build plugin's HTML skeleton
-                 * 
+                 *
                  * @returns {void}
                  */
                 self.build = function () {
@@ -178,7 +178,7 @@
 
                 /**
                  * Init tags list if present in options, otherwise returns false
-                 * 
+                 *
                  * @returns {void | boolean}
                  */
                 self.fill = function () {
@@ -196,7 +196,7 @@
 
                 /**
                  * Fills tag list
-                 * 
+                 *
                  * @returns {void}
                  */
                 self._fill = function () {
@@ -211,7 +211,7 @@
 
                 /**
                  * Clear HTML tags list
-                 * 
+                 *
                  * @returns {void}
                  */
                 self._clean = function () {
@@ -220,7 +220,7 @@
 
                 /**
                  * Add or edit tag depends on key pressed
-                 * 
+                 *
                  * @returns {void}
                  */
                 self.save = function () {
@@ -335,7 +335,7 @@
 
                 /**
                  * Init edit input when a tag is focused
-                 * 
+                 *
                  * @returns {void}
                  */
                 self.edit = function () {
@@ -361,7 +361,7 @@
 
                 /**
                  * Delete tag
-                 * 
+                 *
                  * @returns {void}
                  */
                 self.destroy = function () {
@@ -388,7 +388,7 @@
 
                 /**
                  * Build and inject tag into HTML list
-                 * 
+                 *
                  * @returns {void}
                  */
                 self._buildItem = function (value) {
@@ -402,7 +402,7 @@
 
                 /**
                  * Returns tag index
-                 * 
+                 *
                  * @returns {number}
                  */
                 self._getIndex = function (value) {
@@ -411,7 +411,7 @@
 
                 /**
                  * Remove extra tags only if > max option and concat user tags
-                 * 
+                 *
                  * @returns {void}
                  */
                 self._concatenate = function () {
