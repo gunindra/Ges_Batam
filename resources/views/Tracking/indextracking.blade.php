@@ -129,7 +129,9 @@
                             <table class="table align-items-center table-flush table-hover" id="tableTracking">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th><input type="checkbox" id="select-all"></th>
+                                        @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
+                                            <th><input type="checkbox" id="select-all"></th>
+                                        @endif
                                         <th>No. Resi</th>
                                         <th>No. DO</th>
                                         <th>Status</th>
@@ -198,38 +200,41 @@
 
         var hasActionColumn = @json($hasActionColumn);
 
-        var columns = [{
-                data: 'select',
-                name: 'select',
-                orderable: false,
-                searchable: false
-            },
-            {
-                data: 'no_resi',
-                name: 'no_resi'
-            },
-            {
-                data: 'no_do',
-                name: 'no_do'
-            },
-            {
-                data: 'status',
-                name: 'status'
-            },
-            {
-                data: 'keterangan',
-                name: 'keterangan'
-            }
-        ];
-
-        if (hasActionColumn) {
-            columns.push({
-                data: 'action',
-                name: 'action',
-                orderable: false,
-                searchable: false
-            });
+        var columns = [
+        {
+            data: 'no_resi',
+            name: 'no_resi'
+        },
+        {
+            data: 'no_do',
+            name: 'no_do'
+        },
+        {
+            data: 'status',
+            name: 'status'
+        },
+        {
+            data: 'keterangan',
+            name: 'keterangan'
         }
+    ];
+
+    // Conditionally add the select and action columns if the user has the correct role
+    if (hasActionColumn) {
+        columns.unshift({
+            data: 'select',
+            name: 'select',
+            orderable: false,
+            searchable: false
+        });
+        columns.push({
+            data: 'action',
+            name: 'action',
+            orderable: false,
+            searchable: false
+        });
+    }
+
 
         var table = $('#tableTracking').DataTable({
             serverSide: true,
@@ -427,7 +432,7 @@
                             success: function(response) {
                                 Swal.close();
                                 $('#saveTracking').prop('disabled',
-                                false); // Re-enable the button
+                                    false); // Re-enable the button
                                 if (response.success) {
                                     $('#modalTambahTracking').modal('hide');
                                     showMessage("success", "Berhasil ditambahkan");
@@ -438,13 +443,13 @@
                             error: function(response) {
                                 Swal.close();
                                 $('#saveTracking').prop('disabled',
-                                false); // Re-enable the button
+                                    false); // Re-enable the button
                                 if (response.status === 400 && response.responseJSON.error) {
                                     showMessage("error", response.responseJSON
-                                    .error); // Handle duplicate or other errors
+                                        .error); // Handle duplicate or other errors
                                 } else {
                                     showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti"); // General error
+                                        "Terjadi kesalahan, coba lagi nanti"); // General error
                                 }
                             }
                         });
