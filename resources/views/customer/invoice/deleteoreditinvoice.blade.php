@@ -243,6 +243,10 @@
                         <tbody id="barang-list">
                         </tbody>
                     </table>
+                    <div class="alert alert-info mt-4" id="infoHarga" style="display: none;">
+                        <i class="fas fa-info-circle"></i> Harga yang akan tertera pada tabel telah dibulatkan ke atas dalam kelipatan
+                        1.000.
+                    </div>
                     <!-- Tombol Tambah Barang -->
                     {{-- <button type="button" class="btn btn-primary" id="addItemBtn"><span class="pr-2"><i
                                 class="fas fa-plus"></i></span>Tambah Barang</button> --}}
@@ -500,6 +504,9 @@
             $('#barang-list').append(newRow);
             itemIndex++;
 
+            if ($('#barang-list tr').length > 0) {
+                    $('#infoHarga').fadeIn();
+                }
             setRemoveItemButton();
             attachInputEvents();
             attachSelectChangeEvent();
@@ -635,6 +642,9 @@
                     totalHarga = Math.min(totalHarga, globalMaxrate);
                 }
 
+                // Pembulatan ke ribuan terdekat ke atas
+                 totalHarga = Math.ceil(totalHarga / 1000) * 1000;
+
                 row.find('.hargaBarang').text("Rp. " + totalHarga.toLocaleString('id-ID'));
             } else {
                 row.find('.hargaBarang').text("Rp. 0");
@@ -652,6 +662,8 @@
 
             if (volume > 0 && rate) {
                 let totalHargaVolume = (volume / pembagi) * rate;
+                 // Pembulatan ke ribuan terdekat ke atas
+                 totalHargaVolume = Math.ceil(totalHargaVolume / 1000) * 1000;
                 row.find('.hargaBarang').text("Rp. " + totalHargaVolume.toLocaleString('id-ID'));
             } else {
                 row.find('.hargaBarang').text("Rp. 0");
@@ -719,6 +731,10 @@
                     ws.close();
                 }
                 row.remove();
+
+                if ($('#barang-list tr').length === 0) {
+                        $('#infoHarga').fadeOut();
+                    }
                 renumberItems();
                 updateDisplayedTotalHarga();
             });
