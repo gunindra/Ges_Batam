@@ -10,7 +10,7 @@ trait WhatsappTrait
 {
     public function kirimPesanWhatsapp($noWa, $message, $fileUrl = null)
     {
-        $url = $fileUrl ? 'https://wa.aplikasiajp.com/send-media' : 'https://wa.aplikasiajp.com/send-message';
+        $url = $fileUrl ? 'https://wa.smartappscare.com/send-media' : 'https://wa.smartappscare.com/send-message';
 
         $apiKey = config('app.whatsapp_api_key');
 
@@ -50,9 +50,5 @@ trait WhatsappTrait
             return false;
         }
     }
-
-
-
-
 }
 

@@ -45,8 +45,10 @@ class TrackingsController extends Controller
         $query->orderBy('id', 'desc');
 
         $data = $query->get();
+        $allIds = $data->pluck('id')->toArray(); // Semua ID dari database
 
         return DataTables::of($data)
+            ->with(['allIds' => $allIds]) // Kirim semua ID ke frontend
             ->addColumn('select', function ($row) {
                 if ($row->status === "Dalam Perjalanan") {
                     return '<input type="checkbox" class="select-row" data-id="' . $row->id . '">';
@@ -172,14 +174,22 @@ class TrackingsController extends Controller
     public function deleteTrackingMultipe(Request $request)
     {
         $ids = $request->input('ids'); // Get the array of selected IDs
+        $ids = array_map('intval', $ids);
 
         if (count($ids) > 0) {
-            // Delete the records from the database
-            Tracking::whereIn('id', $ids)->delete();
+            // Coba hapus data dan periksa jumlah yang terhapus
+            $deletedCount = Tracking::whereIn('id', $ids)->delete();
 
-            return response()->json(['success' => true]);
+            // Jika ada data yang dihapus
+            if ($deletedCount > 0) {
+                return response()->json(['success' => true, 'message' => "$deletedCount record(s) deleted successfully."]);
+            } else {
+                // Jika tidak ada data yang ditemukan untuk dihapus
+                return response()->json(['success' => false, 'message' => 'No matching records found to delete.']);
+            }
         } else {
             return response()->json(['success' => false, 'message' => 'No IDs provided']);
         }
     }
+
 }

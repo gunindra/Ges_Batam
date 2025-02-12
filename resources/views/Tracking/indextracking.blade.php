@@ -142,18 +142,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- <tr>
-                                    <td>GES293492384</td>
-                                    <td>08339248</td>
-                                    <td>Sedang Perjalanan</td>
-                                    <td>Estimasi Sampai Sekitar 2 Bulan</td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                        <a href="#" class="btn btn-sm btn-primary btnGambar"><i
-                                                class="fas fa-eye"></i></a>
-                                    </td>
-                                </tr> --}}
                                 </tbody>
                             </table>
                         </div>
@@ -200,41 +188,43 @@
 
         var hasActionColumn = @json($hasActionColumn);
 
-        var columns = [
-        {
-            data: 'no_resi',
-            name: 'no_resi'
-        },
-        {
-            data: 'no_do',
-            name: 'no_do'
-        },
-        {
-            data: 'status',
-            name: 'status'
-        },
-        {
-            data: 'keterangan',
-            name: 'keterangan'
+        var columns = [{
+                data: 'no_resi',
+                name: 'no_resi'
+            },
+            {
+                data: 'no_do',
+                name: 'no_do'
+            },
+            {
+                data: 'status',
+                name: 'status'
+            },
+            {
+                data: 'keterangan',
+                name: 'keterangan'
+            }
+        ];
+
+        // Conditionally add the select and action columns if the user has the correct role
+        if (hasActionColumn) {
+            columns.unshift({
+                data: 'select',
+                name: 'select',
+                orderable: false,
+                searchable: false
+            });
+            columns.push({
+                data: 'action',
+                name: 'action',
+                orderable: false,
+                searchable: false
+            });
         }
-    ];
 
-    // Conditionally add the select and action columns if the user has the correct role
-    if (hasActionColumn) {
-        columns.unshift({
-            data: 'select',
-            name: 'select',
-            orderable: false,
-            searchable: false
-        });
-        columns.push({
-            data: 'action',
-            name: 'action',
-            orderable: false,
-            searchable: false
-        });
-    }
 
+        let selectedIds = new Set(); // Set untuk menyimpan ID yang dipilih
+        let allIds = []; // Semua ID dari database
 
         var table = $('#tableTracking').DataTable({
             serverSide: true,
@@ -244,6 +234,10 @@
                 method: 'GET',
                 data: function(d) {
                     d.status = $('#filterStatus').val();
+                },
+                dataSrc: function(json) {
+                    allIds = json.allIds; // Simpan semua ID dari server
+                    return json.data;
                 }
             },
             columns: columns,
@@ -259,25 +253,47 @@
             }
         });
 
-        $('#select-all').on('click', function() {
-            var isChecked = this.checked;
-
-            // Pilih semua checkbox di DataTables (termasuk yang ada di halaman lain)
-            table.$('.select-row').each(function() {
-                this.checked = isChecked;
+        // 🔹 **Restore checkbox saat berpindah halaman**
+        table.on('draw.dt', function() {
+            $('.select-row').each(function() {
+                let id = $(this).data('id');
+                if (selectedIds.has(id)) {
+                    $(this).prop('checked', true);
+                }
             });
-
-            toggleDeleteButton(); // Panggil fungsi untuk menampilkan tombol jika perlu
+            updateSelectAllCheckbox();
         });
 
-        // Handle row selection
-        $('#tableTracking').on('change', '.select-row', function() {
-            var allChecked = $('#tableTracking .select-row:checked').length === $('#tableTracking .select-row')
-                .length;
-            $('#select-all').prop('checked', allChecked);
+        // 🔹 **Event: Klik Checkbox Per Baris**
+        $('#tableTracking tbody').on('change', '.select-row', function() {
+            let id = $(this).data('id');
 
-            toggleDeleteButton(); // Panggil fungsi untuk menampilkan tombol jika perlu
+            if (this.checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            toggleDeleteButton();
+            updateSelectAllCheckbox();
         });
+
+        // 🔹 **Event: Klik "Pilih Semua Data"**
+        $('#select-all').on('change', function() {
+            if (this.checked) {
+                selectedIds = new Set(allIds); // Pilih semua ID
+                $('.select-row').prop('checked', true);
+            } else {
+                selectedIds.clear();
+                $('.select-row').prop('checked', false);
+            }
+            toggleDeleteButton();
+        });
+
+        function updateSelectAllCheckbox() {
+            let isAllSelected = allIds.length > 0 && selectedIds.size === allIds.length;
+            $('#select-all').prop('checked', isAllSelected);
+            toggleDeleteButton();
+        }
 
         // Function to show/hide delete button
         function toggleDeleteButton() {
@@ -318,35 +334,22 @@
                                     'content') // Add CSRF token
                             },
                             success: function(response) {
-                                // Handle success
-                                Swal.fire(
-                                    'Deleted!',
-                                    'The selected rows have been deleted.',
-                                    'success'
-                                );
-                                location
-                                    .reload(); // Optionally reload the page to reflect changes
+                                Swal.fire('Deleted!', 'The selected rows have been deleted.',
+                                    'success');
+                                selectedIds = []; // Kosongkan daftar ID setelah dihapus
+                                location.reload(); // Reload the page
                             },
                             error: function(xhr, status, error) {
                                 // Handle error
-                                Swal.fire(
-                                    'Error!',
-                                    'An error occurred: ' + error,
-                                    'error'
-                                );
+                                Swal.fire('Error!', 'An error occurred: ' + error, 'error');
                             }
                         });
                     }
                 });
             } else {
-                Swal.fire(
-                    'No rows selected!',
-                    'Please select at least one row to delete.',
-                    'info'
-                );
+                Swal.fire('No rows selected!', 'Please select at least one row to delete.', 'info');
             }
         });
-
 
         $('#txSearch').keyup(function() {
             var searchValue = $(this).val();
