@@ -36,19 +36,18 @@ class KirimPesanWaPembeliJob implements ShouldQueue
     public function handle()
     {
         try {
-
-
-            $activeCompanyId = session('active_company_id');
-            $company = Company::find($activeCompanyId);
             DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'pending']);
 
             $invoice = DB::table('tbl_invoice as a')
                 ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
                 ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
-                ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.marking','b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa')
+                ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.marking','b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa', 'a.company_id')
                 ->where('a.id', $this->invoiceId)
                 ->first();
 
+            $company = $invoice->company_id;
+            $company = DB::table('tbl_company')->where('id', $invoice->company_id)->first();
+            Log::info('Invoice Data:', ['company_id' => $invoice->company_id]);
             if (!$invoice) {
                 throw new \Exception("Invoice tidak ditemukan");
             }
@@ -110,8 +109,21 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             }
 
             try {
-                $pdfFileName = 'GES_'. $no_invoice .'.pdf';
-                $filePath = storage_path('app/public/list_barang/' . $pdfFileName);
+                // Tentukan path folder
+                $folderPath = storage_path('app/public/list_barang');
+
+                // Cek apakah folder sudah ada
+                if (!is_dir($folderPath)) {
+                    // Jika folder belum ada, buat folder
+                    mkdir($folderPath, 0775, true); // 0775 memberikan izin yang sesuai
+                    Log::info('Folder list_barang telah dibuat: ' . $folderPath);
+                }
+
+                // Tentukan nama dan path file PDF
+                $pdfFileName = 'GES_' . $no_invoice . '.pdf';
+                $filePath = $folderPath . '/' . $pdfFileName;
+
+                // Simpan PDF ke dalam folder
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);

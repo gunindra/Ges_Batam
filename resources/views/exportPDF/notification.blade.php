@@ -190,90 +190,99 @@
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
             <div class="company-info">
-                <div class="company-name">{{ $company->name }}</div>
-                <div class="company-address">
-                    {{ $company->alamat }}<br>
-                    @if ($company->hp && $company->email)
-                        Telp: {{ $company->hp }} | Email: {{ $company->email }}
-                    @elseif($company->hp)
-                        Telp: {{ $company->hp }}
-                    @elseif($company->email)
-                        Email: {{ $company->email }}
-                    @endif
-                </div>
+                @if ($company)
+                    <div class="company-name">{{ $company->name }}</div>
+                    <div class="company-address">
+                        {{ $company->alamat }}<br>
+                        @if ($company->hp && $company->email)
+                            Telp: {{ $company->hp }} | Email: {{ $company->email }}
+                        @elseif($company->hp)
+                            Telp: {{ $company->hp }}
+                        @elseif($company->email)
+                            Email: {{ $company->email }}
+                        @endif
+                    </div>
+                @else
+                    <!-- Tampilkan pesan jika company tidak ditemukan -->
+                    <div class="company-name">Company name not available</div>
+                    <div class="company-address">No company address available</div>
+                @endif
             </div>
         </div>
+    </div>
 
-        <div class="title">
-            <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
-            <h5>Pembeli: {{ $invoice->nama_pembeli }} ({{ $invoice->marking }}) </h5>
-            <p>Alamat: {{ $invoice->alamat }}</p>
 
-            <!-- Kondisi untuk menampilkan Invoice -->
-            @if ($type === 'invoice')
-                <h2>Invoice: {{ $invoice->no_invoice }}</h2>
-            @endif
-        </div>
+    <div class="title">
+        <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
+        <h5>Pembeli: {{ $invoice->nama_pembeli }} ({{ $invoice->marking }}) </h5>
+        <p>Alamat: {{ $invoice->alamat }}</p>
 
-        <table>
-            <thead>
+        <!-- Kondisi untuk menampilkan Invoice -->
+        @if ($type === 'invoice')
+            <h2>Invoice: {{ $invoice->no_invoice }}</h2>
+        @endif
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>No. Resi</th>
+                <th>No. Do</th>
+                <th>Berat/Dimensi</th>
+                <th>Hitungan</th>
+                <th>Harga</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $no = 1;
+            @endphp
+            @foreach ($resiData as $resi)
                 <tr>
-                    <th>No.</th>
-                    <th>No. Resi</th>
-                    <th>No. Do</th>
-                    <th>Berat/Dimensi</th>
-                    <th>Hitungan</th>
-                    <th>Harga</th>
+                    <td>{{ $no++ }}</td>
+                    <td>{{ $resi->no_resi }}</td>
+                    <td>{{ $resi->no_do }}</td>
+                    @if ($resi->berat)
+                        <td>Berat</td>
+                    @else
+                        <td>Dimensi</td>
+                    @endif
+
+                    @if ($resi->berat)
+                        <td>
+                            {{ $resi->berat ?? '0' }}
+                            @if ($resi->priceperkg)
+                                / {{ number_format($resi->priceperkg, 2) }} perkg
+                            @endif
+                        </td>
+                    @else
+                        <td>
+                            @php
+                                $panjang = $resi->panjang ?? 0;
+                                $lebar = $resi->lebar ?? 0;
+                                $tinggi = $resi->tinggi ?? 0;
+                                $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100);
+                            @endphp
+                            {{ number_format($volume, 3) }} m³
+                        </td>
+                    @endif
+                    <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @php
-                    $no = 1;
-                @endphp
-                @foreach ($resiData as $resi)
-                    <tr>
-                        <td>{{ $no++ }}</td>
-                        <td>{{ $resi->no_resi }}</td>
-                        <td>{{ $resi->no_do }}</td>
-                        @if ($resi->berat)
-                            <td>Berat</td>
-                        @else
-                            <td>Dimensi</td>
-                        @endif
+            @endforeach
+        </tbody>
+    </table>
 
-                        @if ($resi->berat)
-                            <td>
-                                {{ $resi->berat ?? '0' }}
-                                @if ($resi->priceperkg)
-                                    / {{ number_format($resi->priceperkg, 2) }} perkg
-                                @endif
-                            </td>
-                        @else
-                            <td>
-                                @php
-                                    $panjang = $resi->panjang ?? 0;
-                                    $lebar = $resi->lebar ?? 0;
-                                    $tinggi = $resi->tinggi ?? 0;
-                                    $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100);
-                                @endphp
-                                {{ number_format($volume, 3) }} m³
-                            </td>
-                        @endif
-                        <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <div class="summary" style="position: relative;">
-            <!-- Only show lunas or belum lunas check if type is 'invoice' -->
-            @if ($type === 'invoice')
-                <?php
+    <div class="summary" style="position: relative;">
+        <!-- Only show lunas or belum lunas check if type is 'invoice' -->
+        @if ($type === 'invoice')
+            <?php
                 if ($statusPembayaran === 'Belum lunas') {
                 ?>
-                <p class="text-right" style="margin-top: 20px;">Total Harga:
-                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
-                <?php
+            <p class="text-right" style="margin-top: 20px;">Total Harga:
+                <strong>{{ number_format($hargaIDR, 2) }}</strong>
+            </p>
+            <?php
                 } else {
                     // Only show the paid stamp if it is 'invoice'
                     $path = public_path('img/lunas.png');
@@ -285,20 +294,22 @@
                         $base64 = '';
                     }
                 ?>
-                <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
-                    <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
-                </div>
-                <p class="text-right" style="margin-top: 20px;">Total Harga:
-                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
-                <?php
+            <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
+                <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
+            </div>
+            <p class="text-right" style="margin-top: 20px;">Total Harga:
+                <strong>{{ number_format($hargaIDR, 2) }}</strong>
+            </p>
+            <?php
                 }
                 ?>
-            @else
-                <!-- When it's not an invoice, just display total price -->
-                <p class="text-right" style="margin-top: 20px;">Total Harga:
-                    <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
-            @endif
-        </div>
+        @else
+            <!-- When it's not an invoice, just display total price -->
+            <p class="text-right" style="margin-top: 20px;">Total Harga:
+                <strong>{{ number_format($hargaIDR, 2) }}</strong>
+            </p>
+        @endif
+    </div>
     </div>
 </body>
 
