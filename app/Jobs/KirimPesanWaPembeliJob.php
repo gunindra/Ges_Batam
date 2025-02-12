@@ -110,13 +110,13 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             try {
                 // Tentukan path folder
-                $folderPath = storage_path('app/public/list_barang');
+                $folderPath = storage_path('app/public/invoice'); // Menggunakan folder "invoice" daripada "list_barang"
 
                 // Cek apakah folder sudah ada
                 if (!is_dir($folderPath)) {
                     // Jika folder belum ada, buat folder
                     mkdir($folderPath, 0775, true); // 0775 memberikan izin yang sesuai
-                    Log::info('Folder list_barang telah dibuat: ' . $folderPath);
+                    Log::info('Folder invoice telah dibuat: ' . $folderPath);
                 }
 
                 // Tentukan nama dan path file PDF
@@ -130,8 +130,9 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
-            $fileUrl = asset('storage/list_barang/' . $pdfFileName);
-            $pesan .= "\n\n*Download list barang diatas";
+            // Pastikan URL sesuai dengan lokasi baru
+            $fileUrl = asset('storage/invoice/' . $pdfFileName);
+            $pesan .= "\n\n*Download invoice di atas*";
 
 
             if ($invoice->no_wa) {
