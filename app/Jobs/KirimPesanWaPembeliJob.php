@@ -110,14 +110,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             try {
                 // Tentukan path folder
-                $folderPath = storage_path('app/public/invoice'); // Menggunakan folder "invoice" daripada "list_barang"
-
-                // Cek apakah folder sudah ada
-                if (!is_dir($folderPath)) {
-                    // Jika folder belum ada, buat folder
-                    mkdir($folderPath, 0775, true); // 0775 memberikan izin yang sesuai
-                    Log::info('Folder invoice telah dibuat: ' . $folderPath);
-                }
+                $folderPath = storage_path('app/public/invoice');
 
                 // Tentukan nama dan path file PDF
                 $pdfFileName = 'GES_' . $no_invoice . '.pdf';
