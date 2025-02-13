@@ -206,7 +206,6 @@
             }
         ];
 
-        // Conditionally add the select and action columns if the user has the correct role
         if (hasActionColumn) {
             columns.unshift({
                 data: 'select',
@@ -223,8 +222,8 @@
         }
 
 
-        let selectedIds = new Set(); // Set untuk menyimpan ID yang dipilih
-        let allIds = []; // Semua ID dari database
+        let selectedIds = new Set();
+        let allIds = [];
 
         var table = $('#tableTracking').DataTable({
             serverSide: true,
@@ -236,7 +235,7 @@
                     d.status = $('#filterStatus').val();
                 },
                 dataSrc: function(json) {
-                    allIds = json.allIds; // Simpan semua ID dari server
+                    allIds = json.allIds;
                     return json.data;
                 }
             },
@@ -261,6 +260,7 @@
                     $(this).prop('checked', true);
                 }
             });
+
             updateSelectAllCheckbox();
         });
 
@@ -307,12 +307,7 @@
 
         // Example action for selected rows
         $('#action-button').on('click', function() {
-            var selectedIds = [];
-            $('#tableTracking .select-row:checked').each(function() {
-                selectedIds.push($(this).data('id'));
-            });
-
-            if (selectedIds.length > 0) {
+            if (selectedIds.size > 0) {
                 // Show SweetAlert confirmation
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
@@ -329,14 +324,14 @@
                             url: "{{ route('deleteTrackingMultipe') }}", // Endpoint to handle deletion
                             method: 'DELETE', // Use DELETE method
                             data: {
-                                ids: selectedIds,
+                                ids: Array.from(selectedIds), // Kirimkan array dari selectedIds
                                 _token: $('meta[name="csrf-token"]').attr(
                                     'content') // Add CSRF token
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', 'The selected rows have been deleted.',
                                     'success');
-                                selectedIds = []; // Kosongkan daftar ID setelah dihapus
+                                selectedIds.clear(); // Kosongkan daftar ID setelah dihapus
                                 location.reload(); // Reload the page
                             },
                             error: function(xhr, status, error) {

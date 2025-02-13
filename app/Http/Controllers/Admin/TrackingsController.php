@@ -173,23 +173,26 @@ class TrackingsController extends Controller
 
     public function deleteTrackingMultipe(Request $request)
     {
-        $ids = $request->input('ids'); // Get the array of selected IDs
+        $ids = $request->input('ids');
         $ids = array_map('intval', $ids);
 
         if (count($ids) > 0) {
-            // Coba hapus data dan periksa jumlah yang terhapus
-            $deletedCount = Tracking::whereIn('id', $ids)->delete();
+            $trackings = Tracking::whereIn('id', $ids)->get();
+            $idsToDelete = $trackings->filter(function ($tracking) {
+                return $tracking->status === 'Dalam Perjalanan';
+            })->pluck('id')->toArray();
 
-            // Jika ada data yang dihapus
-            if ($deletedCount > 0) {
+            if (count($idsToDelete) > 0) {
+                $deletedCount = Tracking::whereIn('id', $idsToDelete)->delete();
+
                 return response()->json(['success' => true, 'message' => "$deletedCount record(s) deleted successfully."]);
             } else {
-                // Jika tidak ada data yang ditemukan untuk dihapus
-                return response()->json(['success' => false, 'message' => 'No matching records found to delete.']);
+                return response()->json(['success' => false, 'message' => 'No records with status "Dalam Perjalanan" to delete.']);
             }
         } else {
             return response()->json(['success' => false, 'message' => 'No IDs provided']);
         }
     }
+
 
 }
