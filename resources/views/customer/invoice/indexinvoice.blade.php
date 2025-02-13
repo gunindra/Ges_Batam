@@ -148,7 +148,7 @@
             </ol>
         </div>
 
-<div class="row">
+        <div class="row">
             <div class="col-lg-12">
                 <div class="card mb-4">
                     <div class="card-body">
@@ -157,7 +157,7 @@
                                 {{-- Search --}}
                                 <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                     class="form-control rounded-3" placeholder="Search">
-                                    <button class="btn btn-primary ml-2" id="filterModalButton">Filter</button>
+                                <button class="btn btn-primary ml-2" id="filterModalButton">Filter</button>
                                 <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
                                 <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                     onclick="window.location.reload()">
@@ -178,7 +178,7 @@
                                 @endif
 
                                 <!-- <button class="btn btn-success mr-1" id="isNotif"><span class="pr-2"><i
-                                                                                                    class="fas fa-bell"></i></span>Notifikasi</button> -->
+                                                                                                        class="fas fa-bell"></i></span>Notifikasi</button> -->
                                 <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
                                         class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a>
 
@@ -476,7 +476,12 @@
                                         showMessage("success",
                                             "Berhasil mengirim notifikasi");
                                         // $('#kirimNot').hide();
-                                        table.ajax.reload();
+                                        var currentPage = table.page();
+                                        table.ajax.reload(null, false);
+                                        table.one('draw', function() {
+                                            table.page(currentPage)
+                                                .draw(false);
+                                        });
                                     } else {
                                         showMessage("error", response.message ||
                                             "Gagal mengirim notifikasi");
@@ -540,7 +545,12 @@
                                     if (response.success) {
                                         showMessage("success",
                                             "Berhasil mengirim notifikasi");
-                                        table.ajax.reload();
+                                        var currentPage = table.page();
+                                        table.ajax.reload(null, false);
+                                        table.one('draw', function() {
+                                            table.page(currentPage)
+                                                .draw(false);
+                                        });
                                     } else {
                                         showMessage("error", response.message ||
                                             "Gagal mengirim notifikasi");
