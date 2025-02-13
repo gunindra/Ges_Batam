@@ -93,9 +93,10 @@
                                 <div class="mt-3">
                                     <label for="noTelpon" class="form-label fw-bold">No. Telpon</label>
                                     <div class="input-group">
-                                        <span class="input-group-text" id="nomor">+62</span>
+                                        <input type="text" class="form-control" id="nomor" value="62"
+                                            placeholder="62" maxlength="4" aria-label="Code negara">
                                         <input type="text" placeholder="8**********" class="form-control"
-                                            id="noTelpon" value="">
+                                            style="width: 70%" id="noTelpon" value="">
                                     </div>
                                     <div id="notelponCustomerError" class="text-danger mt-1 d-none">Silahkan isi no.
                                         telepon customer</div>
@@ -190,9 +191,11 @@
                                 <div class="mt-3">
                                     <label for="noTelponEdit" class="form-label fw-bold">No. Telpon</label>
                                     <div class="input-group">
-                                        <span class="input-group-text" id="nomorEdit">+62</span>
+                                        {{-- <span class="input-group-text" id="nomorEdit">+62</span> --}}
+                                        <input type="text" class="form-control" id="nomorEdit" value="62"
+                                            placeholder="62" maxlength="4" aria-label="Code negara">
                                         <input type="text" placeholder="8**********" class="form-control"
-                                            id="noTelponEdit" value="">
+                                            id="noTelponEdit" style="width: 70%" value="">
                                     </div>
                                     <div id="notelponCustomerErrorEdit" class="text-danger mt-1 d-none">Silahkan isi no.
                                         telepon customer</div>
@@ -243,8 +246,8 @@
                                 <p class="text-muted">Kuota</p>
                             </div>
                             <!-- <div>
-                                                                                                                                                                            <p id="statusValue" class="h5"></p>
-                                                                                                                                                                    </div> -->
+                                                                                                                                                                                            <p id="statusValue" class="h5"></p>
+                                                                                                                                                                                    </div> -->
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
@@ -519,7 +522,7 @@
                 });
             });
 
-            $('#noTelpon, #noTelponEdit').on('input', function() {
+            $('#nomor, #nomorEdit, #noTelpon, #noTelponEdit').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
@@ -580,9 +583,8 @@
                 var metodePengiriman = $('#metodePengiriman').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                let nomors = $('#nomor').text();
-                let clearplus = nomors.replace('+', '');
-                let valueNotlep = clearplus + nomorTelpon;
+                let nomors = $('#nomor').val().trim();
+                let valueNotlep = nomors + nomorTelpon;
 
                 var isValid = true;
                 $('.text-danger').addClass('d-none');
@@ -598,7 +600,13 @@
                 }
 
                 if (nomorTelpon === '') {
-                    $('#notelponCustomerError').removeClass('d-none');
+                    $('#notelponCustomerError').text('Silahkan isi no. telepon customer').removeClass(
+                        'd-none');
+                    isValid = false;
+                }
+
+                if (nomors === '') {
+                    $('#notelponCustomerError').text('Silahkan Masukkan kode negara').removeClass('d-none');
                     isValid = false;
                 }
 
@@ -878,6 +886,7 @@
                 let nama = $(this).data('nama');
                 let noTelp = $(this).data('notelp');
                 noTelp = String(noTelp);
+                let codeNegara = noTelp.slice(0, 2);
                 let noTelpWithoutCode = noTelp.slice(2);
                 let alamat = $(this).data('alamat') || '';
                 let category = $(this).data('category');
@@ -947,6 +956,7 @@
                 // Isi form edit dengan data yang diterima
                 $('#namaCustomerEdit').val(nama);
                 $('#markingCustomerEdit').val(marking);
+                $('#nomorEdit').val(codeNegara);
                 $('#noTelponEdit').val(noTelpWithoutCode);
                 $('#categoryCustomerEdit').val(category);
                 $('#metodePengirimanEdit').val(pengiriman);
@@ -969,7 +979,8 @@
                 let markingCustomerEdit = $('#markingCustomerEdit').val();
                 let namaCustomerEdit = $('#namaCustomerEdit').val();
                 let noTelponInput = $('#noTelponEdit').val().trim();
-                let noTelponCustomer = '62' + noTelponInput;
+                let nomors = $('#nomorEdit').val().trim();
+                let noTelponCustomer = nomors + noTelponInput;
                 let metodePengiriman = $('#metodePengirimanEdit').val();
                 let categoryCustomer = $('#categoryCustomerEdit').val();
                 const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -990,12 +1001,21 @@
                 } else {
                     $('#namaCustomerErrorEdit').addClass('d-none');
                 }
-                // Validasi Nomor Telepon
+
+
                 if (noTelponInput === '') {
-                    $('#notelponCustomerErrorEdit').removeClass('d-none');
+                    $('#notelponCustomerErrorEdit').text('Silahkan isi no. telepon customer').removeClass(
+                        'd-none');
                     isValid = false;
                 } else {
                     $('#notelponCustomerErrorEdit').addClass('d-none');
+                }
+
+                if (nomors === '') {
+                    // Menampilkan pesan kesalahan untuk kode negara
+                    $('#notelponCustomerErrorEdit').text('Silahkan Masukkan kode negara').removeClass(
+                        'd-none');
+                    isValid = false;
                 }
 
                 // Validasi Kategori Customer
