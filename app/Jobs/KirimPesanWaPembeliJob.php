@@ -65,6 +65,9 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             Log::info('Type for invoice ID ' . $this->invoiceId . ': ' . $this->type);
 
+            // Tentukan status pembayaran
+            $pembayaran = $this->statusPembayaran === 'Lunas' ? 'Lunas' : 'Belum Lunas';
+
             if ($this->type !== 'invoice') {
                 if ($invoice->metode_pengiriman === 'Pickup') {
                     $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
@@ -85,9 +88,9 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     'company' => $company,
                     'resiData' => $resiData,
                     'hargaIDR' => $invoice->total_harga,
-                    'type' => $this->type,
+                    'type' => $this->type, // <-- Gunakan $this->type langsung
                     'tanggal' => $invoice->tanggal_invoice,
-                    'statusPembayaran' => $this->statusPembayaran
+                    'statusPembayaran' => $pembayaran
                 ]);
 
                 Log::info('Invoice Data:', [
@@ -96,7 +99,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     'nama_pembeli' => $invoice->nama_pembeli,
                     'total_harga' => $invoice->total_harga,
                     'tanggal_invoice' => $invoice->tanggal_invoice,
-                    'statusPembayaran' => $this->statusPembayaran,
+                    'statusPembayaran' => $pembayaran,
                     'resiData' => $resiData,
                     'type' => $this->type
                 ]);

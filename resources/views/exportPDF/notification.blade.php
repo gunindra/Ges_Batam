@@ -179,10 +179,10 @@
             <div class="logo-container">
                 <?php
                 $path = public_path('img/logo4.png');
-                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $tipe1 = pathinfo($path, PATHINFO_EXTENSION);
                 if (file_exists($path)) {
                     $data = file_get_contents($path);
-                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    $base64 = 'data:image/' . $tipe1 . ';base64,' . base64_encode($data);
                 } else {
                     $base64 = '';
                 }
@@ -274,26 +274,24 @@
     </table>
 
     <div class="summary" style="position: relative;">
-        <!-- Only show lunas or belum lunas check if type is 'invoice' -->
         @if ($type === 'invoice')
             <?php
-                if ($statusPembayaran === 'Belum lunas') {
-                ?>
+            if ($statusPembayaran === 'Belum Lunas') {
+            ?>
             <p class="text-right" style="margin-top: 20px;">Total Harga:
                 <strong>{{ number_format($hargaIDR, 2) }}</strong>
             </p>
             <?php
+            } elseif ($statusPembayaran === 'Lunas') {
+                $path = public_path('img/lunas.png');
+                $tipe2 = pathinfo($path, PATHINFO_EXTENSION);
+                if (file_exists($path)) {
+                    $data =  file_get_contents($path);
+                    $base64 = 'data:image/' . $tipe2 . ';base64,' . base64_encode($data);
                 } else {
-                    // Only show the paid stamp if it is 'invoice'
-                    $path = public_path('img/lunas.png');
-                    $type = pathinfo($path, PATHINFO_EXTENSION);
-                    if (file_exists($path)) {
-                        $data =  file_get_contents($path);
-                        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                    } else {
-                        $base64 = '';
-                    }
-                ?>
+                    $base64 = '';
+                }
+            ?>
             <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
                 <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
             </div>
@@ -301,15 +299,20 @@
                 <strong>{{ number_format($hargaIDR, 2) }}</strong>
             </p>
             <?php
-                }
-                ?>
+            } else {
+                Log::error('Status pembayaran tidak valid: ' . $statusPembayaran);
+            ?>
+            <p class="text-right" style="margin-top: 20px;">Total Harga:
+                <strong>{{ number_format($hargaIDR, 2) }}</strong>
+            </p>
+            <?php
+            }
+            ?>
         @else
-            <!-- When it's not an invoice, just display total price -->
             <p class="text-right" style="margin-top: 20px;">Total Harga:
                 <strong>{{ number_format($hargaIDR, 2) }}</strong>
             </p>
         @endif
-    </div>
     </div>
 </body>
 

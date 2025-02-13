@@ -84,7 +84,7 @@ class PickupController extends Controller
 
         // Cek pengguna berdasarkan username
         $user = User::where('name', $request->username)
-                    ->whereIn('role', ['superadmin', 'admin'])
+                    ->whereIn('role', ['superadmin', 'admin', 'supervisor'])
                     ->first();
 
         if (!$user) {
