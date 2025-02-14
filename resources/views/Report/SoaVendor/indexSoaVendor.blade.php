@@ -35,12 +35,14 @@
                                     <select class="form-control select2" id="customer">
                                         <option value="" selected disabled>Pilih Vendor</option>
                                         @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}">{{ $vendor->name }} - 0{{$vendor->phone}}</option>
+                                            <option value="{{ $vendor->id }}">{{ $vendor->name }} - 0{{ $vendor->phone }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="mt-3">
-                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin munculkan semua )</label>
+                                    <label for="Tanggal" class="form-label fw-bold">Pilih Tanggal: ( Kosongkan jika ingin
+                                        munculkan semua )</label>
                                     <div class="d-flex align-items-center">
                                         <input type="date" id="startDate" class="form-control"
                                             placeholder="Pilih tanggal mulai" style="width: 200px;">
@@ -67,7 +69,8 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
-                            <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
+                            <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i
+                                        class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
                         </div>
                         <div class="d-flex mb-2 mr-3 mb-4">
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter</button>
@@ -140,7 +143,7 @@
                     var endDate = new Date(dateStr);
                     if (endDate < startDate) {
                         showwMassage(error,
-                        "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                            "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
                         $('#endDate').val('');
                     }
                 }
@@ -155,58 +158,108 @@
                 $('#modalFilterTanggal').modal('hide');
             });
             $('#sendWA').on('click', function(e) {
-                e.preventDefault
+                e.preventDefault();
+
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const vendor = $('#customer').val();
 
-                // Construct URL with query parameters
-                const pdfUrl = `{{ route('soaWA.vendor') }}?startDate=${startDate}&endDate=${endDate}&vendor=${vendor}`;
-                window.location.href = pdfUrl;
-            });
-            $('#exportBtn').on('click', function() {
-            var startDate = $('#startDate').val();
-            var endDate = $('#endDate').val();
-            var customer = $('#customer').val();
-
-            var now = new Date();
-            var day = String(now.getDate()).padStart(2, '0');
-            var month = now.toLocaleString('default', { month: 'long' });
-            var year = now.getFullYear();
-            var hours = String(now.getHours()).padStart(2, '0');
-            var minutes = String(now.getMinutes()).padStart(2, '0');
-            var seconds = String(now.getSeconds()).padStart(2, '0');
-
-            var filename = `Soa Vendor_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
-
-            $.ajax({
-                url: "{{ route('exportSoaVendor') }}",
-                type: 'GET',
-                data: {
-                    startDate: startDate,
-                    endDate: endDate,
-                    name: customer
-                },
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                success: function(data) {
-                    var blob = new Blob([data], {
-                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    });
-                    var link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = filename;
-                    link.click();
-                },
-                error: function() {
+                if (!vendor) {
                     Swal.fire({
-                        title: "Export failed!",
-                        icon: "error"
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Mohon pilih vendor terlebih dahulu!'
                     });
+                    return;
                 }
+
+                // Menampilkan loading dengan SweetAlert2
+                Swal.fire({
+                    title: 'Mengirim WhatsApp...',
+                    text: 'Mohon tunggu beberapa saat',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // AJAX request
+                $.ajax({
+                    url: "{{ route('soaWA.vendor') }}",
+                    type: "GET",
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate,
+                        vendor: vendor,
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Pesan WhatsApp vendor telah dikirim.',
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Terjadi kesalahan saat mengirim WhatsApp.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: errorMessage,
+                        });
+                    }
+                });
             });
-        });
+
+            $('#exportBtn').on('click', function() {
+                var startDate = $('#startDate').val();
+                var endDate = $('#endDate').val();
+                var customer = $('#customer').val();
+
+                var now = new Date();
+                var day = String(now.getDate()).padStart(2, '0');
+                var month = now.toLocaleString('default', {
+                    month: 'long'
+                });
+                var year = now.getFullYear();
+                var hours = String(now.getHours()).padStart(2, '0');
+                var minutes = String(now.getMinutes()).padStart(2, '0');
+                var seconds = String(now.getSeconds()).padStart(2, '0');
+
+                var filename = `Soa Vendor_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+
+                $.ajax({
+                    url: "{{ route('exportSoaVendor') }}",
+                    type: 'GET',
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate,
+                        name: customer
+                    },
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function(data) {
+                        var blob = new Blob([data], {
+                            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        });
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename;
+                        link.click();
+                    },
+                    error: function() {
+                        Swal.fire({
+                            title: "Export failed!",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
         });
     </script>
 @endsection

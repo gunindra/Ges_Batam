@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Traits\WhatsappTrait;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SoaVendorController extends Controller
@@ -141,11 +142,21 @@ class SoaVendorController extends Controller
                     }
                 }
 
-                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($phone, $pesan, $fileUrl);
-                $pesanTerkirim = $this->kirimPesanWhatsapp($phone, $pesan);
+                $sender = '62' . DB::table('tbl_ptges')->value('phones');
 
-                if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
-                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim pesan WhatsApp ke ' . $phone]);
+                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($phone, $pesan, $fileUrl, $sender);
+                $pesanTerkirim = $this->kirimPesanWhatsapp($phone, $pesan, null, $sender);
+
+                if (!$pesanTerkirimDenganFile) {
+                    Log::error('Gagal mengirim pesan dengan file ke ' . $vendor->no_wa);
+                }
+
+                if (!$pesanTerkirim) {
+                    Log::error('Gagal mengirim pesan teks ke ' . $vendor->no_wa);
+                }
+
+                if (!$pesanTerkirimDenganFile && !$pesanTerkirim) {
+                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $vendor->no_wa]);
                 }
 
                 if (file_exists($filePath)) {
