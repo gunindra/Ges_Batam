@@ -9,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Traits\WhatsappTrait;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SoaController extends Controller
@@ -126,12 +127,22 @@ class SoaController extends Controller
             $pesan = "Beikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
             $fileUrl = asset('storage/soa/' . $pdfFileName);
 
-            if ($customer->no_wa) {
-                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, $fileUrl);
-                $pesanTerkirim = $this->kirimPesanWhatsapp($customer->no_wa, $pesan);
+            $sender = '62' . DB::table('tbl_ptges')->value('phones');
 
-                if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
-                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim pesan WhatsApp ke ' . $customer->no_wa]);
+            if ($customer->no_wa) {
+                $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, $fileUrl, $sender);
+                $pesanTerkirim = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, null, $sender);
+
+                if (!$pesanTerkirimDenganFile) {
+                    Log::error('Gagal mengirim pesan dengan file ke ' . $customer->no_wa);
+                }
+
+                if (!$pesanTerkirim) {
+                    Log::error('Gagal mengirim pesan teks ke ' . $customer->no_wa);
+                }
+
+                if (!$pesanTerkirimDenganFile && !$pesanTerkirim) {
+                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $customer->no_wa]);
                 }
 
             } else {
@@ -141,6 +152,7 @@ class SoaController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
     public function exportSoaCustomerReport(Request $request)
     {
         $startDate = $request->input('startDate');

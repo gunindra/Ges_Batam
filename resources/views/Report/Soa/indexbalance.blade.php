@@ -190,17 +190,64 @@
                 getSOA();
                 $('#modalFilterTanggal').modal('hide');
             });
+
             $('#sendWA').on('click', function(e) {
-                e.preventDefault
+                e.preventDefault();
+
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const customer = $('#customer').val();
 
-                // Construct URL with query parameters
-                const pdfUrl =
-                    `{{ route('soaWA') }}?startDate=${startDate}&endDate=${endDate}&customer=${customer}`;
-                window.location.href = pdfUrl;
+                if (!customer) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Mohon pilih customer terlebih dahulu!'
+                    });
+                    return;
+                }
+
+                // Menampilkan loading
+                Swal.fire({
+                    title: 'Mengirim WhatsApp...',
+                    text: 'Mohon tunggu beberapa saat',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: "{{ route('soaWA') }}",
+                    type: "GET",
+                    data: {
+                        startDate: startDate,
+                        endDate: endDate,
+                        customer: customer,
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Pesan WhatsApp telah dikirim.',
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Terjadi kesalahan saat mengirim WhatsApp.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: errorMessage,
+                        });
+                    }
+                });
             });
+
             $('#exportBtn').on('click', function() {
                 var startDate = $('#startDate').val();
                 var endDate = $('#endDate').val();

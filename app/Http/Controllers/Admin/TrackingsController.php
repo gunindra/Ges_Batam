@@ -24,31 +24,40 @@ class TrackingsController extends Controller
             'hasActionColumn' => in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor'])
         ]);
     }
+
     public function getTrackingData(Request $request)
     {
         $companyId = session('active_company_id');
+        $user = auth()->user();
 
         $query = DB::table('tbl_tracking')
             ->select([
-                'id',
-                'no_resi',
-                'no_do',
-                'status',
-                'keterangan'
+                'tbl_tracking.id',
+                'tbl_tracking.no_resi',
+                'tbl_tracking.no_do',
+                'tbl_tracking.status',
+                'tbl_tracking.keterangan'
             ])
             ->where('tbl_tracking.company_id', $companyId);
 
-        if ($request->status) {
-            $query->where('status', $request->status);
+        if ($user->role === 'customer') {
+            $query->join('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
+                  ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+                  ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                  ->where('tbl_pembeli.user_id', $user->id);
         }
 
-        $query->orderBy('id', 'desc');
+        if ($request->status) {
+            $query->where('tbl_tracking.status', $request->status);
+        }
+
+        $query->orderBy('tbl_tracking.id', 'desc');
 
         $data = $query->get();
-        $allIds = $data->pluck('id')->toArray(); // Semua ID dari database
+        $allIds = $data->pluck('id')->toArray();
 
         return DataTables::of($data)
-            ->with(['allIds' => $allIds]) // Kirim semua ID ke frontend
+            ->with(['allIds' => $allIds])
             ->addColumn('select', function ($row) {
                 if ($row->status === "Dalam Perjalanan") {
                     return '<input type="checkbox" class="select-row" data-id="' . $row->id . '">';
@@ -56,37 +65,25 @@ class TrackingsController extends Controller
                 return '';
             })
             ->editColumn('status', function ($row) {
-                $statusBadgeClass = '';
-                switch ($row->status) {
-                    case 'Dalam Perjalanan':
-                        $statusBadgeClass = 'badge-success';
-                        break;
-                    case 'Batam / Sortir':
-                        $statusBadgeClass = 'badge-primary';
-                        break;
-                    case 'Delivering':
-                        $statusBadgeClass = 'badge-success';
-                        break;
-                    case 'Ready For Pickup':
-                        $statusBadgeClass = 'badge-warning';
-                        break;
-                    default:
-                        $statusBadgeClass = 'badge-secondary';
-                        break;
-                }
-
+                $statusBadgeClass = match ($row->status) {
+                    'Dalam Perjalanan' => 'badge-success',
+                    'Batam / Sortir' => 'badge-primary',
+                    'Delivering' => 'badge-success',
+                    'Ready For Pickup' => 'badge-warning',
+                    default => 'badge-secondary',
+                };
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('action', function ($row) {
-                $deleteButton = '';
-                if ($row->status == 'Dalam Perjalanan') {
-                    $deleteButton = '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
-                }
+                $deleteButton = $row->status == 'Dalam Perjalanan' ?
+                    '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>' : '';
                 return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
             })
             ->rawColumns(['select', 'status', 'action'])
             ->make(true);
     }
+
+
 
 
     public function addTracking(Request $request)

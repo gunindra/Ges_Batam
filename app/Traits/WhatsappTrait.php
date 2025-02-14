@@ -8,13 +8,15 @@ use Log;
 
 trait WhatsappTrait
 {
-    public function kirimPesanWhatsapp($noWa, $message, $fileUrl = null)
+    public function kirimPesanWhatsapp($noWa, $message, $fileUrl = null, $sender = null)
     {
         $url = $fileUrl ? 'https://wa.smartappscare.com/send-media' : 'https://wa.smartappscare.com/send-message';
 
         $apiKey = config('app.whatsapp_api_key');
 
-        $sender = '62' . DB::table('tbl_ptges')->value('phone');
+        if (!$sender) {
+            $sender = '62' . DB::table('tbl_ptges')->value('phone');
+        }
 
         $data = [
             'api_key' => $apiKey,
