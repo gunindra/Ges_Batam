@@ -64,7 +64,7 @@ class PaymentController extends Controller
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum lunas'");
 
-        $listMarking = DB::select("SELECT nama_pembeli, marking FROM tbl_pembeli WHERE tbl_pembeli.company_id = $companyId");
+        $listMarking = DB::select("SELECT id, nama_pembeli, marking FROM tbl_pembeli WHERE tbl_pembeli.company_id = $companyId");
 
         return view('customer.payment.buatpayment', [
             'listInvoice' => $listInvoice,
@@ -348,7 +348,7 @@ class PaymentController extends Controller
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
-
+            $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
             $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
 
             if (empty($currentPointPrice)) {
@@ -381,7 +381,7 @@ class PaymentController extends Controller
 
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
-            $payment->pembeli_id = $request->marking;
+            $payment->pembeli_id =  $idMarking;
             $payment->payment_date = $tanggalPayment;
             $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
@@ -706,7 +706,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Transaction failed: " . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Error during the transaction']);
         }
     }
 
@@ -714,11 +714,10 @@ class PaymentController extends Controller
     {
 
         $companyId = session('active_company_id');
-        // dd($request->all());
 
         Log::info('Mulai proses pembayaran normal', ['request' => $request->all()]);
 
-        $accountSettings = DB::table('tbl_account_settings')->first();
+        $accountSettings = DB::table(table: 'tbl_account_settings')->first();
 
         if (!$accountSettings) {
             Log::error('Account settings tidak ditemukan.');
@@ -744,6 +743,8 @@ class PaymentController extends Controller
 
         DB::beginTransaction();
         try {
+
+            $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
             $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
             $totalPayment = $request->paymentAmount;
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
@@ -751,7 +752,7 @@ class PaymentController extends Controller
 
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
-            $payment->pembeli_id = $request->marking;
+            $payment->pembeli_id =  $idMarking;
             $payment->payment_date = $tanggalPayment;
             $payment->payment_buat =   $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
@@ -935,7 +936,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Terjadi kesalahan saat memproses pembayaran', ['error' => $e->getMessage()]);
-            throw new \Exception('Error during multiple invoice payment processing: ' . $e->getMessage());
+            throw new \Exception('Terjadi kesalahan saat memproses pembayaran');
         }
     }
 

@@ -19,9 +19,14 @@
                         <label for="filterStatus">Pilih Status</label>
                         <select class="form-control" id="filterStatus">
                             <option value="" selected disabled>Pilih Status</option>
-                            @foreach ($listStatus as $status)
+                            <option value="Dalam Perjalanan">Dalam Perjalanan</option>
+                            <option value="Batam / Sortir">Batam / Sortir</option>
+                            <option value="Delivering">Delivering</option>
+                            <option value="Ready For Pickup">Ready For Pickup</option>
+                            <option value="Received">Received</option>
+                            {{-- @foreach ($listStatus as $status)
                                 <option value="{{ $status->status_name }}">{{ $status->status_name }}</option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                     </div>
                     <div class="form-group">

@@ -45,10 +45,10 @@ class InvoiceController extends Controller
             ->select('no_do')
             ->distinct()
             ->get();
-        $listStatus = DB::select("SELECT status_name FROM tbl_status");
+        // $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
         return view('customer.invoice.indexinvoice', [
-            'listStatus' => $listStatus,
+            // 'listStatus' => $listStatus,
             'listDo' => $listDo,
         ]);
     }
@@ -274,7 +274,7 @@ class InvoiceController extends Controller
                     'Ready For Pickup' => 'badge-warning',
                     'Out For Delivery' => 'badge-primary',
                     'Delivering' => 'badge-delivering',
-                    'Done' => 'badge-secondary',
+                    'Received' => 'badge-secondary',
                     default => 'badge-secondary',
                 };
                 return '<span class="badge ' . $statusBadgeClass . '">' . $item->status_name . '</span>';
