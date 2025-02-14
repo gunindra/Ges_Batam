@@ -86,7 +86,8 @@
                             <select class="form-control select2" id="selectMarking">
                                 <option value="" selected disabled>Pilih Marking</option>
                                 @foreach ($listMarking as $markingList)
-                                    <option value="{{ $markingList->marking }}">{{ $markingList->marking }}
+                                    <option value="{{ $markingList->marking }};{{ $markingList->id }}">
+                                        {{ $markingList->marking }}
                                         ({{ $markingList->nama_pembeli }})
                                     </option>
                                 @endforeach
@@ -227,8 +228,9 @@
     <script>
         $(document).ready(function() {
             $('#selectMarking').on('change', function() {
-                const marking = $(this).val();
-                if (marking) {
+                const markingValue = $(this).val();
+                if (markingValue) {
+                    const marking = markingValue.split(';')[0];
                     loadInvoicesByMarking(marking);
                 }
             });
@@ -508,7 +510,7 @@
                     let account = $(this).find('select[name="account"]').val();
                     let itemDesc = $(this).find('input[name="item_desc"]').val();
                     let nominal = $(this).find('input[name="nominal"]')
-                .val(); // Correct the selector
+                        .val(); // Correct the selector
                     let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
 
                     if (!account || !itemDesc || !nominal || !tipeAccount) {

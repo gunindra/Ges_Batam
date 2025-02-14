@@ -142,7 +142,7 @@ class SupirController extends Controller
                         DB::table('tbl_tracking')
                             ->whereIn('no_resi', $noResiList)
                             ->update([
-                                'status' => 'Done',
+                                'status' => 'Received',
                                 'updated_at' => now(),
                             ]);
                     }
