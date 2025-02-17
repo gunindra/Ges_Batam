@@ -54,6 +54,7 @@
                                                     <tr>
                                                         <th>No. Resi</th>
                                                         <th>No. DO</th>
+                                                        <th>Marking</th>
                                                         <th>Status</th>
                                                         <th>Keterangan</th>
                                                     </tr>
@@ -130,6 +131,7 @@
                                         let row = `<tr>
                         <td>${item.no_resi}</td>
                         <td>${item.no_do}</td>
+                        <td>${item.marking}</td>
                         <td>${item.status}</td>
                         <td>${item.keterangan}</td>
                         `;
