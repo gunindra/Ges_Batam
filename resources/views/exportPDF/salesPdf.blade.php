@@ -236,7 +236,7 @@
                         <td>{{ $sales->customer }}</td>
                         <td>{{ $sales->metode_pengiriman }}</td>
                         <td>{{ $sales->status_transaksi }}</td>
-                        <td>{{ $sales->total_harga }}</td>
+                        <td>Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
