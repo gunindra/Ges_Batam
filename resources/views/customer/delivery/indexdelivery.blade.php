@@ -3,7 +3,28 @@
 @section('title', 'Delivery')
 
 @section('main')
+<style>
+        .select2-container--default .select2-selection--single {
+            height: 43px;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.25rem;
+            padding: 6px 11px;
+            margin-left: 5px;
+        }
 
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 27px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+    </style>
 
     <div class="modal fade" id="modalConfirmasiPengantaran" tabindex="-1" role="dialog"
         aria-labelledby="modalConfirmasiPengantaranTitle" aria-hidden="true">
@@ -73,11 +94,11 @@
                             <div class="mt-3">
                                 <label for="pembayaranStatus" class="form-label fw-bold">Pilih Tanggal:</label>
                                 <div class="d-flex align-items-center">
-                                    <input type="date" id="startDate" class="form-control"
-                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
+                                    <input type="date" id="startDate" class="form-control" placeholder="Pilih tanggal mulai"
+                                        style="width: 200px;">
                                     <span class="mx-2">sampai</span>
-                                    <input type="date" id="endDate" class="form-control"
-                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
+                                    <input type="date" id="endDate" class="form-control" placeholder="Pilih tanggal akhir"
+                                        style="width: 200px;">
                                 </div>
                             </div>
                         </div>
@@ -137,7 +158,7 @@
                                     <option value="Delivering">Delivering</option>
                                     <option value="Received">Received</option>
                                 </select>
-                                <select class="form-control ml-2" id="filtermarking" style="width: 200px;">
+                                <select class="form-control select2singgle ml-2" id="filtermarking" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Marking</option>
                                     @foreach ($listmarking as $marking)
                                         <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
@@ -155,49 +176,49 @@
                                     Reset
                                 </button>
                             </div>
-                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span
-                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
+                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span class="pr-2"><i
+                                        class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>No Resi</th>
-                                    <th>Tanggal</th>
-                                    <th>Driver</th>
-                                    <th>Pengiriman</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>B0230123</td>
-                                    <td>24 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>Delivery</td>
-                                    <td>Rp. 10.000</td>
-                                    <td><span class="badge badge-success">Done</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>B0234043</td>
-                                    <td>28 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>Delivery</td>
-                                    <td>Rp. 12.000</td>
-                                    <td><span class="badge badge-info">Delivery</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>No Resi</th>
+                                        <th>Tanggal</th>
+                                        <th>Driver</th>
+                                        <th>Pengiriman</th>
+                                        <th>Harga</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>B0230123</td>
+                                        <td>24 Juli 2024</td>
+                                        <td>Tandrio</td>
+                                        <td>Delivery</td>
+                                        <td>Rp. 10.000</td>
+                                        <td><span class="badge badge-success">Done</span></td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-file-upload"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>B0234043</td>
+                                        <td>28 Juli 2024</td>
+                                        <td>Tandrio</td>
+                                        <td>Delivery</td>
+                                        <td>Rp. 12.000</td>
+                                        <td><span class="badge badge-info">Delivery</span></td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table> --}}
                         </div>
                     </div>
                 </div>
@@ -213,8 +234,8 @@
 @section('script')
     <script>
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-                <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-            </div> `;
+                    <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+                </div> `;
 
         const getlistDelivery = () => {
             const txtSearch = $('#txSearch').val();
@@ -225,20 +246,20 @@
             const filternodo = $('#filternodo').val();
 
             $.ajax({
-                    url: "{{ route('getlistDelivery') }}",
-                    method: "GET",
-                    data: {
-                        txSearch: txtSearch,
-                        startDate: startDate,
-                        endDate: endDate,
-                        status: filterStatus,
-                        marking: filtermarking,
-                        no_do: filternodo
-                    },
-                    beforeSend: () => {
-                        $('#containerDelivery').html(loadSpin)
-                    }
-                })
+                url: "{{ route('getlistDelivery') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch,
+                    startDate: startDate,
+                    endDate: endDate,
+                    status: filterStatus,
+                    marking: filtermarking,
+                    no_do: filternodo
+                },
+                beforeSend: () => {
+                    $('#containerDelivery').html(loadSpin)
+                }
+            })
                 .done(res => {
                     $('#containerDelivery').html(res)
                     $('#tableDelivery').DataTable({
@@ -258,23 +279,27 @@
 
         getlistDelivery();
 
-        $('#txSearch').keyup(function(e) {
+        $('#txSearch').keyup(function (e) {
             var inputText = $(this).val();
             if (inputText.length >= 1 || inputText.length == 0) {
                 getlistDelivery();
             }
         })
 
-        $('#filtermarking').change(function() {
+        $('.select2singgle').select2({
+            width: 'resolve'
+        });
+
+        $('#filtermarking').change(function () {
             getlistDelivery();
         });
-        $('#filternodo').change(function() {
+        $('#filternodo').change(function () {
             getlistDelivery();
         });
 
         flatpickr("#startDate", {
             dateFormat: "d M Y",
-            onChange: function(selectedDates, dateStr, instance) {
+            onChange: function (selectedDates, dateStr, instance) {
 
                 $("#endDate").flatpickr({
                     dateFormat: "d M Y",
@@ -285,7 +310,7 @@
 
         flatpickr("#endDate", {
             dateFormat: "d MM Y",
-            onChange: function(selectedDates, dateStr, instance) {
+            onChange: function (selectedDates, dateStr, instance) {
                 var startDate = new Date($('#startDate').val());
                 var endDate = new Date(dateStr);
                 if (endDate < startDate) {
@@ -295,22 +320,22 @@
             }
         });
 
-        $(document).on('click', '#filterTanggal', function(e) {
+        $(document).on('click', '#filterTanggal', function (e) {
             $('#modalFilterTanggal').modal('show');
         });
 
 
 
-        $('#filterStatus').change(function() {
+        $('#filterStatus').change(function () {
             getlistDelivery();
         });
 
-        $('#saveFilterTanggal').click(function() {
+        $('#saveFilterTanggal').click(function () {
             getlistDelivery();
             $('#modalFilterTanggal').modal('hide');
         });
 
-        $(document).on('click', '.btnDetailPengantaran', function(e) {
+        $(document).on('click', '.btnDetailPengantaran', function (e) {
             e.preventDefault();
             let namafoto = $(this).data('bukti');
             $.ajax({
@@ -319,7 +344,7 @@
                 data: {
                     namafoto: namafoto,
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         let imageUrl = response.url;
 
@@ -330,7 +355,7 @@
                     }
                     $('#modalBuktiPengantaran').modal('show');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
                     $('#modalBuktiPengantaran').modal('show');
                 }
@@ -338,7 +363,7 @@
         });
 
 
-        $(document).on('click', '.btnSelesaikanPickup', function(e) {
+        $(document).on('click', '.btnSelesaikanPickup', function (e) {
             let pengantaranId = $(this).data('invoice-id');
 
             Swal.fire({
@@ -371,7 +396,7 @@
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
-                        success: function(response) {
+                        success: function (response) {
                             Swal.close();
 
                             if (response.status === 'error') {
@@ -381,7 +406,7 @@
                                 getlistDelivery();
                             }
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             Swal.close();
 
                             let errorMessage = 'Gagal Export Invoice';
@@ -399,7 +424,7 @@
             });
         });
 
-        $(document).on('click', '.btnExportPDF', function() {
+        $(document).on('click', '.btnExportPDF', function () {
             let pengantaranId = $(this).data('id');
 
             Swal.fire({
@@ -420,7 +445,7 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                success: function(response) {
+                success: function (response) {
                     Swal.close();
 
                     if (response.url) {
@@ -433,7 +458,7 @@
                         });
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     Swal.close();
 
                     let errorMessage = 'Gagal Export Invoice';
@@ -449,7 +474,7 @@
             });
         });
 
-        $(document).on('click', '.show-invoice-modal', function() {
+        $(document).on('click', '.show-invoice-modal', function () {
             var invoiceNumbers = $(this).data('invoices');
             var marking = $(this).data('marking').trim();
             var customerNames = $(this).data('customers').trim();
@@ -569,7 +594,7 @@
 
 
 
-        $(document).on('click', '.btnBuktiPengantaran', function(e) {
+        $(document).on('click', '.btnBuktiPengantaran', function (e) {
             let id = $(this).data('id');
 
             function validatePengantaran() {
@@ -581,7 +606,7 @@
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(file.type)) {
                         $('#err-pengantaranStatus').text(
-                                'Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong')
+                            'Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong')
                             .removeClass('d-none');
                         isValid = false;
                     } else {
@@ -596,11 +621,11 @@
                 return isValid;
             }
 
-            $('#pengantaranStatus').on('input change', function() {
+            $('#pengantaranStatus').on('input change', function () {
                 validatePengantaran();
             });
 
-            $(document).on('click', '#saveFilePengantaran', function(e) {
+            $(document).on('click', '#saveFilePengantaran', function (e) {
                 e.preventDefault();
 
                 if (validatePengantaran()) {
@@ -627,7 +652,7 @@
                                 data: formData,
                                 contentType: false,
                                 processData: false,
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.error) {
                                         showMessage("error", response.message);
                                     } else {
@@ -636,7 +661,7 @@
                                         $('#modalConfirmasiPengantaran').modal('hide');
                                     }
                                 },
-                                error: function() {
+                                error: function () {
                                     showMessage("error",
                                         "Terjadi kesalahan pada server.");
                                 }
@@ -651,7 +676,7 @@
             $('#modalConfirmasiPengantaran').modal('show');
         });
 
-        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function() {
+        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function () {
             $('#pengantaranStatus').val('');
             if (!$('#err-pengantaranStatus').hasClass('d-none')) {
                 $('#err-pengantaranStatus').addClass('d-none');

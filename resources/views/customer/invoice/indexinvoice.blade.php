@@ -3,7 +3,27 @@
 @section('title', 'Invoice')
 
 @section('main')
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 40px;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.25rem;
+            padding: 6px 12px;
+        }
 
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 27px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+    </style>
     <div class="modal fade" id="modalFilter" tabindex="-1" aria-labelledby="modalFilterLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -25,7 +45,7 @@
                             <option value="Ready For Pickup">Ready For Pickup</option>
                             <option value="Received">Received</option>
                             {{-- @foreach ($listStatus as $status)
-                                <option value="{{ $status->status_name }}">{{ $status->status_name }}</option>
+                            <option value="{{ $status->status_name }}">{{ $status->status_name }}</option>
                             @endforeach --}}
                         </select>
                     </div>
@@ -40,7 +60,7 @@
                     </div>
                     <div class="form-group">
                         <label for="filterMarking">Pilih Marking</label>
-                        <select class="form-control" id="filterMarking">
+                        <select class="form-control select2singgle" id="filterMarking">
                             <option value="" selected disabled>Pilih Marking</option>
                             @foreach ($listMarking as $marking)
                                 <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
@@ -118,8 +138,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog"
-        aria-labelledby="modalFilterTanggalTitle" aria-hidden="true">
+    <div class="modal fade" id="modalFilterTanggal" tabindex="-1" role="dialog" aria-labelledby="modalFilterTanggalTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -134,11 +154,11 @@
                             <div class="mt-3">
                                 <label for="pembayaranStatus" class="form-label fw-bold">Pilih Tanggal:</label>
                                 <div class="d-flex align-items-center">
-                                    <input type="date" id="startDate" class="form-control"
-                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
+                                    <input type="date" id="startDate" class="form-control" placeholder="Pilih tanggal mulai"
+                                        style="width: 200px;">
                                     <span class="mx-2">sampai</span>
-                                    <input type="date" id="endDate" class="form-control"
-                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
+                                    <input type="date" id="endDate" class="form-control" placeholder="Pilih tanggal akhir"
+                                        style="width: 200px;">
                                 </div>
                             </div>
                         </div>
@@ -182,63 +202,61 @@
 
 
                                 @if (Auth::user()->role === 'supervisor')
-                                    <a class="btn btn-secondary mr-1" style="color:white;" id="kirimNot"><span
-                                            class="pr-2"><i class="fas fa-paper-plane"
-                                                style="color: #ffffff;"></i></span>Kirim
+                                    <a class="btn btn-secondary mr-1" style="color:white;" id="kirimNot"><span class="pr-2"><i
+                                                class="fas fa-paper-plane" style="color: #ffffff;"></i></span>Kirim
                                         Notifikasi</a>
-                                    <a class="btn btn-success mr-1" style="color:white;" id="kirimInvoice"><span
-                                            class="pr-2"><i class="fab fa-whatsapp"
-                                                style="color: #ffffff;"></i></span>Kirim Invoice</a>
+                                    <a class="btn btn-success mr-1" style="color:white;" id="kirimInvoice"><span class="pr-2"><i
+                                                class="fab fa-whatsapp" style="color: #ffffff;"></i></span>Kirim Invoice</a>
                                 @endif
 
                                 <!-- <button class="btn btn-success mr-1" id="isNotif"><span class="pr-2"><i
-                                                                                                        class="fas fa-bell"></i></span>Notifikasi</button> -->
-                                <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
-                                        class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a>
+                                                                                                                    class="fas fa-bell"></i></span>Notifikasi</button> -->
+                                <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span class="pr-2"><i
+                                            class="fas fa-plus"></i></span>Buat Invoice</a>
 
                             </div>
                         </div>
                         {{-- <div id="containerInvoice" class="table-responsive px-3"> --}}
-                        {{-- <table class="table align-items-center table-flush table-hover" id="tableInvoice">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>No Resi</th>
-                                    <th>Tanggal</th>
-                                    <th>Costumer</th>
-                                    <th>Pengiriman</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>B0230123</td>
-                                    <td>24 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>Delivery</td>
-                                    <td>Rp. 10.000</td>
-                                    <td><span class="badge badge-warning">Paid</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>B0234043</td>
-                                    <td>28 Juli 2024</td>
-                                    <td>Tandrio</td>
-                                    <td>PickUp</td>
-                                    <td>Rp. 12.000</td>
-                                    <td><span class="badge badge-warning">Paid</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> --}}
-                        {{-- </div> --}}
+                            {{-- <table class="table align-items-center table-flush table-hover" id="tableInvoice">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>No Resi</th>
+                                        <th>Tanggal</th>
+                                        <th>Costumer</th>
+                                        <th>Pengiriman</th>
+                                        <th>Harga</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>B0230123</td>
+                                        <td>24 Juli 2024</td>
+                                        <td>Tandrio</td>
+                                        <td>Delivery</td>
+                                        <td>Rp. 10.000</td>
+                                        <td><span class="badge badge-warning">Paid</span></td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>B0234043</td>
+                                        <td>28 Juli 2024</td>
+                                        <td>Tandrio</td>
+                                        <td>PickUp</td>
+                                        <td>Rp. 12.000</td>
+                                        <td><span class="badge badge-warning">Paid</span></td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-secondary"><i class="fas fa-print"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table> --}}
+                            {{-- </div> --}}
 
                         <div id="containerInvoice">
                             <div class="table-responsive">
@@ -280,120 +298,120 @@
 
 @section('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             let tableColumns = [];
             if ($('#selectAll').length) {
                 tableColumns.push({
                     data: 'checkbox',
                     orderable: false,
                     searchable: false,
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return '<input type="checkbox" class="selectItem" data-id="' + row.id +
                             '" value="' + row.id + '">';
                     }
                 });
             }
             tableColumns = tableColumns.concat([{
-                    data: 'no_invoice',
-                    name: 'no_invoice',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                }, {
-                    data: 'tanggal_bayar',
-                    name: 'tanggal_bayar',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'no_do',
-                    name: 'no_do',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'marking',
-                    name: 'marking',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                
-                {
-                    data: 'pembeli',
-                    name: 'pembeli',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'metode_pengiriman',
-                    name: 'metode_pengiriman',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'alamat',
-                    name: 'alamat',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'status_bayar',
-                    name: 'status_bayar',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'converted_harga',
-                    name: 'converted_harga',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'status_badge',
-                    name: 'status_badge',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    },
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'created_at',
-                    name: 'created_at',
-                    render: function(data, type, row) {
-                        if (data) {
-                            return row.user ?
-                                `${data} (${row.user})` :
-                                `${data}`;
-                        }
-                        return '-';
-                    }
-                },
-                {
-                    data: 'updated_at',
-                    name: 'updated_at',
-                    render: function(data, type, row) {
-                        if (data) {
-                            return row.user_update ?
-                                `${data} (${row.user_update})` :
-                                `${data}`;
-                        }
-                        return '-';
-                    }
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
+                data: 'no_invoice',
+                name: 'no_invoice',
+                render: function (data, type, row) {
+                    return data ? data : '-';
                 }
+            }, {
+                data: 'tanggal_bayar',
+                name: 'tanggal_bayar',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'no_do',
+                name: 'no_do',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'marking',
+                name: 'marking',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+
+            {
+                data: 'pembeli',
+                name: 'pembeli',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'metode_pengiriman',
+                name: 'metode_pengiriman',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'alamat',
+                name: 'alamat',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'status_bayar',
+                name: 'status_bayar',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'converted_harga',
+                name: 'converted_harga',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'status_badge',
+                name: 'status_badge',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                },
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                render: function (data, type, row) {
+                    if (data) {
+                        return row.user ?
+                            `${data} (${row.user})` :
+                            `${data}`;
+                    }
+                    return '-';
+                }
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                render: function (data, type, row) {
+                    if (data) {
+                        return row.user_update ?
+                            `${data} (${row.user_update})` :
+                            `${data}`;
+                    }
+                    return '-';
+                }
+            },
+            {
+                data: 'action',
+                name: 'action',
+                orderable: false,
+                searchable: false
+            }
             ]);
 
             let table = $('#tableInvoice').DataTable({
@@ -403,7 +421,7 @@
                 ajax: {
                     url: "{{ route('getlistInvoice') }}",
                     method: 'GET',
-                    data: function(d) {
+                    data: function (d) {
                         d.startDate = $('#startDate').val();
                         d.endDate = $('#endDate').val();
                         d.status = $('#filterStatus').val();
@@ -412,7 +430,7 @@
                         d.payment_status = $('#filterPaymentStatus').val();
                         d.marking = $('#filterMarking').val();
                     },
-                    error: function(xhr, error, thrown) {
+                    error: function (xhr, error, thrown) {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -438,28 +456,34 @@
 
 
             const handleSelectItems = () => {
-                $('#tableInvoice').on('change', '.selectItem', function() {
+                $('#tableInvoice').on('change', '.selectItem', function () {
                     const allChecked = $('.selectItem').length === $('.selectItem:checked').length;
                     $('#selectAll').prop('checked', allChecked);
                 });
 
-                $('#tableInvoice').on('change', '#selectAll', function() {
+                $('#tableInvoice').on('change', '#selectAll', function () {
                     $('.selectItem').prop('checked', this.checked);
                 });
             };
 
-            table.on('draw', function() {
+            table.on('draw', function () {
                 handleSelectItems();
             });
 
-            $(document).ready(function() {
+            $('.select2singgle').select2({
+                dropdownAutoWidth: true,
+                width: '100%' ,
+                dropdownParent: $('#modalFilter')
+            });
+
+            $(document).ready(function () {
                 handleSelectItems();
 
-                $(document).on('click', '#kirimNot', function(e) {
+                $(document).on('click', '#kirimNot', function (e) {
                     e.preventDefault();
 
                     let selectedItems = [];
-                    $('.selectItem:checked').each(function() {
+                    $('.selectItem:checked').each(function () {
                         selectedItems.push($(this).data('id'));
                     });
 
@@ -494,7 +518,7 @@
                                     id: selectedItems,
                                     type: 'listbarang',
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     Swal.close();
                                     if (response.success) {
                                         showMessage("success",
@@ -502,7 +526,7 @@
                                         // $('#kirimNot').hide();
                                         var currentPage = table.page();
                                         table.ajax.reload(null, false);
-                                        table.one('draw', function() {
+                                        table.one('draw', function () {
                                             table.page(currentPage)
                                                 .draw(false);
                                         });
@@ -511,7 +535,7 @@
                                             "Gagal mengirim notifikasi");
                                     }
                                 },
-                                error: function() {
+                                error: function () {
                                     Swal.close();
                                     showMessage("error",
                                         "Terjadi kesalahan saat mengirim notifikasi"
@@ -524,11 +548,11 @@
                 });
 
 
-                $(document).on('click', '#kirimInvoice', function(e) {
+                $(document).on('click', '#kirimInvoice', function (e) {
                     e.preventDefault();
 
                     let selectedItems = [];
-                    $('.selectItem:checked').each(function() {
+                    $('.selectItem:checked').each(function () {
                         selectedItems.push($(this).data('id'));
                     });
 
@@ -564,14 +588,14 @@
                                     id: selectedItems,
                                     type: 'invoice',
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     Swal.close();
                                     if (response.success) {
                                         showMessage("success",
                                             "Berhasil mengirim notifikasi");
                                         var currentPage = table.page();
                                         table.ajax.reload(null, false);
-                                        table.one('draw', function() {
+                                        table.one('draw', function () {
                                             table.page(currentPage)
                                                 .draw(false);
                                         });
@@ -580,7 +604,7 @@
                                             "Gagal mengirim notifikasi");
                                     }
                                 },
-                                error: function() {
+                                error: function () {
                                     Swal.close();
                                     showMessage("error",
                                         "Terjadi kesalahan saat mengirim notifikasi"
@@ -598,13 +622,13 @@
             });
 
 
-            $('#txSearch').keyup(function() {
+            $('#txSearch').keyup(function () {
                 table.draw();
             });
 
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
-                onChange: function(selectedDates, dateStr, instance) {
+                onChange: function (selectedDates, dateStr, instance) {
 
                     $("#endDate").flatpickr({
                         dateFormat: "d M Y",
@@ -615,7 +639,7 @@
 
             flatpickr("#endDate", {
                 dateFormat: "d MM Y",
-                onChange: function(selectedDates, dateStr, instance) {
+                onChange: function (selectedDates, dateStr, instance) {
                     let startDate = new Date($('#startDate').val());
                     let endDate = new Date(dateStr);
                     if (endDate < startDate) {
@@ -625,17 +649,17 @@
                     }
                 }
             });
-            $(document).on('click', '#filterModalButton', function() {
+            $(document).on('click', '#filterModalButton', function () {
                 $('#modalFilter').modal('show');
             });
-            $(document).on('click', '#filterTanggal', function(e) {
+            $(document).on('click', '#filterTanggal', function (e) {
                 $('#modalFilterTanggal').modal('show');
             });
-            $('#saveFilter').click(function() {
+            $('#saveFilter').click(function () {
                 table.ajax.reload();
                 $('#modalFilter').modal('hide');
             });
-            $('#saveFilterTanggal').click(function() {
+            $('#saveFilterTanggal').click(function () {
                 table.ajax.reload();
                 $('#modalFilterTanggal').modal('hide');
             });
@@ -643,7 +667,7 @@
 
 
 
-            $(document).on('click', '.btnExportInvoice', function(e) {
+            $(document).on('click', '.btnExportInvoice', function (e) {
                 let id = $(this).data('id');
 
                 Swal.fire({
@@ -661,7 +685,7 @@
                     data: {
                         id: id
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.close();
 
                         if (response.url) {
@@ -674,7 +698,7 @@
                             });
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         Swal.close();
 
                         let errorMessage = 'Gagal Export Invoice';
@@ -690,7 +714,7 @@
                 });
             });
 
-            $(document).on('click', '.btnDetailPembayaran', function(e) {
+            $(document).on('click', '.btnDetailPembayaran', function (e) {
                 e.preventDefault();
                 let namafoto = $(this).data('bukti');
                 $.ajax({
@@ -699,7 +723,7 @@
                     data: {
                         namafoto: namafoto,
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status === 'success') {
                             let imageUrl = response.url;
 
@@ -710,7 +734,7 @@
                         }
                         $('#modalBuktiPembayaran').modal('show');
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
                         $('#modalBuktiPembayaran').modal('show');
                     }
@@ -718,7 +742,7 @@
             });
 
 
-            $(document).on('click', '.btnPembayaran', function(e) {
+            $(document).on('click', '.btnPembayaran', function (e) {
                 let id = $(this).data('id');
                 let tipePembayaran = $(this).data('tipe');
 
@@ -738,11 +762,11 @@
                         return isValid;
                     }
 
-                    $('#pembayaranStatus').on('input change', function() {
+                    $('#pembayaranStatus').on('input change', function () {
                         validatePembayaran();
                     });
 
-                    $(document).on('click', '#saveFileTransfer', function(e) {
+                    $(document).on('click', '#saveFileTransfer', function (e) {
                         if (validatePembayaran()) {
                             Swal.fire({
                                 title: "Apakah Pembayaran Invoice ini Sudah di Selesaikan?",
@@ -769,7 +793,7 @@
                                         data: formData,
                                         contentType: false,
                                         processData: false,
-                                        success: function(response) {
+                                        success: function (response) {
                                             if (response.error) {
                                                 showMessage("error", response
                                                     .message);
@@ -781,7 +805,7 @@
                                                     .modal('hide');
                                             }
                                         },
-                                        error: function() {
+                                        error: function () {
                                             showMessage("error",
                                                 "Terjadi kesalahan pada server."
                                             );
@@ -817,7 +841,7 @@
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
                                         'content')
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.error) {
                                         showMessage("error", response.message);
                                     } else {
@@ -825,7 +849,7 @@
                                         getlistInvoice();
                                     }
                                 },
-                                error: function() {
+                                error: function () {
                                     showMessage("error",
                                         "Terjadi kesalahan pada server.");
                                 }
@@ -835,14 +859,14 @@
                 }
             });
 
-            $('#modalConfirmasiPembayaran').on('hidden.bs.modal', function() {
+            $('#modalConfirmasiPembayaran').on('hidden.bs.modal', function () {
                 $('#pembayaranStatus').val('');
                 validatePembayaran('modalConfirmasiPembayaran');
             });
 
 
 
-            $(document).on('click', '.btnDeleteInvoice', function(e) {
+            $(document).on('click', '.btnDeleteInvoice', function (e) {
                 let id = $(this).data('id');
 
                 Swal.fire({
@@ -862,7 +886,7 @@
                             data: {
                                 id: id,
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status === 'success') {
                                     showMessage("success",
                                         "Berhasil menghapus Invoice");
@@ -876,20 +900,20 @@
                 })
             });
 
-            $(document).on('click', '.btnEditInvoice', function(e) {
+            $(document).on('click', '.btnEditInvoice', function (e) {
                 let id = $(this).data('id');
                 let url = "{{ route('deleteoreditinvoice', ':id') }}";
                 url = url.replace(':id', id);
                 window.location.href = url;
             });
 
-            $(document).on('click', '.btnCicilan', function(e) {
+            $(document).on('click', '.btnCicilan', function (e) {
                 let id = $(this).data('id');
                 let url = "{{ route('cicilanInvoice', ':id') }}";
                 url = url.replace(':id', id);
                 window.location.href = url;
             });
-            $(document).on('click', '.btnChangeMethod', function(e) {
+            $(document).on('click', '.btnChangeMethod', function (e) {
                 let id = $(this).data('id');
                 let method = $(this).data('method');
 
@@ -911,7 +935,7 @@
                                 id: id,
                                 method: method,
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response
                                     .success) {
                                     showMessage("success", response
@@ -922,7 +946,7 @@
                                         "Gagal mengubah invoice");
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 showMessage("error",
                                     "Terjadi kesalahan dalam mengubah invoice");
                             }
