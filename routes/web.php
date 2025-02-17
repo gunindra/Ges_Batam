@@ -478,7 +478,8 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     // Sales
     Route::get('/sales', [SalesController::class, 'index'])->name('salespage');
     Route::get('/sales/getListSales', [SalesController::class, 'getListSales'])->name('getListSales');
-
+    Route::get('/sales/export', [SalesController::class, 'export'])->name('ExportSales');
+    Route::get('/sales/exportPdf', [SalesController::class, 'exportSalesPdf'])->name('exportSalesPdf');
 });
 
 

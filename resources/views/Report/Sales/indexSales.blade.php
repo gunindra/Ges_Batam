@@ -24,18 +24,22 @@
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
                             <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
-                            <button class="btn btn-primary mr-2" id="btnExportOngoingInvoice">Export Pdf</button>
+                            <button class="btn btn-primary mr-2" id="btnExportSales">Export Pdf</button>
                         </div>
                         <div class="float-left d-flex">
                             <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
                                 class="form-control rounded-3" placeholder="Search">
                             <select class="form-control ml-2" id="filterNoDO" style="width: 200px;">
                                 <option value="" selected disabled>Pilih No Do</option>
-
+                                @foreach ($listDo as $NoDo)
+                                    <option value="{{ $NoDo->no_do }}">{{ $NoDo->no_do }}</option>
+                                @endforeach
                             </select>
                             <select class="form-control ml-2" id="filterCustomer" style="width: 200px;">
                                 <option value="" selected disabled>Pilih Customer</option>
-
+                                @foreach ($listCustomer as $Customer)
+                                    <option value="{{ $Customer->nama_pembeli }}">{{ $Customer->nama_pembeli }}</option>
+                                @endforeach
                             </select>
                             <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                 onclick="window.location.reload()">
@@ -69,56 +73,60 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            $('#tableSales').DataTable({
+            var table = $('#tableSales').DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
                 ajax: {
                     url: "{{ route('getListSales') }}",
-                    type: "GET"
+                    type: "GET",
+                    data: function (d) {
+                        d.no_do = $('#filterNoDO').val();
+                        d.nama_pembeli = $('#filterCustomer').val();
+                    }
                 },
                 columns: [{
-                        data: "no_invoice",
-                        name: "no_invoice"
-                    },
-                    {
-                        data: "tanggal_buat",
-                        name: "tanggal_buat"
-                    },
-                    {
-                        data: "no_do",
-                        name: "no_do"
-                    },
-                    {
-                        data: "customer",
-                        name: "customer"
-                    },
-                    {
-                        data: "metode_pengiriman",
-                        name: "metode_pengiriman",
-                        render: function(data, type, row) {
-                            return row.metode_pengiriman.includes("Delivery") || row
-                                .metode_pengiriman.includes("Pickup") ?
-                                row.metode_pengiriman :
-                                "-"; // Hanya ambil Delivery dan Pickup
-                        }
-                    },
-                    {
-                        data: "status_transaksi",
-                        name: "status_transaksi",
-                        render: function(data, type, row) {
-                            return `<span class="badge">${data}</span>`;
-                        }
-                    },
-                    {
-                        data: "total_harga",
-                        name: "total_harga",
-                        render: function(data, type, row) {
-                            return `Rp ${parseFloat(data).toLocaleString('id-ID')}`;
-                        }
+                    data: "no_invoice",
+                    name: "no_invoice"
+                },
+                {
+                    data: "tanggal_buat",
+                    name: "tanggal_buat"
+                },
+                {
+                    data: "no_do",
+                    name: "no_do"
+                },
+                {
+                    data: "customer",
+                    name: "customer"
+                },
+                {
+                    data: "metode_pengiriman",
+                    name: "metode_pengiriman",
+                    render: function (data, type, row) {
+                        return row.metode_pengiriman.includes("Delivery") || row
+                            .metode_pengiriman.includes("Pickup") ?
+                            row.metode_pengiriman :
+                            "-"; // Hanya ambil Delivery dan Pickup
                     }
+                },
+                {
+                    data: "status_transaksi",
+                    name: "status_transaksi",
+                    render: function (data, type, row) {
+                        return `<span class="badge">${data}</span>`;
+                    }
+                },
+                {
+                    data: "total_harga",
+                    name: "total_harga",
+                    render: function (data, type, row) {
+                        return `Rp ${parseFloat(data).toLocaleString('id-ID')}`;
+                    }
+                }
                 ],
                 order: [],
                 lengthChange: false,
@@ -131,32 +139,33 @@
                     zeroRecords: "No matching records found"
                 }
             });
-
-            $('#filterCustomer').change(function() {
+            $('#filterCustomer').change(function () {
                 table.ajax.reload();
             });
-            $('#filterNoDO').change(function() {
+            $('#filterNoDO').change(function () {
                 table.ajax.reload();
             });
+            $('#txSearch').keyup(function () {
+                var searchValue = $(this).val();
+                table.search(searchValue).draw();
+            });
 
-            $('#exportBtn').on('click', function() {
+            $('#exportBtn').on('click', function () {
                 var NoDo = $('#filterNoDO').val();
                 var customer = $('#filterCustomer').val();
 
                 var now = new Date();
                 var day = String(now.getDate()).padStart(2, '0');
-                var month = now.toLocaleString('default', {
-                    month: 'long'
-                });
+                var month = now.toLocaleString('default', { month: 'long' });
                 var year = now.getFullYear();
                 var hours = String(now.getHours()).padStart(2, '0');
                 var minutes = String(now.getMinutes()).padStart(2, '0');
                 var seconds = String(now.getSeconds()).padStart(2, '0');
 
-                var filename = `OngoingInvoice_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+                var filename = `Sales_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
 
                 $.ajax({
-                    url: "{{ route('ExportOngoingInvoice') }}",
+                    url: "{{ route('ExportSales') }}",
                     type: 'GET',
                     data: {
                         no_do: NoDo,
@@ -165,7 +174,7 @@
                     xhrFields: {
                         responseType: 'blob'
                     },
-                    success: function(data) {
+                    success: function (data) {
                         var blob = new Blob([data], {
                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         });
@@ -174,7 +183,7 @@
                         link.download = filename;
                         link.click();
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
                             title: "Export failed!",
                             icon: "error"
@@ -182,7 +191,7 @@
                     }
                 });
             });
-            $(document).on('click', '#btnExportOngoingInvoice', function(e) {
+            $(document).on('click', '#btnExportSales', function (e) {
                 let id = $(this).data('id');
                 let NoDo = $('#filterNoDO').val();
                 let Customer = $('#filterCustomer').val();
@@ -198,13 +207,13 @@
 
                 $.ajax({
                     type: "GET",
-                    url: "{{ route('exportOngoingPdf') }}",
+                    url: "{{ route('exportSalesPdf') }}",
                     data: {
                         id: id,
                         no_do: NoDo,
                         nama_pembeli: Customer
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.close();
 
                         if (response.url) {
@@ -217,10 +226,10 @@
                             });
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         Swal.close();
 
-                        let errorMessage = 'Gagal Export Invoice';
+                        let errorMessage = 'Gagal Export Sales';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             errorMessage = xhr.responseJSON.error;
                         }
@@ -231,11 +240,6 @@
                         });
                     }
                 });
-            });
-
-            $('#txSearch').keyup(function() {
-                var searchValue = $(this).val();
-                table.search(searchValue).draw();
             });
         });
     </script>

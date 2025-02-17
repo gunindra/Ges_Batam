@@ -46,6 +46,7 @@ class OngoingInvoiceController extends Controller
     {
         $companyId = session('active_company_id');
         $NoDo = $request->no_do;
+      
         $Customer = $request->nama_pembeli;
         $query = DB::table('tbl_pengantaran')
             ->select(

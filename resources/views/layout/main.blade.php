@@ -153,8 +153,8 @@
                                 href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
                             <a class="collapse-item {{ request()->routeIs('piutang') ? 'active' : '' }}"
                                 href="{{ route('piutang') }}">Piutang</a>
-                            {{-- <a class="collapse-item {{ request()->routeIs('salespage') ? 'active' : '' }}"
-                                href="{{ route('salespage') }}">Sales</a> --}}
+                            <a class="collapse-item {{ request()->routeIs('salespage') ? 'active' : '' }}"
+                                href="{{ route('salespage') }}">Sales</a>
                         </div>
                     </div>
                 </li>
