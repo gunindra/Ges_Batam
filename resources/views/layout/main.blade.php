@@ -124,8 +124,10 @@
                     </div>
                 </li>
             @endif
+
             <!-- Menu Report -->
-            @if (Auth::user()->role === 'superadmin')
+            @if (in_array(Auth::user()->role, ['superadmin', 'supervisor']))
+            {{-- @if (Auth::user()->role === 'superadmin') --}}
                 <li
                     class="nav-item {{ request()->routeIs('assetReport') || request()->routeIs('soa') || request()->routeIs('topUpReport') || request()->routeIs('penerimaanKas') || request()->routeIs('ongoingInvoice') || request()->routeIs('soaVendor') || request()->routeIs('piutang') ? 'active' : '' }}">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#listreport"
@@ -151,6 +153,8 @@
                                 href="{{ route('ongoingInvoice') }}">Ongoing Invoice</a>
                             <a class="collapse-item {{ request()->routeIs('piutang') ? 'active' : '' }}"
                                 href="{{ route('piutang') }}">Piutang</a>
+                            {{-- <a class="collapse-item {{ request()->routeIs('salespage') ? 'active' : '' }}"
+                                href="{{ route('salespage') }}">Sales</a> --}}
                         </div>
                     </div>
                 </li>

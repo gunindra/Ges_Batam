@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\SalesController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     Landingpage\AboutsController,
@@ -473,6 +474,11 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/report/piutang', [PiutangController::class, 'getpiutang'])->name('getlistPiutang');
     Route::get('/report/piutang/export', [PiutangController::class, 'exportPiutangReport'])->name('exportPiutangReport');
     Route::get('/report/piutang/exportPdf', [PiutangController::class, 'exportPiutangPdf'])->name('exportPiutangPdf');
+
+    // Sales
+    Route::get('/sales', [SalesController::class, 'index'])->name('salespage');
+    Route::get('/sales/getListSales', [SalesController::class, 'getListSales'])->name('getListSales');
+
 });
 
 

@@ -110,6 +110,7 @@ class OngoingInvoiceController extends Controller
             ->rawColumns(['status_transaksi', 'action'])
             ->make(true);
     }
+
     public function export(Request $request)
     {
         $NoDo = $request->no_do;
