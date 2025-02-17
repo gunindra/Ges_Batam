@@ -102,6 +102,22 @@
 @endsection
 @section('script')
 <script>
+    $('#customer').select2({
+        placeholder: "Pilih Customer",
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        dropdownParent: $('#modalFilterTanggal')
+    });
+
+    $('#payment').select2({
+        placeholder: "Pilih Payment",
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        dropdownParent: $('#modalFilterTanggal')
+    });
+
     $(document).ready(function () {
         const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
