@@ -38,6 +38,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="filterMarking">Pilih Marking</label>
+                        <select class="form-control" id="filterMarking">
+                            <option value="" selected disabled>Pilih Marking</option>
+                            @foreach ($listMarking as $marking)
+                                <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <!-- New filter for payment status -->
                     <div class="form-group">
                         <label for="filterPaymentStatus">Status Pembayaran</label>
@@ -401,6 +410,7 @@
                         d.txSearch = $('#txSearch').val();
                         d.no_do = $('#filterNoDO').val();
                         d.payment_status = $('#filterPaymentStatus').val();
+                        d.marking = $('#filterMarking').val();
                     },
                     error: function(xhr, error, thrown) {
                         Swal.fire({

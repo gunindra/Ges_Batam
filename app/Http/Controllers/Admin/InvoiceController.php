@@ -45,11 +45,16 @@ class InvoiceController extends Controller
             ->select('no_do')
             ->distinct()
             ->get();
+        $listMarking = DB::table('tbl_pembeli')
+            ->select('marking')
+            ->distinct()
+            ->get();
         // $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
         return view('customer.invoice.indexinvoice', [
             // 'listStatus' => $listStatus,
             'listDo' => $listDo,
+            'listMarking' => $listMarking
         ]);
     }
 
@@ -172,6 +177,7 @@ class InvoiceController extends Controller
         $status = $request->status;
         $companyId = session('active_company_id');
         $NoDo = $request->no_do;
+        $Marking = $request->marking;
         $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
         $txSearch = $request->has('txSearch') ? '%' . strtolower(trim($request->txSearch)) . '%' : '%%';
@@ -208,7 +214,8 @@ class InvoiceController extends Controller
                     ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
                     ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y')"), 'LIKE', $txSearch)
                     ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch);
+                    ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('LOWER(b.marking)'), 'LIKE', $txSearch);
             });
 
         if ($startDate && $endDate) {
@@ -225,6 +232,10 @@ class InvoiceController extends Controller
 
         if ($NoDo) {
             $query->where('r.no_do', 'LIKE', $NoDo);
+        }
+
+        if ($Marking) {
+            $query->where('b.marking', 'LIKE', $Marking);
         }
 
         $query->groupBy(
