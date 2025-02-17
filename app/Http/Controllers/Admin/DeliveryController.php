@@ -29,7 +29,6 @@ class DeliveryController extends Controller
             ->select('tbl_resi.no_do')
             ->distinct()
             ->where('tbl_invoice.status_id', 1)
-            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
             ->get();
 
         $listmarking = DB::table('tbl_pembeli')
@@ -37,7 +36,6 @@ class DeliveryController extends Controller
             ->select('tbl_pembeli.marking')
             ->distinct()
             ->where('tbl_invoice.status_id', 1)
-            ->where('tbl_invoice.metode_pengiriman', 'Delivery')
             ->get();
 
         return view('customer.delivery.indexdelivery', [

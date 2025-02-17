@@ -134,9 +134,8 @@
                                 <select class="form-control ml-2" id="filterStatus" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Status</option>
                                     <option value="Ready For Pickup">Ready For Pickup</option>
-                                    <option value="Out For Delivery">Out For Delivery</option>
                                     <option value="Delivering">Delivering</option>
-                                    <option value="Done">Done</option>
+                                    <option value="Received">Received</option>
                                 </select>
                                 <select class="form-control ml-2" id="filtermarking" style="width: 200px;">
                                     <option value="" selected disabled>Pilih Marking</option>
@@ -540,7 +539,7 @@
                     case 'Debt':
                         statusBadgeClass = 'badge-danger';
                         break;
-                    case 'Done':
+                    case 'Received':
                         statusBadgeClass = 'badge-secondary';
                         break;
                     default:
