@@ -242,6 +242,7 @@
                                             <th>No Invoice</th>
                                             <th>Tanggal</th>
                                             <th>No Do</th>
+                                            <th>Marking</th>
                                             <th>Customer</th>
                                             <th>Pengiriman</th>
                                             <th>Alamat</th>
@@ -303,6 +304,14 @@
                         return data ? data : '-';
                     }
                 },
+                {
+                    data: 'marking',
+                    name: 'marking',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                
                 {
                     data: 'pembeli',
                     name: 'pembeli',
