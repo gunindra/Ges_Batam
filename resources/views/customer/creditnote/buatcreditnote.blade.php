@@ -59,9 +59,9 @@
                             <div class="mt-3">
                                 <label for="invoiceCredit" class="form-label fw-bold">Invoice</label>
                                 <select class="form-control select2" name="" id="invoiceCredit">
-                                    <option value="" selected disabled>Pilih Invoice (marking)</option>
+                                    <option value="" selected disabled>Pilih Invoice (marking - nama)</option>
                                     @foreach ($listInvoice as $invoice)
-                                        <option value="{{ $invoice->id }}">{{ $invoice->no_invoice }} ({{ $invoice->marking }})</option>
+                                        <option value="{{ $invoice->id }}">{{ $invoice->no_invoice }} ({{ $invoice->marking }} - {{ $invoice->nama_pembeli }})</option>
                                     @endforeach
                                 </select>
                                 <div id="invoiceCreditError" class="text-danger mt-1 d-none">Silahkan Pilih Invoice

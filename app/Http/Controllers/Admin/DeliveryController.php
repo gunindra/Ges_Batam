@@ -109,8 +109,6 @@ class DeliveryController extends Controller
             $query->where('a.tanggal_pengantaran', '<=', $endDate);
         }
 
-        $query->limit(100);
-
         $data = $query->get();
 
         // dd( $query );
