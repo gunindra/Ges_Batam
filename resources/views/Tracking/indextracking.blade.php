@@ -40,7 +40,7 @@
                         <div id="keteranganError" class="text-danger mt-1 d-none">Silahkan isi Keterangan</div>
                     </div>
                     <div class="mt-3">
-                        <label for="noResi" class="form-label">No Resi</label>
+                        <label for="noResi" class="form-label">No Resi (<span id="countResi">-</span>) </label>
                         <input type="text" class="form-control" id="tags" name="noResi"
                             placeholder="Masukkan Nomor Resi" style="padding: 10px; border-radius: 5px;">
                         <div id="noResiError" class="text-danger d-none">
@@ -161,29 +161,33 @@
             var tags = $('#tags').inputTags({
                 tags: [],
                 create: function() {
-                    $('span', '#events').text('create');
+                    updateResiCount();
                 },
                 update: function() {
-                    $('span', '#events').text('update');
+                    updateResiCount();
                 },
                 destroy: function() {
-                    $('span', '#events').text('destroy');
+                    updateResiCount();
                 },
                 selected: function() {
-                    $('span', '#events').text('selected');
+                    updateResiCount();
                 },
                 unselected: function() {
-                    $('span', '#events').text('unselected');
+                    updateResiCount();
                 },
                 change: function(elem) {
                     $('.results').empty().html('<strong>Tags:</strong> ' + elem.tags.join(' - '));
+                    updateResiCount();
                 },
                 autocompleteTagSelect: function(elem) {
                     console.info('autocompleteTagSelect');
                 }
             });
-            var autocomplete = $('#tags').inputTags('options', 'autocomplete');
-            $('span', '#autocomplete').text(autocomplete.values.join(', '));
+
+            function updateResiCount() {
+                var count = $('#tags').inputTags('tags').length;
+                $('#countResi').text(count + " Resi");
+            }
         });
 
         var hasActionColumn = @json($hasActionColumn);
@@ -360,6 +364,7 @@
             var keterangan = $('#keterangan').val();
             var noResi = $('#tags').inputTags('tags');
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            let countResi =  $('#countResi').text();
             var isValid = true;
 
             // Validation
@@ -393,7 +398,7 @@
 
             if (isValid) {
                 Swal.fire({
-                    title: "Apakah Kamu Yakin?",
+                    title: `Apakah Anda yakin ingin menambahkan ${countResi}?`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',

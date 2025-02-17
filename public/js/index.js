@@ -920,7 +920,6 @@
         keys: [],
         minLength: 5,
         maxLength: 30,
-        max: 1000,
         email: false,
         only: true,
         init: false,
