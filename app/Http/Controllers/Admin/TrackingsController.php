@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Jobs\AddTrackingJob;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tracking;
@@ -88,6 +90,8 @@ class TrackingsController extends Controller
 
     public function addTracking(Request $request)
     {
+
+        // dd($request->all());
         $companyId = session('active_company_id');
         $request->validate([
             'noResi' => 'required|array|min:1',
@@ -120,6 +124,42 @@ class TrackingsController extends Controller
             return response()->json(['error' => 'Failed to add data'], 500);
         }
     }
+
+
+    // public function addTracking(Request $request)
+    // {
+
+    //     dd($request->all());
+    //     $companyId = session('active_company_id');
+
+    //     $request->validate([
+    //         'noResi' => 'required|array|min:1',
+    //         'noDeliveryOrder' => 'required|string|max:20',
+    //         'status' => 'required|string|max:50',
+    //         'keterangan' => 'nullable|string|max:255',
+    //     ]);
+
+    //     try {
+    //         $jobId = Str::uuid()->toString();
+    //         $noResiList = $request->input('noResi');
+    //         $chunkSize = 200;
+    //         $chunks = array_chunk($noResiList, $chunkSize);
+    //         $totalChunks = count($chunks);
+
+    //         foreach ($chunks as $index => $chunk) {
+    //             AddTrackingJob::dispatch([
+    //                 'noResi' => $chunk,
+    //                 'noDeliveryOrder' => $request->input('noDeliveryOrder'),
+    //                 'status' => $request->input('status'),
+    //                 'keterangan' => $request->input('keterangan'),
+    //             ], $companyId, $jobId, $index, $totalChunks);
+    //         }
+
+    //         return response()->json(['success' => 'Data is being processed', 'jobId' => $jobId]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to add data', 'message' => $e->getMessage()], 500);
+    //     }
+    // }
 
 
 

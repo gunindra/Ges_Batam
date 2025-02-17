@@ -370,8 +370,13 @@ class CostumerController extends Controller
 
     public function getJobStatus($jobId)
     {
-        $progress = Cache::get('job_progress_' . $jobId, 0);
-        return response()->json(['progress' => $progress]);
+        $progress = Cache::get("job_progress_{$jobId}", 0);
+        $failed = Cache::get("job_failed_{$jobId}", null);
+
+        return response()->json([
+            'progress' => $progress,
+            'failed' => $failed,
+        ]);
     }
 
     public function exportExcel(Request $request)
