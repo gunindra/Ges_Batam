@@ -543,9 +543,6 @@ class InvoiceController extends Controller
         try {
             Log::info("Memulai proses edit invoice untuk Invoice ID: {$id}");
 
-
-
-            // Update data pada tbl_invoice
             Log::info("Memperbarui data pada tabel tbl_invoice untuk Invoice ID: {$id}");
             $dataToUpdate = [
                 'no_invoice' => $noInvoice,
@@ -570,35 +567,68 @@ class InvoiceController extends Controller
             }
             Log::info("Berhasil memperbarui data tbl_invoice untuk Invoice ID: {$id}");
 
-            // Hapus data resi lama
-            Log::info("Menghapus data resi lama untuk Invoice ID: {$id}");
-            DB::table('tbl_resi')->where('invoice_id', $id)->delete();
-            Log::info("Berhasil menghapus data resi lama untuk Invoice ID: {$id}");
 
-            // Tambah ulang data resi
-            foreach ($noResi as $index => $resi) {
+            $resiLama = DB::table('tbl_resi')->where('invoice_id', $id)->pluck('no_resi')->toArray();
 
-                $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
-                DB::table('tbl_resi')->insert([
-                    'invoice_id' => $id,
-                    'no_resi' => $resi,
-                    'no_do' => $noDo,
-                    'berat' => $beratBarang[$index] ?? null,
-                    'harga' => $hargaBarang[$index] ?? null,
-                    'panjang' => $panjang[$index] ?? null,
-                    'lebar' => $lebar[$index] ?? null,
-                    'tinggi' => $tinggi[$index] ?? null,
-                    'created_at' => now(),
-                ]);
+            $resiDihapus = array_diff($resiLama, $noResi);
+            $resiDitambahkan = array_diff($noResi, $resiLama);
+
+            if (!empty($resiDihapus)) {
+                $statusResi = DB::table('tbl_tracking')
+                    ->whereIn('no_resi', $resiDihapus)
+                    ->pluck('status', 'no_resi')
+                    ->toArray();
+
+                foreach ($statusResi as $resi => $status) {
+                    if (!in_array($status, ['Batam / Sortir', 'Dalam Perjalan'])) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => "Resi {$resi} tidak dapat diedit karena statusnya '{$status}'."
+                        ], 400);
+                    }
+                }
+
+                DB::table('tbl_tracking')
+                    ->whereIn('no_resi', $resiDihapus)
+                    ->update(['status' => 'Dalam Perjalanan', 'updated_at' => now()]);
+
+                Log::info("Status resi yang dihapus dikembalikan ke 'Dalam Perjalanan'.");
+
+                DB::table('tbl_resi')->where('invoice_id', $id)->whereIn('no_resi', $resiDihapus)->delete();
+                Log::info("Berhasil menghapus resi yang tidak dipakai untuk Invoice ID: {$id}");
             }
-            Log::info("Berhasil menambahkan ulang data resi untuk Invoice ID: {$id}");
 
-            // Update transaksi terakhir pembeli
+            foreach ($noResi as $index => $resi) {
+                $noDo = DB::table('tbl_tracking')->where('no_resi', $resi)->value('no_do');
+
+                DB::table('tbl_resi')->updateOrInsert(
+                    ['invoice_id' => $id, 'no_resi' => $resi],
+                    [
+                        'no_do' => $noDo,
+                        'berat' => $beratBarang[$index] ?? null,
+                        'harga' => $hargaBarang[$index] ?? null,
+                        'panjang' => $panjang[$index] ?? null,
+                        'lebar' => $lebar[$index] ?? null,
+                        'tinggi' => $tinggi[$index] ?? null,
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+
+            Log::info("Berhasil menambahkan dan memperbarui resi untuk Invoice ID: {$id}");
+
+            if (!empty($resiDitambahkan)) {
+                DB::table('tbl_tracking')
+                    ->whereIn('no_resi', $resiDitambahkan)
+                    ->update(['status' => 'Batam / Sortir', 'updated_at' => now()]);
+
+                Log::info("Status resi baru diperbarui ke 'Batam / Sortir'.");
+            }
+
             Log::info("Memperbarui transaksi terakhir untuk Pembeli ID: {$customer}");
             DB::table('tbl_pembeli')->where('id', $customer)->update(['transaksi_terakhir' => now()]);
             Log::info("Berhasil memperbarui transaksi terakhir untuk Pembeli ID: {$customer}");
 
-            // Ambil pengaturan akun
             Log::info("Mengambil pengaturan akun dari tbl_account_settings");
             $accountSettings = DB::table('tbl_account_settings')->first();
             if (!$accountSettings) {
@@ -620,7 +650,6 @@ class InvoiceController extends Controller
                 ], 400);
             }
 
-            // Update jurnal
             try {
                 Log::info("Memperbarui jurnal untuk Invoice ID: {$id}");
                 $jurnal = DB::table('tbl_jurnal')->where('invoice_id', $id)->first();
@@ -637,7 +666,6 @@ class InvoiceController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                // Tambah jurnal item
                 $jurnalItemDebit = new JurnalItem();
                 $jurnalItemDebit->jurnal_id = $jurnal->id;
                 $jurnalItemDebit->code_account = $receivableSalesAccountId;
