@@ -364,10 +364,10 @@
             var keterangan = $('#keterangan').val();
             var noResi = $('#tags').inputTags('tags');
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
-            let countResi =  $('#countResi').text();
+            let countResi = $('#countResi').text();
             var isValid = true;
 
-            // Validation
+            // Validasi input
             if (noDeliveryOrder === '') {
                 $('#noDeliveryOrderError').removeClass('d-none');
                 isValid = false;
@@ -398,7 +398,7 @@
 
             if (isValid) {
                 Swal.fire({
-                    title: `Apakah Anda yakin ingin menambahkan ${countResi}?`,
+                    title: `Apakah Anda yakin ingin menambahkan ${countResi} data?`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#5D87FF',
@@ -408,10 +408,10 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Show loading during the process
+                        // Tampilkan loading
                         Swal.fire({
-                            title: 'Sedang memproses...',
-                            text: 'Harap menunggu hingga proses selesai',
+                            title: 'Mengirim data...',
+                            text: 'Mohon tunggu sebentar',
                             icon: 'info',
                             allowOutsideClick: false,
                             didOpen: () => {
@@ -419,7 +419,7 @@
                             }
                         });
 
-                        // Disable the button to prevent multiple submissions
+                        // Disable tombol
                         $('#saveTracking').prop('disabled', true);
 
                         $.ajax({
@@ -433,26 +433,97 @@
                                 _token: csrfToken,
                             },
                             success: function(response) {
-                                Swal.close();
-                                $('#saveTracking').prop('disabled',
-                                    false); // Re-enable the button
                                 if (response.success) {
-                                    $('#modalTambahTracking').modal('hide');
-                                    showMessage("success", "Berhasil ditambahkan");
-                                    $('#modalTambahTracking').modal('hide');
-                                    table.ajax.reload();
+                                    let jobId = response.jobId;
+
+                                    // Tampilkan progress bar
+                                    Swal.fire({
+                                        title: 'Memproses Data...',
+                                        html: `
+                                    <p>Harap tunggu hingga proses selesai</p>
+                                    <div class="progress">
+                                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                `,
+                                        showConfirmButton: false,
+                                        allowOutsideClick: false,
+                                    });
+
+                                    // Polling progress setiap 2 detik
+                                    let interval = setInterval(function() {
+                                        $.get(`/job/status/${jobId}`, function(
+                                        response) {
+                                            let progress = response.progress;
+                                            let failedItems = response.failed ||
+                                                [];
+
+                                            $('#progress-bar').css('width',
+                                                progress + '%').attr(
+                                                'aria-valuenow', progress);
+
+                                            if (progress >= 100) {
+                                                clearInterval(interval);
+
+                                                if (failedItems.length > 0) {
+                                                    let failedMessages =
+                                                        failedItems.map(item =>
+                                                            `- ${item.resi}: ${item.error}`
+                                                            ).join('<br>');
+
+                                                    Swal.fire({
+                                                        title: 'Proses Selesai, Tapi Ada Data Gagal!',
+                                                        html: `Beberapa data gagal diproses:<br>${failedMessages}`,
+                                                        icon: 'warning',
+                                                        confirmButtonText: 'Lihat Detail'
+                                                    }).then(() => {
+                                                        $('#saveTracking')
+                                                            .prop(
+                                                                'disabled',
+                                                                false);
+                                                        $('#modalTambahTracking')
+                                                            .modal(
+                                                                'hide');
+                                                        table.ajax
+                                                            .reload();
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        title: 'Selesai!',
+                                                        text: 'Semua data berhasil diproses',
+                                                        icon: 'success',
+                                                        timer: 2000,
+                                                        showConfirmButton: false
+                                                    }).then(() => {
+                                                        $('#saveTracking')
+                                                            .prop(
+                                                                'disabled',
+                                                                false);
+                                                        $('#modalTambahTracking')
+                                                            .modal(
+                                                                'hide');
+                                                        table.ajax
+                                                            .reload();
+                                                    });
+                                                }
+                                            }
+                                        }).fail(function() {
+                                            clearInterval(interval);
+                                            Swal.fire('Error!',
+                                                'Gagal mengambil progress, coba lagi nanti',
+                                                'error');
+                                            $('#saveTracking').prop('disabled',
+                                                false);
+                                        });
+                                    }, 2000);
                                 }
                             },
                             error: function(response) {
                                 Swal.close();
-                                $('#saveTracking').prop('disabled',
-                                    false); // Re-enable the button
+                                $('#saveTracking').prop('disabled', false);
                                 if (response.status === 400 && response.responseJSON.error) {
-                                    showMessage("error", response.responseJSON
-                                        .error); // Handle duplicate or other errors
+                                    showMessage("error", response.responseJSON.error);
                                 } else {
-                                    showMessage("error",
-                                        "Terjadi kesalahan, coba lagi nanti"); // General error
+                                    showMessage("error", "Terjadi kesalahan, coba lagi nanti");
                                 }
                             }
                         });

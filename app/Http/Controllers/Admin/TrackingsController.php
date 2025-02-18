@@ -85,14 +85,10 @@ class TrackingsController extends Controller
             ->make(true);
     }
 
-
-
-
     public function addTracking(Request $request)
     {
-
-        // dd($request->all());
         $companyId = session('active_company_id');
+
         $request->validate([
             'noResi' => 'required|array|min:1',
             'noDeliveryOrder' => 'required|string|max:20',
@@ -101,65 +97,26 @@ class TrackingsController extends Controller
         ]);
 
         try {
-            foreach ($request->input('noResi') as $resi) {
-                $resi = trim($resi);
+            $jobId = Str::uuid()->toString();
+            $noResiList = $request->input('noResi');
+            $chunkSize = 200;
+            $chunks = array_chunk($noResiList, $chunkSize);
+            $totalChunks = count($chunks);
 
-                $existingTracking = Tracking::where('no_resi', $resi)
-                                            ->where('company_id', $companyId)
-                                            ->first();
-
-                if ($existingTracking) {
-                    return response()->json(['error' => "No Resi {$resi} is already in the system."], 400);
-                }
-                $Tracking = new Tracking();
-                $Tracking->no_resi = $resi;
-                $Tracking->no_do = $request->input('noDeliveryOrder');
-                $Tracking->status = $request->input('status');
-                $Tracking->keterangan = $request->input('keterangan');
-                $Tracking->company_id = $companyId;
-                $Tracking->save();
+            foreach ($chunks as $index => $chunk) {
+                AddTrackingJob::dispatch([
+                    'noResi' => $chunk,
+                    'noDeliveryOrder' => $request->input('noDeliveryOrder'),
+                    'status' => $request->input('status'),
+                    'keterangan' => $request->input('keterangan'),
+                ], $companyId, $jobId, $index, $totalChunks);
             }
-            return response()->json(['success' => 'Data successfully added']);
+
+            return response()->json(['success' => 'Data is being processed', 'jobId' => $jobId]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to add data'], 500);
+            return response()->json(['error' => 'Failed to add data', 'message' => $e->getMessage()], 500);
         }
     }
-
-
-    // public function addTracking(Request $request)
-    // {
-
-    //     dd($request->all());
-    //     $companyId = session('active_company_id');
-
-    //     $request->validate([
-    //         'noResi' => 'required|array|min:1',
-    //         'noDeliveryOrder' => 'required|string|max:20',
-    //         'status' => 'required|string|max:50',
-    //         'keterangan' => 'nullable|string|max:255',
-    //     ]);
-
-    //     try {
-    //         $jobId = Str::uuid()->toString();
-    //         $noResiList = $request->input('noResi');
-    //         $chunkSize = 200;
-    //         $chunks = array_chunk($noResiList, $chunkSize);
-    //         $totalChunks = count($chunks);
-
-    //         foreach ($chunks as $index => $chunk) {
-    //             AddTrackingJob::dispatch([
-    //                 'noResi' => $chunk,
-    //                 'noDeliveryOrder' => $request->input('noDeliveryOrder'),
-    //                 'status' => $request->input('status'),
-    //                 'keterangan' => $request->input('keterangan'),
-    //             ], $companyId, $jobId, $index, $totalChunks);
-    //         }
-
-    //         return response()->json(['success' => 'Data is being processed', 'jobId' => $jobId]);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Failed to add data', 'message' => $e->getMessage()], 500);
-    //     }
-    // }
 
 
 
