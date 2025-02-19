@@ -898,7 +898,7 @@ class DeliveryController extends Controller
         try {
             $invoiceIds = explode(', ', $pengantaran->list_invoice);
             $invoices = DB::table('tbl_invoice as i')
-                ->select('i.id', 'i.no_invoice', 'i.alamat', 'p.nama_pembeli')
+                ->select('i.id','i.no_invoice', 'i.alamat', 'p.nama_pembeli', 'p.marking')
                 ->join('tbl_pembeli as p', 'i.pembeli_id', '=', 'p.id')
                 ->whereIn('i.id', $invoiceIds)
                 ->get();

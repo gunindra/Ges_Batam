@@ -290,7 +290,7 @@
                             <tr>
                                 <td>
                                     <div>
-                                        <h5>Penerima: {{ $invoice->nama_pembeli }}</h5>
+                                        <h5>Penerima: {{ $invoice->nama_pembeli }} - {{ $invoice->marking }}</h5>
                                         @if ($pengantaran->metode_pengiriman !== 'Pickup')
                                             <h5>Alamat: {{ $invoice->alamat }}</h5>
                                         @endif

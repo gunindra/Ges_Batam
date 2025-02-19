@@ -166,10 +166,46 @@ class SupirController extends Controller
 
 
 
+    // public function batalAntar(Request $request)
+    // {
+    //     $request->validate([
+    //         'alasan' => 'required|string|max:255',
+    //     ]);
+
+    //     $invoiceIds = explode(',', $request->input('selectedValues'));
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         foreach ($invoiceIds as $invoiceId) {
+    //             try {
+    //                 DB::table('tbl_pengantaran_detail')
+    //                     ->where('invoice_id', $invoiceId)
+    //                     ->update([
+    //                         'keterangan' => $request->alasan,
+    //                         'updated_at' => now(),
+    //                     ]);
+    //             } catch (\Exception $e) {
+    //                 DB::rollBack();
+    //                 \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
+    //                 return response()->json(['error' => 'Terjadi kesalahan saat memproses penghapusan.'], 500);
+    //             }
+    //         }
+
+    //         DB::commit(); // Commit if all updates are successful
+    //         return response()->json(['message' => 'Data berhasil diperbarui.'], 200);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack(); // Rollback if a general error occurs
+    //         \Log::error('General error: ' . $e->getMessage());
+    //         return response()->json(['error' => 'Terjadi kesalahan saat memperbarui data.'], 500);
+    //     }
+    // }
+
+
     public function batalAntar(Request $request)
     {
         $request->validate([
-            'alasan' => 'required|string|max:255',
+            'alasan' => 'nullable|string|max:255',
         ]);
 
         $invoiceIds = explode(',', $request->input('selectedValues'));
@@ -178,28 +214,57 @@ class SupirController extends Controller
 
         try {
             foreach ($invoiceIds as $invoiceId) {
-                try {
-                    DB::table('tbl_pengantaran_detail')
-                        ->where('invoice_id', $invoiceId)
-                        ->update([
-                            'keterangan' => $request->alasan,
-                            'updated_at' => now(),
-                        ]);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
-                    return response()->json(['error' => 'Terjadi kesalahan saat memproses penghapusan.'], 500);
+                // Ambil data pengantaran detail berdasarkan invoice_id
+                $pengantaranDetail = DB::table('tbl_pengantaran_detail')
+                    ->where('invoice_id', $invoiceId)
+                    ->first();
+
+                if (!$pengantaranDetail) {
+                    throw new \Exception("Data pengantaran tidak ditemukan untuk invoice_id: " . $invoiceId);
                 }
+
+                $pengantaranId = $pengantaranDetail->pengantaran_id;
+
+                // Hapus data dari tbl_pengantaran_details
+                DB::table('tbl_pengantaran_detail')
+                    ->where('invoice_id', $invoiceId)
+                    ->delete();
+
+                // Cek apakah masih ada pengantaran terkait, jika tidak hapus dari tbl_pengantaran
+                $remainingDetails = DB::table('tbl_pengantaran_detail')
+                    ->where('pengantaran_id', $pengantaranId)
+                    ->count();
+
+                if ($remainingDetails == 0) {
+                    DB::table('tbl_pengantaran')
+                        ->where('id', $pengantaranId)
+                        ->delete();
+                }
+
+                // Kembalikan status tbl_invoice ke 1 (sebelum delivery)
+                DB::table('tbl_invoice')
+                    ->where('id', $invoiceId)
+                    ->update(['status_id' => 1]);
+
+                // Ambil semua no_resi dari tbl_resi berdasarkan invoice_id
+                $resiList = DB::table('tbl_resi')
+                    ->where('invoice_id', $invoiceId)
+                    ->pluck('no_resi');
+
+                // Kembalikan status tbl_tracking ke "Batam / Sortir"
+                DB::table('tbl_tracking')
+                    ->whereIn('no_resi', $resiList)
+                    ->update(['status' => 'Batam / Sortir']);
             }
 
-            DB::commit(); // Commit if all updates are successful
-            return response()->json(['message' => 'Data berhasil diperbarui.'], 200);
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Pengantaran berhasil dibatalkan!'], 200);
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback if a general error occurs
-            \Log::error('General error: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat memperbarui data.'], 500);
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
 
 
 

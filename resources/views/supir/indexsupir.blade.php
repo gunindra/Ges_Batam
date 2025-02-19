@@ -17,7 +17,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="batalModalLabel">Alasan Pembatalan Kirim</h5>
+                        <h5 class="modal-title" id="batalModalLabel">Pembatalan Kirim</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -25,7 +25,7 @@
                     <div class="modal-body">
                         <form id="batalForm">
                             <div class="mb-3">
-                                <label for="alasanBatal" class="form-label">Masukkan alasan pembatalan:</label>
+                                <label for="alasanBatal" class="form-label">Masukkan alasan pembatalan (Optional)</label>
                                 <textarea class="form-control" id="alasanBatal" rows="3" placeholder="Tuliskan alasan di sini..."></textarea>
                             </div>
                         </form>
