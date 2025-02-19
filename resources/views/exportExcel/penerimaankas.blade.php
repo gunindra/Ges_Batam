@@ -46,16 +46,21 @@
         </tr>
     </thead>
     <tbody>
+        @php $grandTotal = 0; @endphp
         @foreach ($payments as $kas)
+            @php 
+                $totalAmount = $kas->total_amount - $kas->discount;
+                $grandTotal += $totalAmount;
+            @endphp
             <tr>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->kode_pembayaran }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ \Carbon\Carbon::parse( $kas->created_date)->format('d M Y')}}
+                    {{ \Carbon\Carbon::parse($kas->created_date)->format('d M Y') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:m')}}
+                    {{ \Carbon\Carbon::parse($kas->payment_date)->format('d M Y H:i') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->customer_name }}
@@ -66,10 +71,17 @@
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->no_invoice_with_amount }}
                 </td>
-                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ $kas->total_amount - $kas->discount }}
+                <td style="text-align:right;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ number_format($totalAmount, 2) }}
                 </td>
             </tr>
         @endforeach
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6" style="text-align: right; font-weight: bold; border:1px solid black; padding: 20px;">Grand Total:</td>
+            <td style="text-align:right; font-weight: bold; border:1px solid black; padding: 20px;">{{ number_format($grandTotal, 2) }}</td>
+        </tr>
+    </tfoot>
+
 </table>

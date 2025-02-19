@@ -448,10 +448,11 @@ class InvoiceController extends Controller
                 Log::info("Berhasil menyimpan data resi untuk invoice: {$noInvoice}");
             }
 
+            $updateStatus = 'Batam / Sortir';
             foreach ($noResi as $resi) {
                 $updatedTracking = DB::table('tbl_tracking')
                     ->where('no_resi', $resi)
-                    ->update(['status' => 'Batam / Sortir']);
+                    ->update(['status' => $updateStatus]);
                 if (!$updatedTracking) {
                     throw new \Exception("{$resi} No Resi ini tidak terdaftar di Tracking");
                 }
@@ -699,7 +700,6 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal memperbarui Invoice. Silakan coba lagi.'], 500);
         }
     }
-
 
     public function kirimPesanWaPembeli(Request $request)
     {

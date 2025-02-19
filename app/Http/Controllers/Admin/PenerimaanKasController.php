@@ -77,6 +77,7 @@ class PenerimaanKasController extends Controller
             tbl_payment_customer.payment_date as payment_date,
             tbl_payment_customer.discount as discount,
             tbl_pembeli.nama_pembeli as customer_name,
+            tbl_pembeli.marking as marking,
             tbl_coa.name as payment_method,
             GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
             SUM(tbl_payment_invoice.amount) as total_amount
@@ -88,46 +89,62 @@ class PenerimaanKasController extends Controller
                 'tbl_payment_customer.kode_pembayaran',
                 'tbl_payment_customer.discount',
                 'tbl_coa.name',
-                'tbl_pembeli.nama_pembeli'
+                'tbl_pembeli.nama_pembeli',
+                'tbl_pembeli.marking'
             );
 
         // Get the results
         $payments = $payment->get();
 
         $output = '
-                    <h5 style="text-align:center; width:100%">'
+            <h5 style="text-align:center; width:100%">'
             . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
             . \Carbon\Carbon::parse($endDate)->format('d M Y') .
             '</h5>
 
-                    <div class="card-body">
-                    <table class="table" id="penerimaanKasTable" width="100%">
-                    <thead>
-                        <th onclick="sortTable(0)" width="10%" style="text-align:center;">No</th>
-                        <th onclick="sortTable(1)" width="15%" style="text-align:center;">Date</th>
-                        <th onclick="sortTable(2)" width="15%" style="text-align:center;">Transfer Date</th>
-                        <th onclick="sortTable(3)" width="15%" style="text-align:center;">Customer</th>
-                        <th onclick="sortTable(4)" width="10%" style="text-align:center;">Method</th>
-                        <th onclick="sortTable(5)" width="20%" style="text-align:center;">No Invoice</th>
-                        <th onclick="sortTable(6)" width="15%" style="text-align:right;">Total</th>
-                    </thead>
-                    <tbody>';
+            <div class="card-body">
+            <table class="table" id="penerimaanKasTable" width="100%">
+            <thead>
+                <th onclick="sortTable(0)" width="10%" style="text-align:center;">No</th>
+                <th onclick="sortTable(1)" width="15%" style="text-align:center;">Date</th>
+                <th onclick="sortTable(2)" width="15%" style="text-align:center;">Transfer Date</th>
+                <th onclick="sortTable(3)" width="15%" style="text-align:center;">Customer</th>
+                <th onclick="sortTable(4)" width="10%" style="text-align:center;">Method</th>
+                <th onclick="sortTable(5)" width="20%" style="text-align:center;">No Invoice</th>
+                <th onclick="sortTable(6)" width="15%" style="text-align:right;">Total</th>
+            </thead>
+            <tbody>';
+
+        $grandTotal = 0; // Initialize grand total
 
         foreach ($payments as $data) {
+            $totalAmount = $data->total_amount - $data->discount;
+            $grandTotal += $totalAmount; // Sum the total amount
+
             $output .= '<tr>
-                            <td style="text-align:center;">' . $data->kode_pembayaran . ' </td>
-                            <td style="text-align:center;">' . \Carbon\Carbon::parse($data->created_date)->format('d M Y') . '</td>
-                            <td style="text-align:center;">' . \Carbon\Carbon::parse($data->payment_date)->format('d M Y H:m') . '</td>
-                            <td style="text-align:center;">' . $data->customer_name . ' </td>
-                            <td style="text-align:center;">' . $data->payment_method . '</td>
-                            <td style="text-align:center;">' . $data->no_invoice_with_amount . '</td>
-                            <td style="text-align:right;">' . number_format($data->total_amount - $data->discount, 2) . '</td>
-                        </tr>';
+                <td style="text-align:center;">' . $data->kode_pembayaran . ' </td>
+                <td style="text-align:center;">' . \Carbon\Carbon::parse($data->created_date)->format('d M Y') . '</td>
+                <td style="text-align:center;">' . \Carbon\Carbon::parse($data->payment_date)->format('d M Y H:i') . '</td>
+                <td style="text-align:center;">' . $data->marking . ' </td>
+                <td style="text-align:center;">' . $data->payment_method . '</td>
+                <td style="text-align:center;">' . $data->no_invoice_with_amount . '</td>
+                <td style="text-align:right;">' . number_format($totalAmount, 2) . '</td>
+            </tr>';
         }
 
-        $output .= '</table> </div>';
+        // Append footer row
+        $output .= '</tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" style="text-align:right; font-weight:bold;">Grand Total:</td>
+                    <td style="text-align:right; font-weight:bold;">' . number_format($grandTotal, 2) . '</td>
+                </tr>
+            </tfoot>
+        </table>
+        </div>';
 
         return $output;
+
     }
     public function generatePdf(Request $request)
     {
@@ -135,15 +152,13 @@ class PenerimaanKasController extends Controller
         $companyId = session('active_company_id');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        $customer = $request->nama_pembeli ?? '-';
+        $customer = $request->marking ?? '-';
         $account = $request->name ?? '-';
-
-
 
         try {
             $customerName = DB::table('tbl_pembeli')
                 ->where('id', $customer)
-                ->value('nama_pembeli');
+                ->value('marking');
 
             $accountName = DB::table('tbl_coa')
                 ->where('id', $account)
@@ -188,7 +203,7 @@ class PenerimaanKasController extends Controller
             tbl_payment_customer.payment_buat as created_date,
             tbl_payment_customer.payment_date as payment_date,
             tbl_payment_customer.discount as discount,
-            tbl_pembeli.nama_pembeli as customer_name,
+            tbl_pembeli.marking as customer_name,
             tbl_coa.name as payment_method,
             GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
             SUM(tbl_payment_invoice.amount) as total_amount
@@ -200,7 +215,7 @@ class PenerimaanKasController extends Controller
                     'tbl_payment_customer.kode_pembayaran',
                     'tbl_payment_customer.discount',
                     'tbl_coa.name',
-                    'tbl_pembeli.nama_pembeli'
+                    'tbl_pembeli.marking'
                 );
 
             // Get the results
@@ -212,7 +227,7 @@ class PenerimaanKasController extends Controller
             $customerName = '-';
             if ($customer !== '-') {
                 $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
-                $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+                $customerName = $customerData ? $customerData->marking : 'Unknown';
             }
 
             $accountName = '-';
@@ -264,7 +279,7 @@ class PenerimaanKasController extends Controller
     {
 
         $startDate = $request->input('startDate');
-        $customer = $request->nama_pembeli ?? '-';
+        $customer = $request->marking ?? '-';
         $endDate = $request->input('endDate');
         $account = $request->name ?? '-';
 

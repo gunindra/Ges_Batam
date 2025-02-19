@@ -262,7 +262,7 @@
                 data: {
                     startDate: startDate,
                     endDate: endDate,
-                    nama_pembeli: customer,
+                    marking: customer,
                     name: account,
                 },
                 xhrFields: {
