@@ -150,6 +150,13 @@ class TrackingsController extends Controller
     {
         $Tracking = Tracking::findOrFail($id);
 
+        if ($Tracking->status != "Dalam Perjalanan") {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tracking hanya bisa dihapus jika Status Dalam perjalanan silahkan merefresh halaman untuk mengupdate data'
+            ], 400);
+        }
+
         try {
 
             $Tracking->delete();

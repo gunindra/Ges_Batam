@@ -452,7 +452,7 @@
                                     // Polling progress setiap 2 detik
                                     let interval = setInterval(function() {
                                         $.get(`/job/status/${jobId}`, function(
-                                        response) {
+                                            response) {
                                             let progress = response.progress;
                                             let failedItems = response.failed ||
                                                 [];
@@ -468,7 +468,7 @@
                                                     let failedMessages =
                                                         failedItems.map(item =>
                                                             `- ${item.resi}: ${item.error}`
-                                                            ).join('<br>');
+                                                        ).join('<br>');
 
                                                     Swal.fire({
                                                         title: 'Proses Selesai, Tapi Ada Data Gagal!',
@@ -650,9 +650,7 @@
         });
 
         $(document).on('click', '.btnDestroyTracking', function(e) {
-
             let id = $(this).data('id');
-
 
             Swal.fire({
                 title: "Apakah Kamu Yakin Ingin Hapus Tracking Ini?",
@@ -674,6 +672,7 @@
                             Swal.showLoading();
                         }
                     });
+
                     $.ajax({
                         type: "DELETE",
                         url: '/tracking/deleteTracking/' + id,
@@ -684,27 +683,40 @@
                         success: function(response) {
                             Swal.close();
 
-                            if (response.url) {
-                                window.open(response.url, '_blank');
-                            } else if (response.error) {
+                            if (response.status === 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: response.message
+                                });
+
+                                table.ajax.reload(); // Reload data di datatable jika ada
+                            } else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error',
-                                    text: response.error
+                                    title: 'Gagal Menghapus',
+                                    text: response.message
                                 });
                             }
-                            if (response.status === 'success') {
+                        },
+                        error: function(xhr) {
+                            Swal.close();
 
-                                showMessage("success",
-                                    "Berhasil menghapus");
-                                table.ajax.reload();
-                            } else {
-                                showMessage("error", "Gagal menghapus");
+                            let errorMessage = "Terjadi kesalahan saat menghapus data.";
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
                             }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage
+                            });
                         }
                     });
                 }
-            })
+            });
         });
     </script>
 
