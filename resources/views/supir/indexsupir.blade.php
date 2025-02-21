@@ -3,6 +3,91 @@
 @section('title', 'Driver')
 
 @section('main')
+
+
+    <style>
+        @media (max-width: 576px) {
+
+            /* Maksimal 576px (Mobile View) */
+            .modal-dialog {
+                max-width: 90%;
+                /* Modal lebih kecil di HP */
+            }
+
+            .modal-content {
+                font-size: 12px;
+                /* Mengecilkan tulisan di dalam modal */
+                padding: 10px;
+                /* Kurangi padding agar lebih kompak */
+            }
+
+            .modal-title {
+                font-size: 14px;
+                /* Judul modal lebih kecil */
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                /* Supaya tabel bisa di-scroll */
+                max-height: 300px;
+                /* Batasi tinggi tabel agar tidak terlalu panjang */
+            }
+
+            .table th,
+            .table td {
+                font-size: 12px;
+                /* Ukuran font dalam tabel lebih kecil */
+                padding: 5px;
+                /* Kurangi padding agar tabel lebih ringkas */
+            }
+
+            .btn-sm {
+                font-size: 12px;
+                /* Ukuran tombol lebih kecil */
+                padding: 5px 10px;
+            }
+
+            .dataTables_wrapper .dataTables_filter {
+                float: none;
+                text-align: center;
+                /* Tengah di layar HP */
+                margin-bottom: 10px;
+            }
+
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                font-size: 12px;
+                /* Ukuran font lebih kecil */
+                padding: 5px;
+            }
+
+            .dataTables_wrapper .dataTables_paginate {
+                display: flex;
+                justify-content: center;
+                /* Tengah di layar */
+                font-size: 12px;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 5px 8px;
+                margin: 2px;
+                font-size: 12px;
+                /* Pagination lebih kecil */
+            }
+
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_info {
+                font-size: 12px;
+                /* Ukuran teks lebih kecil */
+                text-align: center;
+                /* Tengah di layar */
+                margin-bottom: 10px;
+            }
+
+
+        }
+    </style>
+
     <div class="container-fluid" id="container-wrapper">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800 px-2">Driver</h1>
@@ -10,6 +95,43 @@
                 <li class="breadcrumb-item active" aria-current="page">Driver</li>
             </ol>
         </div>
+
+
+        <!-- Modal Detail Invoice -->
+        <div class="modal fade" id="detailInvoiceModal" tabindex="-1" aria-labelledby="detailInvoiceModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Gunakan modal-lg untuk desktop -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detail Invoice</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="table-responsive">
+                                <table id="tableDetailInvoice" class="table table-bordered table-striped text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>No Resi</th>
+                                            <th>No DO</th>
+                                            <th>Quantity</th>
+                                            <th>Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data akan dimasukkan secara dinamis -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"  id="closeModal"class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
 
         <!-- Modal Batal Kirim -->
@@ -48,13 +170,16 @@
                                 <option value="" disabled>Pilih No.Invoice</option>
                                 @foreach ($listInvoice as $Invoice)
                                     <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}
-                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})</option>
+                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="text-center mt-3">
                             <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
                             <p class="text-muted">Jumlah Resi</p>
+                            <h4 class="font-weight-bold mt-2">Grand Total: <span id="grandTotal">Rp. 0</span></h4>
+                            <button class="btn btn-primary" id="detailInvoice">Detail Invoice</button>
                         </div>
                     </div>
                 </div>
@@ -107,6 +232,7 @@
 
             $('#selectResi').on('change', function() {
                 var selectedInvoices = $(this).val();
+                $('#detailInvoice').data('selected-invoices', selectedInvoices);
                 if (selectedInvoices.length > 0) {
                     $.ajax({
                         url: '{{ route('jumlahresi') }}',
@@ -115,7 +241,11 @@
                             invoice_ids: selectedInvoices
                         },
                         success: function(response) {
+
+                            console.log(response);
+
                             $('#pointValue').text(response.count);
+                            $('#grandTotal').text('Rp. ' + response.total_harga);
                         },
                         error: function(xhr, status, error) {
                             console.log(error);
@@ -125,6 +255,87 @@
                     $('#pointValue').text(0);
                 }
             });
+
+
+            $(document).on('click', '#detailInvoice', function() {
+                var selectedInvoices = $(this).data('selected-invoices');
+
+                console.log(selectedInvoices);
+
+
+                if (selectedInvoices && selectedInvoices.length > 0) {
+                    $('#detailInvoiceModal').modal('show');
+
+                    if (!$.fn.DataTable.isDataTable('#tableDetailInvoice')) {
+                        $('#tableDetailInvoice').DataTable({
+                            serverSide: true,
+                            processing: true,
+                            ajax: {
+                                url: "{{ route('getDetailInvoice') }}", // URL endpoint ke backend
+                                method: 'GET',
+                                data: function(d) {
+                                    // Pastikan `selectedInvoices` adalah array
+                                    d.invoice_ids = selectedInvoices || [];
+                                }
+                            },
+                            columns: [{
+                                    data: 'no_resi',
+                                    name: 'no_resi'
+                                }, // Kolom nomor resi
+                                {
+                                    data: 'no_do',
+                                    name: 'no_do'
+                                }, // Kolom nomor DO
+                                {
+                                    data: 'berat_or_volume',
+                                    name: 'berat_or_volume'
+                                }, // Berat/Volume
+                                {
+                                    data: 'harga',
+                                    name: 'harga',
+                                    render: function(data, type, row) {
+                                        // Format angka ke dalam format mata uang
+                                        return new Intl.NumberFormat('id-ID', {
+                                            style: 'currency',
+                                            currency: 'IDR'
+                                        }).format(data);
+                                    }
+                                },
+                            ],
+                            order: [], // Tidak ada pengurutan default
+                            responsive: true, // Membuat tabel responsif di HP
+                            lengthChange: false, // Nonaktifkan opsi jumlah baris
+                            searching: true, // Aktifkan search bar
+                            paging: true, // Aktifkan pagination
+                            pageLength: 5, // Default tampilkan 5 baris per halaman
+                            language: {
+                                processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+                                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                                emptyTable: "Tidak ada data yang tersedia",
+                                loadingRecords: "Sedang memuat...",
+                                zeroRecords: "Tidak ditemukan data yang sesuai",
+                                paginate: {
+                                    first: "Pertama",
+                                    last: "Terakhir",
+                                    next: "→",
+                                    previous: "←"
+                                },
+                                search: "Cari:",
+                            },
+                        });
+                    } else {
+                        // Refresh DataTable jika sudah diinisialisasi
+                        $('#tableDetailInvoice').DataTable().ajax.reload(); // Memperbaiki elemen target
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan!',
+                        text: 'Tidak ada invoice yang dipilih!',
+                    });
+                }
+            });
+
 
             let canvas = document.getElementById('signature-pad');
             const signaturePad = new SignaturePad(canvas, {
@@ -215,9 +426,9 @@
                         success: function(response) {
                             Swal.close();
                             showMessage("success", "Data berhasil diupdate!").then(
-                        () => {
-                                location.reload();
-                            });
+                                () => {
+                                    location.reload();
+                                });
                         },
                         error: function(xhr, status, error) {
                             Swal.close();
@@ -229,6 +440,12 @@
                         }
                     });
                 });
+            });
+
+
+            $(document).on('click', '#closeModal', function() {
+                $('#detailInvoiceModal').modal('hide');
+                $('#tableDetailInvoice tbody').empty(); // Menghapus semua isi tabel
             });
 
             $('#submitBatal').on('click', function() {

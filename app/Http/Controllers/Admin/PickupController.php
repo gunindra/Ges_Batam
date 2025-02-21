@@ -41,7 +41,15 @@ class PickupController extends Controller
         $count = DB::table('tbl_resi')
             ->whereIn('invoice_id', $invoiceIds)
             ->count();
-        return response()->json(['count' => $count]);
+
+        $totalHarga = DB::table('tbl_resi')
+            ->whereIn('invoice_id', $invoiceIds)
+            ->sum('harga');
+
+        return response()->json([
+            'count' => $count,
+            'total_harga' => $totalHarga
+        ]);
     }
 
     public function getDetailInvoice(Request $request)
