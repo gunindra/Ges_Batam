@@ -210,6 +210,20 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            $('#editGroupAccount').select2({
+                placeholder: "Select Group Account",
+                minimumResultsForSearch: 0,
+                width: "100%",
+                dropdownParent: $('#modalUpdateCOA') // Ensures proper styling
+                
+            });
+            $('#groupAccount').select2({
+                placeholder: "Select Group Account",
+                minimumResultsForSearch: 0,
+                width: "100%",
+                dropdownParent: $('#modalTambahCOA') // Ensures proper styling
+                
+            });
             // Load daftar COA dengan spinner saat data di-load
             function loadCOAList() {
                 const loadSpin = `
@@ -336,7 +350,7 @@
                     }
                 });
             });
-
+            
             // Edit COA
             $(document).on('click', '.editCOA', function(e) {
                 var coaId = $(this).data('id');

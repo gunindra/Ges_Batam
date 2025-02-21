@@ -11,7 +11,6 @@ class CoaController extends Controller
     public function index()
     {
         $groupAccounts = COA::select('id', 'code_account_id', 'name')
-        ->whereNotNull('parent_id')
         ->where('set_as_group', 1)
         ->get();
 
