@@ -58,6 +58,12 @@ class PenerimaanKasController extends Controller
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
             ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
             ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+            ->leftJoin(DB::raw("(  
+                SELECT payment_id,  
+                    SUM(CASE WHEN tipe = 'debit' THEN nominal ELSE -nominal END) AS total_nominal  
+                FROM tbl_payment_items  
+                GROUP BY payment_id  
+            ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
             ->where('tbl_payment_customer.company_id', $companyId)
             ->whereDate('tbl_payment_customer.payment_date', '>=', $startDate)
             ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
@@ -70,7 +76,7 @@ class PenerimaanKasController extends Controller
             $payment->where('tbl_payment_customer.payment_method_id', '=', $request->payment);
         }
 
-        // Add groupBy and use GROUP_CONCAT to combine invoices with amounts
+        // Select query ensuring unique invoice numbers and summing their amounts
         $payment->selectRaw("
             tbl_payment_customer.kode_pembayaran as kode_pembayaran,
             tbl_payment_customer.payment_buat as created_date,
@@ -79,19 +85,25 @@ class PenerimaanKasController extends Controller
             tbl_pembeli.nama_pembeli as customer_name,
             tbl_pembeli.marking as marking,
             tbl_coa.name as payment_method,
-            GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
-            SUM(tbl_payment_invoice.amount) as total_amount
+            GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (', 
+                (SELECT SUM(pi.amount) 
+                FROM tbl_payment_invoice pi 
+                WHERE pi.invoice_id = tbl_invoice.id 
+                AND pi.payment_id = tbl_payment_customer.id), 
+            ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') as no_invoice_with_amount,
+            SUM(tbl_payment_invoice.amount + IFNULL(payment_items.total_nominal, 0)) as total_amount
         ")
-            ->groupBy(
-                'tbl_payment_customer.id',
-                'tbl_payment_customer.payment_buat',
-                'tbl_payment_customer.payment_date',
-                'tbl_payment_customer.kode_pembayaran',
-                'tbl_payment_customer.discount',
-                'tbl_coa.name',
-                'tbl_pembeli.nama_pembeli',
-                'tbl_pembeli.marking'
-            );
+        ->groupBy(
+            'tbl_payment_customer.id',
+            'tbl_payment_customer.payment_buat',
+            'tbl_payment_customer.payment_date',
+            'tbl_payment_customer.kode_pembayaran',
+            'tbl_payment_customer.discount',
+            'tbl_coa.name',
+            'tbl_pembeli.nama_pembeli',
+            'tbl_pembeli.marking'
+        );
+
 
         // Get the results
         $payments = $payment->get();
