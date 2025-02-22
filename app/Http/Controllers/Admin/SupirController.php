@@ -52,17 +52,25 @@ class SupirController extends Controller
         ->where('b.metode_pengiriman', 'Delivery')
         ->get();
 
+        $listPembayaran = DB::table('tbl_tipe_pembayaran')
+        ->select('id', 'tipe_pembayaran')
+        ->get();
+
+
 
         return view('supir.indexsupir', [
-            'listInvoice' => $listInvoice
+            'listInvoice' => $listInvoice,
+            'listPembayaran'=> $listPembayaran
         ]);
     }
 
     public function tambahdata(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
         ]);
+
 
         DB::beginTransaction();
 
@@ -265,16 +273,21 @@ class SupirController extends Controller
         }
     }
 
-
-
-
     public function jumlahresi(Request $request)
     {
         $invoiceIds = $request->input('invoice_ids');
         $count = DB::table('tbl_resi')
             ->whereIn('invoice_id', $invoiceIds)
             ->count();
-        return response()->json(['count' => $count]);
+
+            $totalHarga = DB::table('tbl_resi')
+            ->whereIn('invoice_id', $invoiceIds)
+            ->sum('harga');
+
+        return response()->json([
+            'count' => $count,
+            'total_harga' => $totalHarga
+        ]);
     }
 
 }
