@@ -17,75 +17,62 @@ class KasReportExport implements FromView, WithEvents
     protected $customer;
     protected $account;
 
-    public function __construct($startDate, $endDate,$customer,$account)
+    public function __construct($startDate, $endDate, $customer, $account)
     {
-       $this->startDate = $startDate;
-        $this->endDate = $endDate;
+        $this->startDate = Carbon::parse($startDate)->format('Y-m-d');
+        $this->endDate = Carbon::parse($endDate)->format('Y-m-d');
         $this->customer = $customer;
         $this->account = $account;
     }
 
-    /**
-     * @return View
-     */
     public function view(): View
     {
-        $companyId = session('active_company_id');
-
-        $payment = Payment::join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
+        $query = DB::table('tbl_payment_customer')
+            ->select(
+                'tbl_payment_customer.kode_pembayaran',
+                'tbl_payment_customer.payment_buat AS created_date',
+                'tbl_payment_customer.payment_date',
+                'tbl_payment_customer.discount',
+                'tbl_pembeli.nama_pembeli AS customer_name',
+                'tbl_pembeli.marking',
+                'tbl_coa.name AS payment_method',
+                DB::raw("GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (',
+                    TRIM(TRAILING '.00' FROM FORMAT(
+                        (SELECT SUM(pi.amount) FROM tbl_payment_invoice pi WHERE pi.invoice_id = tbl_invoice.id AND pi.payment_id = tbl_payment_customer.id), 2
+                    )), ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount"),
+                DB::raw('SUM(tbl_payment_invoice.amount) AS total_invoice_amount'),
+                DB::raw('IFNULL(payment_items.total_nominal, 0) AS total_payment_items'),
+                DB::raw('SUM(tbl_payment_invoice.amount) + IFNULL(payment_items.total_nominal, 0) AS total_amount')
+            )
+            ->join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
             ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
             ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
             ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
-            ->where('tbl_payment_customer.company_id', $companyId);
+            ->leftJoin(DB::raw("(
+                SELECT payment_id, SUM(CASE WHEN tipe = 'debit' THEN -nominal ELSE nominal END) AS total_nominal
+                FROM tbl_payment_items GROUP BY payment_id
+            ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
+            ->whereBetween('tbl_payment_customer.payment_date', [$this->startDate, $this->endDate]);
 
-        if ($this->startDate && $this->endDate) {
-            $startDateCarbon = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
-            $endDateCarbon = Carbon::createFromFormat('d M Y', $this->endDate)->endOfDay();
-            $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
-
-            $this->startDate = $startDateCarbon->format('d F Y');
-            $this->endDate = $endDateCarbon->format('d F Y');
-        } else {
-            $startDateCarbon = now()->startOfMonth();
-            $endDateCarbon = now()->endOfMonth();
-
-            $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
-
-            $this->startDate  = $startDateCarbon->format('d F Y');
-            $this->endDate = $endDateCarbon->format('d F Y');
+        if ($this->customer !== '-') {
+            $query->where('tbl_pembeli.id', $this->customer);
         }
 
-        if ($this->customer && $this->customer !== '-') {
-            $payment->where('tbl_payment_customer.pembeli_id', '=', $this->customer);
+        if ($this->account !== '-') {
+            $query->where('tbl_coa.id', $this->account);
         }
 
-        if ($this->account && $this->account !== '-') {
-            $payment->where('tbl_payment_customer.payment_method_id', '=', $this->account);
-        }
-
-        $payment->selectRaw("
-            tbl_payment_customer.kode_pembayaran as kode_pembayaran,
-            tbl_payment_customer.payment_buat as created_date,
-            tbl_payment_customer.payment_date as payment_date,
-            tbl_payment_customer.discount as discount,
-            tbl_pembeli.marking as customer_name,
-            tbl_coa.name as payment_method,
-            GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
-            SUM(tbl_payment_invoice.amount) as total_amount
-        ")
-        ->groupBy(
+        $payments = $query->groupBy(
             'tbl_payment_customer.id',
             'tbl_payment_customer.payment_buat',
             'tbl_payment_customer.payment_date',
             'tbl_payment_customer.kode_pembayaran',
             'tbl_payment_customer.discount',
             'tbl_coa.name',
-            'tbl_pembeli.marking'
-        );
-
-        // Get the results
-        $payments = $payment->get();
-
+            'tbl_pembeli.nama_pembeli',
+            'tbl_pembeli.marking',
+            'payment_items.total_nominal'
+        )->get();
 
         return view('exportExcel.penerimaankas', [
             'payments' => $payments,
@@ -95,7 +82,6 @@ class KasReportExport implements FromView, WithEvents
             'account' => $this->account !== '-' ? DB::table('tbl_coa')->where('id', $this->account)->value('name') ?? 'Unknown' : '-',
         ]);
     }
-
 
     public function registerEvents(): array
     {
@@ -108,4 +94,3 @@ class KasReportExport implements FromView, WithEvents
         ];
     }
 }
-

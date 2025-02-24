@@ -196,7 +196,7 @@ class CreditNoteController extends Controller
             $jurnal->save();
 
             JurnalItem::updateOrCreate(
-                ['jurnal_id' => $jurnal->id, 'code_account' => $receivableSalesAccountId],
+                ['jurnal_id' => $jurnal->id, 'code_account' => $request->accountCredit],
                 [
                     'description' => "Kredit untuk Invoice {$invoice_id}",
                     'debit' => 0,

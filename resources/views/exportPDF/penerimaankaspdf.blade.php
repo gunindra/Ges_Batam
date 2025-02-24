@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piutang Report</title>
+    <title>Penerimaan Kas</title>
     <style>
         @page {
             size: A4;
@@ -173,20 +173,20 @@
 <body>
     <div class="container">
         <?php
-        $activeCompanyId = session('active_company_id');
-        $company = \App\Models\Company::find($activeCompanyId);
+$activeCompanyId = session('active_company_id');
+$company = \App\Models\Company::find($activeCompanyId);
         ?>
         <div class="header">
             <div class="logo-container">
                 <?php
-                $path = public_path('img/logo4.png');
-                $type = pathinfo($path, PATHINFO_EXTENSION);
-                if (file_exists($path)) {
-                    $data = file_get_contents($path);
-                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                } else {
-                    $base64 = '';
-                }
+$path = public_path('img/logo4.png');
+$type = pathinfo($path, PATHINFO_EXTENSION);
+if (file_exists($path)) {
+    $data = file_get_contents($path);
+    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+} else {
+    $base64 = '';
+}
                 ?>
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
@@ -206,15 +206,15 @@
         </div>
 
         <div class="title">
-            <h5>StartDate:  {{ $startDate ? $startDate : '-' }}</h5>
-            <h5>EndDate:  {{ $endDate ? $endDate : '-' }}</h5>
-            <h5>Customer:  {{ $customer ? $customer : '-' }}</h5>
-            <h5>Metode Pembayaran:  {{ $account ? $account : '-' }}</h5>
+            <h5>StartDate: {{ $startDate ? $startDate : '-' }}</h5>
+            <h5>EndDate: {{ $endDate ? $endDate : '-' }}</h5>
+            <h5>Customer: {{ $customer ? $customer : '-' }}</h5>
+            <h5>Metode Pembayaran: {{ $account ? $account : '-' }}</h5>
         </div>
 
         <table>
             <thead>
-            <tr>
+                <tr>
                     <th>No.</th>
                     <th>No Kode</th>
                     <th>Date</th>
@@ -228,21 +228,33 @@
             <tbody>
                 @php
                     $no = 1;
+                    $grandTotal = 0;
                 @endphp
                 @foreach ($payments as $kas)
-                    <tr>
-                        <td>{{ $no++ }}</td>
-                        <td> {{ $kas->kode_pembayaran }}</td>
-                        <td> {{ \Carbon\Carbon::parse( $kas->created_date)->format('d M Y')}}</td>
-                        <td>{{ \Carbon\Carbon::parse($kas->payment_date )->format('d M Y H:m')}}</td>
-                        <td>{{ $kas->customer_name }}</td>
-                        <td>{{ $kas->payment_method }}</td>
-                        <td>{{ $kas->no_invoice_with_amount }}</td>
-                        <td>{{ $kas->total_amount - $kas->discount }}</td>
-                    </tr>
+                                @php
+                                    $total = $kas->total_amount - $kas->discount;
+                                    $grandTotal += $total; 
+                                @endphp
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td> {{ $kas->kode_pembayaran }}</td>
+                                    <td> {{ \Carbon\Carbon::parse($kas->created_date)->format('d M Y')}}</td>
+                                    <td>{{ \Carbon\Carbon::parse($kas->payment_date)->format('d M Y H:i')}}</td>
+                                    <td>{{ $kas->customer_name }}</td>
+                                    <td>{{ $kas->payment_method }}</td>
+                                    <td>{{ $kas->no_invoice_with_amount }}</td>
+                                    <td>{{ number_format($total, 0, ',', '.') }}</td>
+                                </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7" style="text-align: right; font-weight: bold;">Grand Total:</td>
+                    <td style="font-weight: bold;">{{ number_format($grandTotal, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
         </table>
+
     </div>
 </body>
 
