@@ -169,7 +169,7 @@ class PenerimaanKasController extends Controller
         $companyId = session('active_company_id');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        $customer = $request->marking ?? '-';
+        $customer = $request->nama_pembeli ?? '-';
         $account = $request->name ?? '-';
 
         try {
@@ -216,54 +216,64 @@ class PenerimaanKasController extends Controller
             }
 
             $payments = DB::table('tbl_payment_customer')
-            ->select(
-                'tbl_payment_customer.kode_pembayaran AS kode_pembayaran',
-                'tbl_payment_customer.payment_buat AS created_date',
-                'tbl_payment_customer.payment_date AS payment_date',
-                'tbl_payment_customer.discount AS discount',
-                'tbl_pembeli.nama_pembeli AS customer_name',
-                'tbl_pembeli.marking AS marking',
-                'tbl_coa.name AS payment_method',
-                DB::raw("GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (',
-                TRIM(TRAILING '.00' FROM FORMAT(
-                    (SELECT SUM(pi.amount)
-                    FROM tbl_payment_invoice pi
-                    WHERE pi.invoice_id = tbl_invoice.id
-                    AND pi.payment_id = tbl_payment_customer.id), 2
-                )),
-            ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount") ,
-                DB::raw('SUM(tbl_payment_invoice.amount) AS total_invoice_amount'),
-                DB::raw('IFNULL(payment_items.total_nominal, 0) AS total_payment_items'),
-                DB::raw('SUM(tbl_payment_invoice.amount) + IFNULL(payment_items.total_nominal, 0) AS total_amount')
-            )
-            ->join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
-            ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
-            ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-            ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
-            ->leftJoin(DB::raw("(
-                SELECT
-                    payment_id,
-                    SUM(CASE WHEN tipe = 'debit' THEN -nominal ELSE nominal END) AS total_nominal
-                FROM tbl_payment_items
-                GROUP BY payment_id
-            ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
+                    ->select(
+                        'tbl_payment_customer.kode_pembayaran AS kode_pembayaran',
+                        'tbl_payment_customer.payment_buat AS created_date',
+                        'tbl_payment_customer.payment_date AS payment_date',
+                        'tbl_payment_customer.discount AS discount',
+                        'tbl_pembeli.nama_pembeli AS customer_name',
+                        'tbl_pembeli.marking AS marking',
+                        'tbl_coa.name AS payment_method',
+                        DB::raw("GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (',
+                        TRIM(TRAILING '.00' FROM FORMAT(
+                            (SELECT SUM(pi.amount)
+                            FROM tbl_payment_invoice pi
+                            WHERE pi.invoice_id = tbl_invoice.id
+                            AND pi.payment_id = tbl_payment_customer.id), 2
+                        )),
+                        ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount"),
+                        DB::raw('SUM(tbl_payment_invoice.amount) AS total_invoice_amount'),
+                        DB::raw('IFNULL(payment_items.total_nominal, 0) AS total_payment_items'),
+                        DB::raw('SUM(tbl_payment_invoice.amount) + IFNULL(payment_items.total_nominal, 0) AS total_amount')
+                    )
+                    ->join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
+                    ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
+                    ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
+                    ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+                    ->leftJoin(DB::raw("(
+                        SELECT
+                            payment_id,
+                            SUM(CASE WHEN tipe = 'debit' THEN -nominal ELSE nominal END) AS total_nominal
+                        FROM tbl_payment_items
+                        GROUP BY payment_id
+                    ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
 
-            // Tambahkan filter tanggal di sini
-            ->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon])
+                    // Filter tanggal
+                    ->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
 
-            ->groupBy(
-                'tbl_payment_customer.id',
-                'tbl_payment_customer.payment_buat',
-                'tbl_payment_customer.payment_date',
-                'tbl_payment_customer.kode_pembayaran',
-                'tbl_payment_customer.discount',
-                'tbl_coa.name',
-                'tbl_pembeli.nama_pembeli',
-                'tbl_pembeli.marking',
-                'payment_items.total_nominal'
-            )
-            ->get();
+                // Tambahkan filter jika customer dipilih
+                if ($customer !== '-') {
+                    $payments->where('tbl_payment_customer.pembeli_id', $customer);
+                }
 
+                // Tambahkan filter jika account dipilih
+                if ($account !== '-') {
+                    $payments->where('tbl_payment_customer.payment_method_id', $account);
+                }
+
+                // Grouping
+                $payments = $payments->groupBy(
+                        'tbl_payment_customer.id',
+                        'tbl_payment_customer.payment_buat',
+                        'tbl_payment_customer.payment_date',
+                        'tbl_payment_customer.kode_pembayaran',
+                        'tbl_payment_customer.discount',
+                        'tbl_coa.name',
+                        'tbl_pembeli.nama_pembeli',
+                        'tbl_pembeli.marking',
+                        'payment_items.total_nominal'
+                    )
+                    ->get();
 
             if ($payments->isEmpty()) {
                 return response()->json(['error' => 'No payments report found'], 404);
