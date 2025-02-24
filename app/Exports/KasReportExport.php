@@ -70,7 +70,14 @@ class KasReportExport implements FromView, WithEvents
             tbl_payment_customer.discount as discount,
             tbl_pembeli.marking as customer_name,
             tbl_coa.name as payment_method,
-            GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
+                           GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (', 
+                TRIM(TRAILING '.00' FROM FORMAT(
+                    (SELECT SUM(pi.amount) 
+                    FROM tbl_payment_invoice pi 
+                    WHERE pi.invoice_id = tbl_invoice.id 
+                    AND pi.payment_id = tbl_payment_customer.id), 2
+                )), 
+            ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount ,   
             SUM(tbl_payment_invoice.amount) as total_amount
         ")
         ->groupBy(

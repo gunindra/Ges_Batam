@@ -85,12 +85,14 @@ class PenerimaanKasController extends Controller
         tbl_pembeli.nama_pembeli as customer_name,
         tbl_pembeli.marking as marking,
         tbl_coa.name as payment_method,
-        GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (', 
-            (SELECT SUM(pi.amount) 
-            FROM tbl_payment_invoice pi 
-            WHERE pi.invoice_id = tbl_invoice.id 
-            AND pi.payment_id = tbl_payment_customer.id), 
-        ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') as no_invoice_with_amount,
+                GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (', 
+                TRIM(TRAILING '.00' FROM FORMAT(
+                    (SELECT SUM(pi.amount) 
+                    FROM tbl_payment_invoice pi 
+                    WHERE pi.invoice_id = tbl_invoice.id 
+                    AND pi.payment_id = tbl_payment_customer.id), 2
+                )), 
+            ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount ,    
         SUM(tbl_payment_invoice.amount) AS total_invoice_amount,
         IFNULL(payment_items.total_nominal, 0) AS total_payment_items,
         SUM(tbl_payment_invoice.amount) + IFNULL(payment_items.total_nominal, 0) AS total_amount
@@ -111,7 +113,6 @@ class PenerimaanKasController extends Controller
 
         // Get the results
         $payments = $payment->get();
-
         $output = '
             <h5 style="text-align:center; width:100%">'
             . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
@@ -144,7 +145,7 @@ class PenerimaanKasController extends Controller
                 <td style="text-align:center;">' . $data->marking . ' </td>
                 <td style="text-align:center;">' . $data->payment_method . '</td>
                 <td style="text-align:center;">' . $data->no_invoice_with_amount . '</td>
-                <td style="text-align:right;">' . number_format($totalAmount, 2) . '</td>
+                <td style="text-align:right;">' . number_format($totalAmount, 0) . '</td>
             </tr>';
         }
 
@@ -153,7 +154,7 @@ class PenerimaanKasController extends Controller
             <tfoot>
                 <tr>
                     <td colspan="6" style="text-align:right; font-weight:bold;">Grand Total:</td>
-                    <td style="text-align:right; font-weight:bold;">' . number_format($grandTotal, 2) . '</td>
+                    <td style="text-align:right; font-weight:bold;">' . number_format($grandTotal, 0) . '</td>
                 </tr>
             </tfoot>
         </table>
@@ -214,28 +215,55 @@ class PenerimaanKasController extends Controller
                 $payment->where('tbl_payment_customer.payment_method_id', '=', $account);
             }
 
-            $payment->selectRaw("
-            tbl_payment_customer.kode_pembayaran as kode_pembayaran,
-            tbl_payment_customer.payment_buat as created_date,
-            tbl_payment_customer.payment_date as payment_date,
-            tbl_payment_customer.discount as discount,
-            tbl_pembeli.marking as customer_name,
-            tbl_coa.name as payment_method,
-            GROUP_CONCAT(CONCAT(tbl_invoice.no_invoice, ' (', tbl_payment_invoice.amount, ')') SEPARATOR ', ') as no_invoice_with_amount,
-            SUM(tbl_payment_invoice.amount) as total_amount
-            ")
-                ->groupBy(
-                    'tbl_payment_customer.id',
-                    'tbl_payment_customer.payment_buat',
-                    'tbl_payment_customer.payment_date',
-                    'tbl_payment_customer.kode_pembayaran',
-                    'tbl_payment_customer.discount',
-                    'tbl_coa.name',
-                    'tbl_pembeli.marking'
-                );
-
-            // Get the results
-            $payments = $payment->get();
+            $payments = DB::table('tbl_payment_customer')
+            ->select(
+                'tbl_payment_customer.kode_pembayaran AS kode_pembayaran',
+                'tbl_payment_customer.payment_buat AS created_date',
+                'tbl_payment_customer.payment_date AS payment_date',
+                'tbl_payment_customer.discount AS discount',
+                'tbl_pembeli.nama_pembeli AS customer_name',
+                'tbl_pembeli.marking AS marking',
+                'tbl_coa.name AS payment_method',
+                DB::raw("GROUP_CONCAT(DISTINCT CONCAT(tbl_invoice.no_invoice, ' (', 
+                TRIM(TRAILING '.00' FROM FORMAT(
+                    (SELECT SUM(pi.amount) 
+                    FROM tbl_payment_invoice pi 
+                    WHERE pi.invoice_id = tbl_invoice.id 
+                    AND pi.payment_id = tbl_payment_customer.id), 2
+                )), 
+            ')') ORDER BY tbl_invoice.no_invoice SEPARATOR ', ') AS no_invoice_with_amount") ,      
+                DB::raw('SUM(tbl_payment_invoice.amount) AS total_invoice_amount'),
+                DB::raw('IFNULL(payment_items.total_nominal, 0) AS total_payment_items'),
+                DB::raw('SUM(tbl_payment_invoice.amount) + IFNULL(payment_items.total_nominal, 0) AS total_amount')
+            )
+            ->join('tbl_payment_invoice', 'tbl_payment_customer.id', '=', 'tbl_payment_invoice.payment_id')
+            ->join('tbl_invoice', 'tbl_payment_invoice.invoice_id', '=', 'tbl_invoice.id')
+            ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
+            ->join('tbl_coa', 'tbl_payment_customer.payment_method_id', '=', 'tbl_coa.id')
+            ->leftJoin(DB::raw("(
+                SELECT 
+                    payment_id,  
+                    SUM(CASE WHEN tipe = 'debit' THEN -nominal ELSE nominal END) AS total_nominal  
+                FROM tbl_payment_items  
+                GROUP BY payment_id  
+            ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
+            
+            // Tambahkan filter tanggal di sini
+            ->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon])
+        
+            ->groupBy(
+                'tbl_payment_customer.id',
+                'tbl_payment_customer.payment_buat',
+                'tbl_payment_customer.payment_date',
+                'tbl_payment_customer.kode_pembayaran',
+                'tbl_payment_customer.discount',
+                'tbl_coa.name',
+                'tbl_pembeli.nama_pembeli',
+                'tbl_pembeli.marking',
+                'payment_items.total_nominal'
+            )
+            ->get();
+        
 
             if ($payments->isEmpty()) {
                 return response()->json(['error' => 'No payments report found'], 404);

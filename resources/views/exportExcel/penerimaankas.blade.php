@@ -72,7 +72,7 @@
                     {{ $kas->no_invoice_with_amount }}
                 </td>
                 <td style="text-align:right;font-size:11px;border:1px solid black; padding: 20px">
-                    {{ number_format($totalAmount, 2) }}
+                    {{ number_format($totalAmount, 0) }}
                 </td>
             </tr>
         @endforeach
@@ -80,7 +80,7 @@
     <tfoot>
         <tr>
             <td colspan="6" style="text-align: right; font-weight: bold; border:1px solid black; padding: 20px;">Grand Total:</td>
-            <td style="text-align:right; font-weight: bold; border:1px solid black; padding: 20px;">{{ number_format($grandTotal, 2) }}</td>
+            <td style="text-align:right; font-weight: bold; border:1px solid black; padding: 20px;">{{ number_format($grandTotal, 0) }}</td>
         </tr>
     </tfoot>
 
