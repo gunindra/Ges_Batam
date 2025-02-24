@@ -46,7 +46,7 @@
         }
     </style>
 
- {{-- Pickup --}}
+    {{-- Pickup --}}
     <!-- Modal -->
     <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -130,7 +130,8 @@
                                 <option value="" disabled>Pilih No.Invoice</option>
                                 @foreach ($listInvoice as $Invoice)
                                     <option value="{{ $Invoice->invoice_id }}">{{ $Invoice->no_invoice }}
-                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }}) | {{ $Invoice->no_do }}
+                                        ({{ $Invoice->marking }} - {{ $Invoice->nama_pembeli }})
+                                        | {{ $Invoice->no_do }}
                                     </option>
                                 @endforeach
                             </select>
@@ -138,6 +139,7 @@
                         <div class="text-center mt-3">
                             <h1 id="pointValue" class="display-3 font-weight-bold text-primary" value="0">0</h1>
                             <p class="text-muted">Jumlah Resi</p>
+                            <h4 class="font-weight-bold mt-2">Grand Total: <span id="grandTotal">Rp. 0</span></h4>
                             <button class="btn btn-primary" id="detailInvoice">Detail Invoice</button>
                         </div>
                     </div>
@@ -177,6 +179,18 @@
 
                         <!-- Save Button Centered -->
                         <div class="mt-4 text-center">
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Metode Pembayaran</label>
+                                <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                    <option value="" disabled selected>Pilih metode pembayaran</option>
+                                    @foreach ($listPembayaran as $pembayaran)
+                                        <option value="{{ $pembayaran->tipe_pembayaran }}">
+                                            {{ $pembayaran->tipe_pembayaran }}</option>
+                                    @endforeach
+                                </select>
+                                <div id="paymentMethodError" class="text-danger mt-1 d-none">Silahkan pilih pembayaran
+                                </div>
+                            </div>
                             <button id="save" class="btn btn-success mt-3 w-50">Submit</button>
                         </div>
                     </div>
@@ -284,6 +298,11 @@
                         },
                         success: function(response) {
                             $('#pointValue').text(response.count);
+                            let formattedHarga = response.total_harga ?
+                                'Rp. ' + new Intl.NumberFormat('id-ID').format(parseFloat(
+                                    response.total_harga)) :
+                                'Rp. 0';
+                            $('#grandTotal').text(formattedHarga);
                         },
                         error: function(xhr, status, error) {
                             console.log(error);
@@ -414,6 +433,13 @@
             });
 
             $('#save').on('click', function() {
+                let paymentMethod = $('#paymentMethod').val();
+
+                if (!paymentMethod || paymentMethod.trim() === "") {
+                    $('#paymentMethodError').removeClass('d-none');
+                    return;
+                }
+
                 var selectedInvoices = $('#selectResi').val();
                 if (!selectedInvoices || selectedInvoices.length === 0) {
                     Swal.fire({
@@ -437,8 +463,7 @@
 
                 var formData = new FormData();
                 formData.append('selectedValues', selectedInvoices);
-
-                // Ambil username yang telah diverifikasi sebelumnya
+                formData.append('selectedPayment', $('#paymentMethod').val());
                 const verifiedUsername = localStorage.getItem('verifiedUsername');
                 if (verifiedUsername) {
                     formData.append('verified_username', verifiedUsername);

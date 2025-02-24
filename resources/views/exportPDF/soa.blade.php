@@ -183,28 +183,33 @@
                 <tr>
                     <th class="text-center">Tanggal</th>
                     <th class="text-center">No Invoice</th>
+                    <th class="text-center">Metode Pembayaran</th>
                     <th class="text-right">Jumlah Tagihan</th>
                 </tr>
             </thead>
             <tbody>
                 @php
-                    $belum_bayar = 0
+                    $total_belum_bayar = 0;
                 @endphp
                 @foreach($invoice as $data)
                     @php
                         $belum_bayar = $data->total_harga - $data->total_bayar;
+                        $total_belum_bayar += $belum_bayar;
                     @endphp
                     <tr>
                         <td class="text-center">{{ \Carbon\Carbon::parse($data->tanggal_invoice)->format('d-m-Y') }}</td>
-                        <td class="text-center">{{ ($data->no_invoice) }}</td>
+                        <td class="text-center">{{ $data->no_invoice }}</td>
+                        <td class="text-center">{{ $data->payment_type ?? '-' }}</td>
                         <td class="text-right">{{ number_format($belum_bayar, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"> </td>
-                        <td class="text-right"> Grand Total : {{ number_format($belum_bayar, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right"><strong>Grand Total:</strong></td>
+                    <td class="text-right"><strong>{{ number_format($total_belum_bayar, 2) }}</strong></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </body>

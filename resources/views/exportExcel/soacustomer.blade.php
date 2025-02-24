@@ -28,6 +28,8 @@
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">No Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
+                bgcolor="#b9bab8">Payment Method</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">Jumlah Tagihan</th>
         </tr>
     </thead>
@@ -39,6 +41,9 @@
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $invoices->no_invoice }}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ $invoices->payment_type ?? '-' }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $invoices->total_harga - $invoices->total_bayar}}

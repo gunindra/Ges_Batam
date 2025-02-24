@@ -95,35 +95,39 @@ class SoaController extends Controller
         try{
             $companyId = session('active_company_id');
             $customer_id = $request->customer;
-            $customer = Customer::where('id', '=', $customer_id)->first();
+            $customer = Customer::find($customer_id);
 
             if (!$customer) {
                 return redirect()->back()->withErrors(['error' => 'Mohon Pilih Customer yang diinginkan']);
             }
 
-            $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
-                        ->where('pembeli_id', '=', $customer_id)
-                        ->where('tbl_invoice.company_id', $companyId);
-            $startDate = '';
-            $endDate = '';
+            $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
+                        ->where('tbl_invoice.pembeli_id', $customer_id)
+                        ->where('tbl_invoice.company_id', $companyId)
+                        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                        ->select('tbl_invoice.*', 'tbl_pembeli.marking');
 
-            if ($request->startDate){
-                $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
+            if ($request->startDate) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));
-            }
-            if ($request->endDate){
-                $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
-                $endDate = date('Y-m-d', strtotime($request->endDate));
+                $query->whereDate('tbl_invoice.tanggal_invoice', '>=', $startDate);
+            } else {
+                $startDate = '';
             }
 
-            $invoice = $invoice->get();
+            if ($request->endDate) {
+                $endDate = date('Y-m-d', strtotime($request->endDate));
+                $query->whereDate('tbl_invoice.tanggal_invoice', '<=', $endDate);
+            } else {
+                $endDate = '';
+            }
+
+            $invoice = $query->get();
 
             if ($invoice->isEmpty()) {
                 return redirect()->back()->withErrors(['error' => 'Tidak ada data Invoice yang ditemukan']);
             }
 
-            $pdf = Pdf::loadView('exportPDF.soa',
-            [
+            $pdf = Pdf::loadView('exportPDF.soa', [
                 'startDate' => $startDate,
                 'endDate' => $endDate,
                 'invoice' => $invoice,

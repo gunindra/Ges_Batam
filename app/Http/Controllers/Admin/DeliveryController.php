@@ -970,6 +970,7 @@ class DeliveryController extends Controller
         $request->validate([
             'admin_signature' => 'nullable|mimes:jpg,jpeg,png',
             'customer_signature' => 'nullable|mimes:jpg,jpeg,png',
+            'selectedPayment' => 'required'
         ]);
 
         $verifiedUsername = $request->input('verified_username');
@@ -1032,6 +1033,7 @@ class DeliveryController extends Controller
                         ->where('id', $invoiceId)
                         ->update([
                             'status_id' => 6,
+                            'payment_type' => $request->input('selectedPayment'),
                             'updated_at' => now(),
                         ]);
 

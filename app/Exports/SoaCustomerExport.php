@@ -29,26 +29,23 @@ class SoaCustomerExport implements FromView, WithEvents
     public function view(): View
     {
         $companyId = session('active_company_id');
-        $invoice = collect();
+        $invoice = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
+        ->where('tbl_invoice.pembeli_id', '=',  $this->customer)
+        ->where('tbl_invoice.company_id', $companyId)
+        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
+        ->select(
+            'tbl_invoice.*',
+            'tbl_pembeli.marking'
+        );
 
-        if ($this->startDate || $this->endDate) {
-            $query = Invoice::where('status_bayar', '=', 'Belum lunas')
-                ->where('tbl_invoice.company_id', $companyId);
-
-            if ($this->customer !== '-') {
-                $query->where('pembeli_id', '=', $this->customer);
-            }
-
-            if ($this->startDate) {
-                $query->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));
-            }
-
-            if ($this->endDate) {
-                $query->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($this->endDate)));
-            }
-
-            $invoice = $query->get();
+        if ($this->startDate) {
+        $invoice->whereDate('tbl_invoice.tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));
         }
+        if ($this->customer) {
+        $invoice->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($this->endDate)));
+        }
+
+        $invoice = $invoice->get();
 
         $customerName = '-';
         if ($this->customer !== '-') {

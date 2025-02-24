@@ -30,8 +30,13 @@ class PickupController extends Controller
         ->where('b.metode_pengiriman', 'Pickup')
         ->get();
 
+        $listPembayaran = DB::table('tbl_tipe_pembayaran')
+        ->select('id', 'tipe_pembayaran')
+        ->get();
+
         return view('pickup.indexpickup', [
-            'listInvoice' => $listInvoice
+            'listInvoice' => $listInvoice,
+            'listPembayaran' => $listPembayaran
         ]);
     }
 
