@@ -331,6 +331,7 @@ class PenerimaanKasController extends Controller
     }
     public function exportKasReport(Request $request)
     {
+
         $customer = $request->marking ?? '-';
         $account = $request->name ?? '-';
 
