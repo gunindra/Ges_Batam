@@ -32,16 +32,20 @@ class SoaController extends Controller
         $status = $request->status;
         $customer = $request->customer;
 
-        $invoice = Invoice::where('status_bayar', '=', 'Belum lunas')
-                    ->where('pembeli_id', '=', $customer)
-                    ->where('tbl_invoice.company_id', $companyId);
+        $invoice = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
+                    ->where('tbl_invoice.pembeli_id', '=', $customer)
+                    ->where('tbl_invoice.company_id', $companyId)
+                    ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
+                    ->select(
+                        'tbl_invoice.*',
+                        'tbl_pembeli.marking'
+                    );
 
-
-        if ($request->startDate){
-            $invoice->whereDate('tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
+        if ($request->startDate) {
+            $invoice->whereDate('tbl_invoice.tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
         }
-        if ($request->endDate){
-            $invoice->whereDate('tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
+        if ($request->endDate) {
+            $invoice->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
         }
 
         $invoice = $invoice->get();
@@ -49,26 +53,42 @@ class SoaController extends Controller
         $output = '<div class="card-body">
                     <table class="table" width="100%">
                     <thead>
-                        <th width="30%" style="text-left">Date</th>
-                        <th width="30%">No Invoice</th>
+                        <th width="20%" style="text-left">Date</th>
+                        <th width="20%" style="text-left">Marking</th>
+                        <th width="20%">No Invoice</th>
+                        <th width="20%">Payment Method</th>
                         <th width="20%" class="text-right">Jumlah Tagihan</th>
                     </thead>
                     <tbody>';
 
-        $belum_bayar = 0;
-        foreach($invoice as $data){
+        $grandTotal = 0;
+
+        foreach ($invoice as $data) {
             $belum_bayar = $data->total_harga - $data->total_bayar;
-            $output .='<tr>
+            $grandTotal += $belum_bayar;
+
+            $output .= '<tr>
                             <td>' . \Carbon\Carbon::parse($data->tanggal_invoice)->format('d-m-Y') . '</td>
+                            <td>' . ($data->marking) . '</td>
                             <td>' . ($data->no_invoice) . '</td>
+                            <td>' . ($data->payment_type ?? '-') . '</td>
                             <td class="text-right">' . number_format($belum_bayar, 2) . '</td>
                         </tr>';
         }
 
-        $output .= '</table> </div>';
+        // Tambahkan Grand Total di Footer Table
+        $output .= '<tfoot>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
+                            <td class="text-right"><strong>' . number_format($grandTotal, 2) . '</strong></td>
+                        </tr>
+                    </tfoot>';
+
+        $output .= '</tbody></table> </div>';
 
         return $output;
     }
+
 
     public function soaWA(Request $request)
     {

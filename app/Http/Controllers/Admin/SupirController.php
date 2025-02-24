@@ -66,9 +66,9 @@ class SupirController extends Controller
 
     public function tambahdata(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
+            'selectedPayment' => 'required'
         ]);
 
 
@@ -126,6 +126,7 @@ class SupirController extends Controller
                             ->where('id', $invoiceId)
                             ->update([
                                 'status_id' => 6,
+                                'payment_type' => $request->input('selectedPayment'),
                                 'updated_at' => now(),
                             ]);
 

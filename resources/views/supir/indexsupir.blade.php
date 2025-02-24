@@ -183,7 +183,7 @@
                             <select class="form-control" id="paymentMethod" name="paymentMethod">
                                 <option value="" disabled selected>Pilih metode pembayaran</option>
                                 @foreach ($listPembayaran as $pembayaran)
-                                    <option value="{{ $pembayaran->id }}">{{ $pembayaran->tipe_pembayaran }}</option>
+                                    <option value="{{ $pembayaran->tipe_pembayaran }}">{{ $pembayaran->tipe_pembayaran }}</option>
                                 @endforeach
                             </select>
                             <div id="paymentMethodError" class="text-danger mt-1 d-none">Silahkan pilih pembayaran</div>
@@ -400,6 +400,7 @@
                         formData.append('photo', photo);
                     }
                     formData.append('selectedValues', $('#selectResi').val());
+                    formData.append('selectedPayment', $('#paymentMethod').val());
 
                     Swal.fire({
                         title: 'Sedang memproses...',
