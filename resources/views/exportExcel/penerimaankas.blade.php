@@ -48,7 +48,7 @@
     <tbody>
         @php $grandTotal = 0; @endphp
         @foreach ($payments as $kas)
-            @php 
+            @php
                 $totalAmount = $kas->total_amount - $kas->discount;
                 $grandTotal += $totalAmount;
             @endphp
@@ -68,7 +68,7 @@
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $kas->payment_method }}
                 </td>
-                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px; max-width: 200px; word-wrap: break-word; white-space: normal;">
                     {{ $kas->no_invoice_with_amount }}
                 </td>
                 <td style="text-align:right;font-size:11px;border:1px solid black; padding: 20px">
