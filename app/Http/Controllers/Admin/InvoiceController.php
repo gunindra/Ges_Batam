@@ -203,7 +203,9 @@ class InvoiceController extends Controller
                 DB::raw("DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s') AS updated_at_formatted"),
                 'a.user',
                 'a.user_update',
-                'b.marking'
+                'b.marking',
+                DB::raw('GROUP_CONCAT(r.no_resi SEPARATOR "; ") AS no_resi'),
+                DB::raw('COUNT(r.no_resi) AS resi_count'),
             )
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
@@ -215,7 +217,8 @@ class InvoiceController extends Controller
                     ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y')"), 'LIKE', $txSearch)
                     ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
                     ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(b.marking)'), 'LIKE', $txSearch);
+                    ->orWhere(DB::raw('LOWER(b.marking)'), 'LIKE', $txSearch)
+                    ->orWhere(DB::raw('LOWER(r.no_resi)'), 'LIKE', $txSearch);
             });
 
         if ($startDate && $endDate) {
@@ -258,7 +261,8 @@ class InvoiceController extends Controller
             'a.updated_at',
             'a.user',
             'a.user_update',
-            'b.marking'
+            'b.marking',
+
         )
             ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END")
             ->orderBy('a.id', 'DESC');
@@ -291,6 +295,12 @@ class InvoiceController extends Controller
                     default => 'badge-secondary',
                 };
                 return '<span class="badge ' . $statusBadgeClass . '">' . $item->status_name . '</span>';
+            })
+            ->addColumn('resi_cell', function ($item) {
+                if ($item->resi_count > 1) {
+                    return '<button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-no_resi="' . htmlentities($item->no_resi) . '">Lihat Resi (' . $item->resi_count . ')</button>';
+                }
+                return $item->no_resi ?? '-';
             })
             ->addColumn('converted_harga', function ($item) {
                 $currencySymbols = [
@@ -331,7 +341,7 @@ class InvoiceController extends Controller
 
                 return '<div class="d-flex">' . $btnChangeMethod . $btnExportInvoice . $btnEditInvoice . '</div>';
             })
-            ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar','created_at','updated_at'])
+            ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar','created_at','updated_at','resi_cell'])
             ->make(true);
     }
     public function tambainvoice(Request $request)
