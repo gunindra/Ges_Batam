@@ -89,7 +89,7 @@ class SoaController extends Controller
 
         $output .= '<tfoot>
                         <tr>
-                            <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
+                            <td colspan="5" class="text-right"><strong>Grand Total</strong></td>
                             <td class="text-right"><strong>' . number_format($grandTotal, 2) . '</strong></td>
                         </tr>
                     </tfoot>';
