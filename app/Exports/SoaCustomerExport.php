@@ -29,17 +29,14 @@ class SoaCustomerExport implements FromView, WithEvents
     public function view(): View
     {
         $companyId = session('active_company_id');
-        $invoice = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
-        ->where('tbl_invoice.pembeli_id', '=',  $this->customer)
+        $invoice = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
+        ->where('tbl_invoice.pembeli_id', $this->customer )
         ->where('tbl_invoice.company_id', $companyId)
         ->where('tbl_invoice.soa_closing', false)
-        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
+        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
         ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
-        ->select(
-            'tbl_invoice.*',
-            'tbl_pembeli.marking',
-            'tbl_resi.no_do'
-        );
+        ->selectRaw('tbl_invoice.*, tbl_pembeli.marking, COALESCE(MIN(tbl_resi.no_do), "-") as no_do')
+        ->groupBy('tbl_invoice.id', 'tbl_pembeli.marking');
 
         if ($this->startDate) {
         $invoice->whereDate('tbl_invoice.tanggal_invoice', '>=', date('Y-m-d', strtotime($this->startDate)));

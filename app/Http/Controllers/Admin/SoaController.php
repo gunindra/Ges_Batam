@@ -46,7 +46,16 @@ class SoaController extends Controller
                         'tbl_invoice.total_bayar',
                         'tbl_invoice.payment_type',
                         'tbl_pembeli.marking',
-                        'tbl_resi.no_do'
+                        \DB::raw('COALESCE(MIN(tbl_resi.no_do), "-") as no_do')
+                    )
+                    ->groupBy(
+                        'tbl_invoice.id',
+                        'tbl_invoice.tanggal_invoice',
+                        'tbl_invoice.no_invoice',
+                        'tbl_invoice.total_harga',
+                        'tbl_invoice.total_bayar',
+                        'tbl_invoice.payment_type',
+                        'tbl_pembeli.marking'
                     );
 
         if ($request->startDate) {
@@ -117,12 +126,13 @@ class SoaController extends Controller
             }
 
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
-                        ->where('tbl_invoice.pembeli_id', $customer_id)
+                        ->where('tbl_invoice.pembeli_id', $customer )
                         ->where('tbl_invoice.company_id', $companyId)
                         ->where('tbl_invoice.soa_closing', false)
                         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
                         ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
-                        ->select('tbl_invoice.*', 'tbl_pembeli.marking', 'tbl_resi.no_do');
+                        ->selectRaw('tbl_invoice.*, tbl_pembeli.marking, COALESCE(MIN(tbl_resi.no_do), "-") as no_do')
+                        ->groupBy('tbl_invoice.id', 'tbl_pembeli.marking');
 
             if ($request->startDate) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));
