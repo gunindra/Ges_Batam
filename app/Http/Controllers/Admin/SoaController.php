@@ -32,24 +32,32 @@ class SoaController extends Controller
         $status = $request->status;
         $customer = $request->customer;
 
-        $invoice = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
+        $invoiceQuery = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
                     ->where('tbl_invoice.pembeli_id', '=', $customer)
                     ->where('tbl_invoice.company_id', $companyId)
+                    ->where('tbl_invoice.soa_closing', false)
                     ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
                     ->select(
-                        'tbl_invoice.*',
+                        'tbl_invoice.id',
+                        'tbl_invoice.tanggal_invoice',
+                        'tbl_invoice.no_invoice',
+                        'tbl_invoice.total_harga',
+                        'tbl_invoice.total_bayar',
+                        'tbl_invoice.payment_type',
                         'tbl_pembeli.marking'
                     );
 
         if ($request->startDate) {
-            $invoice->whereDate('tbl_invoice.tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
+            $invoiceQuery->whereDate('tbl_invoice.tanggal_invoice', '>=', date('Y-m-d', strtotime($request->startDate)));
         }
         if ($request->endDate) {
-            $invoice->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
+            $invoiceQuery->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
         }
 
-        $invoice = $invoice->get();
+        $invoices = $invoiceQuery->get();
 
+        $invoiceIds = []; // Array untuk menyimpan ID invoice
+        $grandTotal = 0;
         $output = '<div class="card-body">
                     <table class="table" width="100%">
                     <thead>
@@ -61,11 +69,10 @@ class SoaController extends Controller
                     </thead>
                     <tbody>';
 
-        $grandTotal = 0;
-
-        foreach ($invoice as $data) {
+        foreach ($invoices as $data) {
             $belum_bayar = $data->total_harga - $data->total_bayar;
             $grandTotal += $belum_bayar;
+            $invoiceIds[] = $data->id; // Simpan ID ke array
 
             $output .= '<tr>
                             <td>' . \Carbon\Carbon::parse($data->tanggal_invoice)->format('d-m-Y') . '</td>
@@ -86,8 +93,13 @@ class SoaController extends Controller
 
         $output .= '</tbody></table> </div>';
 
-        return $output;
+        // Kembalikan response dalam bentuk JSON
+        return response()->json([
+            'html' => $output,
+            'invoiceIds' => $invoiceIds
+        ]);
     }
+
 
 
     public function soaWA(Request $request)
@@ -104,6 +116,7 @@ class SoaController extends Controller
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
                         ->where('tbl_invoice.pembeli_id', $customer_id)
                         ->where('tbl_invoice.company_id', $companyId)
+                        ->where('tbl_invoice.soa_closing', false)
                         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
                         ->select('tbl_invoice.*', 'tbl_pembeli.marking');
 
@@ -179,10 +192,31 @@ class SoaController extends Controller
 
     public function exportSoaCustomerReport(Request $request)
     {
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
+        $startDate = $request->input('startDate') ?? now()->startOfMonth()->toDateString();
+        $endDate = $request->input('endDate') ?? now()->endOfMonth()->toDateString();
         $customer = $request->nama_pembeli ?? '-';
 
         return Excel::download(new SoaCustomerExport($startDate, $endDate,$customer), 'Soa_Customer.xlsx');
+    }
+
+    public function closingSoa(Request $request)
+    {
+        // Validasi request pastikan invoiceIds ada dan merupakan array
+        $request->validate([
+            'invoiceIds' => 'required|array',
+            'invoiceIds.*' => 'exists:tbl_invoice,id', // Pastikan ID ada di database
+        ]);
+
+        // Ambil ID dari request
+        $invoiceIds = $request->invoiceIds;
+
+        // Update soa_closing menjadi true
+        Invoice::whereIn('id', $invoiceIds)->update(['soa_closing' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'SOA berhasil di-closing.',
+            'updated_ids' => $invoiceIds
+        ]);
     }
 }

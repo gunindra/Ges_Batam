@@ -32,6 +32,7 @@ class SoaCustomerExport implements FromView, WithEvents
         $invoice = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
         ->where('tbl_invoice.pembeli_id', '=',  $this->customer)
         ->where('tbl_invoice.company_id', $companyId)
+        ->where('tbl_invoice.soa_closing', false)
         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
         ->select(
             'tbl_invoice.*',

@@ -447,6 +447,8 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/report/getSoa',  [SoaController::class, 'getSoa'])->name('getSoa');
     Route::get('/report/getSoa/soaWA', [SoaController::class, 'soaWA'])->name('soaWA');
     Route::get('/report/getSoa/export', [SoaController::class, 'exportSoaCustomerReport'])->name('exportSoaCustomer');
+    Route::get('/report/getSoa/closingSoa', [SoaController::class, 'closingSoa'])->name('closingSoa');
+
     //Soa Vendor
     Route::get('/report/soaVendor',  [SoaVendorController::class, 'index'])->name('soaVendor');
     Route::get('/report/soaVendor/getSoaVendor',  [SoaVendorController::class, 'getSoaVendor'])->name('getSoaVendor');

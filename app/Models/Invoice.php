@@ -11,7 +11,7 @@ class Invoice extends Model
     protected $fillable = [
         'no_invoice', 'tanggal_invoice','tanggal_buat', 'pembeli_id', 'metode_pengiriman', 'alamat',
         'matauang_id', 'rate_matauang', 'total_harga', 'total_bayar', 'wa_status',
-        'status_bayar', 'status_id', 'alamat_id', 'pembeli_id','ratevolume_id','rateberat_id', 'payment_type'
+        'status_bayar', 'status_id', 'alamat_id', 'pembeli_id','ratevolume_id','rateberat_id', 'payment_type', 'soa_closing'
     ];
 
     public $timestamps = true;

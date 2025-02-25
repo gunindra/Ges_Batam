@@ -128,57 +128,59 @@
                 const customer = $('#customer').val();
 
                 $.ajax({
-                        url: "{{ route('getSoa') }}",
-                        method: "GET",
-                        data: {
-                            txSearch: txtSearch,
-                            status: filterStatus,
-                            startDate: startDate,
-                            endDate: endDate,
-                            customer: customer,
-                        },
-                        beforeSend: () => {
-                            $('#containerSoa').html(loadSpin);
-                            $('#closingSoa').hide();
-                        }
-                    })
-                    .done(res => {
-                        $('#containerSoa').html(res);
-                        // const hasData = $('#containerSoa tbody tr').length > 0;
-                        // if (hasData) {
-                        //     $('#closingSoa').fadeIn(300);
-                        // } else {
-                        //     $('#closingSoa').fadeOut(200);
-                        // }
-                    });
+                    url: "{{ route('getSoa') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch,
+                        status: filterStatus,
+                        startDate: startDate,
+                        endDate: endDate,
+                        customer: customer,
+                    },
+                    beforeSend: () => {
+                        $('#containerSoa').html(loadSpin);
+                    }
+                }).done(res => {
+                    $('#containerSoa').html(res.html);
+                    window.invoiceIds = res.invoiceIds;
+                    if (res.invoiceIds.length > 0) {
+                        $('#closingSoa').fadeIn();
+                    } else {
+                        $('#closingSoa').fadeOut();
+                    }
+                });
             }
 
             getSOA();
 
+            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
+                defaultDate: startOfMonth,
                 onChange: function(selectedDates, dateStr, instance) {
-
                     $("#endDate").flatpickr({
                         dateFormat: "d M Y",
-                        minDate: dateStr
+                        minDate: dateStr,
+                        defaultDate: endOfMonth
                     });
                 }
             });
 
             flatpickr("#endDate", {
-                dateFormat: "d MM Y",
+                dateFormat: "d M Y",
+                defaultDate: endOfMonth,
                 onChange: function(selectedDates, dateStr, instance) {
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
                     if (endDate < startDate) {
-                        showwMassage(error,
+                        showwMassage('error',
                             "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
                         $('#endDate').val('');
                     }
                 }
             });
-
 
             $(document).on('click', '#filterTanggal', function(e) {
                 $('#modalFilterTanggal').modal('show');
@@ -301,6 +303,58 @@
                     }
                 });
             });
+
+
+
+            $('#closingSoa').on('click', function() {
+                if (window.invoiceIds && window.invoiceIds.length > 0) {
+                    Swal.fire({
+                        title: 'Apakah kamu yakin?',
+                        text: "SOA yang di-closing tidak bisa dibuka kembali!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#5D87FF',
+                        cancelButtonColor: '#49BEFF',
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Tidak',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ route('closingSoa') }}",
+                                method: "GET",
+                                data: {
+                                    invoiceIds: window.invoiceIds,
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success',
+                                        text: response.message
+                                    });
+
+                                    getSOA(); // Refresh data setelah closing
+                                },
+                                error: function(xhr) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops!',
+                                        text: 'Gagal melakukan closing SOA!'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Tidak ada data yang bisa di-closing.'
+                    });
+                }
+            });
+
 
         });
     </script>
