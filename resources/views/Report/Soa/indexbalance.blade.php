@@ -90,6 +90,8 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
+                            <button class="btn btn-secondary mr-2" id="closingSoa" style="display: none;">Closing
+                                SOA</button>
                             <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
                             <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i
                                         class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
@@ -136,13 +138,19 @@
                             customer: customer,
                         },
                         beforeSend: () => {
-                            $('#containerSoa').html(loadSpin)
+                            $('#containerSoa').html(loadSpin);
+                            $('#closingSoa').hide();
                         }
                     })
                     .done(res => {
-                        $('#containerSoa').html(res)
-
-                    })
+                        $('#containerSoa').html(res);
+                        const hasData = $('#containerSoa tbody tr').length > 0;
+                        if (hasData) {
+                            $('#closingSoa').fadeIn(300);
+                        } else {
+                            $('#closingSoa').fadeOut(200);
+                        }
+                    });
             }
 
             getSOA();
