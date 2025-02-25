@@ -171,6 +171,27 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalResi" tabindex="-1" role="dialog"
+            aria-labelledby="modalResiTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalResiTitle">Daftar Resi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="resiList" class="list-group">
+                            <!-- Alamat akan ditambahkan di sini -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <!---Container Fluid-->
     <div class="container-fluid" id="container-wrapper">
@@ -270,6 +291,7 @@
                                             <th>Tanggal</th>
                                             <th>No Do</th>
                                             <th>Marking</th>
+                                            <th>No Resi</th>
                                             <th>Customer</th>
                                             <th>Pengiriman</th>
                                             <th>Alamat</th>
@@ -334,6 +356,13 @@
             {
                 data: 'marking',
                 name: 'marking',
+                render: function (data, type, row) {
+                    return data ? data : '-';
+                }
+            },
+            {
+                data: 'resi_cell',
+                name: 'resi_cell',
                 render: function (data, type, row) {
                     return data ? data : '-';
                 }
@@ -953,6 +982,22 @@
                         });
                     }
                 })
+            });
+            
+            $(document).on('click', '.show-address-modal', function() {
+                let noresi = $(this).data('no_resi');
+                let noresiArray = noresi.split(';');
+
+                let resiList = $('#resiList');
+                resiList.empty(); // Kosongkan daftar alamat
+
+                // Tambahkan setiap alamat sebagai item dalam daftar
+                noresiArray.forEach(function(item) {
+                    resiList.append('<li class="list-group-item">' + item + '</li>');
+                });
+
+                // Tampilkan modal
+                $('#modalResi').modal('show');
             });
 
         });
