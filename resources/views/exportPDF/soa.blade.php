@@ -182,6 +182,7 @@
             <thead>
                 <tr>
                     <th class="text-center">Tanggal</th>
+                    <th class="text-center">No DO</th>
                     <th class="text-center">No Invoice</th>
                     <th class="text-center">Metode Pembayaran</th>
                     <th class="text-right">Jumlah Tagihan</th>
@@ -198,6 +199,7 @@
                     @endphp
                     <tr>
                         <td class="text-center">{{ \Carbon\Carbon::parse($data->tanggal_invoice)->format('d-m-Y') }}</td>
+                        <td class="text-center">{{ $data->no_do }}</td>
                         <td class="text-center">{{ $data->no_invoice }}</td>
                         <td class="text-center">{{ $data->payment_type ?? '-' }}</td>
                         <td class="text-right">{{ number_format($belum_bayar, 2) }}</td>
@@ -206,7 +208,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3" class="text-right"><strong>Grand Total:</strong></td>
+                    <td colspan="4" class="text-right"><strong>Grand Total:</strong></td>
                     <td class="text-right"><strong>{{ number_format($total_belum_bayar, 2) }}</strong></td>
                 </tr>
             </tfoot>

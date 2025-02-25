@@ -36,7 +36,8 @@ class SoaController extends Controller
                     ->where('tbl_invoice.pembeli_id', '=', $customer)
                     ->where('tbl_invoice.company_id', $companyId)
                     ->where('tbl_invoice.soa_closing', false)
-                    ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
+                    ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                    ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
                     ->select(
                         'tbl_invoice.id',
                         'tbl_invoice.tanggal_invoice',
@@ -44,7 +45,8 @@ class SoaController extends Controller
                         'tbl_invoice.total_harga',
                         'tbl_invoice.total_bayar',
                         'tbl_invoice.payment_type',
-                        'tbl_pembeli.marking'
+                        'tbl_pembeli.marking',
+                        'tbl_resi.no_do'
                     );
 
         if ($request->startDate) {
@@ -56,13 +58,14 @@ class SoaController extends Controller
 
         $invoices = $invoiceQuery->get();
 
-        $invoiceIds = []; // Array untuk menyimpan ID invoice
+        $invoiceIds = [];
         $grandTotal = 0;
         $output = '<div class="card-body">
                     <table class="table" width="100%">
                     <thead>
                         <th width="20%" style="text-left">Date</th>
                         <th width="20%" style="text-left">Marking</th>
+                        <th width="20%" style="text-left">No Do</th>
                         <th width="20%">No Invoice</th>
                         <th width="20%">Payment Method</th>
                         <th width="20%" class="text-right">Jumlah Tagihan</th>
@@ -72,18 +75,18 @@ class SoaController extends Controller
         foreach ($invoices as $data) {
             $belum_bayar = $data->total_harga - $data->total_bayar;
             $grandTotal += $belum_bayar;
-            $invoiceIds[] = $data->id; // Simpan ID ke array
+            $invoiceIds[] = $data->id;
 
             $output .= '<tr>
                             <td>' . \Carbon\Carbon::parse($data->tanggal_invoice)->format('d-m-Y') . '</td>
                             <td>' . ($data->marking) . '</td>
+                            <td>' . ($data->no_do) . '</td>
                             <td>' . ($data->no_invoice) . '</td>
                             <td>' . ($data->payment_type ?? '-') . '</td>
                             <td class="text-right">' . number_format($belum_bayar, 2) . '</td>
                         </tr>';
         }
 
-        // Tambahkan Grand Total di Footer Table
         $output .= '<tfoot>
                         <tr>
                             <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
@@ -118,7 +121,8 @@ class SoaController extends Controller
                         ->where('tbl_invoice.company_id', $companyId)
                         ->where('tbl_invoice.soa_closing', false)
                         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-                        ->select('tbl_invoice.*', 'tbl_pembeli.marking');
+                        ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
+                        ->select('tbl_invoice.*', 'tbl_pembeli.marking', 'tbl_resi.no_do');
 
             if ($request->startDate) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));

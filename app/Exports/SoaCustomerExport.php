@@ -34,9 +34,11 @@ class SoaCustomerExport implements FromView, WithEvents
         ->where('tbl_invoice.company_id', $companyId)
         ->where('tbl_invoice.soa_closing', false)
         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // Join ke tbl_pembeli
+        ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
         ->select(
             'tbl_invoice.*',
-            'tbl_pembeli.marking'
+            'tbl_pembeli.marking',
+            'tbl_resi.no_do'
         );
 
         if ($this->startDate) {
