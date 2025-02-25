@@ -626,7 +626,7 @@
                             if (response.status === 'success') {
                                 showMessage("success",
                                     "Berhasil menghapus");
-                                getListUser();
+                                    table.ajax.reload();
                             } else {
                                 showMessage("error", "Gagal menghapus");
                             }
