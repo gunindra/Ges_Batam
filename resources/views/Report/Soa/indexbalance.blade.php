@@ -144,12 +144,12 @@
                     })
                     .done(res => {
                         $('#containerSoa').html(res);
-                        const hasData = $('#containerSoa tbody tr').length > 0;
-                        if (hasData) {
-                            $('#closingSoa').fadeIn(300);
-                        } else {
-                            $('#closingSoa').fadeOut(200);
-                        }
+                        // const hasData = $('#containerSoa tbody tr').length > 0;
+                        // if (hasData) {
+                        //     $('#closingSoa').fadeIn(300);
+                        // } else {
+                        //     $('#closingSoa').fadeOut(200);
+                        // }
                     });
             }
 
