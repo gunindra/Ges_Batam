@@ -84,11 +84,15 @@ class TrackingsController extends Controller
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
             ->addColumn('status_bayar', function ($row) {
-                return $row->status_bayar == 'Lunas'
-                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
-                    : ($row->status_bayar == '-'
-                        ? '<span class="text-muted">-</span>'
-                        : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum lunas</span>');
+                if ($row->status_bayar == 'Lunas') {
+                    return '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>';
+                } elseif ($row->status_bayar == '-') {
+                    return '<span class="text-muted">-</span>';
+                } elseif (is_null($row->status_bayar)) {
+                    return '-';
+                } else {
+                    return '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ' . htmlspecialchars($row->status_bayar) . '</span>';
+                }
             })
             ->addColumn('action', function ($row) {
                 $deleteButton = $row->status == 'Dalam Perjalanan'
