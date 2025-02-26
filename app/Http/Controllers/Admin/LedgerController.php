@@ -35,7 +35,7 @@ class LedgerController extends Controller
         $coaQuery = DB::table('tbl_coa')
             ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
             ->when($filterCode, function ($query, $filterCode) {
-                return $query->whereIn('tbl_coa.id', $filterCode); 
+                return $query->whereIn('tbl_coa.id', $filterCode);
             })
             ->orderBy('tbl_coa.code_account_id', 'ASC')
             ->get();

@@ -1,64 +1,74 @@
-<table>
+<table style="width: 100%; border-collapse: collapse; table-layout: auto;">
     <thead>
         <tr>
-            <td style="text-align:center;font-size:14px; font-weight: bold; padding: 14px" colspan="6">Ledger Report</td>
+            <td style="text-align:center;font-size:14px; font-weight: bold; padding: 14px" colspan="4">Ledger Report</td>
         </tr>
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">Start Date:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
-                {{ $startDate ? $startDate : '-' }}
+                {{ $startDate ?? '-' }}
             </td>
         </tr>
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">End Date:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
-                {{ $endDate ? $endDate : '-' }}
+                {{ $endDate ?? '-' }}
             </td>
         </tr>
         <tr>
             <td style="text-align:left;font-size:11px;padding: 14px;">Code Account:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
-                {{ $filterCode ? implode(', ', $filterCode) : '-' }}
+                {{ $filterCode ?? '-' }}
             </td>
         </tr>
         <tr></tr>
         <tr>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Account Code</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Account Name</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Date</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Description</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Debit</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Credit</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Beginning Balance</th>
-            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;"
-                bgcolor="#b9bab8">Ending Balance</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Date</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Description</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Total Debit</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Total Credit</th>
         </tr>
     </thead>
     <tbody>
-        @foreach ($ledgerAccounts as $account)
-            @foreach ($account['journal_entries'] as $entry)
+        @foreach($ledgerAccounts as $ledger)
+            <tr>
+                <td colspan="4" style="font-weight: bold; text-align: left; padding: 10px; border:1px solid black;">
+                    {{ $ledger['account_name'] }} ({{ $ledger['code'] }})
+                </td>
+            </tr>
+            <tr>
+                <td style="border:1px solid black; padding: 8px; text-align: center;">Beginning Balance</td>
+                <td style="border:1px solid black; padding: 8px;"></td>
+                <td style="border:1px solid black; padding: 8px; text-align: right;">
+                    {{ number_format($ledger['beginning_balance'], 2) }}
+                </td>
+                <td style="border:1px solid black; padding: 8px;"></td>
+            </tr>
+            @foreach($ledger['journal_entries'] as $entry)
                 <tr>
-                    <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                        {{ $entry->items_id }}
+                    <td style="border:1px solid black; padding: 8px; text-align: center; white-space: nowrap;">
+                        {{ date('d/m/Y', strtotime($entry->tanggal)) }}
                     </td>
-                    <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                        {{ $account['account_name'] }}
+                    <td style="border:1px solid black; padding: 8px;">
+                        {{ $entry->items_description }}
                     </td>
-                    <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                        {{ $entry->tanggal }}
+                    <td style="border:1px solid black; padding: 8px; text-align: right;">
+                        {{ number_format($entry->debit, 2) }}
                     </td>
-                    <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-    
+                    <td style="border:1px solid black; padding: 8px; text-align: right;">
+                        {{ number_format($entry->credit, 2) }}
                     </td>
                 </tr>
             @endforeach
+            <tr>
+                <td style="border:1px solid black; padding: 8px; font-weight: bold;">Ending Balance</td>
+                <td style="border:1px solid black; padding: 8px;"></td>
+                <td style="border:1px solid black; padding: 8px;"></td>
+                <td style="border:1px solid black; padding: 8px; text-align: right; font-weight: bold;">
+                    {{ number_format($ledger['ending_balance'], 2) }}
+                </td>
+            </tr>
+            <tr></tr> {{-- Baris Kosong Untuk Pemisah --}}
         @endforeach
     </tbody>
 </table>

@@ -24,11 +24,18 @@ class LedgerExport implements FromView
     {
         $ledgerAccounts = $this->getLedgerData();
 
+        $filterCodeNames = DB::table('tbl_coa')
+        ->whereIn('tbl_coa.id', $this->filterCode)
+        ->pluck('tbl_coa.name')
+        ->toArray();
+
+        $filterCodeStr = implode(', ', $filterCodeNames);
+
         return view('exportExcel.ledgerreport', [
             'ledgerAccounts' => $ledgerAccounts,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'filterCode' => $this->filterCode,
+            'filterCode' => $filterCodeStr,
         ]);
     }
 
@@ -45,9 +52,13 @@ class LedgerExport implements FromView
 
     private function getLedgerData()
     {
+        $filterCode = $this->filterCode;
+        $startDate =  $this->startDate ? date('Y-m-d', strtotime( $this->startDate)) : date('Y-m-01');
+        $endDate = $this->endDate ? date('Y-m-d', strtotime($this->endDate)) : date('Y-m-t');
+
         $coaQuery = DB::table('tbl_coa')
             ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
-            ->when($this->filterCode, function ($query, $filterCode) {
+            ->when($filterCode, function ($query, $filterCode) {
                 return $query->whereIn('tbl_coa.id', $filterCode);
             })
             ->orderBy('tbl_coa.code_account_id', 'ASC')
@@ -55,13 +66,29 @@ class LedgerExport implements FromView
 
         $ledgerAccounts = [];
         foreach ($coaQuery as $coa) {
-            $journalQuery = DB::select("SELECT ji.id AS items_id, ji.jurnal_id AS jurnal_id, ji.code_account AS account_id, ji.debit AS debit, ji.credit AS credit, ji.description AS items_description, ju.tanggal AS tanggal FROM tbl_jurnal_items ji LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id WHERE ji.code_account = ? AND ju.tanggal BETWEEN ? AND ?", [$coa->coa_id, $this->startDate, $this->endDate]);
+            $journalQuery = DB::select("SELECT ji.id AS items_id,
+                                            ji.jurnal_id AS jurnal_id,
+                                            ji.code_account AS account_id,
+                                            ji.debit AS debit,
+                                            ji.credit AS credit,
+                                            ji.description AS items_description,
+                                            ju.tanggal AS tanggal
+                                        FROM tbl_jurnal_items ji
+                                        LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                        WHERE ji.code_account = $coa->coa_id
+                                        AND ju.tanggal >= '$startDate'
+                                        AND ju.tanggal <= '$endDate'");
 
-            $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit, SUM(ji.credit) AS total_credit FROM tbl_jurnal_items ji LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id WHERE ji.code_account = ? AND ju.tanggal < ?", [$coa->coa_id, $this->startDate]);
+            $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
+                                                            SUM(ji.credit) AS total_credit
+                                                    FROM tbl_jurnal_items ji
+                                                    LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                    WHERE ji.code_account = $coa->coa_id
+                                                    AND ju.tanggal < '$startDate'");
 
             $beginningBalance = ($coa->position == 'Debit')
-                ? ($beginningBalanceQuery[0]->total_debit ?? 0) - ($beginningBalanceQuery[0]->total_credit ?? 0)
-                : ($beginningBalanceQuery[0]->total_credit ?? 0) - ($beginningBalanceQuery[0]->total_debit ?? 0);
+                ? $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit
+                : $beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit;
 
             $totalDebit = array_sum(array_column($journalQuery, 'debit'));
             $totalCredit = array_sum(array_column($journalQuery, 'credit'));
@@ -80,6 +107,7 @@ class LedgerExport implements FromView
                     'journal_entries' => $journalQuery,
                 ];
             }
+
         }
 
         return $ledgerAccounts;
