@@ -236,6 +236,15 @@
                 orderable: false,
                 searchable: false
             });
+            columns.push({
+                data: 'tanggal_penerimaan',
+                name: 'tanggal_penerimaan',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return data ? data : '-';
+                }
+            });
         }
 
 
