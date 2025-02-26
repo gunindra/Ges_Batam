@@ -111,6 +111,7 @@ class SupirController extends Controller
                             'tanda_tangan' => $signaturePath,
                             'keterangan' => 'Barang Telah Selesai Di antarkan',
                             'updated_at' => now(),
+                            'tanggal_penerimaan' => now(),
                         ]);
 
                     $pengantaranDetails = DB::table('tbl_pengantaran_detail')

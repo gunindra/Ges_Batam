@@ -1017,6 +1017,7 @@ class DeliveryController extends Controller
                         'tanda_tangan' => $customerSignaturePath,
                         'keterangan' => "Barang Telah Selesai Di Pickup Costumer. Invoice di proses oleh admin: $verifiedUsername",
                         'updated_at' => now(),
+                        'tanggal_penerimaan' => now(),
                     ]);
 
                 // Check if all records are completed for updating status

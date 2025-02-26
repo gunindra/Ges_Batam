@@ -42,12 +42,17 @@ class TrackingsController extends Controller
             ])
             ->where('tbl_tracking.company_id', $companyId);
 
-        if ($user->role === 'customer') {
-            $query->join('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
-                  ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-                  ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-                  ->where('tbl_pembeli.user_id', $user->id);
-        }
+            if ($user->role === 'customer') {
+                $query->addSelect([
+                    DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
+                    DB::raw("IFNULL(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), '-') AS volume"),
+                    DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas")
+                ])
+                ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
+                ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+                ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                ->where('tbl_pembeli.user_id', $user->id);
+            }
 
         if ($request->status) {
             $query->where('tbl_tracking.status', $request->status);
@@ -85,6 +90,7 @@ class TrackingsController extends Controller
             ->make(true);
     }
 
+
     public function addTracking(Request $request)
     {
         $companyId = session('active_company_id');
@@ -117,8 +123,6 @@ class TrackingsController extends Controller
             return response()->json(['error' => 'Failed to add data', 'message' => $e->getMessage()], 500);
         }
     }
-
-
 
 
     public function updateTracking(Request $request, $id)

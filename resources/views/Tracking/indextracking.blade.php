@@ -136,6 +136,10 @@
                                         <th>No. DO</th>
                                         <th>Status</th>
                                         <th>Keterangan</th>
+                                        @if (in_array(Auth::user()->role, ['customer']))
+                                            <th>Quantitas</th>
+                                            <th>Barang diterima</th>
+                                        @endif
                                         @if (in_array(Auth::user()->role, ['superadmin', 'admin', 'supervisor']))
                                             <th>Action</th>
                                         @endif
@@ -220,6 +224,15 @@
             columns.push({
                 data: 'action',
                 name: 'action',
+                orderable: false,
+                searchable: false
+            });
+        }
+
+        if (@json(Auth::user()->role) === 'customer') {
+            columns.push({
+                data: 'quantitas',
+                name: 'quantitas',
                 orderable: false,
                 searchable: false
             });
