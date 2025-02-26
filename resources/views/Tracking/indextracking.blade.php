@@ -136,6 +136,7 @@
                                         <th>No. DO</th>
                                         <th>Status</th>
                                         <th>Keterangan</th>
+                                        <th>Pembayaran</th>
                                         @if (in_array(Auth::user()->role, ['customer']))
                                             <th>Quantitas</th>
                                             <th>Barang diterima</th>
@@ -211,7 +212,13 @@
             {
                 data: 'keterangan',
                 name: 'keterangan'
-            }
+            },
+            {
+                data: 'status_bayar',
+                name: 'status_bayar',
+                orderable: false,
+                searchable: false
+            },
         ];
 
         if (hasActionColumn) {

@@ -38,23 +38,24 @@ class TrackingsController extends Controller
                 'tbl_tracking.no_resi',
                 'tbl_tracking.no_do',
                 'tbl_tracking.status',
-                'tbl_tracking.keterangan'
+                'tbl_tracking.keterangan',
+                'tbl_invoice.status_bayar'
             ])
+            ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi') // ✅ Join sekali saja
+            ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id') // ✅ Join sekali saja
             ->where('tbl_tracking.company_id', $companyId);
 
-            if ($user->role === 'customer') {
-                $query->addSelect([
-                    DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
-                    DB::raw("IFNULL(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), '-') AS volume"),
-                    DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas"),
-                    DB::raw("IFNULL(DATE_FORMAT(tbl_pengantaran_detail.tanggal_penerimaan, '%d %M %Y %H:%i:%s'), '-') AS tanggal_penerimaan")
-                ])
-                ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
-                ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-                ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-                ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
-                ->where('tbl_pembeli.user_id', $user->id);
-            }
+        if ($user->role === 'customer') {
+            $query->addSelect([
+                DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
+                DB::raw("IFNULL(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), '-') AS volume"),
+                DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas"),
+                DB::raw("IFNULL(DATE_FORMAT(tbl_pengantaran_detail.tanggal_penerimaan, '%d %M %Y %H:%i:%s'), '-') AS tanggal_penerimaan")
+            ])
+            ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // ✅ Join hanya jika customer
+            ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
+            ->where('tbl_pembeli.user_id', $user->id);
+        }
 
         if ($request->status) {
             $query->where('tbl_tracking.status', $request->status);
@@ -68,10 +69,9 @@ class TrackingsController extends Controller
         return DataTables::of($data)
             ->with(['allIds' => $allIds])
             ->addColumn('select', function ($row) {
-                if ($row->status === "Dalam Perjalanan") {
-                    return '<input type="checkbox" class="select-row" data-id="' . $row->id . '">';
-                }
-                return '';
+                return $row->status === "Dalam Perjalanan"
+                    ? '<input type="checkbox" class="select-row" data-id="' . $row->id . '">'
+                    : '';
             })
             ->editColumn('status', function ($row) {
                 $statusBadgeClass = match ($row->status) {
@@ -83,14 +83,23 @@ class TrackingsController extends Controller
                 };
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status . '</span>';
             })
+            ->addColumn('status_bayar', function ($row) {
+                return $row->status_bayar == 'Lunas'
+                    ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
+                    : ($row->status_bayar == '-'
+                        ? '<span class="text-muted">-</span>'
+                        : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum lunas</span>');
+            })
             ->addColumn('action', function ($row) {
-                $deleteButton = $row->status == 'Dalam Perjalanan' ?
-                    '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>' : '';
+                $deleteButton = $row->status == 'Dalam Perjalanan'
+                    ? '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>'
+                    : '';
                 return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
             })
-            ->rawColumns(['select', 'status', 'action'])
+            ->rawColumns(['select', 'status', 'status_bayar', 'action'])
             ->make(true);
     }
+
 
 
     public function addTracking(Request $request)

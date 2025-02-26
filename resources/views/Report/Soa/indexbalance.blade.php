@@ -217,7 +217,6 @@
                     return;
                 }
 
-                // Menampilkan loading
                 Swal.fire({
                     title: 'Mengirim WhatsApp...',
                     text: 'Mohon tunggu beberapa saat',
@@ -240,7 +239,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil!',
-                            text: 'Pesan WhatsApp telah dikirim.',
+                            text: response.success,
                         });
                     },
                     error: function(xhr) {

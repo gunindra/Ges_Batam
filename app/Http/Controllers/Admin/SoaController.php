@@ -116,23 +116,23 @@ class SoaController extends Controller
 
     public function soaWA(Request $request)
     {
-        try{
+        try {
             $companyId = session('active_company_id');
             $customer_id = $request->customer;
             $customer = Customer::find($customer_id);
 
             if (!$customer) {
-                return redirect()->back()->withErrors(['error' => 'Mohon Pilih Customer yang diinginkan']);
+                return response()->json(['error' => 'Mohon Pilih Customer yang diinginkan'], 400);
             }
 
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
-                        ->where('tbl_invoice.pembeli_id', $customer )
-                        ->where('tbl_invoice.company_id', $companyId)
-                        ->where('tbl_invoice.soa_closing', false)
-                        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-                        ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
-                        ->selectRaw('tbl_invoice.*, tbl_pembeli.marking, COALESCE(MIN(tbl_resi.no_do), "-") as no_do')
-                        ->groupBy('tbl_invoice.id', 'tbl_pembeli.marking');
+                ->where('tbl_invoice.pembeli_id', $customer->id) // Perbaikan: gunakan ID, bukan object
+                ->where('tbl_invoice.company_id', $companyId)
+                ->where('tbl_invoice.soa_closing', false)
+                ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
+                ->selectRaw('tbl_invoice.*, tbl_pembeli.marking, COALESCE(MIN(tbl_resi.no_do), "-") as no_do')
+                ->groupBy('tbl_invoice.id', 'tbl_pembeli.marking');
 
             if ($request->startDate) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));
@@ -151,7 +151,7 @@ class SoaController extends Controller
             $invoice = $query->get();
 
             if ($invoice->isEmpty()) {
-                return redirect()->back()->withErrors(['error' => 'Tidak ada data Invoice yang ditemukan']);
+                return response()->json(['error' => 'Tidak ada data Invoice yang ditemukan'], 400);
             }
 
             $pdf = Pdf::loadView('exportPDF.soa', [
@@ -165,7 +165,6 @@ class SoaController extends Controller
             $pdfFileName = 'Statement of Account_'. $customer->nama_pembeli .'.pdf';
             $filePath = $directoryPath . '/' . $pdfFileName;
 
-            // Check if the directory exists; if not, create it
             if (!file_exists($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
@@ -184,25 +183,20 @@ class SoaController extends Controller
                 $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, $fileUrl, $sender);
                 $pesanTerkirim = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, null, $sender);
 
-                if (!$pesanTerkirimDenganFile) {
-                    Log::error('Gagal mengirim pesan dengan file ke ' . $customer->no_wa);
-                }
-
-                if (!$pesanTerkirim) {
-                    Log::error('Gagal mengirim pesan teks ke ' . $customer->no_wa);
-                }
-
                 if (!$pesanTerkirimDenganFile && !$pesanTerkirim) {
-                    return redirect()->back()->withErrors(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $customer->no_wa]);
+                    return response()->json(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $customer->no_wa], 400);
                 }
 
             } else {
-                return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan, silahkan periksa kembali Nomor Telpeon Customer yang dipilih']);
+                return response()->json(['error' => 'Terjadi kesalahan, silahkan periksa kembali Nomor Telepon Customer yang dipilih'], 400);
             }
+
+            return response()->json(['success' => 'Pesan WhatsApp berhasil dikirim']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
 
     public function exportSoaCustomerReport(Request $request)
     {
