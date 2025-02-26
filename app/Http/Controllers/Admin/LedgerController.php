@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 use App\Exports\LedgerExport;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Str;
 
 class LedgerController extends Controller
 {
@@ -128,19 +131,116 @@ class LedgerController extends Controller
     }
 
 
-    public function generatePdf(Request $request)
+    public function exportLedgerPdf(Request $request)
     {
-        $htmlOutput = $this->getLedgerHtml($request);
+        $companyId = session('active_company_id');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $customer = $request->nama_pembeli ?? '-';
 
-        $pdf = PDF::loadHTML($htmlOutput);
-        return $pdf->download('Ledger_Report.pdf');
+        try {
+            $query = DB::table('tbl_invoice as invoice')->select(
+                'invoice.id',
+                'invoice.no_invoice',
+                DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                'pembeli.nama_pembeli',
+                DB::raw("CASE WHEN CURDATE() < invoice.tanggal_buat THEN '-'
+                    WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()), ' tahun ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 365), ' hari'
+                        )
+                    WHEN TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()) > 0 THEN
+                        CONCAT(
+                            TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()), ' bulan ',
+                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 30), ' hari'
+                        )
+                    ELSE
+                        CONCAT(DATEDIFF(CURDATE(), invoice.tanggal_buat), ' hari')
+                END AS umur
+            ")
+            )
+            ->where('invoice.company_id', $companyId)
+                ->where('invoice.status_bayar', '=', 'Belum lunas')
+                ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
+
+            $query->orderBy('invoice.tanggal_invoice', 'desc');
+
+            if ($customer !== '-') {
+                $query->where('pembeli.id', '=', $customer);
+            }
+
+            if ($request->startDate && $request->endDate) {
+                $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
+                $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
+                $query->whereBetween('invoice.tanggal_buat', [$startDateCarbon, $endDateCarbon]);
+
+                $startDate = $startDateCarbon->format('d F Y');
+                $endDate = $endDateCarbon->format('d F Y');
+            } else {
+                $startDate = '-';
+                $endDate = '-';
+            }
+
+            $piutang = $query->get();
+
+            $customerName = '-';
+            if ($customer !== '-') {
+                $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
+                $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
+            }
+
+            if ($piutang->isEmpty()) {
+                return response()->json(['error' => 'No Piutang report found'], 404);
+            }
+
+            try {
+                $pdf = pdf::loadView('exportPDF.piutang', [
+                    'piutang' => $piutang,
+                    'customer' => $customerName,
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
+                ])
+                    ->setPaper('A4', 'portrait')
+                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                    ->setWarnings(false);
+            } catch (\Exception $e) {
+                Log::error('Error generating piutang invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to generate PDF'], 500);
+            }
+            try {
+                $folderPath = storage_path('app/public/piutang');
+
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0777, true);
+                }
+
+                $fileName = 'piutang_report' . (string) Str::uuid() . '.pdf';
+                $filePath = $folderPath . '/' . $fileName;
+
+                $pdf->save($filePath);
+            } catch (\Exception $e) {
+                Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['error' => 'Failed to save PDF'], 500);
+            }
+
+            $url = asset('storage/piutang/' . $fileName);
+            return response()->json(['url' => $url]);
+
+        } catch (\Exception $e) {
+            Log::error('Error generating piutang report PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the piutang report PDF'], 500);
+    }
     }
 
 
-    public function exportExcel(Request $request)
+    public function exportLedger(Request $request)
     {
-        $ledgerAccounts = $this->getLedgerData($request);
-        return Excel::download(new LedgerExport($ledgerAccounts), 'Ledger_Report.xlsx');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $filterCode = $request->code_account_id ?? '-';
+
+        return Excel::download(new LedgerExport($filterCode, $startDate, $endDate), 'Ledger.xlsx');
     }
 
 

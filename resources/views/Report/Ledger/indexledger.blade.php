@@ -73,12 +73,10 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex mb-2 mr-3 float-right">
-                        <a class="btn btn-success mr-1" style="color:white;" id="Print"><span class="pr-2"><i
-                                    class="fas fa-solid fa-print mr-1"></i></span>Print</a>
-                        <a href="{{ route('ledger.exportExcel') }}?startDate={{ request('startDate') }}&endDate={{ request('endDate') }}&filterCode={{ request('filterCode') }}"
-                            class="btn btn-success">
-                            Export to Excel
-                        </a>
+                        <!-- <a class="btn btn-success mr-1" style="color:white;" id="Print"><span class="pr-2"><i
+                                    class="fas fa-solid fa-print mr-1"></i></span>Print</a> -->
+                        <button class="btn btn-primary mr-2" id="btnExportLedger">Export Pdf</button>
+                        <button class="btn btn-success mr-2" id="exportBtn">Export Excel</button>
                     </div>
                     <div class="d-flex mb-4 mr-3 float-left">
                         <button class="btn btn-primary ml-2 mr-2" id="filterTanggal">Filter Tanggal</button>
@@ -182,9 +180,101 @@
             $('#modalFilterTanggal').modal('hide');
         });
 
-        $('#Print').on('click', function (e) {
-            e.preventDefault
-            window.location.href = '{{ route('ledger.pdf') }}';
+        $(document).on('click', '#btnExportLedger', function (e) {
+            let id = $(this).data('id');
+            let startDate = $('#startDate').val();
+            let endDate = $('#endDate').val();
+            var filterCode = $('#filterCode').val();
+
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('exportLedgerPdf') }}",
+                data: {
+                    id: id,
+                    startDate: startDate,
+                    endDate: endDate,
+                    code_account_id: filterCode
+                },
+                success: function (response) {
+                    Swal.close();
+
+                    if (response.url) {
+                        window.open(response.url, '_blank');
+                    } else if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    Swal.close();
+
+                    let errorMessage = 'Gagal Export Piutang';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage
+                    });
+                }
+            });
+        });
+
+        $('#exportBtn').on('click', function () {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var filterCode = $('#filterCode').val();
+
+            var now = new Date();
+            var day = String(now.getDate()).padStart(2, '0');
+            var month = now.toLocaleString('default', { month: 'long' });
+            var year = now.getFullYear();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+
+            var filename = `Ledger_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+
+            $.ajax({
+                url: "{{ route('exportLedger') }}",
+                type: 'GET',
+                data: {
+                    startDate: startDate,
+                    endDate: endDate,
+                    code_account_id: filterCode,
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function (data) {
+                    var blob = new Blob([data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                },
+                error: function () {
+                    Swal.fire({
+                        title: "Export failed!",
+                        icon: "error"
+                    });
+                }
+            });
         });
     });
 </script>
