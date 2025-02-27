@@ -133,8 +133,6 @@ class LedgerController extends Controller
 
     public function exportLedgerPdf(Request $request)
     {
-
-
         $companyId = session('active_company_id');
         $startDate = $request->input('startDate') ? date('Y-m-d', strtotime($request->input('startDate'))) : date('Y-m-01');
         $endDate = $request->input('endDate') ? date('Y-m-d', strtotime($request->input('endDate'))) : date('Y-m-t');
@@ -150,57 +148,62 @@ class LedgerController extends Controller
         try {
             $coaQuery = DB::table('tbl_coa')
                 ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
-                ->when($filterCode, function ($query, $filterCode) {
+                ->when(!empty($filterCode) && $filterCode !== '-', function ($query) use ($filterCode) {
                     return $query->whereIn('tbl_coa.id', (array) $filterCode);
                 })
                 ->orderBy('tbl_coa.code_account_id', 'ASC')
                 ->get();
 
-                $ledgerAccounts = [];
-                foreach ($coaQuery as $coa) {
-                    $journalQuery = DB::select("SELECT ji.id AS items_id,
-                                                    ji.jurnal_id AS jurnal_id,
-                                                    ji.code_account AS account_id,
-                                                    ji.debit AS debit,
-                                                    ji.credit AS credit,
-                                                    ji.description AS items_description,
-                                                    ju.tanggal AS tanggal
-                                                FROM tbl_jurnal_items ji
-                                                LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                                WHERE ji.code_account = $coa->coa_id
-                                                AND ju.tanggal >= '$startDate'
-                                                AND ju.tanggal <= '$endDate'");
+            if ($coaQuery->isEmpty()) {
+                $coaQuery = DB::table('tbl_coa')
+                    ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
+                    ->orderBy('tbl_coa.code_account_id', 'ASC')
+                    ->get();
+            }
 
-                    $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
-                                                                    SUM(ji.credit) AS total_credit
-                                                            FROM tbl_jurnal_items ji
-                                                            LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                                            WHERE ji.code_account = $coa->coa_id
-                                                            AND ju.tanggal < '$startDate'");
+            $ledgerAccounts = [];
+            foreach ($coaQuery as $coa) {
+                $journalQuery = DB::select("SELECT ji.id AS items_id,
+                                                ji.jurnal_id AS jurnal_id,
+                                                ji.code_account AS account_id,
+                                                ji.debit AS debit,
+                                                ji.credit AS credit,
+                                                ji.description AS items_description,
+                                                ju.tanggal AS tanggal
+                                            FROM tbl_jurnal_items ji
+                                            LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                            WHERE ji.code_account = ?
+                                            AND ju.tanggal BETWEEN ? AND ?", [$coa->coa_id, $startDate, $endDate]);
 
-                    $beginningBalance = ($coa->position == 'Debit')
-                        ? $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit
-                        : $beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit;
+                $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
+                                                                SUM(ji.credit) AS total_credit
+                                                        FROM tbl_jurnal_items ji
+                                                        LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                        WHERE ji.code_account = ?
+                                                        AND ju.tanggal < ?", [$coa->coa_id, $startDate]);
 
-                    $totalDebit = array_sum(array_column($journalQuery, 'debit'));
-                    $totalCredit = array_sum(array_column($journalQuery, 'credit'));
+                $beginningBalance = ($coa->position == 'Debit')
+                    ? ($beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit)
+                    : ($beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit);
 
-                    $endingBalance = ($coa->position == 'Debit')
-                        ? $beginningBalance + $totalDebit - $totalCredit
-                        : $beginningBalance + $totalCredit - $totalDebit;
+                $totalDebit = array_sum(array_column($journalQuery, 'debit'));
+                $totalCredit = array_sum(array_column($journalQuery, 'credit'));
 
-                    if (!empty($journalQuery) || $beginningBalance != 0) {
-                        $ledgerAccounts[] = [
-                            'coa_id' => $coa->coa_id,
-                            'account_name' => $coa->account_name,
-                            'code' => $coa->code,
-                            'beginning_balance' => $beginningBalance,
-                            'ending_balance' => $endingBalance,
-                            'journal_entries' => $journalQuery,
-                        ];
-                    }
+                $endingBalance = ($coa->position == 'Debit')
+                    ? ($beginningBalance + $totalDebit - $totalCredit)
+                    : ($beginningBalance + $totalCredit - $totalDebit);
 
+                if (!empty($journalQuery) || $beginningBalance != 0) {
+                    $ledgerAccounts[] = [
+                        'coa_id' => $coa->coa_id,
+                        'account_name' => $coa->account_name,
+                        'code' => $coa->code,
+                        'beginning_balance' => $beginningBalance,
+                        'ending_balance' => $endingBalance,
+                        'journal_entries' => $journalQuery,
+                    ];
                 }
+            }
 
             if (empty($ledgerAccounts)) {
                 return response()->json(['error' => 'No Ledger report found'], 404);
@@ -216,7 +219,6 @@ class LedgerController extends Controller
                 ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
                 ->setWarnings(false);
 
-            // Langsung unduh tanpa menyimpan file di server
             return $pdf->stream('Ledger_report.pdf');
 
         } catch (\Exception $e) {
@@ -224,6 +226,7 @@ class LedgerController extends Controller
             return response()->json(['error' => 'An error occurred while generating the ledger report PDF'], 500);
         }
     }
+
 
 
 

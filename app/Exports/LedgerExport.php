@@ -24,10 +24,13 @@ class LedgerExport implements FromView
     {
         $ledgerAccounts = $this->getLedgerData();
 
+        // Pastikan filterCode adalah array
+        $filterCode = is_array($this->filterCode) ? $this->filterCode : [];
+
         $filterCodeNames = DB::table('tbl_coa')
-        ->whereIn('tbl_coa.id', $this->filterCode)
-        ->pluck('tbl_coa.name')
-        ->toArray();
+            ->whereIn('tbl_coa.id', $filterCode)
+            ->pluck('tbl_coa.name')
+            ->toArray();
 
         $filterCodeStr = implode(', ', $filterCodeNames);
 
@@ -52,13 +55,13 @@ class LedgerExport implements FromView
 
     private function getLedgerData()
     {
-        $filterCode = $this->filterCode;
-        $startDate =  $this->startDate ? date('Y-m-d', strtotime( $this->startDate)) : date('Y-m-01');
+        $filterCode = is_array($this->filterCode) ? $this->filterCode : [];
+        $startDate = $this->startDate ? date('Y-m-d', strtotime($this->startDate)) : date('Y-m-01');
         $endDate = $this->endDate ? date('Y-m-d', strtotime($this->endDate)) : date('Y-m-t');
 
         $coaQuery = DB::table('tbl_coa')
             ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
-            ->when($filterCode, function ($query, $filterCode) {
+            ->when(!empty($filterCode), function ($query) use ($filterCode) {
                 return $query->whereIn('tbl_coa.id', $filterCode);
             })
             ->orderBy('tbl_coa.code_account_id', 'ASC')
@@ -75,27 +78,29 @@ class LedgerExport implements FromView
                                             ju.tanggal AS tanggal
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        WHERE ji.code_account = $coa->coa_id
-                                        AND ju.tanggal >= '$startDate'
-                                        AND ju.tanggal <= '$endDate'");
+                                        WHERE ji.code_account = ?
+                                        AND ju.tanggal BETWEEN ? AND ?", [$coa->coa_id, $startDate, $endDate]);
 
             $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                             SUM(ji.credit) AS total_credit
                                                     FROM tbl_jurnal_items ji
                                                     LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                                    WHERE ji.code_account = $coa->coa_id
-                                                    AND ju.tanggal < '$startDate'");
+                                                    WHERE ji.code_account = ?
+                                                    AND ju.tanggal < ?", [$coa->coa_id, $startDate]);
+
+            $totalDebit = $beginningBalanceQuery[0]->total_debit ?? 0;
+            $totalCredit = $beginningBalanceQuery[0]->total_credit ?? 0;
 
             $beginningBalance = ($coa->position == 'Debit')
-                ? $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit
-                : $beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit;
+                ? ($totalDebit - $totalCredit)
+                : ($totalCredit - $totalDebit);
 
             $totalDebit = array_sum(array_column($journalQuery, 'debit'));
             $totalCredit = array_sum(array_column($journalQuery, 'credit'));
 
             $endingBalance = ($coa->position == 'Debit')
-                ? $beginningBalance + $totalDebit - $totalCredit
-                : $beginningBalance + $totalCredit - $totalDebit;
+                ? ($beginningBalance + $totalDebit - $totalCredit)
+                : ($beginningBalance + $totalCredit - $totalDebit);
 
             if (!empty($journalQuery) || $beginningBalance != 0) {
                 $ledgerAccounts[] = [
@@ -107,7 +112,6 @@ class LedgerExport implements FromView
                     'journal_entries' => $journalQuery,
                 ];
             }
-
         }
 
         return $ledgerAccounts;
