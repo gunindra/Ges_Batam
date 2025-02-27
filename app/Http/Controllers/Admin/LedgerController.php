@@ -133,105 +133,98 @@ class LedgerController extends Controller
 
     public function exportLedgerPdf(Request $request)
     {
+
+
         $companyId = session('active_company_id');
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-        $customer = $request->nama_pembeli ?? '-';
+        $startDate = $request->input('startDate') ? date('Y-m-d', strtotime($request->input('startDate'))) : date('Y-m-01');
+        $endDate = $request->input('endDate') ? date('Y-m-d', strtotime($request->input('endDate'))) : date('Y-m-t');
+        $filterCode = $request->code_account_id ?? '-';
+
+        $filterCodeNames = DB::table('tbl_coa')
+            ->whereIn('tbl_coa.id', (array) $filterCode)
+            ->pluck('tbl_coa.name')
+            ->toArray();
+
+        $filterCodeStr = implode(', ', $filterCodeNames);
 
         try {
-            $query = DB::table('tbl_invoice as invoice')->select(
-                'invoice.id',
-                'invoice.no_invoice',
-                DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-                'pembeli.nama_pembeli',
-                DB::raw("CASE WHEN CURDATE() < invoice.tanggal_buat THEN '-'
-                    WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
-                        CONCAT(
-                            TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()), ' tahun ',
-                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 365), ' hari'
-                        )
-                    WHEN TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()) > 0 THEN
-                        CONCAT(
-                            TIMESTAMPDIFF(MONTH, invoice.tanggal_buat, CURDATE()), ' bulan ',
-                            MOD(DATEDIFF(CURDATE(), invoice.tanggal_buat), 30), ' hari'
-                        )
-                    ELSE
-                        CONCAT(DATEDIFF(CURDATE(), invoice.tanggal_buat), ' hari')
-                END AS umur
-            ")
-            )
-            ->where('invoice.company_id', $companyId)
-                ->where('invoice.status_bayar', '=', 'Belum lunas')
-                ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id');
+            $coaQuery = DB::table('tbl_coa')
+                ->select('tbl_coa.name AS account_name', 'tbl_coa.id AS coa_id', 'tbl_coa.code_account_id AS code', 'tbl_coa.default_posisi AS position')
+                ->when($filterCode, function ($query, $filterCode) {
+                    return $query->whereIn('tbl_coa.id', (array) $filterCode);
+                })
+                ->orderBy('tbl_coa.code_account_id', 'ASC')
+                ->get();
 
-            $query->orderBy('invoice.tanggal_invoice', 'desc');
+                $ledgerAccounts = [];
+                foreach ($coaQuery as $coa) {
+                    $journalQuery = DB::select("SELECT ji.id AS items_id,
+                                                    ji.jurnal_id AS jurnal_id,
+                                                    ji.code_account AS account_id,
+                                                    ji.debit AS debit,
+                                                    ji.credit AS credit,
+                                                    ji.description AS items_description,
+                                                    ju.tanggal AS tanggal
+                                                FROM tbl_jurnal_items ji
+                                                LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                WHERE ji.code_account = $coa->coa_id
+                                                AND ju.tanggal >= '$startDate'
+                                                AND ju.tanggal <= '$endDate'");
 
-            if ($customer !== '-') {
-                $query->where('pembeli.id', '=', $customer);
-            }
+                    $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
+                                                                    SUM(ji.credit) AS total_credit
+                                                            FROM tbl_jurnal_items ji
+                                                            LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                            WHERE ji.code_account = $coa->coa_id
+                                                            AND ju.tanggal < '$startDate'");
 
-            if ($request->startDate && $request->endDate) {
-                $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
-                $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
-                $query->whereBetween('invoice.tanggal_buat', [$startDateCarbon, $endDateCarbon]);
+                    $beginningBalance = ($coa->position == 'Debit')
+                        ? $beginningBalanceQuery[0]->total_debit - $beginningBalanceQuery[0]->total_credit
+                        : $beginningBalanceQuery[0]->total_credit - $beginningBalanceQuery[0]->total_debit;
 
-                $startDate = $startDateCarbon->format('d F Y');
-                $endDate = $endDateCarbon->format('d F Y');
-            } else {
-                $startDate = '-';
-                $endDate = '-';
-            }
+                    $totalDebit = array_sum(array_column($journalQuery, 'debit'));
+                    $totalCredit = array_sum(array_column($journalQuery, 'credit'));
 
-            $piutang = $query->get();
+                    $endingBalance = ($coa->position == 'Debit')
+                        ? $beginningBalance + $totalDebit - $totalCredit
+                        : $beginningBalance + $totalCredit - $totalDebit;
 
-            $customerName = '-';
-            if ($customer !== '-') {
-                $customerData = DB::table('tbl_pembeli')->where('id', $customer)->first();
-                $customerName = $customerData ? $customerData->nama_pembeli : 'Unknown';
-            }
+                    if (!empty($journalQuery) || $beginningBalance != 0) {
+                        $ledgerAccounts[] = [
+                            'coa_id' => $coa->coa_id,
+                            'account_name' => $coa->account_name,
+                            'code' => $coa->code,
+                            'beginning_balance' => $beginningBalance,
+                            'ending_balance' => $endingBalance,
+                            'journal_entries' => $journalQuery,
+                        ];
+                    }
 
-            if ($piutang->isEmpty()) {
-                return response()->json(['error' => 'No Piutang report found'], 404);
-            }
-
-            try {
-                $pdf = pdf::loadView('exportPDF.piutang', [
-                    'piutang' => $piutang,
-                    'customer' => $customerName,
-                    'startDate' => $startDate,
-                    'endDate' => $endDate,
-                ])
-                    ->setPaper('A4', 'portrait')
-                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-                    ->setWarnings(false);
-            } catch (\Exception $e) {
-                Log::error('Error generating piutang invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to generate PDF'], 500);
-            }
-            try {
-                $folderPath = storage_path('app/public/piutang');
-
-                if (!file_exists($folderPath)) {
-                    mkdir($folderPath, 0777, true);
                 }
 
-                $fileName = 'piutang_report' . (string) Str::uuid() . '.pdf';
-                $filePath = $folderPath . '/' . $fileName;
-
-                $pdf->save($filePath);
-            } catch (\Exception $e) {
-                Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to save PDF'], 500);
+            if (empty($ledgerAccounts)) {
+                return response()->json(['error' => 'No Ledger report found'], 404);
             }
 
-            $url = asset('storage/piutang/' . $fileName);
-            return response()->json(['url' => $url]);
+            $pdf = pdf::loadView('exportPDF.ledgerpdf', [
+                'ledgerAccounts' => $ledgerAccounts,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'filterCode' => $filterCodeStr,
+            ])
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
+
+            // Langsung unduh tanpa menyimpan file di server
+            return $pdf->stream('Ledger_report.pdf');
 
         } catch (\Exception $e) {
-            Log::error('Error generating piutang report PDF: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'An error occurred while generating the piutang report PDF'], 500);
+            Log::error('Error generating ledger report PDF: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'An error occurred while generating the ledger report PDF'], 500);
+        }
     }
-    }
+
 
 
     public function exportLedger(Request $request)
