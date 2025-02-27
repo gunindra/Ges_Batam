@@ -34,6 +34,7 @@ class SoaController extends Controller
 
         $invoiceQuery = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
                     ->where('tbl_invoice.pembeli_id', '=', $customer)
+                    ->where('tbl_invoice.status_id', 6)
                     ->where('tbl_invoice.company_id', $companyId)
                     ->where('tbl_invoice.soa_closing', false)
                     ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
@@ -128,6 +129,7 @@ class SoaController extends Controller
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
                 ->where('tbl_invoice.pembeli_id', $customer->id) // Perbaikan: gunakan ID, bukan object
                 ->where('tbl_invoice.company_id', $companyId)
+                ->where('tbl_invoice.status_id', 6)
                 ->where('tbl_invoice.soa_closing', false)
                 ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
                 ->leftJoin('tbl_resi', 'tbl_invoice.id', '=', 'tbl_resi.invoice_id')
@@ -209,16 +211,12 @@ class SoaController extends Controller
 
     public function closingSoa(Request $request)
     {
-        // Validasi request pastikan invoiceIds ada dan merupakan array
         $request->validate([
             'invoiceIds' => 'required|array',
-            'invoiceIds.*' => 'exists:tbl_invoice,id', // Pastikan ID ada di database
+            'invoiceIds.*' => 'exists:tbl_invoice,id',
         ]);
 
-        // Ambil ID dari request
         $invoiceIds = $request->invoiceIds;
-
-        // Update soa_closing menjadi true
         Invoice::whereIn('id', $invoiceIds)->update(['soa_closing' => true]);
 
         return response()->json([
