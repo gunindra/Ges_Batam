@@ -39,10 +39,8 @@
             <tr>
                 <td style="border:1px solid black; padding: 8px; text-align: center;">Beginning Balance</td>
                 <td style="border:1px solid black; padding: 8px;"></td>
-                <td style="border:1px solid black; padding: 8px; text-align: right;">
-                    {{ number_format($ledger['beginning_balance'], 2) }}
-                </td>
-                <td style="border:1px solid black; padding: 8px;"></td>
+                <td style="border:1px solid black; padding: 8px; "></td>
+                <td style="border:1px solid black; padding: 8px; text-align: right;">{{ number_format($ledger['beginning_balance'], 2) }}</td>
             </tr>
             @foreach($ledger['journal_entries'] as $entry)
                 <tr>
