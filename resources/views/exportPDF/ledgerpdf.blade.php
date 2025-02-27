@@ -246,8 +246,8 @@
                     <tr class="summary-row">
                         <td>Beginning Balance</td>
                         <td></td>
-                        <td>{{ number_format($ledger['beginning_balance'], 2) }}</td>
                         <td></td>
+                        <td>{{ number_format($ledger['beginning_balance'], 2) }}</td>
                     </tr>
                     @foreach ($ledger['journal_entries'] as $entry)
                         <tr>
