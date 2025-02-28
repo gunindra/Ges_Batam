@@ -167,6 +167,43 @@
             text-align: center;
             clear: both;
         }
+
+        .signature-section {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+
+        .signature-section td {
+            width: 50%;
+            vertical-align: top;
+            padding-top: 20px;
+            text-align: right;
+            border: 1px solid transparent;
+        }
+
+        .signature-line {
+            border-top: 1px dotted #000;
+            width: 200px;
+            margin-left: auto; /* Geser ke kanan */
+            margin-right: 0;
+        }
+
+        .signature-label {
+            margin-top: 5px;
+            font-weight: bold;
+            padding-right: 60px;
+        }
+
+        .signature-section td:first-child {
+            width: 30%;
+        }
+
+        .signature-section td:last-child {
+            width: 70%;
+        }
     </style>
 </head>
 
@@ -208,7 +245,6 @@
         </div>
 
         <div class="title">
-            <h5>Tanggal: {{ $invoice->tanggal_bayar }}</h5>
             <h5>Pembeli: {{ $invoice->pembeli }} ({{ $invoice->marking }}) </h5>
             <p>Alamat: {{ $invoice->alamat }}</p>
             <h2>Invoice: {{ $invoice->no_invoice }}</h2>
@@ -228,8 +264,12 @@
             <tbody>
                 @php
                     $no = 1;
+                    $totalHarga = 0;
                 @endphp
                 @foreach ($resiData as $resi)
+                    @php
+                        $totalHarga += $resi->harga;
+                    @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $resi->no_resi }}</td>
@@ -262,11 +302,38 @@
                     </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-right"><strong>Total Harga:</strong></td>
+                    <td><strong>{{ number_format(ceil($totalHarga / 1000) * 1000, 2) }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+        <table class="signature-section">
+            <tr>
+                <td></td> <!-- Kolom kiri dibiarkan kosong -->
+                <td>
+                    @if (!empty($invoice->tanda_tangan))
+                        <?php
+                        $ttdPath = storage_path('app/public/' . $invoice->tanda_tangan);
+                        if (file_exists($ttdPath)) {
+                            $ttdData = file_get_contents($ttdPath);
+                            $ttdBase64 = 'data:image/png;base64,' . base64_encode($ttdData);
+                        } else {
+                            $ttdBase64 = null;
+                        }
+                        ?>
+                        @if ($ttdBase64)
+                            <img src="{{ $ttdBase64 }}" alt="Tanda Tangan Customer"
+                                style="width: 200px; height: auto;">
+                            <div class="signature-line"></div>
+                            <div class="signature-label">Customer</div>
+                        @endif
+                    @endif
+                </td>
+            </tr>
         </table>
 
-        <div class="summary">
-            <p class="text-right">Total Harga: <strong>{{ number_format($hargaIDR, 2) }}</strong></p>
-        </div>
     </div>
 </body>
 

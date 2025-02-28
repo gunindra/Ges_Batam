@@ -40,7 +40,7 @@
                 <td style="border:1px solid black; padding: 8px; text-align: center;">Beginning Balance</td>
                 <td style="border:1px solid black; padding: 8px;"></td>
                 <td style="border:1px solid black; padding: 8px; "></td>
-                <td style="border:1px solid black; padding: 8px; text-align: right;">{{ number_format($ledger['beginning_balance'], 2) }}</td>
+                <td style="border:1px solid black; padding: 8px; text-align: right;">{{ $ledger['beginning_balance'] }}</td>
             </tr>
             @foreach($ledger['journal_entries'] as $entry)
                 <tr>
@@ -51,10 +51,10 @@
                         {{ $entry->items_description }}
                     </td>
                     <td style="border:1px solid black; padding: 8px; text-align: right;">
-                        {{ number_format($entry->debit, 2) }}
+                        {{ $entry->debit }}
                     </td>
                     <td style="border:1px solid black; padding: 8px; text-align: right;">
-                        {{ number_format($entry->credit, 2) }}
+                        {{ $entry->credit }}
                     </td>
                 </tr>
             @endforeach
@@ -63,7 +63,7 @@
                 <td style="border:1px solid black; padding: 8px;"></td>
                 <td style="border:1px solid black; padding: 8px;"></td>
                 <td style="border:1px solid black; padding: 8px; text-align: right; font-weight: bold;">
-                    {{ number_format($ledger['ending_balance'], 2) }}
+                    {{ $ledger['ending_balance'] }}
                 </td>
             </tr>
             <tr></tr> {{-- Baris Kosong Untuk Pemisah --}}

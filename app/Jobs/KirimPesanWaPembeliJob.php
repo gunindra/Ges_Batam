@@ -41,7 +41,23 @@ class KirimPesanWaPembeliJob implements ShouldQueue
             $invoice = DB::table('tbl_invoice as a')
                 ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
                 ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
-                ->select('a.id', 'a.no_invoice', 'a.tanggal_invoice', 'b.marking','b.nama_pembeli', 'a.alamat', 'a.metode_pengiriman', 'a.total_harga', 'a.matauang_id', 'a.rate_matauang', 'd.status_name', 'b.no_wa', 'a.company_id')
+                ->leftJoin('tbl_pengantaran_detail as e', 'a.id', '=', 'e.invoice_id')
+                ->select(
+                    'a.id',
+                    'a.no_invoice',
+                    'a.tanggal_invoice',
+                    'b.marking',
+                    'b.nama_pembeli',
+                    'a.alamat',
+                    'a.metode_pengiriman',
+                    'a.total_harga',
+                    'a.matauang_id',
+                    'a.rate_matauang',
+                    'd.status_name',
+                    'b.no_wa',
+                    'a.company_id',
+                    'e.tanda_tangan'
+                )
                 ->where('a.id', $this->invoiceId)
                 ->first();
 

@@ -753,11 +753,13 @@ class InvoiceController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $id = $request->input('id');
-        $id = intval($id);
+        $id = intval($request->input('id'));
 
         try {
+            $fileName = 'invoice_' . $id . '.pdf';
+            $filePath = storage_path('app/public/invoice/' . $fileName);
 
+            // Query data invoice untuk mendapatkan informasi tanda tangan
             $q = "SELECT a.id,
                         a.no_invoice,
                         DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
@@ -770,12 +772,14 @@ class InvoiceController extends Controller
                         a.status_bayar,
                         a.rate_matauang,
                         d.id AS status_id,
-                        d.status_name
+                        d.status_name,
+                        e.tanda_tangan
                     FROM tbl_invoice AS a
                     JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
                     JOIN tbl_status AS d ON a.status_id = d.id
-                    WHERE a.id = $id";
-            $invoice = DB::select($q);
+                    LEFT JOIN tbl_pengantaran_detail AS e ON a.id = e.invoice_id
+                    WHERE a.id = ?";
+            $invoice = DB::select($q, [$id]);
 
             if (!$invoice) {
                 return response()->json(['error' => 'Invoice not found'], 404);
@@ -783,16 +787,30 @@ class InvoiceController extends Controller
 
             $invoice = $invoice[0];
 
+            // Ambil data resi
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $id)
                 ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
+            // **LOGIC UPDATE PDF JIKA TANDA TANGAN ADA**
+            if (File::exists($filePath)) {
+                if (!empty($invoice->tanda_tangan)) {
+                    // Jika file sudah ada dan tanda tangan sudah diisi, maka hapus file lama agar dibuat ulang
+                    File::delete($filePath);
+                } else {
+                    // Jika file sudah ada dan tidak perlu update, langsung return URL
+                    return response()->json(['url' => asset('storage/invoice/' . $fileName)]);
+                }
+            }
+
+            // **GENERATE PDF**
             try {
                 $pdf = Pdf::loadView('exportPDF.invoice', [
                     'invoice' => $invoice,
                     'resiData' => $resiData,
                     'hargaIDR' => $invoice->harga,
                     'tanggal' => $invoice->tanggal_bayar,
+                    'tanda_tangan' => $invoice->tanda_tangan ?? null
                 ])
                     ->setPaper('A4', 'portrait')
                     ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
@@ -802,29 +820,28 @@ class InvoiceController extends Controller
                 return response()->json(['error' => 'Failed to generate PDF'], 500);
             }
 
+            // **SIMPAN PDF**
             try {
-                // Cek dan buat folder jika tidak ada
                 $folderPath = storage_path('app/public/invoice');
                 if (!File::exists($folderPath)) {
                     File::makeDirectory($folderPath, 0755, true);
                 }
 
-                $fileName = 'invoice_' . (string) Str::uuid() . '.pdf';
-                $filePath = $folderPath . '/' . $fileName;
                 $pdf->save($filePath);
             } catch (\Exception $e) {
                 Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
                 return response()->json(['error' => 'Failed to save PDF'], 500);
             }
 
-            $url = asset('storage/invoice/' . $fileName);
-            return response()->json(['url' => $url]);
+            return response()->json(['url' => asset('storage/invoice/' . $fileName)]);
 
         } catch (\Exception $e) {
             Log::error('Error generating invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
         }
     }
+
+
 
 
     public function cekResiInvoice(Request $request)

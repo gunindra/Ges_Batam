@@ -653,17 +653,17 @@ class PaymentController extends Controller
                     $jurnalItem->jurnal_id = $jurnal->id;
                     $jurnalItem->code_account = $item['account'];
                     $jurnalItem->description = $item['item_desc'];
-                    
+
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['nominal'];
                         $jurnalItem->credit = 0;
                         $totalJurnalAmount -= $item['nominal'];
-                        
+
                     } elseif ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['nominal'];
                         $totalJurnalAmount += $item['nominal'];
-                        
+
                     }
 
                     $jurnalItemDebit->debit = $totalJurnalAmount;
@@ -683,7 +683,7 @@ class PaymentController extends Controller
                     ]);
                 }
 
-                
+
             }
 
             DB::commit();
@@ -873,17 +873,17 @@ class PaymentController extends Controller
                     $jurnalItem->jurnal_id = $jurnal->id;
                     $jurnalItem->code_account = $item['account'];
                     $jurnalItem->description = $item['item_desc'];
-                    
+
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['nominal'];
                         $jurnalItem->credit = 0;
                         $totalJurnalAmount -= $item['nominal'];
-                        
+
                     } elseif ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['nominal'];
                         $totalJurnalAmount += $item['nominal'];
-                        
+
                     }
 
                     $jurnalItemDebit->debit = $totalJurnalAmount;
@@ -1398,17 +1398,17 @@ class PaymentController extends Controller
                     $jurnalItem->jurnal_id = $jurnal->id;
                     $jurnalItem->code_account = $item['account'];
                     $jurnalItem->description = $item['item_desc'];
-                    
+
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['nominal'];
                         $jurnalItem->credit = 0;
                         $totalJurnalAmount -= $item['nominal'];
-                        
+
                     } elseif ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['nominal'];
                         $totalJurnalAmount += $item['nominal'];
-                        
+
                     }
 
                     $jurnalItemDebit->debit = $totalJurnalAmount;

@@ -167,6 +167,44 @@
             text-align: center;
             clear: both;
         }
+
+        .signature-section {
+            border-collapse: collapse;
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+
+        .signature-section td {
+            width: 50%;
+            vertical-align: top;
+            padding-top: 20px;
+            text-align: right;
+            border: 1px solid transparent;
+        }
+
+        .signature-line {
+            border-top: 1px dotted #000;
+            width: 200px;
+            margin-left: auto;
+            /* Geser ke kanan */
+            margin-right: 0;
+        }
+
+        .signature-label {
+            margin-top: 5px;
+            font-weight: bold;
+            padding-right: 45px;
+        }
+
+        .signature-section td:first-child {
+            width: 30%;
+        }
+
+        .signature-section td:last-child {
+            width: 70%;
+        }
     </style>
 </head>
 
@@ -213,7 +251,6 @@
 
 
     <div class="title">
-        <h5>Tanggal: {{ $invoice->tanggal_invoice }}</h5>
         <h5>Pembeli: {{ $invoice->nama_pembeli }} ({{ $invoice->marking }}) </h5>
         <p>Alamat: {{ $invoice->alamat }}</p>
 
@@ -271,49 +308,71 @@
                 </tr>
             @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="text-right"><strong>Total Harga:</strong></td>
+                <td><strong>{{ number_format(ceil($hargaIDR / 1000) * 1000, 2) }}</strong></td>
+            </tr>
+        </tfoot>
     </table>
 
     <div class="summary" style="position: relative;">
         @if ($type === 'invoice')
             <?php
-            if ($statusPembayaran === 'Belum Lunas') {
-            ?>
-            <p class="text-right" style="margin-top: 20px;">Total Harga:
-                <strong>{{ number_format($hargaIDR, 2) }}</strong>
-            </p>
-            <?php
-            } elseif ($statusPembayaran === 'Lunas') {
-                $path = public_path('img/lunas.png');
-                $tipe2 = pathinfo($path, PATHINFO_EXTENSION);
-                if (file_exists($path)) {
-                    $data =  file_get_contents($path);
-                    $base64 = 'data:image/' . $tipe2 . ';base64,' . base64_encode($data);
-                } else {
-                    $base64 = '';
-                }
-            ?>
-            <div class="paid-stamp" style="position: absolute; top: 0; right: 20px; opacity: 0.6;">
-                <img src="<?php echo $base64; ?>" alt="Stempel Lunas" style="width: 150px; transform: rotate(-20deg);">
-            </div>
-            <p class="text-right" style="margin-top: 20px;">Total Harga:
-                <strong>{{ number_format($hargaIDR, 2) }}</strong>
-            </p>
-            <?php
+            $showTandaTangan = !empty($invoice->tanda_tangan);
+            $pathLunas = public_path('img/lunas.png');
+            $tipeLunas = pathinfo($pathLunas, PATHINFO_EXTENSION);
+
+            // Cek apakah gambar lunas ada
+            if (file_exists($pathLunas)) {
+                $dataLunas = file_get_contents($pathLunas);
+                $base64Lunas = 'data:image/' . $tipeLunas . ';base64,' . base64_encode($dataLunas);
             } else {
-                Log::error('Status pembayaran tidak valid: ' . $statusPembayaran);
-            ?>
-            <p class="text-right" style="margin-top: 20px;">Total Harga:
-                <strong>{{ number_format($hargaIDR, 2) }}</strong>
-            </p>
-            <?php
+                $base64Lunas = '';
             }
             ?>
-        @else
-            <p class="text-right" style="margin-top: 20px;">Total Harga:
-                <strong>{{ number_format($hargaIDR, 2) }}</strong>
-            </p>
         @endif
     </div>
+
+    <!-- Bagian tanda tangan -->
+    <table class="signature-section" style="margin-left: auto; margin-right: 0; width: 50%;">
+        <tr>
+            <td></td> <!-- Kolom kiri tetap kosong -->
+            <td style="position: relative; text-align: center;">
+                @if ($showTandaTangan)
+                    <?php
+                    $ttdPath = storage_path('app/public/' . $invoice->tanda_tangan);
+                    if (file_exists($ttdPath)) {
+                        $ttdData = file_get_contents($ttdPath);
+                        $ttdBase64 = 'data:image/png;base64,' . base64_encode($ttdData);
+                    } else {
+                        $ttdBase64 = null;
+                    }
+                    ?>
+
+                    <!-- Jika ada tanda tangan, tampilkan -->
+                    @if ($ttdBase64)
+                        <img src="{{ $ttdBase64 }}" alt="Tanda Tangan Customer" style="width: 200px; height: auto; display: block; margin: 0 auto;">
+                    @endif
+
+                    <!-- Garis tanda tangan -->
+                    <div class="signature-line" style="margin: 10px auto;"></div>
+                    <div class="signature-label">Customer</div>
+
+                    <!-- Stempel lunas tetap di atas tanda tangan -->
+                    @if ($statusPembayaran === 'Lunas' && $base64Lunas)
+                        <div class="paid-stamp" style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%) rotate(-15deg) scale(1.4); opacity: 0.7;">
+                            <img src="{{ $base64Lunas }}" alt="Stempel Lunas" style="width: 100px;">
+                        </div>
+                    @endif
+                @else
+                    <!-- Area tanda tangan kosong -->
+                    <div class="signature-line"></div>
+                    <div class="signature-label">Customer</div>
+                @endif
+            </td>
+        </tr>
+    </table>
 </body>
 
 
