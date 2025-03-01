@@ -79,7 +79,7 @@
     <tfoot>
         <tr>
             <td colspan="8" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">Grand Total</td>
-            <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
+            <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">{{ $grandTotal }}</td>
         </tr>
     </tfoot>
 </table>
