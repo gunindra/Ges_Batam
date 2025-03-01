@@ -52,6 +52,8 @@
                                     <tr>
                                         <th>No. Invoice</th>
                                         <th>Tanggal Invoice</th>
+                                        <th>No Resi</th>
+                                        <th>Quantity</th>
                                         <th>No. DO</th>
                                         <th>Customer</th>
                                         <th>Pengiriman</th>
@@ -60,6 +62,12 @@
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="8" style="text-align: right;">Grand Total:</th>
+                                        <th id="grandTotal">Rp 0</th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -73,7 +81,7 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             var table = $('#tableSales').DataTable({
                 processing: true,
@@ -82,51 +90,64 @@
                 ajax: {
                     url: "{{ route('getListSales') }}",
                     type: "GET",
-                    data: function (d) {
+                    data: function(d) {
                         d.no_do = $('#filterNoDO').val();
                         d.nama_pembeli = $('#filterCustomer').val();
                     }
                 },
                 columns: [{
-                    data: "no_invoice",
-                    name: "no_invoice"
-                },
-                {
-                    data: "tanggal_buat",
-                    name: "tanggal_buat"
-                },
-                {
-                    data: "no_do",
-                    name: "no_do"
-                },
-                {
-                    data: "customer",
-                    name: "customer"
-                },
-                {
-                    data: "metode_pengiriman",
-                    name: "metode_pengiriman",
-                    render: function (data, type, row) {
-                        return row.metode_pengiriman.includes("Delivery") || row
-                            .metode_pengiriman.includes("Pickup") ?
-                            row.metode_pengiriman :
-                            "-"; // Hanya ambil Delivery dan Pickup
+                        data: "no_invoice",
+                        name: "no_invoice"
+                    },
+                    {
+                        data: "tanggal_buat",
+                        name: "tanggal_buat"
+                    },
+                    {
+                        data: "no_resi",
+                        name: "no_resi",
+                        render: function(data, type, row) {
+                            return data ? data.replace(/;/g, "<br>") :
+                                "-";
+                        }
+                    },
+                    {
+                        data: "berat_volume",
+                        name: "berat_volume",
+                        render: function(data, type, row) {
+                            return data ? data.replace(/;/g, "<br>") :
+                                "-"; // Ubah ";" jadi baris baru
+                        }
+                    },
+                    {
+                        data: "no_do",
+                        name: "no_do"
+                    },
+                    {
+                        data: "customer",
+                        name: "customer"
+                    },
+                    {
+                        data: "metode_pengiriman",
+                        name: "metode_pengiriman",
+                        render: function(data, type, row) {
+                            return row.metode_pengiriman.includes("Delivery") || row
+                                .metode_pengiriman.includes("Pickup") ?
+                                row.metode_pengiriman :
+                                "-";
+                        }
+                    },
+                    {
+                        data: "status_transaksi",
+                        name: "status_transaksi",
+                    },
+                    {
+                        data: "total_harga",
+                        name: "total_harga",
+                        render: function(data, type, row) {
+                            return `${parseFloat(data).toLocaleString('id-ID')}`;
+                        }
                     }
-                },
-                {
-                    data: "status_transaksi",
-                    name: "status_transaksi",
-                    render: function (data, type, row) {
-                        return `<span class="badge">${data}</span>`;
-                    }
-                },
-                {
-                    data: "total_harga",
-                    name: "total_harga",
-                    render: function (data, type, row) {
-                        return `Rp ${parseFloat(data).toLocaleString('id-ID')}`;
-                    }
-                }
                 ],
                 order: [],
                 lengthChange: false,
@@ -137,26 +158,48 @@
                     emptyTable: "No data available in table",
                     loadingRecords: "Loading...",
                     zeroRecords: "No matching records found"
+                },
+                footerCallback: function(row, data, start, end, display) {
+                    var api = this.api();
+
+                    // Hitung total harga dari semua data yang ditampilkan3
+                    var total = api
+                        .column(8, {
+                            page: 'current'
+                        }) // Kolom ke-8 adalah total_harga
+                        .data()
+                        .reduce(function(a, b) {
+                            return parseFloat(a) + parseFloat(b);
+                        }, 0);
+
+                    // Format ke Rupiah
+                    var formattedTotal = `${total.toLocaleString('id-ID')}`;
+
+                    // Masukkan hasil ke footer
+                    $(api.column(8).footer()).html(formattedTotal);
                 }
             });
-            $('#filterCustomer').change(function () {
+
+            $('#filterCustomer').change(function() {
                 table.ajax.reload();
             });
-            $('#filterNoDO').change(function () {
+            $('#filterNoDO').change(function() {
                 table.ajax.reload();
             });
-            $('#txSearch').keyup(function () {
+            $('#txSearch').keyup(function() {
                 var searchValue = $(this).val();
                 table.search(searchValue).draw();
             });
 
-            $('#exportBtn').on('click', function () {
+            $('#exportBtn').on('click', function() {
                 var NoDo = $('#filterNoDO').val();
                 var customer = $('#filterCustomer').val();
 
                 var now = new Date();
                 var day = String(now.getDate()).padStart(2, '0');
-                var month = now.toLocaleString('default', { month: 'long' });
+                var month = now.toLocaleString('default', {
+                    month: 'long'
+                });
                 var year = now.getFullYear();
                 var hours = String(now.getHours()).padStart(2, '0');
                 var minutes = String(now.getMinutes()).padStart(2, '0');
@@ -174,7 +217,7 @@
                     xhrFields: {
                         responseType: 'blob'
                     },
-                    success: function (data) {
+                    success: function(data) {
                         var blob = new Blob([data], {
                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         });
@@ -183,7 +226,7 @@
                         link.download = filename;
                         link.click();
                     },
-                    error: function () {
+                    error: function() {
                         Swal.fire({
                             title: "Export failed!",
                             icon: "error"
@@ -191,10 +234,15 @@
                     }
                 });
             });
-            $(document).on('click', '#btnExportSales', function (e) {
-                let id = $(this).data('id');
+
+            $(document).on('click', '#btnExportSales', function(e) {
+                e.preventDefault();
+
                 let NoDo = $('#filterNoDO').val();
                 let Customer = $('#filterCustomer').val();
+
+                let url = "{{ route('exportSalesPdf') }}?no_do=" + encodeURIComponent(NoDo) +
+                    "&nama_pembeli=" + encodeURIComponent(Customer);
 
                 Swal.fire({
                     title: 'Loading...',
@@ -205,41 +253,10 @@
                     }
                 });
 
-                $.ajax({
-                    type: "GET",
-                    url: "{{ route('exportSalesPdf') }}",
-                    data: {
-                        id: id,
-                        no_do: NoDo,
-                        nama_pembeli: Customer
-                    },
-                    success: function (response) {
-                        Swal.close();
-
-                        if (response.url) {
-                            window.open(response.url, '_blank');
-                        } else if (response.error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.error
-                            });
-                        }
-                    },
-                    error: function (xhr) {
-                        Swal.close();
-
-                        let errorMessage = 'Gagal Export Sales';
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            errorMessage = xhr.responseJSON.error;
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorMessage
-                        });
-                    }
-                });
+                setTimeout(() => {
+                    Swal.close();
+                    window.open(url, '_blank'); // Buka file PDF langsung di tab baru
+                }, 1000);
             });
         });
     </script>

@@ -51,11 +51,20 @@ class SalesController extends Controller
             ->select(
                 'tbl_invoice.no_invoice',
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-                'tbl_resi.no_do',
+                DB::raw("MIN(tbl_resi.no_do) AS no_do"), // Ambil no_do pertama
+                DB::raw("GROUP_CONCAT(tbl_resi.no_resi SEPARATOR '; ') AS no_resi"), // Gabungkan no_resi dengan ;
                 'tbl_pembeli.nama_pembeli AS customer',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name AS status_transaksi',
-                'tbl_invoice.total_harga'
+                'tbl_invoice.total_harga',
+                DB::raw("IFNULL(
+                    GROUP_CONCAT(
+                        IF(tbl_resi.berat IS NOT NULL,
+                            CONCAT(tbl_resi.berat, ' Kg'),
+                            CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
+                        )
+                        SEPARATOR '; '
+                    ), '') AS berat_volume")
             )
             ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
             ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
@@ -71,7 +80,15 @@ class SalesController extends Controller
             $query->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%');
         }
 
-        $query->orderBy('tbl_invoice.tanggal_buat', 'desc');
+        $query->groupBy(
+                'tbl_invoice.no_invoice',
+                'tbl_invoice.tanggal_buat',
+                'tbl_pembeli.nama_pembeli',
+                'tbl_invoice.metode_pengiriman',
+                'tbl_status.status_name',
+                'tbl_invoice.total_harga'
+            )
+            ->orderBy('tbl_invoice.tanggal_buat', 'desc');
 
         $data = $query->get();
 
@@ -89,6 +106,7 @@ class SalesController extends Controller
             ->rawColumns(['status_transaksi'])
             ->make(true);
     }
+
     public function export(Request $request)
     {
         $NoDo = $request->no_do;
@@ -96,10 +114,11 @@ class SalesController extends Controller
 
         return Excel::download(new SalesExport($NoDo, $Customer), 'Sales.xlsx');
     }
+
     public function exportSalesPdf(Request $request)
     {
-        $NoDo = $request->no_do;
-        $Customer = $request->nama_pembeli;
+        $NoDo = $request->no_do === "null" ? null : trim($request->no_do);
+        $Customer = $request->nama_pembeli === "null" ? null : trim($request->nama_pembeli);
         $companyId = session('active_company_id');
 
         try {
@@ -107,72 +126,66 @@ class SalesController extends Controller
                 ->select(
                     'tbl_invoice.no_invoice',
                     DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-                    'tbl_resi.no_do',
+                    DB::raw("MIN(tbl_resi.no_do) AS no_do"),
+                    DB::raw("GROUP_CONCAT(tbl_resi.no_resi SEPARATOR '; ') AS no_resi"),
                     'tbl_pembeli.nama_pembeli AS customer',
                     'tbl_invoice.metode_pengiriman',
                     'tbl_status.status_name AS status_transaksi',
-                    'tbl_invoice.total_harga'
+                    'tbl_invoice.total_harga',
+                    DB::raw("IFNULL(
+                        GROUP_CONCAT(
+                            IF(tbl_resi.berat IS NOT NULL,
+                                CONCAT(tbl_resi.berat, ' Kg'),
+                                CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
+                            )
+                            SEPARATOR '; '
+                        ), '') AS berat_volume")
                 )
                 ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
                 ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
                 ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
                 ->where('tbl_invoice.company_id', $companyId)
-                ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup']);
-
-            if ($Customer) {
-                $query->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $Customer . '%');
-            }
-
-            if ($NoDo) {
-                $query->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%');
-            }
-
-            $query->orderBy('tbl_invoice.tanggal_buat', 'desc');
+                ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
+                ->when(!empty($Customer), function ($q) use ($Customer) {
+                    return $q->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $Customer . '%');
+                })
+                ->when(!empty($NoDo), function ($q) use ($NoDo) {
+                    return $q->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%');
+                })
+                ->groupBy(
+                    'tbl_invoice.id',
+                    'tbl_invoice.no_invoice',
+                    'tbl_invoice.tanggal_buat',
+                    'tbl_pembeli.nama_pembeli',
+                    'tbl_invoice.metode_pengiriman',
+                    'tbl_status.status_name',
+                    'tbl_invoice.total_harga'
+                )
+                ->orderBy('tbl_invoice.tanggal_buat', 'desc');
 
             $salesdata = $query->get();
 
             if ($salesdata->isEmpty()) {
-                return response()->json(['error' => 'sales invoices found'], 404);
+                return response()->json(['error' => 'Sales invoices not found'], 404);
             }
 
-            try {
-                $pdf = Pdf::loadView('exportPDF.salesPdf', [
-                    'salesdata' => $salesdata,
-                    'NoDo' => $NoDo,
-                    'Customer' => $Customer,
-                ])
-                    ->setPaper('A4', 'portrait')
-                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-                    ->setWarnings(false);
-            } catch (\Exception $e) {
-                Log::error('Error generating sales PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to generate PDF'], 500);
-            }
-            try {
-                $folderPath = storage_path('app/public/sales');
+            $pdf = Pdf::loadView('exportPDF.salesPdf', [
+                'salesdata' => $salesdata,
+                'NoDo' => $NoDo,
+                'Customer' => $Customer,
+            ])
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
 
-                // Cek apakah folder sudah ada, jika belum maka buat folder
-                if (!file_exists($folderPath)) {
-                    mkdir($folderPath, 0777, true); // 0777 memberikan izin penuh untuk folder dan subfolder
-                }
-
-                $fileName = 'sales_' . (string) Str::uuid() . '.pdf';
-                $filePath = $folderPath . '/' . $fileName;
-
-                // Save the PDF
-                $pdf->save($filePath);
-            } catch (\Exception $e) {
-                Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to save PDF'], 500);
-            }
-            // Return the URL of the saved PDF
-            $url = asset('storage/sales/' . $fileName);
-            return response()->json(['url' => $url]);
+            return $pdf->stream('sales_invoice.pdf');
 
         } catch (\Exception $e) {
             Log::error('Error generating sales invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'An error occurred while generating the sales invoice PDF'], 500);
         }
     }
+
+
 
 }

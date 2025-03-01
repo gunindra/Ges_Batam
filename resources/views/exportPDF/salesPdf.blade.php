@@ -53,7 +53,8 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px;
+            font-size: 10px;
             text-align: left;
         }
 
@@ -206,16 +207,18 @@
         </div>
 
         <div class="title">
-            <h5>No. Do:  {{ $NoDo ? $NoDo : '-' }}</h5>
-            <h5>Customer: {{  $Customer ?  $Customer: '-' }} </h5>
+            <h5>No. Do: {{ $NoDo ? $NoDo : '-' }}</h5>
+            <h5>Customer: {{ $Customer ? $Customer : '-' }} </h5>
         </div>
 
         <table>
             <thead>
-            <tr>
+                <tr>
                     <th>No.</th>
                     <th>No. Invoice</th>
                     <th>Tanggal Invoice</th>
+                    <th>No. Resi</th>
+                    <th>Quantity</th>
                     <th>No. DO</th>
                     <th>Customer</th>
                     <th>Pengiriman</th>
@@ -226,20 +229,38 @@
             <tbody>
                 @php
                     $no = 1;
+                    $grandTotal = 0;
                 @endphp
                 @foreach ($salesdata as $sales)
+                    @php
+                        $grandTotal += $sales->total_harga;
+                    @endphp
                     <tr>
                         <td>{{ $no++ }}</td>
                         <td>{{ $sales->no_invoice }}</td>
                         <td>{{ $sales->tanggal_buat }}</td>
+                        <td>
+                            {{-- Mengubah ";" menjadi baris baru --}}
+                            {!! str_replace(';', '<br>', $sales->no_resi) !!}
+                        </td>
+                        <td>
+                            {{-- Menampilkan berat/volume dalam baris baru --}}
+                            {!! str_replace(';', '<br>', $sales->berat_volume) !!}
+                        </td>
                         <td>{{ $sales->no_do }}</td>
                         <td>{{ $sales->customer }}</td>
                         <td>{{ $sales->metode_pengiriman }}</td>
                         <td>{{ $sales->status_transaksi }}</td>
-                        <td>Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
+                        <td class="text-right">Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="9" class="text-right grand-total">Grand Total</td>
+                    <td class="text-right grand-total">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </body>

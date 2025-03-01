@@ -176,7 +176,7 @@ class SoaController extends Controller
             }
             $pdf->save($filePath);
 
-            $pesan = "Beikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
+            $pesan = "Berikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
             $fileUrl = asset('storage/soa/' . $pdfFileName);
 
             $sender = '62' . DB::table('tbl_ptges')->value('phones');
