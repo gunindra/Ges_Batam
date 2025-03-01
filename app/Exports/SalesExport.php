@@ -29,20 +29,39 @@ class SalesExport implements FromView, WithEvents
         $Customer = $this->customer;
 
         $query = DB::table('tbl_invoice')
-        ->select(
-            'tbl_invoice.no_invoice',
-            DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-            'tbl_resi.no_do',
-            'tbl_pembeli.nama_pembeli AS customer',
-            'tbl_invoice.metode_pengiriman',
-            'tbl_status.status_name AS status_transaksi',
-            'tbl_invoice.total_harga'
-        )
-        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-        ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
-        ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-        ->where('tbl_invoice.company_id', $companyId)
-        ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup']);
+            ->select(
+                'tbl_invoice.no_invoice',
+                DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                DB::raw("MIN(tbl_resi.no_do) AS no_do"),
+                DB::raw("GROUP_CONCAT(tbl_resi.no_resi SEPARATOR '; ') AS no_resi"),
+                'tbl_pembeli.nama_pembeli AS customer',
+                'tbl_invoice.metode_pengiriman',
+                'tbl_status.status_name AS status_transaksi',
+                'tbl_invoice.total_harga',
+                DB::raw("IFNULL(
+                GROUP_CONCAT(
+                    IF(tbl_resi.berat IS NOT NULL,
+                        CONCAT(tbl_resi.berat, ' Kg'),
+                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
+                    )
+                    SEPARATOR '; '
+                ), '') AS berat_volume")
+            )
+            ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+            ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+            ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+            ->where('tbl_invoice.company_id', $companyId)
+            ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
+            ->groupBy(
+                'tbl_invoice.id',
+                'tbl_invoice.no_invoice',
+                'tbl_invoice.tanggal_buat',
+                'tbl_pembeli.nama_pembeli',
+                'tbl_invoice.metode_pengiriman',
+                'tbl_status.status_name',
+                'tbl_invoice.total_harga'
+            );
+
 
         if ($this->NoDo) {
             $query->where('tbl_resi.no_do', 'LIKE', '%' . $this->NoDo . '%');
