@@ -174,20 +174,20 @@
 <body>
     <div class="container">
         <?php
-        $activeCompanyId = session('active_company_id');
-        $company = \App\Models\Company::find($activeCompanyId);
+$activeCompanyId = session('active_company_id');
+$company = \App\Models\Company::find($activeCompanyId);
         ?>
         <div class="header">
             <div class="logo-container">
                 <?php
-                $path = public_path('img/logo4.png');
-                $type = pathinfo($path, PATHINFO_EXTENSION);
-                if (file_exists($path)) {
-                    $data = file_get_contents($path);
-                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                } else {
-                    $base64 = '';
-                }
+$path = public_path('img/logo4.png');
+$type = pathinfo($path, PATHINFO_EXTENSION);
+if (file_exists($path)) {
+    $data = file_get_contents($path);
+    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+} else {
+    $base64 = '';
+}
                 ?>
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
@@ -232,29 +232,31 @@
                     $grandTotal = 0;
                 @endphp
                 @foreach ($salesdata as $sales)
-                    @php
-                        $grandTotal += $sales->total_harga;
-                    @endphp
-                    <tr>
-                        <td>{{ $no++ }}</td>
-                        <td>{{ $sales->no_invoice }}</td>
-                        <td>{{ $sales->tanggal_buat }}</td>
-                        <td>
-                            {{-- Mengubah ";" menjadi baris baru --}}
-                            {!! str_replace(';', '<br>', $sales->no_resi) !!}
-                        </td>
-                        <td>
-                            {{-- Menampilkan berat/volume dalam baris baru --}}
-                            {!! str_replace(';', '<br>', $sales->berat_volume) !!}
-                        </td>
-                        <td>{{ $sales->no_do }}</td>
-                        <td>{{ $sales->customer }}</td>
-                        <td>{{ $sales->metode_pengiriman }}</td>
-                        <td>{{ $sales->status_transaksi }}</td>
-                        <td class="text-right">Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
-                    </tr>
+                                @php
+                                    $grandTotal += $sales->total_harga;
+                                    $no_resi_list = explode('; ', $sales->no_resi);
+                                    $berat_volume_list = explode('; ', $sales->berat_volume);
+
+                                    $max_rows = max(count($no_resi_list), count($berat_volume_list));
+                                @endphp
+
+                                @for ($i = 0; $i < $max_rows; $i++)
+                                    <tr>
+                                        <td>{{ $no++ }}</td> 
+                                        <td>{{ $sales->no_invoice }}</td> 
+                                        <td>{{ $sales->tanggal_buat }}</td> 
+                                        <td>{{ $no_resi_list[$i] ?? '' }}</td> 
+                                        <td>{{ $berat_volume_list[$i] ?? '' }}</td>
+                                        <td>{{ $sales->no_do }}</td> 
+                                        <td>{{ $sales->customer }}</td> 
+                                        <td>{{ $sales->metode_pengiriman }}</td> 
+                                        <td>{{ $sales->status_transaksi }}</td> <
+                                        <td class="text-right">Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
+                                    </tr>
+                                @endfor
                 @endforeach
             </tbody>
+
             <tfoot>
                 <tr>
                     <td colspan="9" class="text-right grand-total">Grand Total</td>
