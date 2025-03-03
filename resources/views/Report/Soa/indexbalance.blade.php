@@ -91,8 +91,8 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex mb-2 mr-3 float-right">
-                            <button class="btn btn-secondary mr-2" id="closingSoa" style="display: none;">Closing
-                                SOA</button>
+                            {{-- <button class="btn btn-secondary mr-2" id="closingSoa" style="display: none;">Closing
+                                SOA</button> --}}
                             <button class="btn btn-primary mr-2" id="exportBtn">Export Excel</button>
                             <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i
                                         class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
@@ -143,12 +143,12 @@
                     }
                 }).done(res => {
                     $('#containerSoa').html(res.html);
-                    window.invoiceIds = res.invoiceIds;
-                    if (res.invoiceIds.length > 0) {
-                        $('#closingSoa').fadeIn();
-                    } else {
-                        $('#closingSoa').fadeOut();
-                    }
+                    // window.invoiceIds = res.invoiceIds;
+                    // if (res.invoiceIds.length > 0) {
+                    //     $('#closingSoa').fadeIn();
+                    // } else {
+                    //     $('#closingSoa').fadeOut();
+                    // }
                 });
             }
 
@@ -203,16 +203,16 @@
             });
             $('#sendWA').hide();
 
-            let filterApplied = false; 
+            let filterApplied = false;
 
             $('#saveFilterTanggal').on('click', function () {
-                filterApplied = true; 
+                filterApplied = true;
                 checkFilters();
             });
 
             function checkFilters() {
                 const customer = $('#customer').val();
-                const dataAvailable = $('#containerSoa tbody tr').length > 0; 
+                const dataAvailable = $('#containerSoa tbody tr').length > 0;
 
                 if (customer && filterApplied && dataAvailable) {
                     $('#sendWA').show();
@@ -222,7 +222,7 @@
             }
 
             $('#customer').on('input change', function () {
-                filterApplied = false; 
+                filterApplied = false;
             });
 
             $(document).ajaxComplete(function () {
