@@ -20,6 +20,8 @@
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">No. Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
+                bgcolor="#b9bab8">Marking</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">Tanggal Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "
                 bgcolor="#b9bab8">No Resi</th>
@@ -56,13 +58,16 @@
                             {{ $Sale->no_invoice }}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                            {{ $Sale->marking }}
+                        </td>
+                        <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                             {{\Carbon\Carbon::parse($Sale->tanggal_buat)->format('d M Y')}}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                             {{  $no_resi_list[$i] ?? '' }}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                             {{ $berat_volume_list[$i] ?? '' }}
+                            {{ $berat_volume_list[$i] ?? '' }}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                             {{ $Sale->no_do }}
@@ -77,7 +82,7 @@
                             {{ $Sale->status_transaksi }}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                        Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
+                            Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
                         </td>
                     </tr>
                 @endfor
@@ -85,7 +90,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="8" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
+            <td colspan="9" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
                 Grand Total</td>
             <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
                 {{ $grandTotal }}

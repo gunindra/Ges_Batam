@@ -38,6 +38,7 @@ class SalesExport implements FromView, WithEvents
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name AS status_transaksi',
                 'tbl_invoice.total_harga',
+                'tbl_pembeli.marking',
                 DB::raw("GROUP_CONCAT(tbl_resi.harga SEPARATOR '; ') AS harga_resi"),
                 DB::raw("IFNULL(
                 GROUP_CONCAT(
@@ -60,7 +61,8 @@ class SalesExport implements FromView, WithEvents
                 'tbl_pembeli.nama_pembeli',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name',
-                'tbl_invoice.total_harga'
+                'tbl_invoice.total_harga',
+                'tbl_pembeli.marking'
             );
 
 

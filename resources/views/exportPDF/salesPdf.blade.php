@@ -216,6 +216,7 @@ if (file_exists($path)) {
                 <tr>
                     <th>No.</th>
                     <th>No. Invoice</th>
+                    <th>marking</th>
                     <th>Tanggal Invoice</th>
                     <th>No. Resi</th>
                     <th>Quantity</th>
@@ -245,6 +246,7 @@ if (file_exists($path)) {
                                     <tr>
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $sales->no_invoice }}</td>
+                                        <td>{{ $sales->marking }}</td>
                                         <td>{{ $sales->tanggal_buat }}</td>
                                         <td>{{ $no_resi_list[$i] ?? '' }}</td>
                                         <td>
@@ -263,7 +265,7 @@ if (file_exists($path)) {
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="9" class="text-right grand-total">Grand Total</td>
+                    <td colspan="10" class="text-right grand-total">Grand Total</td>
                     <td class="text-right grand-total">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>

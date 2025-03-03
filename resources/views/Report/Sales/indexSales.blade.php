@@ -51,6 +51,7 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>No. Invoice</th>
+                                        <th>Marking</th>
                                         <th>Tanggal Invoice</th>
                                         <th>No Resi</th>
                                         <th>Quantity</th>
@@ -64,7 +65,7 @@
                                 <tbody></tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="8" style="text-align: right;">Grand Total:</th>
+                                        <th colspan="9" style="text-align: right;">Grand Total:</th>
                                         <th id="grandTotal">Rp 0</th>
                                     </tr>
                                 </tfoot>
@@ -98,6 +99,10 @@
                 columns: [{
                         data: "no_invoice",
                         name: "no_invoice"
+                    },
+                    {
+                        data: "marking",
+                        name: "marking"
                     },
                     {
                         data: "tanggal_buat",
@@ -164,7 +169,7 @@
 
                     // Hitung total harga dari semua data yang ditampilkan3
                     var total = api
-                        .column(8, {
+                        .column(9, {
                             page: 'current'
                         }) // Kolom ke-8 adalah total_harga
                         .data()
@@ -176,7 +181,7 @@
                     var formattedTotal = `${total.toLocaleString('id-ID')}`;
 
                     // Masukkan hasil ke footer
-                    $(api.column(8).footer()).html(formattedTotal);
+                    $(api.column(9).footer()).html(formattedTotal);
                 }
             });
 

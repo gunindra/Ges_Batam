@@ -58,7 +58,8 @@
                                         <option value="" selected disabled>Pilih Costumer</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->marking }} -
-                                                {{ $customer->nama_pembeli }}</option>
+                                                {{ $customer->nama_pembeli }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -115,10 +116,10 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
-            <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
-        </div> `;
+                        <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
+                    </div> `;
 
             const getSOA = () => {
                 const txtSearch = $('#txSearch').val();
@@ -159,7 +160,7 @@
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
                 defaultDate: startOfMonth,
-                onChange: function(selectedDates, dateStr, instance) {
+                onChange: function (selectedDates, dateStr, instance) {
                     $("#endDate").flatpickr({
                         dateFormat: "d M Y",
                         minDate: dateStr,
@@ -171,7 +172,7 @@
             flatpickr("#endDate", {
                 dateFormat: "d M Y",
                 defaultDate: endOfMonth,
-                onChange: function(selectedDates, dateStr, instance) {
+                onChange: function (selectedDates, dateStr, instance) {
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
                     if (endDate < startDate) {
@@ -182,7 +183,7 @@
                 }
             });
 
-            $(document).on('click', '#filterTanggal', function(e) {
+            $(document).on('click', '#filterTanggal', function (e) {
                 $('#modalFilterTanggal').modal('show');
             });
 
@@ -196,12 +197,40 @@
                 dropdownParent: $('#modalFilterTanggal')
             });
 
-            $('#saveFilterTanggal').click(function() {
+            $('#saveFilterTanggal').click(function () {
                 getSOA();
                 $('#modalFilterTanggal').modal('hide');
             });
+            $('#sendWA').hide();
 
-            $('#sendWA').on('click', function(e) {
+            let filterApplied = false; 
+
+            $('#saveFilterTanggal').on('click', function () {
+                filterApplied = true; 
+                checkFilters();
+            });
+
+            function checkFilters() {
+                const customer = $('#customer').val();
+                const dataAvailable = $('#containerSoa tbody tr').length > 0; 
+
+                if (customer && filterApplied && dataAvailable) {
+                    $('#sendWA').show();
+                } else {
+                    $('#sendWA').hide();
+                }
+            }
+
+            $('#customer').on('input change', function () {
+                filterApplied = false; 
+            });
+
+            // $(document).ajaxComplete(function () {
+            //     checkFilters();
+            // });
+
+
+            $('#sendWA').on('click', function (e) {
                 e.preventDefault();
 
                 const startDate = $('#startDate').val();
@@ -235,14 +264,14 @@
                         endDate: endDate,
                         customer: customer,
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil!',
                             text: response.success,
                         });
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let errorMessage = 'Terjadi kesalahan saat mengirim WhatsApp.';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             errorMessage = xhr.responseJSON.error;
@@ -257,7 +286,7 @@
                 });
             });
 
-            $('#exportBtn').on('click', function() {
+            $('#exportBtn').on('click', function () {
                 var startDate = $('#startDate').val();
                 var endDate = $('#endDate').val();
                 var customer = $('#customer').val();
@@ -285,7 +314,7 @@
                     xhrFields: {
                         responseType: 'blob'
                     },
-                    success: function(data) {
+                    success: function (data) {
                         var blob = new Blob([data], {
                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         });
@@ -294,7 +323,7 @@
                         link.download = filename;
                         link.click();
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
                             title: "Export failed!",
                             icon: "error"
@@ -305,7 +334,7 @@
 
 
 
-            $('#closingSoa').on('click', function() {
+            $('#closingSoa').on('click', function () {
                 if (window.invoiceIds && window.invoiceIds.length > 0) {
                     Swal.fire({
                         title: 'Apakah kamu yakin?',
@@ -326,7 +355,7 @@
                                     invoiceIds: window.invoiceIds,
                                     _token: "{{ csrf_token() }}"
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Success',
@@ -335,7 +364,7 @@
 
                                     getSOA(); // Refresh data setelah closing
                                 },
-                                error: function(xhr) {
+                                error: function (xhr) {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Oops!',

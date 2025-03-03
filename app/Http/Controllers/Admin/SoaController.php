@@ -33,7 +33,6 @@ class SoaController extends Controller
         $customer = $request->customer;
 
         $invoiceQuery = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
-                    ->where('tbl_invoice.pembeli_id', '=', $customer)
                     ->where('tbl_invoice.status_id', 6)
                     ->where('tbl_invoice.company_id', $companyId)
                     ->where('tbl_invoice.soa_closing', false)
@@ -65,6 +64,10 @@ class SoaController extends Controller
         if ($request->endDate) {
             $invoiceQuery->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
         }
+        if ($customer) {
+            $invoiceQuery->where('tbl_invoice.pembeli_id', '=', $customer);
+        }
+        
 
         $invoices = $invoiceQuery->get();
 
