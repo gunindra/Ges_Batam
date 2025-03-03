@@ -225,9 +225,9 @@
                 filterApplied = false; 
             });
 
-            // $(document).ajaxComplete(function () {
-            //     checkFilters();
-            // });
+            $(document).ajaxComplete(function () {
+                checkFilters();
+            });
 
 
             $('#sendWA').on('click', function (e) {
