@@ -120,6 +120,17 @@ class TrackingsController extends Controller
         try {
             $jobId = Str::uuid()->toString();
             $noResiList = $request->input('noResi');
+
+            $duplicateResi = array_diff_assoc($noResiList, array_unique($noResiList));
+            $duplicateResi = array_unique($duplicateResi);
+
+            if (!empty($duplicateResi)) {
+                return response()->json([
+                    'warning' => 'Duplicate noResi found. Only unique noResi will be processed.',
+                    'duplicateResi' => array_values($duplicateResi),
+                ], 400);
+            }
+
             $chunkSize = 200;
             $chunks = array_chunk($noResiList, $chunkSize);
             $totalChunks = count($chunks);
