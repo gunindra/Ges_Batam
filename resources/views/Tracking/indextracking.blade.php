@@ -549,8 +549,18 @@
                             error: function(response) {
                                 Swal.close();
                                 $('#saveTracking').prop('disabled', false);
-                                if (response.status === 400 && response.responseJSON.error) {
-                                    showMessage("error", response.responseJSON.error);
+                                if (response.status === 400 && response.responseJSON.warning) {
+                                    let duplicateResi = response.responseJSON.duplicateResi ||
+                                    [];
+                                    let duplicateMessage = duplicateResi.length > 0 ?
+                                        `No Resi berikut duplikat:<br>${duplicateResi.join('<br>')}`:
+                                        '';
+
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Peringatan',
+                                        html: `${response.responseJSON.warning}<br>${duplicateMessage}`,
+                                    });
                                 } else {
                                     showMessage("error", "Terjadi kesalahan, coba lagi nanti");
                                 }
