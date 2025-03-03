@@ -132,6 +132,7 @@ class SalesController extends Controller
                     'tbl_invoice.metode_pengiriman',
                     'tbl_status.status_name AS status_transaksi',
                     'tbl_invoice.total_harga',
+                    DB::raw("GROUP_CONCAT(tbl_resi.harga SEPARATOR '; ') AS harga_resi"),
                     DB::raw("IFNULL(
                         GROUP_CONCAT(
                             IF(tbl_resi.berat IS NOT NULL,

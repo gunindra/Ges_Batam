@@ -236,27 +236,31 @@ if (file_exists($path)) {
                                     $grandTotal += $sales->total_harga;
                                     $no_resi_list = explode('; ', $sales->no_resi);
                                     $berat_volume_list = explode('; ', $sales->berat_volume);
+                                    $harga_resi_list = explode('; ', $sales->harga_resi);
 
-                                    $max_rows = max(count($no_resi_list), count($berat_volume_list));
+                                    $max_rows = max(count($no_resi_list), count($berat_volume_list), count($harga_resi_list));
                                 @endphp
 
                                 @for ($i = 0; $i < $max_rows; $i++)
                                     <tr>
-                                        <td>{{ $no++ }}</td> 
-                                        <td>{{ $sales->no_invoice }}</td> 
-                                        <td>{{ $sales->tanggal_buat }}</td> 
-                                        <td>{{ $no_resi_list[$i] ?? '' }}</td> 
-                                        <td>{{ $berat_volume_list[$i] ?? '' }}</td>
-                                        <td>{{ $sales->no_do }}</td> 
-                                        <td>{{ $sales->customer }}</td> 
-                                        <td>{{ $sales->metode_pengiriman }}</td> 
-                                        <td>{{ $sales->status_transaksi }}</td> <
-                                        <td class="text-right">Rp {{ number_format($sales->total_harga, 0, ',', '.') }}</td>
+                                        <td>{{ $no++ }}</td>
+                                        <td>{{ $sales->no_invoice }}</td>
+                                        <td>{{ $sales->tanggal_buat }}</td>
+                                        <td>{{ $no_resi_list[$i] ?? '' }}</td>
+                                        <td>
+                                            {{ $berat_volume_list[$i] ?? '' }}
+                                        </td>
+                                        <td>{{ $sales->no_do }}</td>
+                                        <td>{{ $sales->customer }}</td>
+                                        <td>{{ $sales->metode_pengiriman }}</td>
+                                        <td>{{ $sales->status_transaksi }}</td>
+                                        <td class="text-right">
+                                            Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
+                                        </td>
                                     </tr>
                                 @endfor
                 @endforeach
             </tbody>
-
             <tfoot>
                 <tr>
                     <td colspan="9" class="text-right grand-total">Grand Total</td>
