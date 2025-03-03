@@ -131,7 +131,7 @@
                             </table>
                             <div class="col-12 mt-4">
                                 <div class="col-4 float-right">
-                                    <button id="approveJournal" class="btn btn- p-3 float-right mt-3"
+                                    <button id="approveJournal" class="btn btn-primary p-3 float-right mt-3"
                                         style="width: 80%;">Update Jurnal</button>
                                     {{-- <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
                                         style="width: 80%;">Simpan Draft</button> --}}
