@@ -131,10 +131,10 @@
                             </table>
                             <div class="col-12 mt-4">
                                 <div class="col-4 float-right">
-                                    <button id="approveJournal" class="btn btn-success p-3 float-right mt-3"
-                                        style="width: 80%;">Approve</button>
-                                    <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
-                                        style="width: 80%;">Simpan Draft</button>
+                                    <button id="approveJournal" class="btn btn-primary p-3 float-right mt-3"
+                                        style="width: 80%;">Update Jurnal</button>
+                                    {{-- <button id="buatJournal" class="btn btn-primary p-3 float-right mt-3"
+                                        style="width: 80%;">Simpan Draft</button> --}}
                                 </div>
                             </div>
                         </div>
@@ -170,10 +170,10 @@
             let totalDebit = 0;
             let totalCredit = 0;
 
-            if (journalData.status === "Approve") {
-                $('#approveJournal, #buatJournal').remove();
-                $('.tittlepage').text('Show Detail Journal');
-            }
+            // if (journalData.status === "Approve") {
+            //     $('#approveJournal, #buatJournal').remove();
+            //     $('.tittlepage').text('Show Detail Journal');
+            // }
 
             journalData.items.forEach(function (item) {
                 let coaOptions = coas.map(coa => `
