@@ -19,9 +19,8 @@ class SoaController extends Controller
     public function index() {
 
         $companyId = session('active_company_id');
-        $customers = Customer::where('status', '=', 1)
-        ->where('tbl_pembeli.company_id', $companyId)
-        ->get();
+        $customers = Customer::where('tbl_pembeli.company_id', $companyId)->get();
+
         return view('Report.Soa.indexbalance', compact('customers'));
     }
 
@@ -67,7 +66,7 @@ class SoaController extends Controller
         if ($customer) {
             $invoiceQuery->where('tbl_invoice.pembeli_id', '=', $customer);
         }
-        
+
 
         $invoices = $invoiceQuery->get();
 
