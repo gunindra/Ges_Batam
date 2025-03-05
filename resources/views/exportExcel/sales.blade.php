@@ -82,7 +82,7 @@
                             {{ $Sale->status_transaksi }}
                         </td>
                         <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
-                            Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
+                            {{ (int) ($harga_resi_list[$i] ?? 0) }}
                         </td>
                     </tr>
                 @endfor

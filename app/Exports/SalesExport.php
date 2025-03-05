@@ -43,8 +43,8 @@ class SalesExport implements FromView, WithEvents
                 DB::raw("IFNULL(
                 GROUP_CONCAT(
                     IF(tbl_resi.berat IS NOT NULL,
-                        CONCAT(tbl_resi.berat, ' Kg'),
-                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
+                        CONCAT(tbl_resi.berat),
+                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000)
                     )
                     SEPARATOR '; '
                 ), '') AS berat_volume")
