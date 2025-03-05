@@ -196,7 +196,11 @@
         });
 
         var hasActionColumn = @json($hasActionColumn);
+        var userRole = @json(Auth::user()->role);
+        var selectedIds = new Set();
+        var filteredIds = [];
 
+        // Definisi kolom DataTables
         var columns = [{
                 data: 'no_resi',
                 name: 'no_resi'
@@ -236,27 +240,20 @@
             });
         }
 
-        if (@json(Auth::user()->role) === 'customer') {
+        if (userRole === 'customer') {
             columns.push({
                 data: 'quantitas',
                 name: 'quantitas',
                 orderable: false,
                 searchable: false
-            });
-            columns.push({
+            }, {
                 data: 'tanggal_penerimaan',
                 name: 'tanggal_penerimaan',
                 orderable: false,
                 searchable: false,
-                render: function(data, type, row) {
-                    return data ? data : '-';
-                }
+                render: data => data ? data : '-'
             });
         }
-
-
-        let selectedIds = new Set();
-        let allIds = [];
 
         var table = $('#tableTracking').DataTable({
             serverSide: true,
@@ -264,11 +261,12 @@
             ajax: {
                 url: "{{ route('tracking.data') }}",
                 method: 'GET',
-                data: function(d) {
+                data: d => {
                     d.status = $('#filterStatus').val();
+                    d.search = $('#txSearch').val();
                 },
-                dataSrc: function(json) {
-                    allIds = json.allIds;
+                dataSrc: json => {
+                    filteredIds = json.filteredIds;
                     return json.data;
                 }
             },
@@ -285,35 +283,27 @@
             }
         });
 
-        // 🔹 **Restore checkbox saat berpindah halaman**
-        table.on('draw.dt', function() {
+        // Restore checkbox saat berpindah halaman
+        $('#tableTracking').on('draw.dt', function() {
             $('.select-row').each(function() {
                 let id = $(this).data('id');
-                if (selectedIds.has(id)) {
-                    $(this).prop('checked', true);
-                }
+                $(this).prop('checked', selectedIds.has(id));
             });
-
             updateSelectAllCheckbox();
         });
 
-        // 🔹 **Event: Klik Checkbox Per Baris**
+        // Event: Klik Checkbox Per Baris
         $('#tableTracking tbody').on('change', '.select-row', function() {
             let id = $(this).data('id');
-
-            if (this.checked) {
-                selectedIds.add(id);
-            } else {
-                selectedIds.delete(id);
-            }
+            this.checked ? selectedIds.add(id) : selectedIds.delete(id);
             toggleDeleteButton();
             updateSelectAllCheckbox();
         });
 
-        // 🔹 **Event: Klik "Pilih Semua Data"**
+        // Event: Klik "Pilih Semua Data"
         $('#select-all').on('change', function() {
             if (this.checked) {
-                selectedIds = new Set(allIds); // Pilih semua ID
+                selectedIds = new Set(filteredIds);
                 $('.select-row').prop('checked', true);
             } else {
                 selectedIds.clear();
@@ -323,25 +313,19 @@
         });
 
         function updateSelectAllCheckbox() {
-            let isAllSelected = allIds.length > 0 && selectedIds.size === allIds.length;
+            let isAllSelected = filteredIds.length > 0 && selectedIds.size === filteredIds.length;
             $('#select-all').prop('checked', isAllSelected);
             toggleDeleteButton();
         }
 
-        // Function to show/hide delete button
+        // Function untuk mengatur tombol delete
         function toggleDeleteButton() {
-            var selectedCount = $('#tableTracking .select-row:checked').length;
-            if (selectedCount > 0) {
-                $('#action-button').fadeIn(); // Tampilkan tombol dengan efek fade
-            } else {
-                $('#action-button').fadeOut(); // Sembunyikan tombol dengan efek fade
-            }
+            $('#action-button').toggle(selectedIds.size > 0);
         }
 
-        // Example action for selected rows
+        // Event: Hapus Data Terpilih
         $('#action-button').on('click', function() {
             if (selectedIds.size > 0) {
-                // Show SweetAlert confirmation
                 Swal.fire({
                     title: "Apakah Kamu Yakin?",
                     icon: 'question',
@@ -354,21 +338,19 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('deleteTrackingMultipe') }}", // Endpoint to handle deletion
-                            method: 'DELETE', // Use DELETE method
+                            url: "{{ route('deleteTrackingMultipe') }}",
+                            method: 'DELETE',
                             data: {
-                                ids: Array.from(selectedIds), // Kirimkan array dari selectedIds
-                                _token: $('meta[name="csrf-token"]').attr(
-                                    'content') // Add CSRF token
+                                ids: Array.from(selectedIds),
+                                _token: $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', 'The selected rows have been deleted.',
                                     'success');
-                                selectedIds.clear(); // Kosongkan daftar ID setelah dihapus
-                                location.reload(); // Reload the page
+                                selectedIds.clear();
+                                table.ajax.reload();
                             },
                             error: function(xhr, status, error) {
-                                // Handle error
                                 Swal.fire('Error!', 'An error occurred: ' + error, 'error');
                             }
                         });
@@ -379,13 +361,9 @@
             }
         });
 
-        $('#txSearch').keyup(function() {
-            var searchValue = $(this).val();
-            table.search(searchValue).draw();
-        });
-        $('#filterStatus').change(function() {
-            table.ajax.reload();
-        });
+        // Event: Pencarian dan Filter Status
+        $('#txSearch').keyup(() => table.search($('#txSearch').val()).draw());
+        $('#filterStatus').change(() => table.ajax.reload());
 
         $('#saveTracking').click(function() {
             var noDeliveryOrder = $('#noDeliveryOrder').val().trim();
@@ -553,7 +531,7 @@
                                     let duplicateResi = response.responseJSON.duplicateResi ||
                                     [];
                                     let duplicateMessage = duplicateResi.length > 0 ?
-                                        `No Resi berikut duplikat:<br>${duplicateResi.join('<br>')}`:
+                                        `No Resi berikut duplikat:<br>${duplicateResi.join('<br>')}` :
                                         '';
 
                                     Swal.fire({

@@ -41,10 +41,11 @@ class TrackingsController extends Controller
                 'tbl_tracking.keterangan',
                 'tbl_invoice.status_bayar'
             ])
-            ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi') // ✅ Join sekali saja
-            ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id') // ✅ Join sekali saja
+            ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
+            ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->where('tbl_tracking.company_id', $companyId);
 
+        // 🔹 Jika User adalah Customer
         if ($user->role === 'customer') {
             $query->addSelect([
                 DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
@@ -52,22 +53,33 @@ class TrackingsController extends Controller
                 DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas"),
                 DB::raw("IFNULL(DATE_FORMAT(tbl_pengantaran_detail.tanggal_penerimaan, '%d %M %Y %H:%i:%s'), '-') AS tanggal_penerimaan")
             ])
-            ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id') // ✅ Join hanya jika customer
+            ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
             ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
             ->where('tbl_pembeli.user_id', $user->id);
         }
 
+        // 🔹 Filter berdasarkan status jika ada
         if ($request->status) {
             $query->where('tbl_tracking.status', $request->status);
         }
 
+        // 🔹 Filter berdasarkan pencarian dari txSearch
+        if ($request->search) {
+            $searchValue = $request->search;
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('tbl_tracking.no_resi', 'like', "%{$searchValue}%")
+                  ->orWhere('tbl_tracking.no_do', 'like', "%{$searchValue}%")
+                  ->orWhere('tbl_tracking.keterangan', 'like', "%{$searchValue}%");
+            });
+        }
+
         $query->orderBy('tbl_tracking.id', 'desc');
 
-        $data = $query->get();
-        $allIds = $data->pluck('id')->toArray();
+        // 🔹 Ambil hanya ID yang sudah difilter
+        $filteredIds = $query->pluck('tbl_tracking.id')->toArray();
 
-        return DataTables::of($data)
-            ->with(['allIds' => $allIds])
+        return DataTables::of($query)
+            ->with(['filteredIds' => $filteredIds]) // Kirim hanya ID yang difilter
             ->addColumn('select', function ($row) {
                 return $row->status === "Dalam Perjalanan"
                     ? '<input type="checkbox" class="select-row" data-id="' . $row->id . '">'
@@ -103,7 +115,6 @@ class TrackingsController extends Controller
             ->rawColumns(['select', 'status', 'status_bayar', 'action'])
             ->make(true);
     }
-
 
 
     public function addTracking(Request $request)
