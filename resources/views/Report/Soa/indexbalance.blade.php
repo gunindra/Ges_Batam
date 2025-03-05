@@ -97,7 +97,7 @@
                             <a class="btn btn-success mr-1" style="color:white;" id="sendWA"><span class="pr-2"><i
                                         class="fab fa-whatsapp"></i></span>Send Whatsapp</a>
                         </div>
-                        <div class="d-flex mb-2 mr-3 mb-4">
+                        <div class="d-flex mb-2 mr-3">
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter</button>
                             <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
                                 onclick="window.location.reload()">

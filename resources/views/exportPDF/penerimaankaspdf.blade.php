@@ -219,7 +219,7 @@ if (file_exists($path)) {
                     <th>No Kode</th>
                     <th>Date</th>
                     <th>Transfer Date</th>
-                    <th>Customer</th>
+                    <th>Marking</th>
                     <th>Method</th>
                     <th>No Invoice</th>
                     <th>Total</th>
@@ -240,7 +240,7 @@ if (file_exists($path)) {
                                     <td> {{ $kas->kode_pembayaran }}</td>
                                     <td> {{ \Carbon\Carbon::parse($kas->created_date)->format('d M Y')}}</td>
                                     <td>{{ \Carbon\Carbon::parse($kas->payment_date)->format('d M Y H:i')}}</td>
-                                    <td>{{ $kas->customer_name }}</td>
+                                    <td>{{ $kas->marking }}</td>
                                     <td>{{ $kas->payment_method }}</td>
                                     <td>{{ $kas->no_invoice_with_amount }}</td>
                                     <td>{{ number_format($total, 0, ',', '.') }}</td>

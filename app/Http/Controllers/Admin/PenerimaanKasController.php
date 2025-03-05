@@ -125,7 +125,7 @@ class PenerimaanKasController extends Controller
                 <th onclick="sortTable(0)" width="10%" style="text-align:center;">No</th>
                 <th onclick="sortTable(1)" width="15%" style="text-align:center;">Date</th>
                 <th onclick="sortTable(2)" width="15%" style="text-align:center;">Transfer Date</th>
-                <th onclick="sortTable(3)" width="15%" style="text-align:center;">Customer</th>
+                <th onclick="sortTable(3)" width="15%" style="text-align:center;">Marking</th>
                 <th onclick="sortTable(4)" width="10%" style="text-align:center;">Method</th>
                 <th onclick="sortTable(5)" width="20%" style="text-align:center;">No Invoice</th>
                 <th onclick="sortTable(6)" width="15%" style="text-align:right;">Total</th>
