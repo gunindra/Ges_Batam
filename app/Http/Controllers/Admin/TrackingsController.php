@@ -215,26 +215,32 @@ class TrackingsController extends Controller
 
     public function deleteTrackingMultipe(Request $request)
     {
-        $ids = $request->input('ids');
+        $ids = (array) $request->input('ids');
         $ids = array_map('intval', $ids);
 
-        if (count($ids) > 0) {
-            $trackings = Tracking::whereIn('id', $ids)->get();
-            $idsToDelete = $trackings->filter(function ($tracking) {
-                return $tracking->status === 'Dalam Perjalanan';
-            })->pluck('id')->toArray();
-
-            if (count($idsToDelete) > 0) {
-                $deletedCount = Tracking::whereIn('id', $idsToDelete)->delete();
-
-                return response()->json(['success' => true, 'message' => "$deletedCount record(s) deleted successfully."]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'No records with status "Dalam Perjalanan" to delete.']);
-            }
-        } else {
-            return response()->json(['success' => false, 'message' => 'No IDs provided']);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No IDs provided'], 400);
         }
-    }
 
+        $trackings = Tracking::whereIn('id', $ids)->get();
+
+        $idsToDelete = $trackings->filter(fn ($tracking) => $tracking->status === 'Dalam Perjalanan')
+                                 ->pluck('id')
+                                 ->toArray();
+
+        if (empty($idsToDelete)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No records with status "Dalam Perjalanan" to delete. Please refresh the page to update data.'
+            ], 400);
+        }
+
+        $deletedCount = Tracking::whereIn('id', $idsToDelete)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "$deletedCount record(s) deleted successfully."
+        ]);
+    }
 
 }
