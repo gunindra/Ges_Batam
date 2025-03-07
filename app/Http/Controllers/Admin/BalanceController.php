@@ -174,6 +174,15 @@ class BalanceController extends Controller
                         else{
                             $output .= '<td class="text-right"><b>' . number_format($total_sum_equity * -1, 2) . '</b> </td> </tr>';
                         }
+        $total_pasiva = $total_sum_equity + $total_sum_liability;
+        $output .= '<tr>
+                        <td> <b> TOTAL PASIVA</b></td>';
+                        if ($total_pasiva >= 0){
+                            $output .= '<td class="text-right"><b>' . number_format($total_pasiva, 2) . '</b> </td> </tr>';
+                        }
+                        else{
+                            $output .= '<td class="text-right"><b>' . number_format($total_pasiva * -1, 2) . '</b> </td> </tr>';
+                        }
 
         $output .= '</table> </div>';
 

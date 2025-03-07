@@ -74,73 +74,76 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
+        const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
             <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
         </div> `;
 
-            const getBalance = () => {
-                const txtSearch = $('#txSearch').val();
-                const filterStatus = $('#filterStatus').val();
-                const startDate = $('#startDate').val();
-                const endDate = $('#endDate').val();
+        // Set default start date to 01/01/2025
+        $('#startDate').val('2025-01-01');
 
-                $.ajax({
-                        url: "{{ route('getBalance') }}",
-                        method: "GET",
-                        data: {
-                            txSearch: txtSearch,
-                            status: filterStatus,
-                            startDate: startDate,
-                            endDate: endDate,
-                        },
-                        beforeSend: () => {
-                            $('#containerbalance').html(loadSpin)
-                        }
-                    })
-                    .done(res => {
-                        $('#containerbalance').html(res)
+        const getBalance = () => {
+            const txtSearch = $('#txSearch').val();
+            const filterStatus = $('#filterStatus').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
 
-                    })
+            $.ajax({
+                url: "{{ route('getBalance') }}",
+                method: "GET",
+                data: {
+                    txSearch: txtSearch,
+                    status: filterStatus,
+                    startDate: startDate,
+                    endDate: endDate,
+                },
+                beforeSend: () => {
+                    $('#containerbalance').html(loadSpin);
+                }
+            })
+            .done(res => {
+                $('#containerbalance').html(res);
+            });
+        };
+
+        getBalance();
+
+        flatpickr("#startDate", {
+            dateFormat: "d M Y",
+            defaultDate: "01 Jan 2025",
+            onChange: function(selectedDates, dateStr, instance) {
+                $("#endDate").flatpickr({
+                    dateFormat: "d M Y",
+                    minDate: dateStr
+                });
             }
-
-            getBalance();
-
-            flatpickr("#startDate", {
-                dateFormat: "d M Y",
-                onChange: function(selectedDates, dateStr, instance) {
-
-                    $("#endDate").flatpickr({
-                        dateFormat: "d M Y",
-                        minDate: dateStr
-                    });
-                }
-            });
-
-            flatpickr("#endDate", {
-                dateFormat: "d MM Y",
-                onChange: function(selectedDates, dateStr, instance) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date(dateStr);
-                    if (endDate < startDate) {
-                        showwMassage(error,
-                        "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
-                        $('#endDate').val('');
-                    }
-                }
-            });
-
-            $(document).on('click', '#filterTanggal', function(e) {
-                $('#modalFilterTanggal').modal('show');
-            });
-
-            $('#saveFilterTanggal').click(function() {
-                getBalance();
-                $('#modalFilterTanggal').modal('hide');
-            });
-            $('#Print').on('click', function(e) {
-                e.preventDefault
-                window.location.href = '{{ route('balance.pdf') }}';
-            });
         });
+
+        flatpickr("#endDate", {
+            dateFormat: "d M Y",
+            onChange: function(selectedDates, dateStr, instance) {
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date(dateStr);
+                if (endDate < startDate) {
+                    showwMassage(error, "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    $('#endDate').val('');
+                }
+            }
+        });
+
+        $(document).on('click', '#filterTanggal', function(e) {
+            $('#modalFilterTanggal').modal('show');
+        });
+
+        $('#saveFilterTanggal').click(function() {
+            getBalance();
+            $('#modalFilterTanggal').modal('hide');
+        });
+
+        $('#Print').on('click', function(e) {
+            e.preventDefault();
+            window.location.href = '{{ route('balance.pdf') }}';
+        });
+    });
+
     </script>
 @endsection

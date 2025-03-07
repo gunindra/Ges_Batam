@@ -142,20 +142,20 @@ class ProfitLossController extends Controller
             }
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>';
-            $output .= '<td>' . number_format($data->grand_total, 2) . '</td>';
+            $output .= '<td>' . number_format(abs($data->grand_total), 2) . '</td>';
 
             foreach ($comparisons as $index => $comparison) {
-                $output .= '<td>' . number_format($data->{'compare_total_' . $index}, 2) . '</td>';
+                $output .= '<td>' . number_format(abs($data->{'compare_total_' . $index}), 2) . '</td>';
             }
             $output .= '</tr>';
         }
 
         $output .= ' <tr>
                             <td class="text-left"><b> TOTAL OPERATING REVENUE </b></td>';
-        $output .= '<td> <b>' . number_format($total_operating_revenue, 2) . '</b> </td>';
+        $output .= '<td> <b>' . number_format(abs($total_operating_revenue), 2) . '</b> </td>';
 
         foreach ($comparisons as $index => $comparison) {
-            $output .= '<td><b>' . number_format($compare_operating_revenue[$index], 2) . '</b></td>';
+            $output .= '<td><b>' . number_format(abs($compare_operating_revenue[$index]), 2) . '</b></td>';
         }
 
         $output .= '</tr>';
@@ -246,20 +246,20 @@ class ProfitLossController extends Controller
             }
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>';
-            $output .= '<td>' . number_format($data->grand_total, 2) . '</td>';
+            $output .= '<td>' . number_format(abs($data->grand_total), 2) . '</td>';
 
             foreach ($comparisons as $index => $comparison) {
-                $output .= '<td>' . number_format($data->{'compare_total_' . $index}, 2) . '</td>';
+                $output .= '<td>' . number_format(abs($data->{'compare_total_' . $index}), 2) . '</td>';
             }
             $output .= '</tr>';
         }
 
         $output .= ' <tr>
                         <td class="text-left"><b> TOTAL OPERATING EXPENSES </b></td>';
-        $output .= '<td> <b> (' . number_format($total_operating_expenses, 2) . ') </b> </td>';
+        $output .= '<td> <b> (' . number_format(abs($total_operating_expenses), 2) . ') </b> </td>';
 
         foreach ($comparisons as $index => $comparison) {
-            $output .= '<td><b> (' . number_format($compare_operating_expenses[$index], 2) . ') </b></td>';
+            $output .= '<td><b> (' . number_format(abs($compare_operating_expenses[$index]), 2) . ') </b></td>';
         }
 
         $output .= '</tr>';
@@ -351,10 +351,10 @@ class ProfitLossController extends Controller
 
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>
-                            <td>' . number_format($data->grand_total, 2) . '</td>';
+                            <td>' . number_format(abs($data->grand_total), 2) . '</td>';
 
             foreach ($comparisons as $index => $comparison) {
-                $output .= '<td>' . number_format($data->{'compare_total_' . $index}, 2) . '</td>';
+                $output .= '<td>' . number_format(abs($data->{'compare_total_' . $index}), 2) . '</td>';
             }
 
             $output .= '</tr>';
@@ -362,10 +362,10 @@ class ProfitLossController extends Controller
 
         $output .= ' <tr>
                         <td class="text-left"><b> TOTAL NON BUSINESS REVENUE </b></td>
-                        <td> <b>' . number_format($total_non_business_revenue, 2) . '</b> </td>';
+                        <td> <b>' . number_format(abs($total_non_business_revenue), 2) . '</b> </td>';
 
         foreach ($compare_non_business_revenue as $total) {
-            $output .= '<td><b>' . number_format($total, 2) . '</b></td>';
+            $output .= '<td><b>' . number_format(abs($total), 2) . '</b></td>';
         }
 
         $output .= '</tr>';
@@ -452,10 +452,10 @@ class ProfitLossController extends Controller
 
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>
-                            <td>' . number_format($data->grand_total, 2) . '</td>';
+                            <td>' . number_format(abs($data->grand_total), 2) . '</td>';
 
             foreach ($comparisons as $index => $comparison) {
-                $output .= '<td>' . number_format($data->{'compare_total_' . $index}, 2) . '</td>';
+                $output .= '<td>' . number_format(abs($data->{'compare_total_' . $index}), 2) . '</td>';
             }
 
             $output .= '</tr>';
@@ -463,10 +463,10 @@ class ProfitLossController extends Controller
 
         $output .= ' <tr>
                         <td class="text-left"><b> TOTAL NON BUSINESS EXPENSES </b></td>
-                        <td> <b> (' . number_format($total_non_business_expenses, 2) . ') </b> </td>';
+                        <td> <b> (' . number_format(abs($total_non_business_expenses), 2) . ') </b> </td>';
 
         foreach ($compare_non_business_expenses as $total) {
-            $output .= '<td><b> (' . number_format($total, 2) . ') </b></td>';
+            $output .= '<td><b> (' . number_format(abs($total), 2) . ') </b></td>';
         }
 
         $output .= '</tr>';
@@ -474,12 +474,12 @@ class ProfitLossController extends Controller
         $net_profit = $total_operating_revenue - $total_operating_expenses + $total_non_business_revenue - $total_non_business_expenses;
         $output .= '<tr>
                         <td ><b>NET PROFIT BEFORE TAX</b></td>
-                        <td> <b>' . number_format($net_profit, 2) . '</b> </td>';
+                        <td> <b>' . number_format(abs($net_profit), 2) . '</b> </td>';
 
         $compare_net_profit = [];
         foreach ($comparisons as $index => $comparison) {
             $compare_net_profit[$index] = $compare_operating_revenue[$index] - $compare_operating_expenses[$index] + $compare_non_business_revenue[$index] - $compare_non_business_expenses[$index];
-            $output .= '<td><b>' . number_format($compare_net_profit[$index], 2) . '</b></td>';
+            $output .= '<td><b>' . number_format(abs($compare_net_profit[$index]), 2) . '</b></td>';
         }
 
         $output .= '</tr></tbody></table></div>';
