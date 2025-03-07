@@ -1018,6 +1018,7 @@ class DeliveryController extends Controller
                         'keterangan' => "Barang Telah Selesai Di Pickup Costumer. Invoice di proses oleh admin: $verifiedUsername",
                         'updated_at' => now(),
                         'tanggal_penerimaan' => now(),
+                        'createby' => $verifiedUsername,
                     ]);
 
                 // Check if all records are completed for updating status

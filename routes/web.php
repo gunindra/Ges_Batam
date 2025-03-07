@@ -146,7 +146,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::post('/invoice/editinvoice/{id}', [InvoiceController::class, 'editinvoice'])->name('editinvoice');
     Route::get('/invoice/cicilanInvoice/{id}', [InvoiceController::class, 'cicilanInvoice'])->name('cicilanInvoice');
     Route::post('/invoice/bayarTagihan', [InvoiceController::class, 'bayarTagihan'])->name('bayarTagihan');
-    Route::get('/invoice/exportPdf', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
+    Route::get('/invoice/exportPdf/{token?}', [InvoiceController::class, 'exportPdf'])->name('exportPdf');
     Route::get('/invoice/kirimPesanWaPembeli', [InvoiceController::class, 'kirimPesanWaPembeli'])->name('kirimPesanWaPembeli');
     Route::get('/invoice/changeMethod', [InvoiceController::class, 'changeMethod'])->name('changeMethod');
     Route::get('/invoice/cekResiInvoice', [InvoiceController::class, 'cekResiInvoice'])->name('cekResiInvoice');

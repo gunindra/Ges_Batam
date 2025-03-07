@@ -187,7 +187,8 @@
         .signature-line {
             border-top: 1px dotted #000;
             width: 200px;
-            margin-left: auto; /* Geser ke kanan */
+            margin-left: auto;
+            /* Geser ke kanan */
             margin-right: 0;
         }
 
@@ -246,7 +247,8 @@
 
         <div class="title">
             <h5>Pembeli: {{ $invoice->pembeli }} ({{ $invoice->marking }}) </h5>
-            <p>Alamat: {{ $invoice->alamat }}</p>
+            <p>Tanggal : {{ $invoice->tanggal_bayar }}</p>
+            <p>Alamat : {{ $invoice->alamat ?? '-' }}</p>
             <h2>Invoice: {{ $invoice->no_invoice }}</h2>
         </div>
 
@@ -330,10 +332,19 @@
                             <div class="signature-label">Customer</div>
                         @endif
                     @endif
+
+                    @if (!empty($invoice->metode_pengiriman))
+                        <div style="margin-top: 20px" class="signature-label">
+                            @if ($invoice->metode_pengiriman == 'Delivery')
+                                Yang Bertanggung jawab : {{ $invoice->nama_supir ?? '-' }}
+                            @elseif ($invoice->metode_pengiriman == 'Pickup')
+                                Yang Bertanggung jawab : {{ $invoice->createby ?? '-' }}
+                            @endif
+                        </div>
+                    @endif
                 </td>
             </tr>
         </table>
-
     </div>
 </body>
 

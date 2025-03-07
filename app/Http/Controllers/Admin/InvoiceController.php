@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Session;
 use Log;
 use Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -751,95 +752,83 @@ class InvoiceController extends Controller
         }
     }
 
-    public function exportPdf(Request $request)
+    public function exportPdf(Request $request, $token = null)
     {
-        $id = intval($request->input('id'));
+        if ($request->ajax()) {
+            $id = intval($request->input('id'));
 
-        try {
-            $fileName = 'invoice_' . $id . '.pdf';
-            $filePath = storage_path('app/public/invoice/' . $fileName);
-
-            // Query data invoice untuk mendapatkan informasi tanda tangan
-            $q = "SELECT a.id,
-                        a.no_invoice,
-                        DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
-                        b.nama_pembeli AS pembeli,
-                        a.alamat,
-                        b.marking,
-                        a.metode_pengiriman,
-                        a.total_harga AS harga,
-                        a.matauang_id,
-                        a.status_bayar,
-                        a.rate_matauang,
-                        d.id AS status_id,
-                        d.status_name,
-                        e.tanda_tangan
-                    FROM tbl_invoice AS a
-                    JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-                    JOIN tbl_status AS d ON a.status_id = d.id
-                    LEFT JOIN tbl_pengantaran_detail AS e ON a.id = e.invoice_id
-                    WHERE a.id = ?";
-            $invoice = DB::select($q, [$id]);
-
-            if (!$invoice) {
+            $invoiceExists = DB::table('tbl_invoice')->where('id', $id)->exists();
+            if (!$invoiceExists) {
                 return response()->json(['error' => 'Invoice not found'], 404);
             }
 
-            $invoice = $invoice[0];
+            $token = Str::uuid()->toString();
 
-            // Ambil data resi
-            $resiData = DB::table('tbl_resi')
-                ->where('invoice_id', $id)
-                ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
+            Session::put("export_invoice_{$token}", $id);
 
-            // **LOGIC UPDATE PDF JIKA TANDA TANGAN ADA**
-            if (File::exists($filePath)) {
-                if (!empty($invoice->tanda_tangan)) {
-                    // Jika file sudah ada dan tanda tangan sudah diisi, maka hapus file lama agar dibuat ulang
-                    File::delete($filePath);
-                } else {
-                    // Jika file sudah ada dan tidak perlu update, langsung return URL
-                    return response()->json(['url' => asset('storage/invoice/' . $fileName)]);
-                }
-            }
+            return response()->json([
+                'url' => route('exportPdf', ['token' => $token])
+            ]);
+        }
 
-            // **GENERATE PDF**
-            try {
-                $pdf = Pdf::loadView('exportPDF.invoice', [
-                    'invoice' => $invoice,
-                    'resiData' => $resiData,
-                    'hargaIDR' => $invoice->harga,
-                    'tanggal' => $invoice->tanggal_bayar,
-                    'tanda_tangan' => $invoice->tanda_tangan ?? null
-                ])
-                    ->setPaper('A4', 'portrait')
-                    ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-                    ->setWarnings(false);
-            } catch (\Exception $e) {
-                Log::error('Error generating PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to generate PDF'], 500);
-            }
+        $id = Session::pull("export_invoice_{$token}");
 
-            // **SIMPAN PDF**
-            try {
-                $folderPath = storage_path('app/public/invoice');
-                if (!File::exists($folderPath)) {
-                    File::makeDirectory($folderPath, 0755, true);
-                }
+        if (!$id) {
+            return response()->json(['error' => 'Invalid or expired token'], 403);
+        }
 
-                $pdf->save($filePath);
-            } catch (\Exception $e) {
-                Log::error('Error saving PDF: ' . $e->getMessage(), ['exception' => $e]);
-                return response()->json(['error' => 'Failed to save PDF'], 500);
-            }
+        $q = "SELECT a.id, a.no_invoice, DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
+                    b.nama_pembeli AS pembeli, a.alamat, b.marking, a.metode_pengiriman,
+                    a.total_harga AS harga, a.matauang_id, a.status_bayar, a.rate_matauang,
+                    d.id AS status_id, d.status_name, e.tanda_tangan, c.metode_pengiriman,
+                    f.nama_supir, e.createby
+                FROM tbl_invoice AS a
+                JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+                JOIN tbl_status AS d ON a.status_id = d.id
+                LEFT JOIN tbl_pengantaran_detail AS e ON a.id = e.invoice_id
+                LEFT JOIN tbl_pengantaran AS c ON e.pengantaran_id = c.id
+                LEFT JOIN tbl_supir AS f ON c.supir_id = f.id
+                WHERE a.id = ?
+                ";
 
-            return response()->json(['url' => asset('storage/invoice/' . $fileName)]);
+        $invoice = DB::select($q, [$id]);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        $invoice = $invoice[0];
+
+        $resiData = DB::table('tbl_resi')
+            ->where('invoice_id', $id)
+            ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
+
+        try {
+            $pdf = Pdf::loadView('exportPDF.invoice', [
+                'invoice' => $invoice,
+                'resiData' => $resiData,
+                'hargaIDR' => $invoice->harga,
+                'tanggal' => $invoice->tanggal_bayar,
+                'tanda_tangan' => $invoice->tanda_tangan ?? null
+            ])
+                ->setPaper('A4', 'portrait')
+                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+                ->setWarnings(false);
+
+            $fileName = 'invoice_' . $id . '.pdf';
+
+            return response()->stream(function () use ($pdf) {
+                echo $pdf->output();
+            }, 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error generating invoice PDF: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'An error occurred while generating the invoice PDF'], 500);
+            return response()->json(['error' => 'Failed to generate PDF'], 500);
         }
     }
+
 
 
 
