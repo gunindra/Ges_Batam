@@ -334,6 +334,10 @@
                 $(this).closest('tr').remove();
             });
 
+            $('.select2singgle').select2({
+                width: 'resolve'
+            });
+
             let globalMinrate = 0;
             let globalMaxrate = 0;
 
