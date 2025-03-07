@@ -179,11 +179,11 @@
             },
             columns: [{
                     data: 'kode_pembayaran',
-                    name: 'a.kode_pembayaran'
+                    name: 'kode_pembayaran'
                 },
                 {
                     data: 'marking',
-                    name: 'd.marking'
+                    name: 'marking'
                 },
                 {
                     data: 'tanggal_buat',
@@ -192,7 +192,7 @@
                 },
                 {
                     data: 'payment_method',
-                    name: 'c.name'
+                    name: 'name'
                 },
                 {
                     data: 'total_amount',
@@ -222,14 +222,14 @@
                 },
                 {
                     data: 'createdby',
-                    name: 'a.createdby',
+                    name: 'createdby',
                     render: function(data, type, row) {
                         return data ? data : '-';
                     }
                 },
                 {
                     data: 'updateby',
-                    name: 'a.updateby',
+                    name: 'updateby',
                     render: function(data, type, row) {
                         return data ? data : '-';
                     }
@@ -237,7 +237,7 @@
                 {
                     data: 'action',
                     name: 'action',
-                    searchable: false,
+                    searchable: false
                     orderable: false
                 }
             ],
