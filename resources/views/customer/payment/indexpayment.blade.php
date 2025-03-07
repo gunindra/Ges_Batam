@@ -237,7 +237,7 @@
                 {
                     data: 'action',
                     name: 'action',
-                    searchable: false
+                    searchable: false,
                     orderable: false
                 }
             ],
