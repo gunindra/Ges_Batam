@@ -49,10 +49,10 @@ class InvoiceController extends Controller
             ->select('marking')
             ->distinct()
             ->get();
-        // $listStatus = DB::select("SELECT status_name FROM tbl_status");
+        $listStatus = DB::select("SELECT status_name FROM tbl_status");
 
         return view('customer.invoice.indexinvoice', [
-            // 'listStatus' => $listStatus,
+            'listStatus' => $listStatus,
             'listDo' => $listDo,
             'listMarking' => $listMarking
         ]);
