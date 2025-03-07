@@ -215,14 +215,14 @@
                 minimumResultsForSearch: 0,
                 width: "100%",
                 dropdownParent: $('#modalUpdateCOA') // Ensures proper styling
-                
+
             });
             $('#groupAccount').select2({
                 placeholder: "Select Group Account",
                 minimumResultsForSearch: 0,
                 width: "100%",
                 dropdownParent: $('#modalTambahCOA') // Ensures proper styling
-                
+
             });
             // Load daftar COA dengan spinner saat data di-load
             function loadCOAList() {
@@ -350,7 +350,7 @@
                     }
                 });
             });
-            
+
             // Edit COA
             $(document).on('click', '.editCOA', function(e) {
                 var coaId = $(this).data('id');
@@ -359,7 +359,7 @@
                     method: 'GET',
                     success: function(response) {
                         $('#editCodeAccountID').val(response.code_account_id);
-                        $('#editGroupAccount').val(response.parent_id);
+                        $('#editGroupAccount').val(response.parent_id).trigger('change');
                         $('#editNameAccount').val(response.name);
                         $('#editDescriptionAccount').val(response.description);
                         $('#editSetGroup').prop('checked', response.set_as_group);
