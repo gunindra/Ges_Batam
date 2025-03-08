@@ -103,13 +103,14 @@
 
                         <div class="form-group mt-3">
                             <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
-                            <input type="text" class="form-control" id="tanggalPayment">
+                            <input style="background-color: white" type="text" class="form-control" id="tanggalPayment">
                             <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
 
                         <div class="form-group mt-3">
                             <label for="tanggalPaymentBuat" class="form-label fw-bold">Tanggal Buat</label>
-                            <input type="text" class="form-control" id="tanggalPaymentBuat" disabled>
+                            <input style="background-color: white" type="text" class="form-control" id="tanggalPaymentBuat">
+                            <div id="errTanggalPaymentBuat" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
                     </div>
 
@@ -157,7 +158,7 @@
                         <textarea id="keteranganPayment" class="form-control" aria-label="With textarea" placeholder="Masukkan keterangan"
                             rows="4"></textarea>
 
-                            <input type="hidden" id="grandtotal">
+                        <input type="hidden" id="grandtotal">
                     </div>
                 </div>
             </div>
@@ -212,8 +213,8 @@
                     </tfoot>
                 </table>
                 <div id="tableError" class="alert alert-danger d-none">
-                Harap isi semua kolom di tabel sebelum melanjutkan.
-            </div>
+                    Harap isi semua kolom di tabel sebelum melanjutkan.
+                </div>
             </div>
         </div>
 
@@ -437,8 +438,8 @@
             });
 
             $('#KodePayment').val(payment.kode_pembayaran).trigger('change');
-            $('#tanggalPayment').val(payment.payment_date).trigger('change');
-            $('#tanggalPaymentBuat').val(payment.payment_buat).trigger('change');
+            // $('#tanggalPayment').val(payment.payment_date).trigger('change');
+            // $('#tanggalPaymentBuat').val(payment.payment_buat).trigger('change');
             $('#discountPayment').val(payment.discount).trigger('change');
             $('#keteranganPayment').val(payment.Keterangan).trigger('change');
             let hasKuota = paymentInvoice.some(item => item.kuota !== null);
@@ -511,27 +512,29 @@
                 });
             });
 
-            const paymentDate = new Date(payment.payment_date);
-            $('#tanggalPayment').datepicker({
-                format: 'dd MM yyyy',
-                todayBtn: 'linked',
-                todayHighlight: true,
-                autoclose: true,
-            }).datepicker('setDate', paymentDate);
+            // Inisialisasi Flatpickr untuk "tanggalPayment" dengan format DateTime
+            flatpickr("#tanggalPayment", {
+                enableTime: true,
+                dateFormat: "d F Y H:i",
+                minuteIncrement: 1,
+                time_24hr: true,
+                defaultDate: payment.payment_date ? new Date(payment.payment_date) : null,
+            });
 
+            // Inisialisasi Flatpickr untuk "tanggalPaymentBuat" dengan format DateTime
             flatpickr("#tanggalPaymentBuat", {
                 enableTime: true,
                 dateFormat: "d F Y H:i",
-                defaultDate: new Date(),
                 minuteIncrement: 1,
                 time_24hr: true,
+                defaultDate: payment.payment_buat ? new Date(payment.payment_buat) : null,
             });
 
             $('#editPayment').click(function(e) {
                 e.preventDefault();
                 const paymentId = payment.id;
 
-                $("#errKodePayment, #errMarkingPayment, #errInvoicePayment, #errTanggalPayment, #errMethodPayment, #erramountPoin, #errAmountPayment")
+                $("#errKodePayment, #errMarkingPayment, #errInvoicePayment, #errTanggalPayment, #errTanggalPayment, #errMethodPayment, #erramountPoin, #errAmountPayment")
                     .addClass("d-none");
 
                 let isValid = true;
@@ -553,6 +556,10 @@
 
                 if (!$("#tanggalPayment").val().trim()) {
                     $("#errTanggalPayment").removeClass("d-none");
+                    isValid = false;
+                }
+                if (!$("#tanggalPaymentBuat").val().trim()) {
+                    $("#errTanggalPaymentBuat").removeClass("d-none");
                     isValid = false;
                 }
 
@@ -579,14 +586,14 @@
                     let tipeAccount = $(this).find('select[name="tipeAccount"]').val();
 
                     if (!account || !itemDesc || !nominal || !tipeAccount) {
-                    isValid = false;
-                }
+                        isValid = false;
+                    }
 
-                if (!isValid) {
-                    $('#tableError').removeClass('d-none');
-                } else {
-                    $('#tableError').addClass('d-none');
-                }
+                    if (!isValid) {
+                        $('#tableError').removeClass('d-none');
+                    } else {
+                        $('#tableError').addClass('d-none');
+                    }
 
                     items.push({
                         account: account,
@@ -610,12 +617,12 @@
                         if (result.isConfirmed) {
 
                             const data = {
-                                paymentId : paymentId,
+                                paymentId: paymentId,
                                 // kode: $('#KodePayment').val(),
                                 invoice: $('#selectInvoice').val(),
                                 marking: $('#selectMarking').val(),
                                 tanggalPayment: $('#tanggalPayment').val(),
-                                // tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
+                                tanggalPaymentBuat: $('#tanggalPaymentBuat').val(),
                                 paymentAmount: parseFloat($('#payment').val()) || 0,
                                 discountPayment: parseFloat($('#discountPayment').val()) || 0,
                                 paymentMethod: $('#selectMethod').val(),

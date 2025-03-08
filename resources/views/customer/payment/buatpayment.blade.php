@@ -103,13 +103,14 @@
 
                         <div class="form-group mt-3">
                             <label for="tanggalPayment" class="form-label fw-bold">Tanggal Payment</label>
-                            <input type="text" class="form-control" id="tanggalPayment">
+                            <input style="background-color: white" type="text" class="form-control" id="tanggalPayment">
                             <div id="errTanggalPayment" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
 
                         <div class="form-group mt-3">
                             <label for="tanggalPaymentBuat" class="form-label fw-bold">Tanggal Buat</label>
-                            <input type="text" class="form-control" id="tanggalPaymentBuat" disabled>
+                            <input style="background-color: white" type="text" class="form-control" id="tanggalPaymentBuat">
+                            <div id="errTanggalPaymentBuat" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
                     </div>
 
@@ -350,15 +351,16 @@
                 closeOnSelect: false
             });
 
-            const today = new Date();
-            $('#tanggalPayment').datepicker({
-                format: 'dd MM yyyy',
-                todayBtn: 'linked',
-                todayHighlight: true,
-                autoclose: true,
-            }).datepicker('setDate', today);
-
             flatpickr("#tanggalPaymentBuat", {
+                enableTime: true,
+                dateFormat: "d F Y H:i",
+                defaultDate: new Date(),
+                minuteIncrement: 1,
+                time_24hr: true,
+                locale: "id",
+            });
+
+            flatpickr("#tanggalPayment", {
                 enableTime: true,
                 dateFormat: "d F Y H:i",
                 defaultDate: new Date(),
