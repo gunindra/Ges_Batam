@@ -228,7 +228,7 @@
                                 @endif
 
                                 <!-- <button class="btn btn-success mr-1" id="isNotif"><span class="pr-2"><i
-                                                                                                                        class="fas fa-bell"></i></span>Notifikasi</button> -->
+                                                                                                                                class="fas fa-bell"></i></span>Notifikasi</button> -->
                                 <a class="btn btn-primary" href="{{ route('addinvoice') }}" id=""><span
                                         class="pr-2"><i class="fas fa-plus"></i></span>Buat Invoice</a>
 
@@ -692,7 +692,6 @@
 
 
 
-
             $(document).on('click', '.btnExportInvoice', function(e) {
                 let id = $(this).data('id');
 
@@ -716,29 +715,26 @@
 
                         if (response.url) {
                             window.open(response.url, '_blank');
-                        } else if (response.error) {
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: response.error
+                                text: 'Failed to generate invoice link'
                             });
                         }
                     },
                     error: function(xhr) {
                         Swal.close();
 
-                        let errorMessage = 'Gagal Export Invoice';
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            errorMessage = xhr.responseJSON.error;
-                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: errorMessage
+                            text: xhr.responseJSON?.error || 'An error occurred'
                         });
                     }
                 });
             });
+
 
             $(document).on('click', '.btnDetailPembayaran', function(e) {
                 e.preventDefault();
