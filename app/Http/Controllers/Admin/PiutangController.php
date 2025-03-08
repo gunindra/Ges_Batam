@@ -97,8 +97,8 @@ class PiutangController extends Controller
             )
             ->where('invoice.company_id', $companyId)
             ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id')
-            ->where('invoice.status_bayar', '=', 'Belum lunas')
-            ->where('pembeli.id', '=', $request->customer);
+            ->where('invoice.status_bayar', '=', 'Belum lunas');
+            
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
 

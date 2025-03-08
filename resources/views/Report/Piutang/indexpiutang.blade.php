@@ -57,7 +57,7 @@
                                 <label for="Tanggal" class="form-label fw-bold">Customer:</label>
                                 <div></div>
                                 <select class="form-control select2" id="customer">
-                                    <option value="" selected disabled>Pilih Customer</option>
+                                    <option value="" selected>Pilih Customer</option>
                                     @foreach ($customers as $customer)
                                         <option value="{{ $customer->id }}" data-bell="{{ $customer->bell_color }}">
                                             {{ $customer->marking }} - {{ $customer->nama_pembeli }}
@@ -212,10 +212,12 @@
             $('#modalFilterTanggal').modal('hide');
         });
 
+        $('#startDate').val('2025-01-01');
+
         flatpickr("#startDate", {
             dateFormat: "d M Y",
+            defaultDate: "01 Jan 2025", // Default start date
             onChange: function (selectedDates, dateStr, instance) {
-
                 $("#endDate").flatpickr({
                     dateFormat: "d M Y",
                     minDate: dateStr
@@ -224,13 +226,12 @@
         });
 
         flatpickr("#endDate", {
-            dateFormat: "d MM Y",
+            dateFormat: "d M Y",
             onChange: function (selectedDates, dateStr, instance) {
                 var startDate = new Date($('#startDate').val());
                 var endDate = new Date(dateStr);
                 if (endDate < startDate) {
-                    showwMassage(error,
-                        "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.");
+                    Swal.fire("Error", "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.", "error");
                     $('#endDate').val('');
                 }
             }

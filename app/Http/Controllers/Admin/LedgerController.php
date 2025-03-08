@@ -48,7 +48,9 @@ class LedgerController extends Controller
                                             ji.debit AS debit,
                                             ji.credit AS credit,
                                             ji.description AS items_description,
-                                            ju.tanggal AS tanggal
+                                            ji.memo AS memo,
+                                            ju.tanggal AS tanggal,
+                                            ju.no_journal AS no_journal
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         WHERE ji.code_account = $coa->coa_id
@@ -95,7 +97,8 @@ class LedgerController extends Controller
 
         $output = '<table width="100%" class="table table-vcenter card-table">
             <thead>
-                <th width="30%" style="text-indent: 50px;">Date</th>
+                <th width="15%" style="text-indent: 50px;">Date</th>
+                <th width="15%" style="text-indent: 50px;">Memo</th>
                 <th width="30%">Description</th>
                 <th width="20%" class="text-right">Total Debit</th>
                 <th width="20%" class="text-right">Total Credit</th>
@@ -104,7 +107,7 @@ class LedgerController extends Controller
         foreach ($ledgerAccounts as $data) {
             if (!empty($data['journal_entries']) || $data['beginning_balance'] != 0 || $data['ending_balance'] != 0) {
                 $output .= '<tr>
-                                <td><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
+                                <td colspan="2"><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
                                 <td><b>BEGINING BALANCE</b></td>
                                 <td class="text-right"><b>  </b></td>';
                 $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
@@ -112,13 +115,15 @@ class LedgerController extends Controller
                 foreach ($data['journal_entries'] as $entry) {
                     $output .= '<tr>
                                     <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
-                                    <td>' . ($entry->items_description ?? '-') . '</td>
+                                    <td>' . ($entry->memo ?? '-') . ' </td>
+                                    <td>' . ($entry->no_journal ?? '-') . ' </td>
                                     <td class="text-right">' . ($entry->debit ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->credit ?? '-') . '</td>
                                 </tr>';
                 }
 
                 $output .= '<tr>
+                                <td> </td>
                                 <td> </td>
                                 <td><b>ENDING BALANCE</b></td>
                                 <td class="text-right"> <b>  </b> </td>
@@ -169,7 +174,9 @@ class LedgerController extends Controller
                                                 ji.debit AS debit,
                                                 ji.credit AS credit,
                                                 ji.description AS items_description,
-                                                ju.tanggal AS tanggal
+                                                ji.memo AS memo,
+                                                ju.tanggal AS tanggal,
+                                                ju.no_journal AS no_journal
                                             FROM tbl_jurnal_items ji
                                             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                             WHERE ji.code_account = ?
