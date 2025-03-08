@@ -307,7 +307,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'invoice' => 'required|array',
             'kode' => 'required|string',
-            'tanggalPayment' => 'required|date',
+            'tanggalPayment' => 'required',
             'tanggalPaymentBuat' => 'required',
             'paymentAmount' => 'required|numeric',
             'discountPayment' => 'nullable|numeric',
@@ -366,10 +366,7 @@ class PaymentController extends Controller
 
             $noRef = implode(', ', $request->invoice);
 
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
-
-
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
 
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
 
@@ -734,7 +731,7 @@ class PaymentController extends Controller
         try {
 
             $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             $totalPayment = $request->paymentAmount;
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
@@ -1041,7 +1038,8 @@ class PaymentController extends Controller
             'invoice' => 'required|array|min:1',
             'invoice.*' => 'string|distinct',
             // 'marking' => 'required|string|max:4',
-            'tanggalPayment' => 'required|date_format:d F Y',
+            'tanggalPayment' => 'required|',
+            'tanggalPaymentBuat' => 'required',
             'paymentAmount' => 'required|numeric|min:0',
             'discountPayment' => 'nullable|numeric|min:0',
             'paymentMethod' => 'required|integer',
@@ -1110,11 +1108,14 @@ class PaymentController extends Controller
             $payment = Payment::findOrFail($request->paymentId);
             Log::info('Berhasil mendapatkan data payment.', ['payment' => $payment]);
 
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             Log::info('Tanggal payment berhasil diformat.', ['tanggalPayment' => $tanggalPayment]);
+
+            $tanggalPaymentBuat = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
 
             $payment->update([
                 'payment_date' => $tanggalPayment,
+                'payment_buat' => $tanggalPaymentBuat,
                 'payment_method_id' => $request->paymentMethod,
                 'discount' => $request->discountPayment ?? 0,
                 'Keterangan' => $request->keterangan,
