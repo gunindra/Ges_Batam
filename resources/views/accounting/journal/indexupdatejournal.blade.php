@@ -37,7 +37,7 @@
                 <li class="breadcrumb-item active" aria-current="page"><span class="tittlepage">Edit Journal</span></li>
             </ol>
         </div>
-        <a class="btn btn-primary mb-3" href="{{ route('journal') }}">
+        <a class="btn btn-primary mb-3" id="btnBack" href="{{ route('journal') }}">
             <i class="fas fa-arrow-left"></i>
             Back
         </a>
@@ -442,6 +442,23 @@
                 showMessage("error", "Harap periksa kembali data yang diperlukan.");
             }
         });
+
+        $("#btnBack").click(function (e) {
+            e.preventDefault();
+            let lastEditedJournal = sessionStorage.getItem('lastEditedJournal');
+            let selectedType = $('input[name="code_type"]:checked').val();
+
+            if (selectedType) {
+                if (lastEditedJournal) {
+                    sessionStorage.setItem('lastEditedJournal', lastEditedJournal + '-' + selectedType);
+                } else {
+                    sessionStorage.setItem('lastEditedJournal', selectedType);
+                }
+                sessionStorage.setItem('lastEditedType', selectedType);
+            }
+            window.location.href = $(this).attr('href');
+        });
+
     });
 </script>
 

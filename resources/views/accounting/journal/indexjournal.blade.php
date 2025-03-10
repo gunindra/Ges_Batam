@@ -315,7 +315,6 @@
                 });
             }
 
-            // Fungsi debounce
             function debounce(func, delay) {
                 let timer;
                 return function(...args) {
@@ -344,6 +343,32 @@
                     tableBKM.draw();
                 }
             });
+
+            let lastEditedId = sessionStorage.getItem('lastEditedJournal');
+
+            if (lastEditedId) {
+
+                let parts = lastEditedId.split('-');
+                if (parts.length === 2) {
+                    let id = parts[0];
+                    let type = parts[1];
+
+                    if (type === 'BKM') {
+                        $('a[data-tab="menuBkm"]').trigger('click');
+
+                    } else if (type === 'BKK') {
+                        $('a[data-tab="menuBkk"]').trigger('click');
+
+                    } else {
+                        $('a[data-tab="jurnalUmum"]').trigger('click');
+
+                    }
+                }
+                sessionStorage.removeItem('lastEditedJournal');
+                sessionStorage.removeItem('lastEditedType');
+            }
+
+            console.log("ini dari session", lastEditedId);
 
             $('#txSearch').on('input', debounce(function() {
                 tableGeneral.search($(this).val()).draw();
@@ -416,8 +441,11 @@
                 let id = $(this).data('id');
                 var url = "{{ route('updatejournal', ':id') }}";
 
+                let currentPage = tableBKM.page();
+
                 url = url.replace(':id', id);
 
+                sessionStorage.setItem('lastEditedJournal', currentPage);
                 window.location.href = url;
             });
 
@@ -461,6 +489,24 @@
                 });
 
             });
+
+
+            // if (lastEditedId) {
+            //     setTimeout(function() {
+            //         let row = $('#tableJournal tbody tr').filter(function() {
+            //             return $(this).find('.btnUpdateJournal').data('id') == lastEditedId;
+            //         });
+            //         if (row.length) {
+            //             $('html, body').animate({
+            //                 scrollTop: row.offset().top - 100
+            //             }, 500);
+
+            //             row.addClass('table-warning');
+            //             setTimeout(() => row.removeClass('table-warning'), 3000);
+            //         }
+            //         sessionStorage.removeItem('lastEditedJournal');
+            //     }, 1000);
+            // }
         });
     </script>
 @endsection
