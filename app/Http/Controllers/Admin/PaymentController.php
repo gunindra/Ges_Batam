@@ -718,6 +718,8 @@ class PaymentController extends Controller
         $receivableSalesAccount = COA::find($paymentMethodId);
         $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id;
 
+        //   dd($request->all());
+
 
         if (is_null($salesAccountId) || is_null($receivableSalesAccount) ||  is_null($paymentDiscountAccount) ) {
             Log::error('Akun pengaturan tidak lengkap.');
@@ -776,7 +778,7 @@ class PaymentController extends Controller
                 $paymentInvoice->kuota = 0.00;
                 $paymentInvoice->save();
 
-                $invoice->total_bayar += $allocatedAmount + ($request->discountPayment ?? 0);
+                $invoice->total_bayar += $allocatedAmount;
                 $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
 
@@ -813,9 +815,9 @@ class PaymentController extends Controller
             $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
-            $totalJurnalAmount = $request->paymentAmount;
-            $jurnal->totaldebit = $request->totalAmmount;
-            $jurnal->totalcredit = $request->totalAmmount;
+            $totalJurnalAmount = $request->totalAmmount;
+            $jurnal->totaldebit = $request->paymentAmount;
+            $jurnal->totalcredit = $request->paymentAmount;
             $jurnal->company_id = $companyId;
             $jurnal->save();
 
@@ -825,6 +827,7 @@ class PaymentController extends Controller
             $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemDebit->save();
 
             Log::info('Jurnal item debit berhasil ditambahkan.');
@@ -834,7 +837,8 @@ class PaymentController extends Controller
             $jurnalItemCredit->code_account = $salesAccountId;
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
             $jurnalItemCredit->debit = 0;
-            $jurnalItemCredit->credit = $totalJurnalAmount + ($request->discountPayment ?? 0);
+            $jurnalItemCredit->credit = $request->paymentAmount;
+            $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -846,6 +850,7 @@ class PaymentController extends Controller
                 $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
+                $jurnalItemDiscount->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDiscount->save();
                 Log::info('Jurnal item diskon berhasil ditambahkan.');
             }

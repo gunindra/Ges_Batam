@@ -305,7 +305,7 @@
                 const paymentAmount = parseFloat($('#payment').val()) || 0;
                 const discountPayment = parseFloat($('#discountPayment').val()) || 0;
 
-                const grandTotal = totalDebit + paymentAmount + discountPayment;
+                const grandTotal = totalDebit + paymentAmount - discountPayment;
                 $('#total_payment').val(totalDebit);
                 $('#grandtotal').val(grandTotal);
             }
