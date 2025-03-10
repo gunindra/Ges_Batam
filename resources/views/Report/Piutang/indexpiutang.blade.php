@@ -105,11 +105,25 @@
                     </div>
                     <div id="containerPiutang" class="table-responsive px-2">
                         <div class="d-flex">
-                            <p class="m-2"><i class="fas fa-bell text-success"></i> : <span id="hijauCount">-</span></p>
-                            <p class="m-2"><i class="fas fa-bell text-warning"></i> : <span id="kuningCount">-</span>
+                            <p class="m-2">
+                                <button id="allButton" class="btn btn-secondary btn-sm">All</button>
                             </p>
-                            <p class="m-2"><i class="fas fa-bell text-danger"></i> : <span id="merahCount">-</span></p>
+                            <p class="m-2">
+                                <i class="fas fa-bell text-success filter-bell" data-color="green"></i> :
+                                <span id="hijauCount">-</span>
+                            </p>
+                            <p class="m-2">
+                                <i class="fas fa-bell text-warning filter-bell" data-color="yellow"></i> :
+                                <span id="kuningCount">-</span>
+                            </p>
+                            <p class="m-2">
+                                <i class="fas fa-bell text-danger filter-bell" data-color="red"></i> :
+                                <span id="merahCount">-</span>
+                            </p>
+                            
+                            <p class="m-2 text-muted">Click the bell to Filter By Bell</p>
                         </div>
+
                         <table class="table align-items-center table-flush table-hover" id="tablePiutang">
                             <thead class="thead-light">
                                 <tr>
@@ -122,6 +136,7 @@
                             <tbody></tbody>
                         </table>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -199,6 +214,21 @@
                 $('#merahCount').text(merahCount);
             }
         });
+
+        $(".fas.fa-bell").on("click", function () {
+            let bellColor = $(this).hasClass("text-success") ? "green" :
+                            $(this).hasClass("text-warning") ? "yellow" :
+                            $(this).hasClass("text-danger") ? "red" : "";
+
+            if (bellColor) {
+                $("#tablePiutang").DataTable().ajax.url("{{ route('getlistPiutang') }}?bell_color=" + bellColor).load();
+            }
+        });
+
+        $("#allButton").on("click", function () {
+            $("#tablePiutang").DataTable().ajax.url("{{ route('getlistPiutang') }}").load();
+        });
+
         $('#txSearch').keyup(function () {
             var searchValue = $(this).val();
             table.search(searchValue).draw();

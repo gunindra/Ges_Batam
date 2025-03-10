@@ -101,7 +101,17 @@ class PiutangController extends Controller
             
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
-
+        
+        if ($request->has('bell_color') && !empty($request->bell_color)) {
+            if ($request->bell_color === 'red') {
+                $query->whereRaw("DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 60");
+            } elseif ($request->bell_color === 'yellow') {
+                $query->whereRaw("DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 30 AND DATEDIFF(CURDATE(), invoice.tanggal_buat) < 60");
+            } elseif ($request->bell_color === 'green') {
+                $query->whereRaw("DATEDIFF(CURDATE(), invoice.tanggal_buat) < 30");
+            }
+        }
+        
         if ($request->customer) {
             $query->where('pembeli.id', '=', $request->customer);
         }
