@@ -347,28 +347,47 @@
             let lastEditedId = sessionStorage.getItem('lastEditedJournal');
 
             if (lastEditedId) {
-
                 let parts = lastEditedId.split('-');
                 if (parts.length === 2) {
                     let id = parts[0];
                     let type = parts[1];
 
+                    let targetTab, targetTable;
+
                     if (type === 'BKM') {
-                        $('a[data-tab="menuBkm"]').trigger('click');
-
+                        targetTab = 'menuBkm';
+                        targetTable = tableBKM;
                     } else if (type === 'BKK') {
-                        $('a[data-tab="menuBkk"]').trigger('click');
-
+                        targetTab = 'menuBkk';
+                        targetTable = tableBKK;
                     } else {
-                        $('a[data-tab="jurnalUmum"]').trigger('click');
-
+                        targetTab = 'jurnalUmum';
+                        targetTable = tableGeneral;
                     }
+
+                    // Pindah ke tab yang sesuai
+                    $('a[data-tab="' + targetTab + '"]').trigger('click');
+
+                    // Tunggu sampai tabel siap
+                    setTimeout(() => {
+                        let rowIndex = targetTable.column(0).data().indexOf(id);
+
+                        if (rowIndex !== -1) {
+                            let pageIndex = Math.floor(rowIndex / targetTable.page.len());
+                            targetTable.page(pageIndex).draw(false);
+                            console.log("Pindah ke halaman:", pageIndex);
+                        } else {
+                            console.warn("Row dengan ID tidak ditemukan:", id);
+                        }
+                    }, 500); // Beri jeda untuk memastikan tabel sudah siap
                 }
+
                 sessionStorage.removeItem('lastEditedJournal');
                 sessionStorage.removeItem('lastEditedType');
             }
 
-            console.log("ini dari session", lastEditedId);
+            console.log("Ini dari session:", lastEditedId);
+
 
             $('#txSearch').on('input', debounce(function() {
                 tableGeneral.search($(this).val()).draw();
@@ -441,7 +460,14 @@
                 let id = $(this).data('id');
                 var url = "{{ route('updatejournal', ':id') }}";
 
-                let currentPage = tableBKM.page();
+                let currentPage;
+                if ($('#jurnalUmum').hasClass('show active')) {
+                    currentPage = tableGeneral.page();
+                } else if ($('#menuBkk').hasClass('show active')) {
+                    currentPage = tableBKK.page();
+                } else if ($('#menuBkm').hasClass('show active')) {
+                    currentPage = tableBKM.page();
+                }
 
                 url = url.replace(':id', id);
 
