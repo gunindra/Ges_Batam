@@ -869,7 +869,6 @@ class PaymentController extends Controller
                     }
                 }
 
-                $balanceAmount = $totalDebit - $totalCredit;
                 foreach ($items as $item) {
                     $jurnalItem = new JurnalItem();
                     $jurnalItem->jurnal_id = $jurnal->id;
@@ -893,6 +892,7 @@ class PaymentController extends Controller
                     $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
+                    $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                     $jurnalItem->save();
 
                     PaymentCustomerItems::create([
