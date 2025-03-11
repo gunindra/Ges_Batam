@@ -263,7 +263,6 @@ class PaymentController extends Controller
     {
         $invoiceNo = $request->invoiceNo;
         $amountPoin = $request->amountPoin;
-        $previousPoin = $request->previousPoin ?? 0;
 
         $invoice = DB::table('tbl_invoice')->where('no_invoice', $invoiceNo)->first();
 
@@ -273,29 +272,48 @@ class PaymentController extends Controller
 
         $customerId = $invoice->pembeli_id;
 
-        $customer = Customer::find($customerId);
-        $sisaPoin = $customer->sisa_poin + $previousPoin;
+        $topupRecords = DB::table('tbl_history_topup')
+            ->where('customer_id', $customerId)
+            ->where('status', 'active')
+            ->where('balance', '>', 0)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        if ($amountPoin > $sisaPoin) {
-            return response()->json(['error' => 'Poin tidak mencukupi'], 400);
+        if ($topupRecords->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada saldo poin yang tersedia'], 400);
         }
 
-        $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
+        $remainingPoin = $amountPoin;
+        $totalNominal = 0;
 
-        if (empty($currentPointPrice)) {
-            Log::error("Rate for 'Topup' not found.");
-            return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
+        foreach ($topupRecords as $topup) {
+            if ($remainingPoin <= 0) {
+                break;
+            }
+
+            $availablePoin = $topup->balance;
+
+            if ($availablePoin >= $remainingPoin) {
+                $totalNominal += $remainingPoin * $topup->price_per_kg;
+                $remainingPoin = 0;
+            } else {
+                $totalNominal += $availablePoin * $topup->price_per_kg;
+                $remainingPoin -= $availablePoin;
+            }
         }
 
-        $currentPointPrice = $currentPointPrice[0]->nilai_rate;
-
-        $totalNominal = $amountPoin * $currentPointPrice;
+        if ($remainingPoin > 0) {
+            return response()->json(['error' => 'Saldo poin tidak mencukupi'], 400);
+        }
 
         return response()->json([
             'message' => 'Nominal berhasil dihitung.',
             'total_nominal' => $totalNominal
         ]);
     }
+
+
+
 
 
 
