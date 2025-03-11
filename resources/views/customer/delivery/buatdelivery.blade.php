@@ -822,8 +822,8 @@
             locale: {
                 format: 'DD MMMM YYYY'
             },
-            startDate: moment().startOf('month'),
-            endDate: moment().endOf('month'),
+            startDate: moment().startOf('year'), // Awal tahun ini (1 Januari)
+            endDate: moment(), // Hari ini
             opens: 'left'
         });
 
