@@ -324,7 +324,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/vendor/purchasePayment/{id}', [PurchasePaymentController::class, 'editpurchasepayment'])->name('editpurchasepayment');
     Route::get('/vendor/purchasePayment/getInoviceByVendorEdit', [PurchasePaymentController::class, 'getInoviceByVendorEdit'])->name('getInoviceByVendorEdit');
     Route::post('/vendor/purchasePayment/updatepayment', [PurchasePaymentController::class, 'update'])->name('editpaymentsup.update');
-
+    Route::delete('/vendor/payment-sup/{id}', [PurchasePaymentController::class, 'destroy'])->name('payment-sup.destroy');
 
     //Debit Note
     Route::get('/vendor/debitnote', [DebitNoteController::class, 'index'])->name('debitnote');

@@ -99,7 +99,11 @@ class PurchasePaymentController extends Controller
                           <i class="fas fa-edit"></i>
                         </a>';
 
-            return $btnDetail . $btnEdit;
+            $btnDelete = '<a class="btn btnDeletePurchasePayment btn-sm btn-danger ml-1 text-white" data-id="' . $row->id . '">
+                            <i class="fas fa-trash"></i>
+                        </a>';
+
+            return $btnDetail . $btnEdit . $btnDelete;
         })
         ->rawColumns(['action'])
         ->make(true);
@@ -720,6 +724,42 @@ class PurchasePaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $paymentId = $id;
+
+        DB::beginTransaction();
+
+        try {
+            $payment = PaymentSup::findOrFail($paymentId);
+
+            $paymentInvoices = DB::table('tbl_payment_invoice_sup')
+                ->where('payment_id', $paymentId)
+                ->get();
+
+            foreach ($paymentInvoices as $paymentInvoice) {
+                $invoice = SupInvoice::findOrFail($paymentInvoice->invoice_id);
+                $invoice->total_bayar -= $paymentInvoice->amount;
+                $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
+                $invoice->save();
+            }
+            DB::table('tbl_payment_invoice_sup')->where('payment_id', $paymentId)->delete();
+
+            Jurnal::where('payment_id_sup', $paymentId)->delete();
+            JurnalItem::whereIn('jurnal_id', function ($query) use ($paymentId) {
+                $query->select('id')->from('jurnals')->where('payment_id_sup', $paymentId);
+            })->delete();
+
+            $payment->delete();
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Payment successfully deleted and invoice updated']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['success' => false, 'message' => 'Error deleting payment', 'error' => $e->getMessage()]);
         }
     }
 

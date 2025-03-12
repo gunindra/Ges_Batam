@@ -388,6 +388,49 @@
             url = url.replace(':id', id);
             window.location.href = url;
         });
+
+
+        $(document).on('click', '.btnDeletePurchasePayment', function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Apakah kamu yakin?',
+                text: "Payment ini akan dihapus secara permanen!",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('payment-sup.destroy', ':id') }}".replace(':id', id),
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            showMessage("success", response.message)
+                                .then(
+                                    () => {
+                                        var currentPage = table.page();
+                                        table.ajax.reload(null, false);
+                                        table.one('draw', function() {
+                                            table.page(currentPage).draw(false);
+                                        });
+                                    });
+                        },
+                        error: function(xhr, status, error) {
+                            var errorMessage = xhr.responseJSON.error ||
+                                'Gagal menghapus Payment.';
+                            showMessage("error", errorMessage);
+                        }
+                    });
+                }
+            });
+        });
     });
 </script>
 @endsection

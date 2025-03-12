@@ -473,7 +473,7 @@
                         },
                         error: function(xhr, status, error) {
                             var errorMessage = xhr.responseJSON.error ||
-                                'Gagal menghapus jurnal.';
+                                'Gagal menghapus Payment.';
                             showMessage("error", errorMessage);
                         }
                     });
