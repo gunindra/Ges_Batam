@@ -16,7 +16,7 @@
             </td>
         </tr>
         <tr>
-            <td style="text-align:left;font-size:11px;padding: 14px;">Nama Customer:</td>
+            <td style="text-align:left;font-size:11px;padding: 14px;">Marking Customer:</td>
             <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
                 {{ $customer ? $customer : '-' }}
             </td>
