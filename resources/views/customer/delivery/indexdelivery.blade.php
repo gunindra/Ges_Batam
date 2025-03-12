@@ -3,7 +3,7 @@
 @section('title', 'Delivery')
 
 @section('main')
-<style>
+    <style>
         .select2-container--default .select2-selection--single {
             height: 43px;
             border: 1px solid #d1d3e2;
@@ -94,11 +94,11 @@
                             <div class="mt-3">
                                 <label for="pembayaranStatus" class="form-label fw-bold">Pilih Tanggal:</label>
                                 <div class="d-flex align-items-center">
-                                    <input type="date" id="startDate" class="form-control" placeholder="Pilih tanggal mulai"
-                                        style="width: 200px;">
+                                    <input type="date" id="startDate" class="form-control"
+                                        placeholder="Pilih tanggal mulai" style="width: 200px;">
                                     <span class="mx-2">sampai</span>
-                                    <input type="date" id="endDate" class="form-control" placeholder="Pilih tanggal akhir"
-                                        style="width: 200px;">
+                                    <input type="date" id="endDate" class="form-control"
+                                        placeholder="Pilih tanggal akhir" style="width: 200px;">
                                 </div>
                             </div>
                         </div>
@@ -158,7 +158,8 @@
                                     <option value="Delivering">Delivering</option>
                                     <option value="Received">Received</option>
                                 </select>
-                                <select class="form-control select2singgle ml-2" id="filtermarking" style="width: 200px;">
+                                <select class="form-control select2singgle ml-2" id="filtermarking"
+                                    style="width: 200px;">
                                     <option value="" selected disabled>Pilih Marking</option>
                                     @foreach ($listmarking as $marking)
                                         <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
@@ -176,8 +177,8 @@
                                     Reset
                                 </button>
                             </div>
-                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span class="pr-2"><i
-                                        class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
+                            <a class="btn btn-primary" href="{{ route('addDelivery') }}" id=""><span
+                                    class="pr-2"><i class="fas fa-plus"></i></span>Buat Delivery / Pick Up</a>
                         </div>
                         <div id="containerDelivery" class="table-responsive px-3">
                             {{-- <table class="table align-items-center table-flush table-hover" id="tableDelivery">
@@ -246,20 +247,20 @@
             const filternodo = $('#filternodo').val();
 
             $.ajax({
-                url: "{{ route('getlistDelivery') }}",
-                method: "GET",
-                data: {
-                    txSearch: txtSearch,
-                    startDate: startDate,
-                    endDate: endDate,
-                    status: filterStatus,
-                    marking: filtermarking,
-                    no_do: filternodo
-                },
-                beforeSend: () => {
-                    $('#containerDelivery').html(loadSpin)
-                }
-            })
+                    url: "{{ route('getlistDelivery') }}",
+                    method: "GET",
+                    data: {
+                        txSearch: txtSearch,
+                        startDate: startDate,
+                        endDate: endDate,
+                        status: filterStatus,
+                        marking: filtermarking,
+                        no_do: filternodo
+                    },
+                    beforeSend: () => {
+                        $('#containerDelivery').html(loadSpin)
+                    }
+                })
                 .done(res => {
                     $('#containerDelivery').html(res)
                     $('#tableDelivery').DataTable({
@@ -279,7 +280,7 @@
 
         getlistDelivery();
 
-        $('#txSearch').keyup(function (e) {
+        $('#txSearch').keyup(function(e) {
             var inputText = $(this).val();
             if (inputText.length >= 1 || inputText.length == 0) {
                 getlistDelivery();
@@ -290,16 +291,16 @@
             width: 'resolve'
         });
 
-        $('#filtermarking').change(function () {
+        $('#filtermarking').change(function() {
             getlistDelivery();
         });
-        $('#filternodo').change(function () {
+        $('#filternodo').change(function() {
             getlistDelivery();
         });
 
         flatpickr("#startDate", {
             dateFormat: "d M Y",
-            onChange: function (selectedDates, dateStr, instance) {
+            onChange: function(selectedDates, dateStr, instance) {
 
                 $("#endDate").flatpickr({
                     dateFormat: "d M Y",
@@ -310,7 +311,7 @@
 
         flatpickr("#endDate", {
             dateFormat: "d MM Y",
-            onChange: function (selectedDates, dateStr, instance) {
+            onChange: function(selectedDates, dateStr, instance) {
                 var startDate = new Date($('#startDate').val());
                 var endDate = new Date(dateStr);
                 if (endDate < startDate) {
@@ -320,22 +321,22 @@
             }
         });
 
-        $(document).on('click', '#filterTanggal', function (e) {
+        $(document).on('click', '#filterTanggal', function(e) {
             $('#modalFilterTanggal').modal('show');
         });
 
 
 
-        $('#filterStatus').change(function () {
+        $('#filterStatus').change(function() {
             getlistDelivery();
         });
 
-        $('#saveFilterTanggal').click(function () {
+        $('#saveFilterTanggal').click(function() {
             getlistDelivery();
             $('#modalFilterTanggal').modal('hide');
         });
 
-        $(document).on('click', '.btnDetailPengantaran', function (e) {
+        $(document).on('click', '.btnDetailPengantaran', function(e) {
             e.preventDefault();
             let namafoto = $(this).data('bukti');
             $.ajax({
@@ -344,7 +345,7 @@
                 data: {
                     namafoto: namafoto,
                 },
-                success: function (response) {
+                success: function(response) {
                     if (response.status === 'success') {
                         let imageUrl = response.url;
 
@@ -355,7 +356,7 @@
                     }
                     $('#modalBuktiPengantaran').modal('show');
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     showMessage("error", "Terjadi kesalahan saat memuat bukti pembayaran");
                     $('#modalBuktiPengantaran').modal('show');
                 }
@@ -363,7 +364,7 @@
         });
 
 
-        $(document).on('click', '.btnSelesaikanPickup', function (e) {
+        $(document).on('click', '.btnSelesaikanPickup', function(e) {
             let pengantaranId = $(this).data('invoice-id');
 
             Swal.fire({
@@ -396,7 +397,7 @@
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
-                        success: function (response) {
+                        success: function(response) {
                             Swal.close();
 
                             if (response.status === 'error') {
@@ -406,7 +407,7 @@
                                 getlistDelivery();
                             }
                         },
-                        error: function (xhr) {
+                        error: function(xhr) {
                             Swal.close();
 
                             let errorMessage = 'Gagal Export Invoice';
@@ -424,7 +425,7 @@
             });
         });
 
-        $(document).on('click', '.btnExportPDF', function () {
+        $(document).on('click', '.btnExportPDF', function() {
             let pengantaranId = $(this).data('id');
 
             Swal.fire({
@@ -445,7 +446,7 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                success: function (response) {
+                success: function(response) {
                     Swal.close();
 
                     if (response.url) {
@@ -458,7 +459,7 @@
                         });
                     }
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     Swal.close();
 
                     let errorMessage = 'Gagal Export Invoice';
@@ -474,7 +475,7 @@
             });
         });
 
-        $(document).on('click', '.show-invoice-modal', function () {
+        $(document).on('click', '.show-invoice-modal', function() {
             var invoiceNumbers = $(this).data('invoices');
             var marking = $(this).data('marking').trim();
             var customerNames = $(this).data('customers').trim();
@@ -485,6 +486,10 @@
             var metodePengiriman = $(this).data('metode').trim();
             var keterangan = $(this).data('keterangan').trim();
             var statusInvoice = $(this).data('status').trim();
+
+            console.log("Bukti Pengantaran:", buktiPengantaran);
+
+
 
             // Pastikan pemisahnya sesuai dengan ';'
             if (typeof invoiceNumbers !== 'string') {
@@ -517,7 +522,7 @@
             if (metodePengiriman !== 'Pickup') {
                 modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
             } else {
-                modalContent += '<th>Tanda Tangan Admin</th><th>Tanda Tangan Customer</th>';
+                modalContent += '<th>Dokumentasi Admin</th><th>Tanda Tangan Customer</th>';
             }
 
             modalContent += '<th>Status</th>';
@@ -537,8 +542,21 @@
                 }
 
                 if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
-                    modalContent += '<td><a href="/storage/' + buktiPengantaran[i] +
-                        '" target="_blank">Lihat Bukti</a></td>';
+                    var images = buktiPengantaran[i].includes('|') ? buktiPengantaran[i].split('|') : [
+                        buktiPengantaran[i]
+                    ];
+
+                    modalContent += '<td>';
+
+                    images.forEach(function(image) {
+                        if (image.trim() !== "") {
+                            var label = image.includes("signature") ? "Lihat Bukti" : "Lihat Foto";
+                            modalContent += '<a href="/storage/' + image + '" target="_blank">' + label +
+                                '</a> ';
+                        }
+                    });
+
+                    modalContent += images.length > 0 ? '</td>' : '<td>Tidak Ada Bukti</td>';
                 } else {
                     modalContent += '<td>Tidak Ada Bukti</td>';
                 }
@@ -594,7 +612,7 @@
 
 
 
-        $(document).on('click', '.btnBuktiPengantaran', function (e) {
+        $(document).on('click', '.btnBuktiPengantaran', function(e) {
             let id = $(this).data('id');
 
             function validatePengantaran() {
@@ -606,7 +624,7 @@
                     var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
                     if (!validExtensions.includes(file.type)) {
                         $('#err-pengantaranStatus').text(
-                            'Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong')
+                                'Hanya file JPG , JPEG atau PNG yang diperbolehkan atau gambar tidak boleh kosong')
                             .removeClass('d-none');
                         isValid = false;
                     } else {
@@ -621,11 +639,11 @@
                 return isValid;
             }
 
-            $('#pengantaranStatus').on('input change', function () {
+            $('#pengantaranStatus').on('input change', function() {
                 validatePengantaran();
             });
 
-            $(document).on('click', '#saveFilePengantaran', function (e) {
+            $(document).on('click', '#saveFilePengantaran', function(e) {
                 e.preventDefault();
 
                 if (validatePengantaran()) {
@@ -652,7 +670,7 @@
                                 data: formData,
                                 contentType: false,
                                 processData: false,
-                                success: function (response) {
+                                success: function(response) {
                                     if (response.error) {
                                         showMessage("error", response.message);
                                     } else {
@@ -661,7 +679,7 @@
                                         $('#modalConfirmasiPengantaran').modal('hide');
                                     }
                                 },
-                                error: function () {
+                                error: function() {
                                     showMessage("error",
                                         "Terjadi kesalahan pada server.");
                                 }
@@ -676,7 +694,7 @@
             $('#modalConfirmasiPengantaran').modal('show');
         });
 
-        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function () {
+        $('#modalConfirmasiPengantaran').on('hidden.bs.modal', function() {
             $('#pengantaranStatus').val('');
             if (!$('#err-pengantaranStatus').hasClass('d-none')) {
                 $('#err-pengantaranStatus').addClass('d-none');

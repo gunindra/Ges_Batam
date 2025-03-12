@@ -162,6 +162,19 @@
                                 <div class="mt-2 d-flex justify-content-between align-items-center">
                                     <button id="clear" class="btn btn-danger btn-sm">Hapus</button>
                                 </div>
+
+                                <div class="my-3">
+                                    <label for="paymentMethod" class="form-label">Metode Pembayaran</label>
+                                    <select class="form-control" id="paymentMethod" name="paymentMethod">
+                                        <option value="" disabled selected>Pilih metode pembayaran</option>
+                                        @foreach ($listPembayaran as $pembayaran)
+                                            <option value="{{ $pembayaran->tipe_pembayaran }}">
+                                                {{ $pembayaran->tipe_pembayaran }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="paymentMethodError" class="text-danger mt-1 d-none">Silahkan pilih pembayaran
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Signature 2 -->
@@ -174,23 +187,17 @@
                                 <div class="mt-2 d-flex justify-content-between align-items-center">
                                     <button id="clear1" class="btn btn-danger btn-sm">Hapus</button>
                                 </div>
+
+                                <div class="my-3">
+                                    <label for="pengantaranStatus" class="form-label fw-bold">Masukkan Foto</label>
+                                    <input type="file" class="form-control" id="photo" name="photo">
+                                    <div id="imagePickupError" class="text-danger mt-1 d-none">Silahkan isi Gambar</div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Save Button Centered -->
                         <div class="mt-4 text-center">
-                            <div class="mb-3">
-                                <label for="paymentMethod" class="form-label">Metode Pembayaran</label>
-                                <select class="form-control" id="paymentMethod" name="paymentMethod">
-                                    <option value="" disabled selected>Pilih metode pembayaran</option>
-                                    @foreach ($listPembayaran as $pembayaran)
-                                        <option value="{{ $pembayaran->tipe_pembayaran }}">
-                                            {{ $pembayaran->tipe_pembayaran }}</option>
-                                    @endforeach
-                                </select>
-                                <div id="paymentMethodError" class="text-danger mt-1 d-none">Silahkan pilih pembayaran
-                                </div>
-                            </div>
                             <button id="save" class="btn btn-success mt-3 w-50">Submit</button>
                         </div>
                     </div>
@@ -434,10 +441,20 @@
 
             $('#save').on('click', function() {
                 let paymentMethod = $('#paymentMethod').val();
+                var photoFile = $('#photo')[0].files[0];
+                var validExtensions = ['image/jpeg', 'image/jpg', 'image/png'];
 
                 if (!paymentMethod || paymentMethod.trim() === "") {
                     $('#paymentMethodError').removeClass('d-none');
                     return;
+                }
+
+                if (photoFile && !validExtensions.includes(photoFile.type)) {
+                    $('#imageSupirError').text('Hanya file JPG, JPEG, atau PNG yang diizinkan.')
+                        .removeClass('d-none');
+                    return;
+                } else {
+                    $('#imageSupirError').addClass('d-none');
                 }
 
                 var selectedInvoices = $('#selectResi').val();
@@ -462,6 +479,10 @@
                 }
 
                 var formData = new FormData();
+
+                if (photoFile) {
+                    formData.append('photo', photoFile);
+                }
                 formData.append('selectedValues', selectedInvoices);
                 formData.append('selectedPayment', $('#paymentMethod').val());
                 const verifiedUsername = localStorage.getItem('verifiedUsername');
