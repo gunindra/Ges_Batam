@@ -967,14 +967,16 @@ class DeliveryController extends Controller
 
     public function updateStatus(Request $request)
     {
+        // dd($request->all());
+
         $request->validate([
             'admin_signature' => 'nullable|mimes:jpg,jpeg,png',
             'customer_signature' => 'nullable|mimes:jpg,jpeg,png',
+            'photo' => 'nullable|mimes:jpg,jpeg,png',
             'selectedPayment' => 'required'
         ]);
 
         $verifiedUsername = $request->input('verified_username');
-
 
         DB::beginTransaction();
 
@@ -982,38 +984,49 @@ class DeliveryController extends Controller
             $invoiceIds = explode(',', $request->input('selectedValues'));
 
             foreach ($invoiceIds as $invoiceId) {
-                // Retrieve the invoice number for each invoice ID
-                $noInvoice = DB::table('tbl_invoice')
-                    ->where('id', $invoiceId)
-                    ->value('no_invoice');
-
+                // Ambil nomor invoice
+                $noInvoice = DB::table('tbl_invoice')->where('id', $invoiceId)->value('no_invoice');
                 if (!$noInvoice) {
                     throw new \Exception("No invoice found for invoice_id {$invoiceId}");
                 }
 
-                // Process and store the admin signature in 'bukti_pengantaran'
+                // Inisialisasi path untuk admin_signature dan photo
+                $adminSignaturePath = null;
+                $photoPath = null;
+
+                // Proses admin signature
                 if ($request->hasFile('admin_signature')) {
                     $adminSignatureFile = $request->file('admin_signature');
                     $adminSignatureFilename = time() . '_admin_signature_' . $noInvoice . '.' . $adminSignatureFile->getClientOriginalExtension();
                     $adminSignaturePath = $adminSignatureFile->storeAs('ttd_pengantaran', $adminSignatureFilename, 'public');
-                } else {
-                    $adminSignaturePath = null;
                 }
 
-                // Process and store the customer signature in 'tanda_tangan'
+                // Proses photo
+                if ($request->hasFile('photo')) {
+                    $photoFile = $request->file('photo');
+                    $photoFilename = time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension();
+                    $photoPath = $photoFile->storeAs('ttd_pengantaran', $photoFilename, 'public');
+                }
+
+                // Gabungkan admin_signature dengan photo (gunakan | sebagai pemisah)
+                $finalAdminSignaturePath = $adminSignaturePath;
+                if ($photoPath) {
+                    $finalAdminSignaturePath = $adminSignaturePath ? "$adminSignaturePath|$photoPath" : $photoPath;
+                }
+
+                // Proses customer signature
+                $customerSignaturePath = null;
                 if ($request->hasFile('customer_signature')) {
                     $customerSignatureFile = $request->file('customer_signature');
                     $customerSignatureFilename = time() . '_customer_signature_' . $noInvoice . '.' . $customerSignatureFile->getClientOriginalExtension();
                     $customerSignaturePath = $customerSignatureFile->storeAs('ttd_pengantaran', $customerSignatureFilename, 'public');
-                } else {
-                    $customerSignaturePath = null;
                 }
 
-                // Update 'tbl_pengantaran_detail' with both signature paths
+                // Update ke database
                 DB::table('tbl_pengantaran_detail')
                     ->where('invoice_id', $invoiceId)
                     ->update([
-                        'bukti_pengantaran' => $adminSignaturePath,
+                        'bukti_pengantaran' => $finalAdminSignaturePath,
                         'tanda_tangan' => $customerSignaturePath,
                         'keterangan' => "Barang Telah Selesai Di Pickup Costumer. Invoice di proses oleh admin: $verifiedUsername",
                         'updated_at' => now(),
@@ -1021,48 +1034,32 @@ class DeliveryController extends Controller
                         'createby' => $verifiedUsername,
                     ]);
 
-                // Check if all records are completed for updating status
-                $pengantaranDetails = DB::table('tbl_pengantaran_detail')
-                    ->where('invoice_id', $invoiceId)
-                    ->get();
-
-                $allCompleted = $pengantaranDetails->every(function ($detail) {
-                    return !empty($detail->bukti_pengantaran) || !empty($detail->tanda_tangan);
-                });
+                // Cek apakah semua invoice telah memiliki bukti_pengantaran atau tanda_tangan
+                $pengantaranDetails = DB::table('tbl_pengantaran_detail')->where('invoice_id', $invoiceId)->get();
+                $allCompleted = $pengantaranDetails->every(fn($detail) => !empty($detail->bukti_pengantaran) || !empty($detail->tanda_tangan));
 
                 if ($allCompleted) {
-                    DB::table('tbl_invoice')
-                        ->where('id', $invoiceId)
-                        ->update([
-                            'status_id' => 6,
-                            'payment_type' => $request->input('selectedPayment'),
+                    DB::table('tbl_invoice')->where('id', $invoiceId)->update([
+                        'status_id' => 6,
+                        'payment_type' => $request->input('selectedPayment'),
+                        'updated_at' => now(),
+                    ]);
+
+                    $pengantaranId = DB::table('tbl_pengantaran_detail')->where('invoice_id', $invoiceId)->value('pengantaran_id');
+                    if ($pengantaranId) {
+                        DB::table('tbl_pengantaran')->where('id', $pengantaranId)->update([
                             'updated_at' => now(),
                         ]);
-
-                    $pengantaranId = DB::table('tbl_pengantaran_detail')
-                        ->where('invoice_id', $invoiceId)
-                        ->value('pengantaran_id');
-
-                    if ($pengantaranId) {
-                        DB::table('tbl_pengantaran')
-                            ->where('id', $pengantaranId)
-                            ->update([
-                                'updated_at' => now(),
-                            ]);
                     }
                 }
 
-                $noResiList = DB::table('tbl_resi')
-                    ->where('invoice_id', $invoiceId)
-                    ->pluck('no_resi');
-
+                // Update status tracking
+                $noResiList = DB::table('tbl_resi')->where('invoice_id', $invoiceId)->pluck('no_resi');
                 if ($noResiList->isNotEmpty()) {
-                    DB::table('tbl_tracking')
-                        ->whereIn('no_resi', $noResiList)
-                        ->update([
-                            'status' => 'Received',
-                            'updated_at' => now(),
-                        ]);
+                    DB::table('tbl_tracking')->whereIn('no_resi', $noResiList)->update([
+                        'status' => 'Received',
+                        'updated_at' => now(),
+                    ]);
                 }
             }
 
@@ -1075,5 +1072,6 @@ class DeliveryController extends Controller
             return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
     }
+
 
 }

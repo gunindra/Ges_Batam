@@ -136,14 +136,20 @@ class PaymentController extends Controller
                                 <i class="fas fa-eye text-white"></i>
                                 <span class="text-white"> Detail</span>
                               </a>';
+
                 if ($periodStatus == 'Closed') {
                     return $btnDetail;
                 }
-                $btnEdit = '<a class="btn btnEditPayment btn-sm btn-secondary text-white" data-id="' . $row->id . '">
+
+                $btnEdit = '<a class="btn btnEditPayment btn-sm btn-secondary text-white mr-1" data-id="' . $row->id . '">
                               <i class="fas fa-edit"></i>
                             </a>';
 
-                return $btnDetail . $btnEdit;
+                $btnDelete = '<a class="btn btnDeletePayment btn-sm btn-danger text-white" data-id="' . $row->id . '">
+                                <i class="fas fa-trash"></i>
+                              </a>';
+
+                return $btnDetail . $btnEdit . $btnDelete;
             })
             ->make(true);
     }
@@ -1377,6 +1383,7 @@ class PaymentController extends Controller
             $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemDebit->save();
 
             Log::info('Jurnal item debit berhasil ditambahkan.');
@@ -1387,6 +1394,7 @@ class PaymentController extends Controller
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $totalJurnalAmount + ($request->discountPayment ?? 0);
+            $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -1398,6 +1406,7 @@ class PaymentController extends Controller
                 $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
+                $jurnalItemDiscount->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDiscount->save();
                 Log::info('Jurnal item diskon berhasil ditambahkan.');
             }
@@ -1440,6 +1449,7 @@ class PaymentController extends Controller
                     $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
+                    $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                     $jurnalItem->save();
 
                     PaymentCustomerItems::create([
@@ -1469,6 +1479,61 @@ class PaymentController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan saat mengupdate payment.']);
         }
     }
+
+    public function deletePayment($id)
+    {
+        $paymentId = $id;
+
+        $payment = Payment::find($paymentId);
+
+        if (!$payment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment tidak ditemukan.'
+            ], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $paymentInvoices = PaymentInvoice::where('payment_id', $paymentId)->get();
+
+            foreach ($paymentInvoices as $paymentInvoice) {
+                $invoice = Invoice::find($paymentInvoice->invoice_id);
+
+                if ($invoice) {
+                    $invoice->total_bayar -= $paymentInvoice->amount;
+                    if ($invoice->total_bayar < 0) {
+                        $invoice->total_bayar = 0;
+                    }
+                    $invoice->status_bayar = ($invoice->total_bayar >= $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
+
+                    $invoice->save();
+                }
+            }
+
+            PaymentInvoice::where('payment_id', $paymentId)->delete();
+
+            $jurnalIds = Jurnal::where('payment_id', $paymentId)->pluck('id');
+            JurnalItem::whereIn('jurnal_id', $jurnalIds)->delete();
+            Jurnal::where('payment_id', $paymentId)->delete();
+
+            PaymentCustomerItems::where('payment_id', $paymentId)->delete();
+            $payment->delete();
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payment berhasil dihapus dan status invoice diperbarui.'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus payment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 
 }
