@@ -11,7 +11,8 @@
         }
 
         #menuBkk .table,
-        #menuBkm .table {
+        #menuBkm .table,
+        #jurnalUmum .table {
             width: 100% !important;
         }
 
