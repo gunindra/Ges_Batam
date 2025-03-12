@@ -344,14 +344,17 @@
                 }
             });
 
-            let lastEditedId = sessionStorage.getItem('lastEditedJournal');
+            $(document).ready(function() {
+                let lastEditedData = sessionStorage.getItem('lastEditedJournal');
+                let lastEditedPage = sessionStorage.getItem('lastEditedPage');
+                let lastActiveTab = sessionStorage.getItem('lastActiveTab');
 
-            if (lastEditedId) {
-                let parts = lastEditedId.split('-');
-                if (parts.length === 2) {
-                    let id = parts[0];
-                    let type = parts[1];
+                if (lastActiveTab) {
+                    $('a[data-tab="' + lastActiveTab + '"]').trigger('click');
+                }
 
+                if (lastEditedData && lastEditedPage) {
+                    let [id, type] = lastEditedData.split('-');
                     let targetTab, targetTable;
 
                     if (type === 'BKM') {
@@ -365,28 +368,94 @@
                         targetTable = tableGeneral;
                     }
 
-                    // Pindah ke tab yang sesuai
+                    // Aktifkan tab yang sesuai
                     $('a[data-tab="' + targetTab + '"]').trigger('click');
 
-                    // Tunggu sampai tabel siap
-                    setTimeout(() => {
-                        let rowIndex = targetTable.column(0).data().indexOf(id);
-
-                        if (rowIndex !== -1) {
-                            let pageIndex = Math.floor(rowIndex / targetTable.page.len());
+                    // Tunggu sampai data selesai dimuat sebelum berpindah ke halaman yang benar
+                    targetTable.one('xhr.dt', function() {
+                        setTimeout(() => {
+                            let pageIndex = parseInt(lastEditedPage, 10) || 0;
                             targetTable.page(pageIndex).draw(false);
-                            console.log("Pindah ke halaman:", pageIndex);
-                        } else {
-                            console.warn("Row dengan ID tidak ditemukan:", id);
-                        }
-                    }, 500); // Beri jeda untuk memastikan tabel sudah siap
+
+                            setTimeout(() => {
+                                let rowIndex = targetTable
+                                    .rows()
+                                    .data()
+                                    .toArray()
+                                    .findIndex(row => row.id == id);
+
+                                if (rowIndex !== -1) {
+                                    let rowNode = $(targetTable.row(rowIndex)
+                                    .node());
+                                    rowNode.addClass(
+                                    'highlight');
+                                } else {
+                                    console.warn(
+                                        "Data tidak ditemukan di halaman ini:",
+                                        id);
+                                }
+                            }, 500);
+
+                        }, 500);
+                    });
+
+                    // Bersihkan sessionStorage setelah digunakan
+                    sessionStorage.removeItem('lastEditedJournal');
+                    sessionStorage.removeItem('lastEditedPage');
                 }
 
-                sessionStorage.removeItem('lastEditedJournal');
-                sessionStorage.removeItem('lastEditedType');
-            }
+                // Simpan tab aktif di sessionStorage saat berpindah tab
+                $('a[data-tab]').on('click', function(e) {
+                    e.preventDefault();
+                    let tab = $(this).data('tab');
 
-            console.log("Ini dari session:", lastEditedId);
+                    $('#jurnalUmum, #menuBkk, #menuBkm').removeClass('show active');
+                    $('#' + tab).addClass('show active');
+
+                    sessionStorage.setItem('lastActiveTab', tab);
+
+                    if (tab === 'jurnalUmum') {
+                        tableGeneral.draw();
+                    } else if (tab === 'menuBkk') {
+                        tableBKK.draw();
+                    } else if (tab === 'menuBkm') {
+                        tableBKM.draw();
+                    }
+                });
+
+                // Saat klik update jurnal, simpan informasi halaman dan tab sebelum pindah ke edit
+                $(document).on('click', '.btnUpdateJournal', function(e) {
+                    e.preventDefault();
+
+                    let id = $(this).data('id');
+                    var url = "{{ route('updatejournal', ':id') }}";
+
+                    let currentPage, type, activeTab;
+                    if ($('#jurnalUmum').hasClass('show active')) {
+                        currentPage = tableGeneral.page.info().page;
+                        type = 'General';
+                        activeTab = 'jurnalUmum';
+                    } else if ($('#menuBkk').hasClass('show active')) {
+                        currentPage = tableBKK.page.info().page;
+                        type = 'BKK';
+                        activeTab = 'menuBkk';
+                    } else if ($('#menuBkm').hasClass('show active')) {
+                        currentPage = tableBKM.page.info().page;
+                        type = 'BKM';
+                        activeTab = 'menuBkm';
+                    }
+
+                    url = url.replace(':id', id);
+
+                    // Simpan data di sessionStorage
+                    sessionStorage.setItem('lastEditedJournal', id + '-' + type);
+                    sessionStorage.setItem('lastEditedPage', currentPage);
+                    sessionStorage.setItem('lastActiveTab', activeTab);
+
+                    // Pindah ke halaman edit
+                    window.location.href = url;
+                });
+            });
 
 
             $('#txSearch').on('input', debounce(function() {
@@ -452,28 +521,6 @@
                 tableBKM.ajax.reload();
             });
 
-
-
-            $(document).on('click', '.btnUpdateJournal', function(e) {
-                e.preventDefault();
-
-                let id = $(this).data('id');
-                var url = "{{ route('updatejournal', ':id') }}";
-
-                let currentPage;
-                if ($('#jurnalUmum').hasClass('show active')) {
-                    currentPage = tableGeneral.page();
-                } else if ($('#menuBkk').hasClass('show active')) {
-                    currentPage = tableBKK.page();
-                } else if ($('#menuBkm').hasClass('show active')) {
-                    currentPage = tableBKM.page();
-                }
-
-                url = url.replace(':id', id);
-
-                sessionStorage.setItem('lastEditedJournal', currentPage);
-                window.location.href = url;
-            });
 
             $(document).on('click', '.btnDestroyJournal', function() {
                 var id = $(this).data('id');

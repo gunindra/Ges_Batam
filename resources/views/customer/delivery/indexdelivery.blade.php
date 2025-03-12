@@ -494,7 +494,7 @@
             if (invoiceNumbers.indexOf(';') === -1) {
                 invoiceNumbers = [invoiceNumbers];
             } else {
-                invoiceNumbers = invoiceNumbers.split(';'); // Sesuaikan pemisah
+                invoiceNumbers = invoiceNumbers.split(';');
             }
 
             marking = marking ? marking.split(';') : [];
