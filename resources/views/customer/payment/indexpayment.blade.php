@@ -243,6 +243,7 @@
             ],
             lengthChange: false,
             pageLength: 7,
+            order: [[0, 'desc']],
             language: {
                 processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
                 info: "_START_ to _END_ of _TOTAL_ entries",
@@ -436,6 +437,49 @@
                     console.error('Error:', xhr.responseText);
                 }
             });
+        });
+
+        $(document).on('click', '.btnDeletePayment', function() {
+            var id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Apakah kamu yakin?',
+                text: "Payment ini akan dihapus secara permanen!",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('delete.payment', ':id') }}".replace(':id', id),
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            showMessage("success", response.message)
+                                .then(
+                                    () => {
+                                        var currentPage = table.page();
+                                        table.ajax.reload(null, false);
+                                        table.one('draw', function() {
+                                            table.page(currentPage).draw(false);
+                                        });
+                                    });
+                        },
+                        error: function(xhr, status, error) {
+                            var errorMessage = xhr.responseJSON.error ||
+                                'Gagal menghapus jurnal.';
+                            showMessage("error", errorMessage);
+                        }
+                    });
+                }
+            });
+
         });
     </script>
 @endsection

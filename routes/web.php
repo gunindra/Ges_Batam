@@ -173,6 +173,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/payment/getInvoiceByMarkingEdit', [PaymentController::class, 'getInvoiceByMarkingEdit'])->name('getInvoiceByMarkingEdit');
     Route::get('/payment/updatepayment/{id}', [PaymentController::class, 'editpayment'])->name('editpayment');
     Route::post('/payment/updatepayment/update', [PaymentController::class, 'update'])->name('editpayment.update');
+    Route::delete('/payment/{id}', [PaymentController::class, 'deletePayment'])->name('delete.payment');
 
     // Popup
     Route::get('/content/popup', [PopupController::class, 'index'])->name('popup');
