@@ -57,7 +57,7 @@ class PurchasePaymentController extends Controller
             'a.payment_date',
             DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
             'c.name as payment_method',
-            DB::raw("SUM(d.amount) as total_amount")
+            DB::raw("CAST(SUM(d.amount) AS DECIMAL(10,2)) as total_amount") // Perbaikan disini
         ])
         ->where(function ($query) use ($search) {
             $query->whereRaw("LOWER(a.kode_pembayaran) LIKE ?", ["%$search%"])
@@ -65,8 +65,8 @@ class PurchasePaymentController extends Controller
                 ->orWhereRaw("DATE_FORMAT(a.payment_date, '%d %M %Y') LIKE ?", ["%$search%"]);
         })
         ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date', 'c.name')
-        ->havingRaw("CAST(SUM(d.amount) AS CHAR) LIKE ?", ["%$search%"])
-        ->orderBy('a.id', 'desc');
+        ->havingRaw("CAST(SUM(d.amount) AS CHAR) LIKE ?", ["%$search%"]);
+
 
         if (!empty($request->status)) {
             $query->where('c.name', $request->status);
@@ -77,6 +77,12 @@ class PurchasePaymentController extends Controller
          $endDate = date('Y-m-d', strtotime($request->endDate));
          $query->whereBetween('a.payment_date', [$startDate, $endDate]);
         }
+
+        $order = $request->order[0];
+        $column = $request->columns[$order['column']]['data'];
+        $direction = $order['dir'];
+
+        $query->orderBy($column, $direction);
 
 
         return DataTables::of($query)

@@ -178,13 +178,14 @@
             },
             {
                 data: 'tanggal_bayar',
-                name: 'tanggal_bayar'
+                name: 'tanggal_bayar',
+                type: "date"
             },
             {
                 data: 'total_amount',
                 name: 'total_amount',
-                render: $.fn.dataTable.render.number(',', '.', 2,
-                    'Rp ')
+                type: "num",
+                render: $.fn.dataTable.render.number(',', '.', 2, 'Rp ')
             },
             {
                 data: 'payment_method',
@@ -201,6 +202,7 @@
             }
             ],
             lengthChange: false,
+            order: [[0, 'desc']],
             pageLength: 7,
             language: {
                 processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
