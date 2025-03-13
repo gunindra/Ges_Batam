@@ -192,22 +192,20 @@
                 name: 'invoice_no'
             },
             {
-                data: 'vendor',
-                name: 'vendor'
+                data: 'vendor_name',
+                name: 'vendor_name'
             },
             {
                 data: 'tanggal',
                 name: 'tanggal'
             },
             {
-                data: 'matauang',
-                name: 'matauang'
+                data: 'singkatan_matauang',
+                name: 'singkatan_matauang'
             },
             {
                 data: 'status_bayar',
                 name: 'status_bayar',
-                orderable: false,
-                searchable: false
             },
             {
                 data: 'total_harga',
@@ -220,7 +218,7 @@
                 searchable: false
             }
             ],
-            order: [],
+            order: [[0, 'desc']],
             lengthChange: false,
             language: {
                 processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',

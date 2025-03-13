@@ -46,7 +46,7 @@ class SupplierInvoiceController extends Controller
                 ->where('tbl_sup_invoice.company_id', $companyId)
                 ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id')
                 ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Select vendor name
-                ->orderBy('id', 'desc')
+                // ->orderBy('id', 'desc')
                 ->with('items');
 
             // Filter by date range if startDate and endDate are provided
@@ -56,18 +56,24 @@ class SupplierInvoiceController extends Controller
                 $data->whereBetween('tbl_sup_invoice.tanggal', [$startDate, $endDate]);
             }
 
+            $order = $request->order[0];
+            $column = $request->columns[$order['column']]['data'];
+            $direction = $order['dir'];
+
+            $data->orderBy($column, $direction);
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('invoice_no', function ($row) {
                     return $row->invoice_no;
                 })
-                ->addColumn('vendor', function ($row) {
+                ->addColumn('vendor_name', function ($row) {
                     return $row->vendor_name;
                 })
                 ->addColumn('tanggal', function ($row) {
                     return Carbon::parse($row->tanggal)->format('d F Y');
                 })
-                ->addColumn('matauang', function ($row) {
+                ->addColumn('singkatan_matauang', function ($row) {
                     return $row->singkatan_matauang;
                 })
                 ->addColumn('status_bayar', function ($row) {
