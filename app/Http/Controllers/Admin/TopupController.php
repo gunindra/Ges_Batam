@@ -90,7 +90,6 @@ class TopupController extends Controller
             $direction = $order['dir'];
 
             $query->orderBy($column, $direction);
-
         }
 
         return DataTables::of($query)
