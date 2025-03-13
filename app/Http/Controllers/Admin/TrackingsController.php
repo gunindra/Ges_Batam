@@ -73,7 +73,34 @@ class TrackingsController extends Controller
             });
         }
 
-        $query->orderBy('tbl_tracking.id', 'desc');
+        // $query->orderBy('tbl_tracking.id', 'desc');
+
+        if (!$request->has('order')) {
+            // Jika tidak ada sorting dari DataTables, gunakan default sorting ID DESC
+            $query->orderBy('tbl_tracking.id', 'desc');
+        } else {
+            // Jika ada sorting dari DataTables, gunakan sorting yang diberikan
+            $order = $request->order[0] ?? null;
+
+            if ($order) {
+                $columns = [
+                    'no_resi' => 'tbl_tracking.no_resi',
+                    'no_do' => 'tbl_tracking.no_do',
+                    'status' => 'tbl_tracking.status',
+                    'keterangan' => 'tbl_tracking.keterangan',
+                    'status_bayar' => 'tbl_invoice.status_bayar'
+                ];
+
+                $columnIndex = $order['column'];
+                $columnName = $request->columns[$columnIndex]['data'] ?? null;
+                $direction = $order['dir'] ?? 'asc';
+
+                // Pastikan hanya kolom yang valid yang bisa digunakan untuk sorting
+                if ($columnName && isset($columns[$columnName])) {
+                    $query->orderBy($columns[$columnName], $direction);
+                }
+            }
+        }
 
         // 🔹 Ambil hanya ID yang sudah difilter
         $filteredIds = $query->pluck('tbl_tracking.id')->toArray();

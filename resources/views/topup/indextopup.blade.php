@@ -356,8 +356,8 @@
                 render: $.fn.dataTable.render.number(',', '.', 2)
             },
             {
-                data: 'account.name',
-                name: 'account.name'
+                data: 'account_name',
+                name: 'tbl_coa.name'
             },
             {
                 data: 'date',

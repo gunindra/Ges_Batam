@@ -58,14 +58,39 @@ class TopupController extends Controller
     {
         $companyId = session('active_company_id');
         $query = HistoryTopup::with(['customer', 'account'])
-            ->where('tbl_history_topup.company_id', $companyId)
-            ->select(['id', 'customer_id', 'code', 'customer_name', 'remaining_points', 'topup_amount', 'price_per_kg', 'account_id', 'date', 'expired_date', 'balance', 'status'])
-            ->orderBy('id', 'desc');
+        ->leftJoin('tbl_coa', 'tbl_history_topup.account_id', '=', 'tbl_coa.id')
+        ->where('tbl_history_topup.company_id', $companyId)
+        ->select([
+            'tbl_history_topup.id',
+            'tbl_history_topup.customer_id',
+            'tbl_history_topup.code',
+            'tbl_history_topup.customer_name',
+            'tbl_history_topup.remaining_points',
+            'tbl_history_topup.topup_amount',
+            'tbl_history_topup.price_per_kg',
+            'tbl_history_topup.account_id',
+            'tbl_history_topup.date',
+            'tbl_history_topup.expired_date',
+            'tbl_history_topup.balance',
+            'tbl_history_topup.status',
+            'tbl_coa.name as account_name'
+        ]);
 
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
             $startDate = Carbon::parse($request->startDate)->startOfDay();
             $endDate = Carbon::parse($request->endDate)->endOfDay();
             $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        if (!$request->has('order')) {
+            $query->orderBy('id', 'desc');
+        } else {
+            $order = $request->order[0];
+            $column = $request->columns[$order['column']]['data'];
+            $direction = $order['dir'];
+
+            $query->orderBy($column, $direction);
+
         }
 
         return DataTables::of($query)

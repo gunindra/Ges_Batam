@@ -220,8 +220,6 @@
             {
                 data: 'status_bayar',
                 name: 'status_bayar',
-                orderable: false,
-                searchable: false
             },
         ];
 
