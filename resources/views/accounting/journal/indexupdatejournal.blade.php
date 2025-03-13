@@ -442,23 +442,6 @@
                 showMessage("error", "Harap periksa kembali data yang diperlukan.");
             }
         });
-
-        $("#btnBack").click(function (e) {
-            e.preventDefault();
-            let lastEditedJournal = sessionStorage.getItem('lastEditedJournal');
-            let selectedType = $('input[name="code_type"]:checked').val();
-
-            if (selectedType) {
-                if (lastEditedJournal) {
-                    sessionStorage.setItem('lastEditedJournal', lastEditedJournal + '-' + selectedType);
-                } else {
-                    sessionStorage.setItem('lastEditedJournal', selectedType);
-                }
-                sessionStorage.setItem('lastEditedType', selectedType);
-            }
-            window.location.href = $(this).attr('href');
-        });
-
     });
 </script>
 
