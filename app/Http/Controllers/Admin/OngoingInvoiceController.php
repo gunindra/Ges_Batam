@@ -32,7 +32,7 @@ class OngoingInvoiceController extends Controller
         ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
         ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
         ->whereIn('tbl_status.id', [1, 4])
-        ->select('tbl_pembeli.nama_pembeli')
+        ->select('tbl_pembeli.marking')
         ->distinct()
         ->get();
         return view('Report.OngoingInvoice.indexongoinginvoice', [
@@ -44,9 +44,11 @@ class OngoingInvoiceController extends Controller
 
     public function getlistOngoing(Request $request)
     {
+
+        // dd($request->all());
         $companyId = session('active_company_id');
         $NoDo = $request->no_do;
-      
+
         $Customer = $request->nama_pembeli;
         $query = DB::table('tbl_pengantaran')
             ->select(
@@ -56,7 +58,7 @@ class OngoingInvoiceController extends Controller
                 DB::raw("DATE_FORMAT(tbl_pengantaran.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                 'tbl_invoice.alamat',
-                'tbl_pembeli.nama_pembeli AS nama_pembeli',
+                'tbl_pembeli.marking AS marking',
                 'tbl_status.status_name AS status_transaksi'
             )
             ->where('tbl_pengantaran.company_id', $companyId)
@@ -69,7 +71,7 @@ class OngoingInvoiceController extends Controller
             ->whereIn('tbl_status.id', [1, 4]);
 
         if ($Customer) {
-            $query->where('tbl_pembeli.nama_pembeli', 'LIKE', $Customer);
+            $query->where('tbl_pembeli.marking', 'LIKE', $Customer);
         }
 
         if ($NoDo) {
@@ -134,7 +136,7 @@ class OngoingInvoiceController extends Controller
                     DB::raw("DATE_FORMAT(tbl_pengantaran.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
                     DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                     'tbl_invoice.alamat',
-                    'tbl_pembeli.nama_pembeli AS nama_pembeli',
+                    'tbl_pembeli.marking AS marking',
                     'tbl_status.status_name AS status_transaksi'
                 )
                 ->where('tbl_pengantaran.company_id', $companyId)
@@ -147,7 +149,7 @@ class OngoingInvoiceController extends Controller
                 ->whereIn('tbl_status.id', [1, 4]);
 
             if ($Customer) {
-                $query->where('tbl_pembeli.nama_pembeli', 'LIKE', $Customer);
+                $query->where('tbl_pembeli.marking', 'LIKE', $Customer);
             }
 
             if ($NoDo) {

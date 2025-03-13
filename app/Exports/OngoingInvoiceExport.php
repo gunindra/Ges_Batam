@@ -34,7 +34,7 @@ class OngoingInvoiceExport implements FromView, WithEvents
                 DB::raw("DATE_FORMAT(tbl_pengantaran.tanggal_pengantaran, '%d %M %Y') AS tanggal_pengantaran"),
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                 'tbl_invoice.alamat',
-                'tbl_pembeli.nama_pembeli AS nama_pembeli',
+                'tbl_pembeli.marking AS marking',
                 'tbl_status.status_name AS status_transaksi'
             )
             ->where('tbl_pengantaran.company_id', $companyId)
@@ -52,7 +52,7 @@ class OngoingInvoiceExport implements FromView, WithEvents
         }
 
         if ($this->customer) {
-            $query->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $this->customer . '%');
+            $query->where('tbl_pembeli.marking', 'LIKE', '%' . $this->customer . '%');
         }
 
         $query->orderBy('tbl_pengantaran.id', 'desc');

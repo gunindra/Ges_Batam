@@ -38,7 +38,7 @@
                         <select class="form-control ml-2" id="filterCustomer" style="width: 200px;">
                             <option value="" selected disabled>Pilih Customer</option>
                             @foreach ($listCustomer as $Customer)
-                                <option value="{{ $Customer->nama_pembeli }}">{{ $Customer->nama_pembeli }}</option>
+                                <option value="{{ $Customer->marking }}">{{ $Customer->marking }}</option>
                             @endforeach
                         </select>
                         <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
@@ -52,7 +52,7 @@
                                 <tr>
                                     <th>No. Invoice</th>
                                     <th>Open Invoice</th>
-                                    <th>Customer</th>
+                                    <th>Marking</th>
                                     <th>No. DO</th>
                                     <th>Nama Supir</th>
                                     <th>Tanggal Pengantaran</th>
@@ -86,8 +86,8 @@
 
         },
         {
-            data: 'nama_pembeli',
-            name: 'nama_pembeli',
+            data: 'marking',
+            name: 'marking',
 
         },
         {
@@ -146,7 +146,12 @@
             }
         });
         $('#filterCustomer').change(function() {
+
+            console.log($('#filterCustomer').val());
+
             table.ajax.reload();
+
+
         });
         $('#filterNoDO').change(function() {
             table.ajax.reload();

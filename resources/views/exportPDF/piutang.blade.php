@@ -217,6 +217,7 @@
                     <th>No.</th>
                     <th>No. Invoice</th>
                     <th>Customer</th>
+                    <th>Marking</th>
                     <th>Tanggal</th>
                     <th>Umur</th>
                 </tr>
@@ -230,6 +231,7 @@
                         <td>{{ $no++ }}</td>
                         <td>{{ $piutangs->no_invoice }}</td>
                         <td>{{ $piutangs->nama_pembeli}}</td>
+                        <td>{{ $piutangs->marking}}</td>
                         <td>{{ $piutangs->tanggal_buat }}</td>
                         <td>{{ $piutangs->umur }}</td>
                     </tr>

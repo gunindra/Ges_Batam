@@ -208,13 +208,14 @@
         <div class="title">
             <h5>StartDate: {{ $startDate ? $startDate : '-' }}</h5>
             <h5>EndDate: {{ $endDate ? $endDate : '-' }}</h5>
-            <h5>Customer: {{ $customer ? $customer : '-' }}</h5>
+            <h5>Marking: {{ $marking }}</h5>
         </div>
+
         <table>
             <thead>
                 <tr>
                     <th>No.</th>
-                    <th>Topup Date</th>
+                    <th>Date</th>
                     <th>Customer</th>
                     <th>In (kg)</th>
                     <th>Out (kg)</th>
@@ -224,56 +225,42 @@
                 </tr>
             </thead>
             <tbody>
-
-
                 @php
                     $no = 1;
+                    $customerSaldo = [];
                 @endphp
-                @foreach ($combined as $topups)
+
+                @foreach ($combined as $transaction)
                     @php
-                        $customerId = $topups->customer_id;
-                        // Initialize saldo for the customer if it doesn't exist
-if (!isset($customerSaldo[$customerId])) {
-    $customerSaldo[$customerId] = 0;
-}
+                        $customerId = $transaction->customer_id;
 
-// Determine transaction type (topup or payment)
-if ($topups->type === 'topup') {
-    // Add points to saldo
-    $customerSaldo[$customerId] += $topups->remaining_points;
-} elseif ($topups->type === 'payment') {
-    // Subtract points from saldo
-    $customerSaldo[$customerId] -= $topups->kuota;
-}
+                        // Inisialisasi saldo jika belum ada
+                        if (!isset($customerSaldo[$customerId])) {
+                            $customerSaldo[$customerId] = 0;
+                        }
 
-// Define the status based on transaction type
-$status = $topups->type === 'topup' ? 'IN' : 'OUT';
+                        // Hitung saldo dan total_price berdasarkan jenis transaksi
+                        if ($transaction->type === 'topup') {
+                            $customerSaldo[$customerId] += $transaction->value; // Tambah saldo
+                            $status = 'IN';
+                            $transaction->total_price = $transaction->value * $transaction->price_per_kg; // Hitung total_price untuk transaksi saat ini
+                        } elseif ($transaction->type === 'payment') {
+                            $customerSaldo[$customerId] -= $transaction->value; // Kurangi saldo
+                            $status = 'OUT';
+                            $price = $transaction->value != 0 ? $transaction->amount / $transaction->value : 0; // Hitung harga per kg
+                            $transaction->total_price = $transaction->value * $price; // Hitung total_price untuk transaksi saat ini
+                        }
                     @endphp
+
                     <tr>
-                        <td style="text-align:center;">{{ $no++ }}</td>
-                        <td style="text-align:center;">{{ \Carbon\Carbon::parse($topups->date)->format('d M Y') }}</td>
-                        <td style="text-align:center;">
-                            {{ $topups->customer_name ?? $topups->payment->pembeli->nama_pembeli }}
-                        </td>
-                        <td style="text-align:center;">
-                            @if ($topups->type === 'topup')
-                                {{ number_format($topups->remaining_points, 2) }}
-                            @else
-                                0
-                            @endif
-                        </td>
-                        <td style="text-align:center;">
-                            @if ($topups->type === 'payment')
-                                {{ number_format($topups->kuota, 2) }}
-                            @else
-                                0
-                            @endif
-                        </td>
-                        <td style="text-align:center;">{{ number_format($customerSaldo[$customerId], 2) }}</td>
-                        <td style="text-align:center;">
-                            {{ isset($topups->value) ? 'Rp. ' . number_format($topups->value, 2) : 'Rp. 0.00' }}
-                        </td>
-                        <td style="text-align:center;">{{ $status }}</td>
+                        <td>{{ $no++ }}</td>
+                        <td>{{ \Carbon\Carbon::parse($transaction->date)->format('d M Y') }}</td>
+                        <td class="text-left">{{ $transaction->customer_name ?? '-' }}</td>
+                        <td>{{ $transaction->type === 'topup' ? number_format($transaction->value, 2) : '0.00' }}</td>
+                        <td>{{ $transaction->type === 'payment' ? number_format($transaction->value, 2) : '0.00' }}</td>
+                        <td>{{ number_format($customerSaldo[$customerId], 2) }}</td>
+                        <td>Rp. {{ number_format($transaction->total_price, 2) }}</td>
+                        <td>{{ $status }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -207,7 +207,7 @@
 
         <div class="title">
             <h5>No. Do:  {{ $NoDo ? $NoDo : '-' }}</h5>
-            <h5>Customer: {{  $Customer ?  $Customer: '-' }} </h5>
+            <h5>Marking: {{  $Customer ?  $Customer: '-' }} </h5>
         </div>
 
         <table>
@@ -216,7 +216,7 @@
                     <th>No.</th>
                     <th>No. Invoice</th>
                     <th>Open Invoice</th>
-                    <th>Customer</th>
+                    <th>Marking</th>
                     <th>No. DO</th>
                     <th>Nama Supir</th>
                     <th>Tanggal Pengantaran</th>
@@ -232,7 +232,7 @@
                         <td>{{ $no++ }}</td>
                         <td>{{ $ongoing->no_invoice }}</td>
                         <td>{{ $ongoing->tanggal_buat }}</td>
-                        <td>{{ $ongoing->nama_pembeli }}</td>
+                        <td>{{ $ongoing->marking }}</td>
                         <td>{{ $ongoing->no_do }}</td>
                         <td>{{ $ongoing->nama_supir }}</td>
                         <td>{{ $ongoing->tanggal_pengantaran }}</td>

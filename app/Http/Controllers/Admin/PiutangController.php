@@ -61,6 +61,7 @@ class PiutangController extends Controller
         ]);
 
     }
+
     public function getpiutang(Request $request)
     {
         $companyId = session('active_company_id');
@@ -77,6 +78,7 @@ class PiutangController extends Controller
                 END AS bell_color
             "),
                 'pembeli.nama_pembeli',
+                'pembeli.marking',
                 DB::raw("
                 CASE
                     WHEN CURDATE() < invoice.tanggal_buat THEN '-'
@@ -98,10 +100,10 @@ class PiutangController extends Controller
             ->where('invoice.company_id', $companyId)
             ->join('tbl_pembeli as pembeli', 'invoice.pembeli_id', '=', 'pembeli.id')
             ->where('invoice.status_bayar', '=', 'Belum lunas');
-            
+
 
         $query->orderBy('invoice.tanggal_invoice', 'desc');
-        
+
         if ($request->has('bell_color') && !empty($request->bell_color)) {
             if ($request->bell_color === 'red') {
                 $query->whereRaw("DATEDIFF(CURDATE(), invoice.tanggal_buat) >= 60");
@@ -111,7 +113,7 @@ class PiutangController extends Controller
                 $query->whereRaw("DATEDIFF(CURDATE(), invoice.tanggal_buat) < 30");
             }
         }
-        
+
         if ($request->customer) {
             $query->where('pembeli.id', '=', $request->customer);
         }
@@ -134,6 +136,7 @@ class PiutangController extends Controller
 
         return Excel::download(new PiutangReportExport($customer, $startDate, $endDate), 'Piutang.xlsx');
     }
+
     public function exportPiutangPdf(Request $request)
     {
         $companyId = session('active_company_id');
@@ -147,6 +150,7 @@ class PiutangController extends Controller
                 'invoice.no_invoice',
                 DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                 'pembeli.nama_pembeli',
+                'pembeli.marking',
                 DB::raw("CASE WHEN CURDATE() < invoice.tanggal_buat THEN '-'
                     WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
                         CONCAT(

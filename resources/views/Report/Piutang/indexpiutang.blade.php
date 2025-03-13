@@ -120,7 +120,7 @@
                                 <i class="fas fa-bell text-danger filter-bell" data-color="red"></i> :
                                 <span id="merahCount">-</span>
                             </p>
-                            
+
                             <p class="m-2 text-muted">Click the bell to Filter By Bell</p>
                         </div>
 
@@ -129,6 +129,7 @@
                                 <tr>
                                     <th>No. Invoice</th>
                                     <th>Customer</th>
+                                    <th>Marking</th>
                                     <th>Tanggal</th>
                                     <th>Umur</th>
                                 </tr>
@@ -183,6 +184,7 @@
                     }
                 },
                 { data: 'nama_pembeli', name: 'nama_pembeli' },
+                { data: 'marking', name: 'marking' },
                 { data: 'tanggal_buat', name: 'tanggal_buat' },
                 { data: 'umur', name: 'umur' },
             ],

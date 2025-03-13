@@ -29,6 +29,7 @@ class PiutangReportExport implements FromView
             'invoice.no_invoice',
             DB::raw("DATE_FORMAT(invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
             'pembeli.nama_pembeli',
+            'pembeli.marking',
             DB::raw("CASE WHEN CURDATE() < invoice.tanggal_buat THEN '-'
                     WHEN TIMESTAMPDIFF(YEAR, invoice.tanggal_buat, CURDATE()) > 0 THEN
                         CONCAT(
