@@ -440,13 +440,13 @@
                     $('#items-container tr').each(function() {
                         const debitValue = parseFloat($(this).find('input[name="debit"]').val()) || 0;
                         const accountType = $(this).find('select[name="tipeAccount"]').val();
+                        totalDebit += debitValue;
 
-                        // Periksa tipe account dan hitung berdasarkan Credit atau Debit
-                        if (accountType === 'Debit') {
-                            totalDebit += debitValue; // Tambahkan nilai untuk Debit
-                        } else if (accountType === 'Credit') {
-                            totalDebit -=  Math.abs(debitValue); // Kurangi nilai untuk Credit
-                        }
+                        // if (accountType === 'Debit') {
+                        //     totalDebit += debitValue;
+                        // } else if (accountType === 'Credit') {
+                        //     totalDebit -=  Math.abs(debitValue);
+                        // }
                     });
 
                     const paymentAmount = parseFloat($('#payment').val()) || 0;

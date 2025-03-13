@@ -412,19 +412,28 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(response) {
-                            showMessage("success", response.message)
-                                .then(
-                                    () => {
-                                        var currentPage = table.page();
-                                        table.ajax.reload(null, false);
-                                        table.one('draw', function() {
-                                            table.page(currentPage).draw(false);
-                                        });
+                            // Pastikan hanya memanggil showMessage("success") jika `success` bernilai true
+                            if (response.success) {
+                                showMessage("success", response.message).then(() => {
+                                    var currentPage = table.page();
+                                    table.ajax.reload(null, false);
+                                    table.one('draw', function() {
+                                        table.page(currentPage).draw(false);
                                     });
+                                });
+                            } else {
+                                showMessage("error", response.message || "Gagal menghapus Payment.");
+                            }
                         },
                         error: function(xhr, status, error) {
-                            var errorMessage = xhr.responseJSON.error ||
-                                'Gagal menghapus Payment.';
+                            console.error("Error deleting payment:", xhr.responseText);
+
+                            // Ambil pesan error dari response JSON, atau gunakan pesan default
+                            var errorMessage = "Gagal menghapus Payment.";
+                            if (xhr.responseJSON) {
+                                errorMessage = xhr.responseJSON.message || xhr.responseJSON.error || errorMessage;
+                            }
+
                             showMessage("error", errorMessage);
                         }
                     });
