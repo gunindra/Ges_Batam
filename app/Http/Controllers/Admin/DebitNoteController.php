@@ -59,12 +59,27 @@ class DebitNoteController extends Controller
         $companyId = session('active_company_id');
         if ($request->ajax()) {
             $debitNotes = DebitNote::with(['invoice', 'coa', 'matauang', 'items'])
-            ->where('tbl_debit_note.company_id', $companyId);
+                ->where('tbl_debit_note.company_id', $companyId);
 
             if ($request->startDate && $request->endDate) {
                 $startDate = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
                 $endDate = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
                 $debitNotes->whereBetween('created_at', [$startDate, $endDate]);
+            }
+
+            if ($request->has('order')) {
+                $order = $request->input('order')[0];
+                $column = $request->input('columns')[$order['column']]['data'];
+
+                if ($column == 'tanggal') {
+                    $column = 'created_at';
+                } elseif ($column == 'invoice') {
+                    $column = 'tbl_invoice.no_invoice';
+                    $debitNotes = $debitNotes->join('tbl_invoice', 'tbl_debit_note.invoice_id', '=', 'tbl_invoice.id');
+                }
+
+                $direction = $order['dir'];
+                $debitNotes->orderBy($column, $direction);
             }
 
             $debitNotes = $debitNotes->get();

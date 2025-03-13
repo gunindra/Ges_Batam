@@ -125,9 +125,9 @@
             },
             columns: [
                 { data: 'no_debitnote', name: 'no_debitnote' },
-                { data: 'invoice', name: 'invoice.invoice_no' }, 
-                { data: 'coa_name', name: 'coa.name' },          
-                { data: 'currency', name: 'matauang.singkatan_matauang' }, 
+                { data: 'invoice', name: 'invoice.invoice_no' },
+                { data: 'coa_name', name: 'coa.name' },
+                { data: 'currency', name: 'matauang.singkatan_matauang' },
                 { data: 'tanggal', name: 'created_at' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
