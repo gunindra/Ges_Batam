@@ -466,6 +466,7 @@
                     {
                         data: 'alamat_cell',
                         name: 'alamat_cell',
+                        orderable: false
                     },
                     {
                         data: 'tanggal_bayar',
@@ -473,12 +474,12 @@
                         render: function(data, type, row) {
                             return data ? data : '-';
                         },
-                        searchable: false,
-                        orderable: false
                     },
                     {
                         data: 'status_cell',
                         name: 'status_cell',
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: 'action',

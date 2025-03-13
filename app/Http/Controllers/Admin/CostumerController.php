@@ -85,9 +85,15 @@ class CostumerController extends Controller
                 'tbl_pembeli.category_id',
                 'tbl_category.category_name',
                 'tbl_users.email'
-            )
-            ->orderBy('tbl_pembeli.status', 'DESC')
-            ->orderBy('tbl_pembeli.transaksi_terakhir', 'DESC');
+            );
+
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderColumnName = $request->input("columns.$orderColumnIndex.name");
+            $orderDirection = $request->input('order.0.dir', 'asc');
+
+            if (!empty($orderColumnName)) {
+                $query->orderBy($orderColumnName, $orderDirection);
+            }
 
         return DataTables::of($query)
             ->addColumn('alamat_cell', function ($item) {
