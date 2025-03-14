@@ -104,9 +104,10 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     'company' => $company,
                     'resiData' => $resiData,
                     'hargaIDR' => $invoice->total_harga,
-                    'type' => $this->type, // <-- Gunakan $this->type langsung
+                    'type' => $this->type,
                     'tanggal' => $invoice->tanggal_invoice,
-                    'statusPembayaran' => $pembayaran
+                    'statusPembayaran' => $pembayaran,
+                    'showTandaTangan' => $this->type !== 'listbarang' && !empty($invoice->tanda_tangan)
                 ]);
 
                 Log::info('Invoice Data:', [

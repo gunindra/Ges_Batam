@@ -353,11 +353,10 @@
                     <!-- Jika ada tanda tangan, tampilkan -->
                     @if ($ttdBase64)
                         <img src="{{ $ttdBase64 }}" alt="Tanda Tangan Customer" style="width: 200px; height: auto; display: block; margin: 0 auto;">
+                        <!-- Area tanda tangan kosong -->
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Customer</div>
                     @endif
-
-                    <!-- Garis tanda tangan -->
-                    <div class="signature-line" style="margin: 10px auto;"></div>
-                    <div class="signature-label">Customer</div>
 
                     <!-- Stempel lunas tetap di atas tanda tangan -->
                     @if ($statusPembayaran === 'Lunas' && $base64Lunas)
@@ -365,10 +364,6 @@
                             <img src="{{ $base64Lunas }}" alt="Stempel Lunas" style="width: 100px;">
                         </div>
                     @endif
-                @else
-                    <!-- Area tanda tangan kosong -->
-                    <div class="signature-line"></div>
-                    <div class="signature-label">Customer</div>
                 @endif
             </td>
         </tr>
