@@ -51,8 +51,8 @@ class LedgerController extends Controller
                                             ji.memo AS memo,
                                             ju.tanggal AS tanggal,
                                             ju.no_journal AS no_journal,
-                                            pem_inv.nama_pembeli AS pembeli_invoice,
-                                            pem_pay.nama_pembeli AS pembeli_payment
+                                            pem_inv.marking AS pembeli_invoice,
+                                            pem_pay.marking AS pembeli_payment
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
