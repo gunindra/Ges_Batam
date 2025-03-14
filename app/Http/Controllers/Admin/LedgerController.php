@@ -55,7 +55,8 @@ class LedgerController extends Controller
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         WHERE ji.code_account = $coa->coa_id
                                         AND ju.tanggal >= '$startDate'
-                                        AND ju.tanggal <= '$endDate'");
+                                        AND ju.tanggal <= '$endDate'
+                                        ORDER BY ju.tanggal DESC");
 
             $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                             SUM(ji.credit) AS total_credit
