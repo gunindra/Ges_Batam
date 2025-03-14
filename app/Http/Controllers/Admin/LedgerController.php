@@ -56,7 +56,7 @@ class LedgerController extends Controller
                                         WHERE ji.code_account = $coa->coa_id
                                         AND ju.tanggal >= '$startDate'
                                         AND ju.tanggal <= '$endDate'
-                                        ORDER BY ju.tanggal DESC");
+                                        ORDER BY ju.tanggal ASC");
 
             $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                             SUM(ji.credit) AS total_credit
