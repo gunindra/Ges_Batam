@@ -78,11 +78,16 @@ class PurchasePaymentController extends Controller
          $query->whereBetween('a.payment_date', [$startDate, $endDate]);
         }
 
-        $order = $request->order[0];
-        $column = $request->columns[$order['column']]['data'];
-        $direction = $order['dir'];
 
-        $query->orderBy($column, $direction);
+        if (!$request->has('order')) {
+            $query->orderBy('id', 'desc');
+        } else {
+            $order = $request->order[0];
+            $column = $request->columns[$order['column']]['data'];
+            $direction = $order['dir'];
+
+            $query->orderBy($column, $direction);
+        }
 
 
         return DataTables::of($query)

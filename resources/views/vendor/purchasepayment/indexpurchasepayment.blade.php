@@ -178,7 +178,7 @@
             },
             {
                 data: 'tanggal_bayar',
-                name: 'tanggal_bayar',
+                name: 'payment_date',
                 type: "date"
             },
             {
@@ -202,7 +202,7 @@
             }
             ],
             lengthChange: false,
-            order: [[0, 'desc']],
+            order: [],
             pageLength: 7,
             language: {
                 processing: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
