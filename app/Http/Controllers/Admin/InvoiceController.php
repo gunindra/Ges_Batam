@@ -263,30 +263,38 @@ class InvoiceController extends Controller
             'a.user',
             'a.user_update',
             'b.marking',
+        );
 
-        )
-            ->orderByRaw("CASE d.id WHEN '1' THEN 1 WHEN '5' THEN 2 WHEN '3' THEN 3 WHEN '2' THEN 4 WHEN '4' THEN 5 ELSE 6 END");
 
-            if (!$request->has('order')) {
-                $query->orderBy('id', 'desc');
-            } else {
+        if (!$request->has('order')) {
+            $query->orderByRaw("
+                CASE d.id
+                    WHEN '1' THEN 1
+                    WHEN '5' THEN 2
+                    WHEN '3' THEN 3
+                    WHEN '2' THEN 4
+                    WHEN '4' THEN 5
+                    ELSE 6
+                END
+            ");
+            $query->orderBy('a.id', 'desc'); // Pastikan ada titik koma
+        } else {
+            $order = $request->order[0] ?? null;
+            if ($order) {
+                $columns = [
+                    'no_resi' => DB::raw('GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ", ")'),
+                ];
 
-                $order = $request->order[0] ?? null;
-                if ($order) {
-                    $columns = [
-                        'no_resi' => 'GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ", ")',
-                    ];
+                $columnIndex = $order['column'];
+                $columnName = $request->columns[$columnIndex]['data'] ?? null;
+                $direction = $order['dir'] ?? 'asc';
 
-                    $columnIndex = $order['column'];
-                    $columnName = $request->columns[$columnIndex]['data'] ?? null;
-                    $direction = $order['dir'] ?? 'asc';
-
-                    // Pastikan hanya kolom yang valid yang bisa digunakan untuk sorting
-                    if ($columnName && isset($columns[$columnName])) {
-                        $query->orderBy($columns[$columnName], $direction);
-                    }
+                if ($columnName && isset($columns[$columnName])) {
+                    $query->orderByRaw($columns[$columnName] . ' ' . $direction);
                 }
             }
+        }
+
 
         return DataTables::of($query)
             ->addColumn('no_invoice', function ($item) {
