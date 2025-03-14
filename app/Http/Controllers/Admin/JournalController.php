@@ -38,8 +38,8 @@ class JournalController extends Controller
                 'status',
                 'description'
             )
-            ->where('tbl_jurnal.company_id', $companyId)
-            ->orderBy('id', 'desc');
+            ->where('tbl_jurnal.company_id', $companyId);
+            // ->orderBy('id', 'desc');
 
         if ($request->tipe_kode) {
             $query->where('tipe_kode', $request->tipe_kode);
@@ -57,6 +57,16 @@ class JournalController extends Controller
             $startDate = date('Y-m-d', strtotime($request->startDate));
             $endDate = date('Y-m-d', strtotime($request->endDate));
             $query->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+
+        if (!$request->has('order')) {
+            $query->orderBy('id', 'desc');
+        } else {
+            $order = $request->order[0];
+            $column = $request->columns[$order['column']]['data'];
+            $direction = $order['dir'];
+
+            $query->orderBy($column, $direction);
         }
 
         // Integrasi dengan DataTables
