@@ -359,10 +359,12 @@
                 },
                 {
                     data: 'resi_cell',
-                    name: 'resi_cell',
+                    name: 'r.no_resi',
                     render: function(data, type, row) {
                         return data ? data : '-';
-                    }
+                    },
+                    orderable: false,
+                    searchable: false
                 },
 
                 {
