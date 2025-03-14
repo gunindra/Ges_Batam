@@ -50,9 +50,15 @@ class LedgerController extends Controller
                                             ji.description AS items_description,
                                             ji.memo AS memo,
                                             ju.tanggal AS tanggal,
-                                            ju.no_journal AS no_journal
+                                            ju.no_journal AS no_journal,
+                                            pem_inv.nama_pembeli AS pembeli_invoice,
+                                            pem_pay.nama_pembeli AS pembeli_payment
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                        LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                        LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
+                                        LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
+                                        LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
                                         WHERE ji.code_account = $coa->coa_id
                                         AND ju.tanggal >= '$startDate'
                                         AND ju.tanggal <= '$endDate'
@@ -117,7 +123,11 @@ class LedgerController extends Controller
                     $output .= '<tr>
                                     <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
                                     <td>' . ($entry->memo ?? '-') . ' </td>
-                                    <td>' . ($entry->no_journal ?? '-') . ' </td>
+                                    <td>' . ($entry->no_journal ?? '-') . 
+                                        (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
+                                            ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
+                                            : '') . ' 
+                                    </td>
                                     <td class="text-right">' . ($entry->debit ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->credit ?? '-') . '</td>
                                 </tr>';
