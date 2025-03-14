@@ -523,12 +523,12 @@
             } else {
                 $('#noJournalError').addClass('d-none');
             }
-            if (noRef === '' || noRef === null) {
-                $('#noRefError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#noRefError').addClass('d-none');
-            }
+            // if (noRef === '' || noRef === null) {
+            //     $('#noRefError').removeClass('d-none');
+            //     isValid = false;
+            // } else {
+            //     $('#noRefError').addClass('d-none');
+            // }
             if (descriptionJournal === '' || descriptionJournal === null) {
                 $('#descriptionJournalError').removeClass('d-none');
                 isValid = false;

@@ -403,12 +403,12 @@
                 $('#noJournalError').addClass('d-none');
             }
 
-            if (!noRef) {
-                $('#noRefError').removeClass('d-none');
-                isValid = false;
-            } else {
-                $('#noRefError').addClass('d-none');
-            }
+            // if (!noRef) {
+            //     $('#noRefError').removeClass('d-none');
+            //     isValid = false;
+            // } else {
+            //     $('#noRefError').addClass('d-none');
+            // }
 
             if (!descriptionJournal) {
                 $('#descriptionJournalError').removeClass('d-none');
