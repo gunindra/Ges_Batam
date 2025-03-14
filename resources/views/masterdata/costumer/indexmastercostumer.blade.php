@@ -470,7 +470,7 @@
                     },
                     {
                         data: 'tanggal_bayar',
-                        name: 'tanggal_bayar',
+                        name: 'transaksi_terakhir',
                         render: function(data, type, row) {
                             return data ? data : '-';
                         },

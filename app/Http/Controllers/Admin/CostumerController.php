@@ -87,12 +87,14 @@ class CostumerController extends Controller
                 'tbl_users.email'
             );
 
-            $orderColumnIndex = $request->input('order.0.column');
-            $orderColumnName = $request->input("columns.$orderColumnIndex.name");
-            $orderDirection = $request->input('order.0.dir', 'asc');
+            if (!$request->has('order')) {
+                $query->orderBy('id', 'desc');
+            } else {
+                $order = $request->order[0];
+                $column = $request->columns[$order['column']]['data'];
+                $direction = $order['dir'];
 
-            if (!empty($orderColumnName)) {
-                $query->orderBy($orderColumnName, $orderDirection);
+                $query->orderBy($column, $direction);
             }
 
         return DataTables::of($query)
