@@ -190,7 +190,7 @@ class BalanceController extends Controller
         $nonBusinessRevenueTotal = round(collect($nonBusinessRevenue)->sum('grand_total'), 2);
         $nonBusinessExpensesTotal = round(collect($nonBusinessExpenses)->sum('grand_total'), 2);
 
-        $netProfit = $operatingRevenueTotal - $operatingExpensesTotal + $nonBusinessRevenueTotal - $nonBusinessExpensesTotal;
+        $netProfit = -1* ($operatingRevenueTotal - $operatingExpensesTotal + $nonBusinessRevenueTotal - $nonBusinessExpensesTotal);
 
         $assetAccount = DB::select("SELECT coa.name AS account_name,
                                         coa.id AS coa_id,
@@ -348,6 +348,7 @@ class BalanceController extends Controller
                             else{
                                 $output .= '<td class="text-right">' . number_format($netProfit * -1, 2) . '</td> </tr>';
                             }
+        
         $total_equity_and_profit = $total_sum_equity + $netProfit;
         $output .= '<tr>
                         <td> <b> TOTAL EQUITY</b></td>';
