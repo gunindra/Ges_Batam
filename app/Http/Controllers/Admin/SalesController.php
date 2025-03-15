@@ -88,7 +88,8 @@ class SalesController extends Controller
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name',
                 'tbl_invoice.total_harga',
-                'tbl_pembeli.marking'
+                'tbl_pembeli.marking',
+                'tbl_resi.no_do',
             )
             ->orderBy('tbl_invoice.tanggal_buat', 'desc');
 
