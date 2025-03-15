@@ -52,19 +52,16 @@ class SalesController extends Controller
                 'tbl_invoice.no_invoice',
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
                 DB::raw("MIN(tbl_resi.no_do) AS no_do"), // Ambil no_do pertama
-                DB::raw("GROUP_CONCAT(tbl_resi.no_resi SEPARATOR '; ') AS no_resi"), // Gabungkan no_resi dengan ;
+                'tbl_resi.no_resi',
                 'tbl_pembeli.nama_pembeli AS customer',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name AS status_transaksi',
                 'tbl_invoice.total_harga',
                 'tbl_pembeli.marking',
                 DB::raw("IFNULL(
-                    GROUP_CONCAT(
-                        IF(tbl_resi.berat IS NOT NULL,
-                            CONCAT(tbl_resi.berat, ' Kg'),
-                            CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
-                        )
-                        SEPARATOR '; '
+                    IF(tbl_resi.berat IS NOT NULL,
+                        CONCAT(tbl_resi.berat, ' Kg'),
+                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
                     ), '') AS berat_volume")
             )
             ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
@@ -89,7 +86,7 @@ class SalesController extends Controller
                 'tbl_status.status_name',
                 'tbl_invoice.total_harga',
                 'tbl_pembeli.marking',
-                'tbl_resi.no_do',
+                'tbl_resi.no_resi'
             )
             ->orderBy('tbl_invoice.tanggal_buat', 'desc');
 
