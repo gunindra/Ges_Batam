@@ -53,9 +53,10 @@
         th,
         td {
             border: 1px solid #ddd;
-            padding: 5px;
-            font-size: 10px;
-            text-align: left;
+            padding: 3px;
+            /* Ubah dari 5px ke 3px */
+            font-size: 8px;
+            /* Ubah dari 10px ke 8px */
         }
 
         th {
@@ -174,20 +175,20 @@
 <body>
     <div class="container">
         <?php
-$activeCompanyId = session('active_company_id');
-$company = \App\Models\Company::find($activeCompanyId);
+        $activeCompanyId = session('active_company_id');
+        $company = \App\Models\Company::find($activeCompanyId);
         ?>
         <div class="header">
             <div class="logo-container">
                 <?php
-$path = public_path('img/logo4.png');
-$type = pathinfo($path, PATHINFO_EXTENSION);
-if (file_exists($path)) {
-    $data = file_get_contents($path);
-    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-} else {
-    $base64 = '';
-}
+                $path = public_path('img/logo4.png');
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                if (file_exists($path)) {
+                    $data = file_get_contents($path);
+                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                } else {
+                    $base64 = '';
+                }
                 ?>
                 <img src="<?php echo $base64; ?>" alt="logo" class="logo" />
             </div>
@@ -233,34 +234,34 @@ if (file_exists($path)) {
                     $grandTotal = 0;
                 @endphp
                 @foreach ($salesdata as $sales)
-                                @php
-                                    $grandTotal += $sales->total_harga;
-                                    $no_resi_list = explode('; ', $sales->no_resi);
-                                    $berat_volume_list = explode('; ', $sales->berat_volume);
-                                    $harga_resi_list = explode('; ', $sales->harga_resi);
+                    @php
+                        $grandTotal += $sales->total_harga;
+                        $no_resi_list = explode('; ', $sales->no_resi);
+                        $berat_volume_list = explode('; ', $sales->berat_volume);
+                        $harga_resi_list = explode('; ', $sales->harga_resi);
 
-                                    $max_rows = max(count($no_resi_list), count($berat_volume_list), count($harga_resi_list));
-                                @endphp
+                        $max_rows = max(count($no_resi_list), count($berat_volume_list), count($harga_resi_list));
+                    @endphp
 
-                                @for ($i = 0; $i < $max_rows; $i++)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $sales->no_invoice }}</td>
-                                        <td>{{ $sales->marking }}</td>
-                                        <td>{{ $sales->tanggal_buat }}</td>
-                                        <td>{{ $no_resi_list[$i] ?? '' }}</td>
-                                        <td>
-                                            {{ $berat_volume_list[$i] ?? '' }}
-                                        </td>
-                                        <td>{{ $sales->no_do }}</td>
-                                        <td>{{ $sales->customer }}</td>
-                                        <td>{{ $sales->metode_pengiriman }}</td>
-                                        <td>{{ $sales->status_transaksi }}</td>
-                                        <td class="text-right">
-                                            Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
-                                        </td>
-                                    </tr>
-                                @endfor
+                    @for ($i = 0; $i < $max_rows; $i++)
+                        <tr>
+                            <td>{{ $no++ }}</td>
+                            <td>{{ $sales->no_invoice }}</td>
+                            <td>{{ $sales->marking }}</td>
+                            <td>{{ $sales->tanggal_buat }}</td>
+                            <td>{{ $no_resi_list[$i] ?? '' }}</td>
+                            <td>
+                                {{ $berat_volume_list[$i] ?? '' }}
+                            </td>
+                            <td>{{ $sales->no_do }}</td>
+                            <td>{{ $sales->customer }}</td>
+                            <td>{{ $sales->metode_pengiriman }}</td>
+                            <td>{{ $sales->status_transaksi }}</td>
+                            <td class="text-right">
+                                Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    @endfor
                 @endforeach
             </tbody>
             <tfoot>
