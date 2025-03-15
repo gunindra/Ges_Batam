@@ -446,7 +446,7 @@
                     },
                     success: function(response) {
                         if (response.total_nominal) {
-                            $('#payment').val(response.total_nominal);
+                            $('#payment').val(response.total_nominal.toFixed(0));
                             updateTotals();
                         } else {
                             showMessage('error', 'Data tidak ditemukan');
