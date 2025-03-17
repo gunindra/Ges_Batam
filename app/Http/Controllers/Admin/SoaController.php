@@ -175,7 +175,11 @@ class SoaController extends Controller
             }
 
             $directoryPath = public_path('storage/soa');
-            $pdfFileName = 'Statement of Account_' . $customer->nama_pembeli . '.pdf';
+            // Mengganti karakter yang tidak valid dengan "_"
+            $customerName = str_replace(['/','\\',':','*','?','"','<','>','|'], '_', $customer->nama_pembeli);
+            $pdfFileName = 'Statement_of_Account_' . $customerName . '.pdf';
+
+            $directoryPath = public_path('storage/soa');
             $filePath = $directoryPath . '/' . $pdfFileName;
 
             if (!file_exists($directoryPath)) {
