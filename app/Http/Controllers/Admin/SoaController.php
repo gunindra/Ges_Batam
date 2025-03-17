@@ -19,7 +19,11 @@ class SoaController extends Controller
     public function index() {
 
         $companyId = session('active_company_id');
-        $customers = Customer::where('tbl_pembeli.company_id', $companyId)->get();
+        // $customers = Customer::where('tbl_pembeli.company_id', $companyId)->get();
+
+        $customers = DB::select("SELECT id, marking, nama_pembeli FROM tbl_pembeli WHERE company_id = $companyId");
+
+        // dd(  $customers);
 
         return view('Report.Soa.indexbalance', compact('customers'));
     }
