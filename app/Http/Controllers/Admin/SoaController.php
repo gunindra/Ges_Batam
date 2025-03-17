@@ -120,17 +120,25 @@ class SoaController extends Controller
     }
 
 
-
     public function soaWA(Request $request)
     {
         try {
+            Log::info('Memulai proses SOA WhatsApp');
+
             $companyId = session('active_company_id');
+            Log::info('Company ID: ' . $companyId);
+
             $customer_id = $request->customer;
+            Log::info('Customer ID: ' . $customer_id);
+
             $customer = Customer::find($customer_id);
 
             if (!$customer) {
+                Log::error('Customer tidak ditemukan');
                 return response()->json(['error' => 'Mohon Pilih Customer yang diinginkan'], 400);
             }
+
+            Log::info('Customer ditemukan: ' . $customer->nama_pembeli);
 
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
                 ->where('tbl_invoice.pembeli_id', $customer->id)
@@ -156,9 +164,13 @@ class SoaController extends Controller
                 $endDate = '';
             }
 
+            Log::info("Start Date: $startDate, End Date: $endDate");
+
             $invoice = $query->get();
+            Log::info('Jumlah invoice ditemukan: ' . $invoice->count());
 
             if ($invoice->isEmpty()) {
+                Log::warning('Tidak ada data Invoice ditemukan');
                 return response()->json(['error' => 'Tidak ada data Invoice yang ditemukan'], 400);
             }
 
@@ -168,14 +180,15 @@ class SoaController extends Controller
 
             if (!file_exists($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
+                Log::info('Direktori SOA dibuat: ' . $directoryPath);
             }
 
-            // Hapus file lama jika sudah ada agar selalu diperbarui
             if (file_exists($filePath)) {
                 unlink($filePath);
+                Log::info('File lama dihapus: ' . $filePath);
             }
 
-            // Generate file PDF terbaru
+            Log::info('Mulai generate PDF');
             $pdf = Pdf::loadView('exportPDF.soa', [
                 'startDate' => $startDate,
                 'endDate' => $endDate,
@@ -183,28 +196,38 @@ class SoaController extends Controller
                 'customer' => $customer
             ]);
             $pdf->save($filePath);
+            Log::info('PDF berhasil disimpan: ' . $filePath);
 
             $pesan = "Berikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
             $fileUrl = asset('storage/soa/' . $pdfFileName);
+            Log::info('File URL: ' . $fileUrl);
 
             $sender = '62' . DB::table('tbl_ptges')->value('phones');
+            Log::info('Sender WA: ' . $sender);
 
             if ($customer->no_wa) {
+                Log::info('Mengirim pesan ke WA: ' . $customer->no_wa);
+
                 $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, $fileUrl, $sender);
                 $pesanTerkirim = $this->kirimPesanWhatsapp($customer->no_wa, $pesan, null, $sender);
 
                 if (!$pesanTerkirimDenganFile && !$pesanTerkirim) {
+                    Log::error('Gagal mengirim pesan WhatsApp ke ' . $customer->no_wa);
                     return response()->json(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $customer->no_wa], 400);
                 }
             } else {
+                Log::error('Nomor WhatsApp customer tidak ditemukan');
                 return response()->json(['error' => 'Terjadi kesalahan, silahkan periksa kembali Nomor Telepon Customer yang dipilih'], 400);
             }
 
+            Log::info('Pesan WhatsApp berhasil dikirim');
             return response()->json(['success' => 'Pesan WhatsApp berhasil dikirim']);
         } catch (\Exception $e) {
+            Log::error('Error di soaWA: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
 
 
 
