@@ -127,7 +127,6 @@
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const customer = $('#customer').val();
-                console.log("id nih",customer);
 
                 $.ajax({
                     url: "{{ route('getSoa') }}",
