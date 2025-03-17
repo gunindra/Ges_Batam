@@ -64,7 +64,7 @@ class SoaController extends Controller
             $invoiceQuery->whereDate('tbl_invoice.tanggal_invoice', '<=', date('Y-m-d', strtotime($request->endDate)));
         }
         if ($customer) {
-            $invoiceQuery->where('tbl_invoice.pembeli_id', '=', $customer);
+            $invoiceQuery->where('tbl_pembeli.id', '=', $customer);
         }
 
 
