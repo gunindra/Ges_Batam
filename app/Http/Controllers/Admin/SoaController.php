@@ -133,7 +133,7 @@ class SoaController extends Controller
             }
 
             $query = Invoice::where('tbl_invoice.status_bayar', 'Belum lunas')
-                ->where('tbl_invoice.pembeli_id', $customer->id) // Perbaikan: gunakan ID, bukan object
+                ->where('tbl_invoice.pembeli_id', $customer->id)
                 ->where('tbl_invoice.company_id', $companyId)
                 ->where('tbl_invoice.status_id', 6)
                 ->where('tbl_invoice.soa_closing', false)
@@ -162,24 +162,26 @@ class SoaController extends Controller
                 return response()->json(['error' => 'Tidak ada data Invoice yang ditemukan'], 400);
             }
 
-            $pdf = Pdf::loadView('exportPDF.soa', [
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'invoice' => $invoice,
-                'customer' => $customer
-            ]);
-
             $directoryPath = public_path('storage/soa');
-            $pdfFileName = 'Statement of Account_'. $customer->nama_pembeli .'.pdf';
+            $pdfFileName = 'Statement of Account_' . $customer->nama_pembeli . '.pdf';
             $filePath = $directoryPath . '/' . $pdfFileName;
 
             if (!file_exists($directoryPath)) {
                 mkdir($directoryPath, 0755, true);
             }
 
+            // Hapus file lama jika sudah ada agar selalu diperbarui
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
+
+            // Generate file PDF terbaru
+            $pdf = Pdf::loadView('exportPDF.soa', [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'invoice' => $invoice,
+                'customer' => $customer
+            ]);
             $pdf->save($filePath);
 
             $pesan = "Berikut kita lampirkan Statement of Account dari list Invoice yang belum dilunaskan, Terima Kasih";
@@ -194,7 +196,6 @@ class SoaController extends Controller
                 if (!$pesanTerkirimDenganFile && !$pesanTerkirim) {
                     return response()->json(['error' => 'Gagal mengirim semua pesan WhatsApp ke ' . $customer->no_wa], 400);
                 }
-
             } else {
                 return response()->json(['error' => 'Terjadi kesalahan, silahkan periksa kembali Nomor Telepon Customer yang dipilih'], 400);
             }
@@ -204,6 +205,7 @@ class SoaController extends Controller
             return response()->json(['error' => $e->getMessage()], 400);
         }
     }
+
 
 
     public function exportSoaCustomerReport(Request $request)
