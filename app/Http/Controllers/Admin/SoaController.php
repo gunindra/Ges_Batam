@@ -169,7 +169,7 @@ class SoaController extends Controller
                 'customer' => $customer
             ]);
 
-            $directoryPath = storage_path('app/public/soa');
+            $directoryPath = public_path('storage/soa');
             $pdfFileName = 'Statement of Account_'. $customer->nama_pembeli .'.pdf';
             $filePath = $directoryPath . '/' . $pdfFileName;
 
