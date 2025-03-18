@@ -403,7 +403,6 @@ class PaymentController extends Controller
             $payment->company_id = $companyId;
             $payment->save();
 
-            // Ambil daftar invoice terkait
             $invoiceList = Invoice::whereIn('no_invoice', $request->invoice)->get();
             $totalSisaTagihan = $invoiceList->sum(fn($invoice) => max(0, $invoice->total_harga - $invoice->total_bayar));
 
@@ -528,8 +527,8 @@ class PaymentController extends Controller
             $jurnal->no_ref = $invoiceNumbers;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Invoice " . $invoiceNumbers;
-            $jurnal->totaldebit = $totalNominal;
-            $jurnal->totalcredit = $totalNominal;
+            $jurnal->totaldebit = $totalSisaTagihan;
+            $jurnal->totalcredit = $totalSisaTagihan;
             $jurnal->company_id = $companyId;
             $jurnal->save();
 
@@ -538,43 +537,42 @@ class PaymentController extends Controller
             $journalItems = [];
 
             if ($marginError > 0) {
-                // Kurang bayar: catat sebagai utang/penyesuaian
                 $journalItems[] = [
-                    'code_account' => $salesAccountId, // Akun penjualan
-                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
-                    'debit' => $totalSisaTagihan,
-                    'credit' => 0,
+                    'code_account' => $salesAccountId,
+                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                    'credit' => $totalSisaTagihan,
+                    'debit' => 0,
                 ];
                 $journalItems[] = [
-                    'code_account' => $paymentMethodId, // Metode pembayaran
-                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
-                    'debit' => 0,
-                    'credit' => $nilaiPayment,
+                    'code_account' => $paymentMethodId,
+                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                    'credit' => 0,
+                    'debit' => $nilaiPayment,
                 ];
                 $journalItems[] = [
                     'code_account' => $poinMarginAccount,
-                    'description' => "Kurang Bayar untuk Invoice " . $invoiceNumbers,
-                    'debit' => 0,
-                    'credit' => $marginError,
+                    'description' => "Margin untuk Invoice " . $invoiceNumbers,
+                    'credit' => 0,
+                    'debit' => $marginError,
                 ];
             } elseif ($marginError < 0) {
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
-                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
-                    'debit' => $totalSisaTagihan,
-                    'credit' => 0,
+                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                    'credit' => $totalSisaTagihan,
+                    'debit' => 0,
                 ];
                 $journalItems[] = [
                     'code_account' => $paymentMethodId,
-                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
-                    'debit' => 0,
-                    'credit' => $nilaiPayment,
+                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                    'credit' => 0,
+                    'debit' => $nilaiPayment,
                 ];
                 $journalItems[] = [
                     'code_account' => $poinMarginAccount,
                     'description' => "Lebih Bayar (Diskon) untuk Invoice " . $invoiceNumbers,
-                    'debit' => abs($marginError),
-                    'credit' => 0,
+                    'credit' => abs($marginError),
+                    'debit' => 0,
                 ];
             } else {
                 // Jika margin error 0 (pembayaran pas)
@@ -600,7 +598,9 @@ class PaymentController extends Controller
                     'code_account' => $item['code_account'],
                     'description' => $item['description'],
                     'debit' => $item['debit'],
-                    'credit' => $item['credit']
+                    'credit' => $item['credit'],
+                    'memo' => "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat
+
                 ]);
             }
 
