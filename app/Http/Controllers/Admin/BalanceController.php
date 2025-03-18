@@ -50,6 +50,7 @@ class BalanceController extends Controller
         $query = "
             SELECT coa.name AS account_name,
                    coa.id AS coa_id,
+                   coa.default_posisi AS default_posisi,
                    IFNULL(SUM(CASE
                                    WHEN ju.status = 'Approve'
                                        AND ju.tanggal >= '$startDate'
@@ -76,13 +77,14 @@ class BalanceController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($ors)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
         
         $query2 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -110,13 +112,14 @@ class BalanceController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($oes)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
         $query3 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -143,13 +146,14 @@ class BalanceController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($nors)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
         $query4 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -176,7 +180,7 @@ class BalanceController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($noes)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
@@ -185,13 +189,21 @@ class BalanceController extends Controller
         $nonBusinessRevenue = DB::select($query3);
         $nonBusinessExpenses = DB::select($query4);
 
-        $operatingRevenueTotal = round(collect($operatingRevenue)->sum('grand_total'), 2);
-        $operatingExpensesTotal = round(collect($operatingExpenses)->sum('grand_total'), 2);
-        $nonBusinessRevenueTotal = round(collect($nonBusinessRevenue)->sum('grand_total'), 2);
-        $nonBusinessExpensesTotal = round(collect($nonBusinessExpenses)->sum('grand_total'), 2);
+        $netProfit = 0;
 
-        $netProfit = -1* ($operatingRevenueTotal - $operatingExpensesTotal + $nonBusinessRevenueTotal - $nonBusinessExpensesTotal);
+        $allTransactions = collect($operatingRevenue)
+                            ->merge($operatingExpenses)
+                            ->merge($nonBusinessRevenue)
+                            ->merge($nonBusinessExpenses);
 
+        // Menghitung total berdasarkan default_posisi
+        
+        $netProfit = $allTransactions->sum(function ($item) {
+            return ($item->default_posisi === 'Credit') ? $item->grand_total : -$item->grand_total;
+        });
+
+        $netProfit = round($netProfit, 2);
+        
         $assetAccount = DB::select("SELECT coa.name AS account_name,
                                         coa.id AS coa_id,
                                         coa.set_as_group AS set_as_group,

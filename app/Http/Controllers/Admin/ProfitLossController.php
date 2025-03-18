@@ -44,6 +44,7 @@ class ProfitLossController extends Controller
         $query = "
             SELECT coa.name AS account_name,
                    coa.id AS coa_id,
+                   coa.default_posisi AS default_posisi,
                    IFNULL(SUM(CASE
                                    WHEN ju.status = 'Approve'
                                        AND ju.tanggal >= '$startDate'
@@ -103,7 +104,7 @@ class ProfitLossController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($ors)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
@@ -136,7 +137,7 @@ class ProfitLossController extends Controller
         $compare_operating_revenue = array_fill(0, count($comparisons), 0); // Initialize array to store comparison totals
 
         foreach ($operatingRevenue as $data) {
-            $total_operating_revenue += $data->grand_total;
+            $total_operating_revenue += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
                 $compare_operating_revenue[$index] += $data->{'compare_total_' . $index};
             }
@@ -163,6 +164,7 @@ class ProfitLossController extends Controller
             $query2 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -223,7 +225,7 @@ class ProfitLossController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($oes)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
@@ -240,7 +242,7 @@ class ProfitLossController extends Controller
         $compare_operating_expenses = array_fill(0, count($comparisons), 0);
 
         foreach ($operatingExpenses as $data) {
-            $total_operating_expenses += $data->grand_total;
+            $total_operating_expenses += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
                 $compare_operating_expenses[$index] += $data->{'compare_total_' . $index};
             }
@@ -269,6 +271,7 @@ class ProfitLossController extends Controller
         $query3 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -328,7 +331,7 @@ class ProfitLossController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($nors)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
 
@@ -344,7 +347,7 @@ class ProfitLossController extends Controller
         $compare_non_business_revenue = array_fill(0, count($comparisons), 0);
 
         foreach ($nonBusinessRevenue as $data) {
-            $total_non_business_revenue += $data->grand_total;
+            $total_non_business_revenue += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
                 $compare_non_business_revenue[$index] += $data->{'compare_total_' . $index};
             }
@@ -373,6 +376,7 @@ class ProfitLossController extends Controller
         $query4 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
+                coa.default_posisi AS default_posisi,
                 IFNULL(SUM(CASE
                                 WHEN ju.status = 'Approve'
                                     AND ju.tanggal >= '$startDate'
@@ -432,7 +436,7 @@ class ProfitLossController extends Controller
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
             WHERE coa.parent_id IN ($noes)
-            GROUP BY coa_id, account_name
+            GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
         foreach ($comparisons as $index => $comparison) {
@@ -445,7 +449,7 @@ class ProfitLossController extends Controller
         $compare_non_business_expenses = array_fill(0, count($comparisons), 0);
 
         foreach ($nonBusinessExpenses as $data) {
-            $total_non_business_expenses += $data->grand_total;
+            $total_non_business_expenses += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
                 $compare_non_business_expenses[$index] += $data->{'compare_total_' . $index};
             }
