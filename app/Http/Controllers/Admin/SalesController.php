@@ -42,7 +42,6 @@ class SalesController extends Controller
 
     public function getListSales(Request $request)
     {
-
         $companyId = session('active_company_id');
         $NoDo = $request->no_do;
         $Customer = $request->nama_pembeli;
@@ -59,9 +58,9 @@ class SalesController extends Controller
                 'tbl_invoice.total_harga',
                 'tbl_pembeli.marking',
                 DB::raw("IFNULL(
-                    IF(tbl_resi.berat IS NOT NULL,
-                        CONCAT(tbl_resi.berat, ' Kg'),
-                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000, ' m³')
+                    IF(MIN(tbl_resi.berat) IS NOT NULL,
+                        CONCAT(MIN(tbl_resi.berat), ' Kg'),
+                        CONCAT(MIN(tbl_resi.panjang) * MIN(tbl_resi.lebar) * MIN(tbl_resi.tinggi) / 1000000, ' m³')
                     ), '') AS berat_volume")
             )
             ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
@@ -106,6 +105,7 @@ class SalesController extends Controller
             ->rawColumns(['status_transaksi'])
             ->make(true);
     }
+
 
     public function export(Request $request)
     {
