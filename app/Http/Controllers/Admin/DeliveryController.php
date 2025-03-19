@@ -331,25 +331,25 @@ class DeliveryController extends Controller
         }
 
         $q = "SELECT a.id,
-        a.no_invoice,
-        DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
-        b.nama_pembeli AS pembeli,
-        c.no_do,
-        b.marking,
-        a.metode_pengiriman,
-        a.status_id
-      FROM tbl_invoice AS a
-      JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
-      JOIN tbl_resi AS c ON a.id = c.invoice_id
-      JOIN tbl_status AS d ON a.status_id = d.id
-      WHERE (
-        UPPER(a.no_invoice) LIKE '$txSearch'
-        OR UPPER(b.nama_pembeli) LIKE '$txSearch'
-        OR UPPER(c.no_do) LIKE '$txSearch'
-        OR UPPER(b.marking) LIKE '$txSearch'
-      )
-      AND a.status_id = 1
-      AND a.metode_pengiriman = 'Delivery'";
+                a.no_invoice,
+                DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_bayar,
+                b.nama_pembeli AS pembeli,
+                c.no_do,
+                b.marking,
+                a.metode_pengiriman,
+                a.status_id
+            FROM tbl_invoice AS a
+            JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
+            JOIN tbl_resi AS c ON a.id = c.invoice_id
+            JOIN tbl_status AS d ON a.status_id = d.id
+            WHERE (
+                UPPER(a.no_invoice) LIKE '$txSearch'
+                OR UPPER(b.nama_pembeli) LIKE '$txSearch'
+                OR UPPER(c.no_do) LIKE '$txSearch'
+                OR UPPER(b.marking) LIKE '$txSearch'
+            )
+            AND a.status_id = 1
+            AND a.metode_pengiriman = 'Delivery'";
 
         if ($startDate && $endDate) {
             $q .= " AND DATE(a.tanggal_invoice) BETWEEN '$startDate' AND '$endDate'";

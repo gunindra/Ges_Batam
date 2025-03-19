@@ -31,7 +31,6 @@ class TrackingsController extends Controller
     {
         $companyId = session('active_company_id');
         $user = auth()->user();
-
         $query = DB::table('tbl_tracking')
             ->select([
                 'tbl_tracking.id',
@@ -39,11 +38,19 @@ class TrackingsController extends Controller
                 'tbl_tracking.no_do',
                 'tbl_tracking.status',
                 'tbl_tracking.keterangan',
-                'tbl_invoice.status_bayar'
+                DB::raw('(SELECT status_bayar FROM tbl_invoice WHERE tbl_invoice.id = MAX(tbl_resi.invoice_id)) AS status_bayar')
             ])
             ->leftJoin('tbl_resi', 'tbl_tracking.no_resi', '=', 'tbl_resi.no_resi')
-            ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-            ->where('tbl_tracking.company_id', $companyId);
+            ->where('tbl_tracking.company_id', $companyId)
+            ->groupBy([
+                'tbl_tracking.id',
+                'tbl_tracking.no_resi',
+                'tbl_tracking.no_do',
+                'tbl_tracking.status',
+                'tbl_tracking.keterangan'
+            ])
+            ->orderBy('tbl_tracking.id', 'desc');
+
 
         // 🔹 Jika User adalah Customer
         if ($user->role === 'customer') {

@@ -219,6 +219,10 @@ class CreditNoteController extends Controller
                     'deskripsi' => $item['deskripsi'],
                     'harga' => $item['harga'],
                 ]);
+
+                DB::table('tbl_tracking')
+                ->where('no_resi', $item['noresi'])
+                ->update(['status' => 'Return']);
             }
 
             DB::commit();

@@ -863,7 +863,6 @@ class InvoiceController extends Controller
         $noResi = $request->input('noResi');
 
         try {
-
             $tracking = DB::table('tbl_tracking')->where('no_resi', $noResi)->first();
             if (!$tracking) {
                 return response()->json(['status' => 'error', 'message' => 'Nomor resi tidak ditemukan'], 404);
@@ -871,14 +870,16 @@ class InvoiceController extends Controller
 
             if ($tracking->status === 'Dalam Perjalanan') {
                 return response()->json(['status' => 'success', 'message' => 'Nomor resi valid untuk diproses'], 200);
+            } elseif ($tracking->status === 'Return') {
+                return response()->json(['status' => 'success', 'message' => 'Nomor resi valid dan sedang dalam status Return'], 200);
             } else {
                 return response()->json(['status' => 'error', 'message' => 'Status nomor resi tidak valid'], 400);
             }
-
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
 
     public function changeMethod(Request $request)
     {
