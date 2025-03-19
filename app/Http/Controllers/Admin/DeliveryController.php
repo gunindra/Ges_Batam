@@ -24,18 +24,21 @@ class DeliveryController extends Controller
 
     public function index(Request $request)
     {
+        $companyId = session('active_company_id');
         $listnodo = DB::table('tbl_resi')
             ->join('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->select('tbl_resi.no_do')
             ->distinct()
-            ->where('tbl_invoice.status_id', 1)
+            // ->where('tbl_invoice.status_id', 1)
+            ->where('tbl_invoice.company_id', $companyId)
             ->get();
 
         $listmarking = DB::table('tbl_pembeli')
             ->join('tbl_invoice', 'tbl_pembeli.id', '=', 'tbl_invoice.pembeli_id')
             ->select('tbl_pembeli.marking')
             ->distinct()
-            ->where('tbl_invoice.status_id', 1)
+            ->whereNull('tbl_pembeli.deleted_at')
+            ->where('tbl_pembeli.company_id', $companyId)
             ->get();
 
         return view('customer.delivery.indexdelivery', [
@@ -202,7 +205,7 @@ class DeliveryController extends Controller
                             <tr>
                                 <th>No</th>
                                 <th>No Invoice</th>
-                                <th>Customer</th>
+                                <th>Marking</th>
                                 <th>No. DO</th>
                                 <th>Bukti Pengantaran</th>
                                 <th>Tanda Tangan</th>
@@ -244,7 +247,7 @@ class DeliveryController extends Controller
             $output .= '<tr>
                             <td>' . $no++ . '</td>
                             <td>' . $invoice->no_invoice . '</td>
-                            <td>' . ($invoice->nama_pembeli ?? 'Tidak Ada Nama') . '</td>
+                            <td>' . ($invoice->marking ?? 'Tidak Ada Marking') . '</td>
                             <td>' . ($invoice->no_do ?? 'Tidak Ada No. DO') . '</td>
                             <td>' . $buktiLinks . '</td>
                             <td>' . $tandaTangan . '</td>

@@ -179,7 +179,7 @@
                                         <option value="{{ $marking->marking }}">{{ $marking->marking }}</option>
                                     @endforeach
                                 </select>
-                                <select class="form-control ml-2" id="filternodo" style="width: 200px;">
+                                <select class="form-control ml-2 select2singgle" id="filternodo" style="width: 200px;">
                                     <option value="" selected disabled>Pilih NoDo</option>
                                     @foreach ($listnodo as $nodo)
                                         <option value="{{ $nodo->no_do }}">{{ $nodo->no_do }}</option>
