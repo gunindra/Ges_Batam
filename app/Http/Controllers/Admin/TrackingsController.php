@@ -144,7 +144,8 @@ class TrackingsController extends Controller
                 $deleteButton = $row->status == 'Dalam Perjalanan'
                     ? '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>'
                     : '';
-                return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
+                // return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
+                return $deleteButton;
             })
             ->rawColumns(['select', 'status', 'status_bayar', 'action'])
             ->make(true);
