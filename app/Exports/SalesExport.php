@@ -41,9 +41,9 @@ class SalesExport implements FromView, WithEvents
                 'tbl_pembeli.marking',
                 DB::raw("GROUP_CONCAT(tbl_resi.harga SEPARATOR '; ') AS harga_resi"),
                 DB::raw("IFNULL(
-                    IF(tbl_resi.berat IS NOT NULL,
-                        CONCAT(tbl_resi.berat),
-                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000)
+                    IF(MIN(tbl_resi.berat) IS NOT NULL,
+                        CONCAT(MIN(tbl_resi.berat)),
+                        CONCAT(MIN(tbl_resi.panjang) * MIN(tbl_resi.lebar) * MIN(tbl_resi.tinggi) / 1000000)
                     ), '') AS berat_volume")
             )
             ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
