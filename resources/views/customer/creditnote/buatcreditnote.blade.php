@@ -331,7 +331,7 @@
                         success: function (response) {
                             Swal.fire({
                                 title: 'Success',
-                                text: 'Debit Note berhasil disimpan!',
+                                text: 'Kredit Note berhasil disimpan!',
                                 icon: 'success',
                                 confirmButtonText: 'OK'
                             }).then(() => {

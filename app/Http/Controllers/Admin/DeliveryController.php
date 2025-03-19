@@ -124,22 +124,13 @@ class DeliveryController extends Controller
         <tbody>';
 
         foreach ($data as $item) {
+            $pengantaranDetailId = htmlspecialchars($item->pengantaran_id ?? '');
+            $jumlahInvoice = htmlspecialchars($item->jumlah_invoice ?? '0');
             $btnInvoice = '
-           <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
-                data-id="' . htmlentities($item->pengantaran_detail_id) . '"
-                data-invoices="' . htmlentities($item->list_no_resi) . '"
-                data-customers="' . htmlentities($item->list_nama_pembeli) . ' "
-                data-alamat="' . htmlentities($item->list_alamat) . ' "
-                data-bukti="' . htmlentities($item->list_bukti_pengantaran) . ' "
-                data-tanda="' . htmlentities($item->list_tanda_tangan) . ' "
-                data-metode=" ' . htmlentities($item->metode_pengiriman) . ' "
-                data-keterangan="' . htmlentities($item->list_keterangan) . ' "
-                data-status="' . htmlentities($item->list_status_per_invoice) . ' "
-                data-no-do="' . htmlentities($item->list_no_do) . ' "
-                data-marking="' . htmlentities($item->list_marking) . ' ">
-                Invoice (' . $item->jumlah_invoice . ')
-            </button>
-                    ';
+            <button type="button" class="btn btn-primary btn-sm show-invoice-modal"
+                data-id="' . $pengantaranDetailId . '">
+                Invoice (' . $jumlahInvoice . ')
+            </button>';
 
             $output .= '
             <tr>
@@ -157,6 +148,116 @@ class DeliveryController extends Controller
 
         return $output;
     }
+
+
+    public function getInvoiceDetails(Request $request)
+    {
+        $pengantaranId = $request->input('pengantaran_id');
+        $pengantaranId = explode(';', $pengantaranId);
+
+        // Ambil data pengantaran
+        $pengantaran = DB::table('tbl_pengantaran')
+            ->whereIn('id', $pengantaranId)
+            ->get();
+
+        if ($pengantaran->isEmpty()) {
+            return '<div class="alert alert-danger">Data tidak ditemukan</div>';
+        }
+
+        // Ambil semua invoice terkait dengan pengantaran
+        $invoices = DB::table('tbl_pengantaran_detail as c')
+            ->join('tbl_invoice as d', 'c.invoice_id', '=', 'd.id')
+            ->join('tbl_pembeli as e', 'd.pembeli_id', '=', 'e.id')
+            ->leftJoin('tbl_resi as f', 'f.invoice_id', '=', 'd.id') // Pakai left join untuk menghindari error jika tidak ada resi
+            ->leftJoin('tbl_status as g', 'd.status_id', '=', 'g.id') // Join ke tbl_status
+            ->select(
+                'c.pengantaran_id',
+                'c.invoice_id',
+                'd.no_invoice',
+                'e.marking',
+                'e.nama_pembeli',
+                DB::raw('MIN(f.no_do) AS no_do'),
+                'c.bukti_pengantaran',
+                'c.tanda_tangan',
+                'g.status_name',
+                'c.keterangan'
+            )
+            ->whereIn('c.pengantaran_id', $pengantaranId)
+            ->groupBy(
+                'c.pengantaran_id',
+                'c.invoice_id',
+                'd.no_invoice',
+                'e.marking',
+                'e.nama_pembeli',
+                'c.bukti_pengantaran',
+                'c.tanda_tangan',
+                'g.status_name',
+                'c.keterangan'
+            )
+            ->get();
+
+        // Buat tabel dalam format HTML
+        $output = '<table class="table align-items-center table-flush table-hover" id="tableInvoice">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>No</th>
+                                <th>No Invoice</th>
+                                <th>Customer</th>
+                                <th>No. DO</th>
+                                <th>Bukti Pengantaran</th>
+                                <th>Tanda Tangan</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+
+        $no = 1;
+        foreach ($invoices as $invoice) {
+            $buktiLinks = 'Tidak Ada Bukti';
+            if (!empty($invoice->bukti_pengantaran)) {
+                $buktiImages = explode('|', $invoice->bukti_pengantaran);
+                $buktiLinks = '';
+                foreach ($buktiImages as $img) {
+                    $label = str_contains($img, 'signature') ? 'Lihat Bukti' : 'Lihat Foto';
+                    $buktiLinks .= '<a href="' . asset('storage/' . $img) . '" target="_blank">' . $label . '</a><br>';
+                }
+            }
+
+            $tandaTangan = $invoice->tanda_tangan
+                ? '<a href="' . asset('storage/' . $invoice->tanda_tangan) . '" target="_blank">Lihat Tanda Tangan</a>'
+                : 'Tidak Ada Tanda Tangan';
+
+            // Menentukan class badge berdasarkan status
+            $badgeClass = match ($invoice->status_name) {
+                'Batam / Sortir' => 'badge-primary',
+                'Ready For Pickup' => 'badge-warning',
+                'Out For Delivery' => 'badge-primary',
+                'Delivering' => 'badge-delivering',
+                'Received' => 'badge-secondary',
+                default => 'badge-secondary',
+            };
+
+            // Format badge untuk status
+            $statusBadge = '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($invoice->status_name) . '</span>';
+
+            $output .= '<tr>
+                            <td>' . $no++ . '</td>
+                            <td>' . $invoice->no_invoice . '</td>
+                            <td>' . ($invoice->nama_pembeli ?? 'Tidak Ada Nama') . '</td>
+                            <td>' . ($invoice->no_do ?? 'Tidak Ada No. DO') . '</td>
+                            <td>' . $buktiLinks . '</td>
+                            <td>' . $tandaTangan . '</td>
+                            <td>' . $statusBadge . '</td>
+                            <td>' . ($invoice->keterangan ?? 'Belum ada keterangan') . '</td>
+                        </tr>';
+        }
+
+        $output .= '</tbody></table>';
+
+        return $output;
+    }
+
 
 
     public function addDelivery()

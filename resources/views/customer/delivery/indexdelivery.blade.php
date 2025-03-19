@@ -124,6 +124,20 @@
                     </button>
                 </div>
                 <div class="modal-body" id="modalContent">
+                    <table id="invoiceTable" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>No. Invoice</th>
+                                <th>Customer</th>
+                                <th>No. DO</th>
+                                <th id="alamatHeader">Alamat</th>
+                                <th>Status</th>
+                                <th id="buktiHeader">Bukti</th>
+                                <th id="tandaTanganHeader">Tanda Tangan</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -475,138 +489,169 @@
             });
         });
 
+        // $(document).on('click', '.show-invoice-modal', function() {
+        //     var invoiceNumbers = $(this).data('invoices');
+        //     var marking = $(this).data('marking').trim();
+        //     var customerNames = $(this).data('customers').trim();
+        //     var noDo = $(this).data('no-do').trim();
+        //     var addresses = $(this).data('alamat').trim();
+        //     var buktiPengantaran = $(this).data('bukti').trim();
+        //     var tandaTangan = $(this).data('tanda').trim();
+        //     var metodePengiriman = $(this).data('metode').trim();
+        //     var keterangan = $(this).data('keterangan').trim();
+        //     var statusInvoice = $(this).data('status').trim();
+
+        //     console.log("Bukti Pengantaran:", buktiPengantaran);
+
+
+
+        //     // Pastikan pemisahnya sesuai dengan ';'
+        //     if (typeof invoiceNumbers !== 'string') {
+        //         invoiceNumbers = String(invoiceNumbers);
+        //     }
+
+        //     if (invoiceNumbers.indexOf(';') === -1) {
+        //         invoiceNumbers = [invoiceNumbers];
+        //     } else {
+        //         invoiceNumbers = invoiceNumbers.split(';');
+        //     }
+
+        //     marking = marking ? marking.split(';') : [];
+        //     customerNames = customerNames ? customerNames.split(';') : [];
+        //     noDo = noDo ? noDo.split(';') : [];
+        //     addresses = addresses ? addresses.split(';') : [];
+        //     buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(';') : [];
+        //     tandaTangan = tandaTangan ? tandaTangan.split(';') : [];
+        //     keterangan = keterangan ? keterangan.split(';') : [];
+        //     statusInvoice = statusInvoice ? statusInvoice.split(';') : [];
+
+
+        //     var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
+        //     modalContent += '<thead><tr><th>No. Invoice</th><th>Marking</th><th>Customer</th><th>No. DO</th>';
+
+        //     if (metodePengiriman !== 'Pickup') {
+        //         modalContent += '<th>Alamat</th>';
+        //     }
+
+        //     if (metodePengiriman !== 'Pickup') {
+        //         modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
+        //     } else {
+        //         modalContent += '<th>Dokumentasi Admin</th><th>Tanda Tangan Customer</th>';
+        //     }
+
+        //     modalContent += '<th>Status</th>';
+        //     modalContent += '<th>Keterangan</th>';
+        //     modalContent += '</tr></thead><tbody>';
+
+        //     for (var i = 0; i < invoiceNumbers.length; i++) {
+        //         modalContent += '<tr>';
+        //         modalContent += '<td>' + invoiceNumbers[i] + '</td>';
+        //         modalContent += '<td>' + (marking[i] ? marking[i] : 'Tidak Ada Marking') + '</td>';
+        //         modalContent += '<td>' + customerNames[i] + '</td>';
+        //         modalContent += '<td>' + (noDo[i] ? noDo[i] : 'Tidak Ada No. DO') + '</td>';
+
+
+        //         if (metodePengiriman !== 'Pickup') {
+        //             modalContent += '<td>' + addresses[i] + '</td>';
+        //         }
+
+        //         if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
+        //             var images = buktiPengantaran[i].includes('|') ? buktiPengantaran[i].split('|') : [
+        //                 buktiPengantaran[i]
+        //             ];
+
+        //             modalContent += '<td>';
+
+        //             images.forEach(function(image) {
+        //                 if (image.trim() !== "") {
+        //                     var label = image.includes("signature") ? "Lihat Bukti" : "Lihat Foto";
+        //                     modalContent += '<a href="/storage/' + image + '" target="_blank">' + label +
+        //                         '</a> ';
+        //                 }
+        //             });
+
+        //             modalContent += images.length > 0 ? '</td>' : '<td>Tidak Ada Bukti</td>';
+        //         } else {
+        //             modalContent += '<td>Tidak Ada Bukti</td>';
+        //         }
+        //         if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
+        //             modalContent += '<td><a href="/storage/' + tandaTangan[i] +
+        //                 '" target="_blank">Lihat Tanda Tangan</a></td>';
+        //         } else {
+        //             modalContent += '<td>Tidak Ada Tanda Tangan</td>';
+        //         }
+
+
+        //         var statusBadgeClass = '';
+        //         switch (statusInvoice[i]) {
+        //             case 'Out For Delivery':
+        //                 statusBadgeClass = 'badge-out-for-delivery';
+        //                 break;
+        //             case 'Ready For Pickup':
+        //                 statusBadgeClass = 'badge-warning';
+        //                 break;
+        //             case 'Delivering':
+        //                 statusBadgeClass = 'badge-delivering';
+        //                 break;
+        //             case 'Debt':
+        //                 statusBadgeClass = 'badge-danger';
+        //                 break;
+        //             case 'Received':
+        //                 statusBadgeClass = 'badge-secondary';
+        //                 break;
+        //             default:
+        //                 statusBadgeClass = 'badge-secondary';
+        //                 break;
+        //         }
+
+        //         modalContent += '<td><span class="badge ' + statusBadgeClass + '">' + statusInvoice[i] +
+        //             '</span></td>';
+        //         modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
+        //         modalContent += '</tr>';
+        //     }
+
+        //     modalContent += '</tbody></table>';
+
+        //     $('#modalContent').html(modalContent);
+        //     $('#invoiceModal').modal('show');
+        //     $('#invoiceTable').DataTable({
+        //         paging: true,
+        //         searching: true,
+        //         ordering: true,
+        //         info: true,
+        //         lengthChange: false,
+        //         pageLength: 5
+        //     });
+        // });
+
+
+
+
         $(document).on('click', '.show-invoice-modal', function() {
-            var invoiceNumbers = $(this).data('invoices');
-            var marking = $(this).data('marking').trim();
-            var customerNames = $(this).data('customers').trim();
-            var noDo = $(this).data('no-do').trim();
-            var addresses = $(this).data('alamat').trim();
-            var buktiPengantaran = $(this).data('bukti').trim();
-            var tandaTangan = $(this).data('tanda').trim();
-            var metodePengiriman = $(this).data('metode').trim();
-            var keterangan = $(this).data('keterangan').trim();
-            var statusInvoice = $(this).data('status').trim();
+            let pengantaranId = $(this).data('id');
 
-            console.log("Bukti Pengantaran:", buktiPengantaran);
+            $.ajax({
+                url: "{{ route('getInvoiceDetails') }}",
+                type: "GET",
+                data: {
+                    pengantaran_id: pengantaranId
+                },
+                success: function(response) {
+                    $('#modalContent').html(response); // Tampilkan tabel dalam modal
+                    $('#invoiceModal').modal('show');
 
-
-
-            // Pastikan pemisahnya sesuai dengan ';'
-            if (typeof invoiceNumbers !== 'string') {
-                invoiceNumbers = String(invoiceNumbers);
-            }
-
-            if (invoiceNumbers.indexOf(';') === -1) {
-                invoiceNumbers = [invoiceNumbers];
-            } else {
-                invoiceNumbers = invoiceNumbers.split(';');
-            }
-
-            marking = marking ? marking.split(';') : [];
-            customerNames = customerNames ? customerNames.split(';') : [];
-            noDo = noDo ? noDo.split(';') : [];
-            addresses = addresses ? addresses.split(';') : [];
-            buktiPengantaran = buktiPengantaran ? buktiPengantaran.split(';') : [];
-            tandaTangan = tandaTangan ? tandaTangan.split(';') : [];
-            keterangan = keterangan ? keterangan.split(';') : [];
-            statusInvoice = statusInvoice ? statusInvoice.split(';') : [];
-
-
-            var modalContent = '<table id="invoiceTable" class="table table-striped table-bordered">';
-            modalContent += '<thead><tr><th>No. Invoice</th><th>Marking</th><th>Customer</th><th>No. DO</th>';
-
-            if (metodePengiriman !== 'Pickup') {
-                modalContent += '<th>Alamat</th>';
-            }
-
-            if (metodePengiriman !== 'Pickup') {
-                modalContent += '<th>Bukti</th><th>Tanda Tangan</th>';
-            } else {
-                modalContent += '<th>Dokumentasi Admin</th><th>Tanda Tangan Customer</th>';
-            }
-
-            modalContent += '<th>Status</th>';
-            modalContent += '<th>Keterangan</th>';
-            modalContent += '</tr></thead><tbody>';
-
-            for (var i = 0; i < invoiceNumbers.length; i++) {
-                modalContent += '<tr>';
-                modalContent += '<td>' + invoiceNumbers[i] + '</td>';
-                modalContent += '<td>' + (marking[i] ? marking[i] : 'Tidak Ada Marking') + '</td>';
-                modalContent += '<td>' + customerNames[i] + '</td>';
-                modalContent += '<td>' + (noDo[i] ? noDo[i] : 'Tidak Ada No. DO') + '</td>';
-
-
-                if (metodePengiriman !== 'Pickup') {
-                    modalContent += '<td>' + addresses[i] + '</td>';
+                    // Inisialisasi DataTable jika belum ada
+                    if (!$.fn.DataTable.isDataTable('#tableInvoice')) {
+                        $('#tableInvoice').DataTable({
+                            paging: true,
+                            searching: true,
+                            ordering: true,
+                            info: true,
+                            lengthChange: false,
+                            pageLength: 5
+                        });
+                    }
                 }
-
-                if (buktiPengantaran[i] && buktiPengantaran[i] !== 'Tidak Ada Bukti') {
-                    var images = buktiPengantaran[i].includes('|') ? buktiPengantaran[i].split('|') : [
-                        buktiPengantaran[i]
-                    ];
-
-                    modalContent += '<td>';
-
-                    images.forEach(function(image) {
-                        if (image.trim() !== "") {
-                            var label = image.includes("signature") ? "Lihat Bukti" : "Lihat Foto";
-                            modalContent += '<a href="/storage/' + image + '" target="_blank">' + label +
-                                '</a> ';
-                        }
-                    });
-
-                    modalContent += images.length > 0 ? '</td>' : '<td>Tidak Ada Bukti</td>';
-                } else {
-                    modalContent += '<td>Tidak Ada Bukti</td>';
-                }
-                if (tandaTangan[i] && tandaTangan[i] !== 'Tidak Ada Tanda Tangan') {
-                    modalContent += '<td><a href="/storage/' + tandaTangan[i] +
-                        '" target="_blank">Lihat Tanda Tangan</a></td>';
-                } else {
-                    modalContent += '<td>Tidak Ada Tanda Tangan</td>';
-                }
-
-
-                var statusBadgeClass = '';
-                switch (statusInvoice[i]) {
-                    case 'Out For Delivery':
-                        statusBadgeClass = 'badge-out-for-delivery';
-                        break;
-                    case 'Ready For Pickup':
-                        statusBadgeClass = 'badge-warning';
-                        break;
-                    case 'Delivering':
-                        statusBadgeClass = 'badge-delivering';
-                        break;
-                    case 'Debt':
-                        statusBadgeClass = 'badge-danger';
-                        break;
-                    case 'Received':
-                        statusBadgeClass = 'badge-secondary';
-                        break;
-                    default:
-                        statusBadgeClass = 'badge-secondary';
-                        break;
-                }
-
-                modalContent += '<td><span class="badge ' + statusBadgeClass + '">' + statusInvoice[i] +
-                    '</span></td>';
-                modalContent += '<td>' + (keterangan[i] ? keterangan[i] : 'Tidak Ada Keterangan') + '</td>';
-                modalContent += '</tr>';
-            }
-
-            modalContent += '</tbody></table>';
-
-            $('#modalContent').html(modalContent);
-            $('#invoiceModal').modal('show');
-            $('#invoiceTable').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                info: true,
-                lengthChange: false,
-                pageLength: 5
             });
         });
 

@@ -129,6 +129,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::post('/delivery/buatPickup', [DeliveryController::class, 'buatPickup'])->name('buatPickup');
     Route::get('/delivery/exportPDF', [DeliveryController::class, 'exportPDF'])->name('exportPDFDelivery');
     Route::get('/delivery/getlistDelivery', [DeliveryController::class, 'getlistDelivery'])->name('getlistDelivery');
+    Route::get('/delivery/getInvoiceDetails', [DeliveryController::class, 'getInvoiceDetails'])->name('getInvoiceDetails');
     Route::get('/delivery/acceptPengantaran', [DeliveryController::class, 'acceptPengantaran'])->name('acceptPengantaran');
     Route::post('/delivery/updateStatus', [DeliveryController::class, 'updateStatus'])->name('updateStatus');
     Route::get('/delivery/detailBuktiPengantaran', [DeliveryController::class, 'detailBuktiPengantaran'])->name('detailBuktiPengantaran');
