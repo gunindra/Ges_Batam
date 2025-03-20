@@ -94,6 +94,13 @@
                     data: function(d) {
                         d.no_do = $('#filterNoDO').val();
                         d.nama_pembeli = $('#filterCustomer').val();
+                    },
+                    dataSrc: function(json) {
+                        // Masukkan total harga keseluruhan ke footer tabel
+                        $('#grandTotal').html(
+                            `<strong>${parseFloat(json.total_sum).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</strong>`
+                            );
+                        return json.data;
                     }
                 },
                 columns: [{
@@ -111,18 +118,13 @@
                     {
                         data: "no_resi",
                         name: "no_resi",
-                        render: function(data, type, row) {
-                            return data ? data.replace(/;/g, "<br>") :
-                                "-";
+                        render: function(data) {
+                            return data ? data.replace(/;/g, "<br>") : "-";
                         }
                     },
                     {
                         data: "berat_volume",
-                        name: "berat_volume",
-                        render: function(data, type, row) {
-                            return data ? data.replace(/;/g, "<br>") :
-                                "-"; // Ubah ";" jadi baris baru
-                        }
+                        name: "berat_volume"
                     },
                     {
                         data: "no_do",
@@ -134,23 +136,17 @@
                     },
                     {
                         data: "metode_pengiriman",
-                        name: "metode_pengiriman",
-                        render: function(data, type, row) {
-                            return row.metode_pengiriman.includes("Delivery") || row
-                                .metode_pengiriman.includes("Pickup") ?
-                                row.metode_pengiriman :
-                                "-";
-                        }
+                        name: "metode_pengiriman"
                     },
                     {
                         data: "status_transaksi",
-                        name: "status_transaksi",
+                        name: "status_transaksi"
                     },
                     {
                         data: "total_harga",
                         name: "total_harga",
-                        render: function(data, type, row) {
-                            return `${parseFloat(data).toLocaleString('id-ID')}`;
+                        render: function(data) {
+                            return `${parseFloat(data).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}`;
                         }
                     }
                 ],
@@ -163,25 +159,6 @@
                     emptyTable: "No data available in table",
                     loadingRecords: "Loading...",
                     zeroRecords: "No matching records found"
-                },
-                footerCallback: function(row, data, start, end, display) {
-                    var api = this.api();
-
-                    // Hitung total harga dari semua data yang ditampilkan3
-                    var total = api
-                        .column(9, {
-                            page: 'current'
-                        }) // Kolom ke-8 adalah total_harga
-                        .data()
-                        .reduce(function(a, b) {
-                            return parseFloat(a) + parseFloat(b);
-                        }, 0);
-
-                    // Format ke Rupiah
-                    var formattedTotal = `${total.toLocaleString('id-ID')}`;
-
-                    // Masukkan hasil ke footer
-                    $(api.column(9).footer()).html(formattedTotal);
                 }
             });
 

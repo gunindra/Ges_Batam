@@ -217,7 +217,7 @@
                 <tr>
                     <th>No.</th>
                     <th>No. Invoice</th>
-                    <th>marking</th>
+                    <th>Marking</th>
                     <th>Tanggal Invoice</th>
                     <th>No. Resi</th>
                     <th>Quantity</th>
@@ -235,7 +235,6 @@
                 @endphp
                 @foreach ($salesdata as $sales)
                     @php
-                        $grandTotal += $sales->total_harga;
                         $no_resi_list = explode('; ', $sales->no_resi);
                         $berat_volume_list = explode('; ', $sales->berat_volume);
                         $harga_resi_list = explode('; ', $sales->harga_resi);
@@ -244,21 +243,23 @@
                     @endphp
 
                     @for ($i = 0; $i < $max_rows; $i++)
+                        @php
+                            $harga_resi = (int) ($harga_resi_list[$i] ?? 0);
+                            $grandTotal += $harga_resi;
+                        @endphp
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $sales->no_invoice }}</td>
                             <td>{{ $sales->marking }}</td>
                             <td>{{ $sales->tanggal_buat }}</td>
                             <td>{{ $no_resi_list[$i] ?? '' }}</td>
-                            <td>
-                                {{ $berat_volume_list[$i] ?? '' }}
-                            </td>
+                            <td>{{ $berat_volume_list[$i] ?? '' }}</td>
                             <td>{{ $sales->no_do }}</td>
                             <td>{{ $sales->customer }}</td>
                             <td>{{ $sales->metode_pengiriman }}</td>
                             <td>{{ $sales->status_transaksi }}</td>
                             <td class="text-right">
-                                Rp {{ number_format((int) ($harga_resi_list[$i] ?? 0), 0, ',', '.') }}
+                                Rp {{ number_format($harga_resi, 0, ',', '.') }}
                             </td>
                         </tr>
                     @endfor

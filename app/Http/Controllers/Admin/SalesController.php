@@ -47,27 +47,38 @@ class SalesController extends Controller
         $Customer = $request->nama_pembeli;
 
         $query = DB::table('tbl_invoice')
-            ->select(
-                'tbl_invoice.no_invoice',
-                DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-                DB::raw("MIN(tbl_resi.no_do) AS no_do"), // Ambil no_do pertama
-                'tbl_resi.no_resi',
-                'tbl_pembeli.nama_pembeli AS customer',
-                'tbl_invoice.metode_pengiriman',
-                'tbl_status.status_name AS status_transaksi',
-                'tbl_invoice.total_harga',
-                'tbl_pembeli.marking',
-                DB::raw("IFNULL(
-                    IF(MIN(tbl_resi.berat) IS NOT NULL,
-                        CONCAT(MIN(tbl_resi.berat), ' Kg'),
-                        CONCAT(MIN(tbl_resi.panjang) * MIN(tbl_resi.lebar) * MIN(tbl_resi.tinggi) / 1000000, ' m³')
-                    ), '') AS berat_volume")
-            )
-            ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-            ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
-            ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-            ->where('tbl_invoice.company_id', $companyId)
-            ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup']);
+        ->select(
+            'tbl_invoice.no_invoice',
+            DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+            DB::raw("MIN(tbl_resi.no_do) AS no_do"), // Ambil no_do pertama
+            'tbl_resi.no_resi',
+            'tbl_pembeli.nama_pembeli AS customer',
+            'tbl_invoice.metode_pengiriman',
+            'tbl_status.status_name AS status_transaksi',
+            DB::raw("SUM(tbl_resi.harga) AS total_harga"), // Ambil total dari tbl_resi.harga
+            'tbl_pembeli.marking',
+            DB::raw("IFNULL(
+                IF(MIN(tbl_resi.berat) IS NOT NULL,
+                    CONCAT(MIN(tbl_resi.berat), ' Kg'),
+                    CONCAT(MIN(tbl_resi.panjang) * MIN(tbl_resi.lebar) * MIN(tbl_resi.tinggi) / 1000000, ' m³')
+                ), '') AS berat_volume"),
+            DB::raw("SUM(SUM(tbl_resi.harga)) OVER () AS total_sum") // Total keseluruhan dari tbl_resi.harga
+        )
+        ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+        ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+        ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+        ->where('tbl_invoice.company_id', $companyId)
+        ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
+        ->groupBy(
+            'tbl_invoice.no_invoice',
+            'tbl_invoice.tanggal_buat',
+            'tbl_resi.no_resi',
+            'tbl_pembeli.nama_pembeli',
+            'tbl_invoice.metode_pengiriman',
+            'tbl_status.status_name',
+            'tbl_pembeli.marking'
+        );
+
 
         if ($Customer) {
             $query->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $Customer . '%');
@@ -91,6 +102,9 @@ class SalesController extends Controller
 
         $data = $query->get();
 
+        // Ambil total sum dari salah satu baris karena sudah ada di dalam query
+        $totalSum = $data->isNotEmpty() ? $data->first()->total_sum : 0;
+
         return DataTables::of($data)
             ->editColumn('status_transaksi', function ($row) {
                 $statusBadgeClass = match ($row->status_transaksi) {
@@ -102,9 +116,11 @@ class SalesController extends Controller
 
                 return '<span class="badge ' . $statusBadgeClass . '">' . $row->status_transaksi . '</span>';
             })
+            ->with('total_sum', $totalSum) // Kirim total sum ke frontend
             ->rawColumns(['status_transaksi'])
             ->make(true);
     }
+
 
 
     public function export(Request $request)
