@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\TrackingExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\AddTrackingJob;
 use DB;
@@ -11,6 +12,7 @@ use Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tracking;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TrackingsController extends Controller
 {
@@ -270,6 +272,19 @@ class TrackingsController extends Controller
             'success' => true,
             'message' => "$deletedCount record(s) deleted successfully."
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $user = auth()->user();
+        $status = $request->input('status');
+        $userid = $user->id;
+
+        return Excel::download(new TrackingExport($status, $userid), 'Tracking.xlsx');
     }
 
 }

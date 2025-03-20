@@ -110,6 +110,9 @@
                                     data-target="#modalTambahTracking" id="#modalCenter"><span class="pr-2"><i
                                             class="fas fa-plus"></i></span>Tambah Tracking</button>
                             @endif
+                            @if (in_array(Auth::user()->role, ['customer']))
+                                <button type="button" class="btn btn-success" id="exportExcel">Export Excel</button>
+                            @endif
                         </div>
                         <div class="float-left d-flex">
                             <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
@@ -732,6 +735,41 @@
                     });
                 }
             });
+        });
+
+        $(document).on('click', '#exportExcel', function() {
+            let status = $('#filterStatus').val();
+
+            let now = new Date();
+            let day = String(now.getDate()).padStart(2, '0');
+            let month = now.toLocaleString('default', {
+                month: 'long'
+            });
+            let year = now.getFullYear();
+            let hours = String(now.getHours()).padStart(2, '0');
+            let minutes = String(now.getMinutes()).padStart(2, '0');
+            let seconds = String(now.getSeconds()).padStart(2, '0');
+
+            let filename = `Sales_${day} ${month} ${year} ${hours}:${minutes}:${seconds}.xlsx`;
+
+            let form = $('<form>', {
+                action: "{{ route('tracking.excel') }}",
+                method: 'POST'
+            }).append(
+                $('<input>', {
+                    type: 'hidden',
+                    name: '_token',
+                    value: '{{ csrf_token() }}'
+                }),
+                $('<input>', {
+                    type: 'hidden',
+                    name: 'status',
+                    value: status
+                })
+            );
+
+            $('body').append(form);
+            form.submit();
         });
     </script>
 
