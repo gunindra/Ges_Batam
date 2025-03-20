@@ -56,8 +56,8 @@ class SalesController extends Controller
             'tbl_pembeli.nama_pembeli AS customer',
             'tbl_invoice.metode_pengiriman',
             'tbl_status.status_name AS status_transaksi',
-            // DB::raw("SUM(tbl_resi.harga) AS total_harga"),
-            'tbl_resi.harga AS total_harga',
+            DB::raw("SUM(tbl_resi.harga) AS total_harga"),
+            // 'tbl_resi.harga AS total_harga',
             'tbl_pembeli.marking',
             DB::raw("IFNULL(
                 IF(MIN(tbl_resi.berat) IS NOT NULL,
