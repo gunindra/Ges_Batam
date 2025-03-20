@@ -6,6 +6,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DB;
 use Illuminate\Http\Request;
 use App\Exports\SalesExport;
+use Illuminate\Support\Carbon;
 use Log;
 use Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -88,6 +89,13 @@ class SalesController extends Controller
             $query->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%');
         }
 
+        if ($request->startDate && $request->endDate) {
+            $startDate = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
+            $query->whereBetween('tbl_invoice.tanggal_buat', [$startDate, $endDate]);
+        }
+
+
         $query->groupBy(
                 'tbl_invoice.no_invoice',
                 'tbl_invoice.tanggal_buat',
@@ -125,16 +133,24 @@ class SalesController extends Controller
 
     public function export(Request $request)
     {
-        $NoDo = $request->no_do;
-        $Customer = $request->nama_pembeli;
 
-        return Excel::download(new SalesExport($NoDo, $Customer), 'Sales.xlsx');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $NoDo = $request->input('no_do');
+        $Customer = $request->input('nama_pembeli');
+
+        // Lakukan ekspor ke Excel
+        return Excel::download(new SalesExport($NoDo, $Customer, $startDate, $endDate), 'Sales.xlsx');
     }
+
 
     public function exportSalesPdf(Request $request)
     {
         $NoDo = $request->no_do === "null" ? null : trim($request->no_do);
         $Customer = $request->nama_pembeli === "null" ? null : trim($request->nama_pembeli);
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
         $companyId = session('active_company_id');
 
         try {
@@ -180,6 +196,18 @@ class SalesController extends Controller
                 )
                 ->orderBy('tbl_invoice.tanggal_buat', 'desc');
 
+                if ($request->startDate && $request->endDate) {
+                    $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
+                    $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
+                    $query->whereBetween('tbl_invoice.tanggal_buat', [$startDateCarbon, $endDateCarbon]);
+
+                    $startDate = $startDateCarbon->format('d F Y');
+                    $endDate = $endDateCarbon->format('d F Y');
+                } else {
+                    $startDate = '-';
+                    $endDate = '-';
+                }
+
             $salesdata = $query->get();
 
             if ($salesdata->isEmpty()) {
@@ -190,6 +218,8 @@ class SalesController extends Controller
                 'salesdata' => $salesdata,
                 'NoDo' => $NoDo,
                 'Customer' => $Customer,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
             ])
                 ->setPaper('A4', 'portrait')
                 ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])

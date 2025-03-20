@@ -15,6 +15,18 @@
                 {{ $customer ? $customer : '-' }}
             </td>
         </tr>
+        <tr>
+            <td style="text-align:left;font-size:11px;padding: 14px;">Start Date:</td>
+            <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
+                {{ $startDate ? $startDate : '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:left;font-size:11px;padding: 14px;">End Date:</td>
+            <td style="text-align:left;font-size:11px;padding: 14px;font-weight: bold;">
+                {{ $endDate ? $endDate : '-' }}
+            </td>
+        </tr>
         <tr></tr>
         <tr>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal; "

@@ -210,6 +210,8 @@
         <div class="title">
             <h5>No. Do: {{ $NoDo ? $NoDo : '-' }}</h5>
             <h5>Customer: {{ $Customer ? $Customer : '-' }} </h5>
+            <h5>StartDate:  {{ $startDate ? $startDate : '-' }}</h5>
+            <h5>EndDate:  {{ $endDate ? $endDate : '-' }}</h5>
         </div>
 
         <table>

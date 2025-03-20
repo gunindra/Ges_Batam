@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use DB;
+use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -12,11 +13,15 @@ class SalesExport implements FromView, WithEvents
 {
     protected $NoDo;
     protected $customer;
+    protected $startDate;
+    protected $endDate;
 
-    public function __construct($NoDo, $customer)
+    public function __construct($NoDo, $customer, $startDate, $endDate)
     {
         $this->NoDo = $NoDo;
         $this->customer = $customer;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
     }
 
     /**
@@ -71,12 +76,21 @@ class SalesExport implements FromView, WithEvents
         if ($this->customer) {
             $query->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $this->customer . '%');
         }
+
+        if ($this->startDate && $this->endDate) {
+            $startDate = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
+            $endDate = Carbon::createFromFormat('d M Y', $this->endDate)->endOfDay();
+            $query->whereBetween('tbl_invoice.tanggal_buat', [$startDate, $endDate]);
+        }
+
         $Sales = $query->get();
 
         return view('exportExcel.sales', [
             'Sales' => $Sales,
             'NoDo' => $this->NoDo,
-            'customer' => $this->customer
+            'customer' => $this->customer,
+            'startDate' => $this->startDate,
+            'endDate' => $this->endDate,
         ]);
     }
 
