@@ -45,29 +45,28 @@ class TopUpReportController extends Controller
         ? Carbon::parse($request->endDate)->format('Y-m-d')
         : Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        $topup = HistoryTopup::join('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
-        ->where('tbl_history_topup.status', '!=', 'canceled')
-        ->where('tbl_history_topup.company_id', $companyId)
-        ->whereDate('date', '>=', $startDate)
-        ->whereDate('date', '<=', $endDate)
-        ->select('tbl_history_topup.*', 'tbl_pembeli.marking');
+
+        $topup = HistoryTopup::leftJoin('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id') // Ubah ke leftJoin
+            ->where('tbl_history_topup.status', '!=', 'canceled')
+            ->where('tbl_history_topup.company_id', $companyId)
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->select('tbl_history_topup.*', 'tbl_pembeli.marking');
 
         $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-        ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-        ->where('tbl_payment_invoice.kuota', '!=', 0)
-        ->where('tbl_payment_customer.company_id', $companyId)
-        ->whereDate('payment_buat', '>=', $startDate)
-        ->whereDate('payment_buat', '<=', $endDate)
-        ->select('tbl_payment_invoice.*', 'tbl_pembeli.marking');
+            ->leftJoin('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id') // Ubah ke leftJoin
+            ->where('tbl_payment_invoice.kuota', '!=', 0)
+            ->where('tbl_payment_customer.company_id', $companyId)
+            ->whereDate('payment_buat', '>=', $startDate)
+            ->whereDate('payment_buat', '<=', $endDate)
+            ->select('tbl_payment_invoice.*', 'tbl_pembeli.marking');
 
 
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
         if ($isCustomerRole) {
-            $topup->join('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
-                ->where('tbl_pembeli.user_id', auth()->user()->id);
-
-            $payment->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-                    ->where('tbl_pembeli.user_id', auth()->user()->id);
+            // Hanya tambahkan WHERE tanpa JOIN ulang
+            $topup->where('tbl_pembeli.user_id', auth()->user()->id);
+            $payment->where('tbl_pembeli.user_id', auth()->user()->id);
         }
 
         if ($request->startDate) {
