@@ -64,7 +64,6 @@ class TopUpReportController extends Controller
 
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
         if ($isCustomerRole) {
-            // Hanya tambahkan WHERE tanpa JOIN ulang
             $topup->where('tbl_pembeli.user_id', auth()->user()->id);
             $payment->where('tbl_pembeli.user_id', auth()->user()->id);
         }
@@ -121,8 +120,6 @@ class TopUpReportController extends Controller
         $output .= '<th width="5%" style="text-align:center;">Status</th>
                     </thead>
                     <tbody>';
-
-        // Dynamic saldo tracking for each customer
         $customerSaldo = [];
 
         foreach ($combined as $data) {
@@ -197,6 +194,9 @@ class TopUpReportController extends Controller
                 ->where('tbl_history_topup.company_id', $companyId)
                 ->when($startDate, fn($query) => $query->whereDate('tbl_history_topup.date', '>=', $startDate))
                 ->when($endDate, fn($query) => $query->whereDate('tbl_history_topup.date', '<=', $endDate))
+                ->when(auth()->user() && auth()->user()->role === 'customer', function ($query) {
+                    return $query->where('tbl_pembeli.user_id', auth()->user()->id);
+                })
                 ->select(
                     'tbl_history_topup.id',
                     'tbl_history_topup.date',
@@ -215,6 +215,9 @@ class TopUpReportController extends Controller
                 ->where('tbl_payment_customer.company_id', $companyId)
                 ->when($startDate, fn($query) => $query->whereDate('tbl_payment_customer.payment_buat', '>=', $startDate))
                 ->when($endDate, fn($query) => $query->whereDate('tbl_payment_customer.payment_buat', '<=', $endDate))
+                ->when(auth()->user() && auth()->user()->role === 'customer', function ($query) {
+                    return $query->where('tbl_pembeli.user_id', auth()->user()->id);
+                })
                 ->select(
                     'tbl_payment_invoice.id',
                     'tbl_payment_customer.payment_buat as date',
@@ -255,10 +258,6 @@ class TopUpReportController extends Controller
             return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
         }
     }
-
-
-
-
 
         public function exportTopupReport(Request $request)
     {
