@@ -131,6 +131,7 @@
                                 <tr>
                                     <th>Kode</th>
                                     {{-- <th>No. Voucher</th> --}}
+                                    <th>Tanggal Buat</th>
                                     <th>Tanggal Payment</th>
                                     <th>Total Harga</th>
                                     <th>Metode Pembayaran</th>
@@ -175,6 +176,11 @@
             columns: [{
                 data: 'kode_pembayaran',
                 name: 'kode_pembayaran'
+            },
+            {
+                data: 'tgl_buat',
+                name: 'tanggal_buat',
+                type: "date"
             },
             {
                 data: 'tanggal_bayar',

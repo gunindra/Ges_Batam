@@ -65,8 +65,8 @@ class PenerimaanKasController extends Controller
             GROUP BY payment_id
         ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
         ->where('tbl_payment_customer.company_id', $companyId)
-        ->whereDate('tbl_payment_customer.payment_date', '>=', $startDate)
-        ->whereDate('tbl_payment_customer.payment_date', '<=', $endDate);
+        ->whereDate('tbl_payment_customer.payment_buat', '>=', $startDate)
+        ->whereDate('tbl_payment_customer.payment_buat', '<=', $endDate);
 
     if ($request->customer) {
         $payment->where('tbl_payment_customer.pembeli_id', '=', $request->customer);
@@ -191,7 +191,7 @@ class PenerimaanKasController extends Controller
                     $startDateCarbon = Carbon::createFromFormat('d M Y', $request->startDate)->startOfDay();
                     $endDateCarbon = Carbon::createFromFormat('d M Y', $request->endDate)->endOfDay();
 
-                    $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+                    $payment->whereBetween('tbl_payment_customer.payment_buat', [$startDateCarbon, $endDateCarbon]);
 
                     $startDate = $startDateCarbon->format('d F Y');
                     $endDate = $endDateCarbon->format('d F Y');
@@ -199,7 +199,7 @@ class PenerimaanKasController extends Controller
                     $startDateCarbon = now()->startOfMonth();
                     $endDateCarbon = now()->endOfMonth();
 
-                    $payment->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+                    $payment->whereBetween('tbl_payment_customer.payment_buat', [$startDateCarbon, $endDateCarbon]);
 
                     $startDate = $startDateCarbon->format('d F Y');
                     $endDate = $endDateCarbon->format('d F Y');
@@ -249,7 +249,7 @@ class PenerimaanKasController extends Controller
                     ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
 
                     // Filter tanggal
-                    ->whereBetween('tbl_payment_customer.payment_date', [$startDateCarbon, $endDateCarbon]);
+                    ->whereBetween('tbl_payment_customer.payment_buat', [$startDateCarbon, $endDateCarbon]);
 
                 // Tambahkan filter jika customer dipilih
                 if ($customer !== '-') {

@@ -88,7 +88,9 @@ class PaymentController extends Controller
                 'a.kode_pembayaran',
                 'd.marking',
                 'a.payment_buat',
+                'a.payment_date',
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
+                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s') as tanggal_payment"),
                 'c.name as payment_method',
                 DB::raw('SUM(f.amount) as total_amount'),
                 'a.discount',
@@ -101,7 +103,9 @@ class PaymentController extends Controller
                 'a.kode_pembayaran',
                 'd.marking',
                 'a.payment_buat',
+                'a.payment_date',
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
+                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s')"),
                 'c.name',
                 'a.discount',
                 'a.createdby',
@@ -354,7 +358,6 @@ class PaymentController extends Controller
         }
 
         DB::beginTransaction();
-
         try {
             Log::info("Memulai ketika ada kondisi poin atau discount dengan jurnal manual");
 
@@ -520,12 +523,13 @@ class PaymentController extends Controller
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
             Log::info("Generated Journal Number", ['noJournal' => $noJournal]);
-
+            dd($tanggalPayment);
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
             $jurnal->payment_id = $payment->id;
             $jurnal->tipe_kode = 'BKM';
-            $jurnal->tanggal = now();
+            $jurnal->tanggal = $formattedDateTime;
+            $jurnal->tanggal_payment = $tanggalPayment;
             $jurnal->no_ref = $invoiceNumbers;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Invoice " . $invoiceNumbers;
@@ -601,7 +605,6 @@ class PaymentController extends Controller
                     'description' => $item['description'],
                     'debit' => $item['debit'],
                     'credit' => $item['credit'],
-                    'memo' => "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat
 
                 ]);
             }
@@ -659,7 +662,6 @@ class PaymentController extends Controller
                         $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                         $jurnal->save();
                         $jurnalItemDebit->save();
-                        $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                         $jurnalItem->save();
 
                         PaymentCustomerItems::create([
@@ -800,7 +802,8 @@ class PaymentController extends Controller
             $jurnal->no_journal = $noJournal;
             $jurnal->payment_id = $payment->id;
             $jurnal->tipe_kode = 'BKM';
-            $jurnal->tanggal = $tanggalPayment;
+            $jurnal->tanggal = $formattedDateTime;
+            $jurnal->tanggal_payment = $tanggalPayment;
             $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
@@ -816,7 +819,6 @@ class PaymentController extends Controller
             $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
-            $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemDebit->save();
 
             Log::info('Jurnal item debit berhasil ditambahkan.');
@@ -827,7 +829,6 @@ class PaymentController extends Controller
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $request->paymentAmount;
-            $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -839,7 +840,6 @@ class PaymentController extends Controller
                 $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
-                $jurnalItemDiscount->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDiscount->save();
                 Log::info('Jurnal item diskon berhasil ditambahkan.');
             }
@@ -881,7 +881,6 @@ class PaymentController extends Controller
                     $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
-                    $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                     $jurnalItem->save();
 
                     PaymentCustomerItems::create([
@@ -903,6 +902,7 @@ class PaymentController extends Controller
             return response()->json(['success' => true, 'message' => 'Payments successfully created and invoices updated']);
         } catch (\Exception $e) {
             DB::rollback();
+            dd($e);
             Log::error('Terjadi kesalahan saat memproses pembayaran', ['error' => $e->getMessage()]);
             throw new \Exception('Terjadi kesalahan saat memproses pembayaran');
         }
@@ -1356,7 +1356,6 @@ class PaymentController extends Controller
             $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
-            $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemDebit->save();
 
             Log::info('Jurnal item debit berhasil ditambahkan.');
@@ -1367,7 +1366,6 @@ class PaymentController extends Controller
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $totalJurnalAmount + ($request->discountPayment ?? 0);
-            $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -1379,7 +1377,6 @@ class PaymentController extends Controller
                 $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
-                $jurnalItemDiscount->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDiscount->save();
                 Log::info('Jurnal item diskon berhasil ditambahkan.');
             }
@@ -1422,7 +1419,6 @@ class PaymentController extends Controller
                     $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
-                    $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                     $jurnalItem->save();
 
                     PaymentCustomerItems::create([

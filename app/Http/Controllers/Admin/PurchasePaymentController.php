@@ -55,7 +55,9 @@ class PurchasePaymentController extends Controller
             'a.id',
             'a.kode_pembayaran',
             'a.payment_date',
+            'a.tanggal_buat',
             DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
+            DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') as tgl_buat"),
             'c.name as payment_method',
             DB::raw("CAST(SUM(d.amount) AS DECIMAL(10,2)) as total_amount") // Perbaikan disini
         ])
@@ -64,7 +66,7 @@ class PurchasePaymentController extends Controller
                 ->orWhereRaw("LOWER(c.name) LIKE ?", ["%$search%"])
                 ->orWhereRaw("DATE_FORMAT(a.payment_date, '%d %M %Y') LIKE ?", ["%$search%"]);
         })
-        ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date', 'c.name')
+        ->groupBy('a.id', 'a.kode_pembayaran', 'a.payment_date','a.tanggal_buat', 'c.name')
         ->havingRaw("CAST(SUM(d.amount) AS CHAR) LIKE ?", ["%$search%"]);
 
 
@@ -241,6 +243,7 @@ class PurchasePaymentController extends Controller
             'invoice' => 'required|array',
             // 'invoice.*' => 'required|string',
             'tanggalPayment' => 'required|date',
+            'tanggalPaymentBuat' => 'required|date',
             'paymentAmount' => 'required|numeric',
             'paymentMethod' => 'required|integer',
             'keteranganPaymentSup' => 'nullable|string',
@@ -253,7 +256,7 @@ class PurchasePaymentController extends Controller
 
 
         DB::beginTransaction();
-
+       
         try {
             $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
 
@@ -263,10 +266,11 @@ class PurchasePaymentController extends Controller
             if (!$vendorAccountId) {
                 throw new \Exception('Akun vendor tidak ditemukan.');
             }
-
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            
+            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
+            $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+            $formattedDateTime = $date->format('Y-m-d H:i:s');
             $codeType = "VP";
-
             $currentYear = date('y');
             $lastPayment = PaymentSup::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
                 ->orderBy('kode_pembayaran', 'desc')
@@ -278,14 +282,15 @@ class PurchasePaymentController extends Controller
 
             $newSequence = $lastSequence ? $lastSequence + 1 : 1;
             $newKodePembayaran = sprintf('%s%s%04d', $codeType, $currentYear, $newSequence);
-
+            
             $payment = new PaymentSup();
             $payment->payment_date = $tanggalPayment;
+            $payment->tanggal_buat = $formattedDateTime;
             $payment->payment_method_id = $request->paymentMethod;
             $payment->kode_pembayaran = $newKodePembayaran;
             $payment->Keterangan = $request->keteranganPaymentSup;
             $payment->company_id = $companyId;
-
+            
             Log::info('Saving PaymentSup data', [
                 'payment_date' => $tanggalPayment,
                 'payment_method_id' => $request->paymentMethod,
@@ -302,7 +307,6 @@ class PurchasePaymentController extends Controller
 
             $totalPayment = $request->paymentAmount;
             $invoiceList = [];
-
             foreach ($request->invoice as $noInvoice) {
                 $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
                 $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
@@ -348,7 +352,8 @@ class PurchasePaymentController extends Controller
                 $jurnal->no_journal = $noJournal;
                 $jurnal->payment_id_sup = $payment->id;
                 $jurnal->tipe_kode = 'BKK';
-                $jurnal->tanggal = $tanggalPayment;
+                $jurnal->tanggal = $formattedDateTime;
+                $jurnal->tanggal_payment = $tanggalPayment;
                 $jurnal->no_ref = $noRef;
                 $jurnal->status = 'Approve';
                 $jurnal->description = "Jurnal untuk Invoice {$noRef}";
@@ -368,7 +373,6 @@ class PurchasePaymentController extends Controller
                 $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
                 $jurnalItemDebit->debit = $totalJurnalAmount;
                 $jurnalItemDebit->credit = 0;
-                $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDebit->save();
 
                 $jurnalItemCredit = new JurnalItem();
@@ -377,7 +381,6 @@ class PurchasePaymentController extends Controller
                 $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
                 $jurnalItemCredit->debit = 0;
                 $jurnalItemCredit->credit = $totalJurnalAmount;
-                $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemCredit->save();
 
                 if ($request->has('items') && is_array($request->items)) {
@@ -418,7 +421,6 @@ class PurchasePaymentController extends Controller
                         $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                         $jurnal->save();
                         $jurnalItemDebit->save();
-                        $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                         $jurnalItem->save();
 
                         DB::table('tbl_payment_sup_items')->insert([
@@ -435,7 +437,7 @@ class PurchasePaymentController extends Controller
             return response()->json(['success' => true, 'message' => 'Payment successfully created and invoice updated']);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Terjadi Kesalahan', 'error' => $e->getMessage()]);
         }
     }
 
@@ -551,7 +553,7 @@ class PurchasePaymentController extends Controller
             DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->delete();
 
             // Perbarui data pembayaran
-            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment)->format('Y-m-d');
+            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             $payment->payment_date = $tanggalPayment;
             $payment->payment_method_id = $request->paymentMethod;
             $payment->Keterangan = $request->keteranganPaymentSup;
@@ -613,7 +615,6 @@ class PurchasePaymentController extends Controller
                 $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
                 $jurnalItemDebit->debit = $totalJurnalAmount;
                 $jurnalItemDebit->credit = 0;
-                $jurnalItemDebit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemDebit->save();
 
                 $jurnalItemCredit = new JurnalItem();
@@ -622,7 +623,6 @@ class PurchasePaymentController extends Controller
                 $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
                 $jurnalItemCredit->debit = 0;
                 $jurnalItemCredit->credit = $totalJurnalAmount;
-                $jurnalItemCredit->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                 $jurnalItemCredit->save();
 
             if ($request->has('items') && is_array($request->items)) {
@@ -665,7 +665,6 @@ class PurchasePaymentController extends Controller
                     $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
-                    $jurnalItem->memo = "Jurnal payment dibuat pada " . $request->tanggalPaymentBuat;
                     $jurnalItem->save();
 
                     DB::table('tbl_payment_sup_items')->insert([
@@ -685,7 +684,7 @@ class PurchasePaymentController extends Controller
             return response()->json(['success' => true, 'message' => 'Payment successfully updated']);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'Error during the transaction', 'error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Terjadi Kesalahan', 'error' => $e->getMessage()]);
         }
     }
 

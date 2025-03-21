@@ -130,7 +130,8 @@
                                     <tr>
                                         <th>Kode</th>
                                         <th>Marking</th>
-                                        <th>Tanggal</th>
+                                        <th>Tanggal Buat</th>
+                                        <th>Tanggal Payment</th>
                                         <th>Metode Pembayaran</th>
                                         <th>Nominal</th>
                                         <th>Diskon</th>
@@ -188,6 +189,11 @@
                 {
                     data: 'tanggal_buat',
                     name: 'tanggal_buat',
+                    searchable: false
+                },
+                {
+                    data: 'tanggal_payment',
+                    name: 'tanggal_payment',
                     searchable: false
                 },
                 {

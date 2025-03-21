@@ -50,6 +50,7 @@ class LedgerController extends Controller
                                             ji.description AS items_description,
                                             ji.memo AS memo,
                                             ju.tanggal AS tanggal,
+                                            ju.tanggal_payment AS tanggal_payment,
                                             ju.no_journal AS no_journal,
                                             pem_inv.marking AS pembeli_invoice,
                                             pem_pay.marking AS pembeli_payment
@@ -105,10 +106,11 @@ class LedgerController extends Controller
         $output = '<table width="100%" class="table table-vcenter card-table">
             <thead>
                 <th width="15%" style="text-indent: 50px;">Date</th>
-                <th width="15%" style="text-indent: 50px;">Memo</th>
-                <th width="30%">Description</th>
-                <th width="20%" class="text-right">Total Debit</th>
-                <th width="20%" class="text-right">Total Credit</th>
+                <th width="15%"">Payment Date</th>
+                <th width="20%">No Voucher</th>
+                <th width="20%">Description</th>
+                <th width="15%" class="text-right">Total Debit</th>
+                <th width="15%" class="text-right">Total Credit</th>
             </thead>
             <tbody>';
         foreach ($ledgerAccounts as $data) {
@@ -116,18 +118,20 @@ class LedgerController extends Controller
                 $output .= '<tr>
                                 <td colspan="2"><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
                                 <td><b>BEGINING BALANCE</b></td>
+                                <td class="text-right"><b>  </b></td>
                                 <td class="text-right"><b>  </b></td>';
                 $output .= '<td class="text-right"><b>' . number_format($data['beginning_balance'], 2) . '</b> </td> </tr>';
 
                 foreach ($data['journal_entries'] as $entry) {
                     $output .= '<tr>
                                     <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
-                                    <td>' . ($entry->memo ?? '-') . ' </td>
+                                    <td>' . ($entry->tanggal_payment ?? '-') . ' </td>
                                     <td>' . ($entry->no_journal ?? '-') . 
                                         (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
                                             ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
                                             : '') . ' 
                                     </td>
+                                    <td class="text-left">' . ($entry->items_description ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->debit ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->credit ?? '-') . '</td>
                                 </tr>';
@@ -137,6 +141,7 @@ class LedgerController extends Controller
                                 <td> </td>
                                 <td> </td>
                                 <td><b>ENDING BALANCE</b></td>
+                                <td class="text-right"><b>  </b></td>
                                 <td class="text-right"> <b>  </b> </td>
                                 <td class="text-right"><b>' . number_format($data['ending_balance'], 2) . '</b> </td> </tr>';
             }
@@ -187,6 +192,7 @@ class LedgerController extends Controller
                                                 ji.description AS items_description,
                                                 ji.memo AS memo,
                                                 ju.tanggal AS tanggal,
+                                                ju.tanggal_payment AS tanggal_payment,
                                                 ju.no_journal AS no_journal
                                             FROM tbl_jurnal_items ji
                                             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id

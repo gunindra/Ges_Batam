@@ -52,7 +52,7 @@ class KasReportExport implements FromView, WithEvents
                 SELECT payment_id, SUM(CASE WHEN tipe = 'debit' THEN -nominal ELSE nominal END) AS total_nominal
                 FROM tbl_payment_items GROUP BY payment_id
             ) AS payment_items"), 'tbl_payment_customer.id', '=', 'payment_items.payment_id')
-            ->whereBetween(DB::raw('DATE(tbl_payment_customer.payment_date)'), [$this->startDate, $this->endDate]);
+            ->whereBetween(DB::raw('DATE(created_date)'), [$this->startDate, $this->endDate]);
 
         if ($this->customer !== '-') {
             $query->where('tbl_pembeli.id', $this->customer);
