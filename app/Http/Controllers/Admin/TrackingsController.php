@@ -54,7 +54,6 @@ class TrackingsController extends Controller
                 'tbl_resi.panjang',
                 'tbl_resi.lebar',
                 'tbl_resi.tinggi',
-                'tbl_pengantaran_detail.tanggal_penerimaan'
             ])
             ->orderBy('tbl_tracking.id', 'desc');
 
@@ -68,7 +67,8 @@ class TrackingsController extends Controller
                 ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
                 ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
                 ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
-                ->where('tbl_pembeli.user_id', $user->id);
+                ->where('tbl_pembeli.user_id', $user->id)
+                ->groupBy('tbl_pengantaran_detail.tanggal_penerimaan');
             }
 
         if ($request->status) {
