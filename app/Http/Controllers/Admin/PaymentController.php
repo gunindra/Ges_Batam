@@ -1115,6 +1115,7 @@ class PaymentController extends Controller
             $tanggalPaymentBuat = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
 
             $payment->update([
+                'kode_pembayaran' => $request->kode,
                 'payment_date' => $tanggalPayment,
                 'payment_buat' => $tanggalPaymentBuat,
                 'payment_method_id' => $request->paymentMethod,
