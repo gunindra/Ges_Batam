@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use App\Exports\TrackingExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\AddTrackingJob;
 use DB;
@@ -11,6 +12,7 @@ use Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tracking;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TrackingsController extends Controller
 {
@@ -47,30 +49,31 @@ class TrackingsController extends Controller
                 'tbl_tracking.no_resi',
                 'tbl_tracking.no_do',
                 'tbl_tracking.status',
-                'tbl_tracking.keterangan'
+                'tbl_tracking.keterangan',
+                'tbl_resi.berat',
+                'tbl_resi.panjang',
+                'tbl_resi.lebar',
+                'tbl_resi.tinggi',
             ])
             ->orderBy('tbl_tracking.id', 'desc');
 
+            if ($user->role === 'customer') {
+                $query->addSelect([
+                    DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
+                    DB::raw("IFNULL(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), '-') AS volume"),
+                    DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas"),
+                    DB::raw("IFNULL(DATE_FORMAT(tbl_pengantaran_detail.tanggal_penerimaan, '%d %M %Y %H:%i:%s'), '-') AS tanggal_penerimaan")
+                ])
+                ->leftJoin('tbl_invoice', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
+                ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
+                ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
+                ->where('tbl_pembeli.user_id', $user->id)
+                ->groupBy('tbl_pengantaran_detail.tanggal_penerimaan');
+            }
 
-        // 🔹 Jika User adalah Customer
-        if ($user->role === 'customer') {
-            $query->addSelect([
-                DB::raw("IFNULL(tbl_resi.berat, ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2)) AS berat"),
-                DB::raw("IFNULL(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), '-') AS volume"),
-                DB::raw("IF(tbl_resi.berat IS NOT NULL, CONCAT(tbl_resi.berat, ' Kg'), CONCAT(ROUND((tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi) / 1000000, 2), ' m³')) AS quantitas"),
-                DB::raw("IFNULL(DATE_FORMAT(tbl_pengantaran_detail.tanggal_penerimaan, '%d %M %Y %H:%i:%s'), '-') AS tanggal_penerimaan")
-            ])
-            ->leftJoin('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-            ->leftJoin('tbl_pengantaran_detail', 'tbl_invoice.id', '=', 'tbl_pengantaran_detail.invoice_id')
-            ->where('tbl_pembeli.user_id', $user->id);
-        }
-
-        // 🔹 Filter berdasarkan status jika ada
         if ($request->status) {
             $query->where('tbl_tracking.status', $request->status);
         }
-
-        // 🔹 Filter berdasarkan pencarian dari txSearch
         if ($request->search) {
             $searchValue = $request->search;
             $query->where(function ($q) use ($searchValue) {
@@ -80,13 +83,9 @@ class TrackingsController extends Controller
             });
         }
 
-        // $query->orderBy('tbl_tracking.id', 'desc');
-
         if (!$request->has('order')) {
-            // Jika tidak ada sorting dari DataTables, gunakan default sorting ID DESC
             $query->orderBy('tbl_tracking.id', 'desc');
         } else {
-            // Jika ada sorting dari DataTables, gunakan sorting yang diberikan
             $order = $request->order[0] ?? null;
 
             if ($order) {
@@ -101,19 +100,16 @@ class TrackingsController extends Controller
                 $columnIndex = $order['column'];
                 $columnName = $request->columns[$columnIndex]['data'] ?? null;
                 $direction = $order['dir'] ?? 'asc';
-
-                // Pastikan hanya kolom yang valid yang bisa digunakan untuk sorting
                 if ($columnName && isset($columns[$columnName])) {
                     $query->orderBy($columns[$columnName], $direction);
                 }
             }
         }
 
-        // 🔹 Ambil hanya ID yang sudah difilter
         $filteredIds = $query->pluck('tbl_tracking.id')->toArray();
 
         return DataTables::of($query)
-            ->with(['filteredIds' => $filteredIds]) // Kirim hanya ID yang difilter
+            ->with(['filteredIds' => $filteredIds])
             ->addColumn('select', function ($row) {
                 return $row->status === "Dalam Perjalanan"
                     ? '<input type="checkbox" class="select-row" data-id="' . $row->id . '">'
@@ -276,6 +272,19 @@ class TrackingsController extends Controller
             'success' => true,
             'message' => "$deletedCount record(s) deleted successfully."
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $user = auth()->user();
+        $status = $request->input('status');
+        $userid = $user->id;
+
+        return Excel::download(new TrackingExport($status, $userid), 'Tracking.xlsx');
     }
 
 }

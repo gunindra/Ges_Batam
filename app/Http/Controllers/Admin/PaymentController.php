@@ -438,6 +438,7 @@ class PaymentController extends Controller
                         'history_topup_id' => $topup->id,
                         'used_points' => $remainingPoin,
                         'price_per_kg' => $topup->price_per_kg,
+                        'payment_id'=> $payment->id,
                         'usage_date' => now(),
                     ]);
 
@@ -454,6 +455,7 @@ class PaymentController extends Controller
                         'history_topup_id' => $topup->id,
                         'used_points' => $topup->balance,
                         'price_per_kg' => $topup->price_per_kg,
+                        'payment_id'=> $payment->id,
                         'usage_date' => now(),
                     ]);
 
@@ -965,7 +967,14 @@ class PaymentController extends Controller
     public function editpayment($id)
     {
         // Load payment data with related invoices and customer items
-        $payment = Payment::with(['paymentInvoices', 'paymentCustomerItems', 'paymentMethod'])->findOrFail($id);
+        $payment = Payment::with([
+            'paymentInvoices',
+            'paymentCustomerItems',
+            'paymentMethod',
+            'pembeli' => function ($query) {
+                $query->withTrashed();
+            }
+        ])->findOrFail($id);
 
         // Fetch saved payment accounts with related COA information
         $savedPaymentAccounts = DB::table('tbl_payment_account')
@@ -1106,6 +1115,7 @@ class PaymentController extends Controller
             $tanggalPaymentBuat = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
 
             $payment->update([
+                'kode_pembayaran' => $request->kode,
                 'payment_date' => $tanggalPayment,
                 'payment_buat' => $tanggalPaymentBuat,
                 'payment_method_id' => $request->paymentMethod,
@@ -1441,9 +1451,8 @@ class PaymentController extends Controller
 
     public function deletePayment($id)
     {
+        $payment = Payment::find($id);
         $paymentId = $id;
-
-        $payment = Payment::find($paymentId);
 
         if (!$payment) {
             return response()->json([
@@ -1455,7 +1464,7 @@ class PaymentController extends Controller
         DB::beginTransaction();
 
         try {
-            $paymentInvoices = PaymentInvoice::where('payment_id', $paymentId)->get();
+            $paymentInvoices = PaymentInvoice::where('payment_id', $id)->get();
 
             foreach ($paymentInvoices as $paymentInvoice) {
                 $invoice = Invoice::find($paymentInvoice->invoice_id);
@@ -1466,19 +1475,42 @@ class PaymentController extends Controller
                         $invoice->total_bayar = 0;
                     }
                     $invoice->status_bayar = ($invoice->total_bayar >= $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
-
                     $invoice->save();
+
+                    $customerId = $invoice->pembeli_id;
+                }
+
+                if ($paymentInvoice->kuota > 0) {
+                    if (isset($customerId)) {
+                        $usagePoints = UsagePoints::where('payment_id', $paymentId)->get();
+
+                        foreach ($usagePoints as $usagePoint) {
+                            // Kembalikan balance di tbl_history_topup berdasarkan usagePoint yang digunakan
+                            DB::table('tbl_history_topup')
+                                ->where('id', $usagePoint->history_topup_id)
+                                ->increment('balance', $usagePoint->used_points);
+
+                            Log::info("Balance dikembalikan: " . $usagePoint->used_points . " untuk history_topup_id: " . $usagePoint->history_topup_id);
+                        }
+
+                        UsagePoints::where('payment_id', $paymentId)->delete();
+                    }
+
+                    DB::table('tbl_pembeli')
+                        ->where('id', $customerId)
+                        ->increment('sisa_poin', $paymentInvoice->kuota);
                 }
             }
 
-            PaymentInvoice::where('payment_id', $paymentId)->delete();
+            PaymentInvoice::where('payment_id', $id)->delete();
 
-            $jurnalIds = Jurnal::where('payment_id', $paymentId)->pluck('id');
+            $jurnalIds = Jurnal::where('payment_id', $id)->pluck('id');
             JurnalItem::whereIn('jurnal_id', $jurnalIds)->delete();
-            Jurnal::where('payment_id', $paymentId)->delete();
+            Jurnal::where('payment_id', $id)->delete();
 
-            PaymentCustomerItems::where('payment_id', $paymentId)->delete();
+            PaymentCustomerItems::where('payment_id', $id)->delete();
             $payment->delete();
+
             DB::commit();
             return response()->json([
                 'status' => 'success',
@@ -1492,6 +1524,8 @@ class PaymentController extends Controller
             ], 500);
         }
     }
+
+
 
 
 

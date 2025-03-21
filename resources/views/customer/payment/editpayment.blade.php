@@ -618,7 +618,7 @@
 
                             const data = {
                                 paymentId: paymentId,
-                                // kode: $('#KodePayment').val(),
+                                kode: $('#KodePayment').val(),
                                 invoice: $('#selectInvoice').val(),
                                 marking: $('#selectMarking').val(),
                                 tanggalPayment: $('#tanggalPayment').val(),

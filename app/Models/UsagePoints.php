@@ -17,6 +17,7 @@ class UsagePoints extends Model
         'used_points',
         'price_per_kg',
         'usage_date',
+        'payment_id',
     ];
 
     // Relationship to the customer (if needed)
