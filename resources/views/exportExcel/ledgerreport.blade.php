@@ -24,6 +24,8 @@
         <tr></tr>
         <tr>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Date</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Payment Date</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">No Voucher</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Description</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Total Debit</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: nowrap; background-color: #b9bab8;">Total Credit</th>
@@ -32,7 +34,7 @@
     <tbody>
         @foreach($ledgerAccounts as $ledger)
             <tr>
-                <td colspan="4" style="font-weight: bold; text-align: left; padding: 10px; border:1px solid black;">
+                <td colspan="6" style="font-weight: bold; text-align: left; padding: 10px; border:1px solid black;">
                     {{ $ledger['account_name'] }} ({{ $ledger['code'] }})
                 </td>
             </tr>
@@ -40,12 +42,22 @@
                 <td style="border:1px solid black; padding: 8px; text-align: center;">Beginning Balance</td>
                 <td style="border:1px solid black; padding: 8px;"></td>
                 <td style="border:1px solid black; padding: 8px; "></td>
-                <td style="border:1px solid black; padding: 8px; text-align: right;">{{ $ledger['beginning_balance'] }}</td>
+                <td style="border:1px solid black; padding: 8px;"></td>
+                <td colspan="2" style="border:1px solid black; padding: 8px; text-align: right;">{{ $ledger['beginning_balance'] }}</td>
             </tr>
             @foreach($ledger['journal_entries'] as $entry)
                 <tr>
-                    <td style="border:1px solid black; padding: 8px; text-align: center; white-space: nowrap;">
+                    <td style="border:1px solid black; padding: 8px;">
                         {{ date('d/m/Y', strtotime($entry->tanggal)) }}
+                    </td>
+                    <td style="border:1px solid black; padding: 8px;">
+                        {{ $entry->tanggal_payment ? date('d/m/Y', strtotime($entry->tanggal_payment)) : '-' }}
+                    </td>
+                    <td style="border:1px solid black; padding: 8px;">
+                        {{ $entry->no_journal }} 
+                        {!! (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
+                        ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
+                        : '') !!}   
                     </td>
                     <td style="border:1px solid black; padding: 8px;">
                         {{ $entry->items_description }}
@@ -62,7 +74,8 @@
                 <td style="border:1px solid black; padding: 8px; font-weight: bold;">Ending Balance</td>
                 <td style="border:1px solid black; padding: 8px;"></td>
                 <td style="border:1px solid black; padding: 8px;"></td>
-                <td style="border:1px solid black; padding: 8px; text-align: right; font-weight: bold;">
+                <td style="border:1px solid black; padding: 8px;"></td>
+                <td colspan="2" style="border:1px solid black; padding: 8px; text-align: right; font-weight: bold;">
                     {{ $ledger['ending_balance'] }}
                 </td>
             </tr>

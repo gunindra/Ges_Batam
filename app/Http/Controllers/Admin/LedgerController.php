@@ -106,7 +106,7 @@ class LedgerController extends Controller
         $output = '<table width="100%" class="table table-vcenter card-table">
             <thead>
                 <th width="15%" style="text-indent: 50px;">Date</th>
-                <th width="15%"">Payment Date</th>
+                <th width="15%">Payment Date</th>
                 <th width="20%">No Voucher</th>
                 <th width="20%">Description</th>
                 <th width="15%" class="text-right">Total Debit</th>
