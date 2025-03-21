@@ -8,6 +8,31 @@
         .dataTables_filter {
             display: none;
         }
+
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.25rem;
+            padding: 6px 12px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 27px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .select2-container {
+            margin-right: 10px;
+            /* Memberikan jarak antar elemen select */
+        }
     </style>
 
 
@@ -63,7 +88,7 @@
                         </div>
                         <div class="float-left d-flex">
                             <input id="txSearch" type="text" style="width: 250px; min-width: 250px;"
-                                class="form-control rounded-3" placeholder="Search">
+                                class="form-control rounded-3 mr-2" placeholder="Search">
                             <select class="form-control ml-2 select2" id="filterNoDO" style="width: 200px;">
                                 <option value="" selected disabled>Pilih No Do</option>
                                 @foreach ($listDo as $NoDo)
@@ -119,6 +144,8 @@
 @section('script')
     <script>
         $(document).ready(function() {
+
+            $('.select2').select2();
 
             let table = $('#tableSales').DataTable({
                 processing: true,
