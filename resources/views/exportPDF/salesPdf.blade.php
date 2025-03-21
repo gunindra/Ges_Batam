@@ -233,44 +233,36 @@
             <tbody>
                 @php
                     $no = 1;
-                    $grandTotal = 0;
+                    $grandTotal = 0; // Inisialisasi grand total
                 @endphp
                 @foreach ($salesdata as $sales)
                     @php
-                        $no_resi_list = explode('; ', $sales->no_resi);
-                        $berat_volume_list = explode('; ', $sales->berat_volume);
-                        $harga_resi_list = explode('; ', $sales->harga_resi);
-
-                        $max_rows = max(count($no_resi_list), count($berat_volume_list), count($harga_resi_list));
+                        // Hitung grand total
+                        $grandTotal += $sales->total_harga;
                     @endphp
-
-                    @for ($i = 0; $i < $max_rows; $i++)
-                        @php
-                            $harga_resi = (int) ($harga_resi_list[$i] ?? 0);
-                            $grandTotal += $harga_resi;
-                        @endphp
-                        <tr>
-                            <td>{{ $no++ }}</td>
-                            <td>{{ $sales->no_invoice }}</td>
-                            <td>{{ $sales->marking }}</td>
-                            <td>{{ $sales->tanggal_buat }}</td>
-                            <td>{{ $no_resi_list[$i] ?? '' }}</td>
-                            <td>{{ $berat_volume_list[$i] ?? '' }}</td>
-                            <td>{{ $sales->no_do }}</td>
-                            <td>{{ $sales->customer }}</td>
-                            <td>{{ $sales->metode_pengiriman }}</td>
-                            <td>{{ $sales->status_transaksi }}</td>
-                            <td class="text-right">
-                                Rp {{ number_format($harga_resi, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    @endfor
+                    <tr>
+                        <td>{{ $no++ }}</td>
+                        <td>{{ $sales->no_invoice }}</td>
+                        <td>{{ $sales->marking }}</td>
+                        <td>{{ $sales->tanggal_buat }}</td>
+                        <td>{{ $sales->no_resi }}</td>
+                        <td>{{ $sales->berat_volume }}</td>
+                        <td>{{ $sales->no_do }}</td>
+                        <td>{{ $sales->customer }}</td>
+                        <td>{{ $sales->metode_pengiriman }}</td>
+                        <td>{{ $sales->status_transaksi }}</td>
+                        <td class="text-right">
+                            Rp {{ number_format($sales->total_harga, 0, ',', '.') }}
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="10" class="text-right grand-total">Grand Total</td>
-                    <td class="text-right grand-total">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td>
+                    <td class="text-right grand-total">
+                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                    </td>
                 </tr>
             </tfoot>
         </table>

@@ -161,7 +161,6 @@
                         d.nama_pembeli = $('#filterCustomer').val();
                     },
                     dataSrc: function(json) {
-                        // Masukkan total harga keseluruhan ke footer tabel
                         $('#grandTotal').html(
                             `<strong>${parseFloat(json.total_sum).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</strong>`
                         );

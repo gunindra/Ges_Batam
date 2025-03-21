@@ -37,18 +37,17 @@ class SalesExport implements FromView, WithEvents
             ->select(
                 'tbl_invoice.no_invoice',
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
-                DB::raw("MIN(tbl_resi.no_do) AS no_do"),
+                'tbl_resi.no_do',
                 'tbl_resi.no_resi',
                 'tbl_pembeli.nama_pembeli AS customer',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name AS status_transaksi',
-                'tbl_invoice.total_harga',
+                DB::raw("CEIL(tbl_resi.harga / 1000) * 1000 AS total_harga"),
                 'tbl_pembeli.marking',
-                DB::raw("GROUP_CONCAT(tbl_resi.harga SEPARATOR '; ') AS harga_resi"),
                 DB::raw("IFNULL(
-                    IF(MIN(tbl_resi.berat) IS NOT NULL,
-                        CONCAT(MIN(tbl_resi.berat)),
-                        CONCAT(MIN(tbl_resi.panjang) * MIN(tbl_resi.lebar) * MIN(tbl_resi.tinggi) / 1000000)
+                    IF(tbl_resi.berat IS NOT NULL,
+                        CONCAT(tbl_resi.berat),
+                        CONCAT(tbl_resi.panjang * tbl_resi.lebar * tbl_resi.tinggi / 1000000)
                     ), '') AS berat_volume")
             )
             ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
@@ -56,26 +55,23 @@ class SalesExport implements FromView, WithEvents
             ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->where('tbl_invoice.company_id', $companyId)
             ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
+            ->when($Customer, fn($q) => $q->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $Customer . '%'))
+            ->when($NoDo, fn($q) => $q->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%'))
             ->groupBy(
-                'tbl_invoice.id',
                 'tbl_invoice.no_invoice',
                 'tbl_invoice.tanggal_buat',
+                'tbl_resi.no_do',
+                'tbl_resi.no_resi',
                 'tbl_pembeli.nama_pembeli',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name',
-                'tbl_invoice.total_harga',
                 'tbl_pembeli.marking',
-                'tbl_resi.no_resi'
+                'tbl_resi.harga',
+                'tbl_resi.berat',
+                'tbl_resi.panjang',
+                'tbl_resi.lebar',
+                'tbl_resi.tinggi'
             );
-
-
-        if ($this->NoDo) {
-            $query->where('tbl_resi.no_do', 'LIKE', '%' . $this->NoDo . '%');
-        }
-
-        if ($this->customer) {
-            $query->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $this->customer . '%');
-        }
 
         if ($this->startDate && $this->endDate) {
             $startDate = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
