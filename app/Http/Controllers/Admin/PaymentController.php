@@ -901,7 +901,6 @@ class PaymentController extends Controller
             return response()->json(['success' => true, 'message' => 'Payments successfully created and invoices updated']);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
             Log::error('Terjadi kesalahan saat memproses pembayaran', ['error' => $e->getMessage()]);
             throw new \Exception('Terjadi kesalahan saat memproses pembayaran');
         }
