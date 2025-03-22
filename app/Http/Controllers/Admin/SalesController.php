@@ -17,20 +17,17 @@ class SalesController extends Controller
     public function index()
     {
 
-        $listDo = DB::table('tbl_pengantaran')
-            ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
-            ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
+        $companyId = session('active_company_id');
+
+        $listDo = DB::table('tbl_invoice')
             ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
-            ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+            ->where('tbl_invoice.company_id', $companyId)
             ->select('tbl_resi.no_do')
             ->distinct()
             ->get();
 
-        $listCustomer = DB::table('tbl_pengantaran')
-            ->join('tbl_pengantaran_detail', 'tbl_pengantaran.id', '=', 'tbl_pengantaran_detail.pengantaran_id')
-            ->join('tbl_invoice', 'tbl_pengantaran_detail.invoice_id', '=', 'tbl_invoice.id')
-            ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
-            ->join('tbl_status', 'tbl_invoice.status_id', '=', 'tbl_status.id')
+        $listCustomer = DB::table('tbl_pembeli')
+            ->where('tbl_pembeli.company_id', $companyId)
             ->select('tbl_pembeli.nama_pembeli')
             ->distinct()
             ->get();
