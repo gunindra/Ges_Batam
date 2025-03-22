@@ -523,7 +523,6 @@ class PaymentController extends Controller
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
             Log::info("Generated Journal Number", ['noJournal' => $noJournal]);
-            dd($tanggalPayment);
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
             $jurnal->payment_id = $payment->id;
