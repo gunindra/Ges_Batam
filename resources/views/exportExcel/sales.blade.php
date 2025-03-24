@@ -87,6 +87,14 @@
         @endforeach
     </tbody>
     <tfoot>
+        <tr>
+            <td colspan="9" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
+                Grand Total
+            </td>
+            <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
+                {{ $grandTotal }}
+            </td>
+        </tr>
         @php
             $selisih = $journalTotal - $grandTotal;
         @endphp
@@ -99,14 +107,14 @@
                     {{ $selisih }}
                 </td>
             </tr>
+            <tr>
+                <td colspan="9" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                    Total Setelah Selisih
+                </td>
+                <td class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                    {{ $journalTotal }}
+                </td>
+            </tr>
         @endif
-        <tr>
-            <td colspan="9" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
-                Grand Total
-            </td>
-            <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
-                {{ $grandTotal }}
-            </td>
-        </tr>
     </tfoot>
 </table>

@@ -258,6 +258,12 @@
                 @endforeach
             </tbody>
             <tfoot>
+                <tr>
+                    <td colspan="10" class="text-right grand-total">Grand Total</td>
+                    <td class="text-right grand-total">
+                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                    </td>
+                </tr>
                 @php
                     $selisih = $journalTotal - $grandTotal;
                 @endphp
@@ -268,13 +274,13 @@
                             Rp {{ number_format($selisih, 0, ',', '.') }}
                         </td>
                     </tr>
+                    <tr>
+                        <td colspan="10" class="text-right grand-total">Total Setelah Selisih</td>
+                        <td class="text-right grand-total">
+                            Rp {{ number_format($journalTotal, 0, ',', '.') }}
+                        </td>
+                    </tr>
                 @endif
-                <tr>
-                    <td colspan="10" class="text-right grand-total">Grand Total</td>
-                    <td class="text-right grand-total">
-                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
-                    </td>
-                </tr>
             </tfoot>
         </table>
     </div>
