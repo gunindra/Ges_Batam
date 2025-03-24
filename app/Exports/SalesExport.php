@@ -81,12 +81,53 @@ class SalesExport implements FromView, WithEvents
 
         $Sales = $query->get();
 
+        $journalQuery = DB::table('tbl_jurnal_items AS ji')
+                            ->select(
+                                'ji.id AS items_id',
+                                'ji.jurnal_id AS jurnal_id',
+                                'ji.code_account AS account_id',
+                                'ji.debit AS debit',
+                                'ji.credit AS credit',
+                                'ji.description AS items_description',
+                                'ji.memo AS memo',
+                                'ju.tanggal AS tanggal',
+                                'ju.tanggal_payment AS tanggal_payment',
+                                'ju.no_journal AS no_journal',
+                                'pem_inv.marking AS pembeli_invoice',
+                                'pem_pay.marking AS pembeli_payment'
+                            )
+                            ->leftJoin('tbl_jurnal AS ju', 'ju.id', '=', 'ji.jurnal_id')
+                            ->leftJoin('tbl_invoice AS inv', 'ju.invoice_id', '=', 'inv.id')
+                            ->leftJoin('tbl_payment_customer AS pc', 'ju.payment_id', '=', 'pc.id')
+                            ->leftJoin('tbl_pembeli AS pem_inv', 'inv.pembeli_id', '=', 'pem_inv.id')
+                            ->leftJoin('tbl_pembeli AS pem_pay', 'pc.pembeli_id', '=', 'pem_pay.id')
+                            ->where('ji.code_account', 84)
+                            ->orderBy('ju.tanggal', 'ASC');
+
+        if ($this->startDate && $this->endDate) {
+            $startDateCarbon = Carbon::createFromFormat('d M Y', $this->startDate)->startOfDay();
+            $endDateCarbon = Carbon::createFromFormat('d M Y', $this->endDate)->endOfDay();
+
+            $journalQuery->whereBetween('ju.tanggal', [$startDateCarbon, $endDateCarbon]);
+
+            $startDate = $startDateCarbon->format('d F Y');
+            $endDate = $endDateCarbon->format('d F Y');
+        } else {
+            $startDate = '-';
+            $endDate = '-';
+        }
+
+        $journalResults = $journalQuery->get();
+
+        $journalTotal = $journalResults->sum('credit') - $journalResults->sum('debit');
+
         return view('exportExcel.sales', [
             'Sales' => $Sales,
             'NoDo' => $this->NoDo,
             'customer' => $this->customer,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
+            'journalTotal' => $journalTotal
         ]);
     }
 

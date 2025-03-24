@@ -87,6 +87,19 @@
         @endforeach
     </tbody>
     <tfoot>
+        @php
+            $selisih = $journalTotal - $grandTotal;
+        @endphp
+        @if($selisih != 0)
+            <tr>
+                <td colspan="9" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                    Selisih Terhadap Ledger
+                </td>
+                <td class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                    {{ $selisih }}
+                </td>
+            </tr>
+        @endif
         <tr>
             <td colspan="9" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
                 Grand Total
