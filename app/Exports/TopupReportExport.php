@@ -2,13 +2,11 @@
 
 namespace App\Exports;
 
-use App\Models\PaymentInvoice;
 use DB;
+use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Illuminate\Contracts\View\View;
-use App\Models\HistoryTopup;
 
 class TopupReportExport implements FromView, WithEvents
 {
@@ -29,53 +27,108 @@ class TopupReportExport implements FromView, WithEvents
     public function view(): View
     {
         $companyId = session('active_company_id');
-        $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
-        $userId = $isCustomerRole ? auth()->user()->id : null;
+        $isCustomerRole = auth()->user()->role === 'customer';
+        $userId = auth()->user()->id;
 
-        // Ambil data Topup dengan filter tanggal & user langsung pada query
-        $topup = HistoryTopup::leftJoin('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
-        ->where('tbl_history_topup.status', '!=', 'canceled')
-        ->where('tbl_history_topup.company_id', $companyId)
-        ->whereDate('date', '>=', $this->startDate)
-        ->whereDate('date', '<=', $this->endDate)
-        ->select('tbl_history_topup.*', 'tbl_pembeli.marking', 'tbl_pembeli.nama_pembeli as customer_name', 'tbl_history_topup.price_per_kg');
+        $query = "
+        WITH combined_data AS (
+            SELECT
+                date,
+                marking,
+                CASE WHEN type = 'IN' THEN points ELSE 0 END AS in_points,
+                CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
+                points * price_per_kg AS value,
+                type AS status
+            FROM (
+                -- Data OUT (penggunaan poin)
+                SELECT
+                    tup.usage_date AS date,
+                    tp.marking,
+                    tup.used_points AS points,
+                    tup.price_per_kg,
+                    'OUT' AS type
+                FROM tbl_usage_points tup
+                JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                WHERE tup.usage_date BETWEEN ? AND ?
+                AND tp.company_id = ?
+                " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
+                " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
 
-        $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-            ->leftJoin('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-            ->where('tbl_payment_invoice.kuota', '!=', 0)
-            ->where('tbl_payment_customer.company_id', $companyId)
-            ->whereDate('payment_buat', '>=', $this->startDate)
-            ->whereDate('payment_buat', '<=', $this->endDate)
-            ->select('tbl_payment_invoice.*', 'tbl_pembeli.marking', 'tbl_pembeli.nama_pembeli as customer_name');
+                UNION ALL
 
+                -- Data IN (topup poin)
+                SELECT
+                    tht.date,
+                    tp.marking,
+                    tht.remaining_points AS points,
+                    tht.price_per_kg,
+                    'IN' AS type
+                FROM tbl_history_topup tht
+                JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                WHERE tht.status != 'canceled'
+                AND tht.date BETWEEN ? AND ?
+                AND tp.company_id = ?
+                " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
+                " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+            ) AS raw_data
+        ),
+        calculated_data AS (
+            SELECT
+                date,
+                marking,
+                in_points,
+                out_points,
+                value,
+                status,
+                SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, in_points DESC) AS saldo
+            FROM combined_data
+        )
+        SELECT
+            date,
+            marking,
+            in_points,
+            out_points,
+            saldo,
+            value,
+            status
+        FROM calculated_data
+        ORDER BY marking, date;
+        ";
+
+        // Menyiapkan parameter query
+        $params = [$this->startDate, $this->endDate, $companyId];
+
+        // Untuk bagian OUT
+        if ($this->customer && $this->customer !== '-') {
+            $params[] = $this->customer;
+        }
         if ($isCustomerRole) {
-            $topup->where('tbl_pembeli.user_id', $userId);
-            $payment->where('tbl_pembeli.user_id', $userId);
+            $params[] = $userId;
         }
 
-        if ($this->customer !== '-') {
-            $topup->where('tbl_history_topup.customer_id', '=', $this->customer);
-            $payment->where('tbl_payment_customer.pembeli_id', '=', $this->customer);
+        // Untuk bagian IN
+        $params = array_merge($params, [$this->startDate, $this->endDate, $companyId]);
+        if ($this->customer && $this->customer !== '-') {
+            $params[] = $this->customer;
+        }
+        if ($isCustomerRole) {
+            $params[] = $userId;
         }
 
-        $topup = $topup->get()->map(function ($item) {
-            $item->type = 'topup';
-            return $item;
-        });
+        // Eksekusi query
+        $data = DB::select($query, $params);
 
-        $payment = $payment->get()->map(function ($item) {
-            $item->type = 'payment';
-            $item->date = $item->payment_buat;
-            $item->customer_id = $item->pembeli_id;
-            return $item;
-        });
-
-        $combined = $topup->concat($payment)->sortBy('date');
+        // Debug data (bisa dihapus setelah testing)
+        logger()->info('TopupReportExport Data', [
+            'data_count' => count($data),
+            'params' => $params,
+            'query' => $query
+        ]);
 
         return view('exportExcel.topupreport', [
-            'topup' => $combined,
+            'topup' => $data,
             'customer' => $this->customer,
-            'isCustomerRole' =>   $isCustomerRole ,
+            'isCustomerRole' => $isCustomerRole,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
         ]);
@@ -85,9 +138,25 @@ class TopupReportExport implements FromView, WithEvents
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                foreach (range('A', 'H') as $columnID) {
+                foreach (range('A', 'G') as $columnID) {
                     $event->sheet->getDelegate()->getColumnDimension($columnID)->setAutoSize(true);
                 }
+
+                // Style untuk header
+                $event->sheet->getDelegate()->getStyle('A1:G1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'color' => ['argb' => 'FFD9D9D9'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
             },
         ];
     }

@@ -211,6 +211,10 @@
             <h5>Marking: {{ $marking }}</h5>
         </div>
 
+        @php
+            $allowedRoles = ['superadmin', 'admin', 'supervisor'];
+        @endphp
+
         <table>
             <thead>
                 <tr>
@@ -220,47 +224,26 @@
                     <th>In (kg)</th>
                     <th>Out (kg)</th>
                     <th>Saldo (kg)</th>
-                    <th>Value (Rp.)</th>
+                    @if (in_array(auth()->user()->role, $allowedRoles))
+                        <th>Value (Rp.)</th>
+                    @endif
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $no = 1;
-                    $customerSaldo = [];
-                @endphp
-
-                @foreach ($combined as $transaction)
-                    @php
-                        $customerId = $transaction->customer_id;
-
-                        // Inisialisasi saldo jika belum ada
-                        if (!isset($customerSaldo[$customerId])) {
-                            $customerSaldo[$customerId] = 0;
-                        }
-
-                        // Hitung saldo dan total_price berdasarkan jenis transaksi
-                        if ($transaction->type === 'topup') {
-                            $customerSaldo[$customerId] += $transaction->value; // Tambah saldo
-                            $status = 'IN';
-                            $transaction->total_price = $transaction->value * $transaction->price_per_kg; // Hitung total_price untuk transaksi saat ini
-                        } elseif ($transaction->type === 'payment') {
-                            $customerSaldo[$customerId] -= $transaction->value; // Kurangi saldo
-                            $status = 'OUT';
-                            $price = $transaction->value != 0 ? $transaction->amount / $transaction->value : 0; // Hitung harga per kg
-                            $transaction->total_price = $transaction->value * $price; // Hitung total_price untuk transaksi saat ini
-                        }
-                    @endphp
-
+                @php $no = 1; @endphp
+                @foreach ($combined as $data)
                     <tr>
                         <td>{{ $no++ }}</td>
-                        <td>{{ \Carbon\Carbon::parse($transaction->date)->format('d M Y') }}</td>
-                        <td class="text-left">{{ $transaction->customer_name ?? '-' }}</td>
-                        <td>{{ $transaction->type === 'topup' ? number_format($transaction->value, 2) : '0.00' }}</td>
-                        <td>{{ $transaction->type === 'payment' ? number_format($transaction->value, 2) : '0.00' }}</td>
-                        <td>{{ number_format($customerSaldo[$customerId], 2) }}</td>
-                        <td>Rp. {{ number_format($transaction->total_price, 2) }}</td>
-                        <td>{{ $status }}</td>
+                        <td>{{ \Carbon\Carbon::parse($data->date)->format('d M Y') }}</td>
+                        <td>{{ $data->marking }}</td>
+                        <td>{{ number_format($data->in_points, 2) }}</td>
+                        <td>{{ number_format($data->out_points, 2) }}</td>
+                        <td>{{ number_format($data->saldo, 2) }}</td>
+                        @if (in_array(auth()->user()->role, $allowedRoles))
+                            <td>{{ number_format($data->value, 2) }}</td>
+                        @endif
+                        <td>{{ strtoupper($data->status) }}</td>
                     </tr>
                 @endforeach
             </tbody>

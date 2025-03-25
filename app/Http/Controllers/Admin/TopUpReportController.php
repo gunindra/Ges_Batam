@@ -32,78 +32,104 @@ class TopUpReportController extends Controller
 
     public function getTopUpReport(Request $request)
     {
-        // dd($request->all());
         $companyId = session('active_company_id');
-        $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $status = $request->status;
-
+        $customer = $request->customer;
         $startDate = $request->startDate
-        ? Carbon::parse($request->startDate)->format('Y-m-d')
-        : Carbon::now()->startOfMonth()->format('Y-m-d');
+            ? Carbon::parse($request->startDate)->format('Y-m-d')
+            : Carbon::now()->startOfMonth()->format('Y-m-d');
 
         $endDate = $request->endDate
-        ? Carbon::parse($request->endDate)->format('Y-m-d')
-        : Carbon::now()->endOfMonth()->format('Y-m-d');
-
-
-        $topup = HistoryTopup::leftJoin('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id') // Ubah ke leftJoin
-            ->where('tbl_history_topup.status', '!=', 'canceled')
-            ->where('tbl_history_topup.company_id', $companyId)
-            ->whereDate('date', '>=', $startDate)
-            ->whereDate('date', '<=', $endDate)
-            ->select('tbl_history_topup.*', 'tbl_pembeli.marking');
-
-        $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-            ->leftJoin('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id') // Ubah ke leftJoin
-            ->where('tbl_payment_invoice.kuota', '!=', 0)
-            ->where('tbl_payment_customer.company_id', $companyId)
-            ->whereDate('payment_buat', '>=', $startDate)
-            ->whereDate('payment_buat', '<=', $endDate)
-            ->select('tbl_payment_invoice.*', 'tbl_pembeli.marking');
-
+            ? Carbon::parse($request->endDate)->format('Y-m-d')
+            : Carbon::now()->endOfMonth()->format('Y-m-d');
 
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
+        $userIdCondition = $isCustomerRole ? "AND tp.user_id = ?" : "";
+
+        $query = "
+            WITH combined_data AS (
+                SELECT
+                    date,
+                    marking,
+                    CASE WHEN type = 'IN' THEN points ELSE 0 END AS in_points,
+                    CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
+                    points * price_per_kg AS value,
+                    type AS status
+                FROM (
+                    SELECT
+                        tup.usage_date AS date,
+                        tp.marking,
+                        tup.used_points AS points,
+                        tup.price_per_kg,
+                        'OUT' AS type
+                    FROM tbl_usage_points tup
+                    JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                    WHERE tup.usage_date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+
+                    UNION ALL
+
+                    SELECT
+                        tht.date,
+                        tp.marking,
+                        tht.remaining_points AS points,
+                        tht.price_per_kg,
+                        'IN' AS type
+                    FROM tbl_history_topup tht
+                    JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                    WHERE tht.status != 'canceled'
+                    AND tht.date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+                ) AS raw_data
+            ),
+            calculated_data AS (
+                SELECT
+                    date,
+                    marking,
+                    in_points,
+                    out_points,
+                    value,
+                    status,
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, in_points DESC) AS saldo
+                FROM combined_data
+            )
+            SELECT
+                date,
+                marking,
+                in_points,
+                out_points,
+                saldo,
+                value,
+                status
+            FROM calculated_data
+            ORDER BY marking, date;
+        ";
+
+        $params = [$startDate, $endDate, $companyId];
+        if ($customer) {
+            $params[] = $customer;
+        }
         if ($isCustomerRole) {
-            $topup->where('tbl_pembeli.user_id', auth()->user()->id);
-            $payment->where('tbl_pembeli.user_id', auth()->user()->id);
+            $params[] = auth()->user()->id;
         }
 
-        if ($request->startDate) {
-            $startDate = date('Y-m-d', strtotime($request->startDate));
-            $topup->whereDate('date', '>=', $startDate);
-            $payment->whereDate('payment_buat', '>=', $startDate);
+        $params = array_merge($params, [$startDate, $endDate, $companyId]);
+        if ($customer) {
+            $params[] = $customer;
         }
-        if ($request->endDate) {
-            $endDate = date('Y-m-d', strtotime($request->endDate));
-            $topup->whereDate('date', '<=', $endDate);
-            $payment->whereDate('payment_buat', '<=', $endDate);
-        }
-        if ($request->customer) {
-            $topup->where('customer_id', '=', $request->customer);
-            $payment->where('tbl_payment_customer.pembeli_id', '=', $request->customer);
+        if ($isCustomerRole) {
+            $params[] = auth()->user()->id;
         }
 
-        // Retrieve data
-        $topup = $topup->get()->map(function ($item) {
-            $item->type = 'topup';
-            return $item;
-        });
-
-        $payment = $payment->get()->map(function ($item) {
-            $item->type = 'payment';
-            $item->date = $item->payment_buat;
-            $item->customer_id = $item->pembeli_id;
-            return $item;
-        });
-        // Combine and sort by date
-        $combined = $topup->concat($payment)->sortBy('date');
-
+        $data = DB::select($query, $params);
         $output = '
             <h5 style="text-align:center; width:100%">'
-                . \Carbon\Carbon::parse($startDate)->format('d M Y') . ' - '
-                . \Carbon\Carbon::parse($endDate)->format('d M Y') .
+                . Carbon::parse($startDate)->format('d M Y') . ' - '
+                . Carbon::parse($endDate)->format('d M Y') .
             '</h5>
-
             <div class="card-body">
             <table class="table" width="100%">
             <thead>
@@ -117,57 +143,31 @@ class TopUpReportController extends Controller
             $output .= '<th width="20%" style="text-align:center;">Value (Rp)</th>';
         }
 
-        $output .= '<th width="5%" style="text-align:center;">Status</th>
-                    </thead>
-                    <tbody>';
-        $customerSaldo = [];
+        $output .= '<th width="10%" style="text-align:center;">Status</th>
+            </thead>
+            <tbody>';
 
-        foreach ($combined as $data) {
-            $customerId = $data->customer_id;
+        foreach ($data as $row) {
+            $output .= '<tr>
+                <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
+                <td style="text-align:center;">' . $row->marking . '</td>
+                <td style="text-align:center;">' . number_format($row->in_points, 2) . '</td>
+                <td style="text-align:center;">' . number_format($row->out_points, 2) . '</td>
+                <td style="text-align:center;">' . number_format($row->saldo, 2) . '</td>';
 
-            if (!isset($customerSaldo[$customerId])) {
-                $customerSaldo[$customerId] = 0; // Initialize saldo for the customer
+            if (!$isCustomerRole) {
+                $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value, 2) . '</td>';
             }
 
-            if ($data->type === 'topup') {
-                $customerSaldo[$customerId] += $data->remaining_points;
-
-                $output .= '<tr>
-                                <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
-                                <td style="text-align:center;">' . ($data->marking) . '</td>
-                                <td style="text-align:center;">' . number_format($data->remaining_points, 2) . '</td>
-                                <td style="text-align:center;"> 0 </td>
-                                <td style="text-align:center;">' . number_format($customerSaldo[$customerId], 2) . '</td>';
-
-                if (!$isCustomerRole) {
-                    $output .= '<td style="text-align:center;"> Rp. ' . number_format($customerSaldo[$customerId] * $data->price_per_kg, 2) . '</td>';
-                }
-
-                $output .= '<td style="text-align:center;"> IN </td>
-                            </tr>';
-            } elseif ($data->type === 'payment') {
-                $customerSaldo[$customerId] -= $data->kuota;
-                $price = ($data->kuota != 0) ? ($data->amount / $data->kuota) : 0;
-
-                $output .= '<tr>
-                                <td style="text-align:center;">' . \Carbon\Carbon::parse($data->date)->format('d M Y') . '</td>
-                                <td style="text-align:center;">' . ($data->payment->pembeli->marking) . '</td>
-                                <td style="text-align:center;"> 0 </td>
-                                <td style="text-align:center;">' . number_format($data->kuota, 2) . '</td>
-                                <td style="text-align:center;">' . number_format($customerSaldo[$customerId], 2) . '</td>';
-
-                if (!$isCustomerRole) {
-                    $output .= '<td style="text-align:center;"> Rp. ' . number_format($customerSaldo[$customerId] * $price, 2) . '</td>';
-                }
-
-                $output .= '<td style="text-align:center;"> OUT </td>
-                            </tr>';
-            }
+            $output .= '<td style="text-align:center;">' . strtoupper($row->status) . '</td>
+            </tr>';
         }
 
-        $output .= '</table> </div>';
+        $output .= '</tbody></table></div>';
+
         return $output;
     }
+
 
     public function generatePdf(Request $request)
     {
@@ -186,59 +186,98 @@ class TopUpReportController extends Controller
             ? Carbon::parse($request->input('endDate'))->format('Y-m-d')
             : Carbon::now()->endOfMonth()->format('Y-m-d');
         $customerId = $request->input('nama_pembeli') ?? null;
+        $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
+        $userIdCondition = $isCustomerRole ? "AND tp.user_id = ?" : "";
+
 
         try {
-            // Query Topup
-            $topup = HistoryTopup::join('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
-                ->where('tbl_history_topup.status', '!=', 'canceled')
-                ->where('tbl_history_topup.company_id', $companyId)
-                ->when($startDate, fn($query) => $query->whereDate('tbl_history_topup.date', '>=', $startDate))
-                ->when($endDate, fn($query) => $query->whereDate('tbl_history_topup.date', '<=', $endDate))
-                ->when(auth()->user() && auth()->user()->role === 'customer', function ($query) {
-                    return $query->where('tbl_pembeli.user_id', auth()->user()->id);
-                })
-                ->select(
-                    'tbl_history_topup.id',
-                    'tbl_history_topup.date',
-                    'tbl_history_topup.customer_id',
-                    'tbl_history_topup.remaining_points as value',
-                    'tbl_pembeli.marking as customer_name',
-                    'tbl_history_topup.price_per_kg', // Pastikan kolom ini ada
-                    DB::raw("'topup' as type")
-                )
-                ->get();
-
-            // Query Payment
-            $payment = PaymentInvoice::join('tbl_payment_customer', 'tbl_payment_invoice.payment_id', '=', 'tbl_payment_customer.id')
-                ->join('tbl_pembeli', 'tbl_payment_customer.pembeli_id', '=', 'tbl_pembeli.id')
-                ->where('tbl_payment_invoice.kuota', '!=', 0)
-                ->where('tbl_payment_customer.company_id', $companyId)
-                ->when($startDate, fn($query) => $query->whereDate('tbl_payment_customer.payment_buat', '>=', $startDate))
-                ->when($endDate, fn($query) => $query->whereDate('tbl_payment_customer.payment_buat', '<=', $endDate))
-                ->when(auth()->user() && auth()->user()->role === 'customer', function ($query) {
-                    return $query->where('tbl_pembeli.user_id', auth()->user()->id);
-                })
-                ->select(
-                    'tbl_payment_invoice.id',
-                    'tbl_payment_customer.payment_buat as date',
-                    'tbl_payment_customer.pembeli_id as customer_id',
-                    'tbl_payment_invoice.kuota as value',
-                    'tbl_pembeli.marking as customer_name',
-                    'tbl_payment_invoice.amount', // Pastikan kolom ini ada
-                    DB::raw("'payment' as type")
-                )
-                ->get();
-
-            // Gabungkan & Urutkan Data
-            $combined = $topup->concat($payment)->sortBy('date')->values();
-
-            // Ambil Nama Customer Jika Ada
             $customer = Customer::find($customerId);
+
+            $query = "
+            WITH combined_data AS (
+                SELECT
+                    date,
+                    marking,
+                    CASE WHEN type = 'IN' THEN points ELSE 0 END AS in_points,
+                    CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
+                    points * price_per_kg AS value,
+                    type AS status
+                FROM (
+                    SELECT
+                        tup.usage_date AS date,
+                        tp.marking,
+                        tup.used_points AS points,
+                        tup.price_per_kg,
+                        'OUT' AS type
+                    FROM tbl_usage_points tup
+                    JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                    WHERE tup.usage_date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+
+                    UNION ALL
+
+                    SELECT
+                        tht.date,
+                        tp.marking,
+                        tht.remaining_points AS points,
+                        tht.price_per_kg,
+                        'IN' AS type
+                    FROM tbl_history_topup tht
+                    JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                    WHERE tht.status != 'canceled'
+                    AND tht.date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+                ) AS raw_data
+            ),
+            calculated_data AS (
+                SELECT
+                    date,
+                    marking,
+                    in_points,
+                    out_points,
+                    value,
+                    status,
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, in_points DESC) AS saldo
+                FROM combined_data
+            )
+            SELECT
+                date,
+                marking,
+                in_points,
+                out_points,
+                saldo,
+                value,
+                status
+            FROM calculated_data
+            ORDER BY marking, date;
+        ";
+
+        $params = [$startDate, $endDate, $companyId];
+        if ($customer) {
+            $params[] = $customer;
+        }
+        if ($isCustomerRole) {
+            $params[] = auth()->user()->id;
+        }
+
+        $params = array_merge($params, [$startDate, $endDate, $companyId]);
+        if ($customer) {
+            $params[] = $customer;
+        }
+        if ($isCustomerRole) {
+            $params[] = auth()->user()->id;
+        }
+
+        $data = DB::select($query, $params);
 
             // Generate PDF
             $pdf = PDF::loadView('exportPDF.topupreport', [
                 'marking' => $customer->marking ?? '-',
-                'combined' => $combined,
+                'combined' => $data,
                 'startDate' => $startDate ? Carbon::parse($startDate)->format('d M Y') : '-',
                 'endDate' => $endDate ? Carbon::parse($endDate)->format('d M Y') : '-',
             ])
