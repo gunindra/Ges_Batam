@@ -43,12 +43,14 @@
                     {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d M Y') : '-' }}
                 </td>
             </tr>
-            <tr>
-                <td style="text-align:left; font-size:11px; padding:6px;">Nama Customer:</td>
-                <td style="text-align:left; font-size:11px; padding:6px; font-weight:bold;">
-                    {{ $customer ?: '-' }}
-                </td>
-            </tr>
+            @if (!$isCustomerRole)
+                <tr>
+                    <td style="text-align:left; font-size:11px; padding:6px;">Nama Customer:</td>
+                    <td style="text-align:left; font-size:11px; padding:6px; font-weight:bold;">
+                        {{ $customer ?: '-' }}
+                    </td>
+                </tr>
+            @endif
             <tr></tr>
             <tr>
                 <th
@@ -77,52 +79,30 @@
             </tr>
         </thead>
         <tbody>
-            @php
-                $customerSaldo = [];
-            @endphp
-
-            @foreach ($topup as $topups)
-                @php
-                    $customerId = $topups->customer_id;
-                    if (!isset($customerSaldo[$customerId])) {
-                        $customerSaldo[$customerId] = 0;
-                    }
-
-                    if ($topups->type === 'topup') {
-                        $customerSaldo[$customerId] += $topups->remaining_points;
-                    } elseif ($topups->type === 'payment') {
-                        $customerSaldo[$customerId] -= $topups->kuota;
-                    }
-                @endphp
+            @foreach ($topup as $data)
                 <tr>
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ \Carbon\Carbon::parse($topups->date)->format('d M Y') }}
+                        {{ \Carbon\Carbon::parse($data->date)->format('d M Y') }}
                     </td>
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ $topups->marking ?? '-' }}
+                        {{ $data->marking }}
                     </td>
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ $topups->type === 'topup' ? number_format($topups->remaining_points, 2) : 0 }}
+                        {{ number_format($data->in_points, 2) }}
                     </td>
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ $topups->type === 'payment' ? number_format($topups->kuota, 2) : 0 }}
+                        {{ number_format($data->out_points, 2) }}
                     </td>
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ number_format($customerSaldo[$customerId], 2) }}
+                        {{ number_format($data->saldo, 2) }}
                     </td>
                     @if (!$isCustomerRole)
                         <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                            @if ($topups->type === 'topup')
-                                Rp. {{ number_format($topups->remaining_points * $topups->price_per_kg, 2) }}
-                            @elseif ($topups->type === 'payment')
-                                Rp. {{ number_format($topups->kuota * ($topups->amount / $topups->kuota), 2) }}
-                            @else
-                                Rp. 0
-                            @endif
+                            {{ number_format($data->value, 2) }}
                         </td>
                     @endif
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
-                        {{ $topups->type === 'topup' ? 'IN' : 'OUT' }}
+                        {{ strtoupper($data->status) }}
                     </td>
                 </tr>
             @endforeach

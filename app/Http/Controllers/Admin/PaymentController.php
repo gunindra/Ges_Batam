@@ -539,8 +539,6 @@ class PaymentController extends Controller
 
             $journalItems = [];
 
-            $journalItems = [];
-
             if ($marginError > 0) {
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
@@ -596,6 +594,53 @@ class PaymentController extends Controller
                 ];
             }
 
+            // Menambahkan item dari request jika ada
+            if ($request->has('items') && is_array($request->items)) {
+                $items = $request->input('items');
+
+                $totalDebit = 0;
+                $totalCredit = 0;
+
+                foreach ($items as $item) {
+                    // Pastikan data yang dibutuhkan ada
+                    if (!isset($item['tipeAccount'], $item['nominal'], $item['account'], $item['item_desc'])) {
+                        continue; // Skip jika ada data yang tidak lengkap
+                    }
+
+                    if ($item['tipeAccount'] == 'Debit') {
+                        $totalDebit += $item['nominal'];
+                    } elseif ($item['tipeAccount'] == 'Credit') {
+                        $totalCredit += $item['nominal'];
+                    }
+
+                    // Tambahkan item baru ke jurnal
+                    $journalItems[] = [
+                        'code_account' => $item['account'],
+                        'description' => $item['item_desc'],
+                        'debit' => $item['tipeAccount'] === 'Debit' ? $item['nominal'] : 0,
+                        'credit' => $item['tipeAccount'] === 'Credit' ? $item['nominal'] : 0,
+                    ];
+                }
+
+                if ($totalDebit > 0 || $totalCredit > 0) {
+                    $jurnal->totaldebit += $totalDebit;
+                    $jurnal->totalcredit += $totalCredit;
+                    $jurnal->save();
+                }
+
+                 PaymentCustomerItems::create([
+                    'payment_id' => $payment->id,
+                    'coa_id' => $item['account'],
+                    'description' => $item['item_desc'],
+                    'nominal' => $item['nominal'],
+                    'tipe' => $item['tipeAccount'],
+                    'jurnal_item_id' => $jurnalItem->id,
+                ]);
+
+
+            }
+
+
             // Simpan item jurnal ke database
             foreach ($journalItems as $item) {
                 JurnalItem::create([
@@ -604,75 +649,12 @@ class PaymentController extends Controller
                     'description' => $item['description'],
                     'debit' => $item['debit'],
                     'credit' => $item['credit'],
-
                 ]);
             }
 
-                // $finalTotal = $totalNominal + $totalPayment + $poinMargin;
 
-                // $invoice = Invoice::where('no_invoice', $request->invoice)->firstOrFail();
-                // if ($finalTotal > $invoice->total_harga) {
-                //     Log::warning("Total bayar melebihi total harga untuk invoice {$invoice->no_invoice}");
-                //     DB::rollBack();
-                //     return response()->json([
-                //         'status' => 'error',
-                //         'message' => 'Total bayar tidak dapat melebihi total harga.'
-                //     ], 400);
-                // }
-                // $invoice->total_bayar = $finalTotal;
-                // $invoice->status_bayar = ($invoice->total_bayar == $invoice->total_harga) ? 'Lunas' : 'Belum Lunas';
-                // $invoice->save();
                 DB::table('tbl_pembeli')->where('id', $invoice->pembeli_id)->decrement('sisa_poin', $totalUsedPoin);
 
-                if ($request->has('items') && is_array($request->items)) {
-                    $items = $request->input('items');
-
-                    $totalDebit = 0;
-                    $totalCredit = 0;
-
-                    foreach ($items as $item) {
-                        if ($item['tipeAccount'] == 'Debit') {
-                            $totalDebit += $item['nominal'];
-                        } elseif ($item['tipeAccount'] == 'Credit') {
-                            $totalCredit += $item['nominal'];
-                        }
-                    }
-
-                    foreach ($items as $item) {
-                        $jurnalItem = new JurnalItem();
-                        $jurnalItem->jurnal_id = $jurnal->id;
-                        $jurnalItem->code_account = $item['account'];
-                        $jurnalItem->description = $item['item_desc'];
-
-                        if ($item['tipeAccount'] === 'Debit') {
-                            $jurnalItem->debit = $item['nominal'];
-                            $jurnalItem->credit = 0;
-                            $totalJurnalAmount -= $item['nominal'];
-
-                        } elseif ($item['tipeAccount'] === 'Credit') {
-                            $jurnalItem->debit = 0;
-                            $jurnalItem->credit = $item['nominal'];
-                            $totalJurnalAmount += $item['nominal'];
-
-                        }
-
-                        $jurnalItemDebit->debit = $totalJurnalAmount;
-                        $jurnal->totaldebit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit ;
-                        $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
-                        $jurnal->save();
-                        $jurnalItemDebit->save();
-                        $jurnalItem->save();
-
-                        PaymentCustomerItems::create([
-                            'payment_id' => $payment->id,
-                            'coa_id' => $item['account'],
-                            'description' => $item['item_desc'],
-                            'nominal' => $item['nominal'],
-                            'tipe' => $item['tipeAccount'],
-                            'jurnal_item_id' => $jurnalItem->id,
-                        ]);
-                    }
-                }
 
                 DB::commit();
                 return response()->json([
@@ -684,7 +666,7 @@ class PaymentController extends Controller
                 Log::error('Terjadi kesalahan saat memproses pembayaran', ['error' => $e->getMessage()]);
                 throw new \Exception('Terjadi kesalahan saat memproses pembayaran');
             }
-    }
+        }
 
     private function processNormalPayment($request)
     {
