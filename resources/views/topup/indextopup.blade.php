@@ -322,16 +322,19 @@
                 }
             },
             columns: [{
-                data: 'customer_id',
-                name: 'customer_id'
+                data: 'marking',
+                name: 'tbl_pembeli.marking',
+                searchable: true
             },
             {
                 data: 'customer_name',
-                name: 'customer_name'
+                name: 'customer_name',
+                searchable: true
             },
             {
                 data: 'code',
-                name: 'code'
+                name: 'code',
+                searchable: true
 
             },
             {

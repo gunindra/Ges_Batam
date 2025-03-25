@@ -53,48 +53,76 @@ class TopupController extends Controller
         ->get();
         return response()->json($customers);
     }
-
     public function getData(Request $request)
     {
         $companyId = session('active_company_id');
         $query = HistoryTopup::with(['customer', 'account'])
-        ->leftJoin('tbl_coa', 'tbl_history_topup.account_id', '=', 'tbl_coa.id')
-        ->where('tbl_history_topup.company_id', $companyId)
-        ->select([
-            'tbl_history_topup.id',
-            'tbl_history_topup.customer_id',
-            'tbl_history_topup.code',
-            'tbl_history_topup.customer_name',
-            'tbl_history_topup.remaining_points',
-            'tbl_history_topup.topup_amount',
-            'tbl_history_topup.price_per_kg',
-            'tbl_history_topup.account_id',
-            'tbl_history_topup.date',
-            'tbl_history_topup.expired_date',
-            'tbl_history_topup.balance',
-            'tbl_history_topup.status',
-            'tbl_coa.name as account_name'
-        ]);
+            ->leftJoin('tbl_coa', 'tbl_history_topup.account_id', '=', 'tbl_coa.id')
+            ->leftJoin('tbl_pembeli', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
+            ->where('tbl_history_topup.company_id', $companyId)
+            ->select([
+                'tbl_history_topup.id',
+                'tbl_pembeli.marking',
+                'tbl_history_topup.code',
+                'tbl_history_topup.customer_name',
+                'tbl_history_topup.remaining_points',
+                'tbl_history_topup.topup_amount',
+                'tbl_history_topup.price_per_kg',
+                'tbl_history_topup.account_id',
+                'tbl_history_topup.date',
+                'tbl_history_topup.expired_date',
+                'tbl_history_topup.balance',
+                'tbl_history_topup.status',
+                'tbl_coa.name as account_name'
+            ]);
 
+        // Handle global search
+        if ($request->has('search.value') && !empty($request->search['value'])) {
+            $searchTerm = $request->search['value'];
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('tbl_pembeli.marking', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('tbl_history_topup.customer_name', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('tbl_history_topup.code', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('tbl_coa.name', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        // Handle date range filter
         if ($request->has('startDate') && $request->has('endDate') && $request->startDate && $request->endDate) {
             $startDate = Carbon::parse($request->startDate)->startOfDay();
             $endDate = Carbon::parse($request->endDate)->endOfDay();
-            $query->whereBetween('date', [$startDate, $endDate]);
+            $query->whereBetween('tbl_history_topup.date', [$startDate, $endDate]);
         }
 
+        // Handle ordering
         if (!$request->has('order')) {
-            $query->orderBy('id', 'desc');
+            $query->orderBy('tbl_history_topup.id', 'desc');
         } else {
             $order = $request->order[0];
             $column = $request->columns[$order['column']]['data'];
             $direction = $order['dir'];
 
-            $query->orderBy($column, $direction);
+            // Handle special cases for joined table columns
+            switch ($column) {
+                case 'marking':
+                    $query->orderBy('tbl_pembeli.marking', $direction);
+                    break;
+                case 'account_name':
+                    $query->orderBy('tbl_coa.name', $direction);
+                    break;
+                default:
+                    // For all other columns, ensure they belong to tbl_history_topup
+                    if (in_array($column, ['id', 'code', 'customer_name', 'remaining_points', 'topup_amount',
+                        'price_per_kg', 'date', 'expired_date', 'balance', 'status'])) {
+                        $query->orderBy('tbl_history_topup.'.$column, $direction);
+                    }
+                    break;
+            }
         }
 
         return DataTables::of($query)
-            ->editColumn('customer_id', function ($row) {
-                return $row->customer ? $row->customer->marking : 'Marking tidak tersedia';
+            ->editColumn('marking', function ($row) {
+                return $row->marking ? $row->marking : 'Marking tidak tersedia';
             })
             ->editColumn('topup_amount', function ($row) {
                 $total = $row->topup_amount;
