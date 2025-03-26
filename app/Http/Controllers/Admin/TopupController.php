@@ -220,7 +220,7 @@ class TopupController extends Controller
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
             $jurnal->tipe_kode = 'TU';
-            $jurnal->tanggal = now();
+            $jurnal->tanggal = $formattedDate;
             $jurnal->no_ref = $topup->id;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Top-up Customer {$customer->nama_pembeli}";
