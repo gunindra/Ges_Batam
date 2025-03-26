@@ -245,7 +245,7 @@ class TopUpReportController extends Controller
                     out_points,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at in_points DESC) AS saldo
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo
                 FROM combined_data
             )
             SELECT
