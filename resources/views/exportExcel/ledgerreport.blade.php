@@ -51,7 +51,7 @@
                         {{ date('d/m/Y', strtotime($entry->tanggal)) }}
                     </td>
                     <td style="border:1px solid black; padding: 8px;">
-                        {{ $entry->tanggal_payment ? date('d/m/Y', strtotime($entry->tanggal_payment)) : '-' }}
+                        {{ $entry->tanggal_payment ? date('d/m/Y H:i:s', strtotime($entry->tanggal_payment)) : '-' }}
                     </td>
                     <td style="border:1px solid black; padding: 8px;">
                         {{ $entry->no_journal }} 
