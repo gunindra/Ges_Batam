@@ -253,7 +253,7 @@
                     @foreach ($ledger['journal_entries'] as $entry)
                         <tr>
                             <td>{{ date('d/m/Y', strtotime($entry->tanggal)) }}</td>
-                            <td>{{ !empty($entry->tanggal_payment) ? date('d/m/Y', strtotime($entry->tanggal_payment)) : '-' }}</td>
+                            <td>{{ !empty($entry->tanggal_payment) ? date('d/m/Y H:i:s', strtotime($entry->tanggal_payment)) : '-' }}</td>
                             <td>{{$entry->no_journal}}
                                 {!! (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
                                     ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
