@@ -1187,7 +1187,7 @@ class PaymentController extends Controller
                 'totaldebit' => $request->totalAmmount,
                 'totalcredit' => $request->totalAmmount,
             ]);
-            $totalJurnalAmount = $request->paymentAmount;
+            $totalJurnalAmount = $request->totalAmmount;
 
             DB::table('tbl_payment_items')->where('payment_id', $payment->id)->delete();
             JurnalItem::where('jurnal_id', $jurnal->id)->delete();
@@ -1363,7 +1363,7 @@ class PaymentController extends Controller
             $jurnalItemCredit->code_account = $salesAccountId;
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
             $jurnalItemCredit->debit = 0;
-            $jurnalItemCredit->credit = $totalJurnalAmount + ($request->discountPayment ?? 0);
+            $jurnalItemCredit->credit = $request->paymentAmount;
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -1393,7 +1393,6 @@ class PaymentController extends Controller
                     }
                 }
 
-                $balanceAmount = $totalDebit - $totalCredit;
                 foreach ($items as $item) {
                     $jurnalItem = new JurnalItem();
                     $jurnalItem->jurnal_id = $jurnal->id;
@@ -1428,7 +1427,6 @@ class PaymentController extends Controller
                         'jurnal_item_id' => $jurnalItem->id,
                     ]);
                 }
-
             }
 
             DB::commit();
