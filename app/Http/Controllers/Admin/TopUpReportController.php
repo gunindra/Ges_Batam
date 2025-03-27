@@ -49,6 +49,7 @@ class TopUpReportController extends Controller
             WITH combined_data AS (
                 SELECT
                     date,
+                    created_at,
                     marking,
                     CASE WHEN type = 'IN' THEN points ELSE 0 END AS in_points,
                     CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
@@ -57,6 +58,7 @@ class TopUpReportController extends Controller
                 FROM (
                     SELECT
                         tup.usage_date AS date,
+                        tup.created_at AS created_at,
                         tp.marking,
                         tup.used_points AS points,
                         tup.price_per_kg,
@@ -72,6 +74,7 @@ class TopUpReportController extends Controller
 
                     SELECT
                         tht.date,
+                        tht.created_at as created_at,
                         tp.marking,
                         tht.remaining_points AS points,
                         tht.price_per_kg,
@@ -88,16 +91,18 @@ class TopUpReportController extends Controller
             calculated_data AS (
                 SELECT
                     date,
+                    created_at,
                     marking,
                     in_points,
                     out_points,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, in_points DESC) AS saldo
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo
                 FROM combined_data
             )
             SELECT
                 date,
+                created_at,
                 marking,
                 in_points,
                 out_points,
@@ -105,7 +110,7 @@ class TopUpReportController extends Controller
                 value,
                 status
             FROM calculated_data
-            ORDER BY marking, date;
+            ORDER BY marking, date, created_at;
         ";
 
         $params = [$startDate, $endDate, $companyId];
@@ -245,7 +250,7 @@ class TopUpReportController extends Controller
                     out_points,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at in_points DESC) AS saldo
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo
                 FROM combined_data
             )
             SELECT
