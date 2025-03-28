@@ -55,7 +55,8 @@ class TopUpReportController extends Controller
                     CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
                     points * price_per_kg AS value,
                     price_per_kg,
-                    type AS status
+                    type AS status,
+                    no_invoice
                 FROM (
                     SELECT
                         tup.usage_date AS date,
@@ -63,7 +64,11 @@ class TopUpReportController extends Controller
                         tp.marking,
                         tup.used_points AS points,
                         tup.price_per_kg,
-                        'OUT' AS type
+                        'OUT' AS type,
+                        (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ') 
+                            FROM tbl_payment_invoice tpi
+                            JOIN tbl_invoice ti ON tpi.invoice_id = ti.id
+                            WHERE tup.payment_id = tpi.payment_id) AS no_invoice
                     FROM tbl_usage_points tup
                     JOIN tbl_pembeli tp ON tup.customer_id = tp.id
                     WHERE tup.usage_date BETWEEN ? AND ?
@@ -79,7 +84,8 @@ class TopUpReportController extends Controller
                         tp.marking,
                         tht.remaining_points AS points,
                         tht.price_per_kg,
-                        'IN' AS type
+                        'IN' AS type,
+                        '' AS no_invoice
                     FROM tbl_history_topup tht
                     JOIN tbl_pembeli tp ON tht.customer_id = tp.id
                     WHERE tht.status != 'canceled'
@@ -99,7 +105,8 @@ class TopUpReportController extends Controller
                     value,
                     status,
                     SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo,
-                    price_per_kg
+                    price_per_kg,
+                    no_invoice
                 FROM combined_data
             )
             SELECT
@@ -111,7 +118,8 @@ class TopUpReportController extends Controller
                 saldo,
                 saldo * price_per_kg AS saldo_value,
                 value,
-                status
+                status,
+                no_invoice
             FROM calculated_data
             ORDER BY marking, date, created_at;
         ";
@@ -142,17 +150,18 @@ class TopUpReportController extends Controller
             <table class="table" width="100%">
             <thead>
                 <th width="15%" style="text-align:center;">Date</th>
-                <th width="15%" style="text-align:center;">Marking</th>
+                <th width="10%" style="text-align:center;">Marking</th>
+                <th width="10%" style="text-align:center;">Invoice</th>
                 <th width="10%" style="text-align:center;">In (Kg)</th>
                 <th width="10%" style="text-align:center;">Out (Kg)</th>
-                <th width="15%" style="text-align:center;">Saldo (Kg)</th>';
+                <th width="10%" style="text-align:center;">Saldo (Kg)</th>';
 
         if (!$isCustomerRole) {
             $output .= '<th width="15%" style="text-align:center;">Value (Rp)</th>
                         <th width="15%" style="text-align:center;">Saldo Value (Rp)</th>';
         }
 
-        $output .= '<th width="10%" style="text-align:center;">Status</th>
+        $output .= '<th width="5%" style="text-align:center;">Status</th>
             </thead>
             <tbody>';
 
@@ -160,6 +169,7 @@ class TopUpReportController extends Controller
             $output .= '<tr>
                 <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
                 <td style="text-align:center;">' . $row->marking . '</td>
+                <td style="text-align:center;">' . $row->no_invoice . '</td>
                 <td style="text-align:center;">' . number_format($row->in_points, 2) . '</td>
                 <td style="text-align:center;">' . number_format($row->out_points, 2) . '</td>
                 <td style="text-align:center;">' . number_format($row->saldo, 2) . '</td>';
