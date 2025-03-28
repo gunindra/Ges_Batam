@@ -256,7 +256,7 @@ class PurchasePaymentController extends Controller
 
 
         DB::beginTransaction();
-       
+
         try {
             $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
 
@@ -266,7 +266,7 @@ class PurchasePaymentController extends Controller
             if (!$vendorAccountId) {
                 throw new \Exception('Akun vendor tidak ditemukan.');
             }
-            
+
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
@@ -282,7 +282,7 @@ class PurchasePaymentController extends Controller
 
             $newSequence = $lastSequence ? $lastSequence + 1 : 1;
             $newKodePembayaran = sprintf('%s%s%04d', $codeType, $currentYear, $newSequence);
-            
+
             $payment = new PaymentSup();
             $payment->payment_date = $tanggalPayment;
             $payment->tanggal_buat = $formattedDateTime;
@@ -290,7 +290,7 @@ class PurchasePaymentController extends Controller
             $payment->kode_pembayaran = $newKodePembayaran;
             $payment->Keterangan = $request->keteranganPaymentSup;
             $payment->company_id = $companyId;
-            
+
             Log::info('Saving PaymentSup data', [
                 'payment_date' => $tanggalPayment,
                 'payment_method_id' => $request->paymentMethod,
@@ -397,7 +397,6 @@ class PurchasePaymentController extends Controller
                         }
                     }
 
-                    $balanceAmount = $totalDebit - $totalCredit;
                     foreach ($items as $item) {
                         $jurnalItem = new JurnalItem();
                         $jurnalItem->jurnal_id = $jurnal->id;
