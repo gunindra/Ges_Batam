@@ -36,7 +36,7 @@ class TopUpReportController extends Controller
         $customer = $request->customer;
         $startDate = $request->startDate
             ? Carbon::parse($request->startDate)->format('Y-m-d')
-            : Carbon::now()->startOfMonth()->format('Y-m-d');
+            : Carbon::create(2025, 1, 1)->format('Y-m-d');
 
         $endDate = $request->endDate
             ? Carbon::parse($request->endDate)->format('Y-m-d')
