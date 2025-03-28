@@ -370,6 +370,15 @@ class SupplierInvoiceController extends Controller
                 ]);
             }
 
+            SupInvoiceItem::create([
+                'invoice_id' => $supInvoice->id,
+                'coa_id' => $vendorAccountId,
+                'description' => "Credit untuk invoice {$request->invoice_no}",
+                'debit' => 0,
+                'credit' => $totalDebit,
+            ]);
+
+
             $jurnal = Jurnal::where('invoice_id_sup', $supInvoice->id)->first();
             if ($jurnal) {
                 $jurnal->update([
