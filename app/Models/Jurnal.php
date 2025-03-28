@@ -18,6 +18,7 @@ class Jurnal extends Model
         'no_journal',
         'no_ref',
         'status',
+        'invoice_id_sup',
         'description',
         'totalcredit',
         'totaldebit',

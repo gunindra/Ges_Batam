@@ -312,6 +312,10 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/vendor/supplierInvoice/getlistSupplierInvoice', [SupplierInvoiceController::class, 'getlistSupplierInvoice'])->name('getlistSupplierInvoice');
     Route::get('/vendor/supplierInvoice/showDetail', [SupplierInvoiceController::class, 'showDetail'])->name('showDetail');
     Route::post('/vendor/supplierInvoice/store', [SupplierInvoiceController::class, 'store'])->name('supInvoice.store');
+    Route::get('/vendor/supplierInvoice/edit/{id}', [SupplierInvoiceController::class, 'editSupplierInvoice'])->name('supplier-invoice.edit');
+    Route::put('/vendor/supplierInvoice/update/{id}', [SupplierInvoiceController::class, 'update'])->name('supplier.update');
+    Route::delete('/vendor/supplierInvoice/destroy/{id}', [SupplierInvoiceController::class, 'destroy'])->name('supplier.destroy');
+
 
     //Purchase Payment
     Route::get('/vendor/purchasePayment', [PurchasePaymentController::class, 'index'])->name('purchasePayment');

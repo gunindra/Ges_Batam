@@ -41,15 +41,12 @@ class SupplierInvoiceController extends Controller
         $companyId = session('active_company_id');
         if ($request->ajax()) {
 
-            // Join with tbl_vendors to get the vendor name and with tbl_matauang to get currency abbreviation
             $data = SupInvoice::join('tbl_matauang', 'tbl_sup_invoice.matauang_id', '=', 'tbl_matauang.id')
                 ->where('tbl_sup_invoice.company_id', $companyId)
                 ->join('tbl_vendors', 'tbl_sup_invoice.vendor_id', '=', 'tbl_vendors.id')
-                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name') // Select vendor name
-                // ->orderBy('id', 'desc')
+                ->select('tbl_sup_invoice.*', 'tbl_matauang.singkatan_matauang', 'tbl_vendors.name as vendor_name')
                 ->with('items');
 
-            // Filter by date range if startDate and endDate are provided
             if (!empty($request->startDate) && !empty($request->endDate)) {
                 $startDate = date('Y-m-d', strtotime($request->startDate));
                 $endDate = date('Y-m-d', strtotime($request->endDate));
@@ -85,7 +82,9 @@ class SupplierInvoiceController extends Controller
                     return number_format($row->total_harga, 2, ',', '.');
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a>';
+                    $btn = '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btnDetailInvoice btn btn-primary btn-sm">Detail</a> ';
+                    $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btnEditInvoice btn btn-secondary btn-sm"><i class="fas fa-edit"></i></a> ';
+                    $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btnDeleteInvoice btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>';
                     return $btn;
                 })
                 ->filter(function ($query) use ($request) {
@@ -102,6 +101,7 @@ class SupplierInvoiceController extends Controller
                 ->make(true);
         }
     }
+
 
 
     public function addSupplierInvoice()
@@ -166,8 +166,6 @@ class SupplierInvoiceController extends Controller
         }
     }
 
-
-
     public function store(Request $request)
     {
         $companyId = session('active_company_id');
@@ -188,12 +186,10 @@ class SupplierInvoiceController extends Controller
         try {
             $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
 
-            // Ensure all debit values are numeric and calculate the total debit
             $totalDebit = array_sum(array_map(function ($item) {
                 return (float) $item['debit'];
             }, $request->items));
 
-            // Fetch the vendor's account ID to use as the credit account
             $vendor = Vendor::findOrFail($request->vendor);
             $vendorAccountId = $vendor->account_id;
 
@@ -201,7 +197,6 @@ class SupplierInvoiceController extends Controller
                 throw new \Exception('Vendor tidak memiliki account_id.');
             }
 
-            // Create the supplier invoice
             $supInvoice = SupInvoice::create([
                 'invoice_no' => $request->invoice_no,
                 'tanggal' => $formattedDate,
@@ -213,13 +208,12 @@ class SupplierInvoiceController extends Controller
                 'total_bayar' => 0,
             ]);
 
-            // Create each item as a debit entry in SupInvoiceItem
             foreach ($request->items as $item) {
                 SupInvoiceItem::create([
                     'invoice_id' => $supInvoice->id,
                     'coa_id' => $item['account'],
                     'description' => $item['itemDesc'],
-                    'debit' => (float) $item['debit'], // Cast debit to float to avoid string issues
+                    'debit' => (float) $item['debit'],
                     'credit' => 0,
                 ]);
             }
@@ -233,6 +227,7 @@ class SupplierInvoiceController extends Controller
                 'tanggal' => $formattedDate,
                 'no_ref' => $request->invoice_no,
                 'status' => 'Approve',
+                'invoice_id_sup' =>  $supInvoice->id,
                 'description' => "Jurnal untuk Invoice {$request->invoice_no}",
                 'totaldebit' => $totalDebit,
                 'totalcredit' => $totalDebit,
@@ -274,10 +269,6 @@ class SupplierInvoiceController extends Controller
         }
     }
 
-
-
-
-
     public function showDetail(Request $request)
     {
         $id = $request->input('id');
@@ -299,6 +290,149 @@ class SupplierInvoiceController extends Controller
         ];
 
         return response()->json($response);
+    }
+
+    public function editSupplierInvoice($id)
+    {
+        $companyId = session('active_company_id');
+
+        $invoice = SupInvoice::with(['items', 'vendor'])
+        ->where('company_id', $companyId)
+        ->findOrFail($id);
+
+        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+        $coas = COA::all();
+        $listVendor = Vendor::where('company_id', $companyId)->pluck('name', 'id');
+
+        return view('vendor.supplierinvoice.editsupplierinvoice', [
+            'invoice' => $invoice,
+            'listCurrency' => $listCurrency,
+            'coas' => $coas,
+            'listVendor' => $listVendor,
+        ]);
+    }
+
+
+    public function update(Request $request, $id)
+    {
+
+        // dd($request->all());
+        $companyId = session('active_company_id');
+        $request->validate([
+            'invoice_no' => 'required|unique:tbl_sup_invoice,invoice_no,' . $id,
+            'tanggal' => 'required|date',
+            'vendor' => 'required',
+            'noReferenceVendor' => 'required',
+            'matauang_id' => 'required',
+            'items' => 'required|array',
+            'items.*.account' => 'required',
+            'items.*.itemDesc' => 'required',
+            'items.*.debit' => 'required|numeric',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $formattedDate = Carbon::createFromFormat('d F Y', $request->tanggal)->format('Y-m-d');
+
+            $totalDebit = array_sum(array_map(function ($item) {
+                return (float) $item['debit'];
+            }, $request->items));
+
+
+            $vendor = Vendor::findOrFail($request->vendor);
+            $vendorAccountId = $vendor->account_id;
+
+            if (!$vendorAccountId) {
+                throw new \Exception('Vendor tidak memiliki account_id.');
+            }
+
+            $supInvoice = SupInvoice::findOrFail($id);
+            $supInvoice->update([
+                'invoice_no' => $request->invoice_no,
+                'tanggal' => $formattedDate,
+                'vendor_id' => $request->vendor,
+                'no_ref' => $request->noReferenceVendor,
+                'matauang_id' => $request->matauang_id,
+                'total_harga' => $totalDebit,
+                'company_id' => $companyId,
+            ]);
+
+            SupInvoiceItem::where('invoice_id', $supInvoice->id)->delete();
+
+            foreach ($request->items as $item) {
+                SupInvoiceItem::create([
+                    'invoice_id' => $supInvoice->id,
+                    'coa_id' => $item['account'],
+                    'description' => $item['itemDesc'],
+                    'debit' => (float) $item['debit'],
+                    'credit' => 0,
+                ]);
+            }
+
+            $jurnal = Jurnal::where('invoice_id_sup', $supInvoice->id)->first();
+            if ($jurnal) {
+                $jurnal->update([
+                    'tanggal' => $formattedDate,
+                    'no_ref' => $request->invoice_no,
+                    'description' => "Jurnal untuk Invoice {$request->invoice_no}",
+                    'totaldebit' => $totalDebit,
+                    'totalcredit' => $totalDebit,
+                ]);
+
+                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+
+                foreach ($request->items as $item) {
+                    JurnalItem::create([
+                        'jurnal_id' => $jurnal->id,
+                        'code_account' => $item['account'],
+                        'description' => "Debit untuk Invoice {$request->invoice_no}",
+                        'debit' => (float) $item['debit'],
+                        'credit' => 0,
+                    ]);
+                }
+
+                JurnalItem::create([
+                    'jurnal_id' => $jurnal->id,
+                    'code_account' => $vendorAccountId,
+                    'description' => "Credit untuk Invoice {$request->invoice_no}",
+                    'debit' => 0,
+                    'credit' => $totalDebit,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Invoice dan Jurnal berhasil diperbarui!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal memperbarui invoice: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $supInvoice = SupInvoice::findOrFail($id);
+
+            $jurnal = Jurnal::where('invoice_id_sup', $supInvoice->id)->first();
+            if ($jurnal) {
+                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+                $jurnal->delete();
+            }
+
+            SupInvoiceItem::where('invoice_id', $supInvoice->id)->delete();
+            $supInvoice->delete();
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Invoice dan Jurnal berhasil dihapus!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus invoice: ' . $e->getMessage()], 500);
+        }
     }
 
 
