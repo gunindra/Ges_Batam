@@ -363,6 +363,7 @@ class TopupController extends Controller
             }
 
             $customer = Customer::findOrFail($topup->customer_id);
+            $companyId = session('active_company_id');
 
             $initialBalance = $topup->balance;
 
@@ -384,6 +385,7 @@ class TopupController extends Controller
             $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";
             $jurnal->totaldebit = $topup->topup_amount;
             $jurnal->totalcredit = $topup->topup_amount;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             $jurnalItemDebit = new JurnalItem();
@@ -401,10 +403,6 @@ class TopupController extends Controller
             $jurnalItemCredit->debit = $topup->topup_amount;
             $jurnalItemCredit->credit = 0;
             $jurnalItemCredit->save();
-
-
-
-
 
             DB::commit();
 
