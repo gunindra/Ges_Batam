@@ -514,12 +514,14 @@ class PurchasePaymentController extends Controller
 
     public function update(Request $request)
     {
-
+        // Debug the incoming request
         // dd($request->all());
-        // Validasi input
+
         $validated = $request->validate([
+            'paymentId' => 'required|integer',
             'invoice' => 'required|array',
-            'tanggalPayment' => 'required|date',
+            'invoice.*' => 'string',
+            'tanggalPayment' => 'required|date_format:d F Y',
             'paymentAmount' => 'required|numeric',
             'paymentMethod' => 'required|integer',
             'keteranganPaymentSup' => 'nullable|string',
@@ -527,20 +529,21 @@ class PurchasePaymentController extends Controller
             'items.*.account' => 'required|integer',
             'items.*.item_desc' => 'required|string',
             'items.*.debit' => 'required|numeric',
+            'items.*.tipeAccount' => 'required|in:Debit,Credit', // Added validation
+            'totalAmmount' => 'required|numeric'
         ]);
 
         DB::beginTransaction();
 
         try {
-            $invoice = SupInvoice::where('invoice_no', $request->invoice)->firstOrFail();
-
+            $invoice = SupInvoice::where('invoice_no', $request->invoice[0])->firstOrFail();
             $vendor = Vendor::findOrFail($invoice->vendor_id);
             $vendorAccountId = $vendor->account_id;
-            // Ambil data pembayaran lama
+
             $payment = PaymentSup::findOrFail($request->paymentId);
             $oldInvoices = DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->get();
 
-            // Kembalikan perubahan pada invoice lama
+            // Rollback previous payments
             foreach ($oldInvoices as $oldInvoice) {
                 $invoice = SupInvoice::findOrFail($oldInvoice->invoice_id);
                 $invoice->total_bayar -= $oldInvoice->amount;
@@ -548,18 +551,17 @@ class PurchasePaymentController extends Controller
                 $invoice->save();
             }
 
-            // Hapus alokasi lama
             DB::table('tbl_payment_invoice_sup')->where('payment_id', $payment->id)->delete();
 
-            // Perbarui data pembayaran
-            $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
+            // Fix date parsing (without time)
+            $tanggalPayment = Carbon::createFromFormat('d F Y', $request->tanggalPayment);
+
             $payment->payment_date = $tanggalPayment;
             $payment->payment_method_id = $request->paymentMethod;
             $payment->Keterangan = $request->keteranganPaymentSup;
             $payment->save();
 
-            // Alokasikan pembayaran ke invoice baru
-            $totalPayment = $request->paymentAmount;
+            $totalPayment = (float)$request->paymentAmount;
             foreach ($request->invoice as $noInvoice) {
                 $invoice = SupInvoice::where('invoice_no', $noInvoice)->firstOrFail();
                 $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
@@ -590,43 +592,43 @@ class PurchasePaymentController extends Controller
             if ($totalPayment > 0) {
                 throw new \Exception("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
             }
+
             $noRef = implode(', ', $request->invoice);
 
+            // Update journal
+            $jurnal = Jurnal::where('payment_id_sup', $payment->id)->firstOrFail();
+            $jurnal->update([
+                'tanggal' => $tanggalPayment,
+                'no_ref' => $noRef,
+                'totaldebit' => (float)$request->totalAmmount,
+                'totalcredit' => (float)$request->totalAmmount,
+            ]);
 
-                $jurnal = Jurnal::where('payment_id_sup', $payment->id)->first();
-                $jurnal->update([
-                    'tanggal' => $tanggalPayment,
-                    'no_ref' => $noRef,
-                    'totaldebit' => $request->totalAmmount,
-                    'totalcredit' => $request->totalAmmount,
-                ]);
-                Log::info('Payment id data:', [
-                    'id' => $payment->id,
-                ]);
-                $totalJurnalAmount = $request->paymentAmount;
+            $totalJurnalAmount = (float)$request->paymentAmount;
 
-                $jurnal->save();
-                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+            JurnalItem::where('jurnal_id', $jurnal->id)->delete();
 
-                $jurnalItemDebit = new JurnalItem();
-                $jurnalItemDebit->jurnal_id = $jurnal->id;
-                $jurnalItemDebit->code_account = $vendorAccountId;
-                $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
-                $jurnalItemDebit->debit = $totalJurnalAmount;
-                $jurnalItemDebit->credit = 0;
-                $jurnalItemDebit->save();
+            // Vendor entry (Debit)
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $vendorAccountId;
+            $jurnalItemDebit->description = "Debit untuk Invoice {$noRef}";
+            $jurnalItemDebit->debit = $totalJurnalAmount;
+            $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->save();
 
-                $jurnalItemCredit = new JurnalItem();
-                $jurnalItemCredit->jurnal_id = $jurnal->id;
-                $jurnalItemCredit->code_account = $request->paymentMethod;
-                $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
-                $jurnalItemCredit->debit = 0;
-                $jurnalItemCredit->credit = $totalJurnalAmount;
-                $jurnalItemCredit->save();
+            // Payment method entry (Credit)
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $request->paymentMethod;
+            $jurnalItemCredit->description = "Kredit untuk Invoice {$noRef}";
+            $jurnalItemCredit->debit = 0;
+            $jurnalItemCredit->credit = $totalJurnalAmount;
+            $jurnalItemCredit->save();
+
+            // Additional items handling
 
             if ($request->has('items') && is_array($request->items)) {
-
-                DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
                 $items = $request->input('items');
 
                 $totalDebit = 0;
@@ -640,7 +642,6 @@ class PurchasePaymentController extends Controller
                     }
                 }
 
-                $balanceAmount = $totalDebit - $totalCredit;
                 foreach ($items as $item) {
                     $jurnalItem = new JurnalItem();
                     $jurnalItem->jurnal_id = $jurnal->id;
@@ -677,13 +678,24 @@ class PurchasePaymentController extends Controller
             }
 
 
-
-
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Payment successfully updated']);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'Terjadi Kesalahan', 'error' => $e->getMessage()]);
+            Log::error('Payment update error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi Kesalahan',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
