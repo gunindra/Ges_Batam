@@ -828,11 +828,26 @@ class InvoiceController extends Controller
             ->where('invoice_id', $id)
             ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
 
+        // Cek apakah invoice memiliki Credit Note
+        $creditNote = DB::table('tbl_credit_note')
+            ->where('invoice_id', $id)
+            ->first();
+
+        $creditNoteItems = [];
+
+        if ($creditNote) {
+            // Ambil data Credit Note Item jika ada
+            $creditNoteItems = DB::table('tbl_credit_note_item')
+                ->where('credit_note_id', $creditNote->id)
+                ->get(['no_resi', 'deskripsi', 'harga']);
+        }
+
         try {
             $pdf = Pdf::loadView('exportPDF.invoice', [
                 'invoice' => $invoice,
                 'resiData' => $resiData,
                 'hargaIDR' => $invoice->harga,
+                'creditNoteItems' => $creditNoteItems,
                 'tanggal' => $invoice->tanggal_bayar,
                 'tanda_tangan' => $invoice->tanda_tangan ?? null
             ])
@@ -853,10 +868,6 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'Failed to generate PDF'], 500);
         }
     }
-
-
-
-
 
     public function cekResiInvoice(Request $request)
     {

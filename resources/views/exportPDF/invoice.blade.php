@@ -267,7 +267,10 @@
                 @php
                     $no = 1;
                     $totalHarga = 0;
+                    $totalCreditNote = 0;
                 @endphp
+
+                {{-- Data Resi --}}
                 @foreach ($resiData as $resi)
                     @php
                         $totalHarga += $resi->harga;
@@ -303,14 +306,35 @@
                         <td>{{ number_format($resi->harga, 2) ?? '0' }}</td>
                     </tr>
                 @endforeach
+
+                {{-- Data Credit Note --}}
+                @if (!empty($creditNoteItems) && count($creditNoteItems) > 0)
+                    @foreach ($creditNoteItems as $creditNote)
+                        @php
+                            $totalCreditNote += $creditNote->harga;
+                        @endphp
+                        <tr>
+                            <td>{{ $no++ }}</td>
+                            <td>{{ $creditNote->no_resi }}</td>
+                            <td colspan="3" class="text-center"><strong>Credit Note</strong></td>
+                            <td>-{{ number_format($creditNote->harga, 2) }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
+
+            {{-- Total Harga --}}
+            @php
+                $finalTotalHarga = ceil(($totalHarga - $totalCreditNote) / 1000) * 1000;
+            @endphp
             <tfoot>
                 <tr>
                     <td colspan="5" class="text-right"><strong>Total Harga:</strong></td>
-                    <td><strong>{{ number_format(ceil($totalHarga / 1000) * 1000, 2) }}</strong></td>
+                    <td><strong>{{ number_format($finalTotalHarga, 2) }}</strong></td>
                 </tr>
             </tfoot>
         </table>
+
         <table class="signature-section">
             <tr>
                 <td></td> <!-- Kolom kiri dibiarkan kosong -->
