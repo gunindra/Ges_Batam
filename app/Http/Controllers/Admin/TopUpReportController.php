@@ -54,6 +54,7 @@ class TopUpReportController extends Controller
                     CASE WHEN type = 'IN' THEN points ELSE 0 END AS in_points,
                     CASE WHEN type = 'OUT' THEN points ELSE 0 END AS out_points,
                     points * price_per_kg AS value,
+                    price_per_kg,
                     type AS status
                 FROM (
                     SELECT
@@ -97,7 +98,8 @@ class TopUpReportController extends Controller
                     out_points,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo
+                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at, in_points DESC) AS saldo,
+                    price_per_kg
                 FROM combined_data
             )
             SELECT
@@ -107,6 +109,7 @@ class TopUpReportController extends Controller
                 in_points,
                 out_points,
                 saldo,
+                saldo * price_per_kg AS saldo_value,
                 value,
                 status
             FROM calculated_data
@@ -139,13 +142,14 @@ class TopUpReportController extends Controller
             <table class="table" width="100%">
             <thead>
                 <th width="15%" style="text-align:center;">Date</th>
-                <th width="25%" style="text-align:center;">Marking</th>
+                <th width="15%" style="text-align:center;">Marking</th>
                 <th width="10%" style="text-align:center;">In (Kg)</th>
                 <th width="10%" style="text-align:center;">Out (Kg)</th>
                 <th width="15%" style="text-align:center;">Saldo (Kg)</th>';
 
         if (!$isCustomerRole) {
-            $output .= '<th width="20%" style="text-align:center;">Value (Rp)</th>';
+            $output .= '<th width="15%" style="text-align:center;">Value (Rp)</th>
+                        <th width="15%" style="text-align:center;">Saldo Value (Rp)</th>';
         }
 
         $output .= '<th width="10%" style="text-align:center;">Status</th>
@@ -162,6 +166,7 @@ class TopUpReportController extends Controller
 
             if (!$isCustomerRole) {
                 $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value, 2) . '</td>';
+                $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->saldo_value, 2) . '</td>';
             }
 
             $output .= '<td style="text-align:center;">' . strtoupper($row->status) . '</td>
