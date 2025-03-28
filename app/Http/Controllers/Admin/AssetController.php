@@ -93,7 +93,7 @@ class AssetController extends Controller
             $acquisitionDate = $request->input('acquisition_date');
 
             $formattedDep = (new DateTime($depreciationDate))->format('Y-m-d');
-            $formattedAcq = (new DateTime($depreciationDate))->format('Y-m-d');
+            $formattedAcq = (new DateTime($acquisitionDate))->format('Y-m-d');
 
             $asset = new Asset();
 
@@ -135,7 +135,7 @@ class AssetController extends Controller
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
-            $jurnalDate = Carbon::parse($asset->depreciation_date)->endOfMonth()->format('Y-m-d');
+            $jurnalDate = Carbon::parse($asset->acquisition_date)->endOfMonth()->format('Y-m-d');
             $noRef = $asset->asset_code ? $asset->asset_code : '-';
             $price = intval(str_replace(',', '', $asset->acquisition_price));
             $residue = intval(str_replace(',', '', $asset->residue_value));
@@ -143,7 +143,7 @@ class AssetController extends Controller
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
             $jurnal->tipe_kode = 'JU';
-            $jurnal->tanggal = $asset->depreciation_date;
+            $jurnal->tanggal = $asset->acquisition_date;
             $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
             $jurnal->description = "Jurnal untuk Asset " . $asset->asset_name;
