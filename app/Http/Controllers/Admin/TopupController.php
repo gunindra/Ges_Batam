@@ -258,6 +258,7 @@ class TopupController extends Controller
 
     public function cancleTopup(Request $request)
     {
+        $companyId = session('active_company_id');
 
         $request->validate([
             'topup_id' => 'required|exists:tbl_history_topup,id',
@@ -294,6 +295,7 @@ class TopupController extends Controller
             $jurnal->description = "Pembatalan Top-up untuk Customer {$customer->nama_pembeli}";
             $jurnal->totaldebit = $topup->topup_amount;
             $jurnal->totalcredit = $topup->topup_amount;
+            $jurnal->company_id = $companyId;
             $jurnal->save();
 
             $jurnalItemDebit = new JurnalItem();
