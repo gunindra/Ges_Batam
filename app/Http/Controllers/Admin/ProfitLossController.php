@@ -143,7 +143,9 @@ class ProfitLossController extends Controller
         foreach ($operatingRevenue as $data) {
             $total_operating_revenue += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
-                $compare_operating_revenue[$index] += $data->{'compare_total_' . $index};
+                $compare_operating_revenue[$index] += ($data->default_posisi === 'Credit') 
+                    ? $data->{'compare_total_' . $index} 
+                    : -$data->{'compare_total_' . $index};
             }
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>';
@@ -244,7 +246,9 @@ class ProfitLossController extends Controller
         foreach ($hargaPokokPenjualan as $data) {
             $total_hpp += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
-                $compare_hpp[$index] += $data->{'compare_total_' . $index};
+                $compare_hpp[$index] += ($data->default_posisi === 'Credit') 
+                    ? $data->{'compare_total_' . $index} 
+                    : -$data->{'compare_total_' . $index};
             }
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>';
@@ -349,7 +353,9 @@ class ProfitLossController extends Controller
         foreach ($operatingExpenses as $data) {
             $total_operating_expenses += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
-                $compare_operating_expenses[$index] += $data->{'compare_total_' . $index};
+                $compare_operating_expenses[$index] += ($data->default_posisi === 'Credit') 
+                    ? $data->{'compare_total_' . $index} 
+                    : -$data->{'compare_total_' . $index};
             }
             $output .= ' <tr>
                             <td>' . ($data->account_name ?? '-') . '</td>';
@@ -452,7 +458,9 @@ class ProfitLossController extends Controller
         foreach ($nonBusinessRevenue as $data) {
             $total_non_business_revenue += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
-                $compare_non_business_revenue[$index] += $data->{'compare_total_' . $index};
+                $compare_non_business_revenue[$index] += ($data->default_posisi === 'Credit') 
+                    ? $data->{'compare_total_' . $index} 
+                    : -$data->{'compare_total_' . $index};
             }
 
             $output .= ' <tr>
@@ -554,7 +562,9 @@ class ProfitLossController extends Controller
         foreach ($nonBusinessExpenses as $data) {
             $total_non_business_expenses += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
             foreach ($comparisons as $index => $comparison) {
-                $compare_non_business_expenses[$index] += $data->{'compare_total_' . $index};
+                $compare_non_business_expenses[$index] += ($data->default_posisi === 'Credit') 
+                    ? $data->{'compare_total_' . $index} 
+                    : -$data->{'compare_total_' . $index};
             }
 
             $output .= ' <tr>
