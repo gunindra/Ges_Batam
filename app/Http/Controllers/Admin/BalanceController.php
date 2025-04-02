@@ -35,6 +35,9 @@ class BalanceController extends Controller
         $noe = ReportAccount::where('type', '=', 'Non Operating Expense')
                             ->pluck('coa_id')
                             ->toArray();
+        $hpp = ReportAccount::where('type', '=', 'HPP')
+                            ->pluck('coa_id')
+                            ->toArray();
         $CurrentProfitAccounts = ReportAccount::where('type', '=', 'Current Profit')
                             ->pluck('coa_id') 
                             ->toArray();
@@ -46,6 +49,7 @@ class BalanceController extends Controller
         $oes = implode(',', $oe);
         $nors = implode(',', $nor);
         $noes = implode(',', $noe);
+        $hpps = implode(',', $hpp);
         
         $query = "
             SELECT coa.name AS account_name,
@@ -111,7 +115,7 @@ class BalanceController extends Controller
             FROM tbl_coa coa
             LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
             LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-            WHERE coa.parent_id IN ($oes)
+            WHERE coa.parent_id IN ($oes, $hpps)
             GROUP BY coa_id, account_name, default_posisi
             HAVING grand_total != 0
         ";
