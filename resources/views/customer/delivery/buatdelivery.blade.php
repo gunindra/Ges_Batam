@@ -412,11 +412,10 @@
 
         $('input[id="filter_date"]').daterangepicker({
             locale: {
-                format: 'DD MMMM YYYY' // Format: 'dd MM yyyy'
+                format: 'DD MMMM YYYY'
             },
-
-            startDate: moment().startOf('month'),
-            endDate: moment().endOf('month'),
+            startDate: moment().startOf('year'),
+            endDate: moment(),
             opens: 'left'
         });
 
