@@ -170,6 +170,18 @@
                             </select>
                         </div>
                         <div class="mt-3">
+                        <label for="hpp" class="form-label fw-bold">HPP Account</label>
+                            <select class="form-control" id="hpp" style="width:100%;" multiple="multiple">
+                                <option value="">Pilih Akun</option>
+                                @foreach ($coas as $coa)
+                                    <option value="{{ $coa->id }}" 
+                                        @if(in_array($coa->id, $savedHpp)) selected @endif>
+                                        {{ $coa->code_account_id }} - {{ $coa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mt-3">
                         <label for="NonOperatingRevenue" class="form-label fw-bold">Non Operating Revenue Account</label>
                             <select class="form-control" id="NonOperatingRevenue" style="width:100%;" multiple="multiple">
                                 <option value="">Pilih Akun</option>
@@ -323,6 +335,10 @@
                 placeholder: 'Pilih Akun',
                 allowClear: true
             });
+            $('#hpp').select2({
+                placeholder: 'Pilih Akun',
+                allowClear: true
+            });
             $('#NonOperatingRevenue').select2({
                 placeholder: 'Pilih Akun',
                 allowClear: true
@@ -387,6 +403,7 @@
                 coa_id: $("#PaymentAccount").val(),
                 operating_revenue : $("#OperatingRevenue").val(),
                 operating_expense : $("#OperatingExpense").val(),
+                hpp : $("#hpp").val(),
                 non_operating_revenue : $("#NonOperatingRevenue").val(),
                 non_operating_expense : $("#NonOperatingExpense").val(),
                 capital : $("#CapitalAccount").val(),

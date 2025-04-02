@@ -33,11 +33,15 @@ class ProfitLossController extends Controller
         $noe = ReportAccount::where('type', '=', 'Non Operating Expense')
                             ->pluck('coa_id')
                             ->toArray();
+        $hpp = ReportAccount::where('type', '=', 'HPP')
+                            ->pluck('coa_id')
+                            ->toArray();
 
         $ors = implode(',', $or);
         $oes = implode(',', $oe);
         $nors = implode(',', $nor);
         $noes = implode(',', $noe);
+        $hpps = implode(',', $hpp);
         // Handling comparisons from the frontend
         $comparisons = $request->comparisons ?? [];
 
@@ -161,7 +165,108 @@ class ProfitLossController extends Controller
 
         $output .= '</tr>';
 
-            $query2 = "
+        $query5 = "
+            SELECT coa.name AS account_name,
+                   coa.id AS coa_id,
+                   coa.default_posisi AS default_posisi,
+                   IFNULL(SUM(CASE
+                                   WHEN ju.status = 'Approve'
+                                       AND ju.tanggal >= '$startDate'
+                                       AND ju.tanggal <= '$endDate'
+                                   THEN ji.debit ELSE 0 END), 0) AS total_debit,
+                   IFNULL(SUM(CASE
+                                   WHEN ju.status = 'Approve'
+                                       AND ju.tanggal >= '$startDate'
+                                       AND ju.tanggal <= '$endDate'
+                                   THEN ji.credit ELSE 0 END), 0) AS total_credit,
+                   IFNULL(SUM(CASE
+                                   WHEN ju.status = 'Approve'
+                                       AND coa.default_posisi = 'credit'
+                                       AND ju.tanggal >= '$startDate'
+                                       AND ju.tanggal <= '$endDate'
+                                   THEN ji.credit - ji.debit
+                                   WHEN ju.status = 'Approve'
+                                       AND coa.default_posisi = 'debit'
+                                       AND ju.tanggal >= '$startDate'
+                                       AND ju.tanggal <= '$endDate'
+                                   THEN ji.debit - ji.credit
+                                   ELSE 0 END), 0) AS grand_total
+        ";
+
+        foreach ($comparisons as $index => $comparison) {
+            $compareStart = date('Y-m-d', strtotime($comparison['start']));
+            $compareEnd = date('Y-m-d', strtotime($comparison['end']));
+
+            $query5 .= ",
+                IFNULL(SUM(CASE
+                               WHEN ju.status = 'Approve'
+                                   AND ju.tanggal >= '$compareStart'
+                                   AND ju.tanggal <= '$compareEnd'
+                               THEN ji.debit ELSE 0 END), 0) AS compare_debit_$index,
+                IFNULL(SUM(CASE
+                               WHEN ju.status = 'Approve'
+                                   AND ju.tanggal >= '$compareStart'
+                                   AND ju.tanggal <= '$compareEnd'
+                               THEN ji.credit ELSE 0 END), 0) AS compare_credit_$index,
+                IFNULL(SUM(CASE
+                               WHEN ju.status = 'Approve'
+                                   AND coa.default_posisi = 'credit'
+                                   AND ju.tanggal >= '$compareStart'
+                                   AND ju.tanggal <= '$compareEnd'
+                               THEN ji.credit - ji.debit
+                               WHEN ju.status = 'Approve'
+                                   AND coa.default_posisi = 'debit'
+                                   AND ju.tanggal >= '$compareStart'
+                                   AND ju.tanggal <= '$compareEnd'
+                               THEN ji.debit - ji.credit
+                               ELSE 0 END), 0) AS compare_total_$index
+            ";
+        }
+
+        $query5 .= "
+            FROM tbl_coa coa
+            LEFT JOIN tbl_jurnal_items ji ON ji.code_account = coa.id
+            LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+            WHERE coa.parent_id IN ($hpps)
+            GROUP BY coa_id, account_name, default_posisi
+            HAVING grand_total != 0
+        ";
+
+        foreach ($comparisons as $index => $comparison) {
+            $query5 .= " OR compare_total_$index != 0";
+        }
+
+        $hargaPokokPenjualan = DB::select($query5);
+    
+        $total_hpp = 0;
+        $compare_hpp = array_fill(0, count($comparisons), 0); // Initialize array to store comparison totals
+
+        foreach ($hargaPokokPenjualan as $data) {
+            $total_hpp += ($data->default_posisi === 'Credit') ? $data->grand_total : -$data->grand_total;
+            foreach ($comparisons as $index => $comparison) {
+                $compare_hpp[$index] += $data->{'compare_total_' . $index};
+            }
+            $output .= ' <tr>
+                            <td>' . ($data->account_name ?? '-') . '</td>';
+            $output .= '<td>' . number_format(abs($data->grand_total), 2) . '</td>';
+
+            foreach ($comparisons as $index => $comparison) {
+                $output .= '<td>' . number_format(abs($data->{'compare_total_' . $index}), 2) . '</td>';
+            }
+            $output .= '</tr>';
+        }
+
+        $output .= ' <tr>
+                            <td class="text-left"><b> TOTAL HPP </b></td>';
+        $output .= '<td> <b>(' . number_format(abs($total_hpp), 2) . ')</b> </td>';
+
+        foreach ($comparisons as $index => $comparison) {
+            $output .= '<td><b>(' . number_format(abs($compare_hpp[$index]), 2) . ')</b></td>';
+        }
+
+        $output .= '</tr>';
+
+        $query2 = "
             SELECT coa.name AS account_name,
                 coa.id AS coa_id,
                 coa.default_posisi AS default_posisi,
@@ -265,8 +370,6 @@ class ProfitLossController extends Controller
         }
 
         $output .= '</tr>';
-
-
 
         $query3 = "
             SELECT coa.name AS account_name,
@@ -475,14 +578,14 @@ class ProfitLossController extends Controller
 
         $output .= '</tr>';
 
-        $net_profit = $total_operating_revenue - $total_operating_expenses + $total_non_business_revenue - $total_non_business_expenses;
+        $net_profit = $total_operating_revenue - $total_hpp - $total_operating_expenses + $total_non_business_revenue - $total_non_business_expenses;
         $output .= '<tr>
                         <td ><b>NET PROFIT BEFORE TAX</b></td>
                         <td> <b>' . number_format(abs($net_profit), 2) . '</b> </td>';
 
         $compare_net_profit = [];
         foreach ($comparisons as $index => $comparison) {
-            $compare_net_profit[$index] = $compare_operating_revenue[$index] - $compare_operating_expenses[$index] + $compare_non_business_revenue[$index] - $compare_non_business_expenses[$index];
+            $compare_net_profit[$index] = $compare_operating_revenue[$index] - $compare_hpp[$index] - $compare_operating_expenses[$index] + $compare_non_business_revenue[$index] - $compare_non_business_expenses[$index];
             $output .= '<td><b>' . number_format(abs($compare_net_profit[$index]), 2) . '</b></td>';
         }
 

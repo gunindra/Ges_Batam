@@ -28,6 +28,11 @@ class AccountingSettingController extends Controller
             ->where('type', '=', 'Operating Expense')
             ->pluck('coa_id')
             ->toArray();
+        
+        $savedHpp = DB::table('tbl_report_accounts')
+            ->where('type', '=', 'HPP')
+            ->pluck('coa_id')
+            ->toArray();    
 
         $savedNonOperatingRevenue = DB::table('tbl_report_accounts')
             ->where('type', '=', 'Non Operating Revenue')
@@ -83,6 +88,7 @@ class AccountingSettingController extends Controller
                             'savedPaymentAccounts',
                             'savedOperatingRevenue',
                             'savedOperatingExpense',
+                            'savedHpp',
                             'savedNonOperatingRevenue',
                             'savedNonOperatingExpense',
                             'savedCapitalAccount',
@@ -144,13 +150,19 @@ class AccountingSettingController extends Controller
                 ->where('type', '=', 'Operating Revenue')
                 ->delete();
         } else {
+            // Insert or update records
             foreach ($request->operating_revenue as $coaId) {
                 DB::table('tbl_report_accounts')->updateOrInsert(
                     ['coa_id' => $coaId],
-                    ['type' => 'Operating Revenue'],
-                    ['updated_at' => now()]
+                    ['type' => 'Operating Revenue', 'updated_at' => now()]
                 );
             }
+        
+            // Delete records that are not in the provided array
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'Operating Revenue')
+                ->whereNotIn('coa_id', $request->operating_revenue)
+                ->delete();
         }
 
         if (empty($request->operating_expense)) {
@@ -165,6 +177,30 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+            
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Operating Expense')
+            ->whereNotIn('coa_id', $request->operating_expense)
+            ->delete();
+        }
+        
+        if (empty($request->hpp)) {
+            DB::table('tbl_report_accounts')
+                ->where('type', '=', 'HPP')
+                ->delete();
+        } else {
+            foreach ($request->hpp as $coaId) {
+                DB::table('tbl_report_accounts')->updateOrInsert(
+                    ['coa_id' => $coaId],
+                    ['type' => 'HPP'],
+                    ['updated_at' => now()]
+                );
+            }
+        
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'HPP')
+            ->whereNotIn('coa_id', $request->hpp)
+            ->delete();
         }
 
         if (empty($request->non_operating_revenue)) {
@@ -179,7 +215,13 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Non Operating Revenue')
+            ->whereNotIn('coa_id', $request->non_operating_revenue)
+            ->delete();
         }
+
         if (empty($request->non_operating_expense)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Non Operating Expense')
@@ -192,7 +234,14 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Non Operating Expense')
+            ->whereNotIn('coa_id', $request->non_operating_expense)
+            ->delete();
+
         }
+
         if (empty($request->capital)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Capital')
@@ -205,7 +254,13 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Capital')
+            ->whereNotIn('coa_id', $request->capital)
+            ->delete();
         }
+
         if (empty($request->additional_capital)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Addtional Capital')
@@ -218,7 +273,12 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Additional Capital')
+            ->whereNotIn('coa_id', $request->additional_capital)
+            ->delete();
         }
+
         if (empty($request->returned_profit)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Returned Profit}')
@@ -231,7 +291,12 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Returned Profit')
+            ->whereNotIn('coa_id', $request->returned_profit)
+            ->delete();
         }
+
         if (empty($request->current_profit)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Current Profit')
@@ -244,7 +309,12 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Current Profit')
+            ->whereNotIn('coa_id', $request->current_profit)
+            ->delete();
         }
+
         if (empty($request->deviden)) {
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Deviden')
@@ -257,6 +327,11 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Deviden')
+            ->whereNotIn('coa_id', $request->deviden)
+            ->delete();
         }
 
         if (empty($request->investing)) {
@@ -271,6 +346,10 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Investing')
+            ->whereNotIn('coa_id', $request->investing)
+            ->delete();
         }
 
         if (empty($request->financing)) {
@@ -285,6 +364,10 @@ class AccountingSettingController extends Controller
                     ['updated_at' => now()]
                 );
             }
+        DB::table('tbl_report_accounts')
+            ->where('type', '=', 'Financing')
+            ->whereNotIn('coa_id', $request->financing)
+            ->delete();
         }
 
 
