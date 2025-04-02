@@ -601,6 +601,7 @@ class ProfitLossController extends Controller
         $netProfit = $allTransactions->sum(function ($item) {
             return ($item->default_posisi === 'Credit') ? $item->grand_total : -$item->grand_total;
         });
+        
 
         $netProfit = round($netProfit, 2);
 
@@ -609,10 +610,17 @@ class ProfitLossController extends Controller
                         <td> <b>' . number_format(abs($netProfit), 2) . '</b> </td>';
 
         $compare_net_profit = [];
+        
         foreach ($comparisons as $index => $comparison) {
-            $compare_net_profit[$index] = $compare_operating_revenue[$index] - $compare_hpp[$index] - $compare_operating_expenses[$index] + $compare_non_business_revenue[$index] - $compare_non_business_expenses[$index];
+            $compare_net_profit[$index] = $allTransactions->sum(function ($item) use ($index) {
+                return ($item->default_posisi === 'Credit') 
+                    ? $item->{'compare_total_' . $index} 
+                    : -$item->{'compare_total_' . $index};
+            });
+        
             $output .= '<td><b>' . number_format(abs($compare_net_profit[$index]), 2) . '</b></td>';
         }
+        
 
         $output .= '</tr></tbody></table></div>';
 
