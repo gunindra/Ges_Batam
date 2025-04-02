@@ -802,11 +802,25 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'Invalid or expired token'], 403);
         }
 
-        $q = "SELECT a.id, a.no_invoice, DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
-                    b.nama_pembeli AS pembeli, a.alamat, b.marking, a.metode_pengiriman,
-                    a.total_harga AS harga, a.matauang_id, a.status_bayar, a.rate_matauang,
-                    d.id AS status_id, d.status_name, e.tanda_tangan, c.metode_pengiriman,
-                    f.nama_supir, e.createby
+        $q = "SELECT
+                a.id,
+                a.no_invoice,
+                DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar,
+                b.nama_pembeli AS pembeli,
+                a.alamat,
+                b.marking,
+                a.metode_pengiriman,
+                a.total_harga AS harga,
+                a.matauang_id,
+                a.status_bayar,
+                a.rateberat_id,
+                a.rate_matauang,
+                d.id AS status_id,
+                d.status_name,
+                e.tanda_tangan,
+                c.metode_pengiriman,
+                f.nama_supir,
+                e.createby
                 FROM tbl_invoice AS a
                 JOIN tbl_pembeli AS b ON a.pembeli_id = b.id
                 JOIN tbl_status AS d ON a.status_id = d.id
@@ -823,6 +837,16 @@ class InvoiceController extends Controller
         }
 
         $invoice = $invoice[0];
+
+        // Ambil rateberat_id dari tbl_invoice
+        $rateberat_id = $invoice->rateberat_id;
+
+        // Ambil nilai_rate dari tbl_rate berdasarkan rateberat_id
+        $rateData = DB::table('tbl_rate')
+            ->where('id', $rateberat_id)
+            ->first(['nilai_rate']);
+
+        $nilaiRateBerat = $rateData ? $rateData->nilai_rate : 0;
 
         $resiData = DB::table('tbl_resi')
             ->where('invoice_id', $id)
@@ -845,6 +869,7 @@ class InvoiceController extends Controller
         try {
             $pdf = Pdf::loadView('exportPDF.invoice', [
                 'invoice' => $invoice,
+                'nilaiRateBerat' => $nilaiRateBerat,
                 'resiData' => $resiData,
                 'hargaIDR' => $invoice->harga,
                 'creditNoteItems' => $creditNoteItems,
