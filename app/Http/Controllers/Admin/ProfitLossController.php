@@ -578,10 +578,25 @@ class ProfitLossController extends Controller
 
         $output .= '</tr>';
 
-        $net_profit = $total_operating_revenue - $total_hpp - $total_operating_expenses + $total_non_business_revenue - $total_non_business_expenses;
+        $netProfit = 0;
+
+        $allTransactions = collect($operatingRevenue)
+                            ->merge($operatingExpenses)
+                            ->merge($hargaPokokPenjualan)
+                            ->merge($nonBusinessRevenue)
+                            ->merge($nonBusinessExpenses);
+
+        // Menghitung total berdasarkan default_posisi
+        
+        $netProfit = $allTransactions->sum(function ($item) {
+            return ($item->default_posisi === 'Credit') ? $item->grand_total : -$item->grand_total;
+        });
+
+        $netProfit = round($netProfit, 2);
+
         $output .= '<tr>
                         <td ><b>NET PROFIT BEFORE TAX</b></td>
-                        <td> <b>' . number_format(abs($net_profit), 2) . '</b> </td>';
+                        <td> <b>' . number_format(abs($netProfit), 2) . '</b> </td>';
 
         $compare_net_profit = [];
         foreach ($comparisons as $index => $comparison) {
