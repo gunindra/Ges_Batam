@@ -221,36 +221,37 @@
                     <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
                  </div>`;
 
-            function generateInvoice() {
-                $.ajax({
-                    url: "{{ route('generateSupInvoice') }}",
-                    type: 'GET',
-                    dataType: 'json',
-                    beforeSend: function() {
-                        $('#noInvoice').html(loadSpin);
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            $('#noInvoice').val(response.no_invoice);
-                        } else {
-                            showMessage("error", "Gagal mendapatkan nomor invoice.")
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        showMessage("error", "Terjadi kesalahan:" + error);
-                    },
-                    complete: function() {
-                        $('#noInvoice').find('.spinner-border').remove();
-                    }
-                });
-            }
 
-            generateInvoice();
+            // function generateInvoice() {
+            //     $.ajax({
+            //         url: "{{ route('generateSupInvoice') }}",
+            //         type: 'GET',
+            //         dataType: 'json',
+            //         beforeSend: function() {
+            //             $('#noInvoice').html(loadSpin);
+            //         },
+            //         success: function(response) {
+            //             if (response.status === 'success') {
+            //                 $('#noInvoice').val(response.no_invoice);
+            //             } else {
+            //                 showMessage("error", "Gagal mendapatkan nomor invoice.")
+            //             }
+            //         },
+            //         error: function(xhr, status, error) {
+            //             showMessage("error", "Terjadi kesalahan:" + error);
+            //         },
+            //         complete: function() {
+            //             $('#noInvoice').find('.spinner-border').remove();
+            //         }
+            //     });
+            // }
 
-            $('#btnRefreshInvoice').on('click', function(e) {
-                e.preventDefault();
-                generateInvoice();
-            });
+            // generateInvoice();
+
+            // $('#btnRefreshInvoice').on('click', function(e) {
+            //     e.preventDefault();
+            //     generateInvoice();
+            // });
 
             $('.select2singgle').select2({
                 width: 'resolve'
