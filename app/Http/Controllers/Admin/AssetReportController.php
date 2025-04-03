@@ -36,28 +36,32 @@ class AssetReportController extends Controller
         $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : Carbon::now()->endOfMonth();
 
         $asset = Asset::select(
-            'tbl_assets.id as asset_id',
-            'tbl_assets.acquisition_price',
-            'tbl_assets.estimated_age',
-            'tbl_assets.asset_name',
-            'tbl_assets.acquisition_date',
-            'tbl_jurnal.totalcredit as credit',
-            'tbl_jurnal.tanggal as tanggal',
-            'tbl_jurnal.begining_value as begining_value',
-            'tbl_jurnal.ending_value as ending_value'
-        )
-        ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
-        ->where('tbl_assets.company_id', $companyId)
-        ->whereDate('tbl_jurnal.tanggal', '>=', $startDate)
-        ->whereDate('tbl_jurnal.tanggal', '<=', $endDate)
-        ->get()
-        ->map(function ($item) {
-            // Adjusting the balance calculation
-            $item->beginning_balance = $item->acquisition_price - $item->total_credit_before;
-            $item->ending_balance = $item->beginning_balance - $item->credit;
-            return $item;
-        });
-
+                'tbl_assets.id as asset_id',
+                'tbl_assets.acquisition_price',
+                'tbl_assets.estimated_age',
+                'tbl_assets.asset_name',
+                'tbl_assets.acquisition_date',
+                'tbl_jurnal.totalcredit as credit',
+                'tbl_jurnal.tanggal as tanggal',
+                'tbl_jurnal.begining_value as begining_value',
+                'tbl_jurnal.ending_value as ending_value'
+            )
+            ->join('tbl_jurnal', 'tbl_assets.id', '=', 'tbl_jurnal.asset_id')
+            ->where('tbl_assets.company_id', $companyId)
+            ->whereDate('tbl_jurnal.tanggal', '>=', $startDate)
+            ->whereDate('tbl_jurnal.tanggal', '<=', $endDate)
+            ->get()
+            ->map(function ($item) {
+                // Adjusting the balance calculation
+                $item->beginning_balance = $item->acquisition_price - $item->total_credit_before;
+                $item->ending_balance = $item->beginning_balance - $item->credit;
+                return $item;
+            });
+        
+        // Calculate the sum of begining_value and ending_value
+        $totalBeginningValue = $asset->sum('begining_value');
+        $totalEndingValue = $asset->sum('ending_value');
+        $totalDepreciation = $totalBeginningValue - $totalEndingValue;
 
         $output = '
                     <h5 style="text-align:center; width:100%">'
@@ -85,12 +89,22 @@ class AssetReportController extends Controller
                                     <td class="text-center">' . ($data->estimated_age) . ' Month </td>
                                     <td class="text-right">' . number_format($data->begining_value, 2) . '</td>
                                     <td class="text-right">' . number_format($data->credit, 2) . '</td>
-                                    <td class="text-right">' . number_format($data->ending_value, 2) . '</td>
+                                    <td class="text-right">' . number_format($data->ending_value, 2) . '</td>        
                                 </tr>';
                 }
             }
 
-        $output .= '</table> </div>';
+        $output .= '
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="text-center"> Grand Total</td>
+                        <td class="text-right">' . number_format($totalBeginningValue, 2) . '</td>
+                        <td class="text-right">' . number_format($totalDepreciation, 2) . '</td>
+                        <td class="text-right">' . number_format($totalEndingValue, 2) . '</td>
+                    </tr>
+                </tfoot></table> </div>';
 
         return $output;
     }
@@ -159,7 +173,11 @@ class AssetReportController extends Controller
                 $asset->ending_balance = $asset->beginning_balance - $asset->credit;
                 return $asset;
             });
-
+            
+            $totalBeginningValue = $assets->sum('begining_value');
+            $totalEndingValue = $assets->sum('ending_value');
+            $totalDepreciation = $totalBeginningValue - $totalEndingValue;
+            
             // Pastikan data tidak kosong
             if ($assets->isEmpty()) {
                 return response()->json(['error' => 'No data available for the selected date range'], 404);
@@ -170,6 +188,9 @@ class AssetReportController extends Controller
                 'assets' => $assets,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
+                'totalBeginningValue' => $totalBeginningValue,
+                'totalEndingValue' => $totalEndingValue,
+                'totalDepreciation' => $totalDepreciation,
             ])
             ->setPaper('A4', 'portrait')
             ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])

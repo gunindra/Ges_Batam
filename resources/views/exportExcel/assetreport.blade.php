@@ -55,5 +55,25 @@
                 </td>
             </tr>
         @endforeach
+        <tfoot>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    Grand Total
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ number_format($totalBeginningValue, 2) }}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ number_format($totalDepreciation, 2) }}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ number_format($totalEndingValue, 2) }}
+                </td>
+        </tfoot>
     </tbody>
 </table>

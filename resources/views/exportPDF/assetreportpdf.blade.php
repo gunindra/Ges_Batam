@@ -239,6 +239,17 @@
                     </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+            <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Grand Total</td>
+                        <td>{{ number_format($totalBeginningValue, 2) }}</td>
+                        <td>{{ number_format($totalDepreciation, 2) }}</td>
+                        <td>{{ number_format($totalEndingValue, 2) }}</td>
+                    </tr>
+            </tfoot>
         </table>
     </div>
 </body>

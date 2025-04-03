@@ -63,11 +63,18 @@ class AssetReportExport implements FromView, WithEvents
             return $asset;
         });
 
+        $totalBeginningValue = $asset->sum('begining_value');
+        $totalEndingValue = $asset->sum('ending_value');
+        $totalDepreciation = $totalBeginningValue - $totalEndingValue;
+
         // Return view dengan data asset dan tanggal
         return view('exportExcel.assetreport', [
             'asset' => $asset,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
+            'totalBeginningValue' => $totalBeginningValue,
+            'totalEndingValue' => $totalEndingValue,
+            'totalDepreciation' => $totalDepreciation,
         ]);
     }
 
