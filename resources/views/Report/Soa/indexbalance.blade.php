@@ -154,12 +154,15 @@
 
             getSOA();
 
-            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-            const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+            // const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+            // const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+            const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+            const today = new Date();
 
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
-                defaultDate: startOfMonth,
+                defaultDate: startOfYear,
                 onChange: function (selectedDates, dateStr, instance) {
                     $("#endDate").flatpickr({
                         dateFormat: "d M Y",
@@ -171,7 +174,7 @@
 
             flatpickr("#endDate", {
                 dateFormat: "d M Y",
-                defaultDate: endOfMonth,
+                defaultDate: today,
                 onChange: function (selectedDates, dateStr, instance) {
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
