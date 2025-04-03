@@ -218,21 +218,24 @@ class TopUpReportController extends Controller
             $pricePerKg = $balanceData['price_per_kg'] ?? 0;
             $initialValue = $initialBalance * $pricePerKg;
             
-            $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
-                <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
-                <td style="text-align:center;">' . $marking . '</td>
-                <td style="text-align:center;">-</td>
-                <td style="text-align:center;">-</td>
-                <td style="text-align:center;">-</td>
-                <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
+            if ($initialBalance != 0) {
+                $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
+                                <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
+                                <td style="text-align:center;">' . $marking . '</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
+                                
+                if (!$isCustomerRole) {
+                    $output .= '<td style="text-align:center;">-</td>';
+                    $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
+                }
                 
-            if (!$isCustomerRole) {
-                $output .= '<td style="text-align:center;">-</td>';
-                $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
+                $output .= '<td style="text-align:center;">SALDO AWAL</td>
+                            </tr>';
             }
             
-            $output .= '<td style="text-align:center;">SALDO AWAL</td>
-            </tr>';
             
             // Add the regular transactions for this marking
             if (isset($groupedData[$marking])) {
