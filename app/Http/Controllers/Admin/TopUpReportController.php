@@ -45,6 +45,46 @@ class TopUpReportController extends Controller
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
         $userIdCondition = $isCustomerRole ? "AND tp.user_id = ?" : "";
 
+        // Query untuk mendapatkan saldo awal sebelum tanggal mulai
+        $initialBalanceQuery = "
+            SELECT 
+                tp.marking,
+                COALESCE(SUM(
+                    CASE 
+                        WHEN tht.status != 'canceled' THEN tht.remaining_points 
+                        ELSE 0 
+                    END
+                ), 0) - COALESCE(SUM(tup.used_points), 0) AS initial_balance,
+                MAX(tht.price_per_kg) AS price_per_kg
+            FROM tbl_pembeli tp
+            LEFT JOIN tbl_history_topup tht ON tht.customer_id = tp.id 
+                AND tht.date < ? 
+                AND tht.status != 'canceled'
+            LEFT JOIN tbl_usage_points tup ON tup.customer_id = tp.id 
+                AND tup.usage_date < ?
+            WHERE tp.company_id = ?
+            " . ($customer ? "AND tp.id = ?" : "") . "
+            " . $userIdCondition . "
+            GROUP BY tp.marking
+        ";
+
+        $initialParams = [$startDate, $startDate, $companyId];
+        if ($customer) {
+            $initialParams[] = $customer;
+        }
+        if ($isCustomerRole) {
+            $initialParams[] = auth()->user()->id;
+        }
+
+        $initialBalances = DB::select($initialBalanceQuery, $initialParams);
+        $initialBalanceMap = [];
+        foreach ($initialBalances as $balance) {
+            $initialBalanceMap[$balance->marking] = [
+                'balance' => $balance->initial_balance,
+                'price_per_kg' => $balance->price_per_kg
+            ];
+        }
+
         $query = "
             WITH combined_data AS (
                 SELECT
@@ -141,6 +181,13 @@ class TopUpReportController extends Controller
         }
 
         $data = DB::select($query, $params);
+        
+        // Group data by marking
+        $groupedData = [];
+        foreach ($data as $row) {
+            $groupedData[$row->marking][] = $row;
+        }
+
         $output = '
             <h5 style="text-align:center; width:100%">'
                 . Carbon::parse($startDate)->format('d M Y') . ' - '
@@ -165,22 +212,51 @@ class TopUpReportController extends Controller
             </thead>
             <tbody>';
 
-        foreach ($data as $row) {
-            $output .= '<tr>
-                <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
-                <td style="text-align:center;">' . $row->marking . '</td>
-                <td style="text-align:center;">' . $row->no_invoice . '</td>
-                <td style="text-align:center;">' . number_format($row->in_points, 2) . '</td>
-                <td style="text-align:center;">' . number_format($row->out_points, 2) . '</td>
-                <td style="text-align:center;">' . number_format($row->saldo, 2) . '</td>';
-
-            if (!$isCustomerRole) {
-                $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value, 2) . '</td>';
-                $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->saldo_value, 2) . '</td>';
+        // Add initial balance row for each customer
+        foreach ($initialBalanceMap as $marking => $balanceData) {
+            $initialBalance = $balanceData['balance'];
+            $pricePerKg = $balanceData['price_per_kg'] ?? 0;
+            $initialValue = $initialBalance * $pricePerKg;
+            
+            if ($initialBalance != 0) {
+                $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
+                                <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
+                                <td style="text-align:center;">' . $marking . '</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">-</td>
+                                <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
+                                
+                if (!$isCustomerRole) {
+                    $output .= '<td style="text-align:center;">-</td>';
+                    $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
+                }
+                
+                $output .= '<td style="text-align:center;">SALDO AWAL</td>
+                            </tr>';
             }
+            
+            
+            // Add the regular transactions for this marking
+            if (isset($groupedData[$marking])) {
+                foreach ($groupedData[$marking] as $row) {
+                    $output .= '<tr>
+                        <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
+                        <td style="text-align:center;">' . $row->marking . '</td>
+                        <td style="text-align:center;">' . $row->no_invoice . '</td>
+                        <td style="text-align:center;">' . number_format($row->in_points, 2) . '</td>
+                        <td style="text-align:center;">' . number_format($row->out_points, 2) . '</td>
+                        <td style="text-align:center;">' . number_format($row->saldo + $initialBalance, 2) . '</td>';
 
-            $output .= '<td style="text-align:center;">' . strtoupper($row->status) . '</td>
-            </tr>';
+                    if (!$isCustomerRole) {
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value, 2) . '</td>';
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format(($row->saldo + $initialBalance), 2) . '</td>';
+                    }
+
+                    $output .= '<td style="text-align:center;">' . strtoupper($row->status) . '</td>
+                    </tr>';
+                }
+            }
         }
 
         $output .= '</tbody></table></div>';
