@@ -215,7 +215,7 @@ class SalesController extends Controller
             if ($salesdata->isEmpty()) {
                 return response()->json(['error' => 'Sales invoices not found'], 404);
             }
-            
+
             $journalQuery = DB::table('tbl_jurnal_items AS ji')
                             ->select(
                                 'ji.id AS items_id',
