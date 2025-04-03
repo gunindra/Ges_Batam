@@ -217,8 +217,11 @@ class TopUpReportController extends Controller
             $initialBalance = $balanceData['balance'];
             $pricePerKg = $balanceData['price_per_kg'] ?? 0;
             $initialValue = $initialBalance * $pricePerKg;
-            
-            if ($initialBalance != 0) {
+
+            $hasTransactions = isset($groupedData[$marking]) && count($groupedData[$marking]) > 0;
+
+            if ($hasTransactions || $initialBalance != 0) {
+
                 $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
                                 <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
                                 <td style="text-align:center;">' . $marking . '</td>
