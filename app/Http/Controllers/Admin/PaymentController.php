@@ -94,8 +94,8 @@ class PaymentController extends Controller
                 'c.name as payment_method',
                 DB::raw('SUM(f.amount) as total_amount'),
                 'a.discount',
-                'a.createdby',
-                'a.updateby'
+                DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')') as createdby"),
+                DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')') as updateby")
             )
             ->where('a.company_id', $companyId)
             ->groupBy(
@@ -108,9 +108,10 @@ class PaymentController extends Controller
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s')"),
                 'c.name',
                 'a.discount',
-                'a.createdby',
-                'a.updateby'
+                DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')')"),
+                DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')')")
             );
+
 
         if (!empty($request->status)) {
             $query->where('c.name', $request->status);
