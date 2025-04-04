@@ -287,7 +287,7 @@
 
                         @if ($resi->berat)
                             <td>
-                                {{ $resi->berat ?? '0' }} / {{ number_format($nilaiRateBerat, 2) }} perkg
+                                {{ $resi->berat ?? '0' }} Kg
                             </td>
                         @else
                             <td>
