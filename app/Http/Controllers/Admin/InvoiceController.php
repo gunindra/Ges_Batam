@@ -700,6 +700,7 @@ class InvoiceController extends Controller
                 DB::table('tbl_jurnal')->where('id', $jurnal->id)->update([
                     'totaldebit' => $totalharga,
                     'totalcredit' => $totalharga,
+                    'tanggal' => $formattedDate,
                     'updated_at' => now(),
                 ]);
 
