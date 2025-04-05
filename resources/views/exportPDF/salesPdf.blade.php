@@ -267,7 +267,7 @@
                 @php
                     $selisih = $journalTotal - $grandTotal;
                 @endphp
-                @if($selisih != 0)
+                 @if($selisih != 0 && is_null($txSearch))
                     <tr>
                         <td colspan="10" class="text-right grand-total">Selisih Terhadap Ledger</td>
                         <td class="text-right grand-total">

@@ -140,10 +140,11 @@ class SalesController extends Controller
 
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
+        $txSearch = $request->txSearch === "null" ? null : trim($request->txSearch);
         $NoDo = $request->input('no_do');
         $Customer = $request->input('nama_pembeli');
 
-        return Excel::download(new SalesExport($NoDo, $Customer, $startDate, $endDate), 'Sales.xlsx');
+        return Excel::download(new SalesExport($NoDo, $txSearch, $Customer, $startDate, $endDate), 'Sales.xlsx');
     }
 
 
@@ -151,6 +152,7 @@ class SalesController extends Controller
     {
         $NoDo = $request->no_do === "null" ? null : trim($request->no_do);
         $Customer = $request->nama_pembeli === "null" ? null : trim($request->nama_pembeli);
+        $txSearch = $request->txSearch === "null" ? null : trim($request->txSearch);
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
 
@@ -181,6 +183,10 @@ class SalesController extends Controller
                 ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
                 ->when($Customer, fn($q) => $q->where('tbl_pembeli.marking', 'LIKE', '%' . $Customer . '%'))
                 ->when($NoDo, fn($q) => $q->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%'))
+                ->when($txSearch, fn($q) => $q->where(function($query) use ($txSearch) {
+                    $query->where('tbl_resi.no_resi', 'LIKE', '%' . $txSearch . '%')
+                          ->orWhere('tbl_invoice.no_invoice', 'LIKE', '%' . $txSearch . '%');
+                }))
                 ->groupBy(
                     'tbl_invoice.no_invoice',
                     'tbl_invoice.tanggal_buat',
@@ -256,13 +262,15 @@ class SalesController extends Controller
 
             $journalTotal = $journalResults->sum('credit') - $journalResults->sum('debit');
 
+
             $pdf = Pdf::loadView('exportPDF.salesPdf', [
                 'salesdata' => $salesdata,
                 'NoDo' => $NoDo,
                 'Customer' => $Customer,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-                'journalTotal' => $journalTotal
+                'journalTotal' => $journalTotal,
+                'txSearch' => $txSearch !== null ? $txSearch : null
             ])
                 ->setPaper('A4', 'portrait')
                 ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])

@@ -275,6 +275,7 @@
 
             $('#exportBtn').on('click', function() {
                 let NoDo = $('#filterNoDO').val();
+                let txSearch = $('#txSearch').val();
                 let customer = $('#filterCustomer').val();
                 let startDate = $('#startDate').val();
                 let endDate = $('#endDate').val();
@@ -296,6 +297,7 @@
                     type: 'GET',
                     data: {
                         no_do: NoDo,
+                        txSearch: txSearch,
                         nama_pembeli: customer,
                         startDate: startDate,
                         endDate: endDate
@@ -325,6 +327,7 @@
                 e.preventDefault();
 
                 let NoDo = $('#filterNoDO').val();
+                let txSearch = $('#txSearch').val();
                 let Customer = $('#filterCustomer').val();
                 let startDate = $('#startDate').val();
                 let endDate = $('#endDate').val();
@@ -332,6 +335,7 @@
                 // Buat URL dengan semua parameter
                 let url = "{{ route('exportSalesPdf') }}?no_do=" + encodeURIComponent(NoDo) +
                     "&nama_pembeli=" + encodeURIComponent(Customer) +
+                    "&txSearch=" + encodeURIComponent(txSearch) +
                     "&startDate=" + encodeURIComponent(startDate) +
                     "&endDate=" + encodeURIComponent(endDate);
 

@@ -12,13 +12,15 @@ use Illuminate\Contracts\View\View;
 class SalesExport implements FromView, WithEvents
 {
     protected $NoDo;
+    protected $txSearch;
     protected $customer;
     protected $startDate;
     protected $endDate;
 
-    public function __construct($NoDo, $customer, $startDate, $endDate)
+    public function __construct($NoDo, $txSearch, $customer, $startDate, $endDate)
     {
         $this->NoDo = $NoDo;
+        $this->txSearch = $txSearch;
         $this->customer = $customer;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
@@ -32,6 +34,7 @@ class SalesExport implements FromView, WithEvents
         $companyId = session('active_company_id');
         $NoDo = $this->NoDo;
         $Customer = $this->customer;
+        $txSearch = $this->txSearch;
 
         $query = DB::table('tbl_invoice')
             ->select(
@@ -57,6 +60,10 @@ class SalesExport implements FromView, WithEvents
             ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
             ->when($Customer, fn($q) => $q->where('tbl_pembeli.marking', 'LIKE', '%' . $Customer . '%'))
             ->when($NoDo, fn($q) => $q->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%'))
+            ->when($txSearch, fn($q) => $q->where(function($query) use ($txSearch) {
+                $query->where('tbl_resi.no_resi', 'LIKE', '%' . $txSearch . '%')
+                      ->orWhere('tbl_invoice.no_invoice', 'LIKE', '%' . $txSearch . '%');
+            }))
             ->groupBy(
                 'tbl_invoice.no_invoice',
                 'tbl_invoice.tanggal_buat',
@@ -127,7 +134,8 @@ class SalesExport implements FromView, WithEvents
             'customer' => $this->customer,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'journalTotal' => $journalTotal
+            'journalTotal' => $journalTotal,
+            'txSearch' => $txSearch !== null ? $txSearch : null
         ]);
     }
 

@@ -98,7 +98,7 @@
         @php
             $selisih = $journalTotal - $grandTotal;
         @endphp
-        @if($selisih != 0)
+         @if($selisih != 0 && is_null($txSearch))
             <tr>
                 <td colspan="9" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
                     Selisih Terhadap Ledger
