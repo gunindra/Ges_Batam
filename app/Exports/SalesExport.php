@@ -55,7 +55,7 @@ class SalesExport implements FromView, WithEvents
             ->join('tbl_resi', 'tbl_resi.invoice_id', '=', 'tbl_invoice.id')
             ->where('tbl_invoice.company_id', $companyId)
             ->whereIn('tbl_invoice.metode_pengiriman', ['Delivery', 'Pickup'])
-            ->when($Customer, fn($q) => $q->where('tbl_pembeli.nama_pembeli', 'LIKE', '%' . $Customer . '%'))
+            ->when($Customer, fn($q) => $q->where('tbl_pembeli.marking', 'LIKE', '%' . $Customer . '%'))
             ->when($NoDo, fn($q) => $q->where('tbl_resi.no_do', 'LIKE', '%' . $NoDo . '%'))
             ->groupBy(
                 'tbl_invoice.no_invoice',

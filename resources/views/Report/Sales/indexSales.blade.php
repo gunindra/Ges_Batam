@@ -98,7 +98,7 @@
                             <select class="form-control ml-2 select2" id="filterCustomer" style="width: 200px;">
                                 <option value="" selected disabled>Pilih Customer</option>
                                 @foreach ($listCustomer as $Customer)
-                                    <option value="{{ $Customer->nama_pembeli }}">{{ $Customer->nama_pembeli }}</option>
+                                    <option value="{{ $Customer->marking }}">{{ $Customer->marking }}</option>
                                 @endforeach
                             </select>
                             <button class="btn btn-primary ml-2" id="filterTanggal">Filter</button>
