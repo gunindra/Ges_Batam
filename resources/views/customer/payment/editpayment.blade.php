@@ -109,7 +109,8 @@
 
                         <div class="form-group mt-3">
                             <label for="tanggalPaymentBuat" class="form-label fw-bold">Tanggal Buat</label>
-                            <input style="background-color: white" type="text" class="form-control" id="tanggalPaymentBuat">
+                            <input style="background-color: white" type="text" class="form-control"
+                                id="tanggalPaymentBuat">
                             <div id="errTanggalPaymentBuat" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
                     </div>
@@ -230,6 +231,9 @@
     <script>
         $(document).ready(function() {
             var payment = @json($payment);
+
+            console.log(payment);
+
 
             let paymentInvoice = payment.payment_invoices
             $('#selectMarking').on('change', function() {
@@ -442,15 +446,19 @@
             // $('#tanggalPaymentBuat').val(payment.payment_buat).trigger('change');
             $('#discountPayment').val(payment.discount).trigger('change');
             $('#keteranganPayment').val(payment.Keterangan).trigger('change');
-            let hasKuota = paymentInvoice.some(item => item.kuota !== null);
+            let hasKuota = paymentInvoice.some(item => item.kuota && parseFloat(item.kuota) > 0);
             if (!hasKuota) {
                 // Jika semua kuota bernilai null
                 let totalAmount = paymentInvoice.reduce((total, item) => {
                     return total + parseFloat(item.amount);
                 }, 0);
 
-                // Format angka dengan tanda ribuan
-                // let formattedAmount = totalAmount.toLocaleString();
+                // Tambahkan discount jika ada
+                if (payment.discount) {
+                    totalAmount += parseFloat(payment.discount);
+                }
+
+                // Set nilai ke input #payment
                 $('#payment').val(totalAmount).trigger('change');
 
 

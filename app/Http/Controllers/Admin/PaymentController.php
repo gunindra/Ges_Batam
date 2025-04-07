@@ -92,7 +92,7 @@ class PaymentController extends Controller
                 DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
                 DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s') as tanggal_payment"),
                 'c.name as payment_method',
-                DB::raw('SUM(f.amount) as total_amount'),
+                DB::raw('SUM(f.amount) + IFNULL(a.discount, 0) as total_amount'),
                 'a.discount',
                 DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')') as createdby"),
                 DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')') as updateby")
@@ -403,6 +403,7 @@ class PaymentController extends Controller
             $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
             $payment->Keterangan = $request->keterangan;
+            $payment->discount = 0;
             $payment->createdby = Auth::user()->name;
             $payment->company_id = $companyId;
             $payment->save();
@@ -711,7 +712,6 @@ class PaymentController extends Controller
 
         //   dd($request->all());
 
-
         if (is_null($salesAccountId) || is_null($receivableSalesAccount) ||  is_null($paymentDiscountAccount) ) {
             Log::error('Akun pengaturan tidak lengkap.');
             return response()->json([
@@ -725,15 +725,18 @@ class PaymentController extends Controller
 
             $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
-            $totalPayment = $request->paymentAmount;
+            $totalPayment = $request->totalAmmount; // Jumlah yang dibayarkan setelah diskon
+            $fullPaymentAmount = $request->paymentAmount ?? $totalPayment; // Jumlah sebelum diskon (jika ada)
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
+            $hasDiscount = isset($request->discountPayment) && $request->discountPayment > 0;
 
+            // Buat payment record
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
-            $payment->pembeli_id =  $idMarking;
+            $payment->pembeli_id = $idMarking;
             $payment->payment_date = $tanggalPayment;
-            $payment->payment_buat =   $formattedDateTime;
+            $payment->payment_buat = $formattedDateTime;
             $payment->payment_method_id = $paymentMethodId;
             $payment->discount = $request->discountPayment ?? 0;
             $payment->Keterangan = $request->keterangan;
@@ -742,50 +745,51 @@ class PaymentController extends Controller
             $payment->save();
 
             $invoiceList = [];
+            $remainingPayment = $totalPayment; // Sisa pembayaran setelah diskon yang perlu dialokasikan
+            $remainingFullAmount = $fullPaymentAmount; // Sisa pembayaran sebelum diskon (untuk tracking)
+
             foreach ($request->invoice as $noInvoice) {
                 $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
-
-                $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
-                $allocatedAmount = min($totalPayment, $remainingAmount);
-
-                if ($allocatedAmount > $remainingAmount) {
-                    Log::warning("Pembayaran melebihi jumlah yang tersisa untuk invoice {$noInvoice}. Pembayaran dibatalkan.");
-
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Pembayaran melebihi jumlah yang tersisa. Pembayaran dibatalkan.'
-                    ], 400);
+                $invoiceUnpaidAmount = $invoice->total_harga - $invoice->total_bayar;
+                $invoiceDiscount = 0;
+                if ($hasDiscount) {
+                    $invoiceRatio = $invoice->total_harga / array_sum(array_map(function($inv) {
+                        return Invoice::where('no_invoice', $inv)->first()->total_harga;
+                    }, $request->invoice));
+                    $invoiceDiscount = $request->discountPayment * $invoiceRatio;
                 }
+
+                $allocatedAmount = min($remainingPayment, ($invoiceUnpaidAmount - $invoiceDiscount));
+                $fullAllocatedAmount = $allocatedAmount + $invoiceDiscount;
 
                 if ($allocatedAmount <= 0) {
                     Log::info("Invoice {$noInvoice} sudah lunas.");
                     continue;
                 }
-
                 $paymentInvoice = new PaymentInvoice();
                 $paymentInvoice->payment_id = $payment->id;
                 $paymentInvoice->invoice_id = $invoice->id;
                 $paymentInvoice->amount = $allocatedAmount;
                 $paymentInvoice->kuota = 0.00;
                 $paymentInvoice->save();
-
-                $invoice->total_bayar += $allocatedAmount;
+                $invoice->total_bayar += $fullAllocatedAmount;
                 $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
 
-                $totalPayment -= $allocatedAmount;
-                if ($totalPayment <= 0) {
+                $remainingPayment -= $allocatedAmount;
+                $remainingFullAmount -= $fullAllocatedAmount;
+                $invoiceList[] = $invoice->no_invoice;
+
+                if ($remainingPayment <= 0) {
                     break;
                 }
-
-                $invoiceList[] = $invoice->no_invoice;
             }
 
-            if ($totalPayment > 0) {
-                Log::warning("Sisa dana pembayaran tidak teralokasi: {$totalPayment}");
+            if ($remainingPayment > 0) {
+                Log::warning("Sisa dana pembayaran tidak teralokasi: {$remainingPayment}");
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Pembayaran tidak dapat diproses karena sisa dana melebihi jumlah yang harus dibayar.'
+                    'message' => 'Ada sisa pembayaran yang tidak teralokasi.'
                 ], 400);
             }
 
@@ -1141,7 +1145,7 @@ class PaymentController extends Controller
             PaymentInvoice::where('payment_id', $payment->id)->delete();
             Log::info('PaymentInvoice lama berhasil dihapus.');
 
-            $totalPayment = $request->paymentAmount;
+            $totalPayment = $request->paymentAmount - ($request->discountPayment ?? 0);
             Log::info('Proses alokasi payment dimulai.', ['totalPayment' => $totalPayment]);
 
             foreach ($request->invoice as $noInvoice) {
@@ -1153,12 +1157,15 @@ class PaymentController extends Controller
 
                 if ($allocatedAmount <= 0) continue;
                 $totalTagihanInvoice = $remainingAmount;
-                $kuota = $allocatedAmount / $currentPointPrice;
+                $kuota = 0;
+                if (!is_null($request->amountPoin)) {
+                    $kuota = $allocatedAmount / $currentPointPrice;
+                }
                 PaymentInvoice::updateOrCreate(
                     ['payment_id' => $payment->id, 'invoice_id' => $invoice->id],
                     [
                         'amount' => $allocatedAmount,
-                        'kuota' => $kuota ?? 0
+                       'kuota' => $kuota
                     ]
                 );
 
@@ -1468,6 +1475,15 @@ class PaymentController extends Controller
 
                 if ($invoice) {
                     $invoice->total_bayar -= $paymentInvoice->amount;
+                    // Jika ada diskon, kurangi juga dari total_bayar
+                    if (!empty($payment->discount)) {
+                        $invoice->total_bayar -= $payment->discount;
+                    }
+
+                    // Pastikan total_bayar tidak menjadi negatif
+                    if ($invoice->total_bayar < 0) {
+                        $invoice->total_bayar = 0;
+                    }
                     if ($invoice->total_bayar < 0) {
                         $invoice->total_bayar = 0;
                     }
