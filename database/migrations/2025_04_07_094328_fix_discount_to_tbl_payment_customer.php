@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_payment_customer', function (Blueprint $table) {
-            $table->decimal('discount', 15, 2)->change();
+            $table->decimal('discount', 15, 2)->nullable()->change();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tbl_payment_customer', function (Blueprint $table) {
-            $table->decimal('discount', 8, 2)->change();
+            $table->decimal('discount', 8, 2)->nullable()->change();
         });
     }
 };
