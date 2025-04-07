@@ -46,6 +46,7 @@ class CostumerController extends Controller
                 DB::raw('GROUP_CONCAT(tbl_alamat.alamat SEPARATOR "; ") AS alamat'),
                 DB::raw('COUNT(tbl_alamat.alamat) AS alamat_count'),
                 'tbl_pembeli.no_wa',
+                DB::raw("COALESCE(SUM(CASE WHEN tbl_history_topup.status = 'active' THEN tbl_history_topup.balance ELSE 0 END), 0) AS total_topup_points"),
                 'tbl_pembeli.sisa_poin',
                 'tbl_pembeli.metode_pengiriman',
                 DB::raw("DATE_FORMAT(tbl_pembeli.transaksi_terakhir, '%d %M %Y') AS tanggal_bayar"),
@@ -57,6 +58,7 @@ class CostumerController extends Controller
             ->leftJoin('tbl_alamat', 'tbl_alamat.pembeli_id', '=', 'tbl_pembeli.id')
             ->leftJoin('tbl_category', 'tbl_pembeli.category_id', '=', 'tbl_category.id')
             ->leftJoin('tbl_users', 'tbl_users.id', '=', 'tbl_pembeli.user_id')
+            ->leftJoin('tbl_history_topup', 'tbl_history_topup.customer_id', '=', 'tbl_pembeli.id')
             ->whereNull('tbl_pembeli.deleted_at')
             ->where('tbl_pembeli.company_id', $companyId)
             ->when($txSearch, function ($q) use ($txSearch) {
@@ -111,7 +113,7 @@ class CostumerController extends Controller
             })
             ->addColumn('action', function ($item) {
                 return '
-                    <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->sisa_poin . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
+                    <a class="btn btnPointCostumer btn-sm btn-primary text-white" data-id="' . $item->id . '" data-poin="' . $item->total_topup_points . '" data-notelp="' . $item->no_wa . '"><i class="fas fa-eye"></i></a>
                     <a class="btn btnUpdateCustomer btn-sm btn-secondary text-white" data-id="' . $item->id . '" data-marking="' . $item->marking . '" data-nama="' . $item->nama_pembeli . '" data-email="' . $item->email . '" data-alamat="' . $item->alamat . '" data-notelp="' . $item->no_wa . '" data-metode_pengiriman="' . $item->metode_pengiriman . '" data-category="' . $item->category_id . '"><i class="fas fa-edit"></i></a>
                     <button class="btn btn-sm btn-danger text-white btnDeleteCustomer" data-id="' . $item->id . '"><i class="fas fa-trash"></i></button>
                 ';
