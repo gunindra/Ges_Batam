@@ -531,9 +531,9 @@ class PaymentController extends Controller
             $jurnal->tipe_kode = 'BKM';
             $jurnal->tanggal = $formattedDateTime;
             $jurnal->tanggal_payment = $tanggalPayment;
-            $jurnal->no_ref = $invoiceNumbers;
+            $jurnal->no_ref = $payment->kode_pembayaran;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Invoice " . $invoiceNumbers;
+            $jurnal->description = "Jurnal untuk Payment " . $payment->kode_pembayaran;
             $jurnal->totaldebit = $totalSisaTagihan;
             $jurnal->totalcredit = $totalSisaTagihan;
             $jurnal->company_id = $companyId;
@@ -546,38 +546,38 @@ class PaymentController extends Controller
             if ($marginError > 0) {
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
-                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                    'description' => "Kredit untuk Payment " . $payment->kode_pembayaran,
                     'credit' => $totalSisaTagihan,
                     'debit' => 0,
                 ];
                 $journalItems[] = [
                     'code_account' => $paymentMethodId,
-                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                    'description' => "Debit untuk Payment " . $payment->kode_pembayaran,
                     'credit' => 0,
                     'debit' => $nilaiPayment,
                 ];
                 $journalItems[] = [
                     'code_account' => $poinMarginAccount,
-                    'description' => "Margin untuk Invoice " . $invoiceNumbers,
+                    'description' => "Margin untuk Payment " . $payment->kode_pembayaran,
                     'credit' => 0,
                     'debit' => $marginError,
                 ];
             } elseif ($marginError < 0) {
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
-                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                    'description' => "Kredit untuk Payment " . $payment->kode_pembayaran,
                     'credit' => $totalSisaTagihan,
                     'debit' => 0,
                 ];
                 $journalItems[] = [
                     'code_account' => $paymentMethodId,
-                    'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                    'description' => "Debit untuk Payment " . $payment->kode_pembayaran,
                     'credit' => 0,
                     'debit' => $nilaiPayment,
                 ];
                 $journalItems[] = [
                     'code_account' => $poinMarginAccount,
-                    'description' => "Lebih Bayar (Diskon) untuk Invoice " . $invoiceNumbers,
+                    'description' => "Lebih Bayar (Diskon) untuk Payment " . $payment->kode_pembayaran,
                     'credit' => abs($marginError),
                     'debit' => 0,
                 ];
@@ -586,13 +586,13 @@ class PaymentController extends Controller
                 Log::info("Case: Point Margin is Zero");
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
-                    'description' => "Debit untuk Invoice " .  $invoiceNumbers,
+                    'description' => "Debit untuk Payment " .  $payment->kode_pembayaran,
                     'debit' => $totalSisaTagihan,
                     'credit' => 0,
                 ];
                 $journalItems[] = [
                     'code_account' => $paymentMethodId,
-                    'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                    'description' => "Kredit untuk Payment " . $payment->kode_pembayaran,
                     'debit' => 0,
                     'credit' => $nilaiPayment,
                 ];
