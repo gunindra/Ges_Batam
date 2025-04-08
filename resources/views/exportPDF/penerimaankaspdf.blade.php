@@ -232,8 +232,8 @@ if (file_exists($path)) {
                 @endphp
                 @foreach ($payments as $kas)
                                 @php
-                                    $total = $kas->total_amount - $kas->discount;
-                                    $grandTotal += $total; 
+                                    $total = $kas->total_amount;
+                                    $grandTotal += $total;
                                 @endphp
                                 <tr>
                                     <td>{{ $no++ }}</td>

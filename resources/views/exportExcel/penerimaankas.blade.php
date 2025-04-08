@@ -49,7 +49,7 @@
         @php $grandTotal = 0; @endphp
         @foreach ($payments as $kas)
             @php
-                $totalAmount = $kas->total_amount - $kas->discount;
+                $totalAmount = $kas->total_amount;
                 $grandTotal += $totalAmount;
             @endphp
             <tr>
