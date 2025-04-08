@@ -135,8 +135,8 @@ class PenerimaanKasController extends Controller
         $grandTotal = 0; // Initialize grand total
 
         foreach ($payments as $data) {
-            $totalAmount = $data->total_amount - $data->discount;
-            $grandTotal += $totalAmount; // Sum the total amount
+            $totalAmount = $data->total_amount;
+            $grandTotal += $totalAmount;
 
             $output .= '<tr>
                 <td style="text-align:center;">' . $data->kode_pembayaran . ' </td>
