@@ -808,9 +808,9 @@ class PaymentController extends Controller
             $jurnal->tipe_kode = 'BKM';
             $jurnal->tanggal = $formattedDateTime;
             $jurnal->tanggal_payment = $tanggalPayment;
-            $jurnal->no_ref = $noRef;
+            $jurnal->no_ref = $payment->kode_pembayaran;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Invoice: " . $noRef;
+            $jurnal->description = "Jurnal untuk payment: " . $payment->kode_pembayaran;
             $totalJurnalAmount = $request->totalAmmount;
             $jurnal->totaldebit = $request->paymentAmount;
             $jurnal->totalcredit = $request->paymentAmount;
@@ -820,7 +820,7 @@ class PaymentController extends Controller
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
             $jurnalItemDebit->code_account = $receivableSalesAccount->id;
-            $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
+            $jurnalItemDebit->description = "Debit untuk payment: " . $payment->kode_pembayaran;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
@@ -830,7 +830,7 @@ class PaymentController extends Controller
             $jurnalItemCredit = new JurnalItem();
             $jurnalItemCredit->jurnal_id = $jurnal->id;
             $jurnalItemCredit->code_account = $salesAccountId;
-            $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
+            $jurnalItemCredit->description = "Kredit untuk payment: " . $payment->kode_pembayaran;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $request->paymentAmount;
             $jurnalItemCredit->save();
@@ -841,7 +841,7 @@ class PaymentController extends Controller
                 $jurnalItemDiscount = new JurnalItem();
                 $jurnalItemDiscount->jurnal_id = $jurnal->id;
                 $jurnalItemDiscount->code_account = $paymentDiscountAccount;
-                $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
+                $jurnalItemDiscount->description = "Diskon untuk payment: " . $payment->kode_pembayaran;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
                 $jurnalItemDiscount->save();
