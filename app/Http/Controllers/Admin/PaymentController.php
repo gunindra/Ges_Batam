@@ -725,8 +725,8 @@ class PaymentController extends Controller
 
             $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
-            $totalPayment = $request->totalAmmount; // Jumlah yang dibayarkan setelah diskon
-            $fullPaymentAmount = $request->paymentAmount ?? $totalPayment; // Jumlah sebelum diskon (jika ada)
+            $totalPayment = $request->totalAmmount;
+            $fullPaymentAmount = $request->paymentAmount ?? $totalPayment;
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
             $hasDiscount = isset($request->discountPayment) && $request->discountPayment > 0;
@@ -745,8 +745,8 @@ class PaymentController extends Controller
             $payment->save();
 
             $invoiceList = [];
-            $remainingPayment = $totalPayment; // Sisa pembayaran setelah diskon yang perlu dialokasikan
-            $remainingFullAmount = $fullPaymentAmount; // Sisa pembayaran sebelum diskon (untuk tracking)
+            $remainingPayment = $totalPayment;
+            $remainingFullAmount = $fullPaymentAmount;
 
             foreach ($request->invoice as $noInvoice) {
                 $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
@@ -785,13 +785,14 @@ class PaymentController extends Controller
                 }
             }
 
-            if ($remainingPayment > 0) {
+            if ($remainingPayment > 0.01) { // Anggap sisa < 1 sen tidak penting
                 Log::warning("Sisa dana pembayaran tidak teralokasi: {$remainingPayment}");
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Ada sisa pembayaran yang tidak teralokasi.'
                 ], 400);
             }
+
 
             $noRef = implode(', ', $request->invoice);
 
