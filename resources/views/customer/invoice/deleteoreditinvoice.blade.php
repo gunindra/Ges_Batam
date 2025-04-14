@@ -239,6 +239,7 @@
                                 <tr>
                                     <th>No.</th>
                                     <th>No. Resi</th>
+                                    <th>No. Do</th>
                                     <th>Berat/Dimensi</th>
                                     <th>Hitungan</th>
                                     <th>Harga</th>
@@ -476,12 +477,13 @@
 
             let itemIndex = 1;
 
-            function addItemRow(noResi, berat = '', panjang = '', lebar = '', tinggi = '', harga = 0) {
+            function addItemRow(noResi, no_do, berat = '', panjang = '', lebar = '', tinggi = '', harga = 0) {
                 const isBeratNull = berat === null || berat === undefined || berat === '';
                 const newRow = `
                 <tr data-index="${itemIndex}">
                     <td class="item-number">${itemIndex}</td>
                     <td name="noResi[]">${noResi}</td>
+                    <td name="noDo[]" disabled>${no_do}</td>
                     <td>
                         <select class="form-control selectBeratDimensi" data-index="${itemIndex}">
                             <option value="berat" ${!isBeratNull ? 'selected' : ''}>Berat</option>
@@ -763,6 +765,7 @@
             invoice.resi.forEach(resi => {
                 addItemRow(
                     resi.no_resi,
+                    resi.no_do,
                     resi.berat,
                     resi.panjang,
                     resi.lebar,
@@ -801,7 +804,7 @@
                             },
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    addItemRow(scannedNoResi);
+                                    addItemRow(scannedNoResi, response.no_do);
                                 } else {
 
                                     showMessage("error", response.message);

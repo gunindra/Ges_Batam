@@ -906,9 +906,17 @@ class InvoiceController extends Controller
             }
 
             if ($tracking->status === 'Dalam Perjalanan') {
-                return response()->json(['status' => 'success', 'message' => 'Nomor resi valid untuk diproses'], 200);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Nomor resi valid untuk diproses',
+                    'no_do' => $tracking->no_do,
+                ], 200);
             } elseif ($tracking->status === 'Return') {
-                return response()->json(['status' => 'success', 'message' => 'Nomor resi valid dan sedang dalam status Return'], 200);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Nomor resi valid dan sedang dalam status Return',
+                    'no_do' => $tracking->no_do,
+                ], 200);
             } else {
                 return response()->json(['status' => 'error', 'message' => 'Status nomor resi tidak valid'], 400);
             }
@@ -916,6 +924,7 @@ class InvoiceController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
 
 
     public function changeMethod(Request $request)

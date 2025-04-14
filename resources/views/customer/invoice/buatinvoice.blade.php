@@ -236,6 +236,7 @@
                                 <tr>
                                     <th>No.</th>
                                     <th>No. Resi</th>
+                                    <th>No. Do</th>
                                     <th>Berat/Dimensi</th>
                                     <th>Hitungan</th>
                                     <th>Harga</th>
@@ -483,7 +484,7 @@
                             },
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    addItemRow(scannedNoResi);
+                                    addItemRow(scannedNoResi, response.no_do);
                                 } else {
 
                                     showMessage("error", response.message);
@@ -505,11 +506,12 @@
             });
 
 
-            function addItemRow(noResi) {
+            function addItemRow(noResi, noDo) {
                 const newRow = `
     <tr data-index="${itemIndex}">
         <td class="item-number">${itemIndex}</td>
         <td name="noResi[]">${noResi}</td> <!-- Display only -->
+         <td name="noDo[]" disabled>${noDo}</td>
         <td>
             <select class="form-control selectBeratDimensi" data-index="${itemIndex}">
                 <option value="berat">Berat</option>
