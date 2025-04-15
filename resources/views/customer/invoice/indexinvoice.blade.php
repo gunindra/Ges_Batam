@@ -337,8 +337,8 @@
                         return data ? data : '-';
                     }
                 }, {
-                    data: 'tanggal_bayar',
-                    name: 'tanggal_bayar',
+                    data: 'tanggal_invoice',
+                    name: 'tanggal_invoice',
                     render: function(data, type, row) {
                         return data ? data : '-';
                     }

@@ -184,7 +184,7 @@ class InvoiceController extends Controller
                 'a.id',
                 'r.no_do',
                 'a.no_invoice',
-                'a.tanggal_invoice',
+                DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_invoice"),
                 DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar"),
                 'b.nama_pembeli as pembeli',
                 'a.alamat',
