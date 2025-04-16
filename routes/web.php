@@ -158,12 +158,13 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
 
     //Retur
     Route::get('/retur', [ReturController::class, 'index'])->name('retur.index');
+    Route::get('/retur/list', [ReturController::class, 'getListRetur'])->name('retur.list');
     Route::get('/retur/buathalaman', [ReturController::class, 'tambahRetur'])->name('retur.buathalaman');
     Route::post('/retur/store', [ReturController::class, 'store'])->name('retur.store');
-    Route::get('/retur/edithalaman', [ReturController::class, 'editRetur'])->name('retur.editRetur');
+    Route::get('/retur/edithalaman/{id}', [ReturController::class, 'editRetur'])->name('retur.editRetur');
     Route::get('/retur/listresi', [ReturController::class, 'listresi'])->name('retur.listresi');
-
-    Route::put('/retur/{id}', [ReturController::class, 'update']);
+    Route::get('/retur/showdetail/{id}', [ReturController::class, 'show'])->name('retur.show');
+    Route::put('/retur/updateRetur/{id}', [ReturController::class, 'update'])->name('retur.updateRetur');
 
     // Pickup
     Route::get('/pickup', [PickupController::class, 'index'])->name('pickup');

@@ -10,7 +10,6 @@ class Retur extends Model
     protected $table = 'tbl_retur';
 
     protected $fillable = [
-        // 'no_retur',
         'invoice_id',
         'currency_id',
         'account_id',
@@ -23,4 +22,18 @@ class Retur extends Model
         return $this->hasMany(ReturItem::class, 'retur_id');
     }
 
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class, 'invoice_id');
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(MataUang::class, 'currency_id');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Coa::class, 'account_id');
+    }
 }

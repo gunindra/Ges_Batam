@@ -18,4 +18,9 @@ class ReturItem extends Model
     {
         return $this->belongsTo(Retur::class, 'retur_id');
     }
+
+    public function resi()
+    {
+        return $this->belongsTo(Resi::class, 'resi_id');
+    }
 }
