@@ -18,4 +18,9 @@ class Resi extends Model
     {
         return $this->belongsTo(Invoice::class, 'invoice_id', 'id');
     }
+
+    public function returItem()
+    {
+        return $this->hasOne(ReturItem::class, 'resi_id');
+    }
 }

@@ -94,6 +94,8 @@
                                 href="{{ route('payment') }}">Payment</a>
                             <a class="collapse-item {{ request()->routeIs('creditnote') ? 'active' : '' }}"
                                 href="{{ route('creditnote') }}">Credit Note</a>
+                            <a class="collapse-item {{ request()->routeIs('retur.index') ? 'active' : '' }}"
+                                href="{{ route('retur.index') }}">Retur</a>
                         </div>
                     </div>
                 </li>
