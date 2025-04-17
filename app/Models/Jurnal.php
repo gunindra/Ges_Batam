@@ -22,6 +22,7 @@ class Jurnal extends Model
         'description',
         'totalcredit',
         'totaldebit',
+        'retur_id',
         'company_id',
     ];
 

@@ -14,7 +14,7 @@ use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
-
+use Illuminate\Support\Facades\Log;
 
 class ReturController extends Controller
 {
@@ -125,6 +125,35 @@ class ReturController extends Controller
     }
 
 
+
+    public function editRetur($id)
+    {
+        $companyId = session('active_company_id');
+
+        $retur = Retur::with('items')->findOrFail($id);
+        $coas = COA::all();
+        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+
+        $listInvoice = DB::select("SELECT
+                                        tbl_invoice.id,
+                                        tbl_invoice.no_invoice,
+                                        tbl_pembeli.marking,
+                                        tbl_pembeli.nama_pembeli
+                                    FROM tbl_invoice
+                                    JOIN tbl_pembeli ON tbl_invoice.pembeli_id = tbl_pembeli.id
+                                    WHERE tbl_invoice.company_id = $companyId
+                                ");
+
+        return view('customer.retur.editretur', [
+            'returData' => $retur,
+            'coas' => $coas,
+            'listCurrency' => $listCurrency,
+            'listInvoice' => $listInvoice,
+        ]);
+    }
+
+
+
     public function listresi(Request $request)
     {
         $request->validate([
@@ -225,6 +254,7 @@ class ReturController extends Controller
             $jurnal->totaldebit = $totalNominal;
             $jurnal->totalcredit = $totalNominal;
             $jurnal->company_id = $companyId;
+            $jurnal->retur_id = $retur->id;
             $jurnal->save();
 
             // Tambahkan dua jurnal item: debit & credit
@@ -263,7 +293,6 @@ class ReturController extends Controller
     }
 
 
-
     // UPDATE
     public function update(Request $request, $id)
     {
@@ -275,7 +304,6 @@ class ReturController extends Controller
         DB::beginTransaction();
         try {
             $retur = Retur::findOrFail($id);
-            $oldAccountId = $retur->account_id;
 
             // Update retur
             $retur->update([
@@ -283,36 +311,64 @@ class ReturController extends Controller
                 'deskripsi' => $validated['deskripsi'] ?? null,
             ]);
 
-            // Update jurnal
-            $invoice = Invoice::find($retur->invoice_id);
-            $jurnal = Jurnal::where('no_ref', $invoice->no_invoice)->first();
-
-            if ($jurnal) {
-                // Update jurnal description jika perlu
-                if (!empty($validated['deskripsi'])) {
-                    $jurnal->description = $validated['deskripsi'];
-                    $jurnal->save();
+            // Update jurnal jika ada invoice terkait
+            if ($retur->invoice_id) {
+                $invoice = Invoice::find($retur->invoice_id);
+                if (!$invoice) {
+                    throw new \Exception("Invoice dengan ID {$retur->invoice_id} tidak ditemukan.");
                 }
 
-                // Update jurnal item credit (account_id yang bisa diubah user)
-                $jurnalCreditItem = JurnalItem::where('jurnal_id', $jurnal->id)
-                    ->where('credit', '>', 0)
-                    ->first();
+                $jurnal = Jurnal::where('retur_id', $retur->id)->first();
+                if (!$jurnal) {
+                    throw new \Exception("Jurnal untuk Retur ID {$retur->id} tidak ditemukan.");
+                }
 
-                if ($jurnalCreditItem) {
-                    $jurnalCreditItem->update([
-                        'code_account' => $validated['account_id'],
+                // Update deskripsi jurnal
+                $jurnal->update([
+                    'description' => $validated['deskripsi'] ?? $jurnal->description
+                ]);
+
+                // Ambil jurnal item dengan credit > 0
+                $jurnalItems = JurnalItem::where('jurnal_id', $jurnal->id)
+                    ->where('credit', '>', 0)
+                    ->get();
+
+                if ($jurnalItems->isEmpty()) {
+                    throw new \Exception("Tidak ditemukan jurnal item dengan credit > 0 untuk jurnal ID {$jurnal->id}.");
+                }
+
+                // Logging dan update
+                foreach ($jurnalItems as $item) {
+                    Log::info("Sebelum update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
+
+                    $item->update([
+                        'code_account' => $validated['account_id']
                     ]);
+
+                    Log::info("Setelah update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
                 }
             }
 
             DB::commit();
-            return redirect()->route('retur.index')->with('success', 'Retur dan jurnal berhasil diperbarui.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Retur berhasil diperbarui',
+                'data' => $retur
+            ]);
+
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Gagal memperbarui retur. ' . $e->getMessage()]);
+            Log::error("Gagal update retur: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui retur: ' . $e->getMessage(),
+                'error' => $e->getTrace()
+            ], 500);
         }
     }
+
 
 
 
