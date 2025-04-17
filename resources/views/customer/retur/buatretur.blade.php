@@ -60,7 +60,7 @@
                                         terlebih dahulu</div>
                                 </div>
 
-                                <div class="mt-3">
+                                {{-- <div class="mt-3">
                                     <label for="currencyRetur" class="form-label fw-bold">Currency</label>
                                     <select class="form-control col-8" name="" id="currencyRetur">
                                         @foreach ($listCurrency as $currency)
@@ -71,16 +71,16 @@
                                     </select>
                                     <div id="currencyReturError" class="text-danger mt-1 d-none">Silahkan Pilih Currency
                                         terlebih dahulu</div>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="accountRetur" class="form-label fw-bold">Account</label>
                                     <select class="form-control select2" name="" id="accountRetur" style="">
                                         <option value="" selected disabled>Pilih Account</option>
-                                        @foreach ($coas as $coa)
-                                            <option value="{{ $coa->id }}">{{ $coa->code_account_id }} -
-                                                {{ $coa->name }}
+                                        @foreach ($savedPaymentAccounts as $coa)
+                                            <option value="{{ $coa->coa_id }}">
+                                                {{ $coa->code_account_id }} - {{ $coa->name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -159,15 +159,15 @@
         <script>
             $('.select2').select2();
 
-            $('#currencyRetur').change(function() {
-                const selectedCurrency = $(this).val();
+            // $('#currencyRetur').change(function() {
+            //     const selectedCurrency = $(this).val();
 
-                if (selectedCurrency !== '1') {
-                    $('#rateCurrencySection').show();
-                } else {
-                    $('#rateCurrencySection').hide();
-                }
-            });
+            //     if (selectedCurrency !== '1') {
+            //         $('#rateCurrencySection').show();
+            //     } else {
+            //         $('#rateCurrencySection').hide();
+            //     }
+            // });
 
             let selectedInvoiceId = null;
 
@@ -281,7 +281,7 @@
                 e.preventDefault();
 
                 let invoiceId = $('#invoiceRetur').val();
-                let currencyId = $('#currencyRetur').val();
+                // let currencyId = $('#currencyRetur').val();
                 let accountId = $('#accountRetur').val();
                 let deskripsi = $('#deskripsiRetur').val();
 
@@ -295,7 +295,7 @@
                     }
                 });
 
-                if (!invoiceId || !currencyId || !accountId || items.length === 0) {
+                if (!invoiceId || !accountId || items.length === 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -306,7 +306,7 @@
 
                 let data = {
                     invoice_id: invoiceId,
-                    currency_id: currencyId,
+                    // currency_id: currencyId,
                     account_id: accountId,
                     deskripsi: deskripsi,
                     items: items

@@ -63,7 +63,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="mt-3">
+                                    {{-- <div class="mt-3">
                                         <label for="currencyRetur" class="form-label fw-bold">Currency</label>
                                         <select class="form-control col-8" name="" id="currencyRetur" disabled>
                                             @foreach ($listCurrency as $currency)
@@ -73,15 +73,15 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                    </div>
+                                    </div> --}}
                                 </div>
                                 <div class="col-6">
                                     <div class="mt-3">
                                         <label for="accountRetur" class="form-label fw-bold">Account</label>
                                         <select name="account_id" id="accountRetur" class="form-control select2">
-                                            @foreach ($coas as $coa)
-                                                <option value="{{ $coa->id }}"
-                                                    {{ $returData->account_id == $coa->id ? 'selected' : '' }}>
+                                            @foreach ($savedPaymentAccounts as $coa)
+                                               <option value="{{ $coa->coa_id }}"
+                                                    {{ $returData->account_id == $coa->coa_id ? 'selected' : '' }}>
                                                     {{ $coa->code_account_id }} - {{ $coa->name }}
                                                 </option>
                                             @endforeach
@@ -89,7 +89,7 @@
                                         <div id="accountReturError" class="text-danger mt-1 d-none">Silahkan Pilih Account
                                             terlebih dahulu</div>
                                     </div>
-                                    <div class="mt-3">
+                                    {{-- <div class="mt-3">
                                         <div class="mt-3" id="rateCurrencySection"
                                             style="{{ $returData->currency_id != 1 ? 'display: block;' : 'display: none;' }}">
                                             <label for="rateCurrency" class="form-label fw-bold">Rate Currency</label>
@@ -97,7 +97,7 @@
                                                 value="{{ $returData->rate_currency }}" placeholder="Masukkan rate"
                                                 disabled>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                             <div class="form-label ml-3 mt-5 mb-3">Item List</div>

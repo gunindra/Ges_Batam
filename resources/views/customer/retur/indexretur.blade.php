@@ -99,7 +99,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>No Invoice</th>
-                                        <th>Mata Uang</th>
+                                        {{-- <th>Mata Uang</th> --}}
                                         <th>Nama Akun</th>
                                         <th>Total</th>
                                         <th>Deskripsi</th>
@@ -134,10 +134,10 @@
                         data: 'no_invoice',
                         name: 'i.no_invoice'
                     },
-                    {
-                        data: 'mata_uang',
-                        name: 'm.singkatan_matauang'
-                    },
+                    // {
+                    //     data: 'mata_uang',
+                    //     name: 'm.singkatan_matauang'
+                    // },
                     {
                         data: 'nama_akun',
                         name: 'a.name'
@@ -188,7 +188,6 @@
                     success: function(data) {
                         let html = `
                 <p><strong>No Invoice:</strong> ${data.invoice.no_invoice}</p>
-                <p><strong>Mata Uang:</strong> ${data.matauang.singkatan_matauang}</p>
                 <p><strong>Akun:</strong> ${data.akun.name}</p>
                 <p><strong>Total:</strong> Rp ${parseFloat(data.total_nominal).toLocaleString()}</p>
                 <p><strong>Deskripsi:</strong> ${data.deskripsi ?? '-'}</p>

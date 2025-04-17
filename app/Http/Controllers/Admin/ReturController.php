@@ -43,13 +43,13 @@ class ReturController extends Controller
 
         $query = DB::table('tbl_retur as r')
             ->join('tbl_invoice as i', 'r.invoice_id', '=', 'i.id')
-            ->join('tbl_matauang as m', 'r.currency_id', '=', 'm.id')
+            // ->join('tbl_matauang as m', 'r.currency_id', '=', 'm.id')
             ->join('tbl_coa as a', 'r.account_id', '=', 'a.id')
             ->where('i.company_id', $companyId)
             ->select([
                 'r.id',
                 'i.no_invoice',
-                'm.singkatan_matauang as mata_uang',
+                // 'm.singkatan_matauang as mata_uang',
                 'a.name as nama_akun',
                 'r.total_nominal',
                 'r.deskripsi',
@@ -84,7 +84,7 @@ class ReturController extends Controller
     {
         $retur = Retur::with([
             'invoice:id,no_invoice',
-            'currency:id,singkatan_matauang',
+            // 'currency:id,singkatan_matauang',
             'account:id,name',
             'items.resi:id,no_resi'
         ])->findOrFail($id);
@@ -105,8 +105,12 @@ class ReturController extends Controller
     public function tambahRetur()
     {
         $companyId = session('active_company_id');
-        $coas = COA::all();
-        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+        $savedPaymentAccounts = DB::table('tbl_payment_account')
+        ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
+        ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+        ->get();
+
+        // $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $listInvoice = DB::select("SELECT
                                                 tbl_invoice.id,
                                                 tbl_invoice.no_invoice,
@@ -115,11 +119,12 @@ class ReturController extends Controller
                                             FROM tbl_invoice
                                             JOIN tbl_pembeli ON tbl_invoice.pembeli_id = tbl_pembeli.id
                                             WHERE tbl_invoice.company_id = $companyId
+                                            AND tbl_invoice.status_bayar = 'Lunas'
                                         ");
 
         return view('customer.retur.buatretur', [
-            'listCurrency' => $listCurrency,
-            'coas' => $coas,
+            // 'listCurrency' => $listCurrency,
+            'savedPaymentAccounts' => $savedPaymentAccounts,
             'listInvoice' => $listInvoice
         ]);
     }
@@ -131,8 +136,11 @@ class ReturController extends Controller
         $companyId = session('active_company_id');
 
         $retur = Retur::with('items')->findOrFail($id);
-        $coas = COA::all();
-        $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
+        $savedPaymentAccounts = DB::table('tbl_payment_account')
+        ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
+        ->select('tbl_payment_account.coa_id', 'tbl_coa.code_account_id', 'tbl_coa.name')
+        ->get();
+        // $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
 
         $listInvoice = DB::select("SELECT
                                         tbl_invoice.id,
@@ -146,8 +154,8 @@ class ReturController extends Controller
 
         return view('customer.retur.editretur', [
             'returData' => $retur,
-            'coas' => $coas,
-            'listCurrency' => $listCurrency,
+            'savedPaymentAccounts' => $savedPaymentAccounts,
+            // 'listCurrency' => $listCurrency,
             'listInvoice' => $listInvoice,
         ]);
     }
@@ -183,7 +191,7 @@ class ReturController extends Controller
         // Validasi input
         $validated = $request->validate([
             'invoice_id' => 'required|exists:tbl_invoice,id',
-            'currency_id' => 'required|exists:tbl_matauang,id',
+            // 'currency_id' => 'required|exists:tbl_matauang,id',
             'account_id' => 'required|exists:tbl_coa,id',
             'deskripsi' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -224,7 +232,7 @@ class ReturController extends Controller
             // Simpan retur
             $retur = Retur::create([
                 'invoice_id' => $validated['invoice_id'],
-                'currency_id' => $validated['currency_id'],
+                // 'currency_id' => $validated['currency_id'],
                 'account_id' => $validated['account_id'],
                 'deskripsi' => $validated['deskripsi'] ?? null,
                 'total_nominal' => $totalNominal,
