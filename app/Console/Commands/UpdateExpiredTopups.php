@@ -32,20 +32,19 @@ class UpdateExpiredTopups extends Command
     {
         // Start the transaction
         DB::beginTransaction();
-    
+
         try {
-            $now = Carbon::now('Asia/Jakarta');
-            $threshold = $now->subYears(1);
-    
-            $this->info("Threshold time: " . $threshold->toDateTimeString());
-    
+            $now = Carbon::now('Asia/Jakarta')->startOfDay();
+
+            $this->info("Current date: " . $now->toDateString());
+
             $expiredTopups = HistoryTopup::where('status', 'active')
-                ->whereDate('expired_date', '<=', $threshold)
+                ->whereDate('expired_date', '<', $now)
                 ->get();
-    
+
             foreach ($expiredTopups as $topup) {
                 $customer = $topup->customer;
-    
+
                 if ($customer) {
                     $customer->sisa_poin = max(0, $customer->sisa_poin - $topup->balance);
                     $customer->save();
@@ -54,21 +53,20 @@ class UpdateExpiredTopups extends Command
                 $topup->balance = 0;
                 $topup->status = 'expired';
                 $topup->save();
-    
 
-                $topupDate = Carbon::parse($topup->expired_date);  
+                $topupDate = Carbon::parse($topup->expired_date);
                 $this->info("Top-up ID {$topup->id} expired on {$topupDate->toDateString()} and has been updated.");
             }
-    
+
             DB::commit();
-    
+
             $this->info('All expired top-ups have been updated.');
-    
+
         } catch (\Exception $e) {
             DB::rollBack();
             $this->error("Failed to update expired top-ups: " . $e->getMessage());
         }
     }
-    
+
 
 }

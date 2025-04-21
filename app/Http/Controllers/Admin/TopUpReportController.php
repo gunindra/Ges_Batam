@@ -26,7 +26,7 @@ class TopUpReportController extends Controller
 
     public function index() {
 
-        $customers = Customer::where('status', '=', 1)->get();
+        $customers = Customer::where('company_id', '=', 1)->get();
         return view('Report.TopUpReport.indextopupreport', compact('customers'));
     }
 
@@ -47,20 +47,20 @@ class TopUpReportController extends Controller
 
         // Query untuk mendapatkan saldo awal sebelum tanggal mulai
         $initialBalanceQuery = "
-            SELECT 
+            SELECT
                 tp.marking,
                 COALESCE(SUM(
-                    CASE 
-                        WHEN tht.status != 'canceled' THEN tht.remaining_points 
-                        ELSE 0 
+                    CASE
+                        WHEN tht.status != 'canceled' THEN tht.remaining_points
+                        ELSE 0
                     END
                 ), 0) - COALESCE(SUM(tup.used_points), 0) AS initial_balance,
                 MAX(tht.price_per_kg) AS price_per_kg
             FROM tbl_pembeli tp
-            LEFT JOIN tbl_history_topup tht ON tht.customer_id = tp.id 
-                AND tht.date < ? 
+            LEFT JOIN tbl_history_topup tht ON tht.customer_id = tp.id
+                AND tht.date < ?
                 AND tht.status != 'canceled'
-            LEFT JOIN tbl_usage_points tup ON tup.customer_id = tp.id 
+            LEFT JOIN tbl_usage_points tup ON tup.customer_id = tp.id
                 AND tup.usage_date < ?
             WHERE tp.company_id = ?
             " . ($customer ? "AND tp.id = ?" : "") . "
@@ -105,7 +105,7 @@ class TopUpReportController extends Controller
                         tup.used_points AS points,
                         tup.price_per_kg,
                         'OUT' AS type,
-                        (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ') 
+                        (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
                             FROM tbl_payment_invoice tpi
                             JOIN tbl_invoice ti ON tpi.invoice_id = ti.id
                             WHERE tup.payment_id = tpi.payment_id) AS no_invoice
@@ -181,7 +181,7 @@ class TopUpReportController extends Controller
         }
 
         $data = DB::select($query, $params);
-        
+
         // Group data by marking
         $groupedData = [];
         foreach ($data as $row) {
@@ -229,17 +229,17 @@ class TopUpReportController extends Controller
                                 <td style="text-align:center;">-</td>
                                 <td style="text-align:center;">-</td>
                                 <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
-                                
+
                 if (!$isCustomerRole) {
                     $output .= '<td style="text-align:center;">-</td>';
                     $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
                 }
-                
+
                 $output .= '<td style="text-align:center;">SALDO AWAL</td>
                             </tr>';
             }
-            
-            
+
+
             // Add the regular transactions for this marking
             if (isset($groupedData[$marking])) {
                 foreach ($groupedData[$marking] as $row) {
