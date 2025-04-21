@@ -428,7 +428,8 @@ class TopupController extends Controller
             ->get();
 
 
-        $nearingExpiry = HistoryTopup::whereDate('expired_date', '<=', $now->addMonth())
+        $nearingExpiry = HistoryTopup::where('status', 'active')
+            ->whereDate('expired_date', '<=', $now->addMonth())
             ->with('customer')
             ->get();
 
