@@ -1143,8 +1143,8 @@ class PaymentController extends Controller
                 Log::info('Invoice lama berhasil diperbarui.', ['oldInvoice' => $oldInvoice]);
             }
 
-            PaymentInvoice::where('payment_id', $payment->id)->delete();
-            Log::info('PaymentInvoice lama berhasil dihapus.');
+            // PaymentInvoice::where('payment_id', $payment->id)->delete();
+            // Log::info('PaymentInvoice lama berhasil dihapus.');
 
             $totalPayment = $request->paymentAmount - ($request->discountPayment ?? 0);
             Log::info('Proses alokasi payment dimulai.', ['totalPayment' => $totalPayment]);
@@ -1177,8 +1177,7 @@ class PaymentController extends Controller
 
                 $totalPayment -= $allocatedAmount;
             }
-
-            if ($totalPayment > 0) {
+            if (abs($totalPayment) > 0.00001) {
                 Log::error('Sisa dana melebihi jumlah yang harus dibayar.', ['sisaDana' => $totalPayment]);
                 return response()->json([
                     'status' => 'error',
@@ -1191,8 +1190,8 @@ class PaymentController extends Controller
 
             $jurnal->update([
                 'tanggal' => $tanggalPayment,
-                'no_ref' => $noRef,
-                'description' => "Jurnal untuk Invoice: " . $noRef,
+                'no_ref' => "Jurnal untuk Payment " . $payment->kode_pembayaran,
+                'description' => "Jurnal untuk Payment " . $payment->kode_pembayaran,
                 'totaldebit' => $request->totalAmmount,
                 'totalcredit' => $request->totalAmmount,
             ]);
