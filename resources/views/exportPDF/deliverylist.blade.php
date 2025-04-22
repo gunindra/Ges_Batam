@@ -284,73 +284,70 @@
         <!-- Invoices Layout in 2 Columns -->
 
         <!-- Two-column layout using a transparent table -->
+        @php
+            $count = 0;
+        @endphp
+
         <table class="layout-table">
             <tr>
-                @php
-                    $count = 0;
-                @endphp
-
                 @foreach ($invoices as $invoice)
-                    <td class="invoice-column">
-                        <table class="driver-info">
-                            <tr>
-                                <td>
-                                    <div>
-                                        <h5>Penerima: {{ $invoice->nama_pembeli }} - {{ $invoice->marking }}</h5>
-                                        @if ($pengantaran->metode_pengiriman !== 'Pickup')
-                                            <h5>Alamat: {{ $invoice->alamat }}</h5>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <h5 class="text-right">Invoice: {{ $invoice->no_invoice }}</h5>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                        {{-- <div class="title">
-                            <h5>Penerima: {{ $invoice->nama_pembeli }}</h5>
-                            <h5>Alamat: {{ $invoice->alamat }}</h5>
-                            <h5 class="text-right">Invoice: {{ $invoice->no_invoice }}</h5>
-                        </div> --}}
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>No. DO</th>
-                                    <th>No. Resi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $no = 1;
-                                    $resiList = $invoiceResi->get($invoice->id) ?? collect();
-                                @endphp
-
-                                @foreach ($resiList as $resi)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $resi->no_do }}</td>
-                                        <td>{{ $resi->no_resi }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </td>
-
                     @php
-                        $count++;
+                        $resiList = $invoiceResi->get($invoice->id) ?? collect();
+                        $chunkedResi = $resiList->chunk(25);
+                        $no = 1; // Nomor awal untuk tiap invoice
                     @endphp
 
-                    @if ($count % 2 == 0)
+                    @foreach ($chunkedResi as $resiChunk)
+                        <td class="invoice-column">
+                            <table class="driver-info">
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <h5>Penerima: {{ $invoice->nama_pembeli }} - {{ $invoice->marking }}</h5>
+                                            @if ($pengantaran->metode_pengiriman !== 'Pickup')
+                                                <h5>Alamat: {{ $invoice->alamat }}</h5>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <h5 class="text-right">Invoice: {{ $invoice->no_invoice }}</h5>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>No. DO</th>
+                                        <th>No. Resi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($resiChunk as $resi)
+                                        <tr>
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $resi->no_do }}</td>
+                                            <td>{{ $resi->no_resi }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </td>
+
+                        @php $count++; @endphp
+
+                        @if ($count % 2 == 0)
             </tr>
-            <tr> <!-- Close and open new row after two invoices -->
+            <tr> <!-- Tutup dan buka baris baru setiap 2 kolom -->
                 @endif
+                @endforeach
                 @endforeach
             </tr>
         </table>
+
         <!-- Section Tanda Tangan -->
         <table class="signature-section">
             <tr>

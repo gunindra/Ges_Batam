@@ -1028,6 +1028,8 @@ class DeliveryController extends Controller
                 ->orderBy('r.no_resi')
                 ->get()
                 ->groupBy('invoice_id');
+
+
         } catch (\Exception $e) {
             Log::error('Error fetching resi data: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['error' => 'Failed to fetch resi data'], 500);
