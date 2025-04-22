@@ -126,7 +126,7 @@ class TopUpReportController extends Controller
                         tht.remaining_points AS points,
                         tht.price_per_kg,
                         'IN' AS type,
-                        '' AS no_invoice
+                        '-' AS no_invoice
                     FROM tbl_history_topup tht
                     JOIN tbl_pembeli tp ON tht.customer_id = tp.id
                     WHERE tht.status != 'canceled'
