@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Customer;
 use DB;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -121,6 +122,8 @@ class TopupReportExport implements FromView, WithEvents
         // Eksekusi query
         $data = DB::select($query, $params);
 
+        $marking = Customer::where('id', $this->customer)->value('marking');
+
         // Debug data (bisa dihapus setelah testing)
         logger()->info('TopupReportExport Data', [
             'data_count' => count($data),
@@ -130,7 +133,7 @@ class TopupReportExport implements FromView, WithEvents
 
         return view('exportExcel.topupreport', [
             'topup' => $data,
-            'customer' => $this->customer,
+            'marking' => $marking,
             'isCustomerRole' => $isCustomerRole,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,

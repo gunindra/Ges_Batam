@@ -45,9 +45,9 @@
             </tr>
             @if (!$isCustomerRole)
                 <tr>
-                    <td style="text-align:left; font-size:11px; padding:6px;">Nama Customer:</td>
+                    <td style="text-align:left; font-size:11px; padding:6px;">Marking Customer:</td>
                     <td style="text-align:left; font-size:11px; padding:6px; font-weight:bold;">
-                        {{ $customer ?: '-' }}
+                        {{ $marking ?: '-' }}
                     </td>
                 </tr>
             @endif
