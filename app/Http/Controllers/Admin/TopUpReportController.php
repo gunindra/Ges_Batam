@@ -99,11 +99,11 @@ class TopUpReportController extends Controller
                     no_invoice
                 FROM (
                     SELECT
-                        tup.usage_date AS date,
-                        tup.created_at AS created_at,
+                        MIN(tup.usage_date) AS date,
+                        MIN(tup.created_at) AS created_at,
                         tp.marking,
-                        tup.used_points AS points,
-                        tup.price_per_kg,
+                        SUM(tup.used_points) AS points,
+                        MAX(tup.price_per_kg) AS price_per_kg,
                         'OUT' AS type,
                         (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
                             FROM tbl_payment_invoice tpi
@@ -115,6 +115,7 @@ class TopUpReportController extends Controller
                     AND tp.company_id = ?
                     " . ($customer ? "AND tp.id = ?" : "") . "
                     " . $userIdCondition . "
+                     GROUP BY tup.payment_id, tp.marking
 
                     UNION ALL
 

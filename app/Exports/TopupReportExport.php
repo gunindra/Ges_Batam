@@ -42,10 +42,11 @@ class TopupReportExport implements FromView, WithEvents
             FROM (
                 -- Data OUT (penggunaan poin)
                 SELECT
-                    tup.usage_date AS date,
+                    MIN(tup.usage_date) AS date,
+                    MIN(tup.created_at) AS created_at,
                     tp.marking,
-                    tup.used_points AS points,
-                    tup.price_per_kg,
+                    SUM(tup.used_points) AS points,
+                    MAX(tup.price_per_kg) AS price_per_kg,
                     'OUT' AS type
                 FROM tbl_usage_points tup
                 JOIN tbl_pembeli tp ON tup.customer_id = tp.id
@@ -53,12 +54,14 @@ class TopupReportExport implements FromView, WithEvents
                 AND tp.company_id = ?
                 " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
                 " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+                GROUP BY tup.payment_id, tp.marking
 
                 UNION ALL
 
                 -- Data IN (topup poin)
                 SELECT
                     tht.date,
+                    NULL AS created_at,
                     tp.marking,
                     tht.remaining_points AS points,
                     tht.price_per_kg,
