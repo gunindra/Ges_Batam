@@ -1024,6 +1024,8 @@ class DeliveryController extends Controller
                     'r.tinggi'
                 )
                 ->whereIn('r.invoice_id', $invoiceIds)
+                ->orderBy('r.invoice_id')
+                ->orderBy('r.no_resi')
                 ->get()
                 ->groupBy('invoice_id');
         } catch (\Exception $e) {

@@ -42,6 +42,12 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
         th,
