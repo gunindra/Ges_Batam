@@ -237,6 +237,8 @@ class PurchasePaymentController extends Controller
 
     public function store(Request $request)
     {
+
+        //   dd($request->all());
         $companyId = session('active_company_id');
         // Validasi input
         $validated = $request->validate([
@@ -358,8 +360,8 @@ class PurchasePaymentController extends Controller
                 $jurnal->status = 'Approve';
                 $jurnal->description = "Jurnal untuk Invoice {$noRef}";
                 $totalJurnalAmount = $request->paymentAmount;
-                $jurnal->totaldebit = $request->totalAmmount;
-                $jurnal->totalcredit = $request->totalAmmount;
+                $jurnal->totaldebit = $request->paymentAmount;
+                $jurnal->totalcredit = $request->paymentAmount;
                 $jurnal->company_id = $companyId;
                 Log::info('Payment id data:', [
                     'id' => $payment->id,
@@ -397,7 +399,10 @@ class PurchasePaymentController extends Controller
                         }
                     }
 
+
                     foreach ($items as $item) {
+
+
                         $jurnalItem = new JurnalItem();
                         $jurnalItem->jurnal_id = $jurnal->id;
                         $jurnalItem->code_account = $item['account'];
@@ -415,9 +420,10 @@ class PurchasePaymentController extends Controller
 
                         }
 
+
                         $jurnalItemDebit->debit = $totalJurnalAmount;
-                        $jurnal->totaldebit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit ;
-                        $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
+                        $jurnal->totaldebit = $totalJurnalAmount + $totalDebit ;
+                        $jurnal->totalcredit = $totalJurnalAmount + $totalDebit;
                         $jurnal->save();
                         $jurnalItemDebit->save();
                         $jurnalItem->save();
@@ -607,6 +613,7 @@ class PurchasePaymentController extends Controller
             $totalJurnalAmount = (float)$request->paymentAmount;
 
             JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+            DB::table('tbl_payment_sup_items')->where('payment_id', $payment->id)->delete();
 
             // Vendor entry (Debit)
             $jurnalItemDebit = new JurnalItem();
@@ -657,12 +664,11 @@ class PurchasePaymentController extends Controller
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['debit'];
                         $totalJurnalAmount += $item['debit'];
-
                     }
 
                     $jurnalItemDebit->debit = $totalJurnalAmount;
-                    $jurnal->totaldebit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit ;
-                    $jurnal->totalcredit = $totalJurnalAmount + ($request->discountPayment ?? 0) +  $totalDebit;
+                    $jurnal->totaldebit = $totalJurnalAmount + $totalDebit ;
+                    $jurnal->totalcredit = $totalJurnalAmount + $totalDebit;
                     $jurnal->save();
                     $jurnalItemDebit->save();
                     $jurnalItem->save();
