@@ -1005,6 +1005,7 @@ class DeliveryController extends Controller
                 ->select('i.id','i.no_invoice', 'i.alamat', 'p.nama_pembeli', 'p.marking')
                 ->join('tbl_pembeli as p', 'i.pembeli_id', '=', 'p.id')
                 ->whereIn('i.id', $invoiceIds)
+                ->orderBy('p.marking', 'asc')
                 ->get();
         } catch (\Exception $e) {
             Log::error('Error fetching invoice data: ' . $e->getMessage(), ['exception' => $e]);
