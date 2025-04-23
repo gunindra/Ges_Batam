@@ -388,21 +388,10 @@ class PurchasePaymentController extends Controller
                 if ($request->has('items') && is_array($request->items)) {
                     $items = $request->input('items');
 
-                    $totalDebit = 0;
-                    $totalCredit = 0;
+                    $totalAdditionalDebit = 0;
+                    $totalAdditionalCredit = 0;
 
                     foreach ($items as $item) {
-                        if ($item['tipeAccount'] == 'Debit') {
-                            $totalDebit += $item['debit'];
-                        } elseif ($item['tipeAccount'] == 'Credit') {
-                            $totalCredit += $item['debit'];
-                        }
-                    }
-
-
-                    foreach ($items as $item) {
-
-
                         $jurnalItem = new JurnalItem();
                         $jurnalItem->jurnal_id = $jurnal->id;
                         $jurnalItem->code_account = $item['account'];
@@ -411,21 +400,14 @@ class PurchasePaymentController extends Controller
                         if ($item['tipeAccount'] === 'Debit') {
                             $jurnalItem->debit = $item['debit'];
                             $jurnalItem->credit = 0;
-                            $totalJurnalAmount -= $item['debit'];
+                            $totalAdditionalDebit += $item['debit'];
 
                         } elseif ($item['tipeAccount'] === 'Credit') {
                             $jurnalItem->debit = 0;
                             $jurnalItem->credit = $item['debit'];
-                            $totalJurnalAmount += $item['debit'];
-
+                            $totalAdditionalCredit += $item['debit'];
                         }
 
-
-                        $jurnalItemDebit->debit = $totalJurnalAmount;
-                        $jurnal->totaldebit = $totalJurnalAmount + $totalDebit ;
-                        $jurnal->totalcredit = $totalJurnalAmount + $totalDebit;
-                        $jurnal->save();
-                        $jurnalItemDebit->save();
                         $jurnalItem->save();
 
                         DB::table('tbl_payment_sup_items')->insert([
@@ -436,6 +418,27 @@ class PurchasePaymentController extends Controller
                             'tipeAccount' => $item['tipeAccount'],
                         ]);
                     }
+
+                    // Hitung selisih setelah menambahkan item baru
+                    $currentDebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
+                    $currentCredit = $jurnalItemCredit->credit + $totalAdditionalCredit;
+                    $balanceDifference = $currentDebit - $currentCredit;
+
+                    // Sesuaikan balance
+                    if ($balanceDifference > 0) {
+                        // Jika debit lebih besar, tambahkan ke kredit utama
+                        $jurnalItemCredit->credit += $balanceDifference;
+                        $jurnalItemCredit->save();
+                    } elseif ($balanceDifference < 0) {
+                        // Jika kredit lebih besar, tambahkan ke debit utama
+                        $jurnalItemDebit->debit += abs($balanceDifference);
+                        $jurnalItemDebit->save();
+                    }
+
+                    // Update total di jurnal utama
+                    $jurnal->totaldebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
+                    $jurnal->totalcredit = $jurnalItemCredit->credit + $totalAdditionalCredit;
+                    $jurnal->save();
                 }
 
             DB::commit();
@@ -638,16 +641,8 @@ class PurchasePaymentController extends Controller
             if ($request->has('items') && is_array($request->items)) {
                 $items = $request->input('items');
 
-                $totalDebit = 0;
-                $totalCredit = 0;
-
-                foreach ($items as $item) {
-                    if ($item['tipeAccount'] == 'Debit') {
-                        $totalDebit += $item['debit'];
-                    } elseif ($item['tipeAccount'] == 'Credit') {
-                        $totalCredit += $item['debit'];
-                    }
-                }
+                $totalAdditionalDebit = 0;
+                $totalAdditionalCredit = 0;
 
                 foreach ($items as $item) {
                     $jurnalItem = new JurnalItem();
@@ -658,19 +653,14 @@ class PurchasePaymentController extends Controller
                     if ($item['tipeAccount'] === 'Debit') {
                         $jurnalItem->debit = $item['debit'];
                         $jurnalItem->credit = 0;
-                        $totalJurnalAmount -= $item['debit'];
+                        $totalAdditionalDebit += $item['debit'];
 
                     } elseif ($item['tipeAccount'] === 'Credit') {
                         $jurnalItem->debit = 0;
                         $jurnalItem->credit = $item['debit'];
-                        $totalJurnalAmount += $item['debit'];
+                        $totalAdditionalCredit += $item['debit'];
                     }
 
-                    $jurnalItemDebit->debit = $totalJurnalAmount;
-                    $jurnal->totaldebit = $totalJurnalAmount + $totalDebit ;
-                    $jurnal->totalcredit = $totalJurnalAmount + $totalDebit;
-                    $jurnal->save();
-                    $jurnalItemDebit->save();
                     $jurnalItem->save();
 
                     DB::table('tbl_payment_sup_items')->insert([
@@ -681,6 +671,27 @@ class PurchasePaymentController extends Controller
                         'tipeAccount' => $item['tipeAccount'],
                     ]);
                 }
+
+                // Hitung selisih setelah menambahkan item baru
+                $currentDebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
+                $currentCredit = $jurnalItemCredit->credit + $totalAdditionalCredit;
+                $balanceDifference = $currentDebit - $currentCredit;
+
+                // Sesuaikan balance
+                if ($balanceDifference > 0) {
+                    // Jika debit lebih besar, tambahkan ke kredit utama
+                    $jurnalItemCredit->credit += $balanceDifference;
+                    $jurnalItemCredit->save();
+                } elseif ($balanceDifference < 0) {
+                    // Jika kredit lebih besar, tambahkan ke debit utama
+                    $jurnalItemDebit->debit += abs($balanceDifference);
+                    $jurnalItemDebit->save();
+                }
+
+                // Update total di jurnal utama
+                $jurnal->totaldebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
+                $jurnal->totalcredit = $jurnalItemCredit->credit + $totalAdditionalCredit;
+                $jurnal->save();
             }
 
 
