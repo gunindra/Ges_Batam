@@ -232,6 +232,7 @@
                 <tr>
                     <th width="15%" style="text-indent: 50px;">Date</th>
                     <th width="15%">Payment Date</th>
+                    <th width="15%">No. DO</th>
                     <th width="20%">No Voucher</th>
                     <th width="20%">Description</th>
                     <th width="15%" class="text-right">Total Debit</th>
@@ -241,22 +242,23 @@
             <tbody>
                 @foreach ($ledgerAccounts as $ledger)
                     <tr>
-                        <td colspan="6" class="account-header">
+                        <td colspan="7" class="account-header">
                             {{ $ledger['account_name'] }} ({{ $ledger['code'] }})
                         </td>
                     </tr>
                     <tr class="summary-row">
-                        <td colspan="4">Beginning Balance</td>
-                        
+                        <td colspan="5">Beginning Balance</td>
+
                         <td colspan="2">{{ number_format($ledger['beginning_balance'], 2) }}</td>
                     </tr>
                     @foreach ($ledger['journal_entries'] as $entry)
                         <tr>
                             <td>{{ date('d/m/Y', strtotime($entry->tanggal)) }}</td>
                             <td>{{ !empty($entry->tanggal_payment) ? date('d/m/Y H:i:s', strtotime($entry->tanggal_payment)) : '-' }}</td>
+                            <td class="text-left">{{ $entry->resi_no_do ?? '-' }}</td>
                             <td>{{$entry->no_journal}}
-                                {!! (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
-                                    ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
+                                {!! (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment)
+                                    ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment)
                                     : '') !!}
                             </td>
                             <td class="text-left">{{ $entry->items_description }}</td>
@@ -265,8 +267,8 @@
                         </tr>
                     @endforeach
                     <tr class="summary-row">
-                        <td colspan="4">Ending Balance</td>
-                        
+                        <td colspan="5">Ending Balance</td>
+
                         <td colspan="2">{{ number_format($ledger['ending_balance'], 2) }}</td>
                     </tr>
                 @endforeach

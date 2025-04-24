@@ -80,10 +80,12 @@ class LedgerExport implements FromView
                                             ju.tanggal_payment AS tanggal_payment,
                                             ju.no_journal AS no_journal,
                                             pem_inv.marking AS pembeli_invoice,
+                                            res.no_do AS resi_no_do,
                                             pem_pay.marking AS pembeli_payment
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                        LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
                                         LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
                                         LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
                                         LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id

@@ -53,10 +53,12 @@ class LedgerController extends Controller
                                             ju.tanggal_payment AS tanggal_payment,
                                             ju.no_journal AS no_journal,
                                             pem_inv.marking AS pembeli_invoice,
+                                            res.no_do AS resi_no_do,
                                             pem_pay.marking AS pembeli_payment
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                        LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
                                         LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
                                         LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
                                         LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
@@ -107,6 +109,7 @@ class LedgerController extends Controller
             <thead>
                 <th width="15%" style="text-indent: 50px;">Date</th>
                 <th width="15%">Payment Date</th>
+                <th width="15%">No. DO</th>
                 <th width="20%">No Voucher</th>
                 <th width="20%">Description</th>
                 <th width="15%" class="text-right">Total Debit</th>
@@ -126,10 +129,11 @@ class LedgerController extends Controller
                     $output .= '<tr>
                                     <td style="padding-left:50px;">' . ($entry->tanggal ?? '-') . '</td>
                                     <td>' . ($entry->tanggal_payment ?? '-') . ' </td>
-                                    <td>' . ($entry->no_journal ?? '-') . 
-                                        (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment) 
-                                            ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment) 
-                                            : '') . ' 
+                                    <td>' . ($entry->resi_no_do ?? '-') . ' </td>
+                                    <td>' . ($entry->no_journal ?? '-') .
+                                        (!empty($entry->pembeli_invoice) || !empty($entry->pembeli_payment)
+                                            ? ' - ' . (!empty($entry->pembeli_invoice) ? $entry->pembeli_invoice : $entry->pembeli_payment)
+                                            : '') . '
                                     </td>
                                     <td class="text-left">' . ($entry->items_description ?? '-') . '</td>
                                     <td class="text-right">' . ($entry->debit ?? '-') . '</td>
@@ -195,10 +199,12 @@ class LedgerController extends Controller
                                             ju.tanggal_payment AS tanggal_payment,
                                             ju.no_journal AS no_journal,
                                             pem_inv.marking AS pembeli_invoice,
+                                            res.no_do AS resi_no_do,
                                             pem_pay.marking AS pembeli_payment
                                         FROM tbl_jurnal_items ji
                                         LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
                                         LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                        LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
                                         LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
                                         LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
                                         LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
@@ -206,7 +212,7 @@ class LedgerController extends Controller
                                         AND ju.tanggal >= '$startDate'
                                         AND ju.tanggal <= '$endDate'
                                         ORDER BY ju.tanggal ASC");
-                                        
+
                 $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                                 SUM(ji.credit) AS total_credit
                                                         FROM tbl_jurnal_items ji
