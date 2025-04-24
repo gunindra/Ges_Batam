@@ -109,7 +109,8 @@
 
                         <div class="form-group mt-3">
                             <label for="tanggalPaymentBuat" class="form-label fw-bold">Tanggal Buat</label>
-                            <input style="background-color: white" type="text" class="form-control" id="tanggalPaymentBuat">
+                            <input style="background-color: white" type="text" class="form-control"
+                                id="tanggalPaymentBuat">
                             <div id="errTanggalPaymentBuat" class="text-danger mt-1 d-none">Silahkan isi Tanggal</div>
                         </div>
                     </div>
@@ -331,14 +332,17 @@
                     dataType: 'json',
                     beforeSend: function() {
                         $('#KodePayment').val('Loading...');
+                        $('#submitBtn').prop('disabled', true); // tombol submit dinonaktifkan
                     },
                     success: function(response) {
                         if (response.status === 'success') {
                             $('#KodePayment').val(response.kode_pembayaran);
+                            $('#submitBtn').prop('disabled', false); // aktifkan kembali tombol
                         }
                     },
                     error: function() {
                         showMessage('error', 'Terjadi kesalahan dalam generate kode pembayaran.');
+                        $('#submitBtn').prop('disabled', false);
                     }
                 });
             }
@@ -470,11 +474,19 @@
 
                 let isValid = true;
 
-                // Check if required fields are filled
-                if (!$("#KodePayment").val().trim()) {
+                var kodePayment = $("#KodePayment").val().trim();
+
+                if (!kodePayment || kodePayment === 'Loading...' || !/^BO\d+$/.test(kodePayment)) {
+                    $("#errKodePayment").html(`Kode payment tidak valid
+        <a href="#" id="retryGenerateKode" class="text-primary ms-2" style="text-decoration: none;">
+            <i class="fas fa-sync-alt"></i>
+        </a>`);
                     $("#errKodePayment").removeClass("d-none");
                     isValid = false;
+                } else {
+                    $("#errKodePayment").addClass("d-none");
                 }
+
 
                 if (!$("#selectMarking").val()) {
                     $("#errMarkingPayment").removeClass("d-none");
@@ -595,6 +607,13 @@
                         }
                     })
                 }
+            });
+
+
+            $(document).on('click', '#retryGenerateKode', function(e) {
+                e.preventDefault();
+                generateKodePembayaran();
+                $("#errKodePayment").addClass("d-none");
             });
 
         });
