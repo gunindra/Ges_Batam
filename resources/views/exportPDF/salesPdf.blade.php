@@ -220,6 +220,7 @@
                     <th>No.</th>
                     <th>No. Invoice</th>
                     <th>Marking</th>
+                    <th>Tanggal Pembukuan</th>
                     <th>Tanggal Invoice</th>
                     <th>No. Resi</th>
                     <th>Quantity</th>
@@ -244,6 +245,7 @@
                         <td>{{ $no++ }}</td>
                         <td>{{ $sales->no_invoice }}</td>
                         <td>{{ $sales->marking }}</td>
+                        <td>{{ $sales->tanggal_pembukuan }}</td>
                         <td>{{ $sales->tanggal_buat }}</td>
                         <td>{{ $sales->no_resi }}</td>
                         <td>{{ $sales->berat_volume }}</td>
@@ -259,7 +261,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="10" class="text-right grand-total">Grand Total</td>
+                    <td colspan="11" class="text-right grand-total">Grand Total</td>
                     <td class="text-right grand-total">
                         Rp {{ number_format($grandTotal, 0, ',', '.') }}
                     </td>
@@ -269,13 +271,13 @@
                 @endphp
                  @if($selisih != 0 && is_null($txSearch))
                     <tr>
-                        <td colspan="10" class="text-right grand-total">Selisih Terhadap Ledger</td>
+                        <td colspan="11" class="text-right grand-total">Selisih Terhadap Ledger</td>
                         <td class="text-right grand-total">
                             Rp {{ number_format($selisih, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="10" class="text-right grand-total">Total Setelah Selisih</td>
+                        <td colspan="11" class="text-right grand-total">Total Setelah Selisih</td>
                         <td class="text-right grand-total">
                             Rp {{ number_format($journalTotal, 0, ',', '.') }}
                         </td>

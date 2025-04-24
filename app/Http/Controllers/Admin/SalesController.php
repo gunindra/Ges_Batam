@@ -48,6 +48,7 @@ class SalesController extends Controller
         ->select(
             'tbl_invoice.no_invoice',
             DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+            DB::raw("DATE_FORMAT(tbl_invoice.tanggal_invoice, '%d %M %Y') AS tanggal_pembukuan"),
             'tbl_resi.no_do',
             'tbl_resi.no_resi',
             'tbl_pembeli.nama_pembeli AS customer',
@@ -70,6 +71,7 @@ class SalesController extends Controller
         ->groupBy(
             'tbl_invoice.no_invoice',
             'tbl_invoice.tanggal_buat',
+            'tbl_invoice.tanggal_invoice',
             'tbl_resi.no_do',
             'tbl_resi.no_resi',
             'tbl_pembeli.nama_pembeli',
@@ -103,6 +105,7 @@ class SalesController extends Controller
         $query->groupBy(
                 'tbl_invoice.no_invoice',
                 'tbl_invoice.tanggal_buat',
+                'tbl_invoice.tanggal_invoice',
                 'tbl_pembeli.nama_pembeli',
                 'tbl_invoice.metode_pengiriman',
                 'tbl_status.status_name',
@@ -163,6 +166,7 @@ class SalesController extends Controller
                 ->select(
                     'tbl_invoice.no_invoice',
                     DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                    DB::raw("DATE_FORMAT(tbl_invoice.tanggal_invoice, '%d %M %Y') AS tanggal_pembukuan"),
                     'tbl_resi.no_do',
                     'tbl_resi.no_resi',
                     'tbl_pembeli.nama_pembeli AS customer',
@@ -190,6 +194,7 @@ class SalesController extends Controller
                 ->groupBy(
                     'tbl_invoice.no_invoice',
                     'tbl_invoice.tanggal_buat',
+                    'tbl_invoice.tanggal_invoice',
                     'tbl_resi.no_do',
                     'tbl_resi.no_resi',
                     'tbl_pembeli.nama_pembeli',

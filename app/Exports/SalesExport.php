@@ -40,6 +40,7 @@ class SalesExport implements FromView, WithEvents
             ->select(
                 'tbl_invoice.no_invoice',
                 DB::raw("DATE_FORMAT(tbl_invoice.tanggal_buat, '%d %M %Y') AS tanggal_buat"),
+                DB::raw("DATE_FORMAT(tbl_invoice.tanggal_invoice, '%d %M %Y') AS tanggal_pembukuan"),
                 'tbl_resi.no_do',
                 'tbl_resi.no_resi',
                 'tbl_pembeli.nama_pembeli AS customer',
@@ -67,6 +68,7 @@ class SalesExport implements FromView, WithEvents
             ->groupBy(
                 'tbl_invoice.no_invoice',
                 'tbl_invoice.tanggal_buat',
+                'tbl_invoice.tanggal_invoice',
                 'tbl_resi.no_do',
                 'tbl_resi.no_resi',
                 'tbl_pembeli.nama_pembeli',

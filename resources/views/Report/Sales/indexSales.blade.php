@@ -113,6 +113,7 @@
                                     <tr>
                                         <th>No. Invoice</th>
                                         <th>Marking</th>
+                                        <th>Tanggal Pembukuan</th>
                                         <th>Tanggal Invoice</th>
                                         <th>No Resi</th>
                                         <th>Quantity</th>
@@ -126,7 +127,7 @@
                                 <tbody></tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="9" style="text-align: right;">Grand Total:</th>
+                                        <th colspan="10" style="text-align: right;">Grand Total:</th>
                                         <th id="grandTotal">Rp 0</th>
                                     </tr>
                                 </tfoot>
@@ -174,6 +175,10 @@
                     {
                         data: "marking",
                         name: "marking"
+                    },
+                    {
+                        data: "tanggal_pembukuan",
+                        name: "tanggal_pembukuan"
                     },
                     {
                         data: "tanggal_buat",

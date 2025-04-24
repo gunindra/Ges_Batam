@@ -30,6 +30,7 @@
         <tr>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">No. Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">Marking</th>
+            <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">Tanggal Pembukuan</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">Tanggal Invoice</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">No Resi</th>
             <th style="text-align:center;font-size:11px;border:1px solid black; font-weight: bold; padding: 20px; white-space: normal;" bgcolor="#b9bab8">Quantity</th>
@@ -55,6 +56,9 @@
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ $Sale->marking }}
+                </td>
+                <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
+                    {{ \Carbon\Carbon::parse($Sale->tanggal_pembukuan)->format('d M Y') }}
                 </td>
                 <td style="text-align:left;font-size:11px;border:1px solid black; padding: 20px">
                     {{ \Carbon\Carbon::parse($Sale->tanggal_buat)->format('d M Y') }}
@@ -88,7 +92,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="9" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
+            <td colspan="10" class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
                 Grand Total
             </td>
             <td class="text-right grand-total" style="font-size:11px;border:1px solid black; padding: 20px">
@@ -100,7 +104,7 @@
         @endphp
          @if($selisih != 0 && is_null($txSearch))
             <tr>
-                <td colspan="9" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                <td colspan="10" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
                     Selisih Terhadap Ledger
                 </td>
                 <td class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
@@ -108,7 +112,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="9" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
+                <td colspan="10" class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
                     Total Setelah Selisih
                 </td>
                 <td class="text-right grand-total" style="font-size:11px; border:1px solid black; padding: 20px">
