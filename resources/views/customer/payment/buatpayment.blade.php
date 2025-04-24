@@ -175,7 +175,7 @@
                     </p>
                     <p><strong class="text-primary">Jumlah Amount :</strong> <span id="previewInvoiceAmount"
                             class="fw-bold text-success">-</span></p>
-                    <p><strong class="text-primary">Total Sudah Bayar :</strong> <span id="previewTotalPaid"
+                    <p><strong class="text-primary">Total Sudah Bayar + Credit Note :</strong> <span id="previewTotalPaid"
                             class="fw-bold text-info">-</span></p>
                     <p><strong class="text-primary">Sisa Pembayaran :</strong> <span id="previewRemainingPayment"
                             class="fw-bold text-danger">-</span></p>
