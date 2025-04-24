@@ -42,30 +42,36 @@ class LedgerController extends Controller
 
         $ledgerAccounts = [];
         foreach ($coaQuery as $coa) {
-            $journalQuery = DB::select("SELECT ji.id AS items_id,
-                                            ji.jurnal_id AS jurnal_id,
-                                            ji.code_account AS account_id,
-                                            ji.debit AS debit,
-                                            ji.credit AS credit,
-                                            ji.description AS items_description,
-                                            ji.memo AS memo,
-                                            ju.tanggal AS tanggal,
-                                            ju.tanggal_payment AS tanggal_payment,
-                                            ju.no_journal AS no_journal,
-                                            pem_inv.marking AS pembeli_invoice,
-                                            res.no_do AS resi_no_do,
-                                            pem_pay.marking AS pembeli_payment
-                                        FROM tbl_jurnal_items ji
-                                        LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
-                                        LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
-                                        LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
-                                        LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
-                                        LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
-                                        WHERE ji.code_account = $coa->coa_id
-                                        AND ju.tanggal >= '$startDate'
-                                        AND ju.tanggal <= '$endDate'
-                                        ORDER BY ju.tanggal ASC");
+            $journalQuery = DB::select("SELECT
+                                                    ji.id AS items_id,
+                                                    ji.jurnal_id AS jurnal_id,
+                                                    ji.code_account AS account_id,
+                                                    ji.debit AS debit,
+                                                    ji.credit AS credit,
+                                                    ji.description AS items_description,
+                                                    ji.memo AS memo,
+                                                    ju.tanggal AS tanggal,
+                                                    ju.tanggal_payment AS tanggal_payment,
+                                                    ju.no_journal AS no_journal,
+                                                    pem_inv.marking AS pembeli_invoice,
+                                                    GROUP_CONCAT(DISTINCT res.no_do SEPARATOR ', ') AS resi_no_do,
+                                                    pem_pay.marking AS pembeli_payment
+                                                FROM tbl_jurnal_items ji
+                                                LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                                LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
+                                                LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
+                                                LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
+                                                LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
+                                                WHERE ji.code_account = ?
+                                                AND ju.tanggal >= ?
+                                                AND ju.tanggal <= ?
+                                                GROUP BY
+                                                    ji.id, ji.jurnal_id, ji.code_account, ji.debit, ji.credit,
+                                                    ji.description, ji.memo, ju.tanggal, ju.tanggal_payment,
+                                                    ju.no_journal, pem_inv.marking, pem_pay.marking
+                                                ORDER BY ju.tanggal ASC
+                                            ", [$coa->coa_id, $startDate, $endDate]);
 
             $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                             SUM(ji.credit) AS total_credit
@@ -119,7 +125,7 @@ class LedgerController extends Controller
         foreach ($ledgerAccounts as $data) {
             if (!empty($data['journal_entries']) || $data['beginning_balance'] != 0 || $data['ending_balance'] != 0) {
                 $output .= '<tr>
-                                <td colspan="2"><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
+                                <td colspan="3"><b>' . ($data['code'] ?? '-') . ' - ' . ($data['account_name'] ?? '-') . '</b></td>
                                 <td><b>BEGINING BALANCE</b></td>
                                 <td class="text-right"><b>  </b></td>
                                 <td class="text-right"><b>  </b></td>';
@@ -142,6 +148,7 @@ class LedgerController extends Controller
                 }
 
                 $output .= '<tr>
+                                <td> </td>
                                 <td> </td>
                                 <td> </td>
                                 <td><b>ENDING BALANCE</b></td>
@@ -188,30 +195,37 @@ class LedgerController extends Controller
 
             $ledgerAccounts = [];
             foreach ($coaQuery as $coa) {
-                $journalQuery = DB::select("SELECT ji.id AS items_id,
-                                            ji.jurnal_id AS jurnal_id,
-                                            ji.code_account AS account_id,
-                                            ji.debit AS debit,
-                                            ji.credit AS credit,
-                                            ji.description AS items_description,
-                                            ji.memo AS memo,
-                                            ju.tanggal AS tanggal,
-                                            ju.tanggal_payment AS tanggal_payment,
-                                            ju.no_journal AS no_journal,
-                                            pem_inv.marking AS pembeli_invoice,
-                                            res.no_do AS resi_no_do,
-                                            pem_pay.marking AS pembeli_payment
-                                        FROM tbl_jurnal_items ji
-                                        LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
-                                        LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
-                                        LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
-                                        LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
-                                        LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
-                                        LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
-                                        WHERE ji.code_account = $coa->coa_id
-                                        AND ju.tanggal >= '$startDate'
-                                        AND ju.tanggal <= '$endDate'
-                                        ORDER BY ju.tanggal ASC");
+                $journalQuery = DB::select("SELECT
+                                                        ji.id AS items_id,
+                                                        ji.jurnal_id AS jurnal_id,
+                                                        ji.code_account AS account_id,
+                                                        ji.debit AS debit,
+                                                        ji.credit AS credit,
+                                                        ji.description AS items_description,
+                                                        ji.memo AS memo,
+                                                        ju.tanggal AS tanggal,
+                                                        ju.tanggal_payment AS tanggal_payment,
+                                                        ju.no_journal AS no_journal,
+                                                        pem_inv.marking AS pembeli_invoice,
+                                                        GROUP_CONCAT(DISTINCT res.no_do SEPARATOR ', ') AS resi_no_do,
+                                                        pem_pay.marking AS pembeli_payment
+                                                    FROM tbl_jurnal_items ji
+                                                    LEFT JOIN tbl_jurnal ju ON ju.id = ji.jurnal_id
+                                                    LEFT JOIN tbl_invoice inv ON ju.invoice_id = inv.id
+                                                    LEFT JOIN tbl_resi res ON inv.id = res.invoice_id
+                                                    LEFT JOIN tbl_payment_customer pc ON ju.payment_id = pc.id
+                                                    LEFT JOIN tbl_pembeli pem_inv ON inv.pembeli_id = pem_inv.id
+                                                    LEFT JOIN tbl_pembeli pem_pay ON pc.pembeli_id = pem_pay.id
+                                                    WHERE ji.code_account = ?
+                                                    AND ju.tanggal >= ?
+                                                    AND ju.tanggal <= ?
+                                                    GROUP BY
+                                                        ji.id, ji.jurnal_id, ji.code_account, ji.debit, ji.credit,
+                                                        ji.description, ji.memo, ju.tanggal, ju.tanggal_payment,
+                                                        ju.no_journal, pem_inv.marking, pem_pay.marking
+                                                    ORDER BY ju.tanggal ASC
+                                                ", [$coa->coa_id, $startDate, $endDate]);
+
 
                 $beginningBalanceQuery = DB::select("SELECT SUM(ji.debit) AS total_debit,
                                                                 SUM(ji.credit) AS total_credit
