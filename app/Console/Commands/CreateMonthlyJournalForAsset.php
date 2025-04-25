@@ -25,7 +25,7 @@ class CreateMonthlyJournalForAsset extends Command
 
         // Get assets that need journal entries
         $assets = Asset::all(); // Modify this query to get only assets that need a journal entry
-
+        Log::info("ASETTTTTTTTTTTTTTTTTTTTTTTTTT");
         foreach ($assets as $asset) {
             // Calculate the asset's age in months since acquisition
             $monthsElapsed = Carbon::parse($asset->acquisition_date)->diffInMonths(Carbon::now());
@@ -34,7 +34,7 @@ class CreateMonthlyJournalForAsset extends Command
             if ($monthsElapsed < $asset->estimated_age) {
                 // Create a request object to pass to the function
                 $request = request(); // Adjust as necessary to pass required data
-                $controller->createJournalForAsset($request, $asset);
+                $controller->createJournalForDepreciation($request, $asset);
             }
         }
 
