@@ -47,6 +47,7 @@ class CreditNoteController extends Controller
                                             FROM tbl_invoice
                                             JOIN tbl_pembeli ON tbl_invoice.pembeli_id = tbl_pembeli.id
                                             WHERE tbl_invoice.company_id = $companyId
+                                            AND tbl_invoice.status_bayar = 'Belum lunas'
                                         ");
 
         return view('customer.creditnote.buatcreditnote', [
@@ -96,8 +97,9 @@ class CreditNoteController extends Controller
                     return Carbon::parse($row->created_at)->translatedFormat('d F Y');
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = ' <a href="#" data-id="' . $row->id . '" class="btn btnedit btn-primary btn-sm"><i class="fas fa-list-ul"></i></a>';
-                    return $btn;
+                    $editBtn = '<a href="#" data-id="' . $row->id . '" class="btn btnedit btn-primary btn-sm"><i class="fas fa-list-ul"></i></a>';
+                    $deleteBtn = '<button data-id="' . $row->id . '" class="btn btndelete btn-danger btn-sm ml-1"><i class="fas fa-trash-alt"></i></button>';
+                    return $editBtn . ' ' . $deleteBtn;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -119,6 +121,24 @@ class CreditNoteController extends Controller
             'items.*.harga' => 'required|numeric',
             'totalKeseluruhan' => 'required|numeric',
         ]);
+
+
+        $noResis = collect($request->items)->pluck('noresi')->unique();
+        $existingResis = DB::table('tbl_tracking')
+            ->whereIn('no_resi', $noResis)
+            ->pluck('no_resi')
+            ->all();
+
+        $notFoundResis = $noResis->diff($existingResis);
+
+        if ($notFoundResis->isNotEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Beberapa resi tidak ditemukan di sistem.',
+                'missing_resi' => $notFoundResis->values(),
+            ], 400);
+        }
+
 
         DB::beginTransaction();
 
@@ -267,6 +287,7 @@ class CreditNoteController extends Controller
             ], 500);
         }
     }
+
     public function updatepage($id)
     {
         $creditNote = CreditNote::with('items')->find($id);
@@ -282,10 +303,47 @@ class CreditNoteController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id )
+    public function destroy($id)
     {
+        DB::beginTransaction();
 
+        try {
+            $creditNote = CreditNote::with('items')->findOrFail($id);
+            $invoice = Invoice::findOrFail($creditNote->invoice_id);
+
+            $invoice->total_bayar -= $creditNote->total_keseluruhan;
+            if ($invoice->total_bayar < 0) {
+                $invoice->total_bayar = 0;
+            }
+            if ($invoice->total_bayar >= $invoice->total_harga) {
+                $invoice->status_bayar = 'Lunas';
+            } else {
+                $invoice->status_bayar = 'Belum Lunas';
+            }
+
+            $invoice->save();
+            $jurnal = Jurnal::where('no_ref', $invoice->no_invoice)
+                            ->where('tipe_kode', 'CN')
+                            ->first();
+
+            if ($jurnal) {
+                JurnalItem::where('jurnal_id', $jurnal->id)->delete();
+                $jurnal->delete();
+            }
+            $creditNote->items()->delete();
+            $creditNote->delete();
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => 'Credit Note berhasil dihapus.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus Credit Note.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
 
 }

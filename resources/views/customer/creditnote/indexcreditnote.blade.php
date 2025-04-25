@@ -219,6 +219,51 @@
                 window.location.href = url;
             });
 
+            $(document).on('click', '.btndelete', function() {
+                var id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Apakah kamu yakin?',
+                    text: "Credit Note yang dihapus tidak bisa dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/customer/creditnote/delete/' + id,
+                            type: 'DELETE',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                table.ajax.reload();
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops!',
+                                    text: xhr.responseJSON.message ||
+                                        'Gagal menghapus data.'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+
         })
     </script>
 @endsection
