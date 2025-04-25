@@ -183,7 +183,6 @@ class AssetController extends Controller
     public function createJournalForDepreciation($request, $asset)
     {
         $companyId = session('active_company_id');
-        Log::info("Jurnal untuk Depresiasi Asset Journal Suzuki APV Boxxx");
         try {
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
@@ -211,7 +210,7 @@ class AssetController extends Controller
             $jurnal->asset_id = $asset->id;
             $jurnal->begining_value = $asset->current_value;
             $jurnal->ending_value = $asset->current_value - $totalPerMonth;
-            $jurnal->company_id = $companyId;
+            $jurnal->company_id = $asset->company_id;
             $jurnal->save();
 
             $asset->current_value = $asset->current_value - $totalPerMonth;
