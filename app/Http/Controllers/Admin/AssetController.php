@@ -184,55 +184,57 @@ class AssetController extends Controller
     {
         $companyId = session('active_company_id');
         try {
-            // // Extract necessary data from the request and asset
-            // $request->merge(['code_type' => 'JU']);
-            // $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+            // Extract necessary data from the request and asset
+            $request->merge(['code_type' => 'JU']);
+            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
             // $jurnalDate = Carbon::parse($asset->depreciation_date)->endOfMonth()->format('Y-m-d');
-            // $noRef = $asset->asset_code ? $asset->asset_code : '-';
-            // $price = intval(str_replace(',', '', $asset->acquisition_price));
-            // $residue = intval(str_replace(',', '', $asset->residue_value));
-            // $age = $asset->estimated_age;
-            // $result = ($price - $residue) / $age;
-            // var_dump($result);  // Check the result before rounding
-            // $totalPerMonth = (int) ceil($result);
+            $jurnalDate = '2025-03-31';
+            $noRef = $asset->asset_code ? $asset->asset_code : '-';
+            $price = intval(str_replace(',', '', $asset->acquisition_price));
+            $residue = intval(str_replace(',', '', $asset->residue_value));
+            $age = $asset->estimated_age;
+            $result = ($price - $residue) / $age;
+            var_dump($result);  // Check the result before rounding
+            $totalPerMonth = (int) ceil($result);
 
-            // // Create Jurnal
-            // $jurnal = new Jurnal();
-            // $jurnal->no_journal = $noJournal;
-            // $jurnal->tipe_kode = 'JU';
-            // $jurnal->tanggal = $jurnalDate;
-            // $jurnal->no_ref = $noRef;
-            // $jurnal->status = 'Approve';
-            // $jurnal->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
-            // $jurnal->totaldebit = $totalPerMonth;
-            // $jurnal->totalcredit = $totalPerMonth;
-            // $jurnal->asset_id = $asset->id;
-            // $jurnal->begining_value = $asset->current_value;
-            // $jurnal->ending_value = $asset->current_value - $totalPerMonth;
-            // $jurnal->company_id = $companyId;
-            // $jurnal->save();
+            // Create Jurnal
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'JU';
+            $jurnal->tanggal = $jurnalDate;
+            $jurnal->no_ref = $noRef;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
+            $jurnal->totaldebit = $totalPerMonth;
+            $jurnal->totalcredit = $totalPerMonth;
+            $jurnal->asset_id = $asset->id;
+            $jurnal->begining_value = $asset->current_value;
+            $jurnal->ending_value = $asset->current_value - $totalPerMonth;
+            $jurnal->company_id = $companyId;
+            $jurnal->save();
 
-            // $asset->current_value = $asset->current_value - $totalPerMonth;
-            // $asset->save();
-            // // Debit Jurnal Item
-            // $jurnalItemDebit = new JurnalItem();
-            // $jurnalItemDebit->jurnal_id = $jurnal->id;
-            // $jurnalItemDebit->code_account = $asset->depreciation_account;
-            // $jurnalItemDebit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
-            // $jurnalItemDebit->debit = $totalPerMonth;
-            // $jurnalItemDebit->credit = 0;
-            // $jurnalItemDebit->save();
+            $asset->current_value = $asset->current_value - $totalPerMonth;
+            $asset->save();
+            // Debit Jurnal Item
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $asset->depreciation_account;
+            $jurnalItemDebit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
+            $jurnalItemDebit->debit = $totalPerMonth;
+            $jurnalItemDebit->credit = 0;
+            $jurnalItemDebit->save();
 
-            // // Credit Jurnal Item
-            // $jurnalItemCredit = new JurnalItem();
-            // $jurnalItemCredit->jurnal_id = $jurnal->id;
-            // $jurnalItemCredit->code_account = $asset->accumulated_account;
-            // $jurnalItemCredit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
-            // $jurnalItemCredit->debit = 0;
-            // $jurnalItemCredit->credit = $totalPerMonth;
-            // $jurnalItemCredit->save();
+            // Credit Jurnal Item
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $asset->accumulated_account;
+            $jurnalItemCredit->description = "Jurnal untuk Depresiasi Asset " . $asset->asset_name;
+            $jurnalItemCredit->debit = 0;
+            $jurnalItemCredit->credit = $totalPerMonth;
+            $jurnalItemCredit->save();
 
             Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
+
 
         } catch (Exception $e) {
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
