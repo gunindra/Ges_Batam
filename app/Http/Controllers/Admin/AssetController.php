@@ -187,7 +187,8 @@ class AssetController extends Controller
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
-            $jurnalDate = Carbon::parse($asset->depreciation_date)->endOfMonth()->format('Y-m-d');
+            // $jurnalDate = Carbon::parse($asset->depreciation_date)->endOfMonth()->format('Y-m-d');
+            $jurnalDate= '2025-03-31';
             $noRef = $asset->asset_code ? $asset->asset_code : '-';
             $price = intval(str_replace(',', '', $asset->acquisition_price));
             $residue = intval(str_replace(',', '', $asset->residue_value));
