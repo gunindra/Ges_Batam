@@ -25,18 +25,19 @@ class CreateMonthlyJournalForAsset extends Command
         $controller = app()->make(\App\Http\Controllers\Admin\AssetController::class); // Adjust with the actual namespace
 
         // Get assets that need journal entries
-        // $assets = Asset::all(); // Modify this query to get only assets that need a journal entry
-        $assets = Asset::whereIn('id', [27, 15])->get();
+        $assets = Asset::all(); // Modify this query to get only assets that need a journal entry
         foreach ($assets as $asset) {
             // Calculate the asset's age in months since acquisition
-            $monthsElapsed = Carbon::parse($asset->acquisition_date)->diffInMonths(Carbon::now());
-            Log::info($monthsElapsed);
+            $acquisition = Carbon::parse($asset->acquisition_date)->startOfMonth();
+            $current = Carbon::now()->startOfMonth();
+
+            $monthsElapsed = $acquisition->diffInMonths($current);
             // Check if the asset is still within its estimated age
-            // if ($monthsElapsed <= $asset->estimated_age) {
+            if ($monthsElapsed <= $asset->estimated_age) {
                 // Create a request object to pass to the function
                 $request = request(); // Adjust as necessary to pass required data
                 $controller->createJournalForDepreciation($request, $asset);
-            // }
+            }
         }
 
         $this->info('Monthly journals created for eligible assets.');
