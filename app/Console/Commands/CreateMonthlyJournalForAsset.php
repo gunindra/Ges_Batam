@@ -27,10 +27,12 @@ class CreateMonthlyJournalForAsset extends Command
         // Get assets that need journal entries
         // $assets = Asset::all(); // Modify this query to get only assets that need a journal entry
         $assets = Asset::whereIn('id', [27, 15])->get();
+        
         foreach ($assets as $asset) {
+            Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " niiiiiiiiii");
             // Calculate the asset's age in months since acquisition
             $monthsElapsed = Carbon::parse($asset->acquisition_date)->diffInMonths(Carbon::now());
-
+            Log::info($monthsElapsed);
             // Check if the asset is still within its estimated age
             if ($monthsElapsed <= $asset->estimated_age) {
                 // Create a request object to pass to the function
