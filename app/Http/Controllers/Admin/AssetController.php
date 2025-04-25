@@ -183,6 +183,7 @@ class AssetController extends Controller
     public function createJournalForDepreciation($request, $asset)
     {
         $companyId = session('active_company_id');
+        Log::info("Jurnal untuk Depresiasi Asset Journal Suzuki APV Boxxx");
         try {
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
