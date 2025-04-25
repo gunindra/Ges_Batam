@@ -122,6 +122,24 @@ class CreditNoteController extends Controller
             'totalKeseluruhan' => 'required|numeric',
         ]);
 
+
+        $noResis = collect($request->items)->pluck('noresi')->unique();
+        $existingResis = DB::table('tbl_tracking')
+            ->whereIn('no_resi', $noResis)
+            ->pluck('no_resi')
+            ->all();
+
+        $notFoundResis = $noResis->diff($existingResis);
+
+        if ($notFoundResis->isNotEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Beberapa resi tidak ditemukan di sistem.',
+                'missing_resi' => $notFoundResis->values(),
+            ], 400);
+        }
+
+
         DB::beginTransaction();
 
         try {

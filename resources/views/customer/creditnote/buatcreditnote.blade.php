@@ -340,8 +340,17 @@
                         },
                         error: function (xhr) {
                             let errorMessage = "Gagal membuat invoice.";
+
+                            if (xhr.responseJSON && xhr.responseJSON.missing_resi) {
+                                let missingResiList = xhr.responseJSON.missing_resi.join('<br>');
+                                errorMessage = `${xhr.responseJSON.message}<br><br><strong>Resi:</strong><br>${missingResiList}`;
+                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+
                             Swal.fire({
-                                title: errorMessage,
+                                title: "Error",
+                                html: errorMessage,
                                 icon: "error"
                             });
                         }
