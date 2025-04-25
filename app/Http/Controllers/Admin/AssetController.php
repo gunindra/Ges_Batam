@@ -232,8 +232,7 @@ class AssetController extends Controller
             // $jurnalItemCredit->credit = $totalPerMonth;
             // $jurnalItemCredit->save();
 
-            // Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
-            Log::info("Jurnal untuk Depresiasi Asset Berhasil Dibuat");
+            Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
 
         } catch (Exception $e) {
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
