@@ -209,7 +209,7 @@ class AssetController extends Controller
             $jurnal->asset_id = $asset->id;
             $jurnal->begining_value = $asset->current_value;
             $jurnal->ending_value = $asset->current_value - $totalPerMonth;
-            $jurnal->company_id = $companyId;
+            $jurnal->company_id = $asset->company_id;
             $jurnal->save();
 
             $asset->current_value = $asset->current_value - $totalPerMonth;
@@ -236,7 +236,6 @@ class AssetController extends Controller
 
 
         } catch (Exception $e) {
-            dd($e);
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
         }
