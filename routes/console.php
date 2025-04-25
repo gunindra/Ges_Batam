@@ -13,7 +13,7 @@ app(Schedule::class)->command(UpdateExpiredTopups::class)->dailyAt('00:00');
 //         return Carbon::now()->isSameDay(Carbon::now()->endOfMonth());
 //     });
 app(Schedule::class)->command('journal:create-monthly')
-    ->dailyAt('11:05')
+    ->dailyAt('11:10')
     ->when(function () {
         return Carbon::now()->day === 25;
     });
