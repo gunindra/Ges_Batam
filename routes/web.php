@@ -359,6 +359,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::post('/customer/creditnote/store', [CreditNoteController::class, 'store'])->name('credit-note.store');
     Route::get('/customer/creditnote/updatepage/{id}', [CreditNoteController::class, 'updatepage'])->name('updatepage');
     Route::put('/customer/creditnote/update/{id}', [CreditNoteController::class, 'update'])->name('update');
+    Route::delete('/customer/creditnote/delete/{id}', [CreditNoteController::class, 'destroy'])->name('credit-note.destroy');
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
