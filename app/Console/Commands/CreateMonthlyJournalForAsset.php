@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Http\Controllers\Admin\AssetController;
 use App\Http\Controllers\Admin\JournalController;
 use Carbon\Carbon;
+use Log;
 
 class CreateMonthlyJournalForAsset extends Command
 {
