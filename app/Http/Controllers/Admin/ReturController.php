@@ -151,7 +151,7 @@ class ReturController extends Controller
                                     WHERE tbl_invoice.company_id = $companyId
                                 ");
 
-        return view('customer.retur.editretur', [
+        return view('customer.retur.editRetur', [
             'returData' => $retur,
             'savedPaymentAccounts' => $savedPaymentAccounts,
             // 'listCurrency' => $listCurrency,
