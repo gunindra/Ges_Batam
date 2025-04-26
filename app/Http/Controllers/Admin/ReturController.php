@@ -9,7 +9,6 @@ use App\Models\ReturItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\COA;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Admin\JournalController;
 use App\Models\Jurnal;
