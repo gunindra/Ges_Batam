@@ -34,6 +34,6 @@ class Retur extends Model
 
     public function account()
     {
-        return $this->belongsTo(Coa::class, 'account_id');
+        return $this->belongsTo(COA::class, 'account_id');
     }
 }
