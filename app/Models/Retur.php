@@ -29,7 +29,7 @@ class Retur extends Model
 
     public function currency()
     {
-        return $this->belongsTo(MataUang::class, 'currency_id');
+        return $this->belongsTo(Matauang::class, 'currency_id');
     }
 
     public function account()
