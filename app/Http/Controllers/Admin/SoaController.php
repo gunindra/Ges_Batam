@@ -27,14 +27,20 @@ class SoaController extends Controller
         ->select('id', 'marking', 'nama_pembeli')
         ->get();
 
-        return view('Report.Soa.indexbalance', compact('customers'));
+        $listpayment = DB::table('tbl_tipe_pembayaran')
+        ->select('tipe_pembayaran')
+        ->get();
+
+        return view('Report.Soa.indexbalance', compact('customers', 'listpayment'));
     }
 
     public function getSoa(Request $request)
     {
+        // dd($request->all());
+
         $companyId = session('active_company_id');
         $txSearch = '%' . strtoupper(trim($request->txSearch)) . '%';
-        $status = $request->status;
+        $paymentMethod = $request->paymentMethod;
         $customer = $request->customer;
 
         $invoiceQuery = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
@@ -71,6 +77,10 @@ class SoaController extends Controller
         }
         if ($customer) {
             $invoiceQuery->where('tbl_pembeli.id', '=', $customer);
+        }
+
+        if ($paymentMethod) {
+            $invoiceQuery->whereIn('tbl_invoice.payment_type', $paymentMethod);
         }
 
 
@@ -242,8 +252,9 @@ class SoaController extends Controller
         $startDate = $request->input('startDate') ?? now()->startOfMonth()->toDateString();
         $endDate = $request->input('endDate') ?? now()->endOfMonth()->toDateString();
         $customer = $request->nama_pembeli ?? '-';
+        $paymentMethod = $request->paymentMethod;
 
-        return Excel::download(new SoaCustomerExport($startDate, $endDate,$customer), 'Soa_Customer.xlsx');
+        return Excel::download(new SoaCustomerExport($startDate, $endDate,$customer,$paymentMethod), 'Soa_Customer.xlsx');
     }
 
     public function closingSoa(Request $request)

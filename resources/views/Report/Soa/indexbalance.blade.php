@@ -54,11 +54,20 @@
                             <div class="col-12">
                                 <div class="mt-3">
                                     <label for="customer" class="form-label fw-bold">Customer:</label>
-                                    <select class="form-control select2" id="customer">
+                                    <select class="form-control" id="customer">
                                         <option value="" selected disabled>Pilih Costumer</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->marking }} -
                                                 {{ $customer->nama_pembeli }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="customer" class="form-label fw-bold">Payment method:</label>
+                                    <select class="form-control" id="paymentMethod" multiple>
+                                        @foreach ($listpayment as $payment)
+                                            <option value="{{ $payment->tipe_pembayaran }}">{{ $payment->tipe_pembayaran }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -116,14 +125,14 @@
 @endsection
 @section('script')
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             const loadSpin = `<div class="d-flex justify-content-center align-items-center mt-5">
                         <div class="spinner-border d-flex justify-content-center align-items-center text-primary" role="status"></div>
                     </div> `;
 
             const getSOA = () => {
                 const txtSearch = $('#txSearch').val();
-                const filterStatus = $('#filterStatus').val();
+                const paymentMethod = $('#paymentMethod').val();
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 const customer = $('#customer').val();
@@ -133,7 +142,7 @@
                     method: "GET",
                     data: {
                         txSearch: txtSearch,
-                        status: filterStatus,
+                        paymentMethod: paymentMethod,
                         startDate: startDate,
                         endDate: endDate,
                         customer: customer,
@@ -163,7 +172,7 @@
             flatpickr("#startDate", {
                 dateFormat: "d M Y",
                 defaultDate: startOfYear,
-                onChange: function (selectedDates, dateStr, instance) {
+                onChange: function(selectedDates, dateStr, instance) {
                     $("#endDate").flatpickr({
                         dateFormat: "d M Y",
                         minDate: dateStr,
@@ -175,7 +184,7 @@
             flatpickr("#endDate", {
                 dateFormat: "d M Y",
                 defaultDate: today,
-                onChange: function (selectedDates, dateStr, instance) {
+                onChange: function(selectedDates, dateStr, instance) {
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
                     if (endDate < startDate) {
@@ -186,11 +195,9 @@
                 }
             });
 
-            $(document).on('click', '#filterTanggal', function (e) {
+            $(document).on('click', '#filterTanggal', function(e) {
                 $('#modalFilterTanggal').modal('show');
             });
-
-            $('.select2').select2();
 
             $('#customer').select2({
                 placeholder: "Pilih Customer",
@@ -200,7 +207,15 @@
                 dropdownParent: $('#modalFilterTanggal')
             });
 
-            $('#saveFilterTanggal').click(function () {
+            $('#paymentMethod').select2({
+                placeholder: "Pilih payment",
+                allowClear: true,
+                width: '100%',
+                minimumResultsForSearch: 0,
+                dropdownParent: $('#modalFilterTanggal')
+            });
+
+            $('#saveFilterTanggal').click(function() {
                 getSOA();
                 $('#modalFilterTanggal').modal('hide');
             });
@@ -208,7 +223,7 @@
 
             let filterApplied = false;
 
-            $('#saveFilterTanggal').on('click', function () {
+            $('#saveFilterTanggal').on('click', function() {
                 filterApplied = true;
                 checkFilters();
             });
@@ -224,16 +239,16 @@
                 }
             }
 
-            $('#customer').on('input change', function () {
+            $('#customer').on('input change', function() {
                 filterApplied = false;
             });
 
-            $(document).ajaxComplete(function () {
+            $(document).ajaxComplete(function() {
                 checkFilters();
             });
 
 
-            $('#sendWA').on('click', function (e) {
+            $('#sendWA').on('click', function(e) {
                 e.preventDefault();
 
                 const startDate = $('#startDate').val();
@@ -267,14 +282,14 @@
                         endDate: endDate,
                         customer: customer,
                     },
-                    success: function (response) {
+                    success: function(response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil!',
                             text: response.success,
                         });
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         let errorMessage = 'Terjadi kesalahan saat mengirim WhatsApp.';
                         if (xhr.responseJSON && xhr.responseJSON.error) {
                             errorMessage = xhr.responseJSON.error;
@@ -289,10 +304,11 @@
                 });
             });
 
-            $('#exportBtn').on('click', function () {
+            $('#exportBtn').on('click', function() {
                 var startDate = $('#startDate').val();
                 var endDate = $('#endDate').val();
                 var customer = $('#customer').val();
+                const paymentMethod = $('#paymentMethod').val();
 
                 var now = new Date();
                 var day = String(now.getDate()).padStart(2, '0');
@@ -312,12 +328,13 @@
                     data: {
                         startDate: startDate,
                         endDate: endDate,
-                        nama_pembeli: customer
+                        nama_pembeli: customer,
+                        paymentMethod: paymentMethod
                     },
                     xhrFields: {
                         responseType: 'blob'
                     },
-                    success: function (data) {
+                    success: function(data) {
                         var blob = new Blob([data], {
                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         });
@@ -326,7 +343,7 @@
                         link.download = filename;
                         link.click();
                     },
-                    error: function () {
+                    error: function() {
                         Swal.fire({
                             title: "Export failed!",
                             icon: "error"
@@ -337,7 +354,7 @@
 
 
 
-            $('#closingSoa').on('click', function () {
+            $('#closingSoa').on('click', function() {
                 if (window.invoiceIds && window.invoiceIds.length > 0) {
                     Swal.fire({
                         title: 'Apakah kamu yakin?',
@@ -358,7 +375,7 @@
                                     invoiceIds: window.invoiceIds,
                                     _token: "{{ csrf_token() }}"
                                 },
-                                success: function (response) {
+                                success: function(response) {
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Success',
@@ -367,7 +384,7 @@
 
                                     getSOA(); // Refresh data setelah closing
                                 },
-                                error: function (xhr) {
+                                error: function(xhr) {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Oops!',
