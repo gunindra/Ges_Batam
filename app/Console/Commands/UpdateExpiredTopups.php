@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\HistoryTopup;
 use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Admin\JournalController;
 use Carbon\Carbon;
 
 class UpdateExpiredTopups extends Command
@@ -25,48 +26,68 @@ class UpdateExpiredTopups extends Command
     protected $description = 'Command description';
 
     /**
-     * Execute the console command.
+     * The journal controller instance.
+     *
+     * @var JournalController
      */
+    protected $jurnalController;
 
+    /**
+     * Create a new command instance.
+     *
+     * @param JournalController $jurnalController
+     * @return void
+     */
+    public function __construct(JournalController $jurnalController)
+    {
+        parent::__construct(); // This is the crucial line that was missing
+        $this->jurnalController = $jurnalController;
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle()
     {
-        // Start the transaction
-        DB::beginTransaction();
+        $now = Carbon::now('Asia/Jakarta')->startOfDay();
+        $this->info("Current date: " . $now->toDateString());
 
-        try {
-            $now = Carbon::now('Asia/Jakarta')->startOfDay();
+        $expiredTopups = HistoryTopup::where('status', 'active')
+            ->whereDate('expired_date', '<', $now)
+            ->get();
 
-            $this->info("Current date: " . $now->toDateString());
-
-            $expiredTopups = HistoryTopup::where('status', 'active')
-                ->whereDate('expired_date', '<', $now)
-                ->get();
-
-            foreach ($expiredTopups as $topup) {
-                $customer = $topup->customer;
-
-                if ($customer) {
-                    $customer->sisa_poin = max(0, $customer->sisa_poin - $topup->balance);
-                    $customer->save();
+        foreach ($expiredTopups as $topup) {
+            DB::beginTransaction();
+            try {
+                if ($topup->balance <= 0) {
+                    $this->info("Skipping top-up ID {$topup->id} because balance is already 0.");
+                    continue;
                 }
 
+                $customer = Customer::findOrFail($topup->customer_id);
+
+                $customer->sisa_poin = max(0, $customer->sisa_poin - $topup->balance);
+                $customer->save();
+
+                $topup->expired_amount = $topup->balance;
                 $topup->balance = 0;
                 $topup->status = 'expired';
                 $topup->save();
 
-                $topupDate = Carbon::parse($topup->expired_date);
-                $this->info("Top-up ID {$topup->id} expired on {$topupDate->toDateString()} and has been updated.");
+                $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $topup->company_id);
+
+                DB::commit();
+                $this->info("Top-up ID {$topup->id} expired successfully.");
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $this->error("Failed to expire top-up ID {$topup->id}: " . $e->getMessage());
+                continue;
             }
-
-            DB::commit();
-
-            $this->info('All expired top-ups have been updated.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->error("Failed to update expired top-ups: " . $e->getMessage());
         }
+
+        $this->info('All expired top-ups have been processed.');
     }
-
-
 }

@@ -149,11 +149,19 @@ class TopupController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
+                $buttons = '';
+
+                // Cancel hanya kalau remaining_points == balance dan status active
                 if ($row->remaining_points == $row->balance && $row->status === 'active') {
-                    return '<button class="btn btnCancelTopup btn-sm btn-danger" data-id="' . $row->id . '">Cancel</button>' .
-                        '<button class="btn btnExpiredTopup btn-sm mt-1 btn-secondary" data-id="' . $row->id . '">Expired</button>';
+                    $buttons .= '<button class="btn btnCancelTopup btn-sm btn-danger" data-id="' . $row->id . '">Cancel</button>';
                 }
-                return '-';
+
+                // Expired tetap muncul selama status active
+                if ($row->status === 'active') {
+                    $buttons .= '<button class="btn btnExpiredTopup btn-sm mt-1 btn-secondary" data-id="' . $row->id . '">Expired</button>';
+                }
+
+                return $buttons ?: '-'; // Kalau tidak ada tombol sama sekali, tampilkan '-'
             })
             ->rawColumns(['status', 'action'])
             ->make(true);
@@ -352,67 +360,94 @@ class TopupController extends Controller
             'code' => $code
         ]);
     }
+
     public function expireTopup(Request $request, $id)
     {
         DB::beginTransaction();
         try {
+            // Validasi input
+            if (!is_numeric($id) || $id <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID top-up tidak valid.'
+                ], 400);
+            }
+
             $topup = HistoryTopup::findOrFail($id);
 
+            // Validasi status top-up
             if ($topup->status !== 'active') {
-                return response()->json(['success' => false, 'message' => 'Top-up tidak aktif atau sudah kedaluwarsa.'], 400);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Top-up tidak aktif atau sudah kedaluwarsa.'
+                ], 400);
             }
 
             $customer = Customer::findOrFail($topup->customer_id);
             $companyId = session('active_company_id');
 
+            // Validasi company ID
+            if (!$companyId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company ID tidak ditemukan dalam session.'
+                ], 400);
+            }
+
             $initialBalance = $topup->balance;
 
+            // Pastikan balance tidak negatif
+            if ($initialBalance < 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Balance top-up tidak valid.'
+                ], 400);
+            }
+
+            // Update customer points
             $customer->sisa_poin = max(0, $customer->sisa_poin - $initialBalance);
             $customer->save();
 
+            // Update top-up status
+            $topup->expired_amount = $topup->balance;
             $topup->balance = 0;
             $topup->status = 'expired';
             $topup->save();
 
-            $request->merge(['code_type' => 'TX']);
-            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
-            $jurnal = new Jurnal();
-            $jurnal->no_journal = $noJournal;
-            $jurnal->tipe_kode = 'TX';
-            $jurnal->tanggal = now();
-            $jurnal->no_ref = $topup->code;
-            $jurnal->status = 'Approve';
-            $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";
-            $jurnal->totaldebit = $topup->topup_amount;
-            $jurnal->totalcredit = $topup->topup_amount;
-            $jurnal->company_id = $companyId;
-            $jurnal->save();
 
-            $jurnalItemDebit = new JurnalItem();
-            $jurnalItemDebit->jurnal_id = $jurnal->id;
-            $jurnalItemDebit->code_account = $topup->account_id;
-            $jurnalItemDebit->description = "Expired debit untuk Top-up Customer {$customer->nama_pembeli}";
-            $jurnalItemDebit->debit = 0;
-            $jurnalItemDebit->credit = $topup->topup_amount;
-            $jurnalItemDebit->save();
-
-            $jurnalItemCredit = new JurnalItem();
-            $jurnalItemCredit->jurnal_id = $jurnal->id;
-            $jurnalItemCredit->code_account = DB::table('tbl_account_settings')->value('purchase_profit_rate_account_id');
-            $jurnalItemCredit->description = "Expired kredit untuk Top-up Customer {$customer->nama_pembeli}";
-            $jurnalItemCredit->debit = $topup->topup_amount;
-            $jurnalItemCredit->credit = 0;
-            $jurnalItemCredit->save();
+            // Buat jurnal
+            $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $companyId);
 
             DB::commit();
 
-            return response()->json(['success' => true, 'message' => 'Top-up expired successfully.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Top-up berhasil di-expire.',
+                'data' => [
+                    'topup_id' => $topup->id,
+                    'remaining_points' => $customer->sisa_poin
+                ]
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Data top-up atau customer tidak ditemukan.'
+            ], 404);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Failed to expire top-up: ' . $e->getMessage()], 500);
+            Log::error('Failed to expire top-up: ' . $e->getMessage(), [
+                'exception' => $e,
+                'topup_id' => $id,
+                'company_id' => session('active_company_id')
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengeksekusi expire top-up: ' . $e->getMessage()
+            ], 500);
         }
-
     }
 
     public function topupNotification()

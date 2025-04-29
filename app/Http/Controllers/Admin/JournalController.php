@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\COA;
+use App\Models\Customer;
+use App\Models\HistoryTopup;
 use App\Models\Jurnal;
 use App\Models\JurnalItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class JournalController extends Controller
@@ -317,6 +320,86 @@ class JournalController extends Controller
             'status' => 'success',
             'no_journal' => $no_journal
         ]);
+    }
+
+
+    public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId)
+    {
+        try {
+            // Validasi input
+            if (!$topup || !$customer || !$companyId) {
+                throw new \Exception("Data topup, customer, atau company tidak valid");
+            }
+
+            // Hitung amount yang akan digunakan untuk jurnal
+            $amount = 0;
+
+            if ($topup->remaining_points == $topup->balance) {
+                // Jika remaining_points dan balance sama, gunakan topup_amount
+                $amount = $topup->topup_amount;
+            } else {
+                // Jika berbeda, hitung dari balance * price_per_kg
+                if (!is_numeric($topup->expired_amount)) {
+                    throw new \Exception("Balance topup tidak valid");
+                }
+                if (!is_numeric($topup->price_per_kg) || $topup->price_per_kg <= 0) {
+                    throw new \Exception("Harga per kg tidak valid");
+                }
+
+                $amount = $topup->expired_amount * $topup->price_per_kg;
+            }
+
+            // Generate nomor jurnal
+            $fakeRequest = new \Illuminate\Http\Request();
+            $fakeRequest->merge(['code_type' => 'TX']);
+            $noJournal = $this->generateNoJurnal($fakeRequest)->getData()->no_journal;
+
+            // Buat entri jurnal utama
+            $jurnal = new Jurnal();
+            $jurnal->no_journal = $noJournal;
+            $jurnal->tipe_kode = 'TX';
+            $jurnal->tanggal = now();
+            $jurnal->no_ref = $topup->code;
+            $jurnal->status = 'Approve';
+            $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";
+            $jurnal->totaldebit = $amount;
+            $jurnal->totalcredit = $amount;
+            $jurnal->company_id = $companyId;
+            $jurnal->save();
+
+            // Buat jurnal item debit
+            $jurnalItemDebit = new JurnalItem();
+            $jurnalItemDebit->jurnal_id = $jurnal->id;
+            $jurnalItemDebit->code_account = $topup->account_id;
+            $jurnalItemDebit->description = "Expired debit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemDebit->debit = 0;
+            $jurnalItemDebit->credit = $amount;
+            $jurnalItemDebit->save();
+
+            // Buat jurnal item kredit
+            $profitAccountId = DB::table('tbl_account_settings')->value('purchase_profit_rate_account_id');
+            if (!$profitAccountId) {
+                throw new \Exception("Account untuk profit rate tidak ditemukan");
+            }
+
+            $jurnalItemCredit = new JurnalItem();
+            $jurnalItemCredit->jurnal_id = $jurnal->id;
+            $jurnalItemCredit->code_account = $profitAccountId;
+            $jurnalItemCredit->description = "Expired kredit untuk Top-up Customer {$customer->nama_pembeli}";
+            $jurnalItemCredit->debit = $amount;
+            $jurnalItemCredit->credit = 0;
+            $jurnalItemCredit->save();
+
+            return $jurnal; // Mengembalikan data jurnal yang dibuat
+
+        } catch (\Exception $e) {
+            Log::error('Gagal membuat jurnal expired topup: ' . $e->getMessage(), [
+                'topup_id' => $topup->id ?? null,
+                'customer_id' => $customer->id ?? null,
+                'company_id' => $companyId
+            ]);
+            throw $e; // Re-throw exception agar bisa ditangkap oleh caller
+        }
     }
 }
 
