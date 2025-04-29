@@ -178,7 +178,14 @@ class PaymentController extends Controller
                 FORMAT(a.total_harga, 0) AS total_harga,
                 FORMAT(a.total_bayar, 0) AS total_bayar,
                 FORMAT(a.total_harga - a.total_bayar, 0) AS sisa_bayar,
-                (SELECT SUM(r.berat) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_berat,
+               (
+                    SELECT SUM(r.berat)
+                    FROM tbl_resi AS r
+                    WHERE r.invoice_id = a.id
+                    AND r.no_resi NOT IN (
+                        SELECT no_resi FROM tbl_credit_note_item
+                    )
+                ) AS total_berat,
                 (SELECT SUM(r.panjang * r.lebar * r.tinggi) FROM tbl_resi AS r WHERE r.invoice_id = a.id) AS total_dimensi
             FROM
                 tbl_invoice AS a

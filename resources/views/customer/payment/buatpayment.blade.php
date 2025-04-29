@@ -428,18 +428,37 @@
             // Submit payment points
             $('#submitAmountPoin').on('click', function() {
                 const invoiceNo = $('#selectInvoice').val();
-                const amountPoin = $('#amountPoin').val();
+                const amountPoin = parseFloat($('#amountPoin').val());
+
+                // Ambil isi dari previewTotalWeight (elemen teks), lalu bersihkan format lokal
+                const rawWeight = $('#previewTotalWeight').text();
+
+                const previewTotalWeight = parseFloat($('#previewTotalWeight').text());
+
 
                 if (!amountPoin) {
                     showMessage('error', 'Silahkan masukkan nominal poin terlebih dahulu.');
                     return;
                 }
+
+                if (isNaN(previewTotalWeight)) {
+                    showMessage('error', 'Total berat tidak valid.');
+                    return;
+                }
+
+                if (amountPoin > previewTotalWeight) {
+                    showMessage('error', 'Nominal poin tidak boleh melebihi total berat.');
+                    $('#amountPoin').val('');
+                    return;
+                }
+
                 if (!invoiceNo) {
                     showMessage('error', 'Silakan pilih nomor invoice terlebih dahulu.');
                     $('#amountPoin').val('');
                     $('#payment').val('');
                     return;
                 }
+
 
                 $.ajax({
                     url: "{{ route('amountPoin') }}",
