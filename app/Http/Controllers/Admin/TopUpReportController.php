@@ -201,7 +201,9 @@ class TopUpReportController extends Controller
             ORDER BY marking, date, created_at;
         ";
 
-        $params = [$startDate, $endDate, $companyId];
+        $params = [];
+
+        $params = array_merge($params, [$startDate, $endDate, $companyId]);
         if ($customer) {
             $params[] = $customer;
         }
@@ -217,17 +219,15 @@ class TopUpReportController extends Controller
             $params[] = auth()->user()->id;
         }
 
-        // Untuk OUT expired
-        $params = array_merge($params, [
-            $startDate, $endDate, $companyId,
-        ]);
+        $params = array_merge($params, [$startDate, $endDate, $companyId]);
         if ($customer) {
             $params[] = $customer;
         }
-
+        if ($isCustomerRole) {
+            $params[] = auth()->user()->id;
+        }
         $data = DB::select($query, $params);
 
-        // Group data by marking
         $groupedData = [];
         foreach ($data as $row) {
             $groupedData[$row->marking][] = $row;
