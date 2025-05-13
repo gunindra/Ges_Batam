@@ -370,6 +370,8 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/tracking/{id}', [TrackingsController::class, 'show']);
     Route::delete('/deletetracking-multipe', [TrackingsController::class, 'deleteTrackingMultipe'])->name('deleteTrackingMultipe');
     Route::post('/tracking/export', [TrackingsController::class, 'exportExcel'])->name('tracking.excel');
+    Route::get('/tracking/updateData/{id}', [TrackingsController::class, 'updatTrackingData'])->name('updatTrackingData');
+
 
     //Supir
     Route::get('/supir', [SupirController::class, 'index'])->name('supir');

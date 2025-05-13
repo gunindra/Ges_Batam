@@ -137,14 +137,48 @@ class TrackingsController extends Controller
                 }
             })
             ->addColumn('action', function ($row) {
-                $deleteButton = $row->status == 'Dalam Perjalanan'
-                    ? '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>'
-                    : '';
-                // return '<a href="#" class="btn btnUpdateTracking btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit"></i></a>' . $deleteButton;
-                return $deleteButton;
+               $buttons = '';
+
+                // Tombol delete jika status Dalam Perjalanan
+                if ($row->status == 'Dalam Perjalanan') {
+                    $buttons .= '<a href="#" class="btn btnDestroyTracking btn-sm btn-danger ml-2" data-id="' . $row->id . '"><i class="fas fa-trash"></i></a>';
+                }
+
+                // Tombol ubah status jika status Ready Stock
+                if ($row->status == 'Ready Stock') {
+                    $buttons .= '<a href="#" class="btn btnChangeStatus btn-sm btn-primary ml-2" data-id="' . $row->id . '"><i class="fas fa-sync-alt"></i></a>';
+                }
+
+                return $buttons;
             })
             ->rawColumns(['select', 'status', 'status_bayar', 'action'])
             ->make(true);
+    }
+
+   public function updatTrackingData(Request $request)
+    {
+        // Validasi ID
+        $request->validate([
+            'id' => 'required|exists:tbl_tracking,id',
+        ]);
+
+        // Cari data tracking
+        $tracking = Tracking::find($request->id);
+
+        if ($tracking->status === 'Ready Stock') {
+            $tracking->status = 'Dalam Perjalanan';
+            $tracking->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah menjadi Dalam Perjalanan.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Status tidak bisa diubah karena bukan Ready Stock.',
+        ], 400);
     }
 
 

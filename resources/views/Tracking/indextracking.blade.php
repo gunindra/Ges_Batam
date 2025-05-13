@@ -737,6 +737,78 @@
             });
         });
 
+
+        $(document).on('click', '.btnChangeStatus', function(e) {
+            let id = $(this).data('id');
+
+               Swal.fire({
+                title: "Apakah Kamu Yakin Ingin Update Status Tracking Ini?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                cancelButtonColor: '#49BEFF',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sedang memproses...',
+                        text: 'Harap menunggu hingga proses delete selesai',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: '/tracking/updateData/' + id,
+                        data: {
+                            id: id,
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                        },
+                        success: function(response) {
+                            Swal.close();
+
+                          if (response.success === true) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: response.message
+                                });
+
+                                table.ajax.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Mengupdate',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.close();
+
+                            let errorMessage = "Terjadi kesalahan saat Mengupdate data.";
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: errorMessage
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+
         $(document).on('click', '#exportExcel', function() {
             let status = $('#filterStatus').val();
 
