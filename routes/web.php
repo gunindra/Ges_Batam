@@ -404,7 +404,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::put('/journal/updatejournal/update/{id}', [JournalController::class, 'update'])->name('buatupdate');
     Route::delete('/jurnal/delete/{id}', [JournalController::class, 'destroy'])->name('destroyJurnal');
     Route::get('/journal/generateNoJournalBKK', [JournalController::class, 'generateNoJournalBKK'])->name('generateNoJournalBKK');
-    Route::get('/journal/generateNoJournalBKM', [JournalController::class, 'generaateNoJournalBKM'])->name('generateNoJournalBKM');
+    Route::get('/journal/generateNoJournalBKM', [JournalController::class, 'generateNoJournalBKM'])->name('generateNoJournalBKM');
     Route::get('/journal/show-detail/{id}', [JournalController::class, 'showJurnalDetail'])->name('show.detail');
 
     //Acoounting Setting

@@ -222,7 +222,6 @@
                 <td><input required type="text" class="form-control" name="noresi" value="${item.no_resi}"></td>
                 <td><input required type="text" class="form-control" name="deskripsi" value="${item.deskripsi}"></td>
                 <td><input required type="number" class="form-control" name="harga" value="${item.harga}"></td>
-                <td><input disabled type="text" class="form-control" name="item-subtotal" value="${item.harga}"></td>
                 <td><button type="button" class="btn btn-sm btn-danger removeItemButton mt-1">Remove</button></td>
             </tr>
         `;

@@ -108,6 +108,8 @@ class CreditNoteController extends Controller
 
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $companyId = session('active_company_id');
         $request->validate([
             'invoiceCredit' => 'required|string|max:255',
@@ -170,16 +172,16 @@ class CreditNoteController extends Controller
             $invoice_id = $invoice->no_invoice;
 
             // Validasi invoice sudah lunas
-            if ($invoice->total_bayar >= $invoice->total_harga) {
+            if (!$request->has('creditNoteId') && $invoice->total_bayar >= $invoice->total_harga) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Tidak dapat membuat/mengupdate Credit Note karena invoice sudah lunas.',
+                    'message' => 'Tidak dapat membuat Credit Note karena invoice sudah lunas.',
                 ], 400);
             }
 
             // Validasi sisa invoice cukup untuk credit note
             $sisaInvoice = $invoice->total_harga - $invoice->total_bayar;
-            if ($request->totalKeseluruhan > $sisaInvoice) {
+            if (!$request->has('creditNoteId') && $request->totalKeseluruhan > $sisaInvoice) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Nilai Credit Note melebihi sisa tagihan invoice. Sisa tagihan: ' . number_format($sisaInvoice, 2),
@@ -190,8 +192,9 @@ class CreditNoteController extends Controller
                 $creditNote = CreditNote::findOrFail($request->creditNoteId);
 
                 // Kembalikan total_bayar ke nilai sebelum credit note
-                $invoice->total_bayar -= $creditNote->total_keseluruhan;
+                $invoice->total_bayar = $request->totalKeseluruhan;
 
+                $invoice->save();
                 $creditNote->items()->delete();
                 $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
             } else {
@@ -214,6 +217,14 @@ class CreditNoteController extends Controller
 
                 $jurnal = new Jurnal();
                 $jurnal->no_journal = $noJournal;
+
+                $invoice->total_bayar += $request->totalKeseluruhan;
+
+                if ($invoice->total_bayar > $invoice->total_harga) {
+                    $invoice->total_bayar = $invoice->total_harga;
+                }
+
+                $invoice->save();
             }
 
             $creditNote->invoice_id = $request->invoiceCredit;
@@ -225,13 +236,7 @@ class CreditNoteController extends Controller
             $creditNote->company_id = $companyId;
             $creditNote->save();
 
-            $invoice->total_bayar += $request->totalKeseluruhan;
 
-            if ($invoice->total_bayar > $invoice->total_harga) {
-                $invoice->total_bayar = $invoice->total_harga;
-            }
-
-            $invoice->save();
 
             $jurnal->tanggal = now();
             $jurnal->no_ref = $invoice_id;
@@ -272,6 +277,16 @@ class CreditNoteController extends Controller
                 ->where('no_resi', $item['noresi'])
                 ->update(['status' => 'Return']);
             }
+
+            if($invoice->total_harga - $invoice->total_bayar == 0 ){
+                $invoice->status_bayar = 'Lunas';
+                $invoice->save();
+            } else {
+                $invoice->status_bayar = 'Belum lunas';
+                $invoice->save();
+            }
+
+
 
             DB::commit();
             return response()->json([
