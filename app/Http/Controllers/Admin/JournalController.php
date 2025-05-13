@@ -105,7 +105,7 @@ class JournalController extends Controller
                     ->value('status');
 
                 if ($periodStatus == 'Closed') {
-                    return '-';
+                    return '<button class="btn btn-info btn-sm btnViewJurnal" data-id="' . $row->id . '">Lihat Jurnal</button>';
                 }
                 $btnEditInvoice = '<a class="btn btnUpdateJournal btn-sm btn-secondary" data-id="' . $row->id . '"><i class="fas fa-edit text-white"></i></a>';
 
@@ -117,6 +117,20 @@ class JournalController extends Controller
             ->make(true);
     }
 
+
+    public function showJurnalDetail($id)
+    {
+        $jurnal = Jurnal::with('items.coa')
+            ->where('id', $id)
+            ->first();
+
+
+        if (!$jurnal) {
+            return response()->json(['error' => 'Data not found.'], 404);
+        }
+
+        return response()->json($jurnal);
+    }
 
 
 

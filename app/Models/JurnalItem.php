@@ -26,4 +26,9 @@ class JurnalItem extends Model
     {
         return $this->belongsTo(Jurnal::class, 'jurnal_id');
     }
+
+    public function coa()
+    {
+        return $this->belongsTo(COA::class, 'code_account', 'id');
+    }
 }

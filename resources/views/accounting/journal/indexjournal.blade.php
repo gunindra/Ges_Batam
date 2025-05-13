@@ -66,6 +66,53 @@
             </div>
         </div>
 
+        <!-- Modal -->
+        <div id="jurnalModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detail Jurnal</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>No Jurnal:</strong> <span id="modalNoJurnal"></span></p>
+                        <p><strong>Tanggal:</strong> <span id="modalTanggal"></span></p>
+                        <p><strong>Deskripsi:</strong> <span id="modalDeskripsi"></span></p>
+                        <p><strong>Total Debit:</strong> <span id="modalTotalDebit"></span></p>
+                        <p><strong>Total Credit:</strong> <span id="modalTotalCredit"></span></p>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Kode Akun</th>
+                                    <th>Deskripsi</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                    <th>Memo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalItemList"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-end">Total</th>
+                                    <th id="modalTotalDebitFooter"></th>
+                                    <th id="modalTotalCreditFooter"></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
         <div class="row">
             <div class="col-12">
                 <ul class="nav nav-tabs">
@@ -102,9 +149,10 @@
                                                     <option value="{{ $status->status }}">{{ $status->status }}</option>
                                                 @endforeach
                                             </select>
-                                            <button class="btn btn-primary ml-2" id="filterTanggal">Filter Tanggal</button>
-                                            <button type="button" class="btn btn-outline-primary ml-2" id="btnResetDefault"
-                                                onclick="window.location.reload()">Reset</button>
+                                            <button class="btn btn-primary ml-2" id="filterTanggal">Filter
+                                                Tanggal</button>
+                                            <button type="button" class="btn btn-outline-primary ml-2"
+                                                id="btnResetDefault" onclick="window.location.reload()">Reset</button>
                                         </div>
                                         <div id="containerJournal" class="table-responsive px-3">
                                             <table class="table align-items-center table-flush table-hover"
@@ -387,9 +435,9 @@
 
                                 if (rowIndex !== -1) {
                                     let rowNode = $(targetTable.row(rowIndex)
-                                    .node());
+                                        .node());
                                     rowNode.addClass(
-                                    'highlight');
+                                        'highlight');
                                 } else {
                                     console.warn(
                                         "Data tidak ditemukan di halaman ini:",
@@ -522,6 +570,78 @@
                 tableBKM.ajax.reload();
             });
 
+            // Event listener untuk tombol yang akan menampilkan modal
+            $(document).on('click', '.btnViewJurnal', function() {
+                const jurnalId = $(this).data('id'); // Ambil ID dari atribut data-id
+                $('#jurnalModal').modal('show'); // Tampilkan modal
+                loadJurnalData(jurnalId); // Ambil dan isi data jurnal
+            });
+
+            function loadJurnalData(id) {
+                $.ajax({
+                    url: `/journal/show-detail/${id}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+
+                        console.log(data);
+
+                        if (data && data.items && Array.isArray(data.items)) {
+                            // Format tanggal ke format "01 January 2025"
+                            const formattedDate = new Date(data.tanggal).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+
+                            // Format rupiah
+                            const formatRupiah = (angka) => {
+                                return new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    minimumFractionDigits: 0
+                                }).format(angka);
+                            };
+
+                            // Isi elemen modal dengan data jurnal
+                            $('#modalNoJurnal').text(data.no_journal);
+                            $('#modalTanggal').text(formattedDate);
+                            $('#modalDeskripsi').text(data.description ?? '-');
+                            $('#modalTotalDebit').text(formatRupiah(data.totaldebit));
+                            $('#modalTotalCredit').text(formatRupiah(data.totalcredit));
+
+                            let itemsHtml = '';
+                            let totalDebit = 0;
+                            let totalCredit = 0;
+                            data.items.forEach(function(item) {
+                                totalDebit += parseFloat(item.debit) || 0;
+                                totalCredit += parseFloat(item.credit) || 0;
+                                itemsHtml += `
+                        <tr>
+                            <td>${item.coa.name}</td>
+                            <td>${item.description}</td>
+                            <td>${formatRupiah(item.debit)}</td>
+                            <td>${formatRupiah(item.credit)}</td>
+                            <td>${item.memo ?? '-'}</td>
+                        </tr>
+                    `;
+                            });
+
+                            $('#modalItemList').html(itemsHtml);
+
+                            $('#modalTotalDebitFooter').text(formatRupiah(totalDebit));
+                            $('#modalTotalCreditFooter').text(formatRupiah(totalCredit));
+                        } else {
+                            alert('Data jurnal tidak valid!');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Gagal mengambil data jurnal: ' + error);
+                    }
+                });
+            }
+
+
 
             $(document).on('click', '.btnDestroyJournal', function() {
                 var id = $(this).data('id');
@@ -564,23 +684,26 @@
 
             });
 
-
-            // if (lastEditedId) {
-            //     setTimeout(function() {
-            //         let row = $('#tableJournal tbody tr').filter(function() {
-            //             return $(this).find('.btnUpdateJournal').data('id') == lastEditedId;
-            //         });
-            //         if (row.length) {
-            //             $('html, body').animate({
-            //                 scrollTop: row.offset().top - 100
-            //             }, 500);
-
-            //             row.addClass('table-warning');
-            //             setTimeout(() => row.removeClass('table-warning'), 3000);
-            //         }
-            //         sessionStorage.removeItem('lastEditedJournal');
-            //     }, 1000);
-            // }
         });
+
+
+
+
+        // if (lastEditedId) {
+        //     setTimeout(function() {
+        //         let row = $('#tableJournal tbody tr').filter(function() {
+        //             return $(this).find('.btnUpdateJournal').data('id') == lastEditedId;
+        //         });
+        //         if (row.length) {
+        //             $('html, body').animate({
+        //                 scrollTop: row.offset().top - 100
+        //             }, 500);
+
+        //             row.addClass('table-warning');
+        //             setTimeout(() => row.removeClass('table-warning'), 3000);
+        //         }
+        //         sessionStorage.removeItem('lastEditedJournal');
+        //     }, 1000);
+        // }
     </script>
 @endsection
