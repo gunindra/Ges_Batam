@@ -376,6 +376,18 @@ class InvoiceController extends Controller
         $companyId = session('active_company_id');
         $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
+        $resiCounts = array_count_values($noResi);
+        $duplicateResi = array_keys(array_filter($resiCounts, function ($count) {
+            return $count > 1;
+        }));
+
+        if (!empty($duplicateResi)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terdapat no resi yang duplikat: ' . implode(', ', $duplicateResi),
+                'duplicates' => $duplicateResi,
+            ], 400);
+        }
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
         $currencyInvoice = $request->input('currencyInvoice');
