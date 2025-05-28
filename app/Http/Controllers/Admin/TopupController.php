@@ -453,15 +453,31 @@ class TopupController extends Controller
     public function topupNotification()
     {
         $now = Carbon::now();
-
-        $lowQuota = HistoryTopup::selectRaw('customer_id, SUM(balance) as total_balance')
-            ->join('tbl_pembeli', 'tbl_pembeli.id', '=', 'tbl_history_topup.customer_id')
-            ->selectRaw('SUM(tbl_history_topup.remaining_points) as total_remaining_points')
-            ->groupBy('customer_id')
-            ->havingRaw('SUM(balance) < 0.2 * SUM(tbl_history_topup.remaining_points)')
-            ->with('customer')
+        $companyId = session('active_company_id');
+        $lowQuota = HistoryTopup::select([
+                'tbl_history_topup.customer_id',
+                'tp.marking',
+                'tbl_history_topup.balance',
+                'tbl_history_topup.remaining_points',
+                DB::raw('(tbl_history_topup.balance / tbl_history_topup.remaining_points * 100) as percentage')
+            ])
+            ->join('tbl_pembeli as tp', 'tp.id', '=', 'tbl_history_topup.customer_id')
+            ->whereIn('tbl_history_topup.id', function($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('tbl_history_topup')
+                    ->where('status', 'active')
+                    ->groupBy('customer_id');
+            })
+            ->where('tbl_history_topup.status', 'active')
+            ->where('tbl_history_topup.balance', '>', 0)
+            ->whereRaw('tbl_history_topup.balance < 0.2 * tbl_history_topup.remaining_points')
+            ->when($companyId, function($query) use ($companyId) {
+                $query->where('tp.company_id', $companyId);
+            })
+            ->with(['customer' => function($query) {
+                $query->select('id', 'marking', 'nama_pembeli');
+            }])
             ->get();
-
 
         $nearingExpiry = HistoryTopup::where('status', 'active')
             ->whereDate('expired_date', '<=', $now->addMonth())

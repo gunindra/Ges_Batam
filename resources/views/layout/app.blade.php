@@ -173,7 +173,7 @@
                                                 <strong>${item.customer.nama_pembeli} (${item.customer.marking})</strong>
                                             </div>
                                             <div class="mt-1">
-                                                 <span>Saldo kuota Dibawah 20% (${item.total_balance}) Silahkan melakukan Isi ulang</span>
+                                                 <span>Saldo kuota Dibawah 20% (${item.balance}) Silahkan melakukan Isi ulang</span>
                                             </div>
                                     </div>
                                 </div>
