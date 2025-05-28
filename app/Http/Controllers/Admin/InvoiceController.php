@@ -184,6 +184,7 @@ class InvoiceController extends Controller
                 'a.id',
                 'r.no_do',
                 'a.no_invoice',
+                'a.tanggal_invoice as raw_tanggal_invoice',
                 DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_invoice"),
                 DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar"),
                 'b.nama_pembeli as pembeli',
@@ -355,8 +356,8 @@ class InvoiceController extends Controller
 
                 // Query the 'tbl_periode' table to check if the invoice's date is within the closed period
                 $periodStatus = DB::table('tbl_periode')
-                    ->whereDate('periode_start', '<=', $item->tanggal_invoice)
-                    ->whereDate('periode_end', '>=', $item->tanggal_invoice)
+                    ->whereDate('periode_start', '<=', $item->raw_tanggal_invoice)
+                    ->whereDate('periode_end', '>=', $item->raw_tanggal_invoice)
                     ->value('status');
 
                 // Check if period status is 'Closed', if so, disable the "Edit" button

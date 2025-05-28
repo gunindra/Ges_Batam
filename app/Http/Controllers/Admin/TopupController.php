@@ -180,9 +180,22 @@ class TopupController extends Controller
         $formattedDate = Carbon::parse($request->date)->format('Y-m-d');
         $formattedDates = Carbon::parse($request->expired_date)->format('Y-m-d');
 
+
         DB::beginTransaction();
 
         try {
+            $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $formattedDate)
+                ->whereDate('periode_end', '>=', $formattedDate)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat invoice karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
             $customer = Customer::findOrFail($request->customer_id);
             Log::info("Sisa poin sebelum increment: " . $customer->sisa_poin);
             $topupAmount = $request->topupAmount;

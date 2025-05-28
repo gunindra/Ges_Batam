@@ -622,17 +622,26 @@
                         table.ajax.reload();
                     });
                 },
-                error: function (xhr) {
-                    $('#confirmTopUp').prop('disabled', false).text(
-                        'Konfirmasi Top-Up ');
+              error: function (xhr) {
+                    $('#confirmTopUp').prop('disabled', false).text('Konfirmasi Top-Up ');
+
                     let errorMessage = 'Gagal melakukan top-up.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
+
+                    // Tangani status 400 khusus
+                    if (xhr.status === 400) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            errorMessage = xhr.responseText;
+                        }
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }
+
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: 'Gagal melakukan top-up.',
+                        text: errorMessage,
                         confirmButtonText: 'OK'
                     });
                 }

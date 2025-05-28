@@ -95,6 +95,16 @@ class AssetController extends Controller
             $formattedDep = (new DateTime($depreciationDate))->format('Y-m-d');
             $formattedAcq = (new DateTime($acquisitionDate))->format('Y-m-d');
 
+            $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $formattedDep)
+                ->whereDate('periode_end', '>=', $formattedDep)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return redirect()->back()->with('error', 'Tanggal berada di periode yang sudah ditutup: ' . $closedPeriod->periode);
+            }
+
             $asset = new Asset();
 
             $asset->asset_code = $request->input('asset_code');

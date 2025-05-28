@@ -169,11 +169,11 @@
                                 <div class="col-12 mt-4">
                                     <div class="col-4 float-right">
                                         <button class="btn btn-success p-3 float-right mt-3"
-                                            style="width: 80%;" id="submit">Submit Depreciation</button>
+                                            style="width: 80%;" type="submit" id="submit">Submit Depreciation</button>
                                     </div>
                                 </div>
                             </div>
-                                
+
                         </div>
                     </div>
                 </div>
@@ -202,7 +202,7 @@
             todayHighlight: true,
             autoclose: true,
         }).datepicker('setDate', today);
-        
+
         $('.number-mask').mask('000,000,000,000', {reverse: true});
 
         $('.select2').select2();
