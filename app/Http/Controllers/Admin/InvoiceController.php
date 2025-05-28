@@ -448,6 +448,21 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
+
+            $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $formattedDate)
+                ->whereDate('periode_end', '>=', $formattedDate)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat invoice karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
+
+
             Log::info("Memulai penyimpanan invoice.");
 
             $invoiceId = DB::table('tbl_invoice')->insertGetId([
@@ -590,6 +605,19 @@ class InvoiceController extends Controller
 
         DB::beginTransaction();
         try {
+
+             $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $formattedDate)
+                ->whereDate('periode_end', '>=', $formattedDate)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat invoice karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
             Log::info("Memulai proses edit invoice untuk Invoice ID: {$id}");
 
             Log::info("Memperbarui data pada tabel tbl_invoice untuk Invoice ID: {$id}");
