@@ -8,7 +8,7 @@ use App\Console\Commands\CheckUserActivity;
 app(Schedule::class)->command(CheckUserActivity::class)->dailyAt('00:00');
 app(Schedule::class)->command(UpdateExpiredTopups::class)->dailyAt('00:00');
 app(Schedule::class)->command('journal:create-monthly')
-    ->dailyAt('00:01')
+    ->dailyAt('07:00')
     ->when(function () {
         // return Carbon::now()->day === 25;
         return Carbon::now()->isSameDay(Carbon::now()->endOfMonth());
