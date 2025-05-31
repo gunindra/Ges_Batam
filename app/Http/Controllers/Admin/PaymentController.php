@@ -1286,39 +1286,37 @@ class PaymentController extends Controller
                     'poinMargin' => $poinMargin,
                 ]);
 
-                $invoiceNumbers = is_array($request->invoice) ? implode(', ', $request->invoice) : $request->invoice;
-
                 $journalItems = [];
 
                 if ($poinMargin > 0) {
                     $journalItems[] = [
                         'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                        'description' => "Debit untuk Invoice " . $request->kode,
                         'debit' => $totalTagihanInvoice,
                         'credit' => 0,
                     ];
                     $journalItems[] = [
                         'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'description' => "Kredit untuk Invoice " . $request->kode,
                         'debit' => 0,
                         'credit' => $newNominal,
                     ];
                     $journalItems[] = [
                         'code_account' => $accountSettings->discount_sales_account_id,
-                        'description' => "Margin Poin Positif untuk Invoice " . $invoiceNumbers,
+                        'description' => "Margin Poin Positif untuk Invoice " . $request->kode,
                         'debit' => $poinMargin,
                         'credit' => 0,
                     ];
                 } elseif ($poinMargin < 0) {
                     $journalItems[] = [
                         'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice " . $invoiceNumbers,
+                        'description' => "Debit untuk Invoice " . $request->kode,
                         'debit' => $totalTagihanInvoice + abs($poinMargin),
                         'credit' => 0,
                     ];
                     $journalItems[] = [
                         'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'description' => "Kredit untuk Invoice " . $request->kode,
                         'debit' => 0,
                         'credit' => $newNominal,
                     ];
@@ -1326,13 +1324,13 @@ class PaymentController extends Controller
                     Log::info("Case: Point Margin is Zero");
                     $journalItems[] = [
                         'code_account' => $salesAccountId,
-                        'description' => "Debit untuk Invoice " .  $invoiceNumbers,
+                        'description' => "Debit untuk Invoice " .  $request->kode,
                         'debit' => $totalNominal,
                         'credit' => 0,
                     ];
                     $journalItems[] = [
                         'code_account' => $paymentMethodId,
-                        'description' => "Kredit untuk Invoice " . $invoiceNumbers,
+                        'description' => "Kredit untuk Invoice " . $request->kode,
                         'debit' => 0,
                         'credit' => $totalNominal,
                     ];
@@ -1371,7 +1369,7 @@ class PaymentController extends Controller
             $jurnalItemDebit = new JurnalItem();
             $jurnalItemDebit->jurnal_id = $jurnal->id;
             $jurnalItemDebit->code_account = $receivableSalesAccount->id;
-            $jurnalItemDebit->description = "Debit untuk Invoices: " . $noRef;
+            $jurnalItemDebit->description = "Debit untuk Invoices: " . $request->kode;
             $jurnalItemDebit->debit = $totalJurnalAmount;
             $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
@@ -1381,7 +1379,7 @@ class PaymentController extends Controller
             $jurnalItemCredit = new JurnalItem();
             $jurnalItemCredit->jurnal_id = $jurnal->id;
             $jurnalItemCredit->code_account = $salesAccountId;
-            $jurnalItemCredit->description = "Kredit untuk Invoices: " . $noRef;
+            $jurnalItemCredit->description = "Kredit untuk Invoices: " . $request->kode;
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $request->paymentAmount;
             $jurnalItemCredit->save();
@@ -1392,7 +1390,7 @@ class PaymentController extends Controller
                 $jurnalItemDiscount = new JurnalItem();
                 $jurnalItemDiscount->jurnal_id = $jurnal->id;
                 $jurnalItemDiscount->code_account = $paymentDiscountAccount;
-                $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $noRef;
+                $jurnalItemDiscount->description = "Diskon untuk Invoices: " . $request->kode;
                 $jurnalItemDiscount->debit = $request->discountPayment;
                 $jurnalItemDiscount->credit = 0;
                 $jurnalItemDiscount->save();

@@ -444,7 +444,7 @@
             $('#KodePayment').val(payment.kode_pembayaran).trigger('change');
             // $('#tanggalPayment').val(payment.payment_date).trigger('change');
             // $('#tanggalPaymentBuat').val(payment.payment_buat).trigger('change');
-            $('#discountPayment').val(payment.discount).trigger('change');
+            $('#discountPayment').val(Math.floor(payment.discount)).trigger('change');
             $('#keteranganPayment').val(payment.Keterangan).trigger('change');
             let hasKuota = paymentInvoice.some(item => item.kuota && parseFloat(item.kuota) > 0);
             if (!hasKuota) {
@@ -458,22 +458,23 @@
                     totalAmount += parseFloat(payment.discount);
                 }
 
-                // Set nilai ke input #payment
-                $('#payment').val(totalAmount).trigger('change');
-
+                let roundedTotalAmount = Math.round(totalAmount + Number.EPSILON);
+                $('#payment').val(roundedTotalAmount).trigger('change');
 
             } else {
                 // Jika ada kuota yang tidak null
                 let totalPoin = paymentInvoice.reduce((total, item) => {
                     return total + (item.kuota ? parseFloat(item.kuota) : 0);
                 }, 0);
-                $('#amountPoin').val(totalPoin).trigger('change');
+                $('#amountPoin').val(Math.round(totalPoin + Number.EPSILON)).trigger('change');
 
                 let totalAmount = paymentInvoice.reduce((total, item) => {
                     return total + parseFloat(item.amount);
                 }, 0);
-                $('#payment').val(totalAmount).trigger('change');
+                let roundedTotalAmount = Math.round(totalAmount + Number.EPSILON);
+                $('#payment').val(roundedTotalAmount).trigger('change');
             }
+
             $('#selectMarking').trigger('change');
             $('#selectMethod').trigger('change');
 
