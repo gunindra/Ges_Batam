@@ -362,13 +362,15 @@ class PaymentController extends Controller
             'items.*.tipeAccount' => 'required',
         ]);
 
-        // dd($request->all());
+
 
         if (
             $request->amountPoin === null
         ) {
             return $this->processNormalPayment($request);
         }
+
+        //    dd($request->all());
 
         DB::beginTransaction();
         try {
@@ -388,14 +390,7 @@ class PaymentController extends Controller
             $receivableSalesAccount = COA::find($paymentMethodId);
             $poinMarginAccount = $accountSettings->discount_sales_account_id;
             $idMarking = isset($request->marking) ? explode(';', $request->marking)[1] : null;
-            $currentPointPrice = DB::select("SELECT nilai_rate FROM tbl_rate WHERE rate_for = 'Topup'");
 
-            if (empty($currentPointPrice)) {
-                Log::error("Rate for 'Topup' not found.");
-                return response()->json(['status' => 'error', 'message' => 'Rate for Topup not found.']);
-            }
-
-            $currentPointPrice = $currentPointPrice[0]->nilai_rate;
             if (is_null($salesAccountId) || is_null($receivableSalesAccount) || is_null($poinMarginAccount)) {
                 return response()->json([
                     'status' => 'error',
@@ -481,55 +476,49 @@ class PaymentController extends Controller
             $remainingPayment = $nilaiPayment;
             $totalPaid = 0;
 
-            foreach ($invoiceList as $invoice) {
-                $paymentInvoice = new PaymentInvoice();
-                $paymentInvoice->payment_id = $payment->id;
-                $paymentInvoice->invoice_id = $invoice->id;
+            $marginError = $totalSisaTagihan - $nilaiPayment;
 
-                $sisaTagihan = max(0, $invoice->total_harga - $invoice->total_bayar);
-                if ($sisaTagihan <= 0) continue;
+         foreach ($invoiceList as $invoice) {
+            $paymentInvoice = new PaymentInvoice();
+            $paymentInvoice->payment_id = $payment->id;
+            $paymentInvoice->invoice_id = $invoice->id;
 
-                $proporsi = $sisaTagihan / $totalSisaTagihan;
+            $sisaTagihan = max(0, $invoice->total_harga - $invoice->total_bayar);
+            if ($sisaTagihan <= 0) continue;
 
-                $allocatedPoin = min($remainingPoin, $proporsi * $totalUsedPoin);
-                $remainingPoin -= $allocatedPoin;
+            $proporsi = $sisaTagihan / $totalSisaTagihan;
 
-                $allocatedPayment = min($remainingPayment, $sisaTagihan - $allocatedPoin);
-                $remainingPayment -= $allocatedPayment;
+            $allocatedPoin = min($remainingPoin, $proporsi * $totalUsedPoin);
+            $remainingPoin -= $allocatedPoin;
 
-                $allocatedAmount = $allocatedPoin + $allocatedPayment;
-                $totalPaid += $allocatedAmount;
+            $allocatedPayment = min($remainingPayment, $sisaTagihan - $allocatedPoin);
+            $remainingPayment -= $allocatedPayment;
 
-                $paymentInvoice->amount = $allocatedAmount;
-                $paymentInvoice->kuota = $allocatedPoin;
-                $paymentInvoice->save();
+            $allocatedAmount = $allocatedPoin + $allocatedPayment;
+            $totalPaid += $allocatedAmount;
 
+            $paymentInvoice->amount = $allocatedAmount;
+            $paymentInvoice->kuota = $allocatedPoin;
+            $paymentInvoice->save();
+
+
+            if ($marginError != 0) {
+                $invoice->total_bayar = $invoice->total_harga;
+                $invoice->status_bayar = 'Lunas';
+            } else {
                 $invoice->total_bayar += $allocatedAmount;
-
                 $totalBeratInvoice = DB::table('tbl_resi')
                     ->where('invoice_id', $invoice->id)
                     ->sum('berat');
 
-                $totalTagihanInvoice = $invoice->total_harga;
+                $beratLunas = ($totalUsedPoin >= $totalBeratInvoice);
+                $uangLunas = ($invoice->total_bayar >= $invoice->total_harga);
 
-                $totalBeratDibayar = $totalUsedPoin;
-                $totalNominalDibayar = $nilaiPayment;
-
-                $beratLunas = ($totalBeratDibayar >= $totalBeratInvoice);
-                $uangLunas = ($invoice->total_bayar >= $totalTagihanInvoice);
-
-                if ($beratLunas || $uangLunas) {
-                    $invoice->total_bayar = $invoice->total_harga;
-                    $invoice->status_bayar = 'Lunas';
-                } else {
-                    $invoice->status_bayar = 'Belum Lunas';
-                }
-                $invoice->save();
+                $invoice->status_bayar = ($beratLunas || $uangLunas) ? 'Lunas' : 'Belum Lunas';
             }
+            $invoice->save();
+        }
 
-            // **STEP 3: Hitung margin error**
-            // $expectedTotalPayment = $totalUsedPoin + $nilaiPayment;
-            $marginError = $totalSisaTagihan - $nilaiPayment;
 
             $invoiceNumbers = is_array($request->invoice) ? implode(', ', $request->invoice) : $request->invoice;
 
