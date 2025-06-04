@@ -232,9 +232,6 @@
         $(document).ready(function() {
             var payment = @json($payment);
 
-            console.log(payment);
-
-
             let paymentInvoice = payment.payment_invoices
             $('#selectMarking').on('change', function() {
                 const marking = $(this).val();
@@ -466,7 +463,7 @@
                 let totalPoin = paymentInvoice.reduce((total, item) => {
                     return total + (item.kuota ? parseFloat(item.kuota) : 0);
                 }, 0);
-                $('#amountPoin').val(Math.round(totalPoin + Number.EPSILON)).trigger('change');
+                $('#amountPoin').val(totalPoin).trigger('change');
 
                 let totalAmount = paymentInvoice.reduce((total, item) => {
                     return total + parseFloat(item.amount);
