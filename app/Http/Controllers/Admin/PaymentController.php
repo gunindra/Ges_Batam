@@ -425,12 +425,23 @@ class PaymentController extends Controller
             $topups = DB::table('tbl_history_topup')
                 ->where('customer_id', $invoiceList->first()->pembeli_id)
                 ->where('balance', '>', 0)
+                ->where('status', 'active')
                 ->orderBy('created_at', 'asc')
                 ->get();
 
             $totalUsedPoin = 0;
             $totalNominal = 0;
             $remainingPoin = $nilaiPoin;
+
+
+            $totalAvailablePoin = $topups->sum('balance');
+
+            if ($nilaiPoin > $totalAvailablePoin) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Poin tidak mencukupi untuk pembayaran. Total poin yang tersedia: ' . $totalAvailablePoin,
+                ], 400);
+            }
 
             foreach ($topups as $topup) {
                 if ($remainingPoin <= 0) break;
