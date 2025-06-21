@@ -68,7 +68,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 throw new \Exception("Invoice tidak ditemukan");
             }
             $no_invoice = $invoice->no_invoice;
-
+            $pdfFileName = 'GES_' . $no_invoice . '.pdf';
             $resiData = DB::table('tbl_resi')
                 ->where('invoice_id', $invoice->id)
                 ->get(['no_resi', 'no_do', 'priceperkg', 'berat', 'panjang', 'lebar', 'tinggi', 'harga']);
@@ -133,7 +133,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 $folderPath = storage_path('app/public/invoice');
 
                 // Tentukan nama dan path file PDF
-                $pdfFileName = 'GES_' . $no_invoice . '.pdf';
+                
                 $filePath = $folderPath . '/' . $pdfFileName;
 
                 // Simpan PDF ke dalam folder
