@@ -93,7 +93,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
                 }
             } else {
-                $pesan = "Silahkan download file di atas untuk melihat invoice" . $pdfFileName;
+                $pesan = "Silahkan download file di atas untuk melihat invoice " . $pdfFileName;
             }
 
             try {
