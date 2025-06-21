@@ -86,9 +86,9 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             if ($this->type !== 'invoice') {
                 if ($invoice->metode_pengiriman === 'Pickup') {
-                    $pesan = "*List barang* dengan no resi berikut telah siap untuk di pickup";
+                    $pesan = "*List barang* dengan no Invoice " . $pdfFileName . " berikut telah siap untuk di pickup";
                 } elseif ($invoice->metode_pengiriman === 'Delivery') {
-                    $pesan = "*List barang* dengan no resi berikut telah siap untuk diantarkan.";
+                    $pesan = "*List barang* dengan no Invoice " . $pdfFileName . " berikut telah siap untuk diantarkan.";
                 } else {
                     throw new \Exception("Metode pengiriman tidak valid untuk invoice dengan ID $this->invoiceId");
                 }
