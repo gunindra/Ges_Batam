@@ -59,7 +59,7 @@ class PurchasePaymentController extends Controller
             DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
             DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') as tgl_buat"),
             'c.name as payment_method',
-            DB::raw("CAST(SUM(d.amount) AS DECIMAL(10,2)) as total_amount") // Perbaikan disini
+           DB::raw("SUM(d.amount) as total_amount")
         ])
         ->where(function ($query) use ($search) {
             $query->whereRaw("LOWER(a.kode_pembayaran) LIKE ?", ["%$search%"])
