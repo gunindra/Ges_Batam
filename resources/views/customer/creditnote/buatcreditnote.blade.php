@@ -317,6 +317,7 @@
                     const accountCredit = $('#accountCredit').val();
                     const currencyCredit = $('#currencyCredit').val();
                     const noteCredit = $('#noteCredit').val();
+                    const tanggalCreditNote = $('#tanggalCreditNote').val();
                     const rateCurrency = $('#rateCurrency').val();
                     const items = [];
                     $('.error-message').remove();
@@ -380,6 +381,7 @@
                         const creditNoteData = {
                             invoiceCredit: invoiceCredit,
                             accountCredit: accountCredit,
+                            tanggalCreditNote: tanggalCreditNote,
                             currencyCredit: currencyCredit,
                             rateCurrency: rateCurrency,
                             noteCredit: noteCredit,

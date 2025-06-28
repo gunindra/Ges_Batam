@@ -130,6 +130,7 @@ class CreditNoteController extends Controller
         $companyId = session('active_company_id');
         $request->validate([
             'invoiceCredit' => 'required|string|max:255',
+            'tanggalCreditNote' => 'required|date',
             'accountCredit' => 'required|string|max:255',
             'currencyCredit' => 'required|string|max:10',
             'rateCurrency' => 'nullable|numeric',
@@ -244,6 +245,9 @@ class CreditNoteController extends Controller
                 $invoice->save();
             }
 
+            $tanggal = $request->tanggalCreditNote;
+
+            $creditNote->tanggal = $tanggal;
             $creditNote->invoice_id = $request->invoiceCredit;
             $creditNote->account_id = $request->accountCredit;
             $creditNote->matauang_id = $request->currencyCredit;
@@ -255,7 +259,7 @@ class CreditNoteController extends Controller
 
 
 
-            $jurnal->tanggal = now();
+            $jurnal->tanggal = $tanggal;
             $jurnal->no_ref = $invoice_id;
             $jurnal->tipe_kode = $codeType;
             $jurnal->status = 'Approve';
