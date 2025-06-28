@@ -196,7 +196,7 @@ class CreditNoteController extends Controller
 
                 $invoice->save();
                 $creditNote->items()->delete();
-                $jurnal = Jurnal::where('no_ref', $invoice_id)->first();
+                $jurnal = Jurnal::where('credit_note_id', $creditNote->id)->first();
             } else {
                 $lastCreditNote = CreditNote::where('no_creditnote', 'like', $codeType . $currentYear . '%')
                     ->orderBy('no_creditnote', 'desc')
@@ -246,6 +246,7 @@ class CreditNoteController extends Controller
             $jurnal->totaldebit = $request->totalKeseluruhan;
             $jurnal->totalcredit = $request->totalKeseluruhan;
             $jurnal->company_id = $companyId;
+            $jurnal->credit_note_id = $creditNote->id;
             $jurnal->save();
 
             JurnalItem::updateOrCreate(
