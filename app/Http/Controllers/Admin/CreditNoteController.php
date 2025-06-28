@@ -34,6 +34,23 @@ class CreditNoteController extends Controller
             'listStatus' => $listStatus]);
     }
 
+   public function getNoResiByInvoice(Request $request)
+    {
+        $invoiceId = $request->invoice_id;
+        $search = $request->q;
+
+        $resis = DB::table('tbl_resi')
+            ->where('invoice_id', $invoiceId)
+            ->when($search, function ($query, $search) {
+                return $query->where('no_resi', 'like', '%' . $search . '%');
+            })
+            ->select('no_resi', 'harga') // ambil harga juga
+            ->get();
+
+        return response()->json($resis);
+    }
+
+
     public function addCreditNote()
     {
         $companyId = session('active_company_id');
