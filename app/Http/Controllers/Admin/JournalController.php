@@ -365,13 +365,13 @@ class JournalController extends Controller
 
             // Generate nomor jurnal
             $fakeRequest = new \Illuminate\Http\Request();
-            $fakeRequest->merge(['code_type' => 'TX']);
+            $fakeRequest->merge(['code_type' => 'JU']);
             $noJournal = $this->generateNoJurnal($fakeRequest)->getData()->no_journal;
 
             // Buat entri jurnal utama
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
-            $jurnal->tipe_kode = 'TX';
+            $jurnal->tipe_kode = 'JU';
             $jurnal->tanggal = now();
             $jurnal->no_ref = $topup->code;
             $jurnal->status = 'Approve';
