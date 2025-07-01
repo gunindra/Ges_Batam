@@ -385,6 +385,9 @@ class PaymentController extends Controller
                 ], 400);
             }
 
+
+
+
             $salesAccountId = $accountSettings->receivable_sales_account_id;
             $paymentMethodId = $request->paymentMethod;
             $receivableSalesAccount = COA::find($paymentMethodId);
@@ -403,6 +406,20 @@ class PaymentController extends Controller
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
+
+
+             $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $tanggalPayment)
+                ->whereDate('periode_end', '>=', $tanggalPayment)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat payment karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
             $payment = new Payment();
             $payment->kode_pembayaran = $request->kode;
             $payment->pembeli_id =  $idMarking;
@@ -742,6 +759,20 @@ class PaymentController extends Controller
             $date = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
             $formattedDateTime = $date->format('Y-m-d H:i:s');
             $hasDiscount = isset($request->discountPayment) && $request->discountPayment > 0;
+
+
+             $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $tanggalPayment)
+                ->whereDate('periode_end', '>=', $tanggalPayment)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat payment karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
 
             // Buat payment record
             $payment = new Payment();
@@ -1129,6 +1160,20 @@ class PaymentController extends Controller
             Log::info('Tanggal payment berhasil diformat.', ['tanggalPayment' => $tanggalPayment]);
 
             $tanggalPaymentBuat = Carbon::createFromFormat('d F Y H:i', $request->tanggalPaymentBuat);
+
+
+             $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $tanggalPayment)
+                ->whereDate('periode_end', '>=', $tanggalPayment)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat payment karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
 
             $payment->update([
                 'kode_pembayaran' => $request->kode,
