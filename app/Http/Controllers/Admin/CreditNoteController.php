@@ -206,6 +206,20 @@ class CreditNoteController extends Controller
                 ], 400);
             }
 
+
+            $closedPeriod = DB::table('tbl_periode')
+                ->whereDate('periode_start', '<=', $request->tanggalCreditNote)
+                ->whereDate('periode_end', '>=', $request->tanggalCreditNote)
+                ->where('status', 'Closed')
+                ->first();
+
+            if ($closedPeriod) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tidak dapat membuat Credit Note karena tanggal tersebut berada di dalam periode yang sudah ditutup: ' . $closedPeriod->periode,
+                ], 400);
+            }
+
             if ($request->has('creditNoteId')) {
                 $creditNote = CreditNote::findOrFail($request->creditNoteId);
 
@@ -215,6 +229,12 @@ class CreditNoteController extends Controller
                 $invoice->save();
                 $creditNote->items()->delete();
                 $jurnal = Jurnal::where('credit_note_id', $creditNote->id)->first();
+
+                if (!$jurnal) {
+                    $jurnal = Jurnal::where('no_ref', $invoice->no_invoice)
+                                    ->where('tipe_kode', 'CN')
+                                    ->first();
+                }
             } else {
                 $lastCreditNote = CreditNote::where('no_creditnote', 'like', $codeType . $currentYear . '%')
                     ->orderBy('no_creditnote', 'desc')
@@ -256,8 +276,6 @@ class CreditNoteController extends Controller
             $creditNote->total_keseluruhan = $request->totalKeseluruhan;
             $creditNote->company_id = $companyId;
             $creditNote->save();
-
-
 
             $jurnal->tanggal = $tanggal;
             $jurnal->no_ref = $invoice_id;
@@ -327,10 +345,20 @@ class CreditNoteController extends Controller
 
     public function updatepage($id)
     {
+        $companyId = session('active_company_id');
         $creditNote = CreditNote::with('items')->find($id);
         $coas = COA::all();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-        $listInvoice = DB::select("SELECT id, no_invoice FROM tbl_invoice");
+        $listInvoice = DB::select("SELECT
+                                                tbl_invoice.id,
+                                                tbl_invoice.no_invoice,
+                                                tbl_pembeli.marking,
+                                                tbl_pembeli.nama_pembeli
+                                            FROM tbl_invoice
+                                            JOIN tbl_pembeli ON tbl_invoice.pembeli_id = tbl_pembeli.id
+                                            WHERE tbl_invoice.company_id = $companyId
+                                            AND tbl_invoice.status_bayar = 'Belum lunas'
+                                        ");
 
         return view('customer.creditnote.updatecredit', [
             'listCurrency' => $listCurrency,
@@ -359,9 +387,13 @@ class CreditNoteController extends Controller
             }
 
             $invoice->save();
-            $jurnal = Jurnal::where('no_ref', $invoice->no_invoice)
-                            ->where('tipe_kode', 'CN')
-                            ->first();
+            $jurnal = Jurnal::where('credit_note_id', $creditNote->id)->first();
+
+            if (!$jurnal) {
+                $jurnal = Jurnal::where('no_ref', $invoice->no_invoice)
+                                ->where('tipe_kode', 'CN')
+                                ->first();
+            }
 
             if ($jurnal) {
                 JurnalItem::where('jurnal_id', $jurnal->id)->delete();
