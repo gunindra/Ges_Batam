@@ -337,7 +337,7 @@ class JournalController extends Controller
     }
 
 
-    public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId)
+    public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId, $journalDate = null)
     {
         try {
             // Validasi input
@@ -363,6 +363,8 @@ class JournalController extends Controller
                 $amount = $topup->expired_amount * $topup->price_per_kg;
             }
 
+
+
             // Generate nomor jurnal
             $fakeRequest = new \Illuminate\Http\Request();
             $fakeRequest->merge(['code_type' => 'JU']);
@@ -372,7 +374,7 @@ class JournalController extends Controller
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
             $jurnal->tipe_kode = 'JU';
-            $jurnal->tanggal = now();
+            $jurnal->tanggal = $journalDate ?? now();
             $jurnal->no_ref = $topup->code;
             $jurnal->status = 'Approve';
             $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";

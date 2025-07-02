@@ -84,7 +84,7 @@ class UpdateExpiredTopups extends Command
                 $topup->status = 'expired';
                 $topup->save();
 
-                $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $topup->company_id);
+                $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $topup->company_id, $topup->expired_date);
 
                 DB::commit();
                 $this->info("Top-up ID {$topup->id} expired successfully.");
