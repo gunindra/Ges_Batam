@@ -233,7 +233,6 @@ class ReturController extends Controller
             // $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
             // $invoice->save();
 
-            // Simpan retur
             $retur = Retur::create([
                 'invoice_id' => $invoice->id,
                 'account_id' => $validated['account_id'],
@@ -241,7 +240,6 @@ class ReturController extends Controller
                 'total_nominal' => $totalHargaResi,
             ]);
 
-            // Simpan item retur
             foreach ($resiIds as $resiId) {
                 ReturItem::create([
                     'retur_id' => $retur->id,
@@ -249,7 +247,6 @@ class ReturController extends Controller
                 ]);
             }
 
-            // Jika account_name KUOTA, lakukan pengembalian poin
             if ($accountName === 'KUOTA') {
                 $usagePoints = DB::table('tbl_usage_points')
                     ->join('tbl_payment_invoice', 'tbl_payment_invoice.payment_id', '=', 'tbl_usage_points.payment_id')
