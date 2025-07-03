@@ -348,6 +348,10 @@ class ReturController extends Controller
         try {
             $retur = Retur::findOrFail($id);
 
+            // Simpan account lama dan baru
+            $oldAccountName = DB::table('tbl_coa')->where('id', $retur->account_id)->value('account_name');
+            $newAccountName = DB::table('tbl_coa')->where('id', $validated['account_id'])->value('account_name');
+
             // Update retur
             $retur->update([
                 'account_id' => $validated['account_id'],
@@ -380,7 +384,7 @@ class ReturController extends Controller
                     throw new \Exception("Tidak ditemukan jurnal item dengan credit > 0 untuk jurnal ID {$jurnal->id}.");
                 }
 
-                // Logging dan update
+                // Logging dan update jurnal account credit
                 foreach ($jurnalItems as $item) {
                     Log::info("Sebelum update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
 
@@ -389,6 +393,45 @@ class ReturController extends Controller
                     ]);
 
                     Log::info("Setelah update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
+                }
+            }
+
+            // === Tambahkan refund jika account berubah menjadi KUOTA ===
+            if (strtoupper($oldAccountName) !== 'KUOTA' && strtoupper($newAccountName) === 'KUOTA') {
+                $returItems = ReturItem::where('retur_id', $retur->id)->pluck('resi_id');
+                $resiData = Resi::whereIn('id', $returItems)->get();
+                $totalBeratResi = $resiData->sum('berat');
+
+                $usagePoints = DB::table('tbl_usage_points')
+                    ->join('tbl_payment_invoice', 'tbl_payment_invoice.payment_id', '=', 'tbl_usage_points.payment_id')
+                    ->where('tbl_payment_invoice.invoice_id', $retur->invoice_id)
+                    ->select('tbl_usage_points.*')
+                    ->orderBy('tbl_usage_points.id', 'asc')
+                    ->get();
+
+                $sisaRefundBerat = $totalBeratResi;
+
+                foreach ($usagePoints as $point) {
+                    if ($sisaRefundBerat <= 0) break;
+
+                    $topup = DB::table('tbl_history_topup')->where('id', $point->history_topup_id)->first();
+
+                    if (!$topup) continue;
+
+                    $maxRefund = max(0, $topup->remaining_points - $topup->balance);
+                    $refund = min($point->used_points, $sisaRefundBerat, $maxRefund);
+
+                    if ($refund <= 0) continue;
+
+                    DB::table('tbl_history_topup')
+                        ->where('id', $topup->id)
+                        ->increment('balance', $refund);
+
+                    DB::table('tbl_usage_points')
+                        ->where('id', $point->id)
+                        ->decrement('used_points', $refund);
+
+                    $sisaRefundBerat -= $refund;
                 }
             }
 
