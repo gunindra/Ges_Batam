@@ -59,7 +59,7 @@ class PurchasePaymentController extends Controller
             DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y') as tanggal_bayar"),
             DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') as tgl_buat"),
             'c.name as payment_method',
-            DB::raw("CAST(SUM(d.amount) AS DECIMAL(10,2)) as total_amount") // Perbaikan disini
+           DB::raw("SUM(d.amount) as total_amount")
         ])
         ->where(function ($query) use ($search) {
             $query->whereRaw("LOWER(a.kode_pembayaran) LIKE ?", ["%$search%"])
@@ -128,7 +128,9 @@ class PurchasePaymentController extends Controller
     public function addPurchasePayment()
     {
         $companyId = session('active_company_id');
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
 
         $listInvoice = SupInvoice::where('status_bayar', 'Belum lunas')
             ->select('invoice_no')
@@ -501,7 +503,9 @@ class PurchasePaymentController extends Controller
     public function editpurchasepayment($id)
     {
         $payment = PaymentSup::with(['paymentInvoicesSup', 'paymentSupItem'])->findOrFail($id);
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $listInvoice = SupInvoice::where('status_bayar', 'Belum lunas')
             ->select('invoice_no')
             ->get();

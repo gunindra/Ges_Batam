@@ -41,7 +41,9 @@ class DebitNoteController extends Controller
     public function addDebitNote()
     {
         $companyId = session('active_company_id');
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
         $listInvoice = DB::select("SELECT id, invoice_no FROM tbl_sup_invoice WHERE tbl_sup_invoice.company_id = $companyId");
         $listVendor = DB::select("SELECT name FROM tbl_vendors WHERE tbl_vendors.company_id = $companyId");
@@ -257,7 +259,9 @@ class DebitNoteController extends Controller
             ->value('invoice_no');
 
 
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $invoices = SupInvoice::all();
 
         $listVendor = DB::table('tbl_vendors')->select('id', 'name')->get();

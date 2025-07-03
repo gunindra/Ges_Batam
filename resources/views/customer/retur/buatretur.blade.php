@@ -76,10 +76,10 @@
                             <div class="col-6">
                                 <div class="mt-3">
                                     <label for="accountRetur" class="form-label fw-bold">Account</label>
-                                    <select class="form-control select2" name="" id="accountRetur" style="">
+                                    <select class="form-control select2" name="" id="accountRetur">
                                         <option value="" selected disabled>Pilih Account</option>
                                         @foreach ($savedPaymentAccounts as $coa)
-                                            <option value="{{ $coa->coa_id }}">
+                                            <option value="{{ $coa->coa_id }}" data-name="{{ $coa->name }}">
                                                 {{ $coa->code_account_id }} - {{ $coa->name }}
                                             </option>
                                         @endforeach
@@ -284,6 +284,7 @@
                 // let currencyId = $('#currencyRetur').val();
                 let accountId = $('#accountRetur').val();
                 let deskripsi = $('#deskripsiRetur').val();
+                let accountName = $('#accountRetur option:selected').data('name');
 
                 let items = [];
                 $('.select2-resi').each(function() {
@@ -307,6 +308,7 @@
                 let data = {
                     invoice_id: invoiceId,
                     // currency_id: currencyId,
+                    account_name: accountName,
                     account_id: accountId,
                     deskripsi: deskripsi,
                     items: items
@@ -340,7 +342,6 @@
                     }
                 });
             });
-
         </script>
 
 

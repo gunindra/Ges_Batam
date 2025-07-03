@@ -137,7 +137,9 @@ class JournalController extends Controller
     public function addjournal()
     {
 
-        $coas = COA::all();
+          $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
 
         return view('accounting.journal.indexbuatjournal', compact('coas'));
     }
@@ -225,7 +227,9 @@ class JournalController extends Controller
     public function updatejournal($id)
     {
         $journal = Jurnal::with('items')->find($id);
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         return view('accounting.journal.indexupdatejournal', compact('journal', 'coas'));
     }
 
@@ -337,7 +341,7 @@ class JournalController extends Controller
     }
 
 
-    public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId)
+    public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId, $journalDate = null)
     {
         try {
             // Validasi input
@@ -363,16 +367,18 @@ class JournalController extends Controller
                 $amount = $topup->expired_amount * $topup->price_per_kg;
             }
 
+
+
             // Generate nomor jurnal
             $fakeRequest = new \Illuminate\Http\Request();
-            $fakeRequest->merge(['code_type' => 'TX']);
+            $fakeRequest->merge(['code_type' => 'JU']);
             $noJournal = $this->generateNoJurnal($fakeRequest)->getData()->no_journal;
 
             // Buat entri jurnal utama
             $jurnal = new Jurnal();
             $jurnal->no_journal = $noJournal;
-            $jurnal->tipe_kode = 'TX';
-            $jurnal->tanggal = now();
+            $jurnal->tipe_kode = 'JU';
+            $jurnal->tanggal = $journalDate ?? now();
             $jurnal->no_ref = $topup->code;
             $jurnal->status = 'Approve';
             $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";

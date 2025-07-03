@@ -196,7 +196,8 @@ class TopUpReportController extends Controller
                 saldo * price_per_kg AS saldo_value,
                 value,
                 status,
-                no_invoice
+                no_invoice,
+                price_per_kg
             FROM calculated_data
             ORDER BY marking, date, created_at;
         ";
@@ -258,58 +259,97 @@ class TopUpReportController extends Controller
             <tbody>';
 
         // Add initial balance row for each customer
+        $output = '
+            <h5 style="text-align:center; width:100%">'
+                . Carbon::parse($startDate)->format('d M Y') . ' - '
+                . Carbon::parse($endDate)->format('d M Y') .
+            '</h5>
+            <div class="card-body">
+            <table class="table" width="100%">
+            <thead>
+                <th width="15%" style="text-align:center;">Date</th>
+                <th width="10%" style="text-align:center;">Marking</th>
+                <th width="10%" style="text-align:center;">Invoice</th>
+                <th width="10%" style="text-align:center;">In (Kg)</th>
+                <th width="10%" style="text-align:center;">Out (Kg)</th>
+                <th width="10%" style="text-align:center;">Saldo (Kg)</th>';
+
+        if (!$isCustomerRole) {
+            $output .= '<th width="15%" style="text-align:center;">Value (Rp)</th>
+                        <th width="15%" style="text-align:center;">Saldo Value (Rp)</th>';
+        }
+
+        $output .= '<th width="5%" style="text-align:center;">Status</th>
+            </thead>
+            <tbody>';
+
+        // Loop setiap marking
         foreach ($initialBalanceMap as $marking => $balanceData) {
             $initialBalance = $balanceData['balance'];
-            $pricePerKg = $balanceData['price_per_kg'] ?? 0;
-            $initialValue = $initialBalance * $pricePerKg;
+            $pricePerKg = $balanceData['price_per_kg'] ?? null;
 
+            // Abaikan jika saldo awal kosong dan tidak ada transaksi
             $hasTransactions = isset($groupedData[$marking]) && count($groupedData[$marking]) > 0;
-
-            if ($hasTransactions || $initialBalance != 0) {
-
-                $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
-                                <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
-                                <td style="text-align:center;">' . $marking . '</td>
-                                <td style="text-align:center;">-</td>
-                                <td style="text-align:center;">-</td>
-                                <td style="text-align:center;">-</td>
-                                <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
-
-                if (!$isCustomerRole) {
-                    $output .= '<td style="text-align:center;">-</td>';
-                    $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
-                }
-
-                $output .= '<td style="text-align:center;">SALDO AWAL</td>
-                            </tr>';
+            if (!$hasTransactions && $initialBalance == 0) {
+                continue;
             }
 
+            // Tampilkan baris saldo awal
+            $initialValue = $pricePerKg ? $initialBalance * $pricePerKg : 0;
+            $output .= '<tr style="background-color: #f8f9fa; font-weight: bold;">
+                            <td style="text-align:center;">' . Carbon::parse($startDate)->format('d M Y') . ' (Awal)</td>
+                            <td style="text-align:center;">' . $marking . '</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">' . number_format($initialBalance, 2) . '</td>';
 
-            // Add the regular transactions for this marking
+            if (!$isCustomerRole) {
+                $output .= '<td style="text-align:center;">-</td>';
+                $output .= '<td style="text-align:center;"> Rp. ' . number_format($initialValue, 2) . '</td>';
+            }
+
+            $output .= '<td style="text-align:center;">SALDO AWAL</td>
+                        </tr>';
+
+            // Mulai hitung saldo berjalan dari initial balance
+            $currentSaldo = $initialBalance;
+            $pricePerKg = $balanceData['price_per_kg'] ?? 0;
+            $currentSaldoValue = $currentSaldo * $pricePerKg;
+
             if (isset($groupedData[$marking])) {
-                foreach ($groupedData[$marking] as $row) {
+            foreach ($groupedData[$marking] as $row) {
+                    // Gunakan harga dari transaksi jika tersedia
+                    if ($row->price_per_kg > 0) {
+                        $pricePerKg = $row->price_per_kg;
+                    }
+
+                    $currentSaldo += $row->in_points - $row->out_points;
+                    $currentSaldoValue = $currentSaldo * $pricePerKg;
+
                     $output .= '<tr>
                         <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
                         <td style="text-align:center;">' . $row->marking . '</td>
                         <td style="text-align:center;">' . $row->no_invoice . '</td>
                         <td style="text-align:center;">' . number_format($row->in_points, 2) . '</td>
                         <td style="text-align:center;">' . number_format($row->out_points, 2) . '</td>
-                        <td style="text-align:center;">' . number_format($row->saldo, 2) . '</td>';
+                        <td style="text-align:center;">' . number_format($currentSaldo, 2) . '</td>';
 
                     if (!$isCustomerRole) {
-                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value, 2) . '</td>';
-                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->saldo_value, 2) . '</td>';
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($row->value ?? 0, 2) . '</td>';
+                        $output .= '<td style="text-align:center;"> Rp. ' . number_format($currentSaldoValue, 2) . '</td>';
                     }
 
                     $output .= '<td style="text-align:center;">' . strtoupper($row->status) . '</td>
-                    </tr>';
+                        </tr>';
                 }
+
             }
         }
 
         $output .= '</tbody></table></div>';
-
         return $output;
+
     }
 
 
@@ -448,6 +488,7 @@ class TopUpReportController extends Controller
                 saldo * price_per_kg AS saldo_value,
                 value,
                 status,
+                price_per_kg,
                 no_invoice
             FROM calculated_data
             ORDER BY marking, date, created_at;
@@ -503,7 +544,7 @@ class TopUpReportController extends Controller
         }
     }
 
-        public function exportTopupReport(Request $request)
+    public function exportTopupReport(Request $request)
     {
         $startDate = $request->input('startDate');
         $customer = $request->nama_pembeli ?? '-';

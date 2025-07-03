@@ -184,22 +184,20 @@ class ReturController extends Controller
 
     public function store(Request $request)
     {
-        // Ambil ID perusahaan dari session
         $companyId = session('active_company_id');
 
-        // Validasi input
         $validated = $request->validate([
             'invoice_id' => 'required|exists:tbl_invoice,id',
-            // 'currency_id' => 'required|exists:tbl_matauang,id',
             'account_id' => 'required|exists:tbl_coa,id',
+            'account_name' => 'required|string',
             'deskripsi' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.resi_id' => 'required|exists:tbl_resi,id',
         ]);
 
+        $accountName = strtoupper($request->input('account_name')); // e.g., 'KUOTA'
         $resiIds = collect($validated['items'])->pluck('resi_id');
 
-        // Cek apakah resi sudah digunakan sebelumnya
         $usedResi = ReturItem::whereIn('resi_id', $resiIds)->pluck('resi_id')->toArray();
         if (count($usedResi)) {
             return response()->json([
@@ -208,11 +206,9 @@ class ReturController extends Controller
             ], 422);
         }
 
-        // Ambil no_resi dari tabel Resi berdasarkan resi_id
         $noResis = Resi::whereIn('id', $resiIds)->pluck('no_resi')->toArray();
-
-        // Ambil setting account
         $accountSettings = DB::table('tbl_account_settings')->first();
+
         if (!$accountSettings || is_null($accountSettings->customer_sales_return_account_id)) {
             return response()->json([
                 'status' => 'error',
@@ -220,24 +216,30 @@ class ReturController extends Controller
             ], 400);
         }
 
-        $debitaccount = $accountSettings->customer_sales_return_account_id;
-        $creditaccount = $request->account_id;
+        $debitAccount = $accountSettings->customer_sales_return_account_id;
+        $creditAccount = $validated['account_id'];
 
         DB::beginTransaction();
         try {
-            // Hitung total nominal retur berdasarkan harga dari Resi
-            $totalNominal = Resi::whereIn('id', $resiIds)->sum('harga');
+            $resiData = Resi::whereIn('id', $resiIds)->get();
+            $totalHargaResi = $resiData->sum('harga');
+            $totalBeratResi = $resiData->sum('berat');
 
-            // Simpan retur
+            $invoice = Invoice::findOrFail($validated['invoice_id']);
+
+            // // Update invoice
+            // $invoice->total_bayar = max(0, $invoice->total_bayar - $totalHargaResi);
+            // $invoice->total_harga = max(0, $invoice->total_harga - $totalHargaResi);
+            // $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum Lunas';
+            // $invoice->save();
+
             $retur = Retur::create([
-                'invoice_id' => $validated['invoice_id'],
-                // 'currency_id' => $validated['currency_id'],
+                'invoice_id' => $invoice->id,
                 'account_id' => $validated['account_id'],
                 'deskripsi' => $validated['deskripsi'] ?? null,
-                'total_nominal' => $totalNominal,
+                'total_nominal' => $totalHargaResi,
             ]);
 
-            // Simpan item retur
             foreach ($resiIds as $resiId) {
                 ReturItem::create([
                     'retur_id' => $retur->id,
@@ -245,59 +247,93 @@ class ReturController extends Controller
                 ]);
             }
 
+            if ($accountName === 'KUOTA') {
+                $usagePoints = DB::table('tbl_usage_points')
+                    ->join('tbl_payment_invoice', 'tbl_payment_invoice.payment_id', '=', 'tbl_usage_points.payment_id')
+                    ->where('tbl_payment_invoice.invoice_id', $invoice->id)
+                    ->select('tbl_usage_points.*')
+                    ->orderBy('tbl_usage_points.id', 'asc')
+                    ->get();
+
+                $sisaRefundBerat = $totalBeratResi;
+
+               foreach ($usagePoints as $point) {
+                        if ($sisaRefundBerat <= 0) break;
+
+                        $topup = DB::table('tbl_history_topup')->where('id', $point->history_topup_id)->first();
+
+                        if (!$topup) continue;
+
+                        $maxRefund = max(0, $topup->remaining_points - $topup->balance);
+                        $refund = min($point->used_points, $sisaRefundBerat, $maxRefund);
+
+                        if ($refund <= 0) continue;
+
+                        // Refund aman
+                        DB::table('tbl_history_topup')
+                            ->where('id', $topup->id)
+                            ->increment('balance', $refund);
+
+                        DB::table('tbl_usage_points')
+                            ->where('id', $point->id)
+                            ->decrement('used_points', $refund);
+
+                            $sisaRefundBerat -= $refund;
+                    }
+
+            }
+
             // Buat jurnal
-            $invoice = Invoice::where('id', $request->invoice_id)->firstOrFail();
-            $codeType = "JU";
-            $request->merge(['code_type' => 'JU']);
-            $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
+                $request->merge(['code_type' => 'JU']);
+                $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
 
-            $jurnal = new Jurnal();
-            $jurnal->no_journal = $noJournal;
-            $jurnal->tanggal = now();
-            $jurnal->no_ref = $invoice->no_invoice;
-            $jurnal->tipe_kode = $codeType;
-            $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Invoice {$invoice->no_invoice}";
-            $jurnal->totaldebit = $totalNominal;
-            $jurnal->totalcredit = $totalNominal;
-            $jurnal->company_id = $companyId;
-            $jurnal->retur_id = $retur->id;
-            $jurnal->save();
+                $jurnal = new Jurnal();
+                $jurnal->no_journal = $noJournal;
+                $jurnal->tanggal = now();
+                $jurnal->no_ref = $invoice->no_invoice;
+                $jurnal->tipe_kode = 'JU';
+                $jurnal->status = 'Approve';
+                $jurnal->description = "Retur sebagian invoice {$invoice->no_invoice}";
+                $jurnal->totaldebit = $totalHargaResi;
+                $jurnal->totalcredit = $totalHargaResi;
+                $jurnal->company_id = $companyId;
+                $jurnal->retur_id = $retur->id;
+                $jurnal->save();
 
-            // Tambahkan dua jurnal item: debit & credit
-            JurnalItem::create([
-                'jurnal_id' => $jurnal->id,
-                'code_account' => $debitaccount,
-                'description' => "Retur penjualan untuk invoice {$invoice->no_invoice}",
-                'debit' => $totalNominal,
-                'credit' => 0,
-                'memo' => null,
-            ]);
+                JurnalItem::create([
+                    'jurnal_id' => $jurnal->id,
+                    'code_account' => $debitAccount,
+                    'description' => "Retur sebagian invoice {$invoice->no_invoice}",
+                    'debit' => $totalHargaResi,
+                    'credit' => 0,
+                    'memo' => null,
+                ]);
 
-            JurnalItem::create([
-                'jurnal_id' => $jurnal->id,
-                'code_account' => $creditaccount,
-                'description' => "Retur penjualan untuk invoice {$invoice->no_invoice}",
-                'debit' => 0,
-                'credit' => $totalNominal,
-                'memo' => null,
-            ]);
+                JurnalItem::create([
+                    'jurnal_id' => $jurnal->id,
+                    'code_account' => $creditAccount,
+                    'description' => "Retur sebagian invoice {$invoice->no_invoice}",
+                    'debit' => 0,
+                    'credit' => $totalHargaResi,
+                    'memo' => null,
+                ]);
 
-            // Update status tracking berdasarkan no_resi
-            DB::table('tbl_tracking')
-                ->whereIn('no_resi', $noResis)
-                ->update(['status' => 'Dalam Perjalanan']);
+                // Update status tracking
+                DB::table('tbl_tracking')
+                    ->whereIn('no_resi', $noResis)
+                    ->update(['status' => 'Dalam Perjalanan']);
 
-            DB::commit();
-            return response()->json(['message' => 'Retur berhasil disimpan.']);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return response()->json([
-                'error' => 'Gagal menyimpan retur.',
-                'message' => $e->getMessage() // opsional untuk debug
-            ], 500);
-        }
+                DB::commit();
+                return response()->json(['message' => 'Retur berhasil disimpan.']);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return response()->json([
+                    'error' => 'Gagal menyimpan retur.',
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
     }
+
 
 
     // UPDATE
@@ -311,6 +347,10 @@ class ReturController extends Controller
         DB::beginTransaction();
         try {
             $retur = Retur::findOrFail($id);
+
+            // Simpan account lama dan baru
+            $oldAccountName = DB::table('tbl_coa')->where('id', $retur->account_id)->value('account_name');
+            $newAccountName = DB::table('tbl_coa')->where('id', $validated['account_id'])->value('account_name');
 
             // Update retur
             $retur->update([
@@ -344,7 +384,7 @@ class ReturController extends Controller
                     throw new \Exception("Tidak ditemukan jurnal item dengan credit > 0 untuk jurnal ID {$jurnal->id}.");
                 }
 
-                // Logging dan update
+                // Logging dan update jurnal account credit
                 foreach ($jurnalItems as $item) {
                     Log::info("Sebelum update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
 
@@ -353,6 +393,45 @@ class ReturController extends Controller
                     ]);
 
                     Log::info("Setelah update - JurnalItem ID: {$item->id}, code_account: {$item->code_account}");
+                }
+            }
+
+            // === Tambahkan refund jika account berubah menjadi KUOTA ===
+            if (strtoupper($oldAccountName) !== 'KUOTA' && strtoupper($newAccountName) === 'KUOTA') {
+                $returItems = ReturItem::where('retur_id', $retur->id)->pluck('resi_id');
+                $resiData = Resi::whereIn('id', $returItems)->get();
+                $totalBeratResi = $resiData->sum('berat');
+
+                $usagePoints = DB::table('tbl_usage_points')
+                    ->join('tbl_payment_invoice', 'tbl_payment_invoice.payment_id', '=', 'tbl_usage_points.payment_id')
+                    ->where('tbl_payment_invoice.invoice_id', $retur->invoice_id)
+                    ->select('tbl_usage_points.*')
+                    ->orderBy('tbl_usage_points.id', 'asc')
+                    ->get();
+
+                $sisaRefundBerat = $totalBeratResi;
+
+                foreach ($usagePoints as $point) {
+                    if ($sisaRefundBerat <= 0) break;
+
+                    $topup = DB::table('tbl_history_topup')->where('id', $point->history_topup_id)->first();
+
+                    if (!$topup) continue;
+
+                    $maxRefund = max(0, $topup->remaining_points - $topup->balance);
+                    $refund = min($point->used_points, $sisaRefundBerat, $maxRefund);
+
+                    if ($refund <= 0) continue;
+
+                    DB::table('tbl_history_topup')
+                        ->where('id', $topup->id)
+                        ->increment('balance', $refund);
+
+                    DB::table('tbl_usage_points')
+                        ->where('id', $point->id)
+                        ->decrement('used_points', $refund);
+
+                    $sisaRefundBerat -= $refund;
                 }
             }
 
