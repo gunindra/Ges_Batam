@@ -61,8 +61,16 @@ class UpdateExpiredTopups extends Command
         foreach ($expiredTopups as $topup) {
             DB::beginTransaction();
             try {
+                 if (!in_array($topup->status, ['active'])) {
+                    $this->info("Skipping top-up ID {$topup->id} because status is '{$topup->status}'.");
+                    DB::rollBack();
+                    continue;
+                }
+
+                // Skip jika balance sudah 0
                 if ($topup->balance <= 0) {
                     $this->info("Skipping top-up ID {$topup->id} because balance is already 0.");
+                    DB::rollBack();
                     continue;
                 }
 
@@ -76,7 +84,7 @@ class UpdateExpiredTopups extends Command
                 $topup->status = 'expired';
                 $topup->save();
 
-                $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $topup->company_id);
+                $this->jurnalController->createExpiredTopupJurnal($topup, $customer, $topup->company_id, $topup->expired_date);
 
                 DB::commit();
                 $this->info("Top-up ID {$topup->id} expired successfully.");

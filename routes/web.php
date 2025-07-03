@@ -360,6 +360,7 @@ Route::middleware([SetActiveCompany::class, 'auth'])->group(function () {
     Route::get('/customer/creditnote/updatepage/{id}', [CreditNoteController::class, 'updatepage'])->name('updatepage');
     Route::put('/customer/creditnote/update/{id}', [CreditNoteController::class, 'update'])->name('update');
     Route::delete('/customer/creditnote/delete/{id}', [CreditNoteController::class, 'destroy'])->name('credit-note.destroy');
+    Route::get('/customer/creditnote/noresi-by-invoice', [CreditNoteController::class, 'getNoResiByInvoice'])->name('noresi.by.invoice');
 
     //Tracking
     Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking');
