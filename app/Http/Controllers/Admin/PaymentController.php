@@ -572,8 +572,6 @@ class PaymentController extends Controller
 
             $journalItems = [];
 
-            $journalItems = [];
-
             if ($marginError > 0) {
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
@@ -618,14 +616,14 @@ class PaymentController extends Controller
                 $journalItems[] = [
                     'code_account' => $salesAccountId,
                     'description' => "Debit untuk Payment " .  $payment->kode_pembayaran,
-                    'debit' => $totalSisaTagihan,
-                    'credit' => 0,
+                    'credit' => $totalSisaTagihan,
+                    'debit' => 0,
                 ];
                 $journalItems[] = [
                     'code_account' => $paymentMethodId,
                     'description' => "Kredit untuk Payment " . $payment->kode_pembayaran,
-                    'debit' => 0,
-                    'credit' => $nilaiPayment,
+                    'credit' => 0,
+                    'debit' => $nilaiPayment,
                 ];
             }
 
