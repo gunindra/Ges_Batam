@@ -11,7 +11,9 @@ class VendorController extends Controller
 {
     public function index()
     {
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         return view('masterdata.vendor.indexvendor', [
             'coas' => $coas
         ]);

@@ -30,7 +30,9 @@ class TopupController extends Controller
 
     public function index(Request $request)
     {
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $listRateVolume = DB::select("SELECT id, nilai_rate, rate_for FROM tbl_rate");
 
         return view('topup.indextopup', [
