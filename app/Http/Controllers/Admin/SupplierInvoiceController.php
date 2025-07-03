@@ -108,7 +108,9 @@ class SupplierInvoiceController extends Controller
     {
         $companyId = session('active_company_id');
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $listVendor = Vendor::where('company_id', $companyId)
         ->pluck('name', 'id');
 
@@ -301,7 +303,9 @@ class SupplierInvoiceController extends Controller
         ->findOrFail($id);
 
         $listCurrency = DB::select("SELECT id, nama_matauang, singkatan_matauang FROM tbl_matauang");
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         $listVendor = Vendor::where('company_id', $companyId)->pluck('name', 'id');
 
         return view('vendor.supplierinvoice.editsupplierinvoice', [

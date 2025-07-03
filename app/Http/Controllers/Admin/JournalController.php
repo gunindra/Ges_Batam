@@ -137,7 +137,9 @@ class JournalController extends Controller
     public function addjournal()
     {
 
-        $coas = COA::all();
+          $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
 
         return view('accounting.journal.indexbuatjournal', compact('coas'));
     }
@@ -225,7 +227,9 @@ class JournalController extends Controller
     public function updatejournal($id)
     {
         $journal = Jurnal::with('items')->find($id);
-        $coas = COA::all();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
         return view('accounting.journal.indexupdatejournal', compact('journal', 'coas'));
     }
 

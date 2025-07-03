@@ -59,7 +59,9 @@ class PaymentController extends Controller
         ->first()
         ->purchase_profit_rate_account_id;
 
-        $coas = COA::whereNotNull('parent_id')->get();
+        $coas = COA::whereNotNull('parent_id')
+            ->where('set_as_group', 0)
+            ->get();
 
         $listInvoice = DB::select("SELECT no_invoice FROM tbl_invoice
                                     WHERE status_bayar = 'Belum lunas'");
@@ -1041,7 +1043,9 @@ class PaymentController extends Controller
         $listMarking = DB::table('tbl_pembeli')->select('nama_pembeli', 'marking')->get();
 
         // Fetch all COA records
-        $coas = COA::whereNotNull('parent_id')->get();
+        $coas = COA::whereNotNull('parent_id')
+        ->where('set_as_group', 0)
+        ->get();
 
         return view('customer.payment.editpayment', [
             'payment' => $payment,
