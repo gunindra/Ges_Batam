@@ -411,8 +411,8 @@ class PaymentController extends Controller
 
 
              $closedPeriod = DB::table('tbl_periode')
-                ->whereDate('periode_start', '<=', $tanggalPayment)
-                ->whereDate('periode_end', '>=', $tanggalPayment)
+                ->whereDate('periode_start', '<=', $date)
+                ->whereDate('periode_end', '>=', $date)
                 ->where('status', 'Closed')
                 ->first();
 
@@ -762,8 +762,8 @@ class PaymentController extends Controller
 
 
              $closedPeriod = DB::table('tbl_periode')
-                ->whereDate('periode_start', '<=', $tanggalPayment)
-                ->whereDate('periode_end', '>=', $tanggalPayment)
+                ->whereDate('periode_start', '<=', $date)
+                ->whereDate('periode_end', '>=', $date)
                 ->where('status', 'Closed')
                 ->first();
 
