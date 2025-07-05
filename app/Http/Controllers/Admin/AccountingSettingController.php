@@ -13,6 +13,10 @@ class AccountingSettingController extends Controller
     public function index()
     {
         $coas = COA::all();
+        // TODO: code seem very messy, need to refactor
+        // to make it more readable and maintainable
+        // and also to avoid multiple queries to the database
+        // Consider to make 1 query to get all the data
         $accountSettings = DB::table('tbl_account_settings')->first();
 
         $savedPaymentAccounts = DB::table('tbl_payment_account')
@@ -105,6 +109,7 @@ class AccountingSettingController extends Controller
 
     public function store(Request $request)
     {
+    
         // Validasi semua data yang dibutuhkan
         $validatedData = $request->validate([
             'sales_account_id' => 'nullable',
@@ -133,7 +138,8 @@ class AccountingSettingController extends Controller
             AccountSettings::create($validatedData);
         }
 
-
+        // TODO: Same DB logic repeated many times, can be abstracted to a helper method.
+        // TODO: Consider using DB transactions to ensure data integrity.
         if (empty($request->coa_id)) {
             DB::table('tbl_payment_account')->delete();
         } else {
@@ -262,6 +268,9 @@ class AccountingSettingController extends Controller
         }
 
         if (empty($request->additional_capital)) {
+            // TODO: This condition seems to have a typo in the type name 'Addtional Capital'
+            // It should be 'Additional Capital'
+            // Please correct it to avoid confusion
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Addtional Capital')
                 ->delete();
@@ -280,6 +289,9 @@ class AccountingSettingController extends Controller
         }
 
         if (empty($request->returned_profit)) {
+            // TODO: This condition seems to have a typo in the type name 'Returned Profit}'
+            // It should be 'Returned Profit'
+            // Please correct it to avoid confusion
             DB::table('tbl_report_accounts')
                 ->where('type', '=', 'Returned Profit}')
                 ->delete();

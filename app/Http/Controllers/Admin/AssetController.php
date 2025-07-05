@@ -142,6 +142,7 @@ class AssetController extends Controller
     {
         $companyId = session('active_company_id');
         try {
+            // TODO: Use DB Transaction to ensure data integrity
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
