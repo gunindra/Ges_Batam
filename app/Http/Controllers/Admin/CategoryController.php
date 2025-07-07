@@ -59,7 +59,7 @@ class CategoryController extends Controller
     public function addCategory(Request $request)
     {
         $companyId = session('active_company_id');
-
+        DB::beginTransaction();
         $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
@@ -77,15 +77,18 @@ class CategoryController extends Controller
             
 
             $Category->save();
-
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
     public function updateCategory(Request $request, $id)
     {
+        DB::beginTransaction();
+
         $validated = $request->validate([
             'nameCategory' => 'required|string|max:255',
             'minimumRateCategory' => 'required|numeric|min:0',
@@ -101,9 +104,10 @@ class CategoryController extends Controller
             $Category->maximum_rate = $request->input('maximumRateCategory');
 
             $Category->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
@@ -111,14 +115,15 @@ class CategoryController extends Controller
 
     public function destroyCategory($id)
     {
-
+        DB::beginTransaction();
         try {
             $Category = Category::findOrFail($id);
 
             $Category->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }

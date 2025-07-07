@@ -341,10 +341,14 @@
                                             });
                                 }
                             },
-                            error: function(response) {
+                            error: function(xhr) {
                                 Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti");
+                                Swal.fire({
+                                    title: 'Terjadi Kesalahan!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         });
                     }
@@ -436,10 +440,14 @@
                                             });
                                 }
                             },
-                            error: function(response) {
+                            error: function(xhr) {
                                 Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan, coba lagi nanti");
+                                Swal.fire({
+                                    title: 'Terjadi Kesalahan!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         });
                     }
@@ -490,10 +498,14 @@
                                     showMessage("error", "Gagal menghapus COA");
                                 }
                             },
-                            error: function() {
+                            error: function(xhr) {
                                 Swal.close();
-                                showMessage("error",
-                                    "Terjadi kesalahan saat menghapus COA");
+                                Swal.fire({
+                                    title: 'Terjadi Kesalahan!',
+                                    text: xhr.responseJSON.message,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         });
                     }

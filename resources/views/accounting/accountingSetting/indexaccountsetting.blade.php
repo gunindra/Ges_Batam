@@ -136,7 +136,6 @@
                         <div class="mt-3">
                         <label for="PaymentAcoount" class="form-label fw-bold">Payment Account</label>
                             <select class="form-control" id="PaymentAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedPaymentAccounts)) selected @endif>
@@ -148,7 +147,6 @@
                         <div class="mt-3">
                         <label for="OperatingRevenue" class="form-label fw-bold">Operating Revenue Account</label>
                             <select class="form-control" id="OperatingRevenue" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedOperatingRevenue)) selected @endif>
@@ -160,7 +158,6 @@
                         <div class="mt-3">
                         <label for="OperatingExpense" class="form-label fw-bold">Operating Expense Account</label>
                             <select class="form-control" id="OperatingExpense" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedOperatingExpense)) selected @endif>
@@ -172,7 +169,6 @@
                         <div class="mt-3">
                         <label for="hpp" class="form-label fw-bold">HPP Account</label>
                             <select class="form-control" id="hpp" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedHpp)) selected @endif>
@@ -184,7 +180,6 @@
                         <div class="mt-3">
                         <label for="NonOperatingRevenue" class="form-label fw-bold">Non Operating Revenue Account</label>
                             <select class="form-control" id="NonOperatingRevenue" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedNonOperatingRevenue)) selected @endif>
@@ -196,7 +191,6 @@
                         <div class="mt-3">
                         <label for="NonOperatingExpense" class="form-label fw-bold">Non Operating Expense Account</label>
                             <select class="form-control" id="NonOperatingExpense" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedNonOperatingExpense)) selected @endif>
@@ -208,7 +202,6 @@
                         <div class="mt-3">
                         <label for="CapitalAccount" class="form-label fw-bold">Capital Account</label>
                             <select class="form-control" id="CapitalAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedCapitalAccount)) selected @endif>
@@ -220,7 +213,6 @@
                         <div class="mt-3">
                         <label for="AdditionalCapitalAccount" class="form-label fw-bold">Additional Capital Account</label>
                             <select class="form-control" id="AdditionalCapitalAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedAdditionalCapitalAccount)) selected @endif>
@@ -232,7 +224,6 @@
                         <div class="mt-3">
                         <label for="ReturnedProfitAccount" class="form-label fw-bold">Returned Profit Account</label>
                             <select class="form-control" id="ReturnedProfitAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedReturnedProfitAccount)) selected @endif>
@@ -244,7 +235,6 @@
                         <div class="mt-3">
                         <label for="CurrentProfitAccount" class="form-label fw-bold">Curren Year Profit Account</label>
                             <select class="form-control" id="CurrentProfitAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedCurrentProfitAccount)) selected @endif>
@@ -256,7 +246,6 @@
                         <div class="mt-3">
                         <label for="DevidenAccount" class="form-label fw-bold">Deviden Account</label>
                             <select class="form-control" id="DevidenAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedDevidenAccount)) selected @endif>
@@ -268,7 +257,6 @@
                         <div class="mt-3">
                         <label for="InvestingAccount" class="form-label fw-bold">Investing Account</label>
                             <select class="form-control" id="InvestingAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedInvestingAccount)) selected @endif>
@@ -280,7 +268,6 @@
                         <div class="mt-3">
                         <label for="FinancingAccount" class="form-label fw-bold">Financing Account</label>
                             <select class="form-control" id="FinancingAccount" style="width:100%;" multiple="multiple">
-                                <option value="">Pilih Akun</option>
                                 @foreach ($coas as $coa)
                                     <option value="{{ $coa->id }}" 
                                         @if(in_array($coa->id, $savedFinancingAccount)) selected @endif>

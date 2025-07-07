@@ -141,6 +141,8 @@ class AssetController extends Controller
     public function createJournalForAsset($request, $asset)
     {
         $companyId = session('active_company_id');
+        //TODO Fixed
+        DB::beginTransaction();
         try {
             // TODO: Use DB Transaction to ensure data integrity
             // Extract necessary data from the request and asset
@@ -181,11 +183,12 @@ class AssetController extends Controller
             $jurnalItemCredit->debit = 0;
             $jurnalItemCredit->credit = $price;
             $jurnalItemCredit->save();
-
+            DB::commit();
             Log::info("Jurnal untuk Asset " . $asset->asset_name . " berhasil dibuat.");
 
 
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error("Gagal membuat jurnal untuk Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
         }
@@ -195,6 +198,7 @@ class AssetController extends Controller
     public function createJournalForDepreciation($request, $asset)
     {
         $companyId = session('active_company_id');
+        DB::beginTransaction();
         try {
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
@@ -247,11 +251,14 @@ class AssetController extends Controller
                 $jurnalItemCredit->debit = 0;
                 $jurnalItemCredit->credit = $totalPerMonth;
                 $jurnalItemCredit->save();
-
+                DB::commit();
                 Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
+            } else {
+                DB::commit(); // Tetap commit walaupun tidak ada jurnal yang dibuat
             }
 
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
         }

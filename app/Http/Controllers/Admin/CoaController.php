@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\COA;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CoaController extends Controller
 {
@@ -99,36 +100,49 @@ class CoaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'code_account_id' => 'required|unique:tbl_coa,code_account_id',
-            'name' => 'required',
-            'default_position' => 'required',
-        ]);
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'code_account_id' => 'required|unique:tbl_coa,code_account_id',
+                'name' => 'required',
+                'default_position' => 'required',
+            ]);
 
-        $parent_id = $request->input('group_account');
+            $parent_id = $request->input('group_account');
 
-        $coa = new COA();
-        $coa->code_account_id = $request->input('code_account_id');
-        $coa->name = $request->input('name');
-        $coa->description = $request->input('description');
-        $coa->set_as_group = $request->input('set_group') == 1;
-        $coa->default_posisi = $request->input('default_position');
+            $coa = new COA();
+            $coa->code_account_id = $request->input('code_account_id');
+            $coa->name = $request->input('name');
+            $coa->description = $request->input('description');
+            $coa->set_as_group = $request->input('set_group') == 1;
+            $coa->default_posisi = $request->input('default_position');
 
-        if ($parent_id) {
-            $coa->parent_id = $parent_id;
+            if ($parent_id) {
+                $coa->parent_id = $parent_id;
+            }
+
+            $coa->save();
+            DB::commit();
+            return response()->json(['success' => 'COA berhasil ditambahkan']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        $coa->save();
-
-        return response()->json(['success' => 'COA berhasil ditambahkan']);
     }
 
     public function destroy($id)
     {
-        $coa = COA::findOrFail($id);
-        $coa->delete();
+        DB::beginTransaction();
+        try {
+            $coa = COA::findOrFail($id);
+            $coa->delete();
 
-        return response()->json(['success' => true]);
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
     public function show($id)
     {
@@ -138,26 +152,32 @@ class CoaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'code_account_id' => 'required|unique:tbl_coa,code_account_id,' . $id,
-            'name'            => 'required|string',
-            'description'     => 'nullable|string',
-            'set_as_group'    => 'required|boolean',
-            'default_posisi'  => 'nullable|string',
-            'group_account'   => 'nullable|exists:tbl_coa,id',
-        ]);
+        DB::beginTransaction();
+        try {
+            $validated = $request->validate([
+                'code_account_id' => 'required|unique:tbl_coa,code_account_id,' . $id,
+                'name'            => 'required|string',
+                'description'     => 'nullable|string',
+                'set_as_group'    => 'required|boolean',
+                'default_posisi'  => 'nullable|string',
+                'group_account'   => 'nullable|exists:tbl_coa,id',
+            ]);
 
-        $coa = COA::findOrFail($id);
-        $coa->code_account_id = $validated['code_account_id'];
-        $coa->name = $validated['name'];
-        $coa->description = $validated['description'];
-        $coa->set_as_group = $validated['set_as_group'];
-        $coa->default_posisi = $validated['default_posisi'];
-        $coa->parent_id = $validated['group_account'];
+            $coa = COA::findOrFail($id);
+            $coa->code_account_id = $validated['code_account_id'];
+            $coa->name = $validated['name'];
+            $coa->description = $validated['description'];
+            $coa->set_as_group = $validated['set_as_group'];
+            $coa->default_posisi = $validated['default_posisi'];
+            $coa->parent_id = $validated['group_account'];
 
-        $coa->save();
-
-        return response()->json(['success' => true]);
+            $coa->save();
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
 
