@@ -129,6 +129,7 @@ class CreditNoteController extends Controller
     {
 
         // dd($request->all());
+        DB::beginTransaction();
         $companyId = session('active_company_id');
         $request->validate([
             'invoiceCredit' => 'required|string|max:255',
@@ -160,9 +161,6 @@ class CreditNoteController extends Controller
                 'missing_resi' => $notFoundResis->values(),
             ], 400);
         }
-
-
-        DB::beginTransaction();
 
         try {
             // Validasi account settings

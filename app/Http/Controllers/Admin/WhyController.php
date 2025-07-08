@@ -18,6 +18,7 @@ class WhyController extends Controller
 
     public function addWhy(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'imageWhy' => 'nullable|mimes:jpg,jpeg,png',
             'contentWhy' => 'required|string',
@@ -48,9 +49,11 @@ class WhyController extends Controller
                     'Image_WhyUs' => $fileName,
                 ]
             );
+            DB::commit();
 
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageWhy' => $fileName, 'contentWhy' => nl2br( e($contentWhy))]], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }

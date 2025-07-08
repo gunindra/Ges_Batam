@@ -52,6 +52,7 @@ class RoleController extends Controller
     }
     public function addRole(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'roleMaster' => 'required|string|max:255|unique:tbl_role,role',
         ]);
@@ -61,15 +62,17 @@ class RoleController extends Controller
             $Role->role = $request->input('roleMaster');
 
             $Role->save();
-
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
     public function updateRole(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'roleMaster' => 'required|string|max:255',
         ]);
@@ -79,21 +82,23 @@ class RoleController extends Controller
 
             $Role->update($validated);
 
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }
     public function destroyRole($id)
     {
         $Role = Role::findOrFail($id);
-
+        DB::beginTransaction();
         try {
             $Role->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }

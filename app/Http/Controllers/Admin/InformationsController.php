@@ -49,6 +49,7 @@ class InformationsController extends Controller
 
     public function addInformations(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'titleInformations' => 'required|string|max:255|unique:tbl_informations,title_informations',
             'contentInformations' => 'required|string|max:1000',
@@ -69,15 +70,17 @@ class InformationsController extends Controller
 
 
             $information->save();
-
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
     public function destroyInformations($id)
     {
+        DB::beginTransaction();
         try {
             $information = Information::findOrFail($id);
 
@@ -91,9 +94,10 @@ class InformationsController extends Controller
 
             $information->delete();
 
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
@@ -101,6 +105,7 @@ class InformationsController extends Controller
 
     public function updateInformations(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'titleInformations' => 'required|string|max:255',
             'contentInformations' => 'required|string|max:1000',
@@ -125,9 +130,10 @@ class InformationsController extends Controller
             }
 
             $information->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
 

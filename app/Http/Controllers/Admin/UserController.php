@@ -71,6 +71,7 @@ class UserController extends Controller
 
     public function addUsers(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255|unique:tbl_users,email',
@@ -87,15 +88,17 @@ class UserController extends Controller
             $User->company_id = $request->input('companyUsers');
 
             $User->save();
-
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan', 'details' => $e->getMessage()]);
         }
     }
 
     public function updateUsers(Request $request, $id)
     {
+        DB::beginTransaction();
         $rules = [
             'nameUsers' => 'required|string|max:255',
             'emailUsers' => 'required|email|max:255|unique:tbl_users,email,' . $id,
@@ -125,9 +128,10 @@ class UserController extends Controller
             }
 
             $User->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui', 'details' => $e->getMessage()]);
         }
     }
@@ -135,13 +139,15 @@ class UserController extends Controller
 
     public function destroyUsers($id)
     {
+        DB::beginTransaction();
         try {
             $User = User::findOrFail($id);
 
             $User->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }

@@ -47,6 +47,7 @@ class AdvertisementController extends Controller
 
     public function addAdvertisement(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'titleAdvertisement' => 'required|string|max:255|unique:tbl_advertisement,title_Advertisement',
             'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg',
@@ -70,14 +71,17 @@ class AdvertisementController extends Controller
 
 
             $advertisement->save();
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
     public function destroyAdvertisement($id)
     {
+        DB::beginTransaction();
         try {
             $advertisement = Advertisement::findOrFail($id);
 
@@ -88,15 +92,17 @@ class AdvertisementController extends Controller
                 }
             }
             $advertisement->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     public function updateAdvertisement(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'titleAdvertisement' => 'required|string|max:255',
             'imageAdvertisement' => 'nullable|mimes:jpg,jpeg,png,svg',
@@ -120,9 +126,10 @@ class AdvertisementController extends Controller
             }
 
             $advertisement->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }

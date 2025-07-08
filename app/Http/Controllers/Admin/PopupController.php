@@ -17,6 +17,7 @@ class PopupController extends Controller
 
     public function addPopup(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'titlePopup' => 'required|string|max:255',
             'paragraphPopup' => 'required|string',
@@ -49,9 +50,10 @@ class PopupController extends Controller
                     'Image_Popup' => $fileName,
                 ]
             );
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['id' => $popup->id, 'imagePopup' => $fileName, 'titlePopup' => $request->input('titlePopup'), 'paragraphPopup' => nl2br(e($request->input('paragraphPopup'))), 'linkPopup' => $request->input('linkPopup')]]);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }
@@ -62,7 +64,7 @@ class PopupController extends Controller
         if (!$id) {
             return response()->json(['status' => 'warning', 'message' => 'Tidak dapat menghapus data.'], 400);
         }
-
+        DB::beginTransaction();
         try {
             $popup = Popup::find($id);
 
@@ -77,12 +79,14 @@ class PopupController extends Controller
                 }
 
                 $popup->delete();
-
+                DB::commit();
                 return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
             } else {
+                DB::rollback();
                 return response()->json(['status' => 'info', 'message' => 'Data tidak ditemukan'], 404);
             }
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
         }
     }

@@ -83,6 +83,7 @@ class PeriodeController extends Controller
 
     public function addPeriode(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'periode' => 'required|string',
             'periodeStart' => 'required|date',
@@ -97,14 +98,17 @@ class PeriodeController extends Controller
             $Periode->periode_end = Carbon::createFromFormat('d F Y', $request->input('periodeEnd'))->format('Y-m-d');
             $Periode->status = $request->input('status');
             $Periode->save();
-
+            DB::commit();
             return response()->json(['success' => 'Data berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan', 'message' => $e->getMessage()]);
         }
     }
     public function updatePeriode(Request $request, $id)
     {
+        DB::beginTransaction();
+        
         $validated = $request->validate([
             'periode' => 'required|string',
             'periodeStart' => 'required|date',
@@ -121,9 +125,10 @@ class PeriodeController extends Controller
             $Periode->status = $request->input('status');
 
             $Periode->save();
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             \Log::error('Error updating periode: ' . $e->getMessage());
             return response()->json(['error' => true, 'message' => 'Data gagal diperbarui', 'details' => $e->getMessage()]);
         }
@@ -137,13 +142,14 @@ class PeriodeController extends Controller
     public function deletePeriode($id)
     {
         $Periode = Periode::findOrFail($id);
-
+        DB::beginTransaction();
         try {
 
             $Periode->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }

@@ -50,6 +50,7 @@ class ServiceController extends Controller
 
     public function addService(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'titleService' => 'required|string|max:255|unique:tbl_service,title_service',
             'contentService' => 'required|string',
@@ -68,9 +69,10 @@ class ServiceController extends Controller
             }
 
             $service->save();
-
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
@@ -96,6 +98,7 @@ class ServiceController extends Controller
 
     public function updateService(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'titleService' => 'required|string|max:255',
             'contentService' => 'required|string',
@@ -120,9 +123,10 @@ class ServiceController extends Controller
             }
 
             $service->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }

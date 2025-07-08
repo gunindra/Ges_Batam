@@ -164,27 +164,32 @@ class TrackingsController extends Controller
 
         // Cari data tracking
         $tracking = Tracking::find($request->id);
-
-        if ($tracking->status === 'Ready Stock') {
-            $tracking->status = 'Dalam Perjalanan';
-            $tracking->save();
-
+        DB::beginTransaction();
+        try {
+            if ($tracking->status === 'Ready Stock') {
+                $tracking->status = 'Dalam Perjalanan';
+                $tracking->save();
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status berhasil diubah menjadi Dalam Perjalanan.',
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
-                'success' => true,
-                'message' => 'Status berhasil diubah menjadi Dalam Perjalanan.',
-            ], 200);
+                'success' => false,
+                'message' => 'Status tidak bisa diubah karena bukan Ready Stock.',
+            ], 400);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Status tidak bisa diubah karena bukan Ready Stock.',
-        ], 400);
     }
 
 
     public function addTracking(Request $request)
     {
         $companyId = session('active_company_id');
+
+        DB::beginTransaction();
 
         $request->validate([
             'noResi' => 'required|array|min:1',
@@ -219,9 +224,10 @@ class TrackingsController extends Controller
                     'keterangan' => $request->input('keterangan'),
                 ], $companyId, $jobId, $index, $totalChunks);
             }
-
+            DB::commit();
             return response()->json(['success' => 'Data is being processed', 'jobId' => $jobId]);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Failed to add data', 'message' => $e->getMessage()], 500);
         }
     }
@@ -229,6 +235,7 @@ class TrackingsController extends Controller
 
     public function updateTracking(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'noDeliveryOrder' => 'required|string|max:20',
             'keterangan' => 'nullable|string|max:255',
@@ -244,8 +251,10 @@ class TrackingsController extends Controller
             $Tracking->keterangan = $request->input('keterangan');
 
             $Tracking->update($validated);
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
 
@@ -255,6 +264,8 @@ class TrackingsController extends Controller
     public function deleteTracking($id)
     {
         $Tracking = Tracking::findOrFail($id);
+
+        DB::beginTransaction();
 
         if ($Tracking->status != "Dalam Perjalanan") {
             return response()->json([
@@ -266,9 +277,10 @@ class TrackingsController extends Controller
         try {
 
             $Tracking->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
@@ -280,33 +292,39 @@ class TrackingsController extends Controller
 
     public function deleteTrackingMultipe(Request $request)
     {
-        $ids = (array) $request->input('ids');
-        $ids = array_map('intval', $ids);
+        DB::beginTransaction();
+        try {
+            $ids = (array) $request->input('ids');
+            $ids = array_map('intval', $ids);
 
-        if (empty($ids)) {
-            return response()->json(['success' => false, 'message' => 'No IDs provided'], 400);
-        }
+            if (empty($ids)) {
+                return response()->json(['success' => false, 'message' => 'No IDs provided'], 400);
+            }
 
-        $trackings = Tracking::whereIn('id', $ids)->get();
+            $trackings = Tracking::whereIn('id', $ids)->get();
 
-        $idsToDelete = $trackings->filter(fn ($tracking) => $tracking->status === 'Dalam Perjalanan')
-                                 ->pluck('id')
-                                 ->toArray();
+            $idsToDelete = $trackings->filter(fn ($tracking) => $tracking->status === 'Dalam Perjalanan')
+                                    ->pluck('id')
+                                    ->toArray();
 
-        if (empty($idsToDelete)) {
+            if (empty($idsToDelete)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No records with status "Dalam Perjalanan" to delete. Please refresh the page to update data.'
+                ], 400);
+            }
+
+            $deletedCount = Tracking::whereIn('id', $idsToDelete)->delete();
+            DB::commit();
             return response()->json([
-                'success' => false,
-                'message' => 'No records with status "Dalam Perjalanan" to delete. Please refresh the page to update data.'
-            ], 400);
+                'success' => true,
+                'message' => "$deletedCount record(s) deleted successfully."
+            ]);
+            } catch (\Exception $e) {
+                DB::rollback();
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            }
         }
-
-        $deletedCount = Tracking::whereIn('id', $idsToDelete)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => "$deletedCount record(s) deleted successfully."
-        ]);
-    }
 
     public function exportExcel(Request $request)
     {

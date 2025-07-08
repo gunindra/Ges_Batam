@@ -343,6 +343,7 @@ class JournalController extends Controller
 
     public function createExpiredTopupJurnal(HistoryTopup $topup, Customer $customer, $companyId, $journalDate = null)
     {
+        DB::beginTransaction();
         try {
             // Validasi input
             if (!$topup || !$customer || !$companyId) {
@@ -409,10 +410,11 @@ class JournalController extends Controller
             $jurnalItemCredit->debit = $amount;
             $jurnalItemCredit->credit = 0;
             $jurnalItemCredit->save();
-
+            DB::commit();
             return $jurnal; // Mengembalikan data jurnal yang dibuat
 
         } catch (\Exception $e) {
+            DB::rollback();
             Log::error('Gagal membuat jurnal expired topup: ' . $e->getMessage(), [
                 'topup_id' => $topup->id ?? null,
                 'customer_id' => $customer->id ?? null,

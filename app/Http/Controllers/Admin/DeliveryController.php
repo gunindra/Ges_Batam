@@ -874,7 +874,7 @@ class DeliveryController extends Controller
     public function acceptPengantaran(Request $request)
     {
         $idpengantaran = $request->input('id');
-
+        DB::beginTransaction();
         try {
             $result = DB::table('tbl_pengantaran')
                 ->select('pembayaran_id')
@@ -890,13 +890,14 @@ class DeliveryController extends Controller
             $pembayaranId = $result->pembayaran_id;
 
             DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 4]);
-
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status pengantaran berhasil diperbarui.'
             ], 200);
 
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat memperbarui status pengantaran.',
@@ -909,6 +910,7 @@ class DeliveryController extends Controller
     {
         $idpengantaran = $request->input('id');
         $file = $request->file('file');
+        DB::beginTransaction();
         try {
             $result = DB::table('tbl_pengantaran')
                 ->where('id', $idpengantaran)
@@ -936,13 +938,14 @@ class DeliveryController extends Controller
             }
 
             // DB::table('tbl_pembayaran')->where('id', $pembayaranId)->update(['status_id' => 6]);
-
+            DB::commit();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Status pengantaran berhasil diperbarui.'
             ], 200);
 
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat memperbarui status pengantaran.',

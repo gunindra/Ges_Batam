@@ -17,6 +17,7 @@ class ContactController extends Controller
 
     public function addContact(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'alamatContact' => 'required|string|max:255',
             'emailContact' => 'required|string|max:255',
@@ -41,9 +42,10 @@ class ContactController extends Controller
                     'phones' => $phonesContact,
                 ]
             );
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['alamatContact' => $alamatContact , 'emailContact' => $emailContact, 'phoneContact' => $phoneContact,'phonesContact' => $phonesContact,],200]);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }

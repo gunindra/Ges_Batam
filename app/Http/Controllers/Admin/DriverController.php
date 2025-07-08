@@ -117,6 +117,9 @@ class DriverController extends Controller
 
     public function updateDriver(Request $request, $id)
     {
+
+        DB::beginTransaction();
+        
         $validated = $request->validate([
             'namaDriver' => 'required|string|max:255',
             'alamatDriver' => 'required|string|max:255',
@@ -140,9 +143,10 @@ class DriverController extends Controller
             }
 
             $Driver->save();
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
     }

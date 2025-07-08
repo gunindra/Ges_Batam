@@ -17,6 +17,7 @@ class AboutController extends Controller
 
     public function addAbout(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'imageAbout' => 'nullable|mimes:jpg,jpeg,png',
             'contentAbout' => 'required|string',
@@ -47,9 +48,10 @@ class AboutController extends Controller
                     'Image_AboutUs' => $fileName,
                 ]
             );
-    
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil disimpan', 'data' => ['imageAbout' => $fileName, 'contentAbout' =>  nl2br(e($contentAbout))]], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);
         }
     }

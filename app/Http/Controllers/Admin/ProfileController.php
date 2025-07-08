@@ -38,69 +38,81 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = $request->user();
+        DB::beginTransaction();
+        try {
+            $user = $request->user();
 
-        // Validasi umum
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:tbl_users,email,' . $user->id,
-            'password' => 'nullable|string|min:6',
-        ];
+            // Validasi umum
+            $rules = [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:tbl_users,email,' . $user->id,
+                'password' => 'nullable|string|min:6',
+            ];
 
-        // Validasi alamat hanya jika role bukan customer
-        if ($user->role !== 'customer') {
-            $rules['alamatCustomer'] = 'required|array|min:1';
-            $rules['alamatCustomer.*'] = 'required|string|max:255';
-        } else {
-            $rules['alamatCustomer'] = 'nullable|array';
-            $rules['alamatCustomer.*'] = 'nullable|string|max:255';
-        }
+            // Validasi alamat hanya jika role bukan customer
+            if ($user->role !== 'customer') {
+                $rules['alamatCustomer'] = 'required|array|min:1';
+                $rules['alamatCustomer.*'] = 'required|string|max:255';
+            } else {
+                $rules['alamatCustomer'] = 'nullable|array';
+                $rules['alamatCustomer.*'] = 'nullable|string|max:255';
+            }
 
-        // Custom messages
-        $messages = [
-            'alamatCustomer.required' => 'Minimal satu alamat harus diisi.',
-            'alamatCustomer.*.required' => 'Alamat tidak boleh kosong.',
-        ];
+            // Custom messages
+            $messages = [
+                'alamatCustomer.required' => 'Minimal satu alamat harus diisi.',
+                'alamatCustomer.*.required' => 'Alamat tidak boleh kosong.',
+            ];
 
-        $validated = $request->validate($rules, $messages);
+            $validated = $request->validate($rules, $messages);
 
-        // Update profil user
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
-        ]);
+            // Update profil user
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
+            ]);
 
-        // Update alamat jika ada
-        if (isset($validated['alamatCustomer'])) {
-            $customer = Customer::where('user_id', $user->id)->first();
-            if ($customer) {
-                Alamat::where('pembeli_id', $customer->id)->delete();
-                foreach ($validated['alamatCustomer'] as $alamat) {
-                    if (!empty($alamat)) {
-                        Alamat::create([
-                            'pembeli_id' => $customer->id,
-                            'alamat' => $alamat,
-                        ]);
+            // Update alamat jika ada
+            if (isset($validated['alamatCustomer'])) {
+                $customer = Customer::where('user_id', $user->id)->first();
+                if ($customer) {
+                    Alamat::where('pembeli_id', $customer->id)->delete();
+                    foreach ($validated['alamatCustomer'] as $alamat) {
+                        if (!empty($alamat)) {
+                            Alamat::create([
+                                'pembeli_id' => $customer->id,
+                                'alamat' => $alamat,
+                            ]);
+                        }
                     }
                 }
             }
-        }
 
-        // Response untuk AJAX
-        if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Profile updated successfully!']);
+            // Response untuk AJAX
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Profile updated successfully!']);
+            }
+            DB::commit();
+            return redirect()->route('profile.edit')->with('status', 'Profile updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => 'error', 'message' => 'Gagal mengupdate data: ' . $e->getMessage()], 500);
         }
-
-        return redirect()->route('profile.edit')->with('status', 'Profile updated successfully.');
     }
 
 
     public function destroy(Request $request)
     {
-        $request->user()->delete();
-
-        return redirect()->route('home');
+        DB::beginTransaction();
+        try {
+            $request->user()->delete();
+            DB::commit();
+            return redirect()->route('home');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus data: ' . $e->getMessage()], 500);
+        }
     }
 
     public function getPointsHistory(Request $request)

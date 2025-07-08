@@ -122,6 +122,8 @@ class CompanyController extends Controller
     {
 
         // dd($request->all());
+        DB::beginTransaction();
+
         $request->validate([
             'namaCompany' => 'required|string|max:255|unique:tbl_company,name',
             'alamatCompany' => 'required|string|max:255',
@@ -129,8 +131,6 @@ class CompanyController extends Controller
             'hpCompany' => 'nullable|string|max:20',
             'emailCompany' => 'nullable|email|max:255',
         ]);
-
-
 
         try {
             $logoPath = $request->file('logoCompany')->store('logos', 'public');
@@ -143,11 +143,12 @@ class CompanyController extends Controller
                 'hp' => $request->hpCompany,
                 'email' => $request->emailCompany,
             ]);
-
+            DB::commit();
             return response()->json(['success' => 'Company Berhasil ditambahkan'], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422); // Validasi gagal
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan Company: ' . $e->getMessage()], 500);
         }
     }
@@ -182,6 +183,7 @@ class CompanyController extends Controller
     {
 
         // dd($request->all());
+        DB::beginTransaction();
         // Validasi input
         $request->validate([
             'namaCompany' => 'required|string|max:255|unique:tbl_company,name,' . $request->id,
@@ -215,16 +217,18 @@ class CompanyController extends Controller
 
             // Simpan perubahan
             $company->save();
-
+            DB::commit();
             return response()->json([
                 'success' => true,
                 'message' => 'Company berhasil diperbarui.'
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
             return response()->json([
                 'errors' => $e->errors()
             ], 422); // Validasi gagal
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui company: ' . $e->getMessage()

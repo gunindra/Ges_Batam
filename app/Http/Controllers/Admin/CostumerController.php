@@ -263,9 +263,16 @@ class CostumerController extends Controller
 
     public function softDelete($id)
     {
-        $customer = Customer::findOrFail($id);
-        $customer->delete();
-        return response()->json(['message' => 'Customer berhasil dihapus']);
+        try {
+            DB::beginTransaction();
+            $customer = Customer::findOrFail($id);
+            $customer->delete();
+            DB::commit();
+            return response()->json(['message' => 'Customer berhasil dihapus']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => 'Gagal Menghapus Data Customer: ' . $e->getMessage()], 500);
+        }
     }
 
 
@@ -314,7 +321,7 @@ class CostumerController extends Controller
         ]);
     }
 
-      public function import(Request $request)
+    public function import(Request $request)
     {
         $companyId = session('active_company_id');
         $invalidData = [];

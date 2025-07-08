@@ -47,6 +47,7 @@ class HeropageController extends Controller
 
     public function addHeroPage(Request $request)
     {
+        DB::beginTransaction();
         $request->validate([
             'titleHeroPage' => 'required|string|max:255|unique:tbl_heropage,title_heropage',
             'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png|',
@@ -63,14 +64,17 @@ class HeropageController extends Controller
             }
 
             $heroPage->save();
+            DB::commit();
             return response()->json(['success' => 'Berhasil ditambahkan']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => 'Gagal menambahkan']);
         }
     }
 
     public function destroyHeroPage($id)
     {
+        DB::beginTransaction();
         try {
             $heroPage = HeroPage::findOrFail($id);
 
@@ -81,15 +85,17 @@ class HeropageController extends Controller
                 }
             }
             $heroPage->delete();
-
+            DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     public function updateHeroPage(Request $request, $id)
     {
+        DB::beginTransaction();
         $validated = $request->validate([
             'titleHeroPage' => 'required|string|max:255',
             'imageHeroPage' => 'nullable|mimes:jpg,jpeg,png',
@@ -112,9 +118,10 @@ class HeropageController extends Controller
             }
 
             $heroPage->update($validated);
-
+            DB::commit();
             return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
         } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['error' => false, 'message' => 'Data gagal diperbarui']);
         }
 
