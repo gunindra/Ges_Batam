@@ -133,17 +133,41 @@ class CoaController extends Controller
     public function destroy($id)
     {
         DB::beginTransaction();
+
         try {
             $coa = COA::findOrFail($id);
             $coa->delete();
 
             DB::commit();
             return response()->json(['success' => true]);
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+
+            // Check for MySQL foreign key constraint error code 1451
+            if ($e->getCode() == '23000' && str_contains($e->getMessage(), '1451')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data ini tidak bisa di hapus karna telah dipakai pada Data lain'
+                ], 400);
+            }
+
+            // Other database-related errors
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
+
     public function show($id)
     {
         $coa = COA::findOrFail($id);
