@@ -303,8 +303,10 @@
 
         // Event: Klik "Pilih Semua Data"
         $('#select-all').on('change', function() {
+            
             if (this.checked) {
-                selectedIds = new Set(filteredIds);
+                const limitedIds = filteredIds.slice(0, 900);
+                selectedIds = new Set(limitedIds);
                 $('.select-row').prop('checked', true);
             } else {
                 selectedIds.clear();
