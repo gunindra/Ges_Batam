@@ -341,9 +341,11 @@
                         $.ajax({
                             url: "{{ route('deleteTrackingMultipe') }}",
                             method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
                             data: {
-                                ids: Array.from(selectedIds),
-                                _token: $('meta[name="csrf-token"]').attr('content')
+                                ids: Array.from(selectedIds)
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', 'The selected rows have been deleted.',
