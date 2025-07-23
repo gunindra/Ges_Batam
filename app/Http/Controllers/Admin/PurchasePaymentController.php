@@ -427,15 +427,15 @@ class PurchasePaymentController extends Controller
                     $balanceDifference = $currentDebit - $currentCredit;
 
                     // Sesuaikan balance
-                    if ($balanceDifference > 0) {
+                    // if ($balanceDifference > 0) {
                         // Jika debit lebih besar, tambahkan ke kredit utama
                         $jurnalItemCredit->credit += $balanceDifference;
                         $jurnalItemCredit->save();
-                    } elseif ($balanceDifference < 0) {
-                        // Jika kredit lebih besar, tambahkan ke debit utama
-                        $jurnalItemDebit->debit += abs($balanceDifference);
-                        $jurnalItemDebit->save();
-                    }
+                    // } elseif ($balanceDifference < 0) {
+                    //     // Jika kredit lebih besar, tambahkan ke debit utama
+                    //     $jurnalItemDebit->debit += abs($balanceDifference);
+                    //     $jurnalItemDebit->save();
+                    // }
 
                     // Update total di jurnal utama
                     $jurnal->totaldebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
@@ -682,15 +682,15 @@ class PurchasePaymentController extends Controller
                 $balanceDifference = $currentDebit - $currentCredit;
 
                 // Sesuaikan balance
-                if ($balanceDifference > 0) {
+                // if ($balanceDifference > 0) {
                     // Jika debit lebih besar, tambahkan ke kredit utama
                     $jurnalItemCredit->credit += $balanceDifference;
                     $jurnalItemCredit->save();
-                } elseif ($balanceDifference < 0) {
-                    // Jika kredit lebih besar, tambahkan ke debit utama
-                    $jurnalItemDebit->debit += abs($balanceDifference);
-                    $jurnalItemDebit->save();
-                }
+                // } elseif ($balanceDifference < 0) {
+                //     // Jika kredit lebih besar, tambahkan ke debit utama
+                //     $jurnalItemCredit->credit += abs($balanceDifference);
+                //     $jurnalItemDebit->save();
+                // }
 
                 // Update total di jurnal utama
                 $jurnal->totaldebit = $jurnalItemDebit->debit + $totalAdditionalDebit;
