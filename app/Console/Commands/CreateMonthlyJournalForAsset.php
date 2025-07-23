@@ -36,7 +36,9 @@ class CreateMonthlyJournalForAsset extends Command
             if ($monthsElapsed <= $asset->estimated_age) {
                 // Create a request object to pass to the function
                 $request = request(); // Adjust as necessary to pass required data
-                $controller->createJournalForDepreciation($request, $asset);
+                $today = now()->format('Y-m-d');
+                $controller->createJournalForAsset($request, $asset, $today);
+
             }
         }
 

@@ -124,7 +124,7 @@ class AssetController extends Controller
             
             Log::info("Membuat jurnal untuk Asset " . $request->input('asset_name'));
             $this->createJournalForAsset($request, $asset);
-            $this->createJournalForDepreciation($request, $asset);
+            $this->createJournalForDepreciation($request, $asset, $formattedDep);
 
             DB::commit();
             Log::info("Sukses menambahkan Asset: " . $request->input('asset_name'));
@@ -195,7 +195,7 @@ class AssetController extends Controller
     }
 
     
-    public function createJournalForDepreciation($request, $asset)
+    public function createJournalForDepreciation($request, $asset, $depDate)
     {
         $companyId = session('active_company_id');
         DB::beginTransaction();
@@ -203,7 +203,7 @@ class AssetController extends Controller
             // Extract necessary data from the request and asset
             $request->merge(['code_type' => 'JU']);
             $noJournal = $this->jurnalController->generateNoJurnal($request)->getData()->no_journal;
-            $jurnalDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+            $jurnalDate = Carbon::parse($depDate)->endOfMonth()->format('Y-m-d');
             $noRef = $asset->asset_code ? $asset->asset_code : '-';
             $price = intval(str_replace(',', '', $asset->acquisition_price));
             $residue = intval(str_replace(',', '', $asset->residue_value));
@@ -253,8 +253,6 @@ class AssetController extends Controller
                 $jurnalItemCredit->save();
                 DB::commit();
                 Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
-            } else {
-                DB::commit(); // Tetap commit walaupun tidak ada jurnal yang dibuat
             }
 
         } catch (Exception $e) {
