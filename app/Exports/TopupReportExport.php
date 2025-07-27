@@ -39,6 +39,7 @@ class TopupReportExport implements FromView, WithEvents
                     marking,
                     CASE
                         WHEN type = 'IN' THEN points
+                        WHEN type = 'IN (Retur)' THEN points
                         ELSE 0
                     END AS in_points,
                     CASE
@@ -48,6 +49,7 @@ class TopupReportExport implements FromView, WithEvents
                     END AS out_points,
                     CASE
                         WHEN type = 'OUT (expired)' THEN expired_amount * price_per_kg
+                        WHEN type = 'IN (Retur)' THEN points * price_per_kg
                         WHEN type = 'OUT' THEN points * price_per_kg
                         WHEN type = 'IN' THEN points * price_per_kg
                         ELSE 0
@@ -116,6 +118,29 @@ class TopupReportExport implements FromView, WithEvents
                     AND tp.company_id = ?
                        " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
                    " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+
+                    UNION ALL
+
+                    -- Transaksi IN (Retur)
+                    SELECT
+                        tr.created_at AS date,
+                        tr.created_at,
+                        tp.marking,
+                        resi.berat AS points,
+                        resi.harga/berat AS price_per_kg,
+                        Null AS expired_amount,
+                        'IN (Retur)' AS type,
+                        ti.no_invoice AS no_invoice
+                    FROM tbl_retur_item tri
+                    JOIN tbl_resi resi ON tri.resi_id = resi.id
+                    JOIN tbl_retur tr ON tri.retur_id = tr.id
+                    JOIN tbl_invoice ti ON tr.invoice_id = ti.id
+                    JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
+                    WHERE tr.account_id = 159
+                    AND DATE(tr.created_at) BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
+                   " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
                 ) AS raw_data
             ),
             calculated_data AS (
@@ -175,6 +200,13 @@ class TopupReportExport implements FromView, WithEvents
             $params[] = $userId;
         }
 
+        $params = array_merge($params, [$this->startDate, $this->endDate, $companyId]);
+        if ($this->customer && $this->customer !== '-') {
+            $params[] = $this->customer;
+        }
+        if ($isCustomerRole) {
+            $params[] = $userId;
+        }
 
 
         // Eksekusi query

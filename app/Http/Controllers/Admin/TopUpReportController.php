@@ -93,6 +93,7 @@ class TopUpReportController extends Controller
                     marking,
                     CASE
                         WHEN type = 'IN' THEN points
+                        WHEN type = 'IN (Retur)' THEN points
                         ELSE 0
                     END AS in_points,
                     CASE
@@ -102,6 +103,7 @@ class TopUpReportController extends Controller
                     END AS out_points,
                     CASE
                         WHEN type = 'OUT (expired)' THEN expired_amount * price_per_kg
+                        WHEN type = 'IN (Retur)' THEN points * price_per_kg
                         WHEN type = 'OUT' THEN points * price_per_kg
                         WHEN type = 'IN' THEN points * price_per_kg
                         ELSE 0
@@ -170,6 +172,30 @@ class TopUpReportController extends Controller
                     AND tp.company_id = ?
                     " . ($customer ? "AND tp.id = ?" : "") . "
                     " . $userIdCondition . "
+
+                    UNION ALL
+
+                    -- Transaksi IN (Retur)
+                    SELECT
+                        tr.created_at AS date,
+                        tr.created_at,
+                        tp.marking,
+                        resi.berat AS points,
+                        resi.harga/berat AS price_per_kg,
+                        Null AS expired_amount,
+                        'IN (Retur)' AS type,
+                        ti.no_invoice AS no_invoice
+                    FROM tbl_retur_item tri
+                    JOIN tbl_resi resi ON tri.resi_id = resi.id
+                    JOIN tbl_retur tr ON tri.retur_id = tr.id
+                    JOIN tbl_invoice ti ON tr.invoice_id = ti.id
+                    JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
+                    WHERE tr.account_id = 159
+                    AND DATE(tr.created_at) BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+
                 ) AS raw_data
             ),
             calculated_data AS (
@@ -227,13 +253,22 @@ class TopUpReportController extends Controller
         if ($isCustomerRole) {
             $params[] = auth()->user()->id;
         }
+
+        $params = array_merge($params, [$startDate, $endDate, $companyId]);
+        if ($customer) {
+            $params[] = $customer;
+        }
+        if ($isCustomerRole) {
+            $params[] = auth()->user()->id;
+        }
+
         $data = DB::select($query, $params);
 
         $groupedData = [];
         foreach ($data as $row) {
             $groupedData[$row->marking][] = $row;
         }
-
+        
         $output = '
             <h5 style="text-align:center; width:100%">'
                 . Carbon::parse($startDate)->format('d M Y') . ' - '
@@ -320,12 +355,20 @@ class TopUpReportController extends Controller
             if (isset($groupedData[$marking])) {
             foreach ($groupedData[$marking] as $row) {
                     // Gunakan harga dari transaksi jika tersedia
-                    if ($row->price_per_kg > 0) {
-                        $pricePerKg = $row->price_per_kg;
-                    }
+                    
+                    $trxValue = $row->value ?? 0;
 
-                    $currentSaldo += $row->in_points - $row->out_points;
-                    $currentSaldoValue = $currentSaldo * $pricePerKg;
+                    if ($row->status === 'IN' || $row->status === 'IN (Retur)') {
+                        $currentSaldo      += $row->in_points;
+                        $currentSaldoValue += $trxValue;
+                    } elseif ($row->status === 'OUT') {
+                        $currentSaldo      -= $row->out_points;
+                        $currentSaldoValue -= $trxValue;
+                    } elseif ($row->status === 'OUT (expired)') {
+                        // out_points is 0 for expired, but value is expired_amount * price_per_kg
+                        $currentSaldoValue -= $trxValue;
+                        // saldo in KG is unchanged (or you can subtract expired_amount if you treat it as deduction in KG)
+                    }
 
                     $output .= '<tr>
                         <td style="text-align:center;">' . Carbon::parse($row->date)->format('d M Y') . '</td>
@@ -378,13 +421,14 @@ class TopUpReportController extends Controller
             $customer = Customer::find($customerId);
 
             $query = "
-            WITH combined_data AS (
+               WITH combined_data AS (
                 SELECT
                     date,
                     created_at,
                     marking,
                     CASE
                         WHEN type = 'IN' THEN points
+                        WHEN type = 'IN (Retur)' THEN points
                         ELSE 0
                     END AS in_points,
                     CASE
@@ -394,6 +438,7 @@ class TopUpReportController extends Controller
                     END AS out_points,
                     CASE
                         WHEN type = 'OUT (expired)' THEN expired_amount * price_per_kg
+                        WHEN type = 'IN (Retur)' THEN points * price_per_kg
                         WHEN type = 'OUT' THEN points * price_per_kg
                         WHEN type = 'IN' THEN points * price_per_kg
                         ELSE 0
@@ -462,37 +507,61 @@ class TopUpReportController extends Controller
                     AND tp.company_id = ?
                     " . ($customer ? "AND tp.id = ?" : "") . "
                     " . $userIdCondition . "
+
+                    UNION ALL
+
+                    -- Transaksi IN (Retur)
+                    SELECT
+                        tr.created_at AS date,
+                        tr.created_at,
+                        tp.marking,
+                        resi.berat AS points,
+                        resi.harga/berat AS price_per_kg,
+                        Null AS expired_amount,
+                        'IN (Retur)' AS type,
+                        ti.no_invoice AS no_invoice
+                    FROM tbl_retur_item tri
+                    JOIN tbl_resi resi ON tri.resi_id = resi.id
+                    JOIN tbl_retur tr ON tri.retur_id = tr.id
+                    JOIN tbl_invoice ti ON tr.invoice_id = ti.id
+                    JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
+                    WHERE tr.account_id = 159
+                    AND DATE(tr.created_at) BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customer ? "AND tp.id = ?" : "") . "
+                    " . $userIdCondition . "
+
                 ) AS raw_data
-            ),
-            calculated_data AS (
+                ),
+                calculated_data AS (
+                    SELECT
+                        date,
+                        created_at,
+                        marking,
+                        in_points,
+                        out_points,
+                        value,
+                        status,
+                        SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at) AS saldo,
+                        price_per_kg,
+                        no_invoice
+                    FROM combined_data
+                )
                 SELECT
                     date,
                     created_at,
                     marking,
                     in_points,
                     out_points,
+                    saldo,
+                    saldo * price_per_kg AS saldo_value,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at) AS saldo,
-                    price_per_kg,
-                    no_invoice
-                FROM combined_data
-            )
-            SELECT
-                date,
-                created_at,
-                marking,
-                in_points,
-                out_points,
-                saldo,
-                saldo * price_per_kg AS saldo_value,
-                value,
-                status,
-                price_per_kg,
-                no_invoice
-            FROM calculated_data
-            ORDER BY marking, date, created_at;
-        ";
+                    no_invoice,
+                    price_per_kg
+                FROM calculated_data
+                ORDER BY marking, date, created_at;
+            ";
 
         $params = [$startDate, $endDate, $companyId];
         if ($customer) {
@@ -511,6 +580,13 @@ class TopUpReportController extends Controller
         }
 
           // Untuk OUT expired
+        $params = array_merge($params, [
+            $startDate, $endDate, $companyId,
+        ]);
+        if ($customer) {
+            $params[] = $customer;
+        }
+
         $params = array_merge($params, [
             $startDate, $endDate, $companyId,
         ]);

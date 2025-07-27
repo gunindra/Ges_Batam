@@ -908,6 +908,25 @@ class InvoiceController extends Controller
                 ->get(['no_resi', 'deskripsi', 'harga']);
         }
 
+        $retur = DB::table('tbl_retur')
+            ->where('invoice_id', $id)
+            ->first();
+
+        $returItems = [];
+
+        if ($retur) {
+            // Ambil data Credit Note Item jika ada
+            $returItems = DB::table('tbl_retur_item')
+                ->where('retur_id', $retur->id)
+                ->get(['resi_id']);
+        }
+
+        $resi = [];
+        foreach($returItems as $item){
+            $returItems = DB::table('tbl_resi')
+                ->where('id', $item->resi_id)
+                ->get(['no_resi', 'harga', 'berat']);
+        }
         try {
             $pdf = Pdf::loadView('exportPDF.invoice', [
                 'invoice' => $invoice,
@@ -915,6 +934,7 @@ class InvoiceController extends Controller
                 'resiData' => $resiData,
                 'hargaIDR' => $invoice->harga,
                 'creditNoteItems' => $creditNoteItems,
+                'returItems' => $returItems,
                 'tanggal' => $invoice->tanggal_bayar,
                 'tanda_tangan' => $invoice->tanda_tangan ?? null
             ])

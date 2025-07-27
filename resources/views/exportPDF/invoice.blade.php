@@ -268,6 +268,7 @@
                     $no = 1;
                     $totalHarga = 0;
                     $totalCreditNote = 0;
+                    $totalRetur = 0;
                 @endphp
 
                 {{-- Data Resi --}}
@@ -318,11 +319,47 @@
                         </tr>
                     @endforeach
                 @endif
+
+                {{-- Data Retur --}}
+                @if (!empty($returItems) && count($returItems) > 0)
+                    @foreach ($returItems as $retur)
+                        @php
+                            $totalRetur += $retur->harga;
+                        @endphp
+                        <tr>
+                            <td>{{ $no++ }}</td>
+                        <td>{{ $retur->no_resi }}</td>
+                        <td>Retur</td>
+                        @if ($retur->berat)
+                            <td>Berat</td>
+                        @else
+                            <td>Dimensi</td>
+                        @endif
+
+                        @if ($retur->berat)
+                            <td>
+                                {{ $retur->berat ?? '0' }} Kg
+                            </td>
+                        @else
+                            <td>
+                                @php
+                                    $panjang = $retur->panjang ?? 0;
+                                    $lebar = $retur->lebar ?? 0;
+                                    $tinggi = $retur->tinggi ?? 0;
+                                    $volume = ($panjang / 100) * ($lebar / 100) * ($tinggi / 100); // hasil dalam m3
+                                @endphp
+                                {{ number_format($volume, 3) }} m³
+                            </td>
+                        @endif
+                        <td>-{{ number_format($retur->harga, 2) ?? '0' }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
 
             {{-- Total Harga --}}
             @php
-                $finalTotalHarga = ceil(($totalHarga - $totalCreditNote) / 1000) * 1000;
+                $finalTotalHarga = ceil(($totalHarga - $totalCreditNote - $totalRetur) / 1000) * 1000;
             @endphp
             <tfoot>
                 <tr>
