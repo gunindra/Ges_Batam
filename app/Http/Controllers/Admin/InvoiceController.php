@@ -670,8 +670,7 @@ class InvoiceController extends Controller
                     ->whereIn('no_resi', $resiDihapus)
                     ->update(['status' => 'Dalam Perjalanan', 'updated_at' => now()]);
 
-                Log::info("Status resi yang dihapus dikembalikan ke 'Dalam Perjalanan'.");
-
+                Log::info("Status resi yang dihapus dikembalikan ke 'Dalam Perjalanan'. {$resiDihapus}");
                 DB::table('tbl_resi')->where('invoice_id', $id)->whereIn('no_resi', $resiDihapus)->delete();
                 Log::info("Berhasil menghapus resi yang tidak dipakai untuk Invoice ID: {$id}");
             }

@@ -192,8 +192,8 @@
                     searchable: false
                 },
                 {
-                    data: 'tanggal_payment',
-                    name: 'tanggal_payment',
+                    data: 'kuota',
+                    name: 'kuota',
                     searchable: false
                 },
                 {
