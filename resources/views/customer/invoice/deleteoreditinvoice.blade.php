@@ -255,8 +255,7 @@
                             1.000.
                         </div>
                         <!-- Tombol Tambah Barang -->
-                        {{-- <button type="button" class="btn btn-primary" id="addItemBtn"><span class="pr-2"><i
-                                class="fas fa-plus"></i></span>Tambah Barang</button> --}}
+                        
                         <div class="row">
                             <div class="col-12 mt-4" id="totalIdr" style="display: none;">
                                 <div class="col-2 offset-8 me-1">
@@ -277,8 +276,8 @@
                                 </div>
                                 <input type="hidden" name="" id="totalHargaValue">
                                 <button id="updateInvoice" class="btn btn-primary p-3 float-right mt-3"
-                                    style="width: 100%;">Update
-                                    Invoice</button>
+                                    style="width: 100%;" {{ $btnUpdateInvoiceDisabled }}>Update
+                                    Invoice </button>
                             </div>
                         </div>
                     </div>

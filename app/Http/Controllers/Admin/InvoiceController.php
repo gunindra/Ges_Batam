@@ -362,10 +362,9 @@ class InvoiceController extends Controller
 
                 // Check if period status is 'Closed', if so, disable the "Edit" button
                 $btnEditInvoice = '';
-                if ($periodStatus != 'Closed') {
-                    $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
-                }
-
+                $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
+                
+                
                 return '<div class="d-flex">' . $btnChangeMethod . $btnExportInvoice . $btnEditInvoice . '</div>';
             })
             ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar','created_at','updated_at','resi_cell'])
@@ -648,8 +647,33 @@ class InvoiceController extends Controller
 
             $resiLama = DB::table('tbl_resi')->where('invoice_id', $id)->pluck('no_resi')->toArray();
 
-            $resiDihapus = array_diff($resiLama, $noResi);
-            $resiDitambahkan = array_diff($noResi, $resiLama);
+            $countResiLama = array_count_values($resiLama);
+            $countNoResi   = array_count_values($noResi);
+
+            $resiDihapus = [];
+            $resiDitambahkan = [];
+
+            // Cari resi yang berkurang (dihapus)
+            foreach ($countResiLama as $resi => $jumlahLama) {
+                $jumlahBaru = $countNoResi[$resi] ?? 0;
+
+                if ($jumlahLama > $jumlahBaru) {
+                    $selisih = $jumlahLama - $jumlahBaru;
+                    $resiDihapus = array_merge($resiDihapus, array_fill(0, $selisih, $resi));
+                }
+            }
+
+            // Cari resi yang bertambah (ditambahkan)
+            foreach ($countNoResi as $resi => $jumlahBaru) {
+                $jumlahLama = $countResiLama[$resi] ?? 0;
+
+                if ($jumlahBaru > $jumlahLama) {
+                    $selisih = $jumlahBaru - $jumlahLama;
+                    $resiDitambahkan = array_merge($resiDitambahkan, array_fill(0, $selisih, $resi));
+                }
+            }
+
+            $resiDihapus = array_map('strval', $resiDihapus);
 
             if (!empty($resiDihapus)) {
                 $statusResi = DB::table('tbl_tracking')
@@ -670,7 +694,7 @@ class InvoiceController extends Controller
                     ->whereIn('no_resi', $resiDihapus)
                     ->update(['status' => 'Dalam Perjalanan', 'updated_at' => now()]);
 
-                Log::info("Status resi yang dihapus dikembalikan ke 'Dalam Perjalanan'. {$resiDihapus}");
+                Log::info("Status resi yang dihapus dikembalikan ke 'Dalam Perjalanan'.");
                 DB::table('tbl_resi')->where('invoice_id', $id)->whereIn('no_resi', $resiDihapus)->delete();
                 Log::info("Berhasil menghapus resi yang tidak dipakai untuk Invoice ID: {$id}");
             }
@@ -1017,6 +1041,13 @@ class InvoiceController extends Controller
     public function deleteoreditinvoice($id)
     {
         $invoice = Invoice::with('resi')->find($id);
+        $invoiceDate = date('Y-m-d', strtotime($invoice->tanggal_invoice));
+        $periodStatus = DB::table('tbl_periode')
+                        ->whereDate('periode_start', '<=', $invoiceDate)
+                        ->whereDate('periode_end', '>=', $invoiceDate)
+                        ->value('status');
+        $btnUpdateInvoiceDisabled = ($periodStatus == 'Closed') ? 'disabled' : '';
+        
         $listCurrency = DB::table('tbl_matauang')->select('id', 'nama_matauang', 'singkatan_matauang')->get();
         $listAlamat = DB::select("SELECT a.id,
         a.nama_pembeli,
@@ -1049,7 +1080,8 @@ class InvoiceController extends Controller
             'listRateVolume' => $listRateVolume,
             'listPembagi' => $listPembagi,
             'listAlamat' => $listAlamat,
-            'listRateBerat' => $listRateBerat
+            'listRateBerat' => $listRateBerat,
+            'btnUpdateInvoiceDisabled' => $btnUpdateInvoiceDisabled,
         ]);
     }
 
