@@ -22,3 +22,5 @@ yarn-error.log
 /.idea
 /.vscode
 nohup.out
+git rm --cached "eval \"$(ssh-agent -s)\""
+git rm --cached "eval \"$(ssh-agent -s)\".pub"
