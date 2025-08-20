@@ -674,7 +674,7 @@ class InvoiceController extends Controller
             }
 
             $resiDihapus = array_map('strval', $resiDihapus);
-
+            $resiDitambahkan = array_map('strval', $resiDitambahkan);
             if (!empty($resiDihapus)) {
                 $statusResi = DB::table('tbl_tracking')
                     ->whereIn('no_resi', $resiDihapus)
