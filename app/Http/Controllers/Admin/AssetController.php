@@ -159,7 +159,7 @@ class AssetController extends Controller
             $jurnal->tanggal = $asset->acquisition_date;
             $jurnal->no_ref = $noRef;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Jurnal untuk Asset " . $asset->asset_name;
+            $jurnal->description = "Jurnal untuk Assettttt " . $asset->asset_name;
             $jurnal->totaldebit = $price;
             $jurnal->totalcredit = $price;
             $jurnal->asset_id = $asset->id;

@@ -132,8 +132,8 @@ class PaymentController extends Controller
         $payments = $query->get();
 
         return DataTables::of($payments)
-            ->editColumn('payment_date', function ($row) {
-                return $row->tanggal_buat;
+            ->editColumn('tanggal_payment', function ($row) {
+                return $row->tanggal_payment;
             })
             ->addColumn('action', function ($row) {
                 $periodStatus = DB::table('tbl_periode')
