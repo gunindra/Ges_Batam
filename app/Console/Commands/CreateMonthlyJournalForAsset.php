@@ -23,7 +23,6 @@ class CreateMonthlyJournalForAsset extends Command
     {
         // Instantiate the controller
         $controller = app()->make(\App\Http\Controllers\Admin\AssetController::class); // Adjust with the actual namespace
-        Log::info("masuk niiiiii");
         // Get assets that need journal entries
         $assets = Asset::all(); // Modify this query to get only assets that need a journal entry
         foreach ($assets as $asset) {
