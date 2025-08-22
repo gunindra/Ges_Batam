@@ -37,7 +37,7 @@ class CreateMonthlyJournalForAsset extends Command
                 // Create a request object to pass to the function
                 $request = request(); // Adjust as necessary to pass required data
                 $today = now()->format('Y-m-d');
-                $controller->createJournalForAsset($request, $asset, $today);
+                $controller->createJournalForDepreciation($request, $asset, $today);
 
             }
         }
