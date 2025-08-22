@@ -255,13 +255,13 @@ class AssetController extends Controller
                 $jurnalItemCredit->credit = $totalPerMonth;
                 $jurnalItemCredit->save();
                 DB::commit();
-                Log::info("Jurnal untuk Depresiasi Asset " . $asset->asset_name . " berhasil dibuat.");
+                Log::info("Jurnal untuk Depresiasi Assettttttttttttttttttttttt " . $asset->asset_name . " berhasil dibuat.");
             }
 
         } catch (Exception $e) {
             DB::rollBack();
             Log::error("Gagal membuat jurnal untuk Depresiasi Asset: " . $e->getMessage());
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkan']);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan Asset gagal ditambahkannnnnnnnnnnnnnnnnnnnnnnnn']);
         }
     }
 
