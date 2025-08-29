@@ -509,47 +509,48 @@ class PaymentController extends Controller
             $totalPaid = 0;
 
             $marginError = $totalSisaTagihan - $nilaiPayment;
+        
+            foreach ($invoiceList as $invoice) {
+                
+                $paymentInvoice = new PaymentInvoice();
+                $paymentInvoice->payment_id = $payment->id;
+                $paymentInvoice->invoice_id = $invoice->id;
+                
+                $sisaTagihan = max(0, $invoice->total_harga - $invoice->total_bayar);
+                if ($sisaTagihan <= 0) continue;
 
-         foreach ($invoiceList as $invoice) {
-            $paymentInvoice = new PaymentInvoice();
-            $paymentInvoice->payment_id = $payment->id;
-            $paymentInvoice->invoice_id = $invoice->id;
+                $proporsi = $sisaTagihan / $totalSisaTagihan;
 
-            $sisaTagihan = max(0, $invoice->total_harga - $invoice->total_bayar);
-            if ($sisaTagihan <= 0) continue;
+                $allocatedPoin = min($remainingPoin, $proporsi * $totalUsedPoin);
+                $remainingPoin -= $allocatedPoin;
 
-            $proporsi = $sisaTagihan / $totalSisaTagihan;
+                $allocatedPayment = min($remainingPayment, $sisaTagihan - $allocatedPoin);
+                $remainingPayment -= $allocatedPayment;
 
-            $allocatedPoin = min($remainingPoin, $proporsi * $totalUsedPoin);
-            $remainingPoin -= $allocatedPoin;
+                $allocatedAmount = $allocatedPayment;
+                $totalPaid += $allocatedAmount;
 
-            $allocatedPayment = min($remainingPayment, $sisaTagihan - $allocatedPoin);
-            $remainingPayment -= $allocatedPayment;
-
-            $allocatedAmount = $allocatedPoin + $allocatedPayment;
-            $totalPaid += $allocatedAmount;
-
-            $paymentInvoice->amount = $allocatedAmount;
-            $paymentInvoice->kuota = $allocatedPoin;
-            $paymentInvoice->save();
+                $paymentInvoice->amount = $allocatedAmount;
+                $paymentInvoice->kuota = $allocatedPoin;
+                $paymentInvoice->save();
 
 
-            if ($marginError != 0) {
-                $invoice->total_bayar = $invoice->total_harga;
-                $invoice->status_bayar = 'Lunas';
-            } else {
-                $invoice->total_bayar += $allocatedAmount;
-                $totalBeratInvoice = DB::table('tbl_resi')
-                    ->where('invoice_id', $invoice->id)
-                    ->sum('berat');
+                if ($marginError != 0) {
+                    $invoice->total_bayar = $invoice->total_harga;
+                    $invoice->status_bayar = 'Lunas';
+                } else {
+                    $invoice->total_bayar += $allocatedAmount;
+                    $totalBeratInvoice = DB::table('tbl_resi')
+                        ->where('invoice_id', $invoice->id)
+                        ->sum('berat');
 
-                $beratLunas = ($totalUsedPoin >= $totalBeratInvoice);
-                $uangLunas = ($invoice->total_bayar >= $invoice->total_harga);
+                    $beratLunas = ($totalUsedPoin >= $totalBeratInvoice);
+                    $uangLunas = ($invoice->total_bayar >= $invoice->total_harga);
 
-                $invoice->status_bayar = ($beratLunas || $uangLunas) ? 'Lunas' : 'Belum Lunas';
+                    $invoice->status_bayar = ($beratLunas || $uangLunas) ? 'Lunas' : 'Belum Lunas';
+                }
+                $invoice->save();
             }
-            $invoice->save();
-        }
 
 
             $invoiceNumbers = is_array($request->invoice) ? implode(', ', $request->invoice) : $request->invoice;
@@ -976,7 +977,7 @@ class PaymentController extends Controller
         $currentYear = date('y');
 
         $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
-            ->orderBy('kode_pembayaran', 'desc')
+            ->orderBy('id', 'desc')
             ->first();
 
         $newSequence = 1;
@@ -984,7 +985,7 @@ class PaymentController extends Controller
             $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));
             $newSequence = $lastSequence + 1;
         }
-
+        
         $kode_pembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
 
         return response()->json([
