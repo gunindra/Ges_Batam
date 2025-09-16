@@ -986,7 +986,7 @@ class PaymentController extends Controller
             $newSequence = $lastSequence + 1;
         }
         
-        $kode_pembayaran = $codeType . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+        $kode_pembayaran = $codeType . $currentYear . str_pad($newSequence, 8, '0', STR_PAD_LEFT);
 
         return response()->json([
             'status' => 'success',
