@@ -977,9 +977,8 @@ class PaymentController extends Controller
         $currentYear = date('y');
 
         $lastPayment = Payment::where('kode_pembayaran', 'like', $codeType . $currentYear . '%')
-            ->orderBy('id', 'desc')
+            ->orderByRaw('CAST(SUBSTRING(kode_pembayaran, 7) AS UNSIGNED) DESC')
             ->first();
-
         $newSequence = 1;
         if ($lastPayment) {
             $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));
