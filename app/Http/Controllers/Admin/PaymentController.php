@@ -981,7 +981,7 @@ class PaymentController extends Controller
             ->first();
         $newSequence = 1;
         if ($lastPayment) {
-            $lastSequence = intval(substr($lastPayment->kode_pembayaran, -4));
+            $lastSequence = intval(substr($lastPayment->kode_pembayaran, -8));
             $newSequence = $lastSequence + 1;
         }
         
