@@ -203,12 +203,15 @@ class InvoiceController extends Controller
                 'a.user',
                 'a.user_update',
                 'b.marking',
+                'e.createby as signed_by',
+                'e.tanda_tangan as tanda_tangan',
                 DB::raw('GROUP_CONCAT(r.no_resi SEPARATOR "; ") AS no_resi'),
                 DB::raw('COUNT(r.no_resi) AS resi_count'),
             )
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
             ->leftJoin('tbl_resi as r', 'r.invoice_id', '=', 'a.id')
+            ->leftJoin('tbl_pengantaran_detail as e', 'e.invoice_id', '=', 'a.id')
             ->where('a.company_id', $companyId)
             ->where(function ($q) use ($txSearch) {
                 $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
@@ -261,6 +264,8 @@ class InvoiceController extends Controller
             'a.user',
             'a.user_update',
             'b.marking',
+            'e.createby',
+            'e.tanda_tangan',
         );
 
 
@@ -349,6 +354,12 @@ class InvoiceController extends Controller
                     return '-';
                 }
                 return $item->updated_at_formatted ?? '-';
+            })
+            ->addColumn('signed_by', function ($item) {
+                if (!$item->tanda_tangan) {
+                    return '-';
+                }
+                return $item->signed_by ?? '-';
             })
             ->addColumn('action', function ($item) {
                 $btnChangeMethod = '';

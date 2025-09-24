@@ -73,7 +73,7 @@ class SupirController extends Controller
 
 
         DB::beginTransaction();
-
+        
         try {
             $invoiceIds = explode(',', $request->input('selectedValues'));
 
@@ -103,6 +103,8 @@ class SupirController extends Controller
                     } else {
                         $photoPath = null;
                     }
+                    
+                    $verifiedUsername = Auth::user()->name;
 
                     DB::table('tbl_pengantaran_detail')
                         ->where('invoice_id', $invoiceId)
@@ -112,6 +114,7 @@ class SupirController extends Controller
                             'keterangan' => 'Barang Telah Selesai Di antarkan',
                             'updated_at' => now(),
                             'tanggal_penerimaan' => now(),
+                            'createby' => $verifiedUsername,
                         ]);
 
                     $pengantaranDetails = DB::table('tbl_pengantaran_detail')

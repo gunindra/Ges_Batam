@@ -297,6 +297,7 @@
                                             <th>Status</th>
                                             <th>Created by</th>
                                             <th>Updated by</th>
+                                            <th>Signed by</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -433,6 +434,13 @@
                         }
                         return '-';
                     }
+                },
+                 {
+                    data: 'signed_by',
+                    name: 'signed_by',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    },
                 },
                 {
                     data: 'action',
