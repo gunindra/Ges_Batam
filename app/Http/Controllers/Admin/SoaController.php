@@ -45,7 +45,6 @@ class SoaController extends Controller
 
         $invoiceQuery = Invoice::where('tbl_invoice.status_bayar', '=', 'Belum lunas')
                     ->where('tbl_invoice.status_id', 6)
-                    ->whereRaw('tbl_invoice.total_harga - tbl_invoice.total_bayar > 0')
                     ->where('tbl_invoice.company_id', $companyId)
                     ->where('tbl_invoice.soa_closing', false)
                     ->join('tbl_pembeli', 'tbl_invoice.pembeli_id', '=', 'tbl_pembeli.id')
