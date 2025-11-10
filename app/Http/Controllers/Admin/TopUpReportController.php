@@ -84,7 +84,7 @@ class TopUpReportController extends Controller
                 'price_per_kg' => $balance->price_per_kg
             ];
         }
-
+        
         $query = "
                WITH combined_data AS (
                 SELECT
@@ -365,9 +365,10 @@ class TopUpReportController extends Controller
                         $currentSaldo      -= $row->out_points;
                         $currentSaldoValue -= $trxValue;
                     } elseif ($row->status === 'OUT (expired)') {
-                        // out_points is 0 for expired, but value is expired_amount * price_per_kg
+                        // Kurangi saldo dalam KG juga
+                        $expiredAmount = $row->out_points > 0 ? $row->out_points : ($row->expired_amount ?? 0);
+                        $currentSaldo -= $expiredAmount;
                         $currentSaldoValue -= $trxValue;
-                        // saldo in KG is unchanged (or you can subtract expired_amount if you treat it as deduction in KG)
                     }
 
                     $output .= '<tr>
