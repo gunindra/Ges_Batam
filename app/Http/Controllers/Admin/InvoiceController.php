@@ -172,29 +172,48 @@ class InvoiceController extends Controller
 
     public function getlistInvoice(Request $request)
     {
-        $status = $request->status;
         $companyId = session('active_company_id');
-        $NoDo = $request->no_do;
-        $Marking = $request->marking;
-        $startDate = $request->startDate ? date('Y-m-d', strtotime($request->startDate)) : null;
-        $endDate = $request->endDate ? date('Y-m-d', strtotime($request->endDate)) : null;
-        $txSearch = $request->has('txSearch') ? '%' . strtolower(trim($request->txSearch)) . '%' : '%%';
+
+        $txSearch = $request->txSearch
+            ? '%' . strtolower(trim($request->txSearch)) . '%'
+            : '%%';
+
+        /**
+         * ---------------------------------
+         *  RESI SUBQUERY (Pre-aggregated)
+         * ---------------------------------
+         */
+        $resiSub = DB::table('tbl_resi')
+            ->select(
+                'invoice_id',
+                DB::raw("GROUP_CONCAT(no_resi ORDER BY no_resi SEPARATOR ', ') AS resi_list"),
+                DB::raw("GROUP_CONCAT(no_resi SEPARATOR '; ') AS no_resi"),
+                DB::raw("COUNT(no_resi) AS resi_count"),
+                DB::raw("MAX(no_do) AS no_do")
+            )
+            ->groupBy('invoice_id');
+
+        /**
+         * ---------------------------------
+         *  MAIN QUERY + JOIN PERIODE
+         *  (replaces slow per-row DB check)
+         * ---------------------------------
+         */
         $query = DB::table('tbl_invoice as a')
             ->select(
                 'a.id',
-                'r.no_do',
                 'a.no_invoice',
                 'a.tanggal_invoice as raw_tanggal_invoice',
                 DB::raw("DATE_FORMAT(a.tanggal_invoice, '%d %M %Y') AS tanggal_invoice"),
                 DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y') AS tanggal_bayar"),
-                'b.nama_pembeli as pembeli',
+                'b.nama_pembeli',
+                'b.marking',
                 'a.alamat',
                 'a.metode_pengiriman',
-                'a.total_harga as harga',
+                'a.total_harga AS harga',
                 'a.matauang_id',
                 'a.rate_matauang',
-                DB::raw("GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ', ') AS resi_list"),
-                'd.id as status_id',
+                'd.id AS status_id',
                 'd.status_name',
                 'a.wa_status',
                 'a.status_bayar',
@@ -202,73 +221,77 @@ class InvoiceController extends Controller
                 DB::raw("DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s') AS updated_at_formatted"),
                 'a.user',
                 'a.user_update',
-                'b.marking',
-                'e.createby as signed_by',
-                'e.tanda_tangan as tanda_tangan',
-                DB::raw('GROUP_CONCAT(r.no_resi SEPARATOR "; ") AS no_resi'),
-                DB::raw('COUNT(r.no_resi) AS resi_count'),
+
+                // RESI MERGED RESULTS
+                'r.no_do',
+                'r.resi_list',
+                'r.no_resi',
+                'r.resi_count',
+
+                'e.createby AS signed_by',
+                'e.tanda_tangan',
+                'p.status AS periode_status'
             )
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
-            ->leftJoin('tbl_resi as r', 'r.invoice_id', '=', 'a.id')
+            ->leftJoinSub($resiSub, 'r', 'r.invoice_id', '=', 'a.id')
             ->leftJoin('tbl_pengantaran_detail as e', 'e.invoice_id', '=', 'a.id')
-            ->where('a.company_id', $companyId)
-            ->where(function ($q) use ($txSearch) {
-                $q->where(DB::raw('LOWER(b.nama_pembeli)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(a.no_invoice)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw("DATE_FORMAT(a.tanggal_buat, '%d %M %Y')"), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(a.metode_pengiriman)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(a.alamat)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(b.marking)'), 'LIKE', $txSearch)
-                    ->orWhere(DB::raw('LOWER(r.no_resi)'), 'LIKE', $txSearch);
+            ->leftJoin('tbl_periode as p', function ($join) {
+                $join->on('a.tanggal_invoice', '>=', 'p.periode_start')
+                    ->on('a.tanggal_invoice', '<=', 'p.periode_end');
+            })
+
+            ->where('a.company_id', $companyId);
+
+        /**
+         * ---------------------------------
+         *  SEARCH OPTIMIZED
+         * ---------------------------------
+         */
+        if ($txSearch !== '%%') {
+            $query->where(function ($q) use ($txSearch) {
+                $q->whereRaw('LOWER(b.nama_pembeli) LIKE ?', [$txSearch])
+                ->orWhereRaw('LOWER(a.no_invoice) LIKE ?', [$txSearch])
+                ->orWhereRaw('LOWER(a.metode_pengiriman) LIKE ?', [$txSearch])
+                ->orWhereRaw('LOWER(a.alamat) LIKE ?', [$txSearch])
+                ->orWhereRaw('LOWER(b.marking) LIKE ?', [$txSearch])
+                ->orWhereRaw('LOWER(r.resi_list) LIKE ?', [$txSearch]);
             });
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('a.tanggal_buat', [$startDate, $endDate]);
         }
 
-        if ($status) {
-            $query->where('d.status_name', 'LIKE', $status);
+        /**
+         * ---------------------------------
+         *  FILTER
+         * ---------------------------------
+         */
+        if ($request->startDate && $request->endDate) {
+            $query->whereBetween('a.tanggal_buat', [
+                $request->startDate,
+                $request->endDate
+            ]);
         }
 
-        if ($request->has('payment_status') && $request->payment_status !== null) {
+        if ($request->status) {
+            $query->where('d.status_name', 'LIKE', $request->status);
+        }
+
+        if ($request->payment_status !== null) {
             $query->where('status_bayar', $request->payment_status);
         }
 
-        if ($NoDo) {
-            $query->where('r.no_do', 'LIKE', $NoDo);
+        if ($request->no_do) {
+            $query->where('r.no_do', 'LIKE', $request->no_do);
         }
 
-        if ($Marking) {
-            $query->where('b.marking', 'LIKE', $Marking);
+        if ($request->marking) {
+            $query->where('b.marking', 'LIKE', $request->marking);
         }
 
-        $query->groupBy(
-            'a.id',
-            'r.no_do',
-            'a.no_invoice',
-            'a.tanggal_invoice',
-            'a.tanggal_buat',
-            'a.status_bayar',
-            'b.nama_pembeli',
-            'a.alamat',
-            'a.metode_pengiriman',
-            'a.total_harga',
-            'a.matauang_id',
-            'a.rate_matauang',
-            'd.id',
-            'd.status_name',
-            'a.wa_status',
-            'a.created_at',
-            'a.updated_at',
-            'a.user',
-            'a.user_update',
-            'b.marking',
-            'e.createby',
-            'e.tanda_tangan',
-        );
-
-
+        /**
+         * ---------------------------------
+         *  ORDERING
+         * ---------------------------------
+         */
         if (!$request->has('order')) {
             $query->orderByRaw("
                 CASE d.id
@@ -280,107 +303,80 @@ class InvoiceController extends Controller
                     ELSE 6
                 END
             ");
-            $query->orderBy('a.id', 'desc'); // Pastikan ada titik koma
-        } else {
-            $order = $request->order[0] ?? null;
-            if ($order) {
-                $columns = [
-                    'no_resi' => DB::raw('GROUP_CONCAT(r.no_resi ORDER BY r.no_resi SEPARATOR ", ")'),
-                ];
-
-                $columnIndex = $order['column'];
-                $columnName = $request->columns[$columnIndex]['data'] ?? null;
-                $direction = $order['dir'] ?? 'asc';
-
-                if ($columnName && isset($columns[$columnName])) {
-                    $query->orderByRaw($columns[$columnName] . ' ' . $direction);
-                }
-            }
+            $query->orderBy('a.id', 'DESC');
         }
 
-
+        /**
+         * ---------------------------------
+         *  DATATABLES
+         * ---------------------------------
+         */
         return DataTables::of($query)
             ->addColumn('no_invoice', function ($item) {
-                $waStatusIcon = '';
-                if ($item->wa_status == 'pending') {
-                    $waStatusIcon = '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;" title="Mengirimkan pesan WhatsApp"></i>';
-                } elseif ($item->wa_status == 'sent') {
-                    $waStatusIcon = '<i class="fas fa-check-circle" style="font-size: 12px; color: green;" title="Pesan WhatsApp terkirim"></i>';
-                } elseif ($item->wa_status == 'failed') {
-                    $waStatusIcon = '<i class="fas fa-exclamation" style="font-size: 12px; color: red;" title="Pesan WhatsApp gagal"></i>';
-                }
-
-                return ($item->no_invoice ?? '-') . ' ' . $waStatusIcon;
+                $icons = [
+                    'pending' => '<i class="fas fa-paper-plane" style="font-size: 12px; color: orange;"></i>',
+                    'sent'    => '<i class="fas fa-check-circle" style="font-size: 12px; color: green;"></i>',
+                    'failed'  => '<i class="fas fa-exclamation" style="font-size: 12px; color: red;"></i>'
+                ];
+                return ($item->no_invoice ?? '-') . ' ' . ($icons[$item->wa_status] ?? '');
             })
-            ->addColumn('status_bayar', function ($row) {
-                return $row->status_bayar == 'Lunas'
+            ->addColumn('status_bayar', fn($row) =>
+                $row->status_bayar == 'Lunas'
                     ? '<span class="text-success"><i class="fas fa-check-circle"></i> Lunas</span>'
-                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum lunas</span>';
-            })
+                    : '<span class="text-danger"><i class="fas fa-exclamation-circle"></i> Belum lunas</span>'
+            )
             ->addColumn('status_badge', function ($item) {
-                $statusBadgeClass = match ($item->status_name) {
-                    'Batam / Sortir' => 'badge-primary',
+                $classes = [
+                    'Batam / Sortir'   => 'badge-primary',
                     'Ready For Pickup' => 'badge-warning',
                     'Out For Delivery' => 'badge-primary',
-                    'Delivering' => 'badge-delivering',
-                    'Received' => 'badge-secondary',
-                    default => 'badge-secondary',
-                };
-                return '<span class="badge ' . $statusBadgeClass . '">' . $item->status_name . '</span>';
+                    'Delivering'       => 'badge-delivering',
+                    'Received'         => 'badge-secondary'
+                ];
+                $class = $classes[$item->status_name] ?? 'badge-secondary';
+                return "<span class='badge $class'>{$item->status_name}</span>";
             })
             ->addColumn('resi_cell', function ($item) {
                 if ($item->resi_count > 1) {
-                    return '<button type="button" class="btn btn-primary btn-sm show-address-modal" data-id="' . $item->id . '" data-no_resi="' . htmlentities($item->no_resi) . '">Lihat Resi (' . $item->resi_count . ')</button>';
+                    return "<button class='btn btn-primary btn-sm show-address-modal'
+                            data-id='{$item->id}'
+                            data-no_resi='" . htmlentities($item->no_resi) . "'>
+                            Lihat Resi ({$item->resi_count})
+                            </button>";
                 }
                 return $item->no_resi ?? '-';
             })
             ->addColumn('converted_harga', function ($item) {
-                $currencySymbols = [
-                    1 => 'Rp. ',
-                    2 => '$ ',
-                    3 => '¥ '
-                ];
-                $convertedHarga = $item->harga;
-                if ($item->matauang_id != 1) {
-                    $convertedHarga = $item->harga / $item->rate_matauang;
-                }
-                return $currencySymbols[$item->matauang_id] . number_format($convertedHarga, 2, '.', ',');
+                $symbols = [1 => 'Rp. ', 2 => '$ ', 3 => '¥ '];
+                $converted = $item->matauang_id == 1
+                    ? $item->harga
+                    : $item->harga / $item->rate_matauang;
+                return $symbols[$item->matauang_id] . number_format($converted, 2, '.', ',');
             })
-            ->addColumn('created_at', function ($item) {
-                return $item->created_at_formatted ?? '-';
-            })
-            ->addColumn('updated_at', function ($item) {
-                if (!$item->user_update) {
-                    return '-';
-                }
-                return $item->updated_at_formatted ?? '-';
-            })
-            ->addColumn('signed_by', function ($item) {
-                if (!$item->tanda_tangan) {
-                    return '-';
-                }
-                return $item->signed_by ?? '-';
-            })
+            ->addColumn('created_at', fn($i) => $i->created_at_formatted ?? '-')
+            ->addColumn('updated_at', fn($i) => $i->user_update ? ($i->updated_at_formatted ?? '-') : '-')
+            ->addColumn('signed_by', fn($i) => $i->tanda_tangan ? ($i->signed_by ?? '-') : '-')
+
             ->addColumn('action', function ($item) {
-                $btnChangeMethod = '';
-                $btnExportInvoice = '<a class="btn btnExportInvoice btn-sm btn-primary text-white mr-1" data-id="' . $item->id . '"><i class="fas fa-print"></i></a>';
 
-                // Query the 'tbl_periode' table to check if the invoice's date is within the closed period
-                $periodStatus = DB::table('tbl_periode')
-                    ->whereDate('periode_start', '<=', $item->raw_tanggal_invoice)
-                    ->whereDate('periode_end', '>=', $item->raw_tanggal_invoice)
-                    ->value('status');
+                $btnExport = "<a class='btn btnExportInvoice btn-sm btn-primary text-white mr-1'
+                            data-id='{$item->id}'><i class='fas fa-print'></i></a>";
+                if ($item->periode_status === 'Closed') {
+                    $btnEdit = "<button class='btn btn-sm btn-secondary text-white' disabled>
+                                <i class='fas fa-lock'></i>
+                                </button>";
+                } else {
+                    $btnEdit = "<a class='btn btnEditInvoice btn-sm btn-secondary text-white'
+                                data-id='{$item->id}'><i class='fas fa-edit'></i></a>";
+                }
 
-                // Check if period status is 'Closed', if so, disable the "Edit" button
-                $btnEditInvoice = '';
-                $btnEditInvoice = '<a class="btn btnEditInvoice btn-sm btn-secondary text-white" data-id="' . $item->id . '"><i class="fas fa-edit"></i></a>';
-                
-                
-                return '<div class="d-flex">' . $btnChangeMethod . $btnExportInvoice . $btnEditInvoice . '</div>';
+                return "<div class='d-flex'>{$btnExport}{$btnEdit}</div>";
             })
-            ->rawColumns(['no_invoice', 'wa_status_icon', 'status_badge', 'action', 'status_bayar','created_at','updated_at','resi_cell'])
+
+            ->rawColumns(['no_invoice', 'status_bayar', 'status_badge', 'action', 'resi_cell'])
             ->make(true);
     }
+
     public function tambainvoice(Request $request)
     {
         // dd($request->all());
