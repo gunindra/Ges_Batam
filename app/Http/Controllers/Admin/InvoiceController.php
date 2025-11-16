@@ -62,8 +62,6 @@ class InvoiceController extends Controller
 
     public function addinvoice()
     {
-
-
         $companyId = session('active_company_id');
         // Mulai transaksi
         DB::beginTransaction();
@@ -380,6 +378,7 @@ class InvoiceController extends Controller
     public function tambainvoice(Request $request)
     {
         // dd($request->all());
+        
         $companyId = session('active_company_id');
         $noInvoice = $request->input('noInvoice');
         $noResi = $request->input('noResi');
@@ -395,6 +394,7 @@ class InvoiceController extends Controller
                 'duplicates' => $duplicateResi,
             ], 400);
         }
+        
         $tanggal = $request->input('tanggal');
         $customer = $request->input('customer');
         $currencyInvoice = $request->input('currencyInvoice');
@@ -420,6 +420,7 @@ class InvoiceController extends Controller
                 'message' => 'Silakan cek Account setting untuk mengatur pemilihan Account.',
             ], 400);
         }
+        
 
         $salesAccountId = $accountSettings->sales_account_id;
         $receivableSalesAccountId = $accountSettings->receivable_sales_account_id;
@@ -452,7 +453,7 @@ class InvoiceController extends Controller
                 'message' => 'Nomor invoice sudah ada, silakan refresh nomor invoice.'
             ], 400);
         }
-
+        
         DB::beginTransaction();
         try {
 
@@ -490,6 +491,7 @@ class InvoiceController extends Controller
                 'user' => $user,
                 'company_id' => $companyId,
             ]);
+            
 
             Log::info("Berhasil menyimpan invoice dengan ID: {$invoiceId}");
 

@@ -147,35 +147,32 @@ class JournalController extends Controller
     public function generateNoJurnal(Request $request)
     {
         return DB::transaction(function () use ($request) {
-            $kodetype = $request->code_type;
-            $currentYear = date('y');
-            $foundDuplicate = true;
-            $attempt = 0;
+            $kodetype = $request->code_type; // e.g. AR
+            $currentYear = date('y');        // e.g. 25
+            $prefix = $kodetype . $currentYear;
 
-            while ($foundDuplicate) {
-                $lastJournal = Jurnal::where('tipe_kode', $kodetype)
-                    ->where('no_journal', 'like', $kodetype . $currentYear . '%')
-                    ->lockForUpdate()
-                    ->orderBy('no_journal', 'desc')
-                    ->first();
+            // Sequence starts after the prefix
+            $prefixLength = strlen($prefix) + 1;
 
-                $newSequence = $lastJournal ? intval(substr($lastJournal->no_journal, -4)) + 1 + $attempt : 1 + $attempt;
-                $newNoJournal = $kodetype . $currentYear . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+            $lastSequence = Jurnal::where('tipe_kode', $kodetype)
+                ->where('no_journal', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->max(DB::raw("CAST(SUBSTRING(no_journal, {$prefixLength}) AS UNSIGNED)"));
 
+            $newSequence = ($lastSequence ?? 0) + 1;
 
-                $exists = Jurnal::where('no_journal', $newNoJournal)->exists();
-                if (!$exists) {
-                    $foundDuplicate = false;
-                } else {
-                    $attempt++;
-                }
-            }
+            // Always pad to 4 minimum, but supports >9999 safely
+            $sequencePadded = str_pad($newSequence, 4, '0', STR_PAD_LEFT);
+
+            $newNoJournal = $prefix . $sequencePadded;
 
             return response()->json([
                 'no_journal' => $newNoJournal
             ]);
         });
     }
+
+
     public function store(Request $request)
     {
         $companyId = session('active_company_id');
