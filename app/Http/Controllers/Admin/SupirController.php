@@ -64,106 +64,227 @@ class SupirController extends Controller
         ]);
     }
 
+    // public function tambahdata(Request $request)
+    // {
+    //     $request->validate([
+    //         'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
+    //         'selectedPayment' => 'required'
+    //     ]);
+
+
+    //     DB::beginTransaction();
+        
+    //     try {
+    //         $invoiceIds = explode(',', $request->input('selectedValues'));
+
+    //         foreach ($invoiceIds as $invoiceId) {
+    //             try {
+
+    //                 $noInvoice = DB::table('tbl_invoice')
+    //                     ->where('id', $invoiceId)
+    //                     ->value('no_invoice');
+
+    //                 if (!$noInvoice) {
+    //                     throw new \Exception("No invoice found for invoice_id {$invoiceId}");
+    //                 }
+
+    //                 if ($request->hasFile('signature')) {
+    //                     $signatureFile = $request->file('signature');
+    //                     $signatureFilename = time() . '_signature_' . $noInvoice . '.' . $signatureFile->getClientOriginalExtension();
+    //                     $signaturePath = $signatureFile->storeAs('ttd_pengantaran', $signatureFilename, 'public');
+    //                 } else {
+    //                     $signaturePath = null;
+    //                 }
+
+    //                 if ($request->hasFile('photo')) {
+    //                     $photoFile = $request->file('photo');
+    //                     $photoFilename = time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension();
+    //                     $photoPath = $photoFile->storeAs('bukti_pengantaran', $photoFilename, 'public');
+    //                 } else {
+    //                     $photoPath = null;
+    //                 }
+                    
+    //                 $verifiedUsername = Auth::user()->name;
+
+    //                 DB::table('tbl_pengantaran_detail')
+    //                     ->where('invoice_id', $invoiceId)
+    //                     ->update([
+    //                         'bukti_pengantaran' => $photoPath,
+    //                         'tanda_tangan' => $signaturePath,
+    //                         'keterangan' => 'Barang Telah Selesai Di antarkan',
+    //                         'updated_at' => now(),
+    //                         'tanggal_penerimaan' => now(),
+    //                         'createby' => $verifiedUsername,
+    //                     ]);
+
+    //                 $pengantaranDetails = DB::table('tbl_pengantaran_detail')
+    //                     ->where('invoice_id', $invoiceId)
+    //                     ->get();
+
+    //                 $allCompleted = $pengantaranDetails->every(function ($detail) {
+    //                     return !empty($detail->bukti_pengantaran) || !empty($detail->tanda_tangan);
+    //                 });
+
+    //                 if ($allCompleted) {
+    //                     DB::table('tbl_invoice')
+    //                         ->where('id', $invoiceId)
+    //                         ->update([
+    //                             'status_id' => 6,
+    //                             'payment_type' => $request->input('selectedPayment'),
+    //                             'updated_at' => now(),
+    //                         ]);
+
+    //                     $pengantaranId = DB::table('tbl_pengantaran_detail')
+    //                         ->where('invoice_id', $invoiceId)
+    //                         ->value('pengantaran_id');
+
+    //                     if ($pengantaranId) {
+    //                         DB::table('tbl_pengantaran')
+    //                             ->where('id', $pengantaranId)
+    //                             ->update([
+    //                                 'updated_at' => now(),
+    //                             ]);
+    //                     }
+    //                 }
+
+    //                 $noResiList = DB::table('tbl_resi')
+    //                     ->where('invoice_id', $invoiceId)
+    //                     ->pluck('no_resi');
+
+    //                 if ($noResiList->isNotEmpty()) {
+    //                     DB::table('tbl_tracking')
+    //                         ->whereIn('no_resi', $noResiList)
+    //                         ->update([
+    //                             'status' => 'Received',
+    //                             'updated_at' => now(),
+    //                         ]);
+    //                 }
+
+    //             } catch (\Exception $e) {
+    //                 DB::rollBack();
+    //                 \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
+    //                 return response()->json(['error' => 'Terjadi kesalahan saat memproses data.'], 500);
+    //             }
+    //         }
+
+    //         DB::commit();
+    //         return response()->json(['message' => 'Data berhasil diupdate.'], 200);
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::error('General error: ' . $e->getMessage());
+    //         return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
+    //     }
+    // }
+
     public function tambahdata(Request $request)
     {
         $request->validate([
             'bukti_pengantaran' => 'nullable|mimes:jpg,jpeg,png',
-            'selectedPayment' => 'required'
+            'selectedPayment'   => 'required'
         ]);
 
-
         DB::beginTransaction();
-        
+
         try {
             $invoiceIds = explode(',', $request->input('selectedValues'));
+            $verifiedUsername = Auth::user()->name;
 
             foreach ($invoiceIds as $invoiceId) {
-                try {
 
-                    $noInvoice = DB::table('tbl_invoice')
+                // ================================
+                // 1. Ambil data invoice & detail
+                // ================================
+                $invoice = DB::table('tbl_invoice')->where('id', $invoiceId)->first();
+                if (!$invoice) {
+                    throw new \Exception("Invoice {$invoiceId} tidak ditemukan.");
+                }
+
+                $details = DB::table('tbl_pengantaran_detail')
+                    ->where('invoice_id', $invoiceId)
+                    ->get();
+
+                // ================================
+                // 2. Upload file (signature, photo)
+                // ================================
+                $signaturePath = null;
+                $photoPath     = null;
+                $noInvoice     = $invoice->no_invoice;
+
+                if ($request->hasFile('signature')) {
+                    $signatureFile = $request->file('signature');
+                    $signaturePath = $signatureFile->storeAs(
+                        'ttd_pengantaran',
+                        time() . '_signature_' . $noInvoice . '.' . $signatureFile->getClientOriginalExtension(),
+                        'public'
+                    );
+                }
+
+                if ($request->hasFile('photo')) {
+                    $photoFile = $request->file('photo');
+                    $photoPath = $photoFile->storeAs(
+                        'bukti_pengantaran',
+                        time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension(),
+                        'public'
+                    );
+                }
+
+                // ================================
+                // 3. Update semua detail sekaligus
+                // ================================
+                DB::table('tbl_pengantaran_detail')
+                    ->where('invoice_id', $invoiceId)
+                    ->update([
+                        'bukti_pengantaran' => $photoPath,
+                        'tanda_tangan'      => $signaturePath,
+                        'keterangan'        => 'Barang Telah Selesai Di antarkan',
+                        'tanggal_penerimaan'=> now(),
+                        'createby'          => $verifiedUsername,
+                        'updated_at'        => now(),
+                    ]);
+
+                // ================================
+                // 4. Cek apakah semua detail lengkap
+                // ================================
+                $allCompleted = $details->every(function ($d) use ($photoPath, $signaturePath) {
+                    return !empty($d->bukti_pengantaran) || !empty($d->tanda_tangan)
+                        || $photoPath || $signaturePath;
+                });
+
+                if ($allCompleted) {
+                    // Update invoice
+                    DB::table('tbl_invoice')
                         ->where('id', $invoiceId)
-                        ->value('no_invoice');
-
-                    if (!$noInvoice) {
-                        throw new \Exception("No invoice found for invoice_id {$invoiceId}");
-                    }
-
-                    if ($request->hasFile('signature')) {
-                        $signatureFile = $request->file('signature');
-                        $signatureFilename = time() . '_signature_' . $noInvoice . '.' . $signatureFile->getClientOriginalExtension();
-                        $signaturePath = $signatureFile->storeAs('ttd_pengantaran', $signatureFilename, 'public');
-                    } else {
-                        $signaturePath = null;
-                    }
-
-                    if ($request->hasFile('photo')) {
-                        $photoFile = $request->file('photo');
-                        $photoFilename = time() . '_photo_' . $noInvoice . '.' . $photoFile->getClientOriginalExtension();
-                        $photoPath = $photoFile->storeAs('bukti_pengantaran', $photoFilename, 'public');
-                    } else {
-                        $photoPath = null;
-                    }
-                    
-                    $verifiedUsername = Auth::user()->name;
-
-                    DB::table('tbl_pengantaran_detail')
-                        ->where('invoice_id', $invoiceId)
                         ->update([
-                            'bukti_pengantaran' => $photoPath,
-                            'tanda_tangan' => $signaturePath,
-                            'keterangan' => 'Barang Telah Selesai Di antarkan',
-                            'updated_at' => now(),
-                            'tanggal_penerimaan' => now(),
-                            'createby' => $verifiedUsername,
+                            'status_id'    => 6,
+                            'payment_type' => request('selectedPayment'),
+                            'updated_at'   => now(),
                         ]);
 
-                    $pengantaranDetails = DB::table('tbl_pengantaran_detail')
-                        ->where('invoice_id', $invoiceId)
-                        ->get();
+                    // Update pengantaran parent
+                    $pengantaranId = $details->first()->pengantaran_id ?? null;
 
-                    $allCompleted = $pengantaranDetails->every(function ($detail) {
-                        return !empty($detail->bukti_pengantaran) || !empty($detail->tanda_tangan);
-                    });
-
-                    if ($allCompleted) {
-                        DB::table('tbl_invoice')
-                            ->where('id', $invoiceId)
-                            ->update([
-                                'status_id' => 6,
-                                'payment_type' => $request->input('selectedPayment'),
-                                'updated_at' => now(),
-                            ]);
-
-                        $pengantaranId = DB::table('tbl_pengantaran_detail')
-                            ->where('invoice_id', $invoiceId)
-                            ->value('pengantaran_id');
-
-                        if ($pengantaranId) {
-                            DB::table('tbl_pengantaran')
-                                ->where('id', $pengantaranId)
-                                ->update([
-                                    'updated_at' => now(),
-                                ]);
-                        }
+                    if ($pengantaranId) {
+                        DB::table('tbl_pengantaran')
+                            ->where('id', $pengantaranId)
+                            ->update(['updated_at' => now()]);
                     }
+                }
 
-                    $noResiList = DB::table('tbl_resi')
-                        ->where('invoice_id', $invoiceId)
-                        ->pluck('no_resi');
+                // ================================
+                // 5. Update tracking resi sekaligus
+                // ================================
+                $resiList = DB::table('tbl_resi')
+                    ->where('invoice_id', $invoiceId)
+                    ->pluck('no_resi');
 
-                    if ($noResiList->isNotEmpty()) {
-                        DB::table('tbl_tracking')
-                            ->whereIn('no_resi', $noResiList)
-                            ->update([
-                                'status' => 'Received',
-                                'updated_at' => now(),
-                            ]);
-                    }
-
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    \Log::error("Error processing invoice_id {$invoiceId}: " . $e->getMessage());
-                    return response()->json(['error' => 'Terjadi kesalahan saat memproses data.'], 500);
+                if ($resiList->isNotEmpty()) {
+                    DB::table('tbl_tracking')
+                        ->whereIn('no_resi', $resiList)
+                        ->update([
+                            'status'     => 'Received',
+                            'updated_at' => now()
+                        ]);
                 }
             }
 
@@ -172,7 +293,8 @@ class SupirController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('General error: ' . $e->getMessage());
+            \Log::error('Error: ' . $e->getMessage());
+
             return response()->json(['error' => 'Terjadi kesalahan saat mengupdate data.'], 500);
         }
     }
