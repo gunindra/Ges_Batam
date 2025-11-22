@@ -170,7 +170,7 @@ class InvoiceController extends Controller
 
     public function getlistInvoice(Request $request)
     {
-        DB::statement("SET SESSION group_concat_max_len = 500");
+        DB::statement("SET SESSION group_concat_max_len = 1000000");
 
         $companyId = session('active_company_id');
 
