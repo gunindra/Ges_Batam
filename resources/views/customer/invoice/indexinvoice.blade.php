@@ -369,8 +369,8 @@
                 },
 
                 {
-                    data: 'pembeli',
-                    name: 'pembeli',
+                    data: 'nama_pembeli',
+                    name: 'nama_pembeli',
                     render: function(data, type, row) {
                         return data ? data : '-';
                     }

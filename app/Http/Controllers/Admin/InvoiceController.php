@@ -170,6 +170,8 @@ class InvoiceController extends Controller
 
     public function getlistInvoice(Request $request)
     {
+        DB::statement("SET SESSION group_concat_max_len = 500");
+
         $companyId = session('active_company_id');
 
         $txSearch = $request->txSearch
@@ -190,7 +192,7 @@ class InvoiceController extends Controller
                 DB::raw("MAX(no_do) AS no_do")
             )
             ->groupBy('invoice_id');
-
+        
         /**
          * ---------------------------------
          *  MAIN QUERY + JOIN PERIODE
@@ -813,7 +815,7 @@ class InvoiceController extends Controller
 
     public function kirimPesanWaPembeli(Request $request)
     {
-
+        
         try {
             $invoiceIds = $request->input('id');
             $type = $request->input('type');
