@@ -158,18 +158,24 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     Log::error("Gagal mengirim pesan WhatsApp ke " . $invoice->no_wa);
                     DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
                 } else {
-                    DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'sent']);
+                    
+                   DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'sent']);
+
+                    // Hapus file PDF hanya jika pesan terkirim 100% sukses
+                    if (file_exists($filePath)) {
+
+                        // beri delay sedikit agar server WA sempat download filenya
+                        sleep(2);
+
+                        unlink($filePath);
+                        Log::info('PDF berhasil dihapus: ' . $filePath);
+                    }
                 }
             } else {
                 Log::warning("Nomor WhatsApp tidak ditemukan untuk pembeli dengan ID: " . $invoice->id);
             }
 
-            if (file_exists($filePath)) {
-                unlink($filePath);
-                Log::info('PDF berhasil dihapus: ' . $filePath);
-            } else {
-                Log::warning('PDF tidak ditemukan untuk dihapus: ' . $filePath);
-            }
+            
         } catch (\Exception $e) {
             Log::error('Error: ' . $e->getMessage());
             DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
