@@ -828,6 +828,7 @@ class InvoiceController extends Controller
                 $invoice = DB::table('tbl_invoice')->where('id', $invoiceId)->first();
                 $statusPembayaran = $invoice ? $invoice->status_bayar : null;
                 KirimPesanWaPembeliJob::dispatch($invoiceId, $type, $statusPembayaran);
+                sleep(10);
             }
 
             return response()->json(['success' => true, 'message' => 'Pesan WhatsApp berhasil dikirim untuk semua invoice']);
