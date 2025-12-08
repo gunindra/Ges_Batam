@@ -141,6 +141,11 @@
             height: auto;
         }
 
+        .lunas {
+            width: 100%;
+            max-width: 120px;
+            height: auto;
+        }
         .company-info {
             flex: 0 0 75%;
             display: flex;
@@ -370,19 +375,20 @@
         </table>
 
         <div class="summary" style="position: relative;">
-                <?php
-                $showTandaTangan = !empty($invoice->tanda_tangan);
-                $pathLunas = public_path('img/lunas.png');
-                $tipeLunas = pathinfo($pathLunas, PATHINFO_EXTENSION);
+            <?php
+            $path = public_path('img/lunas.png');
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            if (file_exists($path)) {
+                $data = file_get_contents($path);
+                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            } else {
+                $base64 = '';
+            }
+            ?>
+           @if ($invoice->status_bayar == 'Lunas')
+                <img src="<?php echo $base64; ?>" alt="lunas" class="lunas" />
+            @endif
                 
-                // Cek apakah gambar lunas ada
-                if (file_exists($pathLunas)) {
-                    $dataLunas = file_get_contents($pathLunas);
-                    $base64Lunas = 'data:image/' . $tipeLunas . ';base64,' . base64_encode($dataLunas);
-                } else {
-                    $base64Lunas = '';
-                }
-                ?>
         </div>
         <table class="signature-section">
             <tr>
