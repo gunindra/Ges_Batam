@@ -193,6 +193,14 @@ class InvoiceController extends Controller
             )
             ->groupBy('invoice_id');
         
+        $pengantaranSub = DB::table('tbl_pengantaran_detail')
+            ->select(
+                'invoice_id',
+                DB::raw("MAX(createby) AS signed_by"),
+                DB::raw("MAX(tanda_tangan) AS tanda_tangan")
+            )
+            ->groupBy('invoice_id');
+
         /**
          * ---------------------------------
          *  MAIN QUERY + JOIN PERIODE
@@ -228,14 +236,16 @@ class InvoiceController extends Controller
                 'r.no_resi',
                 'r.resi_count',
 
-                'e.createby AS signed_by',
+                'e.signed_by',
                 'e.tanda_tangan',
                 'p.status AS periode_status'
             )
             ->join('tbl_pembeli as b', 'a.pembeli_id', '=', 'b.id')
             ->join('tbl_status as d', 'a.status_id', '=', 'd.id')
             ->leftJoinSub($resiSub, 'r', 'r.invoice_id', '=', 'a.id')
-            ->leftJoin('tbl_pengantaran_detail as e', 'e.invoice_id', '=', 'a.id')
+            ->leftJoinSub($pengantaranSub, 'e', function($join) {
+                $join->on('e.invoice_id', '=', 'a.id');
+            })
             ->leftJoin('tbl_periode as p', function ($join) {
                 $join->on('a.tanggal_invoice', '>=', 'p.periode_start')
                     ->on('a.tanggal_invoice', '<=', 'p.periode_end');
