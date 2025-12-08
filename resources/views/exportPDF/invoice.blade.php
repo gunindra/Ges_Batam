@@ -369,6 +369,24 @@
             </tfoot>
         </table>
 
+        <div class="summary" style="position: relative;">
+            @if ($type === 'invoice')
+                <?php
+                $showTandaTangan = !empty($invoice->tanda_tangan);
+                $pathLunas = public_path('img/lunas.png');
+                $tipeLunas = pathinfo($pathLunas, PATHINFO_EXTENSION);
+
+                // Cek apakah gambar lunas ada
+                if (file_exists($pathLunas)) {
+                    $dataLunas = file_get_contents($pathLunas);
+                    $base64Lunas = 'data:image/' . $tipeLunas . ';base64,' . base64_encode($dataLunas);
+                } else {
+                    $base64Lunas = '';
+                }
+                ?>
+            @endif
+        </div>
+        
         <table class="signature-section">
             <tr>
                 <td></td> <!-- Kolom kiri dibiarkan kosong -->
