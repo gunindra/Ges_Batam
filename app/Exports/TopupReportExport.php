@@ -30,7 +30,7 @@ class TopupReportExport implements FromView, WithEvents
         $companyId = session('active_company_id');
         $isCustomerRole = auth()->user()->role === 'customer';
         $userId = auth()->user()->id;
-
+        
         $query = "
          WITH combined_data AS (
                 SELECT
@@ -174,7 +174,7 @@ class TopupReportExport implements FromView, WithEvents
 
         // Menyiapkan parameter query
         $params = [$this->startDate, $this->endDate, $companyId];
-
+        dd($customer);
         // Untuk bagian OUT
         if ($this->customer && $this->customer !== '-') {
             $params[] = $this->customer;
