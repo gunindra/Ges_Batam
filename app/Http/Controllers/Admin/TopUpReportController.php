@@ -406,13 +406,9 @@ class TopUpReportController extends Controller
         ]);
 
         $companyId = session('active_company_id');
-        $startDate = $request->startDate
-            ? Carbon::parse($request->startDate)->format('Y-m-d')
-            : Carbon::now()->startOfMonth()->format('Y-m-d');
+        $startDate = $request->startDate ? Carbon::parse($request->startDate)->format('Y-m-d') : null;
+        $endDate   = $request->endDate   ? Carbon::parse($request->endDate)->format('Y-m-d')   : null;
 
-        $endDate = $request->endDate
-            ? Carbon::parse($request->endDate)->format('Y-m-d')
-            : Carbon::now()->endOfMonth()->format('Y-m-d');
 
         $customerId = $request->nama_pembeli ?? null;
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
