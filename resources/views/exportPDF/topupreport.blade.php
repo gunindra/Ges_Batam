@@ -226,6 +226,7 @@
                     <th>Saldo (kg)</th>
                     @if (in_array(auth()->user()->role, $allowedRoles))
                         <th>Value (Rp.)</th>
+                        <th>Saldo (Rp.)</th>
                     @endif
                     <th>Status</th>
                 </tr>
@@ -242,6 +243,7 @@
                         <td>{{ number_format($data->saldo, 2) }}</td>
                         @if (in_array(auth()->user()->role, $allowedRoles))
                             <td>{{ number_format($data->value, 2) }}</td>
+                            <td>{{ number_format($data->saldo_value, 2) }}</td>
                         @endif
                         <td>{{ strtoupper($data->status) }}</td>
                     </tr>
