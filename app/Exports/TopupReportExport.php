@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Carbon\Carbon;
 
 class TopupReportExport implements FromView, WithEvents
 {
@@ -18,8 +19,13 @@ class TopupReportExport implements FromView, WithEvents
     public function __construct($customer, $startDate, $endDate)
     {
         $this->customer = $customer;
-        $this->startDate = $startDate ?: now()->startOfYear()->format('Y-m-d');
-        $this->endDate = $endDate ?: now()->endOfMonth()->format('Y-m-d');
+        $this->startDate = $startDate
+            ? Carbon::parse($startDate)->format('Y-m-d')
+            : Carbon::create(2025, 1, 1)->format('Y-m-d');
+
+        $this->endDate = $endDate
+            ? Carbon::parse($endDate)->format('Y-m-d')
+            : now()->endOfMonth()->format('Y-m-d');
     }
 
     /**
