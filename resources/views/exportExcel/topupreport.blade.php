@@ -72,6 +72,9 @@
                     <th
                         style="text-align:center; font-size:11px; border:1px solid black; padding:10px; background-color:#b9bab8;">
                         Value (Rp)</th>
+                    <th
+                        style="text-align:center; font-size:11px; border:1px solid black; padding:10px; background-color:#b9bab8;">
+                        Saldo Value (Rp)</th>
                 @endif
                 <th
                     style="text-align:center; font-size:11px; border:1px solid black; padding:10px; background-color:#b9bab8;">
@@ -99,6 +102,9 @@
                     @if (!$isCustomerRole)
                         <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
                             {{ number_format($data->value, 2) }}
+                        </td>
+                        <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
+                            {{ number_format($data->saldo_value, 2) }}
                         </td>
                     @endif
                     <td style="text-align:left; font-size:11px; border:1px solid black; padding:10px;">
