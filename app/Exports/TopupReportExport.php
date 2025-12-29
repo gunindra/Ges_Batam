@@ -12,59 +12,51 @@ use Carbon\Carbon;
 
 class TopupReportExport implements FromView, WithEvents
 {
-    protected $customer;
+    protected $customerId;
     protected $startDate;
     protected $endDate;
 
-    public function __construct($customer, $startDate, $endDate)
+    public function __construct($customerId, $startDate, $endDate)
     {
-        $this->customer = $customer;
+        $this->customerId = $customerId;
+
         $this->startDate = $startDate
             ? Carbon::parse($startDate)->format('Y-m-d')
-            : Carbon::create(2025, 1, 1)->format('Y-m-d');
+            : '2025-01-01';
 
         $this->endDate = $endDate
             ? Carbon::parse($endDate)->format('Y-m-d')
             : now()->endOfMonth()->format('Y-m-d');
     }
 
-    /**
-     * @return View
-     */
     public function view(): View
     {
         $companyId = session('active_company_id');
-        $isCustomerRole = auth()->user()->role === 'customer';
-        $userId = auth()->user()->id;
-        
+        $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
+        $userId = auth()->id();
+
+        /**
+         * ===========================
+         * SQL (SAMA PERSIS DENGAN PDF)
+         * ===========================
+         */
         $query = "
-         WITH combined_data AS (
+            WITH combined_data AS (
                 SELECT
-                    date,
-                    created_at,
-                    marking,
-                    CASE
-                        WHEN type = 'IN' THEN points
-                        WHEN type = 'IN (Retur)' THEN points
-                        ELSE 0
-                    END AS in_points,
-                    CASE
-                        WHEN type = 'OUT' THEN points
-                        WHEN type = 'OUT (expired)' THEN expired_amount
-                        ELSE 0
-                    END AS out_points,
+                    date, created_at, marking,
+                    CASE WHEN type IN ('IN','IN (Retur)') THEN points ELSE 0 END AS in_points,
+                    CASE WHEN type IN ('OUT','OUT (expired)')
+                        THEN CASE WHEN type = 'OUT (expired)' THEN expired_amount ELSE points END
+                        ELSE 0 END AS out_points,
                     CASE
                         WHEN type = 'OUT (expired)' THEN expired_amount * price_per_kg
-                        WHEN type = 'IN (Retur)' THEN points * price_per_kg
-                        WHEN type = 'OUT' THEN points * price_per_kg
-                        WHEN type = 'IN' THEN points * price_per_kg
-                        ELSE 0
+                        ELSE points * price_per_kg
                     END AS value,
                     price_per_kg,
                     type AS status,
                     no_invoice
                 FROM (
-                    -- Transaksi OUT (penggunaan points)
+                    -- OUT
                     SELECT
                         MIN(tup.usage_date) AS date,
                         MIN(tup.created_at) AS created_at,
@@ -73,21 +65,23 @@ class TopupReportExport implements FromView, WithEvents
                         MAX(tup.price_per_kg) AS price_per_kg,
                         NULL AS expired_amount,
                         'OUT' AS type,
-                        (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
+                        (
+                            SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
                             FROM tbl_payment_invoice tpi
                             JOIN tbl_invoice ti ON tpi.invoice_id = ti.id
-                            WHERE tup.payment_id = tpi.payment_id) AS no_invoice
+                            WHERE tup.payment_id = tpi.payment_id
+                        ) AS no_invoice
                     FROM tbl_usage_points tup
                     JOIN tbl_pembeli tp ON tup.customer_id = tp.id
                     WHERE tup.usage_date BETWEEN ? AND ?
-                    AND tp.company_id = ?
-                      " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
-                   " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+                      AND tp.company_id = ?
+                      " . ($this->customerId ? "AND tp.id = ?" : "") . "
+                      " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
                     GROUP BY tup.payment_id, tp.marking
 
                     UNION ALL
 
-                    -- Transaksi IN (topup)
+                    -- IN
                     SELECT
                         tht.date,
                         tht.created_at,
@@ -100,19 +94,19 @@ class TopupReportExport implements FromView, WithEvents
                     FROM tbl_history_topup tht
                     JOIN tbl_pembeli tp ON tht.customer_id = tp.id
                     WHERE tht.status != 'canceled'
-                    AND tht.date BETWEEN ? AND ?
-                    AND tp.company_id = ?
-                       " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
-                   " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+                      AND tht.date BETWEEN ? AND ?
+                      AND tp.company_id = ?
+                      " . ($this->customerId ? "AND tp.id = ?" : "") . "
+                      " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
 
                     UNION ALL
 
-                    -- Transaksi OUT (expired)
+                    -- OUT EXPIRED
                     SELECT
                         tht.expired_date AS date,
                         tht.created_at,
                         tp.marking,
-                        0 AS points,  -- Tidak menggunakan points untuk expired
+                        0 AS points,
                         tht.price_per_kg,
                         tht.expired_amount AS expired_amount,
                         'OUT (expired)' AS type,
@@ -120,21 +114,21 @@ class TopupReportExport implements FromView, WithEvents
                     FROM tbl_history_topup tht
                     JOIN tbl_pembeli tp ON tht.customer_id = tp.id
                     WHERE tht.status = 'expired'
-                    AND tht.expired_date BETWEEN ? AND ?
-                    AND tp.company_id = ?
-                       " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
-                   " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+                      AND tht.expired_date BETWEEN ? AND ?
+                      AND tp.company_id = ?
+                      " . ($this->customerId ? "AND tp.id = ?" : "") . "
+                      " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
 
                     UNION ALL
 
-                    -- Transaksi IN (Retur)
+                    -- IN (RETUR)
                     SELECT
                         tr.created_at AS date,
                         tr.created_at,
                         tp.marking,
                         resi.berat AS points,
-                        resi.harga/berat AS price_per_kg,
-                        Null AS expired_amount,
+                        (resi.harga / resi.berat) AS price_per_kg,
+                        NULL AS expired_amount,
                         'IN (Retur)' AS type,
                         ti.no_invoice AS no_invoice
                     FROM tbl_retur_item tri
@@ -143,11 +137,11 @@ class TopupReportExport implements FromView, WithEvents
                     JOIN tbl_invoice ti ON tr.invoice_id = ti.id
                     JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
                     WHERE tr.account_id = 159
-                    AND DATE(tr.created_at) BETWEEN ? AND ?
-                    AND tp.company_id = ?
-                    " . ($this->customer && $this->customer !== '-' ? "AND tp.id = ?" : "") . "
-                   " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
-                ) AS raw_data
+                      AND DATE(tr.created_at) BETWEEN ? AND ?
+                      AND tp.company_id = ?
+                      " . ($this->customerId ? "AND tp.id = ?" : "") . "
+                      " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
+                ) raw_data
             ),
             calculated_data AS (
                 SELECT
@@ -156,10 +150,11 @@ class TopupReportExport implements FromView, WithEvents
                     marking,
                     in_points,
                     out_points,
+                    SUM(in_points - out_points)
+                        OVER (PARTITION BY marking ORDER BY date, created_at) AS saldo,
+                    price_per_kg,
                     value,
                     status,
-                    SUM(in_points - out_points) OVER (PARTITION BY marking ORDER BY date, created_at) AS saldo,
-                    price_per_kg,
                     no_invoice
                 FROM combined_data
             )
@@ -175,61 +170,43 @@ class TopupReportExport implements FromView, WithEvents
                 status,
                 no_invoice
             FROM calculated_data
-            ORDER BY marking, date, created_at;
+            ORDER BY marking, date, created_at
         ";
 
-        // Menyiapkan parameter query
-        $params = [$this->startDate, $this->endDate, $companyId];
-        // Untuk bagian OUT
-        if ($this->customer && $this->customer !== '-') {
-            $params[] = $this->customer;
-        }
-        if ($isCustomerRole) {
-            $params[] = $userId;
-        }
+        /**
+         * ===========================
+         * PARAMETER (AMAN & URUT)
+         * ===========================
+         */
+        $params = [];
 
-        // Untuk bagian IN
-        $params = array_merge($params, [$this->startDate, $this->endDate, $companyId]);
-        if ($this->customer && $this->customer !== '-') {
-            $params[] = $this->customer;
-        }
-        if ($isCustomerRole) {
-            $params[] = $userId;
-        }
+        $addParams = function () use (&$params, $companyId, $isCustomerRole, $userId) {
+            $params[] = $this->startDate;
+            $params[] = $this->endDate;
+            $params[] = $companyId;
 
-        $params = array_merge($params, [$this->startDate, $this->endDate, $companyId]);
-        if ($this->customer && $this->customer !== '-') {
-            $params[] = $this->customer;
-        }
-        if ($isCustomerRole) {
-            $params[] = $userId;
-        }
+            if ($this->customerId) {
+                $params[] = $this->customerId;
+            }
+            if ($isCustomerRole) {
+                $params[] = $userId;
+            }
+        };
 
-        $params = array_merge($params, [$this->startDate, $this->endDate, $companyId]);
-        if ($this->customer && $this->customer !== '-') {
-            $params[] = $this->customer;
-        }
-        if ($isCustomerRole) {
-            $params[] = $userId;
-        }
+        $addParams(); // OUT
+        $addParams(); // IN
+        $addParams(); // EXPIRED
+        $addParams(); // RETUR
 
-
-        // Eksekusi query
         $data = DB::select($query, $params);
 
-        $marking = Customer::where('id', $this->customer)->value('marking');
-
-        // Debug data (bisa dihapus setelah testing)
-        logger()->info('TopupReportExport Data', [
-            'data_count' => count($data),
-            'params' => $params,
-            'query' => $query
-        ]);
+        $marking = $this->customerId
+            ? Customer::where('id', $this->customerId)->value('marking')
+            : '-';
 
         return view('exportExcel.topupreport', [
             'topup' => $data,
             'marking' => $marking,
-            'isCustomerRole' => $isCustomerRole,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
         ]);
@@ -239,25 +216,9 @@ class TopupReportExport implements FromView, WithEvents
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                foreach (range('A', 'G') as $columnID) {
-                    $event->sheet->getDelegate()->getColumnDimension($columnID)->setAutoSize(true);
+                foreach (range('A', 'J') as $col) {
+                    $event->sheet->getDelegate()->getColumnDimension($col)->setAutoSize(true);
                 }
-
-                // Style untuk header
-                $event->sheet->getDelegate()->getStyle('A1:G1')->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                    ],
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => ['argb' => 'FFD9D9D9'],
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        ],
-                    ],
-                ]);
             },
         ];
     }

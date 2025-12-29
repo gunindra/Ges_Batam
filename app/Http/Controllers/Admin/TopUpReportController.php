@@ -476,224 +476,213 @@ class TopUpReportController extends Controller
     {
         $request->validate([
             'startDate' => 'nullable|date',
-            'endDate' => 'nullable|date|after_or_equal:startDate',
+            'endDate'   => 'nullable|date|after_or_equal:startDate',
             'nama_pembeli' => 'nullable|exists:tbl_pembeli,id',
         ]);
 
         $companyId = session('active_company_id');
-        $startDate = $request->startDate
+        $startDate = filled($request->startDate)
             ? Carbon::parse($request->startDate)->format('Y-m-d')
             : '2025-01-01';
 
-
-        $endDate = $request->endDate
+        $endDate = filled($request->endDate)
             ? Carbon::parse($request->endDate)->format('Y-m-d')
             : Carbon::now()->endOfMonth()->format('Y-m-d');
 
-        $customerId = $request->nama_pembeli ?? null;
+        $customerId     = $request->nama_pembeli;
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
+        $userCond       = $isCustomerRole ? "AND tp.user_id = ?" : "";
 
         try {
 
-            /**
-             * =========================================
-             * PARAMETER BUILDER (untuk tiap UNION)
-             * =========================================
-             */
-            $params = [];
+            /*
+            |--------------------------------------------------------------------------
+            | 1. SALDO AWAL
+            |--------------------------------------------------------------------------
+            */
+            $initialQuery = "
+                WITH data AS (
+                    -- IN
+                    SELECT tp.marking, SUM(tht.remaining_points) AS in_points, 0 out_points, 0 expired_points
+                    FROM tbl_history_topup tht
+                    JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                    WHERE tht.status != 'canceled'
+                    AND tht.date < ?
+                    AND tp.company_id = ?
+                    " . ($customerId ? "AND tp.id = ?" : "") . "
+                    $userCond
+                    GROUP BY tp.marking
 
-            $addParams = function (&$params, $startDate, $endDate, $companyId, $customerId, $isCustomerRole) {
-                $params[] = $startDate;
-                $params[] = $endDate;
-                $params[] = $companyId;
+                    UNION ALL
 
-                if ($customerId) {
-                    $params[] = $customerId;
-                }
+                    -- OUT
+                    SELECT tp.marking, 0, SUM(tup.used_points), 0
+                    FROM tbl_usage_points tup
+                    JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                    WHERE tup.usage_date < ?
+                    AND tp.company_id = ?
+                    " . ($customerId ? "AND tp.id = ?" : "") . "
+                    $userCond
+                    GROUP BY tp.marking
 
-                if ($isCustomerRole) {
-                    $params[] = auth()->id();
-                }
-            };
+                    UNION ALL
 
-            /**
-             * =========================================
-             * SQL QUERY
-             * =========================================
-             */
-            $query = "
-                WITH combined_data AS (
-                    SELECT date, created_at, marking,
-                        CASE WHEN type IN ('IN','IN (Retur)') THEN points ELSE 0 END AS in_points,
-                        CASE WHEN type IN ('OUT','OUT (expired)') THEN 
-                            CASE WHEN type = 'OUT (expired)' THEN expired_amount ELSE points END
-                        ELSE 0 END AS out_points,
-                        CASE
-                            WHEN type = 'OUT (expired)' THEN expired_amount * price_per_kg
-                            ELSE points * price_per_kg
-                        END AS value,
-                        price_per_kg,
-                        type AS status,
-                        no_invoice
-                    FROM (
-                        -- OUT
-                        SELECT
-                            MIN(tup.usage_date) AS date,
-                            MIN(tup.created_at) AS created_at,
-                            tp.marking,
-                            SUM(tup.used_points) AS points,
-                            MAX(tup.price_per_kg) AS price_per_kg,
-                            NULL AS expired_amount,
-                            'OUT' AS type,
-                            (SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
-                                FROM tbl_payment_invoice tpi
-                                JOIN tbl_invoice ti ON tpi.invoice_id = ti.id
-                                WHERE tup.payment_id = tpi.payment_id
-                            ) AS no_invoice
-                        FROM tbl_usage_points tup
-                        JOIN tbl_pembeli tp ON tup.customer_id = tp.id
-                        WHERE tup.usage_date BETWEEN ? AND ?
-                            AND tp.company_id = ?
-                            " . ($customerId ? "AND tp.id = ?" : "") . "
-                            " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
-                        GROUP BY tup.payment_id, tp.marking
-
-                        UNION ALL
-
-                        -- IN
-                        SELECT
-                            tht.date,
-                            tht.created_at,
-                            tp.marking,
-                            tht.remaining_points AS points,
-                            tht.price_per_kg,
-                            NULL AS expired_amount,
-                            'IN' AS type,
-                            '-' AS no_invoice
-                        FROM tbl_history_topup tht
-                        JOIN tbl_pembeli tp ON tht.customer_id = tp.id
-                        WHERE tht.status != 'canceled'
-                            AND tht.date BETWEEN ? AND ?
-                            AND tp.company_id = ?
-                            " . ($customerId ? "AND tp.id = ?" : "") . "
-                            " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
-
-                        UNION ALL
-
-                        -- OUT EXPIRED
-                        SELECT
-                            tht.expired_date AS date,
-                            tht.created_at,
-                            tp.marking,
-                            0 AS points,
-                            tht.price_per_kg,
-                            tht.expired_amount AS expired_amount,
-                            'OUT (expired)' AS type,
-                            '-' AS no_invoice
-                        FROM tbl_history_topup tht
-                        JOIN tbl_pembeli tp ON tht.customer_id = tp.id
-                        WHERE tht.status = 'expired'
-                            AND tht.expired_date BETWEEN ? AND ?
-                            AND tp.company_id = ?
-                            " . ($customerId ? "AND tp.id = ?" : "") . "
-                            " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
-
-                        UNION ALL
-
-                        -- IN (RETUR)
-                        SELECT
-                            tr.created_at AS date,
-                            tr.created_at,
-                            tp.marking,
-                            resi.berat AS points,
-                            (resi.harga / resi.berat) AS price_per_kg,
-                            NULL AS expired_amount,
-                            'IN (Retur)' AS type,
-                            ti.no_invoice AS no_invoice
-                        FROM tbl_retur_item tri
-                        JOIN tbl_resi resi ON tri.resi_id = resi.id
-                        JOIN tbl_retur tr ON tri.retur_id = tr.id
-                        JOIN tbl_invoice ti ON tr.invoice_id = ti.id
-                        JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
-                        WHERE tr.account_id = 159
-                            AND DATE(tr.created_at) BETWEEN ? AND ?
-                            AND tp.company_id = ?
-                            " . ($customerId ? "AND tp.id = ?" : "") . "
-                            " . ($isCustomerRole ? "AND tp.user_id = ?" : "") . "
-                    ) raw_data
-                ),
-                calculated_data AS (
-                    SELECT
-                        date,
-                        created_at,
-                        marking,
-                        in_points,
-                        out_points,
-                        SUM(in_points - out_points)
-                            OVER (PARTITION BY marking ORDER BY date, created_at) AS saldo,
-                        price_per_kg,
-                        value,
-                        status,
-                        no_invoice
-                    FROM combined_data
+                    -- EXPIRED
+                    SELECT tp.marking, 0, 0, SUM(tht.expired_amount)
+                    FROM tbl_history_topup tht
+                    JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                    WHERE tht.status = 'expired'
+                    AND tht.expired_date < ?
+                    AND tp.company_id = ?
+                    " . ($customerId ? "AND tp.id = ?" : "") . "
+                    $userCond
+                    GROUP BY tp.marking
                 )
-                SELECT
-                    date,
-                    created_at,
-                    marking,
-                    in_points,
-                    out_points,
-                    saldo,
-                    saldo * price_per_kg AS saldo_value,
-                    value,
-                    status,
-                    no_invoice,
-                    price_per_kg
-                FROM calculated_data
-                ORDER BY marking, date, created_at;
+                SELECT marking,
+                    SUM(in_points - out_points - expired_points) AS saldo_awal
+                FROM data
+                GROUP BY marking
             ";
 
-            /**
-             * ===========================
-             * ADD PARAMS PER UNION
-             * ===========================
-             */
-            $addParams($params, $startDate, $endDate, $companyId, $customerId, $isCustomerRole); // OUT
-            $addParams($params, $startDate, $endDate, $companyId, $customerId, $isCustomerRole); // IN
-            $addParams($params, $startDate, $endDate, $companyId, $customerId, $isCustomerRole); // EXPIRED
-            $addParams($params, $startDate, $endDate, $companyId, $customerId, $isCustomerRole); // RETUR
+            $initParams = [];
+            for ($i = 0; $i < 3; $i++) {
+                $initParams[] = $startDate;
+                $initParams[] = $companyId;
+                if ($customerId) $initParams[] = $customerId;
+                if ($isCustomerRole) $initParams[] = auth()->id();
+            }
 
-            /**
-             * RUN QUERY
-             */
-            $data = DB::select($query, $params);
+            $initialBalances = DB::select($initialQuery, $initParams);
+            $initialMap = collect($initialBalances)->pluck('saldo_awal', 'marking')->toArray();
 
-            /**
-             * GENERATE PDF
-             */
+            /*
+            |--------------------------------------------------------------------------
+            | 2. TRANSAKSI PERIODE
+            |--------------------------------------------------------------------------
+            */
+            $trxQuery = "
+                SELECT * FROM (
+                    -- OUT
+                    SELECT
+                        MIN(tup.usage_date) AS date,
+                        MIN(tup.created_at) AS created_at,
+                        tp.marking,
+                        0 AS in_points,
+                        SUM(tup.used_points) AS out_points,
+                        SUM(tup.used_points * tup.price_per_kg) AS value,
+                        'OUT' AS status,
+                        (
+                            SELECT GROUP_CONCAT(ti.no_invoice SEPARATOR ', ')
+                            FROM tbl_payment_invoice tpi
+                            JOIN tbl_invoice ti ON tpi.invoice_id = ti.id
+                            WHERE tpi.payment_id = tup.payment_id
+                        ) AS no_invoice
+                    FROM tbl_usage_points tup
+                    JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                    WHERE tup.usage_date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customerId ? "AND tp.id = ?" : "") . "
+                    $userCond
+                    GROUP BY tup.payment_id, tp.marking
+
+                    UNION ALL
+
+                    -- IN
+                    SELECT
+                        tht.date,
+                        tht.created_at,
+                        tp.marking,
+                        tht.remaining_points,
+                        0,
+                        tht.remaining_points * tht.price_per_kg,
+                        'IN',
+                        '-'
+                    FROM tbl_history_topup tht
+                    JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                    WHERE tht.status != 'canceled'
+                    AND tht.date BETWEEN ? AND ?
+                    AND tp.company_id = ?
+                    " . ($customerId ? "AND tp.id = ?" : "") . "
+                    $userCond
+                ) x
+                ORDER BY marking, date, created_at
+            ";
+
+            $trxParams = [];
+            for ($i = 0; $i < 2; $i++) {
+                $trxParams[] = $startDate;
+                $trxParams[] = $endDate;
+                $trxParams[] = $companyId;
+                if ($customerId) $trxParams[] = $customerId;
+                if ($isCustomerRole) $trxParams[] = auth()->id();
+            }
+
+            $rows = DB::select($trxQuery, $trxParams);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3. HITUNG SALDO BERJALAN (PHP)
+            |--------------------------------------------------------------------------
+            */
+            $final = [];
+            $grouped = collect($rows)->groupBy('marking');
+
+            $allMarkings = array_unique(array_merge(
+                array_keys($initialMap),
+                $grouped->keys()->toArray()
+            ));
+
+            foreach ($allMarkings as $marking) {
+                $saldo = $initialMap[$marking] ?? 0;
+
+                // SALDO AWAL
+                $final[] = (object)[
+                    'date' => $startDate,
+                    'marking' => $marking,
+                    'in_points' => null,
+                    'out_points' => null,
+                    'saldo' => $saldo,
+                    'status' => 'SALDO AWAL',
+                    'no_invoice' => '-'
+                ];
+
+                foreach ($grouped[$marking] ?? [] as $row) {
+                    $saldo += ($row->in_points - $row->out_points);
+
+                    $final[] = (object)[
+                        'date' => $row->date,
+                        'marking' => $marking,
+                        'in_points' => $row->in_points,
+                        'out_points' => $row->out_points,
+                        'saldo' => $saldo,
+                        'status' => $row->status,
+                        'no_invoice' => $row->no_invoice
+                    ];
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. GENERATE PDF
+            |--------------------------------------------------------------------------
+            */
             $customer = $customerId ? Customer::find($customerId) : null;
 
             $pdf = PDF::loadView('exportPDF.topupreport', [
-                'marking'   => $customer->marking ?? '-',
-                'combined'  => $data,
+                'combined'  => $final,
+                'marking'   => $customer->marking ?? 'ALL',
                 'startDate' => Carbon::parse($startDate)->format('d M Y'),
                 'endDate'   => Carbon::parse($endDate)->format('d M Y'),
-            ])
-            ->setPaper('A4', 'portrait')
-            ->setWarnings(false);
+            ])->setPaper('A4', 'portrait');
 
-            $fileName = 'topup_report_' . now()->format('YmdHis') . '.pdf';
-            $filePath = 'public/topupreports/' . $fileName;
-
-            Storage::put($filePath, $pdf->output());
-
-            return response()->json(['url' => Storage::url($filePath)]);
+            return $pdf->stream('topup_report.pdf');
 
         } catch (\Exception $e) {
-            Log::error('Error generating Topup Report PDF: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'An error occurred while generating the PDF'], 500);
+            Log::error($e);
+            return response()->json(['error' => 'Failed generate PDF'], 500);
         }
     }
+
 
 
     public function exportTopupReport(Request $request)
