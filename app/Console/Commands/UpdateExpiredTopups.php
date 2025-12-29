@@ -55,7 +55,7 @@ class UpdateExpiredTopups extends Command
         $this->info("Current date: " . $now->toDateString());
 
         $expiredTopups = HistoryTopup::where('status', 'active')
-            ->whereDate('expired_date', '<', $now)
+            ->whereDate('expired_date', '<=', $now)
             ->get();
 
         foreach ($expiredTopups as $topup) {

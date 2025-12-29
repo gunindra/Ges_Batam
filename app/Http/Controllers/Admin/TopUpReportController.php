@@ -34,47 +34,122 @@ class TopUpReportController extends Controller
     {
         $companyId = session('active_company_id');
         $customer = $request->customer;
-        $startDate = $request->startDate
-            ? Carbon::parse($request->startDate)->format('Y-m-d')
-            : Carbon::create(2025, 1, 1)->format('Y-m-d');
+        $startDate = $request->startDate !== null && $request->startDate !== ''
+        ? Carbon::parse($request->startDate)->format('Y-m-d')
+        : '2025-01-01';
 
-        $endDate = $request->endDate
-            ? Carbon::parse($request->endDate)->format('Y-m-d')
-            : Carbon::now()->endOfMonth()->format('Y-m-d');
 
+        $endDate = filled($request->endDate)
+        ? Carbon::parse($request->endDate)->format('Y-m-d')
+        : Carbon::now()->endOfMonth()->format('Y-m-d');
+        
         $isCustomerRole = auth()->user() && auth()->user()->role === 'customer';
         $userIdCondition = $isCustomerRole ? "AND tp.user_id = ?" : "";
 
         // Query untuk mendapatkan saldo awal sebelum tanggal mulai
         $initialBalanceQuery = "
-            SELECT
-                tp.marking,
-                COALESCE(SUM(
-                    CASE
-                        WHEN tht.status != 'canceled' THEN tht.remaining_points
-                        ELSE 0
-                    END
-                ), 0) - COALESCE(SUM(tup.used_points), 0) AS initial_balance,
-                MAX(tht.price_per_kg) AS price_per_kg
-            FROM tbl_pembeli tp
-            LEFT JOIN tbl_history_topup tht ON tht.customer_id = tp.id
+            WITH initial_data AS (
+
+                -- IN (TOPUP)
+                SELECT
+                    tp.marking,
+                    SUM(tht.remaining_points) AS in_points,
+                    0 AS out_points,
+                    0 AS expired_points,
+                    0 AS retur_points,
+                    MAX(tht.price_per_kg) AS price_per_kg
+                FROM tbl_history_topup tht
+                JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                WHERE tht.status != 'canceled'
                 AND tht.date < ?
-                AND tht.status != 'canceled'
-            LEFT JOIN tbl_usage_points tup ON tup.customer_id = tp.id
-                AND tup.usage_date < ?
-            WHERE tp.company_id = ?
-            " . ($customer ? "AND tp.id = ?" : "") . "
-            " . $userIdCondition . "
-            GROUP BY tp.marking
+                AND tp.company_id = ?
+                " . ($customer ? "AND tp.id = ?" : "") . "
+                $userIdCondition
+                GROUP BY tp.marking
+
+                UNION ALL
+
+                -- OUT (USAGE)
+                SELECT
+                    tp.marking,
+                    0,
+                    SUM(tup.used_points),
+                    0,
+                    0,
+                    NULL
+                FROM tbl_usage_points tup
+                JOIN tbl_pembeli tp ON tup.customer_id = tp.id
+                WHERE tup.usage_date < ?
+                AND tp.company_id = ?
+                " . ($customer ? "AND tp.id = ?" : "") . "
+                $userIdCondition
+                GROUP BY tp.marking
+
+                UNION ALL
+
+                -- OUT (EXPIRED)
+                SELECT
+                    tp.marking,
+                    0,
+                    0,
+                    SUM(tht.expired_amount),
+                    0,
+                    NULL
+                FROM tbl_history_topup tht
+                JOIN tbl_pembeli tp ON tht.customer_id = tp.id
+                WHERE tht.status = 'expired'
+                AND tht.expired_date < ?
+                AND tp.company_id = ?
+                " . ($customer ? "AND tp.id = ?" : "") . "
+                $userIdCondition
+                GROUP BY tp.marking
+
+                UNION ALL
+
+                -- IN (RETUR)
+                SELECT
+                    tp.marking,
+                    0,
+                    0,
+                    0,
+                    SUM(resi.berat),
+                    NULL
+                FROM tbl_retur_item tri
+                JOIN tbl_resi resi ON tri.resi_id = resi.id
+                JOIN tbl_retur tr ON tri.retur_id = tr.id
+                JOIN tbl_invoice ti ON tr.invoice_id = ti.id
+                JOIN tbl_pembeli tp ON ti.pembeli_id = tp.id
+                WHERE tr.account_id = 159
+                AND DATE(tr.created_at) < ?
+                AND tp.company_id = ?
+                " . ($customer ? "AND tp.id = ?" : "") . "
+                $userIdCondition
+                GROUP BY tp.marking
+            )
+            SELECT
+                marking,
+                SUM(in_points + retur_points - out_points - expired_points) AS initial_balance,
+                MAX(price_per_kg) AS price_per_kg
+            FROM initial_data
+            GROUP BY marking
         ";
 
-        $initialParams = [$startDate, $startDate, $companyId];
-        if ($customer) {
-            $initialParams[] = $customer;
+
+        $initialParams = [];
+
+        for ($i = 0; $i < 4; $i++) {
+            $initialParams[] = $startDate;
+            $initialParams[] = $companyId;
+
+            if ($customer) {
+                $initialParams[] = $customer;
+            }
+
+            if ($isCustomerRole) {
+                $initialParams[] = auth()->user()->id;
+            }
         }
-        if ($isCustomerRole) {
-            $initialParams[] = auth()->user()->id;
-        }
+
 
         $initialBalances = DB::select($initialBalanceQuery, $initialParams);
         $initialBalanceMap = [];

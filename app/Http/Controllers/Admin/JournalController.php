@@ -379,7 +379,7 @@ class JournalController extends Controller
             $jurnal->tanggal = $journalDate ?? now();
             $jurnal->no_ref = $topup->code;
             $jurnal->status = 'Approve';
-            $jurnal->description = "Expired Top-up untuk Customer {$customer->nama_pembeli}";
+            $jurnal->description = "Expired Top-up untuk Customer {$customer->marking}";
             $jurnal->totaldebit = $amount;
             $jurnal->totalcredit = $amount;
             $jurnal->company_id = $companyId;

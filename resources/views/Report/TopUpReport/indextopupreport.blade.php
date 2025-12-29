@@ -169,7 +169,7 @@
             });
 
             flatpickr("#endDate", {
-                dateFormat: "d MM Y",
+                dateFormat: "d M Y",
                 onChange: function(selectedDates, dateStr, instance) {
                     var startDate = new Date($('#startDate').val());
                     var endDate = new Date(dateStr);
