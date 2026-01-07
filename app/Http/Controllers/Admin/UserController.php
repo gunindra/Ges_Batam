@@ -37,8 +37,8 @@ class UserController extends Controller
                 'tbl_company.name as company_name',
                 'tbl_users.company_id'
             )
-            ->leftJoin('tbl_company', 'tbl_users.company_id', '=', 'tbl_company.id');
-
+            ->leftJoin('tbl_company', 'tbl_users.company_id', '=', 'tbl_company.id')
+            ->where('tbl_users.company_id', '!=', 0);
         // Filter role jika ada
         if ($role) {
             $query->where('tbl_users.role', $role);
@@ -141,16 +141,28 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
-            $User = User::findOrFail($id);
+            $user = User::findOrFail($id);
 
-            $User->delete();
+            // Update instead of delete
+            $user->update([
+                'company_id' => 0
+            ]);
+
             DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'Data berhasil dihapus'], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User berhasil dikeluarkan dari company'
+            ], 200);
+
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
+
     public function show($id)
     {
 
