@@ -38,7 +38,7 @@ class UserController extends Controller
                 'tbl_users.company_id'
             )
             ->leftJoin('tbl_company', 'tbl_users.company_id', '=', 'tbl_company.id')
-            ->whereNotNull('tbl_users.created_at');
+            ->where('tbl_users.role', '!=', 'hide');
         // Filter role jika ada
         if ($role) {
             $query->where('tbl_users.role', $role);
@@ -144,10 +144,9 @@ class UserController extends Controller
             $user = User::findOrFail($id);
 
             $user->update([
-                'created_at' => null,
+                'role' => 'hide',
                 'updated_at' => now()
             ]);
-
             DB::commit();
             return response()->json([
                 'status' => 'success',
