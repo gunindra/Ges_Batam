@@ -38,7 +38,7 @@ class UserController extends Controller
                 'tbl_users.company_id'
             )
             ->leftJoin('tbl_company', 'tbl_users.company_id', '=', 'tbl_company.id')
-            ->where('tbl_users.company_id', '!=', 0);
+            ->whereNotNull('tbl_users.created_at');
         // Filter role jika ada
         if ($role) {
             $query->where('tbl_users.role', $role);
@@ -143,15 +143,15 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
 
-            // Update instead of delete
             $user->update([
-                'company_id' => 0
+                'created_at' => null,
+                'updated_at' => now()
             ]);
 
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'User berhasil dikeluarkan dari company'
+                'message' => 'User berhasil dinonaktifkan'
             ], 200);
 
         } catch (\Exception $e) {
