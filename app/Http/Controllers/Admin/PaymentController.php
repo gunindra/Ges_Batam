@@ -184,11 +184,16 @@ class PaymentController extends Controller
                 FORMAT(a.total_harga - a.total_bayar, 0) AS sisa_bayar,
                 (
                     SELECT SUM(r.berat)
-                    FROM tbl_resi AS r
-                    LEFT JOIN tbl_credit_note_item cni ON r.no_resi = cni.no_resi
-                    LEFT JOIN tbl_credit_note cn ON cn.id = cni.credit_note_id
+                    FROM tbl_resi r
                     WHERE r.invoice_id = a.id
-                    AND (cn.invoice_id IS NULL OR cn.invoice_id != a.id)
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM tbl_credit_note_item cni
+                        JOIN tbl_credit_note cn ON cn.id = cni.credit_note_id
+                        WHERE cni.no_resi = r.no_resi
+                        AND cn.invoice_id = a.id
+                    )
+
                 ) AS total_berat,
                 (
                     SELECT SUM(r.panjang * r.lebar * r.tinggi)
