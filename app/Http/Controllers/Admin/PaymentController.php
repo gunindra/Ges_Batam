@@ -185,8 +185,6 @@ class PaymentController extends Controller
                 (
                     SELECT SUM(r.berat)
                     FROM tbl_resi AS r
-                    LEFT JOIN tbl_credit_note_item cni ON r.no_resi = cni.no_resi
-                    LEFT JOIN tbl_credit_note cn ON cn.id = cni.credit_note_id
                     WHERE r.invoice_id = a.id
                     AND (cn.invoice_id IS NULL OR cn.invoice_id != a.id)
                 ) AS total_berat,
