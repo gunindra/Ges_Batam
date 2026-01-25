@@ -53,7 +53,7 @@ class SendWABroadcastDetailJob implements ShouldQueue
             ]);
 
             Log::info("Message sent to recipient: {$recipient->phone}");
-            sleep(2);
+            sleep(120);
 
         } catch (Exception $e) {
             // Ensure recipient is defined before updating its status

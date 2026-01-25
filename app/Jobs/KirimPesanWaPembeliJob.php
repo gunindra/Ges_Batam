@@ -165,7 +165,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                     if (file_exists($filePath)) {
 
                         // beri delay sedikit agar server WA sempat download filenya
-                        sleep(2);
+                        sleep(120);
 
                         unlink($filePath);
                         Log::info('PDF berhasil dihapus: ' . $filePath);
