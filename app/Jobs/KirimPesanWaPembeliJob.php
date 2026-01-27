@@ -152,8 +152,8 @@ class KirimPesanWaPembeliJob implements ShouldQueue
                 $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl);
                 // $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
 
-
-                if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
+                if (!$pesanTerkirimDenganFile) {
+                // if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
 
                     Log::error("Gagal mengirim pesan WhatsApp ke " . $invoice->no_wa);
                     DB::table('tbl_invoice')->where('id', $this->invoiceId)->update(['wa_status' => 'failed']);
