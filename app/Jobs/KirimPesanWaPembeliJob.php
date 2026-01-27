@@ -150,7 +150,7 @@ class KirimPesanWaPembeliJob implements ShouldQueue
 
             if ($invoice->no_wa) {
                 $pesanTerkirimDenganFile = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan, $fileUrl);
-                $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
+                // $pesanTerkirim = $this->kirimPesanWhatsapp($invoice->no_wa, $pesan);
 
 
                 if (!$pesanTerkirim || !$pesanTerkirimDenganFile) {
