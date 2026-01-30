@@ -1217,6 +1217,7 @@ class PaymentController extends Controller
     }
     public function editpayment($id)
     {
+        dd($id);
         // Load payment data with related invoices and customer items
         $payment = Payment::with([
             'paymentInvoices',
@@ -1226,7 +1227,7 @@ class PaymentController extends Controller
                 $query->withTrashed();
             }
         ])->findOrFail($id);
-        dd($payment);
+        
         // Fetch saved payment accounts with related COA information
         $savedPaymentAccounts = DB::table('tbl_payment_account')
             ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
