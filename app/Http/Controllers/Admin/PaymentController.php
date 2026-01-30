@@ -1226,7 +1226,7 @@ class PaymentController extends Controller
                 $query->withTrashed();
             }
         ])->findOrFail($id);
-        
+
         // Fetch saved payment accounts with related COA information
         $savedPaymentAccounts = DB::table('tbl_payment_account')
             ->join('tbl_coa', 'tbl_payment_account.coa_id', '=', 'tbl_coa.id')
@@ -1361,7 +1361,7 @@ class PaymentController extends Controller
 
             $payment = Payment::findOrFail($request->paymentId);
             Log::info('Berhasil mendapatkan data payment.', ['payment' => $payment]);
-            dd($payment);
+
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             Log::info('Tanggal payment berhasil diformat.', ['tanggalPayment' => $tanggalPayment]);
 

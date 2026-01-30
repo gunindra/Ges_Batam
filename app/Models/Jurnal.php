@@ -24,6 +24,8 @@ class Jurnal extends Model
         'totaldebit',
         'retur_id',
         'company_id',
+        'payment_id',
+        'tanggal_payment'
     ];
 
     // Relasi ke JurnalItem
