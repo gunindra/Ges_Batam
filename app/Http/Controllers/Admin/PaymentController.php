@@ -1217,7 +1217,6 @@ class PaymentController extends Controller
     }
     public function editpayment($id)
     {
-        dd($id);
         // Load payment data with related invoices and customer items
         $payment = Payment::with([
             'paymentInvoices',
@@ -1362,7 +1361,7 @@ class PaymentController extends Controller
 
             $payment = Payment::findOrFail($request->paymentId);
             Log::info('Berhasil mendapatkan data payment.', ['payment' => $payment]);
-
+            dd($payment);
             $tanggalPayment = Carbon::createFromFormat('d F Y H:i', $request->tanggalPayment);
             Log::info('Tanggal payment berhasil diformat.', ['tanggalPayment' => $tanggalPayment]);
 
