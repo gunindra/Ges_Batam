@@ -980,13 +980,13 @@ class PaymentController extends Controller
                 throw new \Exception('Account setting tidak ditemukan.');
             }
 
-            $salesAccountId          = $accountSettings->receivable_sales_account_id;
-            $paymentDiscountAccount  = $accountSettings->sales_profit_rate_account_id;
-            $paymentMethodId         = $request->paymentMethod;
+            $salesAccountId         = $accountSettings->receivable_sales_account_id; // Piutang
+            $paymentDiscountAccount = $accountSettings->sales_profit_rate_account_id; // Diskon
+            $paymentMethodId        = $request->paymentMethod; // Kas / Bank
 
-            $receivableSalesAccount = COA::find($paymentMethodId);
+            $kasAccount = COA::find($paymentMethodId);
 
-            if (!$salesAccountId || !$paymentDiscountAccount || !$receivableSalesAccount) {
+            if (!$salesAccountId || !$paymentDiscountAccount || !$kasAccount) {
                 throw new \Exception('Pengaturan akun belum lengkap.');
             }
 
@@ -1003,9 +1003,7 @@ class PaymentController extends Controller
                 ->first();
 
             if ($closedPeriod) {
-                throw new \Exception(
-                    'Tanggal berada di periode closed: ' . $closedPeriod->periode
-                );
+                throw new \Exception('Tanggal berada di periode closed: ' . $closedPeriod->periode);
             }
 
             /** ===============================
@@ -1019,7 +1017,7 @@ class PaymentController extends Controller
                 'kode_pembayaran'   => $request->kode,
                 'pembeli_id'        => $customerId,
                 'payment_date'      => $paymentDate,
-                'payment_buat'      => $createDate->format('Y-m-d H:i:s'),
+                'payment_buat'      => $createDate,
                 'payment_method_id' => $paymentMethodId,
                 'discount'          => $request->discountPayment ?? 0,
                 'keterangan'        => $request->keterangan,
@@ -1028,73 +1026,55 @@ class PaymentController extends Controller
             ]);
 
             /** ===============================
-             * AMBIL INVOICE SEKALIGUS
+             * AMBIL INVOICE
              * =============================== */
             $invoices = Invoice::whereIn('no_invoice', $request->invoice)->get();
-
             if ($invoices->isEmpty()) {
                 throw new \Exception('Invoice tidak ditemukan.');
             }
 
-            $totalUnpaid = $invoices->sum(fn ($i) =>
-                $i->total_harga - $i->total_bayar
-            );
-
+            $totalUnpaid = $invoices->sum(fn ($i) => $i->total_harga - $i->total_bayar);
             if ($totalUnpaid <= 0) {
                 throw new \Exception('Semua invoice sudah lunas.');
             }
 
-            $remainingPayment = $request->totalAmmount;
+            $remainingPayment = $request->paymentAmount;
             $totalDiscount    = $request->discountPayment ?? 0;
 
             /** ===============================
-             * LOOP ALOKASI INVOICE
+             * ALOKASI PAYMENT KE INVOICE
              * =============================== */
             foreach ($invoices as $invoice) {
 
                 $invoiceUnpaid = $invoice->total_harga - $invoice->total_bayar;
 
-                /** ---- Hitung diskon proporsional ---- */
                 $invoiceDiscount = 0;
                 if ($totalDiscount > 0 && $invoiceUnpaid > 0) {
                     $ratio = $invoiceUnpaid / $totalUnpaid;
                     $invoiceDiscount = round($totalDiscount * $ratio, 2);
-                    $invoiceDiscount = min($invoiceDiscount, $invoiceUnpaid);
                 }
 
-                /** ---- Hitung pembayaran bersih ---- */
                 $netInvoice = max(0, $invoiceUnpaid - $invoiceDiscount);
-                $allocatedAmount = min($remainingPayment, $netInvoice);
-                $allocatedAmount = max(0, $allocatedAmount);
+                $allocated  = min($remainingPayment, $netInvoice);
 
-                /** ---- SIMPAN PAYMENT INVOICE (WAJIB) ---- */
                 PaymentInvoice::create([
                     'payment_id' => $payment->id,
                     'invoice_id' => $invoice->id,
-                    'amount'     => $allocatedAmount,
+                    'amount'     => $allocated,
                     'kuota'      => 0,
                 ]);
 
-                /** ---- UPDATE INVOICE ---- */
-                $invoice->total_bayar += ($allocatedAmount + $invoiceDiscount);
+                $invoice->total_bayar += ($allocated + $invoiceDiscount);
                 $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga
                     ? 'Lunas'
                     : 'Belum lunas';
                 $invoice->save();
 
-                /** ---- UPDATE SISA PAYMENT ---- */
-                $remainingPayment -= $allocatedAmount;
-                $remainingPayment = max(0, $remainingPayment);
-            }
-
-            if ($remainingPayment > 0.01) {
-                throw new \Exception(
-                    'Masih ada sisa pembayaran: ' . $remainingPayment
-                );
+                $remainingPayment -= $allocated;
             }
 
             /** ===============================
-             * CREATE JURNAL
+             * CREATE JURNAL HEADER
              * =============================== */
             $request->merge(['code_type' => 'BKM']);
             $noJournal = $this->jurnalController
@@ -1102,29 +1082,28 @@ class PaymentController extends Controller
                 ->getData()->no_journal;
 
             $jurnal = Jurnal::create([
-                'no_journal'       => $noJournal,
-                'payment_id'       => $payment->id,
-                'tipe_kode'        => 'BKM',
-                'tanggal'          => $createDate,
-                'tanggal_payment'  => $paymentDate,
-                'no_ref'           => $payment->kode_pembayaran,
-                'status'           => 'Approve',
-                'description'      => 'Jurnal Payment ' . $payment->kode_pembayaran,
-                'totaldebit'       => $request->paymentAmount,
-                'totalcredit'      => $request->paymentAmount,
-                'company_id'       => $companyId,
+                'no_journal'      => $noJournal,
+                'payment_id'      => $payment->id,
+                'tipe_kode'       => 'BKM',
+                'tanggal'         => $createDate,
+                'tanggal_payment' => $paymentDate,
+                'no_ref'          => $payment->kode_pembayaran,
+                'status'          => 'Approve',
+                'description'     => 'Jurnal Payment ' . $payment->kode_pembayaran,
+                'company_id'      => $companyId,
             ]);
 
-            /** ---- DEBIT (Kas / Bank) ---- */
-            JurnalItem::create([
+            /** ===============================
+             * JURNAL UTAMA
+             * =============================== */
+            $kasJurnal = JurnalItem::create([
                 'jurnal_id'    => $jurnal->id,
-                'code_account' => $receivableSalesAccount->id,
+                'code_account' => $kasAccount->id,
                 'description'  => 'Penerimaan pembayaran',
                 'debit'        => $request->paymentAmount - $totalDiscount,
                 'credit'       => 0,
             ]);
 
-            /** ---- CREDIT (Piutang Usaha) ---- */
             JurnalItem::create([
                 'jurnal_id'    => $jurnal->id,
                 'code_account' => $salesAccountId,
@@ -1133,7 +1112,6 @@ class PaymentController extends Controller
                 'credit'       => $request->paymentAmount,
             ]);
 
-            /** ---- DISKON ---- */
             if ($totalDiscount > 0) {
                 JurnalItem::create([
                     'jurnal_id'    => $jurnal->id,
@@ -1143,6 +1121,63 @@ class PaymentController extends Controller
                     'credit'       => 0,
                 ]);
             }
+
+            /** ===============================
+             * ITEMS TAMBAHAN (BALANCING KE KAS)
+             * =============================== */
+            if ($request->has('items') && is_array($request->items)) {
+
+                $itemsDebit = 0;
+                $itemsCredit = 0;
+
+                foreach ($request->items as $item) {
+                    if ($item['tipeAccount'] === 'Debit') {
+                        $itemsDebit += $item['nominal'];
+                    } else {
+                        $itemsCredit += $item['nominal'];
+                    }
+                }
+
+                $netKasAdjustment = $itemsCredit - $itemsDebit;
+
+                $kasJurnal->debit += $netKasAdjustment;
+                $kasJurnal->save();
+
+                foreach ($request->items as $item) {
+
+                    $jurnalItem = JurnalItem::create([
+                        'jurnal_id'    => $jurnal->id,
+                        'code_account' => $item['account'],
+                        'description'  => $item['item_desc'],
+                        'debit'        => $item['tipeAccount'] === 'Debit' ? $item['nominal'] : 0,
+                        'credit'       => $item['tipeAccount'] === 'Credit' ? $item['nominal'] : 0,
+                    ]);
+
+                    PaymentCustomerItems::create([
+                        'payment_id'      => $payment->id,
+                        'coa_id'          => $item['account'],
+                        'description'    => $item['item_desc'],
+                        'nominal'        => $item['nominal'],
+                        'tipe'           => $item['tipeAccount'],
+                        'jurnal_item_id' => $jurnalItem->id,
+                    ]);
+                }
+            }
+
+            /** ===============================
+             * RECALCULATE TOTAL JURNAL (FINAL)
+             * =============================== */
+            $totals = JurnalItem::where('jurnal_id', $jurnal->id)
+                ->selectRaw('SUM(debit) as debit, SUM(credit) as credit')
+                ->first();
+
+            if (round($totals->debit, 2) !== round($totals->credit, 2)) {
+                throw new \Exception('Jurnal tidak balance');
+            }
+
+            $jurnal->totaldebit  = $totals->debit;
+            $jurnal->totalcredit = $totals->credit;
+            $jurnal->save();
 
             DB::commit();
 
@@ -1160,6 +1195,7 @@ class PaymentController extends Controller
             ], 400);
         }
     }
+
 
 
     public function export(Request $request)

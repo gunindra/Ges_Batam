@@ -20,6 +20,7 @@ class Payment extends Model
         'Keterangan',
         'payment_method_id',
         'company_id',
+        'createdby'
     ];
 
     /**
