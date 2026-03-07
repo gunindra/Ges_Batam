@@ -81,40 +81,39 @@ class PaymentController extends Controller
     {
         $companyId = session('active_company_id');
         $query = DB::table('tbl_payment_customer as a')
-            ->leftjoin('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
-            ->leftjoin('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
-            ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
-            ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
-            ->select(
-                'a.id',
-                'a.kode_pembayaran',
-                'd.marking',
-                'a.payment_buat',
-                'a.payment_date',
-                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s') as tanggal_payment"),
-                'c.name as payment_method',
-                DB::raw('SUM(f.amount) + IFNULL(a.discount, 0) as total_amount'),
-                'a.discount',
-                'f.kuota as kuota',
-                DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')') as createdby"),
-                DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')') as updateby")
-            )
-            ->where('a.company_id', $companyId)
-            ->groupBy(
-                'a.id',
-                'a.kode_pembayaran',
-                'd.marking',
-                'a.payment_buat',
-                'a.payment_date',
-                DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s')"),
-                DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s')"),
-                'c.name',
-                'a.discount',
-                'f.kuota',
-                DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')')"),
-                DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')')")
-            );
+                    ->leftJoin('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
+                    ->leftJoin('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
+                    ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
+                    ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
+                    ->select(
+                        'a.id',
+                        'a.kode_pembayaran',
+                        'd.marking',
+                        'a.payment_buat',
+                        'a.payment_date',
+                        DB::raw("DATE_FORMAT(a.payment_buat, '%d %M %Y %H:%i:%s') as tanggal_buat"),
+                        DB::raw("DATE_FORMAT(a.payment_date, '%d %M %Y %H:%i:%s') as tanggal_payment"),
+                        'c.name as payment_method',
+                        DB::raw('SUM(f.amount) + IFNULL(a.discount,0) as total_amount'),
+                        'a.discount',
+                        DB::raw('SUM(f.kuota) as kuota'),
+                        DB::raw("CONCAT(DATE_FORMAT(a.created_at, '%d %M %Y %H:%i:%s'), ' (', a.createdby, ')') as createdby"),
+                        DB::raw("CONCAT(DATE_FORMAT(a.updated_at, '%d %M %Y %H:%i:%s'), ' (', a.updateby, ')') as updateby")
+                    )
+                    ->where('a.company_id', $companyId)
+                    ->groupBy(
+                        'a.id',
+                        'a.kode_pembayaran',
+                        'd.marking',
+                        'a.payment_buat',
+                        'a.payment_date',
+                        'c.name',
+                        'a.discount',
+                        'a.created_at',
+                        'a.createdby',
+                        'a.updated_at',
+                        'a.updateby'
+                    );
 
 
         if (!empty($request->status)) {
