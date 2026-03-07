@@ -82,7 +82,7 @@ class PaymentController extends Controller
         $companyId = session('active_company_id');
         $query = DB::table('tbl_payment_customer as a')
             ->leftjoin('tbl_payment_invoice as f', 'f.payment_id', '=', 'a.id')
-            ->join('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
+            ->leftjoin('tbl_invoice as b', 'f.invoice_id', '=', 'b.id')
             ->join('tbl_coa as c', 'a.payment_method_id', '=', 'c.id')
             ->join('tbl_pembeli as d', 'b.pembeli_id', '=', 'd.id')
             ->select(
