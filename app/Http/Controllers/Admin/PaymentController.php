@@ -1057,10 +1057,11 @@ class PaymentController extends Controller
                 $allocated  = min($remainingPayment, $netInvoice);
 
                 PaymentInvoice::create([
-                    'payment_id' => $payment->id,
-                    'invoice_id' => $invoice->id,
-                    'amount'     => $allocated,
-                    'kuota'      => 0,
+                    'payment_id'       => $payment->id,
+                    'invoice_id'       => $invoice->id,
+                    'amount'           => $allocated,
+                    'invoice_discount' => $invoiceDiscount,
+                    'kuota'            => 0,
                 ]);
 
                 $invoice->total_bayar += ($allocated + $invoiceDiscount);
@@ -1099,7 +1100,7 @@ class PaymentController extends Controller
                 'jurnal_id'    => $jurnal->id,
                 'code_account' => $kasAccount->id,
                 'description'  => 'Penerimaan pembayaran',
-                'debit'        => $request->paymentAmount - $totalDiscount,
+                'debit'        => $request->paymentAmount,
                 'credit'       => 0,
             ]);
 
@@ -1108,7 +1109,7 @@ class PaymentController extends Controller
                 'code_account' => $salesAccountId,
                 'description'  => 'Pelunasan piutang',
                 'debit'        => 0,
-                'credit'       => $request->paymentAmount,
+                'credit'       => $request->paymentAmount + $totalDiscount,
             ]);
 
             if ($totalDiscount > 0) {
@@ -1433,29 +1434,40 @@ class PaymentController extends Controller
             $oldPaymentInvoices = PaymentInvoice::where('payment_id', $payment->id)->get();
             Log::info('Berhasil mendapatkan PaymentInvoices lama.', ['oldPaymentInvoices' => $oldPaymentInvoices]);
 
+            // Reversal: subtract BOTH allocated amount AND per-invoice discount from total_bayar
             foreach ($oldPaymentInvoices as $oldPaymentInvoice) {
                 $oldInvoice = Invoice::findOrFail($oldPaymentInvoice->invoice_id);
-                $oldInvoice->total_bayar -= $oldPaymentInvoice->amount;
+                $oldInvoice->total_bayar -= ($oldPaymentInvoice->amount + ($oldPaymentInvoice->invoice_discount ?? 0));
+                $oldInvoice->total_bayar = max(0, $oldInvoice->total_bayar);
                 $oldInvoice->status_bayar = $oldInvoice->total_bayar >= $oldInvoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $oldInvoice->save();
                 Log::info('Invoice lama berhasil diperbarui.', ['oldInvoice' => $oldInvoice]);
             }
 
-            // PaymentInvoice::where('payment_id', $payment->id)->delete();
-            // Log::info('PaymentInvoice lama berhasil dihapus.');
+            // Re-allocation: mirror processNormalPayment proportional-discount logic
+            $totalDiscount    = $request->discountPayment ?? 0;
+            $remainingPayment = $request->paymentAmount; // NET cash received
+            $invoices         = Invoice::whereIn('no_invoice', $request->invoice)->get();
+            $totalUnpaid      = $invoices->sum(fn ($i) => $i->total_harga - $i->total_bayar);
+            $totalTagihanInvoice = 0;
 
-            $totalPayment = $request->paymentAmount - ($request->discountPayment ?? 0);
-            Log::info('Proses alokasi payment dimulai.', ['totalPayment' => $totalPayment]);
+            Log::info('Proses alokasi payment dimulai.', ['remainingPayment' => $remainingPayment, 'totalDiscount' => $totalDiscount]);
 
-            foreach ($request->invoice as $noInvoice) {
-                $invoice = Invoice::where('no_invoice', $noInvoice)->firstOrFail();
+            foreach ($invoices as $invoice) {
                 Log::info('Berhasil mendapatkan data invoice.', ['invoice' => $invoice]);
 
-                $remainingAmount = $invoice->total_harga - $invoice->total_bayar;
-                $allocatedAmount = min($totalPayment, $remainingAmount);
+                $invoiceUnpaid   = $invoice->total_harga - $invoice->total_bayar;
+                $invoiceDiscount = 0;
+                if ($totalDiscount > 0 && $totalUnpaid > 0) {
+                    $ratio           = $invoiceUnpaid / $totalUnpaid;
+                    $invoiceDiscount = round($totalDiscount * $ratio, 2);
+                }
+                $netInvoice      = max(0, $invoiceUnpaid - $invoiceDiscount);
+                $allocatedAmount = min($remainingPayment, $netInvoice);
 
-                if ($allocatedAmount <= 0) continue;
-                $totalTagihanInvoice = $remainingAmount;
+                if ($allocatedAmount <= 0 && $invoiceDiscount <= 0) continue;
+                $totalTagihanInvoice = $invoiceUnpaid;
+
                 $kuota = 0;
                 if (!is_null($request->amountPoin)) {
                     $kuota = $allocatedAmount / $currentPointPrice;
@@ -1463,24 +1475,18 @@ class PaymentController extends Controller
                 PaymentInvoice::updateOrCreate(
                     ['payment_id' => $payment->id, 'invoice_id' => $invoice->id],
                     [
-                        'amount' => $allocatedAmount,
-                       'kuota' => $kuota
+                        'amount'           => $allocatedAmount,
+                        'invoice_discount' => $invoiceDiscount,
+                        'kuota'            => $kuota,
                     ]
                 );
 
-                $invoice->total_bayar += $allocatedAmount;
+                $invoice->total_bayar += ($allocatedAmount + $invoiceDiscount);
                 $invoice->status_bayar = $invoice->total_bayar >= $invoice->total_harga ? 'Lunas' : 'Belum lunas';
                 $invoice->save();
-                Log::info('Invoice berhasil diperbarui.', ['invoice' => $invoice, 'allocatedAmount' => $allocatedAmount]);
+                Log::info('Invoice berhasil diperbarui.', ['invoice' => $invoice, 'allocatedAmount' => $allocatedAmount, 'invoiceDiscount' => $invoiceDiscount]);
 
-                $totalPayment -= $allocatedAmount;
-            }
-            if (abs($totalPayment) > 0.00001) {
-                Log::error('Sisa dana melebihi jumlah yang harus dibayar.', ['sisaDana' => $totalPayment]);
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Pembayaran tidak dapat diproses karena sisa dana melebihi jumlah yang harus dibayar.',
-                ], 400);
+                $remainingPayment -= $allocatedAmount;
             }
 
             $noRef = implode(', ', $request->invoice);
@@ -1656,7 +1662,7 @@ class PaymentController extends Controller
             $jurnalItemDebit->jurnal_id = $jurnal->id;
             $jurnalItemDebit->code_account = $receivableSalesAccount->id;
             $jurnalItemDebit->description = "Debit untuk Invoices: " . $request->kode;
-            $jurnalItemDebit->debit = $totalJurnalAmount;
+            $jurnalItemDebit->debit = $request->paymentAmount; // NET cash received
             $jurnalItemDebit->credit = 0;
             $jurnalItemDebit->save();
 
@@ -1667,7 +1673,7 @@ class PaymentController extends Controller
             $jurnalItemCredit->code_account = $salesAccountId;
             $jurnalItemCredit->description = "Kredit untuk Invoices: " . $request->kode;
             $jurnalItemCredit->debit = 0;
-            $jurnalItemCredit->credit = $request->paymentAmount;
+            $jurnalItemCredit->credit = $request->paymentAmount + ($request->discountPayment ?? 0); // Full receivable reduction
             $jurnalItemCredit->save();
 
             Log::info('Jurnal item kredit berhasil ditambahkan.');
@@ -1770,16 +1776,10 @@ class PaymentController extends Controller
                 $invoice = Invoice::find($paymentInvoice->invoice_id);
 
                 if ($invoice) {
-                    $invoice->total_bayar -= $paymentInvoice->amount;
-                    // Jika ada diskon, kurangi juga dari total_bayar
-                    if (!empty($payment->discount)) {
-                        $invoice->total_bayar -= $payment->discount;
-                    }
+                    // Reverse both the allocated amount AND the per-invoice discount share
+                    $invoice->total_bayar -= ($paymentInvoice->amount + ($paymentInvoice->invoice_discount ?? 0));
 
                     // Pastikan total_bayar tidak menjadi negatif
-                    if ($invoice->total_bayar < 0) {
-                        $invoice->total_bayar = 0;
-                    }
                     if ($invoice->total_bayar < 0) {
                         $invoice->total_bayar = 0;
                     }

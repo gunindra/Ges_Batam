@@ -16,6 +16,7 @@ class PaymentInvoice extends Model
         'invoice_id',
         'kuota',
         'amount',
+        'invoice_discount',
     ];
 
     /**

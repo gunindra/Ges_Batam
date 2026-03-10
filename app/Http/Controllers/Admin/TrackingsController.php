@@ -7,6 +7,7 @@ use App\Jobs\AddTrackingJob;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Storage;
 use Illuminate\Support\Facades\Auth;
@@ -215,6 +216,11 @@ class TrackingsController extends Controller
             $chunkSize = 200;
             $chunks = array_chunk($noResiList, $chunkSize);
             $totalChunks = count($chunks);
+            $totalItems = count($noResiList);
+
+            // Mark job as pending so frontend can distinguish "not started" from "expired cache"
+            Cache::put("job_status_{$jobId}", 'pending', now()->addMinutes(30));
+            Cache::put("job_progress_{$jobId}", 0, now()->addMinutes(30));
 
             foreach ($chunks as $index => $chunk) {
                 AddTrackingJob::dispatch([
@@ -222,7 +228,7 @@ class TrackingsController extends Controller
                     'noDeliveryOrder' => $request->input('noDeliveryOrder'),
                     'status' => $request->input('status'),
                     'keterangan' => $request->input('keterangan'),
-                ], $companyId, $jobId, $index, $totalChunks);
+                ], $companyId, $jobId, $index, $totalChunks, $totalItems);
             }
             DB::commit();
             return response()->json(['success' => 'Data is being processed', 'jobId' => $jobId]);

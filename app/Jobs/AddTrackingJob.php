@@ -22,14 +22,16 @@ class AddTrackingJob implements ShouldQueue
     protected $totalChunks;
     protected $currentChunkIndex;
     protected $companyId;
+    protected $totalItems;
 
-    public function __construct($data, $companyId, $jobId, $currentChunkIndex, $totalChunks)
+    public function __construct($data, $companyId, $jobId, $currentChunkIndex, $totalChunks, $totalItems = 0)
     {
         $this->data = $data;
         $this->companyId = $companyId;
         $this->jobId = $jobId;
         $this->totalChunks = $totalChunks;
         $this->currentChunkIndex = $currentChunkIndex;
+        $this->totalItems = $totalItems;
     }
 
     public function handle()
@@ -63,24 +65,31 @@ class AddTrackingJob implements ShouldQueue
             }
 
             if (!empty($insertData)) {
-                Tracking::insert($insertData);
+                DB::table('tbl_tracking')->insertOrIgnore($insertData);
             }
 
             DB::commit();
 
-            $totalProcessed = ($this->currentChunkIndex * count($this->data['noResi'])) + $processedCount;
-            $progress = min(round(($totalProcessed / max($this->totalChunks, 1)) * 100), 100);
-
-            Cache::put("job_progress_{$this->jobId}", $progress, now()->addMinutes(5));
+            // Progress = percentage of chunks completed (chunk-based, not item-based)
+            $progress = min(round((($this->currentChunkIndex + 1) / max($this->totalChunks, 1)) * 100), 100);
+            Cache::put("job_progress_{$this->jobId}", $progress, now()->addMinutes(30));
 
             if (!empty($failedItems)) {
-                Cache::put("job_failed_{$this->jobId}", $failedItems, now()->addMinutes(10));
+                $existing = Cache::get("job_failed_{$this->jobId}", []);
+                Cache::put("job_failed_{$this->jobId}", array_merge($existing, $failedItems), now()->addMinutes(30));
+            }
+
+            // Mark overall job as completed when last chunk finishes
+            if ($this->currentChunkIndex + 1 >= $this->totalChunks) {
+                Cache::put("job_status_{$this->jobId}", 'completed', now()->addMinutes(30));
             }
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Gagal memproses data: " . $e->getMessage());
-            Cache::put("job_failed_{$this->jobId}", ['error' => $e->getMessage()], now()->addMinutes(10));
+            $existing = Cache::get("job_failed_{$this->jobId}", []);
+            Cache::put("job_failed_{$this->jobId}", array_merge($existing, [['error' => $e->getMessage()]]), now()->addMinutes(30));
+            Cache::put("job_status_{$this->jobId}", 'failed', now()->addMinutes(30));
             throw new \Exception("Proses batch gagal, semua data dibatalkan.");
         }
     }

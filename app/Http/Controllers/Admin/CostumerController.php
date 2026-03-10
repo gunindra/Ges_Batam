@@ -399,10 +399,12 @@ class CostumerController extends Controller
     {
         $progress = Cache::get("job_progress_{$jobId}", 0);
         $failed = Cache::get("job_failed_{$jobId}", null);
+        $status = Cache::get("job_status_{$jobId}", null);
 
         return response()->json([
             'progress' => $progress,
             'failed' => $failed,
+            'status' => $status,
         ]);
     }
 
