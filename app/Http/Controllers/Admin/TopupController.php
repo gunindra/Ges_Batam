@@ -293,8 +293,12 @@ class TopupController extends Controller
 
         try {
 
-            $topup = HistoryTopup::findOrFail($request->topup_id);
-            $customer = Customer::findOrFail($topup->customer_id);
+            $topup = HistoryTopup::where('id', $request->topup_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+            $customer = Customer::where('id', $topup->customer_id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
             if ($topup->status === 'canceled') {
                 return response()->json([
@@ -302,6 +306,15 @@ class TopupController extends Controller
                     'message' => 'Top-up ini sudah dibatalkan sebelumnya.'
                 ], 400);
             }
+
+            if ($customer->sisa_poin < $topup->remaining_points) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Saldo poin tidak mencukupi untuk membatalkan top-up ini.'
+                ], 400);
+            }
+
             $topup->status = 'canceled';
             $topup->save();
 

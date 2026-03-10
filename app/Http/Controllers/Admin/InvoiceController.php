@@ -67,19 +67,15 @@ class InvoiceController extends Controller
         DB::beginTransaction();
         try {
             $yearMonth = date('ym');
-            $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
-            $data = DB::select($q);
+            $lastInvoice = DB::table('tbl_invoice')
+                ->where('no_invoice', 'like', $yearMonth . '%')
+                ->lockForUpdate()
+                ->orderByDesc('no_invoice')
+                ->value('no_invoice');
 
-            if (!empty($data)) {
-                $lastMarking = $data[0]->no_invoice;
-                $lastYearMonth = substr($lastMarking, 0, 4);
-
-                if ($lastYearMonth === $yearMonth) {
-                    $lastNumber = (int) substr($lastMarking, 4);
-                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-                } else {
-                    $newNumber = '00001';
-                }
+            if ($lastInvoice !== null) {
+                $lastNumber = (int) substr($lastInvoice, 4);
+                $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
             } else {
                 $newNumber = '00001';
             }
@@ -140,19 +136,15 @@ class InvoiceController extends Controller
 
         try {
             $yearMonth = date('ym');
-            $q = "SELECT no_invoice FROM tbl_invoice ORDER BY no_invoice DESC LIMIT 1;";
-            $data = DB::select($q);
+            $lastInvoice = DB::table('tbl_invoice')
+                ->where('no_invoice', 'like', $yearMonth . '%')
+                ->lockForUpdate()
+                ->orderByDesc('no_invoice')
+                ->value('no_invoice');
 
-            if (!empty($data)) {
-                $lastMarking = $data[0]->no_invoice;
-                $lastYearMonth = substr($lastMarking, 0, 4);
-
-                if ($lastYearMonth === $yearMonth) {
-                    $lastNumber = (int) substr($lastMarking, 4);
-                    $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-                } else {
-                    $newNumber = '00001';
-                }
+            if ($lastInvoice !== null) {
+                $lastNumber = (int) substr($lastInvoice, 4);
+                $newNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
             } else {
                 $newNumber = '00001';
             }

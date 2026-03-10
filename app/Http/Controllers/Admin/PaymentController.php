@@ -452,6 +452,7 @@ class PaymentController extends Controller
                 ->where('balance', '>', 0)
                 ->where('status', 'active')
                 ->orderBy('created_at', 'asc')
+                ->lockForUpdate()
                 ->get();
 
             $totalUsedPoin = 0;
@@ -1495,6 +1496,24 @@ class PaymentController extends Controller
             ]);
             $totalJurnalAmount = $request->totalAmmount;
 
+            // Reverse old topup deductions before deleting and re-applying
+            $oldUsagePoints = UsagePoints::where('payment_id', $payment->id)->get();
+            $oldTotalUsedPoin = 0;
+            $oldCustomerId = null;
+            foreach ($oldUsagePoints as $oldUsage) {
+                DB::table('tbl_history_topup')
+                    ->where('id', $oldUsage->history_topup_id)
+                    ->increment('balance', $oldUsage->used_points);
+                $oldTotalUsedPoin += $oldUsage->used_points;
+                $oldCustomerId = $oldUsage->customer_id;
+            }
+            if ($oldTotalUsedPoin > 0 && $oldCustomerId) {
+                DB::table('tbl_pembeli')
+                    ->where('id', $oldCustomerId)
+                    ->increment('sisa_poin', $oldTotalUsedPoin);
+            }
+            UsagePoints::where('payment_id', $payment->id)->delete();
+
             DB::table('tbl_payment_items')->where('payment_id', $payment->id)->delete();
             JurnalItem::where('jurnal_id', $jurnal->id)->delete();
             if ($request->amountPoin) {
@@ -1504,7 +1523,9 @@ class PaymentController extends Controller
                 $topups = DB::table('tbl_history_topup')
                     ->where('customer_id', $invoice->pembeli_id)
                     ->where('balance', '>', 0)
+                    ->where('status', 'active')
                     ->orderBy('created_at', 'asc')
+                    ->lockForUpdate()
                     ->get();
 
                 $totalUsedPoin = 0;
@@ -1528,6 +1549,7 @@ class PaymentController extends Controller
                             'history_topup_id' => $topup->id,
                             'used_points' => $remainingPoin,
                             'price_per_kg' => $topup->price_per_kg,
+                            'payment_id' => $payment->id,
                             'usage_date' => now(),
                         ]);
 
@@ -1544,6 +1566,7 @@ class PaymentController extends Controller
                             'history_topup_id' => $topup->id,
                             'used_points' => $topup->balance,
                             'price_per_kg' => $topup->price_per_kg,
+                            'payment_id' => $payment->id,
                             'usage_date' => now(),
                         ]);
 
@@ -1765,6 +1788,7 @@ class PaymentController extends Controller
 
         try {
             $paymentInvoices = PaymentInvoice::where('payment_id', $id)->get();
+            $customerId = null;
 
             foreach ($paymentInvoices as $paymentInvoice) {
                 $invoice = Invoice::find($paymentInvoice->invoice_id);
@@ -1788,27 +1812,27 @@ class PaymentController extends Controller
 
                     $customerId = $invoice->pembeli_id;
                 }
+            }
 
-                if ($paymentInvoice->kuota > 0) {
-                    if (isset($customerId)) {
-                        $usagePoints = UsagePoints::where('payment_id', $paymentId)->get();
+            // Restore topup balances and sisa_poin once, outside the invoice loop
+            $usagePoints = UsagePoints::where('payment_id', $paymentId)->get();
+            $totalRestoredPoin = 0;
 
-                        foreach ($usagePoints as $usagePoint) {
-                            // Kembalikan balance di tbl_history_topup berdasarkan usagePoint yang digunakan
-                            DB::table('tbl_history_topup')
-                                ->where('id', $usagePoint->history_topup_id)
-                                ->increment('balance', $usagePoint->used_points);
+            foreach ($usagePoints as $usagePoint) {
+                DB::table('tbl_history_topup')
+                    ->where('id', $usagePoint->history_topup_id)
+                    ->increment('balance', $usagePoint->used_points);
 
-                            Log::info("Balance dikembalikan: " . $usagePoint->used_points . " untuk history_topup_id: " . $usagePoint->history_topup_id);
-                        }
+                $totalRestoredPoin += $usagePoint->used_points;
+                Log::info("Balance dikembalikan: " . $usagePoint->used_points . " untuk history_topup_id: " . $usagePoint->history_topup_id);
+            }
 
-                        UsagePoints::where('payment_id', $paymentId)->delete();
-                    }
+            UsagePoints::where('payment_id', $paymentId)->delete();
 
-                    DB::table('tbl_pembeli')
-                        ->where('id', $customerId)
-                        ->increment('sisa_poin', $paymentInvoice->kuota);
-                }
+            if ($totalRestoredPoin > 0 && $customerId) {
+                DB::table('tbl_pembeli')
+                    ->where('id', $customerId)
+                    ->increment('sisa_poin', $totalRestoredPoin);
             }
 
             PaymentInvoice::where('payment_id', $id)->delete();
