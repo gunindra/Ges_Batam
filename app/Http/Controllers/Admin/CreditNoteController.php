@@ -146,11 +146,26 @@ class CreditNoteController extends Controller
         ]);
 
 
-        $noResis = collect($request->items)->pluck('noresi')->unique();
+        $noResis = collect($request->items)
+            ->pluck('noresi')
+            ->map(function ($resi) {
+                return strtoupper(trim($resi));
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
         $existingResis = DB::table('tbl_tracking')
-            ->whereIn('no_resi', $noResis)
+            ->whereIn(
+                DB::raw('TRIM(UPPER(no_resi))'),
+                $noResis->toArray()
+            )
             ->pluck('no_resi')
-            ->all();
+            ->map(function ($resi) {
+                return strtoupper(trim($resi));
+            })
+            ->unique()
+            ->values();
 
         $notFoundResis = $noResis->diff($existingResis);
 
