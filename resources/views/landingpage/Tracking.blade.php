@@ -5,6 +5,8 @@
     @stack('styles')
     @section('title', 'PT. GES | Tracking')
 
+    <meta name="tracking-token" content="{{ csrf_token() }}">
+
     <body class="navigasi-page">
         <div class="Judul">
             <div class="container" style="padding-top: 100px; padding-bottom: 100px">
@@ -75,6 +77,7 @@
         </div>
 
         @section('script')
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script>
                 $(document).ready(function() {
                     $('#tags').inputTags({
@@ -109,49 +112,96 @@
                     });
 
                     $('#btnLacak').click(function() {
+
                         let noresiTags = $('#tags').val().trim();
+
                         if (noresiTags === '') {
                             $('#err-tags').removeClass('d-none');
                             return;
-                        } else {
-                            $('#err-tags').addClass('d-none');
                         }
+
+                        $('#err-tags').addClass('d-none');
+
+                        let trackingToken = $('meta[name="tracking-token"]').attr('content');
+
+                        $('#btnLacak').prop('disabled', true).text('Loading...');
+
                         $.ajax({
                             type: "GET",
+
                             url: "{{ route('lacakResi') }}",
+
+                            headers: {
+                                'X-Tracking-Token': trackingToken
+                            },
+
                             data: {
                                 noresiTags: noresiTags
                             },
+
+                            dataType: "json",
+
                             success: function(response) {
+
                                 let tableBody = $('#trackingTableBody');
+
                                 tableBody.empty();
 
                                 if (response.length > 0) {
+
                                     response.forEach(function(item) {
-                                        let row = `<tr>
-                        <td>${item.no_resi}</td>
-                        <td>${item.no_do}</td>
-                        <td>${item.marking}</td>
-                        <td>${item.status}</td>
-                        <td>${item.keterangan}</td>
-                        `;
+
+                                        let row = `
+                                            <tr>
+                                                <td>${item.no_resi ?? '-'}</td>
+                                                <td>${item.no_do ?? '-'}</td>
+                                                <td>${item.marking ?? '-'}</td>
+                                                <td>${item.status ?? '-'}</td>
+                                                <td>${item.keterangan ?? '-'}</td>
+                                            </tr>
+                                        `;
+
                                         tableBody.append(row);
+
                                     });
 
-                                    $('#trackingTableContainer').removeClass('d-none');
                                 } else {
-                                    $('#trackingTableContainer').removeClass(
-                                        'd-none'); // Pastikan container tetap muncul meski data kosong
 
-                                    let emptyRow =
-                                        `<tr><td colspan="5" class="text-center">Data tidak ditemukan</td></tr>`;
-                                    tableBody.append(emptyRow);
+                                    tableBody.html(`
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                Data tidak ditemukan
+                                            </td>
+                                        </tr>
+                                    `);
+
                                 }
+
+                                $('#trackingTableContainer').removeClass('d-none');
+
                             },
-                            error: function() {
-                                showMessage("error", "Terjadi kesalahan, coba lagi nanti.");
+
+                            error: function(xhr) {
+
+                                console.error('Status:', xhr.status);
+                                console.error('Response:', xhr.responseText);
+
+                                alert(
+                                    xhr.status === 401
+                                        ? 'Akses tracking tidak diizinkan.'
+                                        : 'Terjadi kesalahan saat mengambil data tracking.'
+                                );
+
+                            },
+
+                            complete: function() {
+
+                                $('#btnLacak').prop('disabled', false).text('Lacak');
+
                             }
+
                         });
+
                     });
 
                 });

@@ -71,7 +71,10 @@ Route::get('/About', [AboutsController::class, 'index'])->name('About');
 Route::get('/Why', [WhysController::class, 'index'])->name('Why');
 Route::get('/Services', [ServicesController::class, 'index'])->name('Services');
 Route::get('/Tracking', [TrackingController::class, 'index'])->name('Tracking');
-Route::get('/Tracking/lacakResi', [TrackingController::class, 'lacakResi'])->name('lacakResi');
+Route::get('/Tracking/lacakResi',
+    [TrackingController::class, 'lacakResi']
+)->middleware('verify.tracking.token')
+  ->name('lacakResi');
 
 // Root URL diarahkan ke Landing Page
 Route::get('/', function () {
